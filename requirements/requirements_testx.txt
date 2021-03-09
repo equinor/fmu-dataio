@@ -1,0 +1,6 @@
+# Extras for tests, formatting and linting
+black>=20.8b0
+flake8
+pytest-cov
+pytest-mock
+rstcheck
