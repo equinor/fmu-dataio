@@ -22,7 +22,7 @@ Exporting surfaces in RMS Python (tentative)
     CLIPFOLDER = "Volume/example"
     CLIPNAMES = ["STOOIP", "HCPV"]
 
-    # set new default format for surfaces to irap_binary since HDF is builtin default
+    # set my default format for surfaces to irap_binary since HDF is builtin default
     ExportData.surface_fformat = "irap_binary"   # class attribute
 
 
