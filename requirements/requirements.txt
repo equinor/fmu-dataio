@@ -1,2 +1,1 @@
-xtgeo>2.13
-ruamel-yaml
+xtgeo>=2.14

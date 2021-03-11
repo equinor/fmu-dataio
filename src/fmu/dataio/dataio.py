@@ -19,6 +19,9 @@ logger.setLevel(logging.CRITICAL)
 class ExportData:
     """Class for exporting data with rich metadata in FMU."""
 
+    surface_fformat = "hdf"
+    grid_fformat = "hdf"
+
     def __init__(
         self,
         project: Optional[Any] = None,
@@ -58,7 +61,7 @@ class ExportData:
         logger.info("Ran __init__")
 
     def to_file(
-        self, obj: Any, fformat: Optional[str] = "hdf", content: Optional[str] = None
+        self, obj: Any, fformat: Optional[str] = None, content: Optional[str] = None
     ):
         """Export a XTGeo data object to FMU file with rich metadata.
 
@@ -75,9 +78,9 @@ class ExportData:
 
         Args:
             obj: XTGeo instance or a pandas instance (more to be supported).
-            fformat: File format, default is hdf for all datatypes. For other datatypes
-                supported formats will be per class (e.g. irap_binary for
-                RegularSurface and roff for GridProperty)
+            fformat: File format, default is defined at class level and will be
+                'hdf' for all types. It is recommended to keep this unused and set
+                format at class level (cf. examples in documentation).
 
         """
         if content is not None:

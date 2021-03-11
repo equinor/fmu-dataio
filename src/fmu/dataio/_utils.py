@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 def construct_filename(
-    name, hashsign, descr=None, t1=None, t2=None, fmu=1, loc="surface"
+    name, hashsign, descr=None, t1=None, t2=None, fmu=1, loc="surface", filedest="."
 ):
     """Construct filename stem according to datatype (class) and fmu style.
 
@@ -38,7 +38,7 @@ def construct_filename(
     """
 
     stem = "unset"
-    dest = "."
+    dest = str(filedest)
 
     if fmu == 1:
         stem = name.lower()
@@ -47,16 +47,18 @@ def construct_filename(
             stem += "--" + descr.lower()
 
         if t1 and not t2:
-            stem += "--" + t1.lower()
+            stem += "--" + str(t1).lower()
 
         elif t1 and t2:
-            stem += "--" + t2.lower + "_" + t1.lower()
+            stem += "--" + str(t2).lower() + "_" + str(t1).lower()
 
         if loc == "surface":
-            dest = "../../share/results/maps"
+            dest += "/../../share/results/maps"
 
         elif loc == "grid":
-            dest = "../../share/results/grid"
+            dest += "/../../share/results/grids"
+        else:
+            dest += "/../../share/results/unknown"
 
         stem += "--" + hashsign
 

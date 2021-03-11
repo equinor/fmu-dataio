@@ -1,4 +1,4 @@
-# example YAML for surfaces
+# example YAML file for surfaces
 
 # data:
 # The data block describes the actual data (e.g. surface) independent of FMU.

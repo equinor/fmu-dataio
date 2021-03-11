@@ -6,7 +6,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   apiref/modules
+   examples
 
 Indices and tables
 ==================
