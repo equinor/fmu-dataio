@@ -6,21 +6,16 @@
 # schema json file.
 
 data:
+  $schema: https://some_adress_tosurface_schema
   class: regularsurface
-  $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.6.0/fmu_surface.json
+  content: depth # / time / volume / porosity / ...
   format: irap_binary
-  content: depth
-  stratigraphic: true
-  source: rms/structural_model
-  relative_path: share/results/maps/volantis_gp_base--depth.gri
   checksum: a6ee5096e69ff220aaac25fe86de8206
-  description:
-    - Depth surfaces extracted from the structural model
-    - Made in a FMU work flow
-  spec:
+  spec: # class dependent, optional?
     units: metric
     ncol: 281
     nrow: 441
+    nlay: 333
     xori: 461499.9997558594
     yori: 5926500.0
     xinc: 25.0
@@ -28,6 +23,7 @@ data:
     yflip: 1
     rotation: 30.000000834826057
     undef: 1.0e+33
+  limits:
     xmin: 456012.5003497944
     xmax: 467540.52762886323
     ymin: 5926499.999511719
@@ -36,8 +32,12 @@ data:
     zmax: 2302.683
     time1: null
     time2: null
-
-  # the visuals are optional and taken from e.g. fmuconfig
+  stratigraphic: true
+  source: rms/structural_model
+  description:
+    - Depth surfaces extracted from the structural model
+    - Made in a FMU work flow
+  # the visuals are optional and taken from e.g. fmuconfig filtered on content
   visuals:
     name: Top Volantis
     color: black
@@ -48,6 +48,11 @@ data:
       - 1627
       - 1958
 
+# access:
+# Level ruling access right
+
+access:
+  asset: Drogon
   ssdl:
     access_level: internal
     rep_include: true
@@ -79,10 +84,15 @@ masterdata:
       smda_identifier: DROGON_2020
       smda_uuid: some-unique-id-to-be-provided-by-smda
 
-# fmu
+  osdu: null
+
+  petrel_studio: null
+
+# fmu:
 # The FMU block is required when data are produced in a FMU work flow,
-# and it consists of to major sub-parts:
+# and it consists of 3 major sub-parts:
 # - template .. model setup
+# - revision .. detail belonging to revision
 # - ensemble .. ensemble setup and metadata
 
 fmu:
@@ -94,6 +104,17 @@ fmu:
       - detailed description
       - optional
 
+  realization:
+    num: 33
+    relative_path: share/results/maps/volantis_gp_base--depth.gri
+    description:
+      - other detailed description
+      - optional
+
   ensemble:
     $schema: some_schema.json
     status: null
+    iter: 0
+    description:
+      - yet other detailed description
+      - optional
