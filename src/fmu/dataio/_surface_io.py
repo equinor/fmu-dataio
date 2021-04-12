@@ -1,5 +1,7 @@
 """Private module for Surface IO in DataIO class."""
 import logging
+import json
+
 from collections import OrderedDict
 
 from . import _utils
@@ -10,7 +12,7 @@ VALID_FORMATS = {"hdf": ".hdf", "irap_binary": ".gri"}
 logger = logging.getLogger(__name__)
 
 
-def surface_to_file(dataio, regsurf, fformat, fileroot="."):
+def surface_to_file(dataio, regsurf, fformat):
     """Saving a RegularSurface to file with rich metadata for SUMO and similar.
 
     Args:
@@ -18,65 +20,102 @@ def surface_to_file(dataio, regsurf, fformat, fileroot="."):
         regsurf: XTGeo RegularSurface instance.
         fformat: File format spesifier string.
     """
-    attr = regsurf._roxmeta.folder
+    logger.setLevel(level=dataio._verbosity)
+
+    attr = dataio._description
 
     fname, fpath = _utils.construct_filename(
         regsurf.name,
-        regsurf.generate_hash(),
         descr=attr,
         loc="surface",
-        filedest=fileroot,
+        outroot=dataio.export_root,
     )
 
     if fformat not in VALID_FORMATS.keys():
         raise ValueError(f"The fformat {fformat} is not supported.")
 
     ext = VALID_FORMATS.get(fformat, ".hdf")
-    outfile = _utils.verify_path(dataio._createfolder, fpath, fname, ext)
+    outfile, metafile = _utils.verify_path(dataio._createfolder, fpath, fname, ext)
 
-    regsurf.metadata.freeform = process_surf_data_metadata(dataio, regsurf)
+    regsurf.metadata.freeform = process_metadata(dataio, regsurf)
 
-    logging.info("Exported file is %s", outfile)
+    logger.info("Exported file is %s", outfile)
     if "irap" in dataio.surface_fformat:
-        regsurf.to_file(outfile, fformat="irap_binary", metadata=True)
+        regsurf.to_file(outfile, fformat="irap_binary")
+        _utils.export_metadata_file(metafile, regsurf.metadata.freeform)
     else:
         regsurf.to_hdf(outfile)
 
 
-def process_surf_data_metadata(dataio, regsurf):
-    """Process data metadata for actual regsurfect."""
+def process_metadata(dataio, regsurf):
+    """Process metadata for actual regularsurface instance."""
 
     dataio._meta_data = OrderedDict()
 
     # shortform
     meta = dataio._meta_data
-    meta["class"] = "regularsurface"
-    meta["content"] = dataio._content
+
+    for dollar in dataio._meta_dollars.keys():
+        meta[dollar] = dataio._meta_dollars[dollar]
+
+    meta["class"] = "surface"
+
+    meta["access"] = dataio._meta_access
+    meta["masterdata"] = dataio._meta_masterdata
+
+    logger.debug("Metadata so far:\n%s", json.dumps(meta, indent=2))
+
+    process_data_metadata(dataio, regsurf, meta)
+
+    logger.debug("Metadata after data:\n%s", json.dumps(meta, indent=2))
+    return meta
+
+
+def process_data_metadata(dataio, regsurf, meta):
+    """Process the actual 'data' block in metadata.
+
+    This part has some complex elements...
+    """
+    meta["data"] = OrderedDict()
+
+    # true name (will backup to model name if not present)
+    meta["data"]["name"] = dataio._meta_aux[regsurf.name].get("name", regsurf.name)
+
+    # check stratigraphic bool
+    meta["data"]["stratigraphic"] = dataio._meta_aux[regsurf.name].get(
+        "stratigraphic", False
+    )
+
+    meta["data"]["layout"] = "regular"
 
     # define spec record
-    meta["spec"] = regsurf.metadata.required
-    meta["spec"]["undef"] = 1.0e30  # irap binary undef
-    meta["spec"]["xmin"] = float(regsurf.xmin)
-    meta["spec"]["xmax"] = float(regsurf.xmax)
-    meta["spec"]["ymin"] = float(regsurf.ymin)
-    meta["spec"]["ymax"] = float(regsurf.ymax)
+    meta["data"]["spec"] = regsurf.metadata.required
+    meta["data"]["spec"]["undef"] = 1.0e30  # irap binary undef
 
-    name = regsurf.name
-    strat = dataio._config["stratigraphy"]
-    if name in strat:
-        is_stratigraphic = strat[name].get("stratigrapic", False)
-        meta["stratigraphic"] = is_stratigraphic
+    meta["data"]["bbox"] = OrderedDict()
+    meta["data"]["bbox"]["xmin"] = float(regsurf.xmin)
+    meta["data"]["bbox"]["xmax"] = float(regsurf.xmax)
+    meta["data"]["bbox"]["ymin"] = float(regsurf.ymin)
+    meta["data"]["bbox"]["ymax"] = float(regsurf.ymax)
+    meta["data"]["bbox"]["zmin"] = float(regsurf.values.min())
+    meta["data"]["bbox"]["zmax"] = float(regsurf.values.max())
 
-    # get visual settings
-    _get_visuals(dataio, regsurf)
+    # name = regsurf.name
+    # strat = dataio._config["stratigraphy"]
+    # if name in strat:
+    #     is_stratigraphic = strat[name].get("stratigrapic", False)
+    #     meta["stratigraphic"] = is_stratigraphic
 
-    # collect all metadate
-    master = OrderedDict()
-    master["data"] = dataio._meta_data
-    master["template"] = dataio._meta_master
-    master["fmu"] = dataio._meta_fmu
+    # # get visual settings
+    # _get_visuals(dataio, regsurf)
 
-    return master
+    # # collect all metadate
+    # master = OrderedDict()
+    # master["data"] = dataio._meta_data
+    # master["template"] = dataio._meta_master
+    # master["fmu"] = dataio._meta_fmu
+
+    # return master
 
 
 def _get_visuals(dataio, regsurf):
