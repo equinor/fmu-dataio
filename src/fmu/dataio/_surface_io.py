@@ -12,8 +12,14 @@ VALID_FORMATS = {"hdf": ".hdf", "irap_binary": ".gri"}
 logger = logging.getLogger(__name__)
 
 
-def surface_to_file(dataio, regsurf, fformat):
+def surface_to_file(dataio, regsurf):
     """Saving a RegularSurface to file with rich metadata for SUMO and similar.
+
+    Many metadata items are object independent an are treated directly in the
+    dataio module. Here additional metadata (dependent on this datatype) are
+    collected/processed and subsequently both 'independent' and object dependent
+    a final metadata file (or part of file if HDF) are collected and
+    written to disk here.
 
     Args:
         dataio: DataIO instance.
@@ -29,142 +35,162 @@ def surface_to_file(dataio, regsurf, fformat):
         descr=attr,
         loc="surface",
         outroot=dataio.export_root,
+        verbosity=dataio._verbosity,
     )
 
-    if fformat not in VALID_FORMATS.keys():
-        raise ValueError(f"The fformat {fformat} is not supported.")
+    fmt = dataio.surface_fformat
 
-    ext = VALID_FORMATS.get(fformat, ".hdf")
-    outfile, metafile = _utils.verify_path(dataio._createfolder, fpath, fname, ext)
+    if fmt not in VALID_FORMATS.keys():
+        raise ValueError(f"The file format {fmt} is not supported.")
 
-    regsurf.metadata.freeform = process_metadata(dataio, regsurf)
+    ext = VALID_FORMATS.get(fmt, ".hdf")
+    outfile, metafile, relpath, abspath = _utils.verify_path(
+        dataio._createfolder, fpath, fname, ext, verbosity=dataio._verbosity
+    )
 
     logger.info("Exported file is %s", outfile)
     if "irap" in dataio.surface_fformat:
         regsurf.to_file(outfile, fformat="irap_binary")
-        _utils.export_metadata_file(metafile, regsurf.metadata.freeform)
+        md5sum = _utils.md5sum(outfile)
+
+        # populate the file block which needs to done here
+        dataio._meta_file["md5sum"] = md5sum
+        dataio._meta_file["relative_path"] = relpath
+        dataio._meta_file["absolute_path"] = abspath
+        allmeta = process_all_metadata(dataio, regsurf)
+        _utils.export_metadata_file(metafile, allmeta)
     else:
         regsurf.to_hdf(outfile)
 
 
-def process_metadata(dataio, regsurf):
-    """Process metadata for actual regularsurface instance."""
+def process_all_metadata(dataio, regsurf):
+    """Process all metadata for actual regularsurface instance."""
 
-    dataio._meta_data = OrderedDict()
-
-    # shortform
-    meta = dataio._meta_data
+    allmeta = OrderedDict()
 
     for dollar in dataio._meta_dollars.keys():
-        meta[dollar] = dataio._meta_dollars[dollar]
+        allmeta[dollar] = dataio._meta_dollars[dollar]
 
-    meta["class"] = "surface"
+    allmeta["class"] = "surface"
+    allmeta["file"] = dataio._meta_file
+    allmeta["access"] = dataio._meta_access
+    allmeta["masterdata"] = dataio._meta_masterdata
+    allmeta["tracklog"] = dataio._meta_tracklog
+    allmeta["fmu"] = dataio._meta_fmu
 
-    meta["access"] = dataio._meta_access
-    meta["masterdata"] = dataio._meta_masterdata
+    process_data_metadata(dataio, regsurf)
+    allmeta["data"] = dataio._meta_data
 
-    logger.debug("Metadata so far:\n%s", json.dumps(meta, indent=2))
+    process_display_metadata(dataio, regsurf)
+    allmeta["display"] = dataio._meta_display
 
-    process_data_metadata(dataio, regsurf, meta)
-
-    logger.debug("Metadata after data:\n%s", json.dumps(meta, indent=2))
-    return meta
+    logger.debug("Metadata after data:\n%s", json.dumps(allmeta, indent=2, default=str))
+    return allmeta
 
 
-def process_data_metadata(dataio, regsurf, meta):
+def process_data_metadata(dataio, regsurf):
     """Process the actual 'data' block in metadata.
 
     This part has some complex elements...
     """
-    meta["data"] = OrderedDict()
+    logger.info("Process data metadata for instance...")
+
+    meta = dataio._meta_data  # shortform
+    strat = dataio._meta_strat  # shortform
 
     # true name (will backup to model name if not present)
-    meta["data"]["name"] = dataio._meta_aux[regsurf.name].get("name", regsurf.name)
+    meta["name"] = strat[regsurf.name].get("name", regsurf.name)
+    meta["layout"] = "regular"
 
     # check stratigraphic bool
-    meta["data"]["stratigraphic"] = dataio._meta_aux[regsurf.name].get(
-        "stratigraphic", False
-    )
+    meta["stratigraphic"] = strat[regsurf.name].get("stratigraphic", False)
+    meta["alias"] = strat[regsurf.name].get("alias", None)
+    meta["stratigraphic_alias"] = strat[regsurf.name].get("stratigraphic_alias", None)
 
-    meta["data"]["layout"] = "regular"
+    meta["content"] = dataio._content  # depth, time, fluid_contacts, ...
+
+    # some content have additional fields, e.g. fluid_contact
+    if meta["content"] == "fluid_contact" and "fluid_contact" in strat[regsurf.name]:
+        meta["fluidcontact"] = {
+            "contact": strat["regsurf.name"].get("fluid_contact", None)
+        }
+
+    # properties, unit, domain, ...
+    meta["properties"] = dataio._details.get("properties", None)
+    meta["unit"] = dataio._details.get("unit", None)
+    meta["vertical_domain"] = dataio._details.get("vertical_domain", None)
+    meta["depth_reference"] = dataio._details.get("depth_reference", "msl")
+    meta["is_prediction"] = dataio._details.get("is_prediction", True)
+    meta["is_observation"] = dataio._details.get("is_observation", False)
+    meta["time1"] = dataio._details.get("time1", None)
+    meta["time2"] = dataio._details.get("time2", False)
 
     # define spec record
-    meta["data"]["spec"] = regsurf.metadata.required
-    meta["data"]["spec"]["undef"] = 1.0e30  # irap binary undef
+    meta["spec"] = regsurf.metadata.required
+    meta["spec"]["undef"] = 1.0e30  # irap binary undef
 
-    meta["data"]["bbox"] = OrderedDict()
-    meta["data"]["bbox"]["xmin"] = float(regsurf.xmin)
-    meta["data"]["bbox"]["xmax"] = float(regsurf.xmax)
-    meta["data"]["bbox"]["ymin"] = float(regsurf.ymin)
-    meta["data"]["bbox"]["ymax"] = float(regsurf.ymax)
-    meta["data"]["bbox"]["zmin"] = float(regsurf.values.min())
-    meta["data"]["bbox"]["zmax"] = float(regsurf.values.max())
-
-    # name = regsurf.name
-    # strat = dataio._config["stratigraphy"]
-    # if name in strat:
-    #     is_stratigraphic = strat[name].get("stratigrapic", False)
-    #     meta["stratigraphic"] = is_stratigraphic
-
-    # # get visual settings
-    # _get_visuals(dataio, regsurf)
-
-    # # collect all metadate
-    # master = OrderedDict()
-    # master["data"] = dataio._meta_data
-    # master["template"] = dataio._meta_master
-    # master["fmu"] = dataio._meta_fmu
-
-    # return master
+    meta["bbox"] = OrderedDict()
+    meta["bbox"]["xmin"] = regsurf.xmin
+    meta["bbox"]["xmax"] = regsurf.xmax
+    meta["bbox"]["ymin"] = regsurf.ymin
+    meta["bbox"]["ymax"] = regsurf.ymax
+    meta["bbox"]["zmin"] = regsurf.values.min()
+    meta["bbox"]["zmax"] = regsurf.values.max()
+    logger.info("Process data metadata for instance... done")
 
 
-def _get_visuals(dataio, regsurf):
-    """Get the visuals from data type combined with visuals config.
+def process_display_metadata(dataio, regsurf) -> None:
+    """Get metadata from for display (fully optional).
 
-    This assumes that "visuals" is a first level entry in the config file.
+    These metadata are extracted from the config auxiliary section. They
+    are derived by key name and possibly using default. e.g.:
 
-    Example of visuals::
+    TopVolantis
+        display:
+            # DEFAULT is fallback content for missing data and shall be complete
+            DEFAULT:
+                name: Top Valysar
+                line: {show: true, color: black}
+                points: {show: true, color: red}
+                contours: {show: true, color: black}
+                fill: {show: true, colors: gist_earth}
+            depth:
+                points: {show: true, color: blue}
+                contours: {show: true, color: black}
+                fill: {show: true, colors: gist_earth, range: [1300, 1900]}
+            time:
+                contours: {show: true, color: magenta}
 
-    visuals:
-
-        TopVolantis:
-            name: Top Volantis # display name
-            regularsurface:
-                depth:
-                    contours: true
-                    colortable: gist_rainbow
-                    fill: true
-                    range: [1627, 1958]
-                    color: black
-                time:
-                    contours: true
-                    color: #332ed4
-                    colortable: gist_rainbow
-                    fill: true
-                    range: [1600, 1900]
-
-            polygons:
-                color: black
-                fill: true
-
-    If visuals is not found, Undef (null) is applied
-
+    TODO:
+    Possible extension: overriding settings from the actual function call?
     """
-    meta = dataio._meta_data  # shortform
-    vis = None
-    if dataio._config and "visuals" in dataio._config.keys():
-        vis = dataio._config["visuals"]
-    else:
-        meta["visuals"] = None
-        return
+    logger.info("Process display metadata for instance with name %s ...", regsurf.name)
+    merged = None
+    if regsurf._name in dataio._meta_strat.keys():
 
-    meta["visuals"] = OrderedDict()
-    if regsurf.name in vis.keys() and meta["class"] in vis[regsurf.name]:
-        attrs = vis[regsurf.name]["regularsurface"]
-        if dataio._content in attrs:
-            meta["visuals"] = attrs[dataio._content]
+        display = dataio._meta_strat[regsurf.name].get("display", None)
 
-        meta["visuals"]["name"] = vis[regsurf.name].get("name", regsurf.name)
+        if not display:
+            return None
 
-    else:
-        meta["visuals"] = None
+        default = display.get("DEFAULT", None)
+        # next try the content
+        content = display.get(dataio._content, None)
+
+        if default is None and content is None:
+            return None
+
+        # merge the keys
+        merged = OrderedDict()
+
+        if default:
+            for key, values in default.items():
+                if content and key in content.keys():
+                    merged[key] = content[key]
+                else:
+                    merged[key] = values
+        elif not default and content:
+            merged = content
+
+    dataio._meta_display = merged
+    logger.info("Process display metadata for instance with name %s done", regsurf.name)

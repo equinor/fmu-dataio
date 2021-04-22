@@ -4,7 +4,7 @@ $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.7.0/fmu_result
 $version: "0.7.0" # including for REP and others to build logic on.
 $source: fmu # always included, and always this value if FMU made it. For quick identification for external consumers.
 
-events:
+tracklog: # changed from events
   - datetime: 2020-10-28T14:28:02
     user:
       user_id: peesv
@@ -15,6 +15,10 @@ events:
     event: updated
 
 class: surface
+file: # peesv: Re-entered the file block, as the file is a specific concept that we currently put logic on
+  absolute: c:/absolute/share/results/maps/volantis_gp_base--depth.gri
+  relative: share/results/maps/volantis_gp_base--depth.gri
+  checksum_md5: kjhsdfvsdlfk23knerknvk23 #
 
 # fmu:
 # The fmu block in data objects have more sub-elements compared to ensemble objects.
@@ -30,6 +34,7 @@ fmu:
   workflow: # not sure, but a reference to the workflow / job that made this. Making it expandable.
     reference: rms/structural_model
 
+  # generes av scriptet som aggraderer... under aggradation??
   element: # currently not used on Drogon, but extensively used on e.g. JS
     id: 15ce3b84-766f-4c93-9050-b154861f9100 # Identifier for elements for use in aggregation
 
@@ -72,11 +77,12 @@ fmu:
 
   ensemble:
     case:
-      name: MyCaseName
+      name: MyCaseName # config ERT, user
       id: 44cd1b84-766f-4c93-9050-g921861d9420 # to identify ensembles belonging to the same case, see issue
     user:
       user_id: jriv
     iteration: "0" # expanded to "iteration" and changed to string
+    # hashlib...
     id: 15ce3b84-766f-4c93-9050-b154861f9100 # fmu.ensemble.id - ensemble ID for this ensemble
     restart_from: 15ce3b84-766f-4c93-9050-b154861f9100 # ensemble ID for another ensemble
     description:
@@ -98,18 +104,33 @@ data:
     - top_somename
 
   # content is flexible more than standardized for now.
-  content: fluid_contact # e.g. depth, fluid_contact, fault, recovery_factor, volume_thickness, etc.
+  content: fluid_contact # e.g. depth, fluid_contact, seismic, fault, recovery_factor(oil), volume_thickness, etc.
+
+  # if content is fluid_content...:
+  fluid_contact: # Requested by REP
+    contact: owc # / fwl / goc / fgl /etc - trying to avoid "type"
+
+  # ? if content is seismic! JRIV!
+  seismic: # This is 4D-specific stuff... Find more generic terms?
+    attribute: realai
+    calculation: mean
+    zrange: 12.0 # this is ambiguous...
+    filter_size: 1.0 # this is ambiguous...
+    scaling_factor: 1.0 # this is ambiguous...
+
+  # ? optional hvis ikke grid_model kilde
+  grid_model: # Making this an object to allow for expanding in the future
+    name: MyGrid # important for data identification, also important for other data types
+
   properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
     - name: PropertyName
       attribute: mean # going for the 4D use case, but could perhaps work for others also
       is_discrete: false # to be used for discrete values in surfaces.
   format: irap_binary
   layout: regular # / cornerpoint / structured / etc
-  unit: m
+  unit: fraction
   vertical_domain: depth # / time / null
   depth_reference: msl # / seabed / etc # mandatory when vertical_domain is depth?
-  grid_model: # Making this an object to allow for expanding in the future
-    name: MyGrid # important for data identification, also important for other data types
   spec: # class/layout dependent, optional? Can spec be expanded to work for all data types?
     ncol: 281
     nrow: 441
@@ -128,25 +149,17 @@ data:
     ymax: 5939492.128326312
     zmin: 1244.039
     zmax: 2302.683
-  time1:
+  time1: # optional
     value: 2020-10-28T14:28:02
     label: "some label"
-  time2:
+  time2: # optional
     value: 2020-10-28T14:28:02
     label: "some label"
   is_prediction: true # A mechanism for separating pure QC output from actual predictions
   is_observation: true # Used for 4D data currently
-  fluid_contact: # Requested by REP
-    contact: owc # / fwl / goc / fgl /etc - trying to avoid "type"
   description:
     - Depth surfaces extracted from the structural model
     - Made in a FMU work flow
-
-  seismic: # This is 4D-specific stuff... Find more generic terms?
-    attribute: mean # same as content...? (Not now, but should it be?)
-    zrange: 12.0 # this is ambiguous...
-    filter_size: 1.0 # this is ambiguous...
-    scaling_factor: 1.0 # this is ambiguous...
 
 ## the visuals are optional and taken from e.g. fmuconfig filtered on content
 #visuals:
@@ -181,8 +194,8 @@ access:
   asset:
     name: Drogon # adding level to make room for unique ID in the future
   ssdl:
-    access_level: internal
-    rep_include: true
+    access_level: internal # ?? hvordan bestemme?
+    rep_include: true # ?? styres globalt eller av objectet?
 
 # masterdata:
 # These are static data read from external config YAML file (fmuconfig or similar).
@@ -190,6 +203,8 @@ access:
 # fields in data block (for example names alias, color-tables)
 
 masterdata:
+  unit_system: metric # here?
+
   smda:
     country:
       - identifier: Norway
