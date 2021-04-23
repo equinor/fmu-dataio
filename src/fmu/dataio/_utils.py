@@ -1,12 +1,9 @@
 """Module for private utilities/helpers for DataIO class."""
 import logging
 from pathlib import Path
-from collections import OrderedDict
-from io import StringIO
 import hashlib
-import json
 
-import yaml
+from . import _oyaml as oyaml
 
 logger = logging.getLogger(__name__)
 
@@ -103,36 +100,18 @@ def verify_path(createfolder, filedest, filename, ext, verbosity="WARNING"):
     return path, metapath, relpath, abspath
 
 
-def export_metadata_file(yfile, metadata) -> None:
-    """Export genericly the complementary metadata file."""
-
-    def _oyamlify(metadatadict) -> str:
-        """Process yaml output for ordered dictionaries."""
-        #
-        def represent_dictionary_order(self, dict_data):
-            return self.represent_mapping("tag:yaml.org,2002:map", dict_data.items())
-
-        def setup_yaml():
-            yaml.add_representer(OrderedDict, represent_dictionary_order)
-
-        setup_yaml()
-
-        stream = StringIO()
-        metadatadict = json.loads(json.dumps(metadatadict, default=str))
-        yaml.safe_dump(metadatadict, stream)
-        yamlblock = stream.getvalue()
-        stream.close()
-
-        return yamlblock
-
+def export_metadata_file(yfile, metadata, verbosity="WARNING") -> None:
+    """Export genericly and ordered to the complementary metadata file."""
+    logger.setLevel(level=verbosity)
     if metadata:
-        yamlblock = _oyamlify(metadata)
+        yamlblock = oyaml.safe_dump(metadata)
         with open(yfile, "w") as stream:
             stream.write(yamlblock)
     else:
         raise RuntimeError(
             "Export of metadata was requested, but no metadata are present."
         )
+    logger.info("Yaml file on: %s", yfile)
 
 
 def md5sum(fname):

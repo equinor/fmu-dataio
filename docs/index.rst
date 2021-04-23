@@ -7,6 +7,7 @@ Contents:
    :maxdepth: 2
 
    examples
+   apiref/modules
 
 Indices and tables
 ==================

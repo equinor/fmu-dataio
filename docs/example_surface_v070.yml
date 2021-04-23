@@ -31,8 +31,9 @@ fmu:
       - detailed description
       - optional
 
-  workflow: # not sure, but a reference to the workflow / job that made this. Making it expandable.
-    reference: rms/structural_model
+  # KAN TENKE MEG Å DROPPE DENNE, DA DEN MÅ INJISERES ETTERPÅ
+  #  workflow: # not sure, but a reference to the workflow / job that made this. Making it expandable.
+  #    reference: rms/structural_model
 
   # generes av scriptet som aggraderer... under aggradation??
   element: # currently not used on Drogon, but extensively used on e.g. JS
@@ -70,10 +71,6 @@ fmu:
   #    - 399
   #  parameters:    # if aggregation is based on one or more parameter, put the parameter(s) here
   #    - FAULT_SEAL_SCALING: 0.1
-
-  file: # peesv: Re-entered the file block, as the file is a specific concept that we currently put logic on
-    relative_path: share/results/maps/volantis_gp_base--depth.gri
-    checksum_md5: kjhsdfvsdlfk23knerknvk23 # checksum of the file, not the data. Important when operating on the files.
 
   ensemble:
     case:
@@ -122,6 +119,7 @@ data:
   grid_model: # Making this an object to allow for expanding in the future
     name: MyGrid # important for data identification, also important for other data types
 
+  # SLITER MED DENNE!
   properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
     - name: PropertyName
       attribute: mean # going for the 4D use case, but could perhaps work for others also
@@ -129,8 +127,8 @@ data:
   format: irap_binary
   layout: regular # / cornerpoint / structured / etc
   unit: fraction
-  vertical_domain: depth # / time / null
-  depth_reference: msl # / seabed / etc # mandatory when vertical_domain is depth?
+  vertical_domain: depth # / time / null JRIV: or verical_domain: {"depth": "msl"}
+  # depth_reference: msl # / seabed / etc # mandatory when vertical_domain is depth?
   spec: # class/layout dependent, optional? Can spec be expanded to work for all data types?
     ncol: 281
     nrow: 441
@@ -155,6 +153,7 @@ data:
   time2: # optional
     value: 2020-10-28T14:28:02
     label: "some label"
+
   is_prediction: true # A mechanism for separating pure QC output from actual predictions
   is_observation: true # Used for 4D data currently
   description:
