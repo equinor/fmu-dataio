@@ -1,0 +1,120 @@
+# example YAML file for surfaces
+
+# data:
+# The data block describes the actual data (e.g. surface) independent of FMU.
+# Some fields are required, while some are optional. This is defined in the
+# schema json file.
+
+data:
+  $schema: https://some_adress_tosurface_schema
+  class: regularsurface
+  content: depth # / time / volume / porosity / ...
+  format: irap_binary
+  checksum: a6ee5096e69ff220aaac25fe86de8206
+  spec: # class dependent, optional?
+    units: metric
+    ncol: 281
+    nrow: 441
+    nlay: 333
+    xori: 461499.9997558594
+    yori: 5926500.0
+    xinc: 25.0
+    yinc: 25.0
+    yflip: 1
+    rotation: 30.000000834826057
+    undef: 1.0e+33
+  limits:
+    xmin: 456012.5003497944
+    xmax: 467540.52762886323
+    ymin: 5926499.999511719
+    ymax: 5939492.128326312
+    zmin: 1244.039
+    zmax: 2302.683
+    time1: null
+    time2: null
+  stratigraphic: true
+  source: rms/structural_model
+  description:
+    - Depth surfaces extracted from the structural model
+    - Made in a FMU work flow
+  # the visuals are optional and taken from e.g. fmuconfig filtered on content
+  visuals:
+    name: Top Volantis
+    color: black
+    colortable: gist_rainbow
+    contours: true
+    fill: true
+    range:
+      - 1627
+      - 1958
+
+# access:
+# Level ruling access right
+
+access:
+  asset: Drogon
+  ssdl:
+    access_level: internal
+    rep_include: true
+
+# masterdata:
+# These are static data read from external config YAML file (fmuconfig or similar).
+# Some of these static data are used while processing to populate some non-required
+# fields in data block (for example names alias, color-tables)
+
+masterdata:
+  smda:
+    $schema: some_schema.json
+    description:
+      - Tutorials & stuff
+      - Some other comment
+    country:
+      - identifier: Norway
+        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+      - short_identifier: null
+        uuid: null
+    field:
+      - identifier: DROGON
+        uuid: 00000000-0000-0000-0000-000000000000
+    coordinates:
+      system_identifier: ST_WGS84_UTM37N_P32637
+      system_uuid: ad214d85-dac7-19da-e053-c918a4889309
+    stratigraphy:
+      smda_identifier: DROGON_2020
+      smda_uuid: some-unique-id-to-be-provided-by-smda
+
+  osdu: null
+
+  petrel_studio: null
+
+# fmu:
+# The FMU block is required when data are produced in a FMU work flow,
+# and it consists of 3 major sub-parts:
+# - template .. model setup
+# - revision .. detail belonging to revision
+# - ensemble .. ensemble setup and metadata
+
+fmu:
+  template:
+    name: Drogon
+    structure: ff
+    revision: 21.0.0.dev
+    description:
+      - detailed description
+      - optional
+
+  realization:
+    num: 33
+    relative_path: share/results/maps/volantis_gp_base--depth.gri
+    description:
+      - other detailed description
+      - optional
+
+  ensemble:
+    $schema: some_schema.json
+    status: null
+    iter: 0
+    description:
+      - yet other detailed description
+      - optional
