@@ -52,7 +52,8 @@ def construct_filename(
     logger.setLevel(level=verbosity)
 
     stem = "unset"
-    dest = Path(".")
+
+    outroot = Path(outroot)
 
     if fmu == 1:
         stem = name.lower()
@@ -67,11 +68,11 @@ def construct_filename(
             stem += "--" + str(t2).lower() + "_" + str(t1).lower()
 
         if loc == "surface":
-            dest = dest / outroot / "maps"
+            dest = outroot / "maps"
         elif loc == "grid":
-            dest = dest / outroot / "grids"
+            dest = outroot / "grids"
         else:
-            dest = dest / outroot / "unknown"
+            dest = outroot / "unknown"
 
     return stem, dest
 

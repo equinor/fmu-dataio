@@ -57,13 +57,13 @@ def surface_to_file(dataio, regsurf):
         dataio._meta_file["md5sum"] = md5sum
         dataio._meta_file["relative_path"] = relpath
         dataio._meta_file["absolute_path"] = abspath
-        allmeta = process_all_metadata(dataio, regsurf)
+        allmeta = _process_all_metadata(dataio, regsurf)
         _utils.export_metadata_file(metafile, allmeta)
     else:
         regsurf.to_hdf(outfile)
 
 
-def process_all_metadata(dataio, regsurf):
+def _process_all_metadata(dataio, regsurf):
     """Process all metadata for actual regularsurface instance."""
 
     allmeta = OrderedDict()
@@ -78,17 +78,17 @@ def process_all_metadata(dataio, regsurf):
     allmeta["tracklog"] = dataio._meta_tracklog
     allmeta["fmu"] = dataio._meta_fmu
 
-    process_data_metadata(dataio, regsurf)
+    _process_data_metadata(dataio, regsurf)
     allmeta["data"] = dataio._meta_data
 
-    process_display_metadata(dataio, regsurf)
-    allmeta["display"] = dataio._meta_display
+    # process_display_metadata(dataio, regsurf)
+    # allmeta["display"] = dataio._meta_display
 
     logger.debug("Metadata after data:\n%s", json.dumps(allmeta, indent=2, default=str))
     return allmeta
 
 
-def process_data_metadata(dataio, regsurf):
+def _process_data_metadata(dataio, regsurf):
     """Process the actual 'data' block in metadata.
 
     This part has some complex elements...
@@ -98,14 +98,18 @@ def process_data_metadata(dataio, regsurf):
     meta = dataio._meta_data  # shortform
     strat = dataio._meta_strat  # shortform
 
-    # true name (will backup to model name if not present)
-    meta["name"] = strat[regsurf.name].get("name", regsurf.name)
     meta["layout"] = "regular"
 
-    # check stratigraphic bool
-    meta["stratigraphic"] = strat[regsurf.name].get("stratigraphic", False)
-    meta["alias"] = strat[regsurf.name].get("alias", None)
-    meta["stratigraphic_alias"] = strat[regsurf.name].get("stratigraphic_alias", None)
+    # true name (will backup to model name if not present)
+    if strat is None:
+        meta["name"] = regsurf.name
+    else:
+        meta["name"] = strat[regsurf.name].get("name", regsurf.name)
+        meta["stratigraphic"] = strat[regsurf.name].get("stratigraphic", False)
+        meta["alias"] = strat[regsurf.name].get("alias", None)
+        meta["stratigraphic_alias"] = strat[regsurf.name].get(
+            "stratigraphic_alias", None
+        )
 
     meta["content"] = dataio._content  # depth, time, fluid_contacts, ...
 
@@ -139,58 +143,58 @@ def process_data_metadata(dataio, regsurf):
     logger.info("Process data metadata for instance... done")
 
 
-def process_display_metadata(dataio, regsurf) -> None:
-    """Get metadata from for display (fully optional).
+# def process_display_metadata(dataio, regsurf) -> None:
+#     """Get metadata from for display (fully optional).
 
-    These metadata are extracted from the config auxiliary section. They
-    are derived by key name and possibly using default. e.g.:
+#     These metadata are extracted from the config auxiliary section. They
+#     are derived by key name and possibly using default. e.g.:
 
-    TopVolantis
-        display:
-            # DEFAULT is fallback content for missing data and shall be complete
-            DEFAULT:
-                name: Top Valysar
-                line: {show: true, color: black}
-                points: {show: true, color: red}
-                contours: {show: true, color: black}
-                fill: {show: true, colors: gist_earth}
-            depth:
-                points: {show: true, color: blue}
-                contours: {show: true, color: black}
-                fill: {show: true, colors: gist_earth, range: [1300, 1900]}
-            time:
-                contours: {show: true, color: magenta}
+#     TopVolantis
+#         display:
+#             # DEFAULT is fallback content for missing data and shall be complete
+#             DEFAULT:
+#                 name: Top Valysar
+#                 line: {show: true, color: black}
+#                 points: {show: true, color: red}
+#                 contours: {show: true, color: black}
+#                 fill: {show: true, colors: gist_earth}
+#             depth:
+#                 points: {show: true, color: blue}
+#                 contours: {show: true, color: black}
+#                 fill: {show: true, colors: gist_earth, range: [1300, 1900]}
+#             time:
+#                 contours: {show: true, color: magenta}
 
-    TODO:
-    Possible extension: overriding settings from the actual function call?
-    """
-    logger.info("Process display metadata for instance with name %s ...", regsurf.name)
-    merged = None
-    if regsurf._name in dataio._meta_strat.keys():
+#     TODO:
+#     Possible extension: overriding settings from the actual function call?
+#     """
+#     logger.info("Process display metadata for instance with name %s ", regsurf.name)
+#     merged = None
+#     if regsurf._name in dataio._meta_strat.keys():
 
-        display = dataio._meta_strat[regsurf.name].get("display", None)
+#         display = dataio._meta_strat[regsurf.name].get("display", None)
 
-        if not display:
-            return None
+#         if not display:
+#             return None
 
-        default = display.get("DEFAULT", None)
-        # next try the content
-        content = display.get(dataio._content, None)
+#         default = display.get("DEFAULT", None)
+#         # next try the content
+#         content = display.get(dataio._content, None)
 
-        if default is None and content is None:
-            return None
+#         if default is None and content is None:
+#             return None
 
-        # merge the keys
-        merged = OrderedDict()
+#         # merge the keys
+#         merged = OrderedDict()
 
-        if default:
-            for key, values in default.items():
-                if content and key in content.keys():
-                    merged[key] = content[key]
-                else:
-                    merged[key] = values
-        elif not default and content:
-            merged = content
+#         if default:
+#             for key, values in default.items():
+#                 if content and key in content.keys():
+#                     merged[key] = content[key]
+#                 else:
+#                     merged[key] = values
+#         elif not default and content:
+#             merged = content
 
-    dataio._meta_display = merged
-    logger.info("Process display metadata for instance with name %s done", regsurf.name)
+#     dataio._meta_display = merged
+#     logger.info("Process display metadata for instance %s done", regsurf.name)

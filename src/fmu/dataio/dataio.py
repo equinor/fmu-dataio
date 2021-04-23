@@ -13,7 +13,8 @@ $source      |
 class        - determined by datatype, inferred
 
 -- nested --
-events       - data events, source = ?
+file
+tracklog       - data events, source = ?
 data         - about the data (see class). inferred from data + fmuconfig
 display      - Deduced mostly from fmuconfig
 fmu          - Deduced from fmuconfig (and ERT run?)
@@ -21,11 +22,10 @@ access       - Static, infer from fmuconfig
 masterdata   - Static, infer from fmuconfig
 
 """
-from typing import Union, Optional, Any
+from typing import Optional, Any
 import pathlib
 import re
 import hashlib
-from copy import deepcopy
 from collections import OrderedDict
 from time import sleep
 
@@ -46,6 +46,8 @@ from . import _utils
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
 
+DOLLARS = {"$schema": "unset", "$version": "0.0.0", "$source": "undefined"}
+
 
 class ExportData:
     """Class for exporting data with rich metadata in FMU."""
@@ -58,19 +60,19 @@ class ExportData:
         self,
         project: Optional[Any] = None,
         config: Optional[dict] = None,
-        schema: Optional[str] = "0.6.0",
+        schema: Optional[str] = "0.0.0",
         fmustandard: Optional[str] = "1",
         createfolder: Optional[bool] = True,
         verbosity: Optional[str] = "CRITICAL",
         description: Optional[str] = None,
         content: Optional[str] = "depth",
-        details: Optional[dict] = None,
+        details: Optional[dict] = {},
     ) -> None:
         """Instantate ExportData object."""
         logger.info("Create instance of ExportData")
 
         self._project = project
-        self._config = deepcopy(config)
+        self._config = config
         self._schema = schema
         self._fmustandard = fmustandard
         self._createfolder = createfolder
@@ -120,12 +122,13 @@ class ExportData:
         """
 
         if self._config is None:
-            raise ValueError("Config is missing")
+            logger.warning("Config is missing, just use defaults")
+            for dollar, data in DOLLARS.items():
+                self._meta_dollars[dollar] = data
+            return
 
-        dollars = ("$schema", "$version", "$source")
-
-        for dollar in dollars:
-            if not dollar in self._config.keys():
+        for dollar in DOLLARS.keys():
+            if dollar not in self._config.keys():
                 raise ValueError(f"No {dollar} present in config.")
 
             self._meta_dollars[dollar] = self._config[dollar]
@@ -141,7 +144,7 @@ class ExportData:
 
         """
         if self._config is None or "masterdata" not in self._config.keys():
-            warnings.warn("No masterdata section present", UserWarning)
+            logger.warning("No masterdata section present")
             self._meta_masterdata = None
             return
 
@@ -151,7 +154,7 @@ class ExportData:
     def _get_meta_access(self) -> None:
         """Get metadata from access section in config."""
         if self._config is None or "access" not in self._config.keys():
-            warnings.warn("No access section present", UserWarning)
+            logger.warning("No access section present")
             self._meta_access = None
             return
 
@@ -180,8 +183,8 @@ class ExportData:
             ensemble:
         """
         self._meta_fmu["model"] = self._process_meta_fmu_model()
-        self._meta_fmu["workflow"] = self._details.get("workflow", None)
-        self._meta_fmu["element"] = {"id": "15ce3b84-766f-4c93-9050-b154861f9100"}
+        # self._meta_fmu["workflow"] = self._details.get("workflow", None)
+        self._meta_fmu["element"] = {"id": "-999"}
 
         r_meta, e_meta = self._process_meta_fmu_realization_ensemble()
         self._meta_fmu["realization"] = r_meta
@@ -197,7 +200,10 @@ class ExportData:
         """Processing the fmu:model section."""
 
         # most of the info from global variables section model:
-        meta = deepcopy(self._config["model"])
+        if self._config is None:
+            return
+
+        meta = self._config["model"]
 
         # the model section in "template" contains root etc. For revision an
         # AUTO name may be used to avoid rapid and error-prone naming
@@ -325,11 +331,12 @@ class ExportData:
     def _get_meta_strat(self) -> None:
         """Get metadata from the stratigraphy block in config; used indirectly."""
 
-        if self._config is None or not "stratigraphy" in self._config:
-            raise ValueError("Config is missing or stratigraphy block is missing")
-
-        self._meta_strat = self._config["stratigraphy"]
-        logger.info("Metadata for stratigraphy is parsed!")
+        if self._config is None or "stratigraphy" not in self._config:
+            logger.warning("Not possible to parse the stratigraphy section")
+            self._meta_strat = None
+        else:
+            self._meta_strat = self._config["stratigraphy"]
+            logger.info("Metadata for stratigraphy is parsed!")
 
     # ==================================================================================
     # Store ensemble data.

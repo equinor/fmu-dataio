@@ -1,7 +1,8 @@
 """Top-level package for fmu-dataio"""
+# noqa
 
 import logging
-from fmu.dataio.dataio import ExportData
+from fmu.dataio.dataio import ExportData  # noqa  # type: ignore
 
 # try:
 #     import roxar  # noqa
@@ -27,12 +28,12 @@ except ImportError:
     __version__ = "0.0.0"
 
 
-logging_level = logging.CRITICAL
-logging_fmt = "%(asctime)s | %(name)s | %(levelname)s|> %(message)s"
+LOGGING_LEVEL = logging.CRITICAL
+LOGGING_FMT = "%(asctime)s | %(name)s | %(levelname)s|> %(message)s"
 try:
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging_level)
+    root_logger.setLevel(LOGGING_LEVEL)
     root_handler = root_logger.handlers[0]
-    root_handler.setFormatter(logging.Formatter(logging_fmt))
+    root_handler.setFormatter(logging.Formatter(LOGGING_FMT))
 except IndexError:
-    logging.basicConfig(level=logging_level, format=logging_fmt)
+    logging.basicConfig(level=LOGGING_LEVEL, format=LOGGING_FMT)
