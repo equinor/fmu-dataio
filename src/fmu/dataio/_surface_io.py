@@ -140,7 +140,7 @@ def _process_data_metadata(dataio, regsurf):
     meta["bbox"]["ymax"] = regsurf.ymax
     meta["bbox"]["zmin"] = regsurf.values.min()
     meta["bbox"]["zmax"] = regsurf.values.max()
-    logger.info("Process data metadata for instance... done")
+    logger.info("Process data metadata for instance... done!!")
 
 
 # def process_display_metadata(dataio, regsurf) -> None:
