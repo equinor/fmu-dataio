@@ -33,10 +33,9 @@ jobs:
         run: >
           pip install -r requirements/requirements_test.txt &&
           pytest --disable-warnings -x
-
-      - name: Build documentation
-        run: |
-          python setup.py build_sphinx
+      # - name: Build documentation
+      #   run: |
+      #     python setup.py build_sphinx
       # - name: Update GitHub pages
       #   if: github.repository_owner == 'equinor' && github.ref == 'refs/heads/master' && matrix.python-version == '3.6'
       #   run: |
