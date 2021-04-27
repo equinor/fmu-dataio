@@ -9,6 +9,14 @@ from scripts import setup_functions as sf
 
 CMDCLASS = {"clean": sf.CleanUp}
 
+try:
+    from sphinx.setup_command import BuildDoc
+
+    CMDCLASS.update({"build_sphinx": BuildDoc})
+except ImportError:
+    # sphinx not installed - do not provide build_sphinx cmd
+    pass
+
 REQUIREMENTS = sf.parse_requirements("requirements/requirements.txt")
 
 SETUP_REQUIREMENTS = sf.parse_requirements("requirements/requirements_setup.txt")

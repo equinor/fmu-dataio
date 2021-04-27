@@ -13,8 +13,8 @@ $source      |
 class        - determined by datatype, inferred
 
 -- nested --
-file
-tracklog       - data events, source = ?
+file         - file paths and checksums
+tracklog     - data events, source = ?
 data         - about the data (see class). inferred from data + fmuconfig
 display      - Deduced mostly from fmuconfig
 fmu          - Deduced from fmuconfig (and ERT run?)
@@ -22,7 +22,7 @@ access       - Static, infer from fmuconfig
 masterdata   - Static, infer from fmuconfig
 
 """
-from typing import Optional, Any
+from typing import Optional, Union, Any
 import pathlib
 import re
 import hashlib
@@ -37,10 +37,7 @@ import logging
 import json
 import yaml
 
-import xtgeo
-
-from . import _surface_io
-from . import _grid_io
+from ._export_item import _ExportItem
 from . import _utils
 
 logger = logging.getLogger(__name__)
@@ -55,37 +52,58 @@ class ExportData:
     surface_fformat = "hdf"
     grid_fformat = "hdf"
     export_root = "../../share/results"
+    createfolder = True
 
     def __init__(
         self,
-        project: Optional[Any] = None,
         config: Optional[dict] = None,
-        schema: Optional[str] = "0.0.0",
-        fmustandard: Optional[str] = "1",
-        createfolder: Optional[bool] = True,
-        verbosity: Optional[str] = "CRITICAL",
+        content: Optional[Union[str, dict]] = None,
+        unit: Optional[str] = None,
         description: Optional[str] = None,
-        content: Optional[str] = "depth",
-        details: Optional[dict] = {},
+        vertical_domain: Optional[dict] = {"depth": "msl"},
+        timedata: Optional[dict] = None,
+        is_prediction: Optional[bool] = True,
+        is_observation: Optional[bool] = False,
+        verbosity: Optional[str] = "CRITICAL",
     ) -> None:
-        """Instantate ExportData object."""
+        """Instantate ExportData object.
+
+        Args:
+            config: A configuation dictionary. In the standard case this is read
+                from FMU global vaiables (via fmuconfig). The dictionary must contain
+                some predefined main level keys.
+            content: Is a string or a dictionary with one key. Example is "depth" or
+                {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}
+            unit: Is the unit of the exported item(s), e.g. "m" or "fraction".
+            description: This is a short description which be be a part of file name
+            vertical_domain: This is dictionary with a key and a reference e.g.
+                {"depth": "msl"} which is default
+            timedata: If given, display timedata...
+            is_prediction: True (default) of model prediction data
+            is_observation: Default is False.
+            verbosity: Is logging/message level for this module. Input as
+                in standard python logging; e.g. "WARNING", "INFO".
+
+
+
+        """
         logger.info("Create instance of ExportData")
 
-        self._project = project
         self._config = config
-        self._schema = schema
-        self._fmustandard = fmustandard
-        self._createfolder = createfolder
         self._content = content
+        self._unit = (unit,)
         self._description = description
+        self._timedata = timedata
+        self._vertical_domain = vertical_domain
+        self._is_prediction = is_prediction
+        self._is_observation = is_observation
         self._verbosity = verbosity
-        self._details = details
 
         logger.setLevel(level=self._verbosity)
         self._pwd = pathlib.Path().absolute()
 
-        # define metadata for primary first order categories (except class which is set
-        # directly later)
+        # define chunks of metadata for primary first order categories
+        # (except class which is set directly later)
         self._meta_strat = None
         self._meta_dollars = OrderedDict()  # $version etc
         self._meta_file = OrderedDict()  # file (to be populated in export job)
@@ -96,17 +114,18 @@ class ExportData:
         self._meta_masterdata = OrderedDict()  # masterdata:
         self._meta_fmu = OrderedDict()  # fmu:
 
-        # aux metadata are used as componenents in some of the other meta keys
+        # strat metadata are used as componenents in some of the other meta keys
         self._get_meta_strat()
 
         # Get the metadata for some of the general stuff, fully or partly
-        # Note that data and display are found later (e.g. in _surface_io)
+        # Note that data are found later (e.g. in _surface_io)
         self._get_meta_dollars()
         self._get_meta_masterdata()
         self._get_meta_access()
         self._get_meta_tracklog()
         self._get_meta_fmu()
 
+        # in a FMU run, the ensemble metadata are stored in selected folder
         self._store_ensemble_metadata()
 
     # ==================================================================================
@@ -379,7 +398,7 @@ class ExportData:
             meta["masterdata"] = self._meta_masterdata
             meta["fmu"] = OrderedDict()
             meta["fmu"]["ensemble"] = self._meta_fmu["ensemble"].copy()
-            _utils.export_metadata_file(metafile, meta)
+            _utils.export_metadata_file(metafile, meta, verbosity=self._verbosity)
 
         else:
             # read the current metadatafile and compare ensemble id to issue a warning
@@ -405,7 +424,7 @@ class ExportData:
     # ==================================================================================
     # Public methods
 
-    def to_file(self, obj: Any):
+    def to_file(self, obj: Any, verbosity: Optional[str] = None):
         """Export a XTGeo data object to FMU file with rich metadata.
 
         Since xtgeo and Python  will know the datatype from the object, a general
@@ -414,6 +433,7 @@ class ExportData:
         This function will also collect the data spesific class metadata. For "classic"
         files, the metadata will be stored i a YAML file with same name stem as the
         data, but with a . in front and "yml" and suffix, e.g.::
+
             top_volantis--depth.gri
             .top_volantis--depth.yml
 
@@ -421,13 +441,11 @@ class ExportData:
 
         Args:
             obj: XTGeo instance or a pandas instance (more to be supported).
+            verbosity: Verbosity level of logging messages. If not spesified,
+                use the verbosity level from the instance.
 
         """
 
         logger.info("Export to file...")
-        if isinstance(obj, xtgeo.RegularSurface):
-            _surface_io.surface_to_file(self, obj)
-        elif isinstance(obj, xtgeo.Grid):
-            _grid_io.grid_to_file(self, obj, None)
-        elif isinstance(obj, xtgeo.GridProperty, None):
-            _grid_io.grid_to_file(self, obj, prop=True, fformat=None)
+        exporter = _ExportItem(self, obj, verbosity=verbosity)
+        exporter.save_to_file()
