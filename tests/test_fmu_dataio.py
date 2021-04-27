@@ -31,9 +31,8 @@ def test_instantate_class_no_keys():
     for attr, value in case.__dict__.items():
         print(attr, value)
 
-    assert case._config is None
-    assert case._schema == "0.0.0"
-    assert case._content == "depth"
+    assert case._verbosity == "CRITICAL"
+    assert case._is_prediction is True
 
 
 def test_get_meta_dollars():

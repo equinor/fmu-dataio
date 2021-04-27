@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 
 # noqa # pylint: skip-file
+import os
+import sys
+
+cwd = os.getcwd()
+project_root = os.path.dirname(cwd) + "/src/fmu"
+sys.path.insert(0, project_root)
+print(sys.path)
 
 from datetime import date
 import fmu.dataio
