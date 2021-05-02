@@ -5,9 +5,6 @@ import json
 import fmu.dataio
 
 CFG = OrderedDict()
-CFG["$schema"] = "some_scheme"
-CFG["$version"] = "0.7.0"
-CFG["$source"] = "fmu"
 CFG["model"] = {"name": "Test", "revision": "21.0.0"}
 CFG["masterdata"] = {
     "smda": {
@@ -36,13 +33,11 @@ def test_instantate_class_no_keys():
 
 
 def test_get_meta_dollars():
-    """The private routine that provides $<names>."""
+    """The private routine that provides special <names> (earlier with $ in front)."""
     case = fmu.dataio.ExportData()
     case._config = CFG
-    case._get_meta_dollars()
-    assert case._meta_dollars["$schema"] == CFG["$schema"]
-    assert case._meta_dollars["$version"] == CFG["$version"]
-    assert case._meta_dollars["$source"] == CFG["$source"]
+    assert "schema" in case._meta_dollars["schema"]
+    assert "fmu" in case._meta_dollars["source"]
 
 
 def test_get_meta_masterdata():

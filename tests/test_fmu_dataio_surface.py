@@ -57,7 +57,7 @@ def test_surface_io_larger_case(tmp_path):
         timedata=None,
         is_prediction=True,
         is_observation=False,
-        description="what Descr",
+        tagname="what Descr",
         verbosity="WARNING",
     )
     exp._pwd = tmp_path

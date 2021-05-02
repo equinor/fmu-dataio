@@ -5,7 +5,7 @@ import fmu.dataio._utils as _utils
 
 
 @pytest.mark.parametrize(
-    "name, descr, t1, t2, loc, expectedstem, expectedpath",
+    "name, tagname, t1, t2, loc, expectedstem, expectedpath",
     [
         (
             "some",
@@ -55,11 +55,11 @@ import fmu.dataio._utils as _utils
     ],
 )
 def test_utils_construct_file(
-    tmp_path, name, descr, t1, t2, loc, expectedstem, expectedpath
+    tmp_path, name, tagname, t1, t2, loc, expectedstem, expectedpath
 ):
     """Testing construct file."""
     stem, dest = _utils.construct_filename(
-        name, descr=descr, loc=loc, t1=t1, t2=t2, outroot=tmp_path
+        name, tagname=tagname, loc=loc, t1=t1, t2=t2, outroot=tmp_path
     )
 
     assert stem == expectedstem

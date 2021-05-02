@@ -1,19 +1,19 @@
 """Module for DataIO class.
 
 The metadata spec is presented in
-https://github.com/equinor/fmu-metadata/blob/dev/definitions/0.7.0/
+https://github.com/equinor/fmu-metadata/blob/dev/definitions/0.7.*/
 
-The processing is based on handling first level keys which are:
+The processing is based on handling first level keys which are
 
--- scalar --
-$schema      |
-$version     | "dollars", source fmuconfig
-$source      |
+-- scalar SPECIALS (previous marked with $ prefix) --
+schema      |      hard set in code
+version     |     "dollars", source fmuconfig
+source      |
 
 class        - determined by datatype, inferred
 
 -- nested --
-file         - file paths and checksums
+file         - file paths and checksums (change) still a discussion where to be
 tracklog     - data events, source = ?
 data         - about the data (see class). inferred from data + fmuconfig
 display      - Deduced mostly from fmuconfig
@@ -43,7 +43,23 @@ from . import _utils
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
 
-DOLLARS = {"$schema": "unset", "$version": "0.0.0", "$source": "undefined"}
+DOLLARS = OrderedDict(
+    [
+        (
+            "schema",
+            "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.7.0/"
+            "fmu_results.json",
+        ),
+        (
+            "version",
+            "0.7.1",
+        ),
+        (
+            "source",
+            "fmu",
+        ),
+    ]
+)
 
 
 class ExportData:
@@ -53,34 +69,49 @@ class ExportData:
     grid_fformat = "hdf"
     export_root = "../../share/results"
     createfolder = True
+    meta_format = "yaml"
 
     def __init__(
         self,
+        name: Optional[str] = None,
+        relation: Optional[dict] = None,
         config: Optional[dict] = None,
         content: Optional[Union[str, dict]] = None,
         unit: Optional[str] = None,
-        description: Optional[str] = None,
+        tagname: Optional[str] = None,
         vertical_domain: Optional[dict] = {"depth": "msl"},
-        timedata: Optional[dict] = None,
+        timedata: Optional[list] = None,
         is_prediction: Optional[bool] = True,
         is_observation: Optional[bool] = False,
+        workflow: Optional[str] = None,
         verbosity: Optional[str] = "CRITICAL",
     ) -> None:
         """Instantate ExportData object.
 
         Args:
+            name: The name of the object. If not set it is tried to be inferred from
+                the xtgeo object. The name is then checked towards the stratigraphy
+                list, and name is replaced with official stratigraphic name if found.
+                For example, if "TopValysar" is the model name and the actual name
+                is "Valysar Top Fm." that latter name will be used.
+            relation: The relation of the object with respect to itself and/or
+                other stratigraphic units. The default is None, but for e.g. seismic
+                attributes this can be important. The input is a dictionary with
+                the following fields: to-be...
             config: A configuation dictionary. In the standard case this is read
                 from FMU global vaiables (via fmuconfig). The dictionary must contain
                 some predefined main level keys.
             content: Is a string or a dictionary with one key. Example is "depth" or
                 {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}
             unit: Is the unit of the exported item(s), e.g. "m" or "fraction".
-            description: This is a short description which be be a part of file name
+            tagname: This is a short tag description which be be a part of file name
             vertical_domain: This is dictionary with a key and a reference e.g.
                 {"depth": "msl"} which is default
-            timedata: If given, display timedata...
+            timedata: If given, a list of lists with dates, .e.g.
+                [[20200101, "firsttime"], [20180101, "secondtime"]] or just [[20210101]]
             is_prediction: True (default) of model prediction data
             is_observation: Default is False.
+            workflow: Short tag desciption of workflow (as description)
             verbosity: Is logging/message level for this module. Input as
                 in standard python logging; e.g. "WARNING", "INFO".
 
@@ -89,14 +120,17 @@ class ExportData:
         """
         logger.info("Create instance of ExportData")
 
+        self._name = name
+        self._relation = relation
         self._config = config
         self._content = content
-        self._unit = (unit,)
-        self._description = description
+        self._unit = unit
+        self._tagname = tagname
         self._timedata = timedata
         self._vertical_domain = vertical_domain
         self._is_prediction = is_prediction
         self._is_observation = is_observation
+        self._workflow = workflow
         self._verbosity = verbosity
 
         logger.setLevel(level=self._verbosity)
@@ -105,7 +139,7 @@ class ExportData:
         # define chunks of metadata for primary first order categories
         # (except class which is set directly later)
         self._meta_strat = None
-        self._meta_dollars = OrderedDict()  # $version etc
+        self._meta_dollars = DOLLARS  # schema, version, source
         self._meta_file = OrderedDict()  # file (to be populated in export job)
         self._meta_tracklog = []  # tracklog:
         self._meta_data = OrderedDict()  # data:
@@ -118,8 +152,7 @@ class ExportData:
         self._get_meta_strat()
 
         # Get the metadata for some of the general stuff, fully or partly
-        # Note that data are found later (e.g. in _surface_io)
-        self._get_meta_dollars()
+        # Note that data are found later (e.g. in _export_item)
         self._get_meta_masterdata()
         self._get_meta_access()
         self._get_meta_tracklog()
@@ -131,29 +164,6 @@ class ExportData:
     # ==================================================================================
     # Private metadata methods which retrieve metadata that are not closely linked to
     # the actual instance to be exported.
-
-    def _get_meta_dollars(self) -> None:
-        """Get metadata from the few $<some> from the fmuconfig file.
-
-        $schema
-        $version
-        $source
-        """
-
-        if self._config is None:
-            logger.warning("Config is missing, just use defaults")
-            for dollar, data in DOLLARS.items():
-                self._meta_dollars[dollar] = data
-            return
-
-        for dollar in DOLLARS.keys():
-            if dollar not in self._config.keys():
-                raise ValueError(f"No {dollar} present in config.")
-
-            self._meta_dollars[dollar] = self._config[dollar]
-
-        logger.info("Metadata for $ variables are set!")
-        return
 
     def _get_meta_masterdata(self) -> None:
         """Get metadata from masterdata section in config.
@@ -398,7 +408,9 @@ class ExportData:
             meta["masterdata"] = self._meta_masterdata
             meta["fmu"] = OrderedDict()
             meta["fmu"]["ensemble"] = self._meta_fmu["ensemble"].copy()
-            _utils.export_metadata_file(metafile, meta, verbosity=self._verbosity)
+            _utils.export_metadata_file(
+                metafile, meta, verbosity=self._verbosity, savefmt=self.meta_format
+            )
 
         else:
             # read the current metadatafile and compare ensemble id to issue a warning

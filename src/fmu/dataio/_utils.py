@@ -2,6 +2,7 @@
 import logging
 from pathlib import Path
 import hashlib
+import json
 
 from . import _oyaml as oyaml
 
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def construct_filename(
     name,
-    descr=None,
+    tagname=None,
     t1=None,
     t2=None,
     fmu=1,
@@ -23,9 +24,9 @@ def construct_filename(
     fmu style 1:
 
         surface:
-            namehorizon--description
-            namehorizon--description--t1
-            namehorizon--description--t2_t1
+            namehorizon--tagname
+            namehorizon--tagname--t1
+            namehorizon--tagname--t2_t1
 
             e.g.
             topvolantis--ds_gf_extracted
@@ -35,9 +36,9 @@ def construct_filename(
             gridname--<hash>
 
         gridproperty
-            gridname--propdescription
-            gridname--description--t1
-            gridname--description--t2_t1
+            gridname--proptagname
+            gridname--tagname--t1
+            gridname--tagname--t2_t1
 
             e.g.
             geogrid_valysar--phit
@@ -55,8 +56,8 @@ def construct_filename(
     if fmu == 1:
         stem = name.lower()
 
-        if descr:
-            stem += "--" + descr.lower()
+        if tagname:
+            stem += "--" + tagname.lower()
 
         if t1 and not t2:
             stem += "--" + str(t1).lower()
@@ -100,13 +101,20 @@ def verify_path(createfolder, filedest, filename, ext, verbosity="WARNING"):
     return path, metapath, relpath, abspath
 
 
-def export_metadata_file(yfile, metadata, verbosity="WARNING") -> None:
+def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -> None:
     """Export genericly and ordered to the complementary metadata file."""
     logger.setLevel(level=verbosity)
     if metadata:
-        yamlblock = oyaml.safe_dump(metadata)
-        with open(yfile, "w") as stream:
-            stream.write(yamlblock)
+        if savefmt == "yaml":
+            yamlblock = oyaml.safe_dump(metadata)
+            with open(yfile, "w") as stream:
+                stream.write(yamlblock)
+        else:
+            jfile = str(yfile).replace(".yml", ".json")
+            jsonblock = json.dumps(metadata, default=str, indent=2)
+            with open(jfile, "w") as stream:
+                stream.write(jsonblock)
+
     else:
         raise RuntimeError(
             "Export of metadata was requested, but no metadata are present."
