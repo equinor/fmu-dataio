@@ -47,7 +47,7 @@ DOLLARS = OrderedDict(
     [
         (
             "schema",
-            "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.7.0/"
+            "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.7.1/"
             "fmu_results.json",
         ),
         (
