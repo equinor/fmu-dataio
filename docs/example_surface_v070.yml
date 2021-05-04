@@ -16,7 +16,7 @@ tracklog: # changed from events
 
 class: surface
 file: # peesv: Re-entered the file block, as the file is a specific concept that we currently put logic on
-  absolute: c:/absolute/share/results/maps/volantis_gp_base--depth.gri
+  absolute: c:/absolute/share/results/maps/volantis_gp_base--depth.gri # JRIV added
   relative: share/results/maps/volantis_gp_base--depth.gri
   checksum_md5: kjhsdfvsdlfk23knerknvk23 #
 
@@ -31,9 +31,9 @@ fmu:
       - detailed description
       - optional
 
-  # KAN TENKE MEG Å DROPPE DENNE, DA DEN MÅ INJISERES ETTERPÅ
-  #  workflow: # not sure, but a reference to the workflow / job that made this. Making it expandable.
-  #    reference: rms/structural_model
+  # KAN TENKE MEG Å DROPPE DENNE, DA DEN MÅ INJISERES ETTERPÅ,
+  workflow:
+    reference: post eclipse script
 
   # generes av scriptet som aggraderer... under aggradation??
   element: # currently not used on Drogon, but extensively used on e.g. JS
