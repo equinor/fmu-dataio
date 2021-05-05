@@ -387,7 +387,7 @@ class ExportData:
         runpath = self._meta_fmu["ensemble"]["case"]["runpath"]
         iterfolder = self._meta_fmu["ensemble"]["iterfolder"]
 
-        share_ensroot = pathlib.Path(runpath) / "share" / "metadata" / iterfolder
+        share_ensroot = pathlib.Path(runpath) / iterfolder / "share" / "metadata"
 
         try:
             share_ensroot.mkdir(parents=True, exist_ok=False)

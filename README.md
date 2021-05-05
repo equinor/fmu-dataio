@@ -10,6 +10,10 @@ A configuration input is required and will within Equinor be read from the
 so-called global_variables.yml produced by fmu-config. Details on syntax
 will be given in the documentation.
 
+As default, output with metadata will be stored in `../../share/results` for each
+realization, while ensemble metadata when ran with ERT will be stored in
+`/scratch/<field>/<user>/<case>/iter-<n>/share/metadata`
+
 ## Usage
 
 ### Export a surface
@@ -43,6 +47,8 @@ if __name__ == "__main__":
     export_some_surface()
 
 ```
+
+
 
 ### Export a table
 
@@ -81,4 +87,11 @@ Install a spesific version (e.g. 0.1.1) directly from github through
 
 ```
 pip install git+ssh://git@github.com/equinor/fmu-dataio@0.1.1
+```
+
+Local development and testing:
+
+```
+pip install -e .[tests,docs]
+pytest
 ```
