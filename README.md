@@ -12,7 +12,7 @@ will be given in the documentation.
 
 As default, output with metadata will be stored in `../../share/results` for each
 realization, while ensemble metadata when ran with ERT will be stored in
-`/scratch/<field>/<user>/<case>/iter-<n>/share/metadata`
+`/scratch/<field>/<user>/<case>/share/metadata`
 
 ## Usage
 
@@ -80,6 +80,26 @@ if __name__ == "__main__":
     export_some_table()
 
 ```
+
+### Initialise an case
+
+This is typically done via a hook workflow in ERT. This will make it possible to
+register a case for the Sumo uploader.
+
+
+```
+from fmu.config import utilities as ut
+from fmu.dataio import ExportData
+
+CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
+
+
+def initilize():
+
+    exp = ExportData(config=CFG, flag=1)
+
+    exp.case_metadata_to_file(rootfolder=<CASEDIR>)
+
 
 ## Installation
 

@@ -4,22 +4,6 @@
 import logging
 from fmu.dataio.dataio import ExportData  # noqa  # type: ignore
 
-# try:
-#     import roxar  # noqa
-
-#     ROXAR = True
-# except ImportError:
-#     ROXAR = False
-
-# if not ROXAR:
-
-#     from .rms import volumetrics  # noqa
-
-#     from .sensitivities import DesignMatrix  # noqa
-#     from .sensitivities import summarize_design  # noqa
-#     from .sensitivities import calc_tornadoinput  # noqa
-#     from .sensitivities import excel2dict_design  # noqa
-
 try:
     from .version import version
 
@@ -29,11 +13,13 @@ except ImportError:
 
 
 LOGGING_LEVEL = logging.CRITICAL
-LOGGING_FMT = "%(asctime)s | %(name)s | %(levelname)s|> %(message)s"
+
+LFMT = "%(levelname)8s (%(relativeCreated)6.0fms) %(name)37s [%(funcName)42s()] "
+LFMT += "%(lineno)4d >>   %(message)s"
 try:
     root_logger = logging.getLogger()
     root_logger.setLevel(LOGGING_LEVEL)
     root_handler = root_logger.handlers[0]
-    root_handler.setFormatter(logging.Formatter(LOGGING_FMT))
+    root_handler.setFormatter(logging.Formatter(LFMT))
 except IndexError:
-    logging.basicConfig(level=LOGGING_LEVEL, format=LOGGING_FMT)
+    logging.basicConfig(level=LOGGING_LEVEL, format=LFMT)

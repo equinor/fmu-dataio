@@ -25,14 +25,12 @@ masterdata   - Static, infer from fmuconfig
 from typing import Optional, Union, Any
 import pathlib
 import re
-import hashlib
+import uuid
 from collections import OrderedDict
-from time import sleep
 
 import datetime
 import getpass
 
-import warnings
 import logging
 import json
 import yaml
@@ -66,8 +64,10 @@ class ExportData:
     """Class for exporting data with rich metadata in FMU."""
 
     surface_fformat = "hdf"
+    table_fformat = "csv"
     grid_fformat = "hdf"
     export_root = "../../share/results"
+    case_folder = "share/metadata"  # e.g. /some_rootpath/case/metadata
     createfolder = True
     meta_format = "yaml"
 
@@ -84,7 +84,10 @@ class ExportData:
         is_prediction: Optional[bool] = True,
         is_observation: Optional[bool] = False,
         workflow: Optional[str] = None,
+        access_ssdl: Optional[dict] = None,
+        runfolder: Optional[str] = None,
         verbosity: Optional[str] = "CRITICAL",
+        flag: Optional[int] = 0,
     ) -> None:
         """Instantate ExportData object.
 
@@ -112,13 +115,16 @@ class ExportData:
             is_prediction: True (default) of model prediction data
             is_observation: Default is False.
             workflow: Short tag desciption of workflow (as description)
+            access_ssdl: A dictionary that will overwrite the default ssdl
+                settings read from the config. Example:
+                {"access_level": "restricted", "rep_include": False}
+            runfolder: Set toplevel of runfolder, where default is current PWD
             verbosity: Is logging/message level for this module. Input as
                 in standard python logging; e.g. "WARNING", "INFO".
-
-
+            flag: Defaults to 0. Other numbers are used to skip certain parts of
+                the parsing, e.g. when making case data, the flag shall be 1.
 
         """
-        logger.info("Create instance of ExportData")
 
         self._name = name
         self._relation = relation
@@ -131,10 +137,15 @@ class ExportData:
         self._is_prediction = is_prediction
         self._is_observation = is_observation
         self._workflow = workflow
+        self._access_ssdl = access_ssdl
         self._verbosity = verbosity
+        self._flag = flag
 
         logger.setLevel(level=self._verbosity)
         self._pwd = pathlib.Path().absolute()
+        logger.info("Create instance of ExportData")
+        if runfolder:
+            self._pwd = pathlib.Path(runfolder).absolute()
 
         # define chunks of metadata for primary first order categories
         # (except class which is set directly later)
@@ -158,9 +169,6 @@ class ExportData:
         self._get_meta_tracklog()
         self._get_meta_fmu()
 
-        # in a FMU run, the ensemble metadata are stored in selected folder
-        self._store_ensemble_metadata()
-
     # ==================================================================================
     # Private metadata methods which retrieve metadata that are not closely linked to
     # the actual instance to be exported.
@@ -181,7 +189,8 @@ class ExportData:
         logger.info("Metadata for masterdata is set!")
 
     def _get_meta_access(self) -> None:
-        """Get metadata from access section in config."""
+        """Get metadata overall (default) from access section in config."""
+        # note that access should be possible to change per object
         if self._config is None or "access" not in self._config.keys():
             logger.warning("No access section present")
             self._meta_access = None
@@ -193,8 +202,8 @@ class ExportData:
     def _get_meta_tracklog(self) -> None:
         """Get metadata for tracklog section."""
         block = OrderedDict()
-        block["datetime"] = datetime.datetime.now()
-        block["user"] = {"user_id": getpass.getuser()}
+        block["datetime"] = (datetime.datetime.now()).strftime("%Y-%m-%dT%H:%M:%S")
+        block["user"] = {"id": getpass.getuser()}
         block["event"] = "created"
 
         self._meta_tracklog.append(block)
@@ -206,22 +215,32 @@ class ExportData:
         The fmu block consist of these subkeys:
             model:
             workflow:
-            element:
+            element:  # if aggadation
             realization OR aggradation:
-            file:
-            ensemble:
+            iteration:
+            case:
         """
+        logger.info("Set fmu metadata for model/workflow/...")
         self._meta_fmu["model"] = self._process_meta_fmu_model()
-        # self._meta_fmu["workflow"] = self._details.get("workflow", None)
-        self._meta_fmu["element"] = {"id": "-999"}
+        if self._workflow is not None:
+            logger.info("Set fmu.workflow...")
+            self._meta_fmu["workflow"] = OrderedDict()
+            self._meta_fmu["workflow"]["refence"] = self._workflow
 
-        r_meta, e_meta = self._process_meta_fmu_realization_ensemble()
+        self._meta_fmu["element"] = None
+
+        if self._flag == 1:
+            return
+
+        c_meta, i_meta, r_meta = self._process_meta_fmu_realization_iteration()
+        self._meta_fmu["case"] = c_meta
+        self._meta_fmu["iteration"] = i_meta
         self._meta_fmu["realization"] = r_meta
-        self._meta_fmu["ensemble"] = e_meta
-        logger.info("Metadata for realization and ensemble is parsed!")
-        if r_meta is None and e_meta is None:
+        logger.info("Metadata for realization/iteration/case is parsed!")
+
+        if r_meta is None:
             logger.info(
-                "Note that metadata for realization/ensemble are None, "
+                "Note that metadata for realization is None, "
                 "so this is interpreted as not an ERT run!"
             )
 
@@ -236,18 +255,18 @@ class ExportData:
 
         # the model section in "template" contains root etc. For revision an
         # AUTO name may be used to avoid rapid and error-prone naming
-        revision = meta.get("revision", "AUTO")
+        revision = meta.get("revision", None)
         if revision == "AUTO":
             rev = None
             folders = self._pwd
             for num in range(len(folders.parents)):
-                thefolder = folders.parents[num].name
+                realfoldername = folders.parents[num].name
 
                 # match 20.1.xxx style or r003 style
-                if re.match("^[123][0-9]\\.", thefolder) or re.match(
-                    "^[r][0-9][0-9][0-9]", thefolder
+                if re.match("^[123][0-9]\\.", realfoldername) or re.match(
+                    "^[r][0-9][0-9][0-9]", realfoldername
                 ):
-                    rev = thefolder
+                    rev = realfoldername
                     break
 
             meta["revision"] = rev
@@ -255,7 +274,7 @@ class ExportData:
         logger.info("Got metadata for fmu:model")
         return meta
 
-    def _process_meta_fmu_realization_ensemble(self):
+    def _process_meta_fmu_realization_iteration(self):
         """Detect if this is a realization run.
 
         To detect if a realization run:
@@ -266,14 +285,16 @@ class ExportData:
         /scratch/xxx/user/case/realization-11/iter-3
 
         The iter folder may have other names, like "pred" which is fully
-        supported. Then iter number shall be None.
+        supported. Then iter number (id) shall be 0.
+
+        Will also parse the fmu.case metadata block from file which is stored
+        higher up and generated in-advance.
         """
+        logger.info("Process metadata for realization and iteration")
         is_fmurun = False
 
-        r_meta = OrderedDict()
-        e_meta = OrderedDict()
-
         folders = self._pwd
+        logger.info("Folder to evaluate: %s", self._pwd)
         therealization = None
         ertjob = OrderedDict()
 
@@ -282,22 +303,22 @@ class ExportData:
         userfolder = None
 
         for num in range(len(folders.parents)):
-            thefolder = folders.parents[num].name
-            if re.match("^realization-.", thefolder):
+            foldername = folders.parents[num].name
+            if re.match("^realization-.", foldername):
                 is_fmurun = True
+                realfolder = pathlib.Path(self._pwd).resolve().parents[num]
                 iterfolder = pathlib.Path(self._pwd).resolve().parents[num - 1]
                 casefolder = pathlib.Path(self._pwd).resolve().parents[num + 1]
                 userfolder = pathlib.Path(self._pwd).resolve().parents[num + 2]
 
-                logger.info("Realization folder is %s", thefolder)
+                logger.info("Realization folder is %s", realfolder.name)
                 logger.info("Iter folder is %s", iterfolder.name)
                 logger.info("Case folder is %s", casefolder.name)
                 logger.info("User folder is %s", userfolder.name)
-                therealization = thefolder.replace("realization-", "")
-
-                parameters_file = iterfolder / "parameters.json"
+                therealization = realfolder.name.replace("realization-", "")
 
                 # store parameters.json and jobs.json
+                parameters_file = iterfolder / "parameters.json"
                 if parameters_file.is_file():
                     with open(parameters_file, "r") as stream:
                         ertjob["params"] = json.load(stream)
@@ -307,55 +328,58 @@ class ExportData:
                     with open(jobs_file, "r") as stream:
                         ertjob["jobs"] = json.load(stream)
 
+                break
+
         if not is_fmurun:
-            return None, None
+            return None, None, None
 
-        # parse run_id from ERT
-        erts = ertjob["jobs"]["run_id"].split(":")
+        # ------------------------------------------------------------------------------
+        # get the case metadata which shall be established already
+        casemetaroot = casefolder / "share" / "metadata" / "fmu_case"
+        # may be json or yml
+        casemetafile = None
+        for ext in (".json", ".yml"):
+            casemetafile = casemetaroot.with_suffix(ext)
+            if casemetafile.is_file():
+                break
+        if casemetafile is None:
+            raise RuntimeError(f"Cannot find any case metafile! {casemetafile}.*")
+
+        logger.info("Read existing case metadata from %s", str(casemetafile))
+
+        with open(casemetafile, "r") as stream:
+            inmeta = yaml.safe_load(stream)  # will read json also?
+
+        c_meta = inmeta["fmu"]["case"]
+
+        # ------------------------------------------------------------------------------
+        # get the iteration metadata
         runid = ertjob["jobs"]["run_id"].replace(":", "_")
-        timeid = erts[2]
-        ensid = runid
+        i_meta = OrderedDict()
+        i_meta["uid"] = c_meta["uuid"] + "--" + iterfolder.name
+        i_meta["id"] = 0
+        if "iter-" in iterfolder.name:
+            i_meta["id"] = int(iterfolder.name.replace("iter-", ""))
+        i_meta["name"] = iterfolder.name
+        i_meta["runid"] = runid
 
-        # populate the metadata for realization:
-        r_meta["id"] = therealization
-        r_meta["ert_id"] = runid + "--r" + therealization
+        # ------------------------------------------------------------------------------
+        # get the realization metadata
+        r_meta = OrderedDict()
+        r_meta["id"] = int(therealization)
+        r_meta["name"] = realfolder.name
+        r_meta["uid"] = (
+            c_meta["uuid"] + "--" + str(i_meta["id"]) + "--" + str(r_meta["id"])
+        )
         r_meta["jobs"] = ertjob["jobs"]
         r_meta["parameters"] = ertjob["params"]
 
-        # populate the metadata for ensemble:
-        e_meta["id"] = ensid
-        theiter = None
-        if iterfolder and re.match("^iter-.", iterfolder.name):
-            logger.info("Realization folder is %s", thefolder)
-            theiter = iterfolder.name.replace("iter-", "")
-
-        if theiter is not None:
-            e_meta["iteration"] = str(theiter)
-        else:
-            e_meta["iteration"] = None
-
-        e_meta["iterfolder"] = iterfolder.name
-
-        logger.info("Iteration is %s", e_meta["iteration"])
-
-        e_meta["case"] = OrderedDict()
-        hash_ = hashlib.md5((ertjob["jobs"]["DATA_ROOT"] + str(casefolder)).encode())
-        hash_ = hash_.hexdigest()
-        e_meta["case"]["id"] = hash_
-        e_meta["case"]["data_root"] = ertjob["jobs"]["DATA_ROOT"]
-        e_meta["case"]["runpath"] = casefolder
-        e_meta["case"]["name"] = casefolder.name
-        e_meta["user"] = OrderedDict()
-        e_meta["user"]["user_id"] = userfolder.name
-        e_meta["restart_from"] = None
-        e_meta["description"] = [
-            f"First ran by {getpass.getuser()} with ERT time ID: {timeid}"
-        ]
-
         logger.info("Got metadata for fmu:realization")
+        logger.debug("Case meta: \n%s", json.dumps(c_meta, indent=2, default=str))
+        logger.debug("Iteration meta: \n%s", json.dumps(i_meta, indent=2, default=str))
         logger.debug("Realiz. meta: \n%s", json.dumps(r_meta, indent=2, default=str))
-        logger.debug("Ensemble meta: \n%s", json.dumps(e_meta, indent=2, default=str))
-        return r_meta, e_meta
+
+        return c_meta, i_meta, r_meta
 
     def _get_meta_strat(self) -> None:
         """Get metadata from the stratigraphy block in config; used indirectly."""
@@ -368,70 +392,84 @@ class ExportData:
             logger.info("Metadata for stratigraphy is parsed!")
 
     # ==================================================================================
-    # Store ensemble data.
-    # This is a hightly complicated issues, as ensembles can be reran with multiple
-    # scenaria:
-    # - Rerun failing realizations: ERT run_id and ert_pid will change but results
-    #   shall appear as same ensemble
-    # - Postrun part of workflow; typical on large fields. Ie. just run something
-    #   that gives some new maps
-    # - Change settings in RMS and just rerurn (will not be visible in ERT)
-    #
+    # Store case data.
 
-    def _store_ensemble_metadata(self):
-        if self._meta_fmu["ensemble"] is None:
+    def _store_case_metadata(self, casefolder, c_meta):
+        if not c_meta:
             return
 
-        ensemble_meta_exists = False
+        logger.info("Storing case metadata...")
+        case_meta_exists = False
 
-        runpath = self._meta_fmu["ensemble"]["case"]["runpath"]
-        iterfolder = self._meta_fmu["ensemble"]["iterfolder"]
-
-        share_ensroot = pathlib.Path(runpath) / iterfolder / "share" / "metadata"
+        share_caseroot = pathlib.Path(casefolder)
 
         try:
-            share_ensroot.mkdir(parents=True, exist_ok=False)
+            share_caseroot.mkdir(parents=True, exist_ok=False)
         except FileExistsError:
-            ensemble_meta_exists = True
+            logger.warning("The metadata folder root exists already: ")
+        else:
+            logger.info("The metadata folder root is created: %s", str(share_caseroot))
 
-        metafile = share_ensroot / "fmu_ensemble.yml"
+        metafile = share_caseroot / "fmu_case.yml"
+
+        logger.info("Case metadata file: %s", str(metafile))
+
+        meta = self._meta_dollars.copy()
+        meta["class"] = "case"
+        meta["fmu"] = OrderedDict()
+        meta["fmu"]["case"] = c_meta
+        meta["fmu"]["model"] = self._meta_fmu["model"]
+        meta["masterdata"] = self._meta_masterdata
+        meta["tracklog"] = list()
+        track = OrderedDict()
+
+        track["datetime"] = str(datetime.datetime.now())
+        track["event"] = "created"
+        track["user"] = OrderedDict()
+        track["user"]["id"] = getpass.getuser()
+        meta["tracklog"] = track
 
         # in case the file is deleted but the folder exists
         if not metafile.is_file():
-            ensemble_meta_exists = False
+            logger.info("Case metafile is %s", str(metafile))
+            case_meta_exists = False
 
-        if not ensemble_meta_exists:
+        if not case_meta_exists:
             # collect needed metadata and save to disk
-            logger.info("Create ensemble_metadata as %s", str(metafile))
-            meta = self._meta_dollars.copy()
-            meta["access"] = self._meta_access
-            meta["masterdata"] = self._meta_masterdata
-            meta["fmu"] = OrderedDict()
-            meta["fmu"]["ensemble"] = self._meta_fmu["ensemble"].copy()
+            logger.info("Create case metadata as %s", str(metafile))
             _utils.export_metadata_file(
                 metafile, meta, verbosity=self._verbosity, savefmt=self.meta_format
             )
 
         else:
-            # read the current metadatafile and compare ensemble id to issue a warning
-            sleep(0.5)
-            logger.info("Read existing ensemble metadata from %s", str(metafile))
-            with open(metafile, "r") as stream:
-                inmeta = yaml.safe_load(stream)
+            logger.warning(
+                "Metadata case file already exists for the case!: %s", metafile
+            )
 
-            id1 = self._meta_fmu["ensemble"]["id"]
-            id2 = inmeta["fmu"]["ensemble"]["id"]
+    @staticmethod
+    def _establish_fmu_case_metadata(
+        casename="unknown",
+        caseuser="nn",
+        restart_from=None,
+        description=None,
+    ):
+        """Establish the fmu.case card."""
+        c_meta = OrderedDict()
 
-            if id1 != id2:
-                warnings.warn("Ensemble metadata has changed, is this a rerun?")
+        # iterfolder something like /scratch/xxx/user/casename/iter-0
 
-            self._meta_access = inmeta["access"]
-            self._meta_masterdata = inmeta["masterdata"]
-            self._meta_fmu["ensemble"] = inmeta["fmu"]["ensemble"]
+        c_meta["name"] = casename
+        c_meta["uuid"] = str(uuid.uuid4())
+        c_meta["user"] = OrderedDict()
+        c_meta["user"]["id"] = caseuser
+        if restart_from is not None:
+            c_meta["restart_from"] = restart_from
+        timeid = str(datetime.datetime.now())
+        c_meta["description"] = [f"Generated by {getpass.getuser()} time ID: {timeid}"]
+        if description:
+            c_meta["description"].append(description)
 
-        # # In case the folder does not exist, populate with ensemeble metadata
-        # meta = OrderedDict()
-        # meta[""]
+        return c_meta
 
     # ==================================================================================
     # Public methods
@@ -461,3 +499,45 @@ class ExportData:
         logger.info("Export to file...")
         exporter = _ExportItem(self, obj, verbosity=verbosity)
         exporter.save_to_file()
+
+    def case_metadata_to_file(
+        self,
+        rootfolder="/tmp/",
+        casename="unknown",
+        caseuser="nn",
+        restart_from=None,
+        description=None,
+    ):
+        """Export the case metadata to file, e.g. when ERT run.
+
+        This will be the configuration file and output the data necessary to
+        generate a general case ID, typically done as a hook workflow in ERT
+        or similar.
+
+        Args:
+            rootfolder: The folder root of case, e.g. /scratch/fmu/user/mycase
+            casename: Name of case (run), e.g. 'mycase'
+            caseuser: The username fro the case, e.g. the <USER> in ERT
+            restart_from: The uid of iteration from whci to run from
+            description: A free-form description for case
+
+        This will make an communication point to storage in cloud::
+
+            ens = ExportData(config=configdict, flag=1)
+            ens.case_metadata_to_file(rootfolder=somefolder, caseuser=some_user)
+        """
+
+        c_meta = self._establish_fmu_case_metadata(
+            caseuser=caseuser,
+            casename=casename,
+            restart_from=restart_from,
+            description=description,
+        )
+
+        casefolder = pathlib.Path(rootfolder) / pathlib.Path(self.case_folder)
+
+        logger.info("C_META is:\n%s", json.dumps(c_meta, indent=2))
+        logger.info("case_folder:%s", casefolder)
+
+        # write to file
+        self._store_case_metadata(casefolder, c_meta)

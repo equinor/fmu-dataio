@@ -23,6 +23,8 @@ file: # peesv: Re-entered the file block, as the file is a specific concept that
 # fmu:
 # The fmu block in data objects have more sub-elements compared to ensemble objects.
 
+# case.uuid + ensemble.name + realization.id 15ce3b84-766f-4c93-9050-b154861f9100_iter-0_33
+
 fmu:
   model:
     name: ff
@@ -39,8 +41,15 @@ fmu:
   element: # currently not used on Drogon, but extensively used on e.g. JS
     id: 15ce3b84-766f-4c93-9050-b154861f9100 # Identifier for elements for use in aggregation
 
+  iteration:
+    id: 0 # blir alltid kun 0 for pred
+    name: "iter-0"
+    uuid: case.uuid + name...
+
   realization: # could be expanded in the future?
     id: 33 # Thought "num" was confusing.
+    name: realization-22
+    uuid: s823283238_iteruuid_relazation
     parameters: # peesv: Better with array of objects? This content is not standardized.
       - SENSNAME: faultseal
       - SENSCASE: low
@@ -72,15 +81,14 @@ fmu:
   #  parameters:    # if aggregation is based on one or more parameter, put the parameter(s) here
   #    - FAULT_SEAL_SCALING: 0.1
 
-  ensemble:
-    case:
-      name: MyCaseName # config ERT, user
-      id: 44cd1b84-766f-4c93-9050-g921861d9420 # to identify ensembles belonging to the same case, see issue
+  case:
+    name: MyCaseName # config ERT, user
+    uuid: 44cd1b84-766f-4c93-9050-g921861d9420 # to identify ensembles belonging to the same case, see issue
     user:
-      user_id: jriv
-    iteration: "0" # expanded to "iteration" and changed to string
+      user_id: jriv # ERT $USER
+    # iteration: "0" # expanded to "iteration" and changed to string
     # hashlib...
-    id: 15ce3b84-766f-4c93-9050-b154861f9100 # fmu.ensemble.id - ensemble ID for this ensemble
+    # id: 15ce3b84-766f-4c93-9050-b154861f9100 # fmu.ensemble.id - ensemble ID for this ensemble
     restart_from: 15ce3b84-766f-4c93-9050-b154861f9100 # ensemble ID for another ensemble
     description:
       - yet other detailed description

@@ -4,6 +4,7 @@ import logging
 import json
 from datetime import datetime
 import numpy as np
+import pandas as pd
 
 from collections import OrderedDict
 import xtgeo
@@ -11,7 +12,15 @@ import xtgeo
 from . import _utils
 
 VALID_SURFACE_FORMATS = {"hdf": ".hdf", "irap_binary": ".gri"}
-ALLOWED_CONTENTS = ["depth", "time", "seismic", "fluid_contact", "undefined"]
+VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
+ALLOWED_CONTENTS = [
+    "depth",
+    "time",
+    "seismic",
+    "fluid_contact",
+    "volumetrics",
+    "undefined",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +33,24 @@ class _ExportItem:
         self.obj = obj
         self.verbosity = verbosity
         self.subtype = None
+        self.classname = "unset"
+        self.name = "unknown"
+
         if self.verbosity is None:
             self.verbosity = self.dataio._verbosity
 
         logger.setLevel(level=self.verbosity)
+
+        if self.dataio._name is not None:
+            self.name = self.dataio._name
+        else:
+            try:
+                self.name = self.obj.name
+            except AttributeError:
+                pass
+
+        if self.name is None:
+            self.name = "unknown"
 
     def save_to_file(self):
         """Saving an instance to file with rich metadata for SUMO.
@@ -38,8 +61,19 @@ class _ExportItem:
         a final metadata file (or part of file if HDF) are collected and
         written to disk here.
         """
+        logger.info("Save to file...")
         if isinstance(self.obj, xtgeo.RegularSurface):
             self.subtype = "RegularSurface"
+            self.classname = "surface"
+
+        elif isinstance(self.obj, pd.DataFrame):
+            self.subtype = "DataFrame"
+            self.classname = "table"
+        else:
+            raise NotImplementedError(
+                "This data type is not (yet) supported: ", type(self.obj)
+            )
+        logger.info("Found %s", self.subtype)
 
         self._data_process()
         self._data_process_object()
@@ -240,7 +274,6 @@ class _ExportItem:
         """
         logger.info("Process various general items in data block")
         meta = self.dataio._meta_data
-        print("XXXX", self.dataio._vertical_domain)
         meta["unit"] = self.dataio._unit
         (meta["vertical_domain"], meta["depth_reference"],) = list(
             self.dataio._vertical_domain.items()
@@ -258,8 +291,7 @@ class _ExportItem:
         meta["properties"].append(props)
 
         # tmp:
-        meta["grid_model"] = OrderedDict()
-        meta["grid_model"]["name"] = "SomeGrid"
+        meta["grid_model"] = None
 
         # tmp:
         meta["description"] = list()
@@ -280,6 +312,8 @@ class _ExportItem:
 
         if self.subtype == "RegularSurface":
             self._data_process_object_regularsurface()
+        elif self.subtype == "DataFrame":
+            self._data_process_object_dataframe()
 
     def _data_process_object_regularsurface(self):
         """Process/collect the data items for RegularSurface"""
@@ -311,6 +345,26 @@ class _ExportItem:
         meta["bbox"]["zmax"] = float(regsurf.values.max())
         logger.info("Process data metadata for RegularSurface... done!!")
 
+    def _data_process_object_dataframe(self):
+        """Process/collect the data items for DataFrame."""
+        logger.info("Process data metadata for DataFrame (tables)")
+
+        dataio = self.dataio
+        dfr = self.obj
+
+        meta = dataio._meta_data  # shortform
+
+        meta["layout"] = "table"
+
+        # define spec record
+        meta["spec"] = OrderedDict()
+        meta["spec"]["columns"] = list(dfr.columns)
+        meta["spec"]["size"] = int(dfr.size)
+        meta["spec"]["undef"] = "Nan"
+
+        meta["bbox"] = None
+        logger.info("Process data metadata for DataFrame... done!!")
+
     def _fmu_inject_workflow(self):
         """Inject workflow into fmu metadata block."""
         self.dataio._meta_fmu["workflow"] = self.dataio._workflow
@@ -319,6 +373,8 @@ class _ExportItem:
         logger.info("Export item to file...")
         if self.subtype == "RegularSurface":
             self._item_to_file_regularsurface()
+        elif self.subtype == "DataFrame":
+            self._item_to_file_dataframe()
 
     def _item_to_file_regularsurface(self):
         """Write RegularSurface to file"""
@@ -332,7 +388,7 @@ class _ExportItem:
             attr = None
 
         fname, fpath = _utils.construct_filename(
-            obj.name,
+            self.name,
             tagname=attr,
             loc="surface",
             outroot=dataio.export_root,
@@ -367,6 +423,52 @@ class _ExportItem:
             self.dataio._meta_data["format"] = "hdf"
             obj.to_hdf(outfile)
 
+    def _item_to_file_dataframe(self):
+        """Write DataFrame to file."""
+        logger.info(f"Export {self.subtype} to file...")
+        dataio = self.dataio  # shorter
+        obj = self.obj
+
+        if isinstance(dataio._tagname, str):
+            attr = dataio._tagname.lower().replace(" ", "_")
+        else:
+            attr = None
+
+        fname, fpath = _utils.construct_filename(
+            self.name,
+            tagname=attr,
+            loc="table",
+            outroot=dataio.export_root,
+            verbosity=dataio._verbosity,
+        )
+
+        fmt = dataio.table_fformat
+
+        if fmt not in VALID_TABLE_FORMATS.keys():
+            raise ValueError(f"The file format {fmt} is not supported.")
+
+        ext = VALID_TABLE_FORMATS.get(fmt, ".hdf")
+        outfile, metafile, relpath, abspath = _utils.verify_path(
+            dataio.createfolder, fpath, fname, ext, verbosity=dataio._verbosity
+        )
+
+        logger.info("Exported file is %s", outfile)
+        if "csv" in dataio.table_fformat:
+            obj.to_csv(outfile)
+            md5sum = _utils.md5sum(outfile)
+            self.dataio._meta_data["format"] = "csv"
+
+            # populate the file block which needs to done here
+            dataio._meta_file["md5sum"] = md5sum
+            dataio._meta_file["relative_path"] = str(relpath)
+            dataio._meta_file["absolute_path"] = str(abspath)
+            allmeta = self._item_to_file_collect_all_metadata()
+            _utils.export_metadata_file(
+                metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
+            )
+        else:
+            raise NotImplementedError("Other formats not supported yet for tables!")
+
     def _item_to_file_collect_all_metadata(self):
         """Process all metadata for actual instance."""
         logger.info("Collect all metadata")
@@ -377,13 +479,14 @@ class _ExportItem:
         for dollar in dataio._meta_dollars.keys():
             allmeta[dollar] = dataio._meta_dollars[dollar]
 
-        allmeta["class"] = "surface"
+        allmeta["class"] = self.classname
         allmeta["file"] = dataio._meta_file
         allmeta["access"] = dataio._meta_access
         allmeta["masterdata"] = dataio._meta_masterdata
         allmeta["tracklog"] = dataio._meta_tracklog
         allmeta["fmu"] = dataio._meta_fmu
         allmeta["data"] = dataio._meta_data
-        print("YYY+n", json.dumps(allmeta, indent=2, default=str))
+        logger.debug("\n%s", json.dumps(allmeta, indent=2, default=str))
 
+        logger.info("Collect all metadata, done")
         return allmeta

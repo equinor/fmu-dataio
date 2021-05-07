@@ -69,6 +69,8 @@ def construct_filename(
             dest = outroot / "maps"
         elif loc == "grid":
             dest = outroot / "grids"
+        elif loc == "table":
+            dest = outroot / "tables"
         else:
             dest = outroot / "unknown"
 
@@ -101,17 +103,36 @@ def verify_path(createfolder, filedest, filename, ext, verbosity="WARNING"):
     return path, metapath, relpath, abspath
 
 
+def drop_nones(d: dict) -> dict:
+    """Recursively drop Nones in dict d and return a new dict."""
+    # https://stackoverflow.com/a/65379092
+    dd = {}
+    for k, v in d.items():
+        if isinstance(v, dict):
+            dd[k] = drop_nones(v)
+        elif isinstance(v, (list, set, tuple)):
+            # note: Nones in lists are not dropped
+            # simply add "if vv is not None" at the end if required
+            dd[k] = type(v)(drop_nones(vv) if isinstance(vv, dict) else vv for vv in v)
+        elif v is not None:
+            dd[k] = v
+    return dd
+
+
 def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -> None:
     """Export genericly and ordered to the complementary metadata file."""
     logger.setLevel(level=verbosity)
     if metadata:
+
+        xdata = drop_nones(metadata)
+
         if savefmt == "yaml":
-            yamlblock = oyaml.safe_dump(metadata)
+            yamlblock = oyaml.safe_dump(xdata)
             with open(yfile, "w") as stream:
                 stream.write(yamlblock)
         else:
             jfile = str(yfile).replace(".yml", ".json")
-            jsonblock = json.dumps(metadata, default=str, indent=2)
+            jsonblock = json.dumps(xdata, default=str, indent=2)
             with open(jfile, "w") as stream:
                 stream.write(jsonblock)
 
