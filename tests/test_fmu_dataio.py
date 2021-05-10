@@ -1,6 +1,7 @@
 """Test the main class DataExporter and functions in the dataio module."""
 import pathlib
 from collections import OrderedDict
+import logging
 import json
 import fmu.dataio
 
@@ -19,6 +20,9 @@ CFG["access"] = {"someaccess": "jail"}
 CFG["model"] = {"revision": "0.99.0"}
 
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def test_instantate_class_no_keys():
@@ -69,17 +73,53 @@ def test_process_fmu_model():
     assert fmumodel["revision"] == "0.99.0"
 
 
-def test_process_fmu_ensemble():
-    """The (second order) private routine that provides fmu:realization and ensemble."""
-    # this is a more tricky one as it used the folder structure and jobs.json
-    # and parameters.json from ERT
+def test_process_fmu_case():
+    """The produce(!) the fmu case data."""
+
     case = fmu.dataio.ExportData()
     case._config = CFG
     case._pwd = pathlib.Path(RUN)
 
-    r_meta, e_meta = case._process_meta_fmu_realization_ensemble()
-    print(json.dumps(r_meta, indent=2, default=str))
-    print(json.dumps(e_meta, indent=2, default=str))
+    c_meta = case._establish_fmu_case_metadata(
+        casename="testcase",
+        caseuser="ertuser",
+        restart_from=None,
+        description="My added description",
+    )
+
+    print(json.dumps(c_meta, indent=2))
+    assert c_meta["user"]["id"] == "ertuser"
+
+
+def test_fmu_case_meta_to_file(tmp_path):
+    """The produce(!) the fmu case data on disk."""
+
+    case = fmu.dataio.ExportData(verbosity="DEBUG", flag=1, config=CFG)
+    case._pwd = pathlib.Path(RUN)
+
+    case.case_metadata_to_file(
+        casename="testcase",
+        rootfolder=str(tmp_path),
+        caseuser="ertuser",
+        restart_from=None,
+        description="My added description",
+    )
+
+
+def test_process_fmu_realisation():
+    """The (second order) private routine that provides realization and iteration."""
+    case = fmu.dataio.ExportData()
+    case._config = CFG
+    case._pwd = pathlib.Path(RUN)
+
+    c_meta, i_meta, r_meta = case._process_meta_fmu_realization_iteration()
+    logger.info("========== CASE")
+    logger.info("%s", json.dumps(c_meta, indent=2, default=str))
+    logger.info("========== ITER")
+    logger.info("%s", json.dumps(i_meta, indent=2, default=str))
+    logger.info("========== REAL")
+    logger.info("%s", json.dumps(r_meta, indent=2, default=str))
 
     assert r_meta["parameters"]["THERYS_PORO_LS"] == 0.23
-    assert e_meta["id"] == "26295_22197_2021-4-20-12-50-55_406759315d"
+    assert i_meta["uid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37--iter-0"
+    assert c_meta["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
