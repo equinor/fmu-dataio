@@ -1,9 +1,7 @@
 """Test the surface_io module."""
 from collections import OrderedDict
 import logging
-import numpy as np
 import pandas as pd
-import xtgeo
 import yaml
 
 import fmu.dataio

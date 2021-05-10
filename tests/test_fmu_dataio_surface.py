@@ -1,6 +1,5 @@
 """Test the surface_io module."""
 from collections import OrderedDict
-import pathlib
 import logging
 import numpy as np
 import xtgeo
