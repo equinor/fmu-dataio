@@ -391,6 +391,87 @@ class ExportData:
             self._meta_strat = self._config["stratigraphy"]
             logger.info("Metadata for stratigraphy is parsed!")
 
+
+    # ==================================================================================
+    # Public methods
+
+    def to_file(self, obj: Any, verbosity: Optional[str] = None):
+        """Export a XTGeo data object to FMU file with rich metadata.
+
+        Since xtgeo and Python  will know the datatype from the object, a general
+        function like this should work.
+
+        This function will also collect the data spesific class metadata. For "classic"
+        files, the metadata will be stored i a YAML file with same name stem as the
+        data, but with a . in front and "yml" and suffix, e.g.::
+
+            top_volantis--depth.gri
+            .top_volantis--depth.yml
+
+        For HDF files the metadata will be stored on the _freeform_ block.
+
+        Args:
+            obj: XTGeo instance or a pandas instance (more to be supported).
+            verbosity: Verbosity level of logging messages. If not spesified,
+                use the verbosity level from the instance.
+
+        """
+
+        logger.info("Export to file...")
+        exporter = _ExportItem(self, obj, verbosity=verbosity)
+        exporter.save_to_file()
+
+
+# ######################################################################################
+class InitializeCase(ExportData):
+    def __init__(
+        self,
+        config: Optional[dict] = None,
+        verbosity: Optional[str] = "CRITICAL",
+        runfolder: Optional[str] = None,
+    ) -> None:
+        """Instantate ExportData object.
+
+        Args:
+            config: A configuation dictionary. In the standard case this is read
+                from FMU global vaiables (via fmuconfig). The dictionary must contain
+                some predefined main level keys.
+            verbosity: Is logging/message level for this module. Input as
+                in standard python logging; e.g. "WARNING", "INFO".
+        """
+
+        self._config = config
+        self._verbosity = verbosity
+
+        logger.setLevel(level=self._verbosity)
+        self._pwd = pathlib.Path().absolute()
+        logger.info("Create instance of InitializeCase")
+
+        if runfolder:
+            self._pwd = pathlib.Path(runfolder).absolute()
+
+        # define chunks of metadata for primary first order categories
+        # (except class which is set directly later)
+        self._meta_strat = None
+        self._meta_dollars = DOLLARS  # schema, version, source
+        self._meta_file = OrderedDict()  # file (to be populated in export job)
+        self._meta_tracklog = []  # tracklog:
+        self._meta_data = OrderedDict()  # data:
+        self._meta_display = OrderedDict()  # display:
+        self._meta_access = OrderedDict()  # access:
+        self._meta_masterdata = OrderedDict()  # masterdata:
+        self._meta_fmu = OrderedDict()  # fmu:
+
+        # strat metadata are used as componenents in some of the other meta keys
+        super._get_meta_strat()
+
+        # Get the metadata for some of the general stuff, fully or partly
+        # Note that data are found later (e.g. in _export_item)
+        super._get_meta_masterdata()
+        super._get_meta_access()
+        super._get_meta_tracklog()
+        super._get_meta_fmu()
+
     # ==================================================================================
     # Store case data.
 
@@ -471,34 +552,6 @@ class ExportData:
 
         return c_meta
 
-    # ==================================================================================
-    # Public methods
-
-    def to_file(self, obj: Any, verbosity: Optional[str] = None):
-        """Export a XTGeo data object to FMU file with rich metadata.
-
-        Since xtgeo and Python  will know the datatype from the object, a general
-        function like this should work.
-
-        This function will also collect the data spesific class metadata. For "classic"
-        files, the metadata will be stored i a YAML file with same name stem as the
-        data, but with a . in front and "yml" and suffix, e.g.::
-
-            top_volantis--depth.gri
-            .top_volantis--depth.yml
-
-        For HDF files the metadata will be stored on the _freeform_ block.
-
-        Args:
-            obj: XTGeo instance or a pandas instance (more to be supported).
-            verbosity: Verbosity level of logging messages. If not spesified,
-                use the verbosity level from the instance.
-
-        """
-
-        logger.info("Export to file...")
-        exporter = _ExportItem(self, obj, verbosity=verbosity)
-        exporter.save_to_file()
 
     def case_metadata_to_file(
         self,
