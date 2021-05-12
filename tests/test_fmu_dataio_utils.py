@@ -32,7 +32,7 @@ import fmu.dataio._utils as _utils
             None,
             "wrong",
             "some",
-            "unknown",
+            "other",
         ),
         (
             "some",

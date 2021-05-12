@@ -60,6 +60,11 @@ DOLLARS = OrderedDict(
 )
 
 
+# ######################################################################################
+# ExportData
+# ######################################################################################
+
+
 class ExportData:
     """Class for exporting data with rich metadata in FMU."""
 
@@ -87,7 +92,6 @@ class ExportData:
         access_ssdl: Optional[dict] = None,
         runfolder: Optional[str] = None,
         verbosity: Optional[str] = "CRITICAL",
-        flag: Optional[int] = 0,
     ) -> None:
         """Instantate ExportData object.
 
@@ -121,8 +125,6 @@ class ExportData:
             runfolder: Set toplevel of runfolder, where default is current PWD
             verbosity: Is logging/message level for this module. Input as
                 in standard python logging; e.g. "WARNING", "INFO".
-            flag: Defaults to 0. Other numbers are used to skip certain parts of
-                the parsing, e.g. when making case data, the flag shall be 1.
 
         """
 
@@ -139,7 +141,9 @@ class ExportData:
         self._workflow = workflow
         self._access_ssdl = access_ssdl
         self._verbosity = verbosity
-        self._flag = flag
+
+        # keep track if case
+        self._case = False
 
         logger.setLevel(level=self._verbosity)
         self._pwd = pathlib.Path().absolute()
@@ -202,7 +206,7 @@ class ExportData:
     def _get_meta_tracklog(self) -> None:
         """Get metadata for tracklog section."""
         block = OrderedDict()
-        block["datetime"] = (datetime.datetime.now()).strftime("%Y-%m-%dT%H:%M:%S")
+        block["datetime"] = datetime.datetime.now().isoformat()
         block["user"] = {"id": getpass.getuser()}
         block["event"] = "created"
 
@@ -222,14 +226,14 @@ class ExportData:
         """
         logger.info("Set fmu metadata for model/workflow/...")
         self._meta_fmu["model"] = self._process_meta_fmu_model()
-        if self._workflow is not None:
+        if not self._case and self._workflow is not None:
             logger.info("Set fmu.workflow...")
             self._meta_fmu["workflow"] = OrderedDict()
             self._meta_fmu["workflow"]["refence"] = self._workflow
 
         self._meta_fmu["element"] = None
 
-        if self._flag == 1:
+        if self._case:
             return
 
         c_meta, i_meta, r_meta = self._process_meta_fmu_realization_iteration()
@@ -384,13 +388,15 @@ class ExportData:
     def _get_meta_strat(self) -> None:
         """Get metadata from the stratigraphy block in config; used indirectly."""
 
-        if self._config is None or "stratigraphy" not in self._config:
+        if self._config is None:
+            logger.warning("Config is missing, not possible to parse stratigraphy")
+            self._meta_strat = None
+        elif "stratigraphy" not in self._config:
             logger.warning("Not possible to parse the stratigraphy section")
             self._meta_strat = None
         else:
             self._meta_strat = self._config["stratigraphy"]
             logger.info("Metadata for stratigraphy is parsed!")
-
 
     # ==================================================================================
     # Public methods
@@ -423,6 +429,8 @@ class ExportData:
 
 
 # ######################################################################################
+# InitializeCase
+# ######################################################################################
 class InitializeCase(ExportData):
     def __init__(
         self,
@@ -442,6 +450,8 @@ class InitializeCase(ExportData):
 
         self._config = config
         self._verbosity = verbosity
+
+        self._case = True
 
         logger.setLevel(level=self._verbosity)
         self._pwd = pathlib.Path().absolute()
@@ -463,14 +473,14 @@ class InitializeCase(ExportData):
         self._meta_fmu = OrderedDict()  # fmu:
 
         # strat metadata are used as componenents in some of the other meta keys
-        super._get_meta_strat()
+        super()._get_meta_strat()
 
         # Get the metadata for some of the general stuff, fully or partly
         # Note that data are found later (e.g. in _export_item)
-        super._get_meta_masterdata()
-        super._get_meta_access()
-        super._get_meta_tracklog()
-        super._get_meta_fmu()
+        super()._get_meta_masterdata()
+        super()._get_meta_access()
+        super()._get_meta_tracklog()
+        super()._get_meta_fmu()
 
     # ==================================================================================
     # Store case data.
@@ -504,11 +514,11 @@ class InitializeCase(ExportData):
         meta["tracklog"] = list()
         track = OrderedDict()
 
-        track["datetime"] = str(datetime.datetime.now())
+        track["datetime"] = datetime.datetime.now().isoformat()
         track["event"] = "created"
         track["user"] = OrderedDict()
         track["user"]["id"] = getpass.getuser()
-        meta["tracklog"] = track
+        meta["tracklog"].append(track)
 
         # in case the file is deleted but the folder exists
         if not metafile.is_file():
@@ -545,15 +555,14 @@ class InitializeCase(ExportData):
         c_meta["user"]["id"] = caseuser
         if restart_from is not None:
             c_meta["restart_from"] = restart_from
-        timeid = str(datetime.datetime.now())
-        c_meta["description"] = [f"Generated by {getpass.getuser()} time ID: {timeid}"]
+        timeid = datetime.datetime.now().isoformat()
+        c_meta["description"] = [f"Generated by {getpass.getuser()} at {timeid}"]
         if description:
             c_meta["description"].append(description)
 
         return c_meta
 
-
-    def case_metadata_to_file(
+    def to_file(
         self,
         rootfolder="/tmp/",
         casename="unknown",
@@ -576,8 +585,8 @@ class InitializeCase(ExportData):
 
         This will make an communication point to storage in cloud::
 
-            ens = ExportData(config=configdict, flag=1)
-            ens.case_metadata_to_file(rootfolder=somefolder, caseuser=some_user)
+            case = InitializeCase(config=configdict)
+            case.to_file(rootfolder=somefolder, caseuser=some_user)
         """
 
         c_meta = self._establish_fmu_case_metadata(
