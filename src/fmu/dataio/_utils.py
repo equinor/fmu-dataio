@@ -72,7 +72,7 @@ def construct_filename(
         elif loc == "table":
             dest = outroot / "tables"
         else:
-            dest = outroot / "unknown"
+            dest = outroot / "other"
 
     return stem, dest
 
