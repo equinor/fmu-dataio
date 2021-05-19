@@ -71,6 +71,8 @@ def construct_filename(
             dest = outroot / "grids"
         elif loc == "table":
             dest = outroot / "tables"
+        elif loc == "polygons":
+            dest = outroot / "polygons"
         else:
             dest = outroot / "other"
 
@@ -103,19 +105,21 @@ def verify_path(createfolder, filedest, filename, ext, verbosity="WARNING"):
     return path, metapath, relpath, abspath
 
 
-def drop_nones(d: dict) -> dict:
+def drop_nones(dinput: dict) -> dict:
     """Recursively drop Nones in dict d and return a new dict."""
     # https://stackoverflow.com/a/65379092
     dd = {}
-    for k, v in d.items():
-        if isinstance(v, dict):
-            dd[k] = drop_nones(v)
-        elif isinstance(v, (list, set, tuple)):
+    for key, val in dinput.items():
+        if isinstance(val, dict):
+            dd[key] = drop_nones(val)
+        elif isinstance(val, (list, set, tuple)):
             # note: Nones in lists are not dropped
             # simply add "if vv is not None" at the end if required
-            dd[k] = type(v)(drop_nones(vv) if isinstance(vv, dict) else vv for vv in v)
-        elif v is not None:
-            dd[k] = v
+            dd[key] = type(val)(
+                drop_nones(vv) if isinstance(vv, dict) else vv for vv in val
+            )
+        elif val is not None:
+            dd[key] = val
     return dd
 
 
@@ -145,7 +149,7 @@ def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -
 
 def md5sum(fname):
     hash_md5 = hashlib.md5()
-    with open(fname, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
+    with open(fname, "rb") as fil:
+        for chunk in iter(lambda: fil.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
