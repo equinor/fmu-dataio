@@ -70,6 +70,7 @@ class ExportData:
 
     surface_fformat = "hdf"
     table_fformat = "csv"
+    polygons_fformat = "csv"
     grid_fformat = "hdf"
     export_root = "../../share/results"
     case_folder = "share/metadata"  # e.g. /some_rootpath/case/metadata
@@ -84,7 +85,7 @@ class ExportData:
         content: Optional[Union[str, dict]] = None,
         unit: Optional[str] = None,
         tagname: Optional[str] = None,
-        vertical_domain: Optional[dict] = {"depth": "msl"},
+        vertical_domain: Optional[dict] = None,
         timedata: Optional[list] = None,
         is_prediction: Optional[bool] = True,
         is_observation: Optional[bool] = False,
@@ -113,7 +114,7 @@ class ExportData:
             unit: Is the unit of the exported item(s), e.g. "m" or "fraction".
             tagname: This is a short tag description which be be a part of file name
             vertical_domain: This is dictionary with a key and a reference e.g.
-                {"depth": "msl"} which is default
+                {"depth": "msl"} which is default (if None is input)
             timedata: If given, a list of lists with dates, .e.g.
                 [[20200101, "firsttime"], [20180101, "secondtime"]] or just [[20210101]]
             is_prediction: True (default) of model prediction data
@@ -135,7 +136,9 @@ class ExportData:
         self._unit = unit
         self._tagname = tagname
         self._timedata = timedata
-        self._vertical_domain = vertical_domain
+        self._vertical_domain = (
+            {"depth": "msl"} if vertical_domain is None else vertical_domain
+        )
         self._is_prediction = is_prediction
         self._is_observation = is_observation
         self._workflow = workflow
@@ -431,8 +434,8 @@ class ExportData:
 # ######################################################################################
 # InitializeCase
 # ######################################################################################
-class InitializeCase(ExportData):
-    def __init__(
+class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
+    def __init__(  # pylint: disable=super-init-not-called
         self,
         config: Optional[dict] = None,
         verbosity: Optional[str] = "CRITICAL",
@@ -562,7 +565,7 @@ class InitializeCase(ExportData):
 
         return c_meta
 
-    def to_file(
+    def to_file(  # pylint: disable=arguments-differ
         self,
         rootfolder="/tmp/",
         casename="unknown",

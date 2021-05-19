@@ -3,16 +3,19 @@ import warnings
 import logging
 import json
 from datetime import datetime
+from collections import OrderedDict
+
 import numpy as np
 import pandas as pd
 
-from collections import OrderedDict
 import xtgeo
 
 from . import _utils
 
 VALID_SURFACE_FORMATS = {"hdf": ".hdf", "irap_binary": ".gri"}
 VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
+VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
+
 ALLOWED_CONTENTS = [
     "depth",
     "time",
@@ -25,7 +28,7 @@ ALLOWED_CONTENTS = [
 logger = logging.getLogger(__name__)
 
 
-class _ExportItem:
+class _ExportItem:  # pylint disable=too-few-public-methods
     """Export of the actual data item with metadata."""
 
     def __init__(self, dataio, obj, verbosity="warning"):
@@ -65,7 +68,9 @@ class _ExportItem:
         if isinstance(self.obj, xtgeo.RegularSurface):
             self.subtype = "RegularSurface"
             self.classname = "surface"
-
+        elif isinstance(self.obj, xtgeo.Polygons):
+            self.subtype = "Polygons"
+            self.classname = "polygons"
         elif isinstance(self.obj, pd.DataFrame):
             self.subtype = "DataFrame"
             self.classname = "table"
@@ -312,6 +317,8 @@ class _ExportItem:
 
         if self.subtype == "RegularSurface":
             self._data_process_object_regularsurface()
+        elif self.subtype == "Polygons":
+            self._data_process_object_polygons()
         elif self.subtype == "DataFrame":
             self._data_process_object_dataframe()
 
@@ -345,6 +352,28 @@ class _ExportItem:
         meta["bbox"]["zmax"] = float(regsurf.values.max())
         logger.info("Process data metadata for RegularSurface... done!!")
 
+    def _data_process_object_polygons(self):
+        """Process/collect the data items for Polygons"""
+        logger.info("Process data metadata for Polygons/Polylines")
+
+        dataio = self.dataio
+        poly = self.obj
+
+        meta = dataio._meta_data  # shortform
+        meta["spec"] = OrderedDict()
+        meta["spec"]["nrow"] = poly.nrow
+
+        xmin, xmax, ymin, ymax, zmin, zmax = poly.get_boundary()
+
+        meta["bbox"] = OrderedDict()
+        meta["bbox"]["xmin"] = float(xmin)
+        meta["bbox"]["xmax"] = float(xmax)
+        meta["bbox"]["ymin"] = float(ymin)
+        meta["bbox"]["ymax"] = float(ymax)
+        meta["bbox"]["zmin"] = float(zmin)
+        meta["bbox"]["zmax"] = float(zmax)
+        logger.info("Process data metadata for Polygons... done!!")
+
     def _data_process_object_dataframe(self):
         """Process/collect the data items for DataFrame."""
         logger.info("Process data metadata for DataFrame (tables)")
@@ -373,12 +402,14 @@ class _ExportItem:
         logger.info("Export item to file...")
         if self.subtype == "RegularSurface":
             self._item_to_file_regularsurface()
+        elif self.subtype == "Polygons":
+            self._item_to_file_polygons()
         elif self.subtype == "DataFrame":
             self._item_to_file_dataframe()
 
     def _item_to_file_regularsurface(self):
         """Write RegularSurface to file"""
-        logger.info(f"Export {self.subtype} to file...")
+        logger.info("Export %s to file...", self.subtype)
         dataio = self.dataio  # shorter
         obj = self.obj
 
@@ -406,7 +437,7 @@ class _ExportItem:
         )
 
         logger.info("Exported file is %s", outfile)
-        if "irap" in dataio.surface_fformat:
+        if "irap" in fmt:
             obj.to_file(outfile, fformat="irap_binary")
             md5sum = _utils.md5sum(outfile)
             self.dataio._meta_data["format"] = "irap_binary"
@@ -423,9 +454,60 @@ class _ExportItem:
             self.dataio._meta_data["format"] = "hdf"
             obj.to_hdf(outfile)
 
+    def _item_to_file_polygons(self):
+        """Write Polygons to file."""
+        logger.info("Export %s to file...", self.subtype)
+        dataio = self.dataio  # shorter
+        obj = self.obj
+
+        if isinstance(dataio._tagname, str):
+            attr = dataio._tagname.lower().replace(" ", "_")
+        else:
+            attr = None
+
+        fname, fpath = _utils.construct_filename(
+            self.name,
+            tagname=attr,
+            loc="polygons",
+            outroot=dataio.export_root,
+            verbosity=dataio._verbosity,
+        )
+
+        fmt = dataio.polygons_fformat
+        print("XXXXX", fmt)
+
+        if fmt not in VALID_POLYGONS_FORMATS.keys():
+            raise ValueError(f"The file format {fmt} is not supported.")
+
+        ext = VALID_POLYGONS_FORMATS.get(fmt, ".hdf")
+        print("XXXXX", ext)
+
+        outfile, metafile, relpath, abspath = _utils.verify_path(
+            dataio.createfolder, fpath, fname, ext, verbosity=dataio._verbosity
+        )
+
+        logger.info("Exported file is %s", outfile)
+        if "csv" in fmt:
+            renamings = {"X_UTME": "X", "Y_UTMN": "Y", "Z_TVDSS": "Z", "POLY_ID": "ID"}
+            obj.dataframe.rename(columns=renamings, inplace=True)
+            obj.dataframe.to_csv(outfile, index=False)
+            md5sum = _utils.md5sum(outfile)
+            self.dataio._meta_data["format"] = "csv"
+
+            # populate the file block which needs to done here
+            dataio._meta_file["md5sum"] = md5sum
+            dataio._meta_file["relative_path"] = str(relpath)
+            dataio._meta_file["absolute_path"] = str(abspath)
+            allmeta = self._item_to_file_collect_all_metadata()
+            _utils.export_metadata_file(
+                metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
+            )
+        else:
+            self.dataio._meta_data["format"] = "hdf"
+            obj.to_hdf(outfile)
+
     def _item_to_file_dataframe(self):
         """Write DataFrame to file."""
-        logger.info(f"Export {self.subtype} to file...")
         dataio = self.dataio  # shorter
         obj = self.obj
 
