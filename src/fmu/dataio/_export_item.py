@@ -361,8 +361,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         meta = dataio._meta_data  # shortform
         meta["spec"] = OrderedDict()
-        meta["spec"]["nrow"] = poly.nrow
-
+        # number of polygons:
+        meta["spec"]["npolys"] = np.unique(poly.dataframe[poly.pname].values).size
         xmin, xmax, ymin, ymax, zmin, zmax = poly.get_boundary()
 
         meta["bbox"] = OrderedDict()
@@ -443,7 +443,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             self.dataio._meta_data["format"] = "irap_binary"
 
             # populate the file block which needs to done here
-            dataio._meta_file["md5sum"] = md5sum
+            dataio._meta_file["checksum_md5"] = md5sum
             dataio._meta_file["relative_path"] = str(relpath)
             dataio._meta_file["absolute_path"] = str(abspath)
             allmeta = self._item_to_file_collect_all_metadata()
@@ -474,13 +474,11 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         )
 
         fmt = dataio.polygons_fformat
-        print("XXXXX", fmt)
 
         if fmt not in VALID_POLYGONS_FORMATS.keys():
             raise ValueError(f"The file format {fmt} is not supported.")
 
         ext = VALID_POLYGONS_FORMATS.get(fmt, ".hdf")
-        print("XXXXX", ext)
 
         outfile, metafile, relpath, abspath = _utils.verify_path(
             dataio.createfolder, fpath, fname, ext, verbosity=dataio._verbosity
@@ -495,7 +493,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             self.dataio._meta_data["format"] = "csv"
 
             # populate the file block which needs to done here
-            dataio._meta_file["md5sum"] = md5sum
+            dataio._meta_file["checksum_md5"] = md5sum
             dataio._meta_file["relative_path"] = str(relpath)
             dataio._meta_file["absolute_path"] = str(abspath)
             allmeta = self._item_to_file_collect_all_metadata()
@@ -541,7 +539,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             self.dataio._meta_data["format"] = "csv"
 
             # populate the file block which needs to done here
-            dataio._meta_file["md5sum"] = md5sum
+            dataio._meta_file["checksum_md5"] = md5sum
             dataio._meta_file["relative_path"] = str(relpath)
             dataio._meta_file["absolute_path"] = str(abspath)
             allmeta = self._item_to_file_collect_all_metadata()
