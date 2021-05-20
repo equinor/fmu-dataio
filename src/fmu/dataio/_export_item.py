@@ -443,7 +443,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             self.dataio._meta_data["format"] = "irap_binary"
 
             # populate the file block which needs to done here
-            dataio._meta_file["md5sum"] = md5sum
+            dataio._meta_file["checksum_md5"] = md5sum
             dataio._meta_file["relative_path"] = str(relpath)
             dataio._meta_file["absolute_path"] = str(abspath)
             allmeta = self._item_to_file_collect_all_metadata()
@@ -495,7 +495,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             self.dataio._meta_data["format"] = "csv"
 
             # populate the file block which needs to done here
-            dataio._meta_file["md5sum"] = md5sum
+            dataio._meta_file["checkum_md5"] = md5sum
             dataio._meta_file["relative_path"] = str(relpath)
             dataio._meta_file["absolute_path"] = str(abspath)
             allmeta = self._item_to_file_collect_all_metadata()
@@ -541,7 +541,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             self.dataio._meta_data["format"] = "csv"
 
             # populate the file block which needs to done here
-            dataio._meta_file["md5sum"] = md5sum
+            dataio._meta_file["checksum_md5"] = md5sum
             dataio._meta_file["relative_path"] = str(relpath)
             dataio._meta_file["absolute_path"] = str(abspath)
             allmeta = self._item_to_file_collect_all_metadata()
