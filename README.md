@@ -122,3 +122,6 @@ Local development and testing:
 pip install -e .[tests,docs]
 pytest
 ```
+
+## License
+Apache 2.0
