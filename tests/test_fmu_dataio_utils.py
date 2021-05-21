@@ -70,3 +70,14 @@ def test_utils_verify_path():
     """Testing veriy the path. TODO"""
     # path = _ut.verify_path(True, TMPDIR2, "file", ".myext")
     # assert str(path) == "TMP/some/folder/file.myext"
+
+
+def test_parse_parameters_txt():
+    """Testing parsing of paramaters.txt to JSON"""
+
+    ptext = "tests/data/drogon/ertrun1/realization-1/iter-0/parameters.txt"
+
+    res = _utils.read_parameters_txt(ptext)
+
+    assert res["SENSNAME"] == "rms_seed"
+    assert res["GLOBVAR"]["VOLON_PERMH_CHANNEL"] == 1100
