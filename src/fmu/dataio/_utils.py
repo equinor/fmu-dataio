@@ -203,7 +203,6 @@ def read_parameters_txt(pfile):
                 f"Unexpected structure of parameters.txt, line is: {line}"
             )
 
-    print(json.dumps(param, indent=2))
     return param
 
 
