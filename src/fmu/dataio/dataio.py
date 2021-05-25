@@ -324,11 +324,11 @@ class ExportData:
                 logger.info("User folder is %s", userfolder.name)
                 therealization = realfolder.name.replace("realization-", "")
 
-                # store parameters.json and jobs.json
-                parameters_file = iterfolder / "parameters.json"
+                # store parameters.txt and jobs.json
+                parameters_file = iterfolder / "parameters.txt"
                 if parameters_file.is_file():
-                    with open(parameters_file, "r") as stream:
-                        ertjob["params"] = json.load(stream)
+                    params = _utils.read_parameters_txt(parameters_file)
+                    ertjob["params"] = params
 
                 jobs_file = iterfolder / "jobs.json"
                 if jobs_file.is_file():

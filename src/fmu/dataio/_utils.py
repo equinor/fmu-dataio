@@ -1,6 +1,8 @@
 """Module for private utilities/helpers for DataIO class."""
 import logging
 from pathlib import Path
+from collections import OrderedDict
+
 import uuid
 import hashlib
 import json
@@ -159,3 +161,72 @@ def md5sum(fname):
 def uuid_from_string(string):
     """Produce valid and repeteable UUID4 as a hash of given string"""
     return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())
+
+
+def read_parameters_txt(pfile):
+    """Read the parameters.txt file and convert to a dict.
+
+    The parameters.txt file has this structure::
+
+      SENSNAME rms_seed
+      SENSCASE p10_p90
+      RMS_SEED 1000
+      KVKH_CHANNEL 0.6
+      KVKH_CREVASSE 0.3
+      GLOBVAR:VOLON_FLOODPLAIN_VOLFRAC 0.256355
+      GLOBVAR:VOLON_PERMH_CHANNEL 1100
+      GLOBVAR:VOLON_PORO_CHANNEL 0.2
+      LOG10_GLOBVAR:FAULT_SEAL_SCALING 0.685516
+      LOG10_MULTREGT:MULT_THERYS_VOLON -3.21365
+      LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
+
+    This should be parsed as::
+
+        {
+        "SENSNAME": "rms_seed"
+        "SENSCASE": "p10_p90"
+        "RMS_SEED": 1000
+        "KVKH_CHANNEL": 0.6
+        "KVKH_CREVASSE": 0.3
+        "GLOBVAR": {"VOLON_FLOODPLAIN_VOLFRAC": 0.256355, ...etc}
+        }
+    """
+
+    with open(pfile, "r") as stream:
+        buffer = stream.read().replace(" ", ":").splitlines()
+
+    param = OrderedDict()
+    for line in buffer:
+        items = line.split(":")
+        if len(items) == 2:
+            param[items[0]] = check_if_number(items[1])
+        elif len(items) == 3:
+            if items[0] not in param:
+                param[items[0]] = OrderedDict()
+
+            param[items[0]][items[1]] = check_if_number(items[2])
+        else:
+            raise RuntimeError(
+                f"Unexpected structure of parameters.txt, line is: {line}"
+            )
+
+    return param
+
+
+def check_if_number(value):
+    """Check if value (str) looks like a number and return the converted value."""
+
+    res = None
+    try:
+        res = int(value)
+    except ValueError:
+        try:
+            res = float(value)
+        except ValueError:
+            pass
+
+    if res is not None:
+        return res
+
+    return value
+
