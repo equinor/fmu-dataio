@@ -363,7 +363,7 @@ class ExportData:
         # get the iteration metadata
         runid = ertjob["jobs"]["run_id"].replace(":", "_")
         i_meta = OrderedDict()
-        i_meta["uid"] = c_meta["uuid"] + "--" + iterfolder.name
+        i_meta["uuid"] = _utils.uuid_from_string(c_meta["uuid"] + iterfolder.name)
         i_meta["id"] = 0
         if "iter-" in iterfolder.name:
             i_meta["id"] = int(iterfolder.name.replace("iter-", ""))
@@ -375,8 +375,8 @@ class ExportData:
         r_meta = OrderedDict()
         r_meta["id"] = int(therealization)
         r_meta["name"] = realfolder.name
-        r_meta["uid"] = (
-            c_meta["uuid"] + "--" + str(i_meta["id"]) + "--" + str(r_meta["id"])
+        r_meta["uuid"] = _utils.uuid_from_string(
+            c_meta["uuid"] + str(i_meta["id"]) + str(r_meta["id"])
         )
         r_meta["jobs"] = ertjob["jobs"]
         r_meta["parameters"] = ertjob["params"]

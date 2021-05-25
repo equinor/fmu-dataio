@@ -2,6 +2,8 @@
 import logging
 from pathlib import Path
 from collections import OrderedDict
+
+import uuid
 import hashlib
 import json
 
@@ -154,6 +156,11 @@ def md5sum(fname):
         for chunk in iter(lambda: fil.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+
+def uuid_from_string(string):
+    """Produce valid and repeteable UUID4 as a hash of given string"""
+    return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())
 
 
 def read_parameters_txt(pfile):

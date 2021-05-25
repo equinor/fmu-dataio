@@ -89,5 +89,4 @@ def test_process_fmu_realisation():
 
     assert r_meta["parameters"]["KVKH_CREVASSE"] == 0.3
     assert r_meta["parameters"]["GLOBVAR"]["VOLON_FLOODPLAIN_VOLFRAC"] == 0.256355
-    assert i_meta["uid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37--iter-0"
     assert c_meta["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"

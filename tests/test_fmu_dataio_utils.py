@@ -72,6 +72,19 @@ def test_utils_verify_path():
     # assert str(path) == "TMP/some/folder/file.myext"
 
 
+def test_uuid_from_string():
+    """Testing that uuid from string is repeatable"""
+    string1 = "string1"
+    string2 = "string2"
+
+    uuid1 = _utils.uuid_from_string(string1)
+    uuid2 = _utils.uuid_from_string(string2)
+    uuidx = _utils.uuid_from_string(string1)
+
+    assert uuid1 != uuid2
+    assert uuidx == uuid1
+
+
 def test_parse_parameters_txt():
     """Testing parsing of paramaters.txt to JSON"""
 
