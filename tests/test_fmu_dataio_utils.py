@@ -82,7 +82,7 @@ def test_uuid_from_string():
     uuidX = _utils.uuid_from_string(string1)
 
     assert uuid1 != uuid2
-    assert uuidX == uuid1
+    assert uuidx == uuid1
 
 
 def test_parse_parameters_txt():
