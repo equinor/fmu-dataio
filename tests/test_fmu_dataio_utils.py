@@ -94,4 +94,3 @@ def test_parse_parameters_txt():
 
     assert res["SENSNAME"] == "rms_seed"
     assert res["GLOBVAR"]["VOLON_PERMH_CHANNEL"] == 1100
-

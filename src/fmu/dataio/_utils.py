@@ -229,4 +229,3 @@ def check_if_number(value):
         return res
 
     return value
-
