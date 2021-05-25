@@ -82,4 +82,4 @@ def test_uuid_from_string():
     uuidX = _utils.uuid_from_string(string1)
 
     assert uuid1 != uuid2
-    assert uuid1 == uuid1
+    assert uuidX == uuid1
