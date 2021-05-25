@@ -155,6 +155,7 @@ def md5sum(fname):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
+
 def uuid_from_string(string):
     """Produce valid and repeteable UUID4 as a hash of given string"""
-    return uuid.UUID(hashlib.md5(string.encode('utf-8')).hexdigest())
+    return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())
