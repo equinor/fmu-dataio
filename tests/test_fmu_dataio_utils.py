@@ -70,3 +70,15 @@ def test_utils_verify_path():
     """Testing veriy the path. TODO"""
     # path = _ut.verify_path(True, TMPDIR2, "file", ".myext")
     # assert str(path) == "TMP/some/folder/file.myext"
+
+def test_uuid_from_string():
+    """Testing that uuid from string is repeatable"""
+    string1 = "string1"
+    string2 = "string2"
+
+    uuid1 = _utils.uuid_from_string(string1)
+    uuid2 = _utils.uuid_from_string(string2)
+    uuidX = _utils.uuid_from_string(string1)
+
+    assert uuid1 != uuid2
+    assert uuid1 == uuid1

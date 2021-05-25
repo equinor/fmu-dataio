@@ -1,6 +1,7 @@
 """Module for private utilities/helpers for DataIO class."""
 import logging
 from pathlib import Path
+import uuid
 import hashlib
 import json
 
@@ -153,3 +154,7 @@ def md5sum(fname):
         for chunk in iter(lambda: fil.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+def uuid_from_string(string):
+    """Produce valid and repeteable UUID4 as a hash of given string"""
+    return uuid.UUID(hashlib.md5(string.encode('utf-8')).hexdigest())
