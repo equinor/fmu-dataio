@@ -18,6 +18,7 @@ CFG["masterdata"] = {
 CFG["stratigraphy"] = {"TopVolantis": {}}
 CFG["access"] = {"someaccess": "jail"}
 CFG["model"] = {"revision": "0.99.0"}
+CFG["access"] = {"asset": "Drogon", "ssdl": "internal"}
 
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
 
