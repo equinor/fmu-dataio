@@ -510,11 +510,25 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
 
         meta = self._meta_dollars.copy()
         meta["class"] = "case"
+
         meta["fmu"] = OrderedDict()
         meta["fmu"]["case"] = c_meta
         meta["fmu"]["model"] = self._meta_fmu["model"]
+
+        # Should not be possible to initialize a case without
+        # the access.asset field be present.
+        # Outgoing case metadata should contain access.asset only
+        if not self._meta_access:
+            logger.debug("self._meta_access is %s", str(self._meta_access))
+            logger.error("Cannot proceed without access information.")
+            raise ValueError("Access information missing.")
+        if not "asset" in self._meta_access.keys():
+            logger.error("the access field in the metadata was missing the asset field")
+        meta["access"] = {"asset": self._meta_access["asset"]}
+
         meta["masterdata"] = self._meta_masterdata
         meta["tracklog"] = list()
+
         track = OrderedDict()
 
         track["datetime"] = datetime.datetime.now().isoformat()
