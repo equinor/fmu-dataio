@@ -59,8 +59,9 @@ def test_data_process_name():
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_name()
     assert dataio._meta_data["name"] == "Something else"
-    assert "stratigraphic" not in dataio._meta_data
-
+    #assert "stratigraphic" not in dataio._meta_data
+    assert "stratigraphic" in dataio._meta_data
+    assert dataio._meta_data["stratigraphic"] is False
 
 def test_data_process_relation():
     """Test the _data_process_relation function."""
