@@ -44,7 +44,7 @@ logger.setLevel(logging.CRITICAL)
 DOLLARS = OrderedDict(
     [
         (
-            "schema",
+            "$schema",
             "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/"
             "fmu_results.json",
         ),

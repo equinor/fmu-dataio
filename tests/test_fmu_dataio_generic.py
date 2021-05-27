@@ -40,7 +40,8 @@ def test_get_meta_dollars():
     """The private routine that provides special <names> (earlier with $ in front)."""
     case = fmu.dataio.ExportData()
     case._config = CFG
-    assert "schema" in case._meta_dollars["schema"]
+    logger.info(case._meta_dollars)
+    assert "$schema" in case._meta_dollars
     assert "fmu" in case._meta_dollars["source"]
 
 
