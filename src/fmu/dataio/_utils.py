@@ -1,4 +1,5 @@
 """Module for private utilities/helpers for DataIO class."""
+from os.path import join
 import logging
 from pathlib import Path
 from collections import OrderedDict
@@ -82,24 +83,31 @@ def construct_filename(
     return stem, dest
 
 
-def verify_path(createfolder, filedest, filename, ext, verbosity="WARNING"):
-    logger.setLevel(level=verbosity)
+def verify_path(dataio, filedest, filename, ext):
+    logger.setLevel(level=dataio._verbosity)
 
-    path = (Path(filedest) / filename.lower()).with_suffix(ext)
+    folder = dataio._pwd / filedest  # filedest shall be relative path to PWD
+
+    path = (Path(folder) / filename.lower()).with_suffix(ext)
     abspath = path.resolve()
 
     if path.parent.exists():
         logger.info("Folder exists")
     else:
-        if createfolder:
+        if dataio.createfolder:
             logger.info("No such folder, will create")
             path.parent.mkdir(parents=True, exist_ok=True)
         else:
             raise IOError(f"Folder {str(path.parent)} is not present.")
 
     # create metafile path
-    metapath = (Path(filedest) / ("." + filename.lower())).with_suffix(".yml")
-    relpath = str(path).replace("../", "")
+    metapath = ((Path(folder) / ("." + filename.lower())).with_suffix(".yml")).resolve()
+
+    # relative path
+    relpath = str(filedest).replace("../", "")
+    if dataio._realfolder is not None and dataio._iterfolder is not None:
+        relpath = join(f"{dataio._realfolder}/{dataio._iterfolder}", relpath)
+    relpath = join(f"{relpath}/{filename.lower()}{ext}")
 
     logger.info("Full path to the actual file is: %s", abspath)
     logger.info("Full path to the metadata file (if used) is: %s", metapath)
@@ -109,7 +117,7 @@ def verify_path(createfolder, filedest, filename, ext, verbosity="WARNING"):
 
 
 def drop_nones(dinput: dict) -> dict:
-    """Recursively drop Nones in dict d and return a new dict."""
+    """Recursively drop Nones in dict dinput and return a new dict."""
     # https://stackoverflow.com/a/65379092
     dd = {}
     for key, val in dinput.items():

@@ -124,9 +124,10 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         # next check if usename has a "truename" and/or aliases from the config
         strat = self.dataio._meta_strat  # shortform
 
-        if strat is None:
-            meta["name"] = usename
-        elif strat is not None and usename not in strat:
+        logger.debug("self.dataio._meta_strat is %s", self.dataio._meta_strat)
+
+        if strat is None or usename not in strat:
+            meta["stratigraphic"] = False
             meta["name"] = usename
         else:
             meta["name"] = strat[usename].get("name", usename)
@@ -433,7 +434,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         ext = VALID_SURFACE_FORMATS.get(fmt, ".hdf")
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio.createfolder, fpath, fname, ext, verbosity=dataio._verbosity
+            dataio, fpath, fname, ext
         )
 
         logger.info("Exported file is %s", outfile)
@@ -481,7 +482,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         ext = VALID_POLYGONS_FORMATS.get(fmt, ".hdf")
 
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio.createfolder, fpath, fname, ext, verbosity=dataio._verbosity
+            dataio, fpath, fname, ext
         )
 
         logger.info("Exported file is %s", outfile)
@@ -529,7 +530,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         ext = VALID_TABLE_FORMATS.get(fmt, ".hdf")
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio.createfolder, fpath, fname, ext, verbosity=dataio._verbosity
+            dataio, fpath, fname, ext
         )
 
         logger.info("Exported file is %s", outfile)

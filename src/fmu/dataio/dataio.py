@@ -44,7 +44,7 @@ logger.setLevel(logging.CRITICAL)
 DOLLARS = OrderedDict(
     [
         (
-            "schema",
+            "$schema",
             "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/"
             "fmu_results.json",
         ),
@@ -147,6 +147,10 @@ class ExportData:
 
         # keep track if case
         self._case = False
+
+        # store iter and realization folder names (when running ERT)
+        self._iterfolder = None
+        self._realfolder = None
 
         logger.setLevel(level=self._verbosity)
         self._pwd = pathlib.Path().absolute()
@@ -322,6 +326,10 @@ class ExportData:
                 logger.info("Iter folder is %s", iterfolder.name)
                 logger.info("Case folder is %s", casefolder.name)
                 logger.info("User folder is %s", userfolder.name)
+
+                self._iterfolder = iterfolder.name
+                self._realfolder = realfolder.name
+
                 therealization = realfolder.name.replace("realization-", "")
 
                 # store parameters.txt and jobs.json
@@ -522,7 +530,8 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
             logger.debug("self._meta_access is %s", str(self._meta_access))
             logger.error("Cannot proceed without access information.")
             raise ValueError("Access information missing.")
-        if not "asset" in self._meta_access.keys():
+        if "asset" not in self._meta_access.keys():
+
             logger.error("the access field in the metadata was missing the asset field")
         meta["access"] = {"asset": self._meta_access["asset"]}
 
