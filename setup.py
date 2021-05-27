@@ -27,7 +27,7 @@ DOCS_REQUIREMENTS = sf.parse_requirements("requirements/requirements_docs.txt")
 EXTRAS_REQUIRE = {"tests": TEST_REQUIREMENTS, "docs": DOCS_REQUIREMENTS}
 
 setuptools.setup(
-    name="fmu.dataio",
+    name="fmu-dataio",
     description="Facilitate data io in FMU with rich metadata",
     author="Equinor",
     author_email="jriv@equinor.com",
