@@ -531,6 +531,7 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
             logger.error("Cannot proceed without access information.")
             raise ValueError("Access information missing.")
         if "asset" not in self._meta_access.keys():
+
             logger.error("the access field in the metadata was missing the asset field")
         meta["access"] = {"asset": self._meta_access["asset"]}
 
