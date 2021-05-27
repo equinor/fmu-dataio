@@ -516,6 +516,23 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
 
         logger.info("Case metadata file: %s", str(metafile))
 
+        existing_metadata = None
+
+        if metafile.is_file():
+            logger.debug("Case metadata file already exists. So parsing it.")
+            with open(metafile, "r") as stream:
+                existing_metadata = yaml.safe_load(stream)
+
+        if existing_metadata is not None:
+            logger.debug("Reusing fmu.case.uuid")
+            fmu_case_uuid = existing_metadata["fmu"]["case"]["uuid"]
+        else:
+            logger.debug("Creating fresh fmu.case.uuid")
+            fmu_case_uuid = str(uuid.uuid4())
+
+        logger.debug("fmu.case.uuid is %s", fmu_case_uuid)
+        c_meta["uuid"] = fmu_case_uuid
+
         meta = self._meta_dollars.copy()
         meta["class"] = "case"
 
@@ -576,7 +593,7 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
         # iterfolder something like /scratch/xxx/user/casename/iter-0
 
         c_meta["name"] = casename
-        c_meta["uuid"] = str(uuid.uuid4())
+        # uuid is inserted at later stage
         c_meta["user"] = OrderedDict()
         c_meta["user"]["id"] = caseuser
         if restart_from is not None:
