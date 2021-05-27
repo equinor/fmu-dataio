@@ -1,6 +1,8 @@
 """Test the surface_io module."""
 from collections import OrderedDict
+import shutil
 import logging
+import json
 import numpy as np
 import xtgeo
 import yaml
@@ -27,6 +29,7 @@ with open("tests/data/drogon/global_config2/global_variables.yml", "r") as strea
     CFG2 = yaml.safe_load(stream)
 
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
+CASEPATH = "tests/data/drogon/ertrun1"
 
 
 def test_surface_io(tmp_path):
@@ -65,7 +68,7 @@ def test_surface_io_larger_case(tmp_path):
         is_prediction=True,
         is_observation=False,
         tagname="what Descr",
-        verbosity="WARNING",
+        verbosity="INFO",
     )
     exp._pwd = tmp_path
     exp.to_file(srf, verbosity="DEBUG")
@@ -76,10 +79,22 @@ def test_surface_io_larger_case(tmp_path):
 
 
 def test_surface_io_larger_case_ertrun(tmp_path):
-    """Larger test surface io as ERTRUN, uses global config from Drogon to tmp_path."""
+    """Larger test surface io as ERTRUN, uses global config from Drogon to tmp_path.
 
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
+    Need some file acrobatics here to make the tmp_path area look like an ERTRUN first.
+    """
+
+    current = tmp_path / "scratch" / "fields" / "user"
+    current.mkdir(parents=True, exist_ok=True)
+
+    shutil.copytree(CASEPATH, current / "mycase")
+
+    fmu.dataio.ExportData.export_root = "../../share/results"
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
+    runfolder.mkdir(parents=True, exist_ok=True)
+    out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
 
     exp = fmu.dataio.ExportData(
         config=CFG2,
@@ -91,7 +106,7 @@ def test_surface_io_larger_case_ertrun(tmp_path):
         is_observation=False,
         tagname="what Descr",
         verbosity="INFO",
-        runfolder=RUN,
+        runfolder=runfolder.resolve(),
         workflow="my current workflow",
     )
 
@@ -99,8 +114,22 @@ def test_surface_io_larger_case_ertrun(tmp_path):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, values=np.ma.ones((20, 30)), name="TopVolantis"
     )
-
     exp.to_file(srf, verbosity="INFO")
 
-    metadataout = tmp_path / "maps" / ".topvolantis--what_descr.yml"
+    metadataout = out / ".topvolantis--what_descr.yml"
     assert metadataout.is_file() is True
+
+    # now read the metadata file and test some key entries:
+    with open(metadataout, "r") as stream:
+        meta = yaml.safe_load(stream)
+
+    assert (
+        meta["file"]["relative_path"]
+        == "realization-0/iter-0/share/results/maps/topvolantis--what_descr.gri"
+    )
+    assert meta["fmu"]["model"]["name"] == "ff"
+    assert meta["fmu"]["iteration"]["name"] == "iter-0"
+    assert meta["fmu"]["realization"]["name"] == "realization-0"
+    assert meta["data"]["stratigraphic"] is True
+
+    logger.debug("\n%s", json.dumps(meta, indent=2))

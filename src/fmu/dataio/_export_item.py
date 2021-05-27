@@ -433,7 +433,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         ext = VALID_SURFACE_FORMATS.get(fmt, ".hdf")
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio.createfolder, fpath, fname, ext, verbosity=dataio._verbosity
+            dataio, fpath, fname, ext
         )
 
         logger.info("Exported file is %s", outfile)
@@ -481,7 +481,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         ext = VALID_POLYGONS_FORMATS.get(fmt, ".hdf")
 
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio.createfolder, fpath, fname, ext, verbosity=dataio._verbosity
+            dataio, fpath, fname, ext
         )
 
         logger.info("Exported file is %s", outfile)
@@ -529,7 +529,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         ext = VALID_TABLE_FORMATS.get(fmt, ".hdf")
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio.createfolder, fpath, fname, ext, verbosity=dataio._verbosity
+            dataio, fpath, fname, ext
         )
 
         logger.info("Exported file is %s", outfile)
