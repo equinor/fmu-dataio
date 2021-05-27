@@ -148,6 +148,10 @@ class ExportData:
         # keep track if case
         self._case = False
 
+        # store iter and realization folder names (when running ERT)
+        self._iterfolder = None
+        self._realfolder = None
+
         logger.setLevel(level=self._verbosity)
         self._pwd = pathlib.Path().absolute()
         logger.info("Create instance of ExportData")
@@ -322,6 +326,10 @@ class ExportData:
                 logger.info("Iter folder is %s", iterfolder.name)
                 logger.info("Case folder is %s", casefolder.name)
                 logger.info("User folder is %s", userfolder.name)
+
+                self._iterfolder = iterfolder.name
+                self._realfolder = realfolder.name
+
                 therealization = realfolder.name.replace("realization-", "")
 
                 # store parameters.txt and jobs.json
