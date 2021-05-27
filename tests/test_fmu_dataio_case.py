@@ -59,6 +59,7 @@ def test_fmu_case_meta_to_file(tmp_path):
         description="My added description",
     )
 
+
 def test_persisted_case_uuid(tmp_path):
     """
     Assert that the fmu.case.uuid is persisted when a case is
@@ -82,8 +83,10 @@ def test_persisted_case_uuid(tmp_path):
         restart_from=None,
         description="My added description",
     )
-    
-    case_metadata_filename = pathlib.Path(tmp_path / "share" / "metadata" / "fmu_case.yml")
+
+    case_metadata_filename = pathlib.Path(
+        tmp_path / "share" / "metadata" / "fmu_case.yml"
+    )
 
     with open(case_metadata_filename, "r") as stream:
         case_metadata = yaml.safe_load(stream)
@@ -102,7 +105,9 @@ def test_persisted_case_uuid(tmp_path):
         description="My added description",
     )
 
-    case_metadata_filename = pathlib.Path(tmp_path / "share" / "metadata" / "fmu_case.yml")
+    case_metadata_filename = pathlib.Path(
+        tmp_path / "share" / "metadata" / "fmu_case.yml"
+    )
 
     with open(case_metadata_filename, "r") as stream:
         case_metadata = yaml.safe_load(stream)
