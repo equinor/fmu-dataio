@@ -29,8 +29,7 @@ EXTRAS_REQUIRE = {"tests": TEST_REQUIREMENTS, "docs": DOCS_REQUIREMENTS}
 setuptools.setup(
     name="fmu-dataio",
     description="Facilitate data io in FMU with rich metadata",
-    author="Equinor",
-    author_email="jriv@equinor.com",
+    author="Equinor ASA",
     url="https://github.com/equinor/fmu-dataio",
     project_urls={
         "Documentation": "https://fmu-dataio.notyet_on_readthedocs.io/",
