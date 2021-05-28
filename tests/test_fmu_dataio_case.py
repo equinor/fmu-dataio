@@ -3,6 +3,7 @@ import pathlib
 from collections import OrderedDict
 import logging
 import json
+import yaml
 import fmu.dataio
 
 CFG = OrderedDict()
@@ -57,3 +58,60 @@ def test_fmu_case_meta_to_file(tmp_path):
         restart_from=None,
         description="My added description",
     )
+
+
+def test_persisted_case_uuid(tmp_path):
+    """
+    Assert that the fmu.case.uuid is persisted when a case is
+    initialized many times.
+
+    Wanted behavior:
+
+        When initializing a case for the first time, fmu.dataio
+        should produce the case metadata.
+        When initializing that case again, fmu.dataio should persist
+        the fmu.case.uuid, so that subsequent data objects uploaded
+        in two separate runs will inherit the same uuid.
+    """
+
+    case = fmu.dataio.InitializeCase(verbosity="DEBUG", config=CFG)
+    case._pwd = pathlib.Path(RUN)
+    case.to_file(
+        casename="testcase",
+        rootfolder=str(tmp_path),
+        caseuser="ertuser",
+        restart_from=None,
+        description="My added description",
+    )
+
+    case_metadata_filename = pathlib.Path(
+        tmp_path / "share" / "metadata" / "fmu_case.yml"
+    )
+
+    with open(case_metadata_filename, "r") as stream:
+        case_metadata = yaml.safe_load(stream)
+
+    assert "fmu" in case_metadata
+    assert "case" in case_metadata["fmu"]
+    assert "uuid" in case_metadata["fmu"]["case"]
+
+    first_uuid = case_metadata["fmu"]["case"]["uuid"]
+
+    case.to_file(
+        casename="testcase",
+        rootfolder=str(tmp_path),
+        caseuser="ertuser",
+        restart_from=None,
+        description="My added description",
+    )
+
+    case_metadata_filename = pathlib.Path(
+        tmp_path / "share" / "metadata" / "fmu_case.yml"
+    )
+
+    with open(case_metadata_filename, "r") as stream:
+        case_metadata = yaml.safe_load(stream)
+
+    second_uuid = case_metadata["fmu"]["case"]["uuid"]
+
+    assert first_uuid == second_uuid
