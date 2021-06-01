@@ -180,3 +180,49 @@ def test_data_process_content():
     exportitem._data_process_content()
     assert dataio._meta_data["content"] == "seismic"
     assert dataio._meta_data["seismic"]["attribute"] == "attribute_timeshifted_somehow"
+
+
+def test_data_process_object_regularsurface():
+    """Test the data_process_object for regularsurface function.
+    * Check that subtype is present in dataio.default_undef
+    * spec.undef value is correctly set
+    * bbox present and valid
+    * layout present and == "regular"
+    """
+
+    subtype = "RegularSurface"
+    obj = xtgeo.RegularSurface(name="SomeName")
+
+    # test case 1 - use default undef
+    dataio = fmu.dataio.ExportData()
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem.subtype = subtype
+    exportitem._data_process_object()
+    _default = dataio.default_undef[subtype]  # also checking presence
+    assert dataio._meta_data["spec"]["undef"] == _default
+
+    assert dataio._meta_data["bbox"]["xmin"] == float(obj.xmin)
+    assert dataio._meta_data["bbox"]["xmax"] == float(obj.xmax)
+    assert dataio._meta_data["bbox"]["ymin"] == float(obj.ymin)
+    assert dataio._meta_data["bbox"]["ymax"] == float(obj.ymax)
+    assert dataio._meta_data["bbox"]["zmin"] == float(obj.values.min())
+    assert dataio._meta_data["bbox"]["zmax"] == float(obj.values.max())
+
+    assert dataio._meta_data["layout"] == "regular"
+
+    # test case 2 - set undef with argument
+    dataio = fmu.dataio.ExportData(undef=1.0)
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem.subtype = subtype
+    exportitem._data_process_object()
+    assert dataio._meta_data["spec"]["undef"] == 1.0
+
+
+def test_data_process_object_polygons():
+    """Test the data_process_object function for polygons subtype."""
+    # placeholder
+
+
+def test_data_process_object_dataframe():
+    """Test the data_process_object function for dataframe subtype."""
+    # placeholder
