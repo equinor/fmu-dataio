@@ -25,6 +25,7 @@ ALLOWED_CONTENTS = [
     "undefined",
 ]
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -316,6 +317,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         Note that 'format' field will be added in _item_to_file
         """
 
+        logging.info("starting _data_process_object")
+
         if self.subtype == "RegularSurface":
             self._data_process_object_regularsurface()
         elif self.subtype == "Polygons":
@@ -342,7 +345,11 @@ class _ExportItem:  # pylint disable=too-few-public-methods
                 val = float(val)
             newspecs[spec] = val
         meta["spec"] = newspecs
-        meta["spec"]["undef"] = 1.0e30  # irap binary undef
+
+        _undef = self.dataio._undef
+        if _undef is None:
+            _undef = self.dataio.default_undef.get("RegularSurface")
+        meta["spec"]["undef"] = _undef
 
         meta["bbox"] = OrderedDict()
         meta["bbox"]["xmin"] = float(regsurf.xmin)
@@ -364,6 +371,12 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         meta["spec"] = OrderedDict()
         # number of polygons:
         meta["spec"]["npolys"] = np.unique(poly.dataframe[poly.pname].values).size
+
+        _undef = self.dataio._undef
+        if _undef is None:
+            _undef = self.dataio.default_undef.get("Polygons")
+        meta["spec"]["undef"] = _undef
+
         xmin, xmax, ymin, ymax, zmin, zmax = poly.get_boundary()
 
         meta["bbox"] = OrderedDict()
@@ -390,7 +403,11 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         meta["spec"] = OrderedDict()
         meta["spec"]["columns"] = list(dfr.columns)
         meta["spec"]["size"] = int(dfr.size)
-        meta["spec"]["undef"] = "Nan"
+
+        _undef = self.dataio._undef
+        if _undef is None:
+            _undef = self.dataio.default_undef.get("Dataframe")
+        meta["spec"]["undef"] = _undef
 
         meta["bbox"] = None
         logger.info("Process data metadata for DataFrame... done!!")

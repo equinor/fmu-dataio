@@ -77,6 +77,12 @@ class ExportData:
     createfolder = True
     meta_format = "yaml"
 
+    default_undef = {
+        "RegularSurface": 1.0e30,  # irap binary undef
+        "Dataframe": -999.25,
+        "Polygons": -999.25,
+    }
+
     def __init__(
         self,
         name: Optional[str] = None,
@@ -92,6 +98,7 @@ class ExportData:
         workflow: Optional[str] = None,
         access_ssdl: Optional[dict] = None,
         runfolder: Optional[str] = None,
+        undef: Optional[float] = None,
         verbosity: Optional[str] = "CRITICAL",
     ) -> None:
         """Instantate ExportData object.
@@ -144,6 +151,8 @@ class ExportData:
         self._workflow = workflow
         self._access_ssdl = access_ssdl
         self._verbosity = verbosity
+
+        self._undef = undef
 
         # keep track if case
         self._case = False
