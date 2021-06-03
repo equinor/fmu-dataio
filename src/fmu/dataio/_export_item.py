@@ -390,7 +390,6 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         meta["spec"] = OrderedDict()
         meta["spec"]["columns"] = list(dfr.columns)
         meta["spec"]["size"] = int(dfr.size)
-        meta["spec"]["undef"] = "Nan"
 
         meta["bbox"] = None
         logger.info("Process data metadata for DataFrame... done!!")
