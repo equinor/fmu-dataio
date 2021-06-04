@@ -8,6 +8,7 @@ import pytest
 import fmu.dataio
 import fmu.dataio._export_item as ei
 
+
 CFG = OrderedDict()
 CFG["template"] = {"name": "Test", "revision": "AUTO"}
 CFG["masterdata"] = {
@@ -180,3 +181,48 @@ def test_data_process_content():
     exportitem._data_process_content()
     assert dataio._meta_data["content"] == "seismic"
     assert dataio._meta_data["seismic"]["attribute"] == "attribute_timeshifted_somehow"
+
+
+def test_data_process_content_shall_fail():
+    """Test the _data_process_content function for invalid entries."""
+    # test case 1
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content="something_invalid",
+        timedata=[["20210101", "first"], [20210902, "second"]],
+        tagname="WhatEver",
+    )
+    obj = xtgeo.RegularSurface(name="SomeName")
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    with pytest.raises(ei.ValidationError) as errmsg:
+        exportitem._data_process_content()
+    assert "Invalid content" in str(errmsg)
+
+    # test case 2, valid key but invalid value
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content={"seismic": {"attribute": 100}},
+        timedata=[["20210101", "first"], [20210902, "second"]],
+        tagname="WhatEver",
+    )
+    obj = xtgeo.RegularSurface(name="SomeName")
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    with pytest.raises(ei.ValidationError) as errmsg:
+        exportitem._data_process_content()
+    assert "Invalid type" in str(errmsg)
+
+    # test case 3, valid content key but invalid attribute key
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content={"seismic": {"invalid_attribute": "some"}},
+        timedata=[["20210101", "first"], [20210902, "second"]],
+        tagname="WhatEver",
+    )
+    obj = xtgeo.RegularSurface(name="SomeName")
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    with pytest.raises(ei.ValidationError) as errmsg:
+        exportitem._data_process_content()
+    assert "is not valid for" in str(errmsg)

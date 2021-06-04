@@ -16,16 +16,38 @@ VALID_SURFACE_FORMATS = {"hdf": ".hdf", "irap_binary": ".gri"}
 VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
 VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
 
-ALLOWED_CONTENTS = [
-    "depth",
-    "time",
-    "seismic",
-    "fluid_contact",
-    "volumetrics",
-    "undefined",
-]
+# the content must conform with the given json schema, e.g.
+# https://github.com/equinor/fmu-metadata/blob/dev/definitions/*/schema/fmu_results.json
+#
+# When value is None, a repeat field shall not be present, otherwise it may be as this:
+# content: seismics
+# seismics:
+#   attribute: mean
+#   zrange: 42.0
+#   filter_size: 4.0
+#   scaling_factor: 1.5
+
+ALLOWED_CONTENTS = {
+    "depth": None,
+    "time": None,
+    "seismic": {
+        "attribute": str,
+        "zrange": float,
+        "filter_size": float,
+        "scaling_factor": float,
+    },
+    "fluid_contact": {"contact": str},
+    "field_outline": {"contact": str},
+    "volume": None,
+    "volumetrics": None,  # or?
+    "undefined": None,
+}
 
 logger = logging.getLogger(__name__)
+
+
+class ValidationError(ValueError):
+    pass
 
 
 class _ExportItem:  # pylint disable=too-few-public-methods
@@ -234,12 +256,30 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             usecontent = (list(content.keys()))[0]
             useextra = content[usecontent]
 
-        if usecontent not in ALLOWED_CONTENTS:
-            raise ValueError(f"Sorry, content <{usecontent}> is not in list!")
+        if usecontent not in ALLOWED_CONTENTS.keys():
+            raise ValidationError(f"Invalid content: <{usecontent}> is not in list!")
 
         meta["content"] = usecontent
         if useextra:
+            self._data_process_content_validate(usecontent, useextra)
             meta[usecontent] = useextra
+
+    @staticmethod
+    def _data_process_content_validate(name, fields):
+        valid = ALLOWED_CONTENTS.get(name, None)
+        if valid is None:
+            raise ValidationError(f"Cannot validate content for <{name}>")
+
+        for key, dtype in fields.items():
+            if key in valid.keys():
+                wanted_type = valid[key]
+                if not isinstance(dtype, wanted_type):
+                    raise ValidationError(
+                        f"Invalid type for <{key}> with value <{dtype}>, not of "
+                        f"type <{wanted_type}>"
+                    )
+            else:
+                raise ValidationError(f"Key <{key}> is not valid for <{name}>")
 
     def _data_process_timedata(self):
         """Process the time subfield."""
