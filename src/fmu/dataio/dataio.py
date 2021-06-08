@@ -90,6 +90,7 @@ class ExportData:
         is_prediction: Optional[bool] = True,
         is_observation: Optional[bool] = False,
         workflow: Optional[str] = None,
+        grid_model: Optional[dict] = None,
         access_ssdl: Optional[dict] = None,
         runfolder: Optional[str] = None,
         verbosity: Optional[str] = "CRITICAL",
@@ -120,6 +121,9 @@ class ExportData:
             is_prediction: True (default) of model prediction data
             is_observation: Default is False.
             workflow: Short tag desciption of workflow (as description)
+            grid_model: A dictionary containing valid attributes for the fmu:grid_model
+                metadata field. Example:
+                {"grid_model": {"name": "Simgrid"}}
             access_ssdl: A dictionary that will overwrite the default ssdl
                 settings read from the config. Example:
                 {"access_level": "restricted", "rep_include": False}
@@ -141,6 +145,7 @@ class ExportData:
         )
         self._is_prediction = is_prediction
         self._is_observation = is_observation
+        self._grid_model = grid_model
         self._workflow = workflow
         self._access_ssdl = access_ssdl
         self._verbosity = verbosity
@@ -254,6 +259,37 @@ class ExportData:
                 "Note that metadata for realization is None, "
                 "so this is interpreted as not an ERT run!"
             )
+
+        self._meta_fmu["grid_model"] = self._process_meta_fmu_grid_model()
+
+    def _process_meta_fmu_grid_model(self):
+        """Processing the fmu:grid_model section"""
+
+        if self._grid_model is None:
+            logger.info("grid_model was None, assuming it was not passed")
+            return
+
+        meta = self._grid_model
+
+        if not isinstance(meta, dict):
+            logger.error("grid_model: %s", str(meta))
+            logger.debug("grid_model type was %s", str(type(meta)))
+            raise ValueError("The grid_model argument must be of type dict")
+
+        if not "name" in meta.keys():
+            logger.error("grid_model: %s", str(meta))
+            logger.debug("keys in meta: %s", str(meta.keys()))
+            raise ValueError("grid_model must contain 'name'")
+
+        if not isinstance(meta["name"], str):
+            _gmname = meta["name"]  # shortform
+            logger.error("grid_model: %s", str(_gmname))
+            logger.debug("grid_model:name was of type %s", str(type(_gmname)))
+            raise ValueError("grid_model:name must be a string")
+
+        logger.info("grid_model section has been processed")
+
+        return meta
 
     def _process_meta_fmu_model(self):
         """Processing the fmu:model section."""
