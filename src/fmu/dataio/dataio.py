@@ -276,7 +276,7 @@ class ExportData:
             logger.debug("grid_model type was %s", str(type(meta)))
             raise ValueError("The grid_model argument must be of type dict")
 
-        if not "name" in meta.keys():
+        if "name" not in meta.keys():
             logger.error("grid_model: %s", str(meta))
             logger.debug("keys in meta: %s", str(meta.keys()))
             raise ValueError("grid_model must contain 'name'")
