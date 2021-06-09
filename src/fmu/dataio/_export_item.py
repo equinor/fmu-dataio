@@ -13,6 +13,7 @@ import xtgeo
 from . import _utils
 
 VALID_SURFACE_FORMATS = {"hdf": ".hdf", "irap_binary": ".gri"}
+VALID_GRID_FORMATS = {"hdf": ".hdf", "roff": ".roff"}
 VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
 VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
 
@@ -30,6 +31,7 @@ VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
 ALLOWED_CONTENTS = {
     "depth": None,
     "time": None,
+    "property": {"attribute": str, "is_discrete": bool},
     "seismic": {
         "attribute": str,
         "zrange": float,
@@ -93,6 +95,12 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         elif isinstance(self.obj, xtgeo.Polygons):
             self.subtype = "Polygons"
             self.classname = "polygons"
+        elif isinstance(self.obj, xtgeo.Grid):
+            self.subtype = "Grid"
+            self.classname = "grid"
+        elif isinstance(self.obj, xtgeo.GridProperty):
+            self.subtype = "GridProperty"
+            self.classname = "grid_property"
         elif isinstance(self.obj, pd.DataFrame):
             self.subtype = "DataFrame"
             self.classname = "table"
@@ -358,10 +366,65 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         if self.subtype == "RegularSurface":
             self._data_process_object_regularsurface()
+        elif self.subtype == "Grid":
+            self._data_process_object_grid()
+        elif self.subtype == "GridProperty":
+            self._data_process_object_gridproperty()
         elif self.subtype == "Polygons":
             self._data_process_object_polygons()
         elif self.subtype == "DataFrame":
             self._data_process_object_dataframe()
+
+    def _data_process_object_grid(self):
+        """Process/collect the data items for Grid"""
+        logger.info("Process data metadata for Grid")
+
+        dataio = self.dataio
+        grid = self.obj
+
+        meta = dataio._meta_data  # shortform
+
+        meta["layout"] = "cornerpoint"
+
+        # define spec record
+        specs = grid.metadata.required
+        newspecs = OrderedDict()
+        for spec, val in specs.items():
+            if isinstance(val, (np.float32, np.float64)):
+                val = float(val)
+            newspecs[spec] = val
+        meta["spec"] = newspecs
+
+        geox = grid.get_geometrics(cellcenter=False, allcells=True, return_dict=True)
+
+        meta["bbox"] = OrderedDict()
+        meta["bbox"]["xmin"] = round(float(geox["xmin"]), 4)
+        meta["bbox"]["xmax"] = round(float(geox["xmax"]), 4)
+        meta["bbox"]["ymin"] = round(float(geox["ymin"]), 4)
+        meta["bbox"]["ymax"] = round(float(geox["ymax"]), 4)
+        meta["bbox"]["zmin"] = round(float(geox["zmin"]), 4)
+        meta["bbox"]["zmax"] = round(float(geox["zmax"]), 4)
+        logger.info("Process data metadata for Grid... done!!")
+
+    def _data_process_object_gridproperty(self):
+        """Process/collect the data items for GridProperty"""
+        logger.info("Process data metadata for GridProperty")
+
+        dataio = self.dataio
+        gridprop = self.obj
+
+        meta = dataio._meta_data  # shortform
+
+        meta["layout"] = "gridproperty"
+
+        # define spec record
+        specs = OrderedDict()
+        specs["ncol"] = gridprop.ncol
+        specs["nrow"] = gridprop.nrow
+        specs["nlay"] = gridprop.nlay
+        meta["spec"] = specs
+
+        logger.info("Process data metadata for GridProperty... done!!")
 
     def _data_process_object_regularsurface(self):
         """Process/collect the data items for RegularSurface"""
@@ -444,6 +507,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             self._item_to_file_regularsurface()
         elif self.subtype == "Polygons":
             self._item_to_file_polygons()
+        elif self.subtype in ("Grid", "GridProperty"):
+            self._item_to_file_gridlike()
         elif self.subtype == "DataFrame":
             self._item_to_file_dataframe()
 
@@ -481,6 +546,53 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             obj.to_file(outfile, fformat="irap_binary")
             md5sum = _utils.md5sum(outfile)
             self.dataio._meta_data["format"] = "irap_binary"
+
+            # populate the file block which needs to done here
+            dataio._meta_file["checksum_md5"] = md5sum
+            dataio._meta_file["relative_path"] = str(relpath)
+            dataio._meta_file["absolute_path"] = str(abspath)
+            allmeta = self._item_to_file_collect_all_metadata()
+            _utils.export_metadata_file(
+                metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
+            )
+        else:
+            self.dataio._meta_data["format"] = "hdf"
+            obj.to_hdf(outfile)
+
+    def _item_to_file_gridlike(self):
+        """Write Grid (geometry) or GridProperty to file"""
+        logger.info("Export %s to file...", self.subtype)
+        dataio = self.dataio  # shorter
+        obj = self.obj
+
+        if isinstance(dataio._tagname, str):
+            attr = dataio._tagname.lower().replace(" ", "_")
+        else:
+            attr = None
+
+        fname, fpath = _utils.construct_filename(
+            self.name,
+            tagname=attr,
+            loc="grid",
+            outroot=dataio.export_root,
+            verbosity=dataio._verbosity,
+        )
+
+        fmt = dataio.grid_fformat
+
+        if fmt not in VALID_GRID_FORMATS.keys():
+            raise ValueError(f"The file format {fmt} is not supported.")
+
+        ext = VALID_GRID_FORMATS.get(fmt, ".hdf")
+        outfile, metafile, relpath, abspath = _utils.verify_path(
+            dataio, fpath, fname, ext
+        )
+
+        logger.info("Exported file is %s", outfile)
+        if "roff" in fmt:
+            obj.to_file(outfile, fformat="roff")
+            md5sum = _utils.md5sum(outfile)
+            self.dataio._meta_data["format"] = "roff"
 
             # populate the file block which needs to done here
             dataio._meta_file["checksum_md5"] = md5sum
