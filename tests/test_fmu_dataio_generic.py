@@ -3,7 +3,10 @@ import pathlib
 from collections import OrderedDict
 import logging
 import json
+import pytest
 import fmu.dataio
+
+# pylint: disable=protected-access
 
 CFG = OrderedDict()
 CFG["model"] = {"name": "Test", "revision": "21.0.0"}
@@ -72,6 +75,26 @@ def test_process_fmu_model():
     case._config = CFG
     fmumodel = case._process_meta_fmu_model()
     assert fmumodel["revision"] == "0.99.0"
+
+
+def test_process_fmu_grid_model():
+    """The (second order) private routine that provides fmu:grid_model"""
+
+    # assert None when grid_model is not passed
+    case = fmu.dataio.ExportData()
+    case._config = CFG
+    fmugridmodel = case._process_meta_fmu_grid_model()
+    assert fmugridmodel is None
+
+    # assert ValueError when wrong format is passed
+    with pytest.raises(ValueError):
+        case = fmu.dataio.ExportData(grid_model="somestring")
+
+    # assert direct transfer when right format is passed
+    case = fmu.dataio.ExportData(grid_model={"name": "MyGridModel"})
+    case._config = CFG
+    fmugridmodel = case._process_meta_fmu_grid_model()
+    assert fmugridmodel == {"name": "MyGridModel"}
 
 
 def test_process_fmu_realisation():
