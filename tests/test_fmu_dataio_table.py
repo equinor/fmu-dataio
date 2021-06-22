@@ -40,7 +40,7 @@ def test_table_io(tmp_path):
     exp._pwd = tmp_path
     exp.to_file(table)
 
-    assert (tmp_path / "tables" / ".test.yml").is_file() is True
+    assert (tmp_path / "tables" / ".test.csv.yml").is_file() is True
 
 
 def test_tables_io_larger_case_ertrun(tmp_path):
@@ -67,5 +67,5 @@ def test_tables_io_larger_case_ertrun(tmp_path):
 
     exp.to_file(table, verbosity="INFO")
 
-    metadataout = tmp_path / "tables" / ".sometable--what_descr.yml"
+    metadataout = tmp_path / "tables" / ".sometable--what_descr.csv.yml"
     assert metadataout.is_file() is True

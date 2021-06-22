@@ -34,7 +34,9 @@ def test_data_process_name():
         content="depth",
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface(name="SomeName")
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_name()
     assert dataio._meta_data["name"] == "Valysar Fm."
@@ -45,7 +47,9 @@ def test_data_process_name():
         content="depth",
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface(name="Valysar")
+    obj = xtgeo.RegularSurface(
+        name="Valysar", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_name()
     assert dataio._meta_data["name"] == "Valysar Fm."
@@ -56,7 +60,9 @@ def test_data_process_name():
         content="depth",
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface(name="Something else")
+    obj = xtgeo.RegularSurface(
+        name="Something else", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_name()
     assert dataio._meta_data["name"] == "Something else"
@@ -93,7 +99,7 @@ def test_data_process_relation():
         content="depth",
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface()
+    obj = xtgeo.RegularSurface(ncol=3, nrow=4, xinc=22, yinc=22, values=0)
 
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
 
@@ -110,7 +116,7 @@ def test_data_process_relation():
         content="depth",
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface()
+    obj = xtgeo.RegularSurface(ncol=3, nrow=4, xinc=22, yinc=22, values=0)
 
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
 
@@ -126,7 +132,7 @@ def test_data_process_relation():
         content="depth",
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface()
+    obj = xtgeo.RegularSurface(ncol=3, nrow=4, xinc=22, yinc=22, values=0)
 
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
 
@@ -145,7 +151,9 @@ def test_data_process_timedata():
         timedata=[["20210101", "first"], [20210902, "second"]],
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface(name="SomeName")
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_timedata()
     print(json.dumps(dataio._meta_data["time"], indent=2, default=str))
@@ -163,7 +171,9 @@ def test_data_process_content():
         timedata=[["20210101", "first"], [20210902, "second"]],
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface(name="SomeName")
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_content()
     assert dataio._meta_data["content"] == "depth"
@@ -176,7 +186,9 @@ def test_data_process_content():
         timedata=[["20210101", "first"], [20210902, "second"]],
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface(name="SomeName")
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_content()
     assert dataio._meta_data["content"] == "seismic"
@@ -193,7 +205,9 @@ def test_data_process_content_shall_fail():
         timedata=[["20210101", "first"], [20210902, "second"]],
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface(name="SomeName")
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     with pytest.raises(ei.ValidationError) as errmsg:
         exportitem._data_process_content()
@@ -207,7 +221,9 @@ def test_data_process_content_shall_fail():
         timedata=[["20210101", "first"], [20210902, "second"]],
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface(name="SomeName")
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     with pytest.raises(ei.ValidationError) as errmsg:
         exportitem._data_process_content()
@@ -221,7 +237,9 @@ def test_data_process_content_shall_fail():
         timedata=[["20210101", "first"], [20210902, "second"]],
         tagname="WhatEver",
     )
-    obj = xtgeo.RegularSurface(name="SomeName")
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     with pytest.raises(ei.ValidationError) as errmsg:
         exportitem._data_process_content()

@@ -1,7 +1,20 @@
 """Test the surface_io module."""
+from collections import OrderedDict
 import pytest
 
+import fmu.dataio as fio
 import fmu.dataio._utils as _utils
+
+CFG = OrderedDict()
+CFG["model"] = {"name": "Test", "revision": "21.0.0"}
+CFG["masterdata"] = {
+    "smda": {
+        "country": [
+            {"identifier": "Norway", "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"}
+        ],
+        "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
+    }
+}
 
 
 @pytest.mark.parametrize(
@@ -67,9 +80,33 @@ def test_utils_construct_file(
 
 
 def test_utils_verify_path():
-    """Testing veriy the path. TODO"""
-    # path = _ut.verify_path(True, TMPDIR2, "file", ".myext")
-    # assert str(path) == "TMP/some/folder/file.myext"
+    """Testing veriy the path."""
+    ed = fio.ExportData(
+        config=CFG,
+        content="depth",
+        unit="m",
+        vertical_domain={"depth": "msl"},
+        timedata=None,
+        is_prediction=True,
+        is_observation=False,
+        tagname="any",
+        verbosity="DEBUG",
+        workflow="dummy",
+    )
+
+    path, metapath, relpath, abspath = _utils.verify_path(
+        ed,
+        "tmp/share/results",
+        "somefile",
+        ".myext",
+        dryrun=True,
+    )
+    print()
+
+    print(path)
+    print(metapath)
+    print(relpath)
+    print(abspath)
 
 
 def test_uuid_from_string():
