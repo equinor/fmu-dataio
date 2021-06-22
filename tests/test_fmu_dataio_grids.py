@@ -44,7 +44,7 @@ def test_grid_io(tmp_path):
     exp._pwd = tmp_path
     exp.to_file(grd)
 
-    assert (tmp_path / "grids" / ".test.yml").is_file() is True
+    assert (tmp_path / "grids" / ".test.roff.yml").is_file() is True
 
 
 def test_gridproperty_io(tmp_path):
@@ -59,7 +59,7 @@ def test_gridproperty_io(tmp_path):
     exp._pwd = tmp_path
     exp.to_file(gpr)
 
-    assert (tmp_path / "grids" / ".testgp.yml").is_file() is True
+    assert (tmp_path / "grids" / ".testgp.roff.yml").is_file() is True
 
 
 def test_grid_io_larger_case(tmp_path):
@@ -87,7 +87,7 @@ def test_grid_io_larger_case(tmp_path):
     exp._pwd = tmp_path
     exp.to_file(grd, verbosity="DEBUG")
 
-    metadataout = tmp_path / "grids" / ".volantis--what_descr.yml"
+    metadataout = tmp_path / "grids" / ".volantis--what_descr.roff.yml"
     assert metadataout.is_file() is True
     print(metadataout)
 
@@ -116,7 +116,7 @@ def test_gridprop_io_larger_case(tmp_path):
     exp._pwd = tmp_path
     exp.to_file(grdp, verbosity="DEBUG")
 
-    metadataout = tmp_path / "grids" / ".volantis--poro.yml"
+    metadataout = tmp_path / "grids" / ".volantis--poro.roff.yml"
     assert metadataout.is_file() is True
     print(metadataout)
 
@@ -161,7 +161,7 @@ def test_grid_io_larger_case_ertrun(tmp_path):
 
     exp.to_file(grd, verbosity="INFO")
 
-    metadataout = out / ".volantis--what_descr.yml"
+    metadataout = out / ".volantis--what_descr.roff.yml"
     assert metadataout.is_file() is True
 
     # now read the metadata file and test some key entries:
@@ -216,7 +216,7 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
 
     exp.to_file(grdp, verbosity="INFO")
 
-    metadataout = out / ".volantis--porosity.yml"
+    metadataout = out / ".volantis--porosity.roff.yml"
     assert metadataout.is_file() is True
 
     # now read the metadata file and test some key entries:

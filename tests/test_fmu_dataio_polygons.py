@@ -50,7 +50,7 @@ def test_polygons_io(tmp_path):
     exp._pwd = tmp_path
     exp.to_file(srf)
 
-    assert (tmp_path / "polygons" / ".test.yml").is_file() is True
+    assert (tmp_path / "polygons" / ".test.csv.yml").is_file() is True
 
 
 def test_polygons_io_larger_case_ertrun(tmp_path):
@@ -79,5 +79,5 @@ def test_polygons_io_larger_case_ertrun(tmp_path):
 
     exp.to_file(srf, verbosity="INFO")
 
-    metadataout = tmp_path / "polygons" / ".topvolantis--what_descr.yml"
+    metadataout = tmp_path / "polygons" / ".topvolantis--what_descr.csv.yml"
     assert metadataout.is_file() is True

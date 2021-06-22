@@ -459,7 +459,7 @@ class ExportData:
         data, but with a . in front and "yml" and suffix, e.g.::
 
             top_volantis--depth.gri
-            .top_volantis--depth.yml
+            .top_volantis--depth.gri.yml
 
         For HDF files the metadata will be stored on the _freeform_ block.
 

@@ -14,7 +14,7 @@ logger.setLevel(logging.INFO)
 
 
 CFG = OrderedDict()
-CFG["template"] = {"name": "Test", "revision": "AUTO"}
+CFG["model"] = {"name": "Test", "revision": "AUTO"}
 CFG["masterdata"] = {
     "smda": {
         "country": [
@@ -37,7 +37,7 @@ def test_surface_io(tmp_path):
 
     # make a fake RegularSurface
     srf = xtgeo.RegularSurface(
-        ncol=20, nrow=30, values=np.ma.ones((20, 30)), name="test"
+        ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
     )
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
@@ -46,7 +46,7 @@ def test_surface_io(tmp_path):
     exp._pwd = tmp_path
     exp.to_file(srf)
 
-    assert (tmp_path / "maps" / ".test.yml").is_file() is True
+    assert (tmp_path / "maps" / ".test.gri.yml").is_file() is True
 
 
 def test_surface_io_larger_case(tmp_path):
@@ -54,7 +54,12 @@ def test_surface_io_larger_case(tmp_path):
 
     # make a fake RegularSurface
     srf = xtgeo.RegularSurface(
-        ncol=20, nrow=30, values=np.ma.ones((20, 30)), name="TopVolantis"
+        ncol=20,
+        nrow=30,
+        xinc=20,
+        yinc=20,
+        values=np.ma.ones((20, 30)),
+        name="TopVolantis",
     )
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
@@ -73,7 +78,7 @@ def test_surface_io_larger_case(tmp_path):
     exp._pwd = tmp_path
     exp.to_file(srf, verbosity="DEBUG")
 
-    metadataout = tmp_path / "maps" / ".topvolantis--what_descr.yml"
+    metadataout = tmp_path / "maps" / ".topvolantis--what_descr.gri.yml"
     assert metadataout.is_file() is True
     print(metadataout)
 
@@ -112,11 +117,16 @@ def test_surface_io_larger_case_ertrun(tmp_path):
 
     # make a fake RegularSurface
     srf = xtgeo.RegularSurface(
-        ncol=20, nrow=30, values=np.ma.ones((20, 30)), name="TopVolantis"
+        ncol=20,
+        nrow=30,
+        xinc=20,
+        yinc=20,
+        values=np.ma.ones((20, 30)),
+        name="TopVolantis",
     )
     exp.to_file(srf, verbosity="INFO")
 
-    metadataout = out / ".topvolantis--what_descr.yml"
+    metadataout = out / ".topvolantis--what_descr.gri.yml"
     assert metadataout.is_file() is True
 
     # now read the metadata file and test some key entries:

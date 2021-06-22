@@ -83,7 +83,7 @@ def construct_filename(
     return stem, dest
 
 
-def verify_path(dataio, filedest, filename, ext):
+def verify_path(dataio, filedest, filename, ext, dryrun=False):
     logger.setLevel(level=dataio._verbosity)
 
     folder = dataio._pwd / filedest  # filedest shall be relative path to PWD
@@ -91,17 +91,20 @@ def verify_path(dataio, filedest, filename, ext):
     path = (Path(folder) / filename.lower()).with_suffix(ext)
     abspath = path.resolve()
 
-    if path.parent.exists():
-        logger.info("Folder exists")
-    else:
-        if dataio.createfolder:
-            logger.info("No such folder, will create")
-            path.parent.mkdir(parents=True, exist_ok=True)
+    if not dryrun:
+        if path.parent.exists():
+            logger.info("Folder exists")
         else:
-            raise IOError(f"Folder {str(path.parent)} is not present.")
+            if dataio.createfolder:
+                logger.info("No such folder, will create")
+                path.parent.mkdir(parents=True, exist_ok=True)
+            else:
+                raise IOError(f"Folder {str(path.parent)} is not present.")
 
     # create metafile path
-    metapath = ((Path(folder) / ("." + filename.lower())).with_suffix(".yml")).resolve()
+    metapath = (
+        (Path(folder) / ("." + filename.lower())).with_suffix(ext + ".yml")
+    ).resolve()
 
     # relative path
     relpath = str(filedest).replace("../", "")
