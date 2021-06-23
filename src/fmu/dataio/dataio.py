@@ -1,28 +1,30 @@
 """Module for DataIO class.
 
 The metadata spec is presented in
-https://github.com/equinor/fmu-metadata/blob/dev/definitions/0.7.*/
+https://github.com/equinor/fmu-metadata/
 
 The processing is based on handling first level keys which are
 
--- scalar SPECIALS (previous marked with $ prefix) --
-schema      |      hard set in code
-version     |     "dollars", source fmuconfig
-source      |
+* Scalar special::
 
-class        - determined by datatype, inferred
+    $schema      |
+    version      |     hard set in code
+    source       |
 
--- nested --
-file         - file paths and checksums (change) still a discussion where to be
-tracklog     - data events, source = ?
-data         - about the data (see class). inferred from data + fmuconfig
-display      - Deduced mostly from fmuconfig
-fmu          - Deduced from fmuconfig (and ERT run?)
-access       - Static, infer from fmuconfig
-masterdata   - Static, infer from fmuconfig
+* ``class``        - determined by datatype, inferred
+
+* Nested attributes::
+
+    file         - file paths and checksums (change) still a discussion where to be
+    tracklog     - data events, source = ?
+    data         - about the data (see class). Inferred from data + fmuconfig
+    display      - Deduced mostly from fmuconfig
+    fmu          - Deduced from fmuconfig (and ERT run?)
+    access       - Static, infer from fmuconfig
+    masterdata   - Static, infer from fmuconfig
 
 """
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, List
 import pathlib
 import re
 import uuid
@@ -68,10 +70,10 @@ DOLLARS = OrderedDict(
 class ExportData:
     """Class for exporting data with rich metadata in FMU."""
 
-    surface_fformat = "hdf"
+    surface_fformat = "irap_binary"
     table_fformat = "csv"
     polygons_fformat = "csv"
-    grid_fformat = "hdf"
+    grid_fformat = "roff"
     export_root = "../../share/results"
     case_folder = "share/metadata"  # e.g. /some_rootpath/case/metadata
     createfolder = True
@@ -90,6 +92,7 @@ class ExportData:
         is_prediction: Optional[bool] = True,
         is_observation: Optional[bool] = False,
         workflow: Optional[str] = None,
+        description: Optional[List[str]] = None,
         grid_model: Optional[dict] = None,
         access_ssdl: Optional[dict] = None,
         runfolder: Optional[str] = None,
@@ -99,17 +102,18 @@ class ExportData:
 
         Args:
             name: The name of the object. If not set it is tried to be inferred from
-                the xtgeo object. The name is then checked towards the stratigraphy
-                list, and name is replaced with official stratigraphic name if found.
-                For example, if "TopValysar" is the model name and the actual name
+                the xtgeo/pandas/... object. The name is then checked towards the
+                stratigraphy list, and name is replaced with official stratigraphic
+                name if found in stattic metadata `stratigraphy`. For example, if
+                "TopValysar" is the model name and the actual name
                 is "Valysar Top Fm." that latter name will be used.
-            relation: The relation of the object with respect to itself and/or
-                other stratigraphic units. The default is None, but for e.g. seismic
-                attributes this can be important. The input is a dictionary with
-                the following fields: to-be...
+            relation: [EXPERIMENTAL] The relation of the object with respect to
+                itself and/or other stratigraphic units. The default is None, but for
+                e.g. seismic attributes this can be important. The input is a
+                dictionary with the following fields: [TODO]
             config: A configuation dictionary. In the standard case this is read
-                from FMU global vaiables (via fmuconfig). The dictionary must contain
-                some predefined main level keys.
+                from FMU global variables (via fmuconfig). The dictionary must contain
+                some predefined main level keys to work with fmu-dataio.
             content: Is a string or a dictionary with one key. Example is "depth" or
                 {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}
             unit: Is the unit of the exported item(s), e.g. "m" or "fraction".
@@ -121,16 +125,13 @@ class ExportData:
             is_prediction: True (default) of model prediction data
             is_observation: Default is False.
             workflow: Short tag desciption of workflow (as description)
-            grid_model: A dictionary containing valid attributes for the fmu:grid_model
-                metadata field. Example:
-                {"grid_model": {"name": "Simgrid"}}
+            description: A multiline desciption of the data
             access_ssdl: A dictionary that will overwrite the default ssdl
                 settings read from the config. Example:
-                {"access_level": "restricted", "rep_include": False}
-            runfolder: Set toplevel of runfolder, where default is current PWD
+                ``{"access_level": "restricted", "rep_include": False}``
+            runfolder: Set toplevel of runfolder, where default is current directory
             verbosity: Is logging/message level for this module. Input as
                 in standard python logging; e.g. "WARNING", "INFO".
-
         """
 
         self._name = name
@@ -145,8 +146,8 @@ class ExportData:
         )
         self._is_prediction = is_prediction
         self._is_observation = is_observation
-        self._grid_model = grid_model
         self._workflow = workflow
+        self._description = description
         self._access_ssdl = access_ssdl
         self._verbosity = verbosity
 
@@ -230,11 +231,11 @@ class ExportData:
 
         The fmu block consist of these subkeys:
             model:
+            case:
             workflow:
             element:  # if aggadation
             realization OR aggradation:
             iteration:
-            case:
         """
         logger.info("Set fmu metadata for model/workflow/...")
         self._meta_fmu["model"] = self._process_meta_fmu_model()
@@ -260,7 +261,7 @@ class ExportData:
                 "so this is interpreted as not an ERT run!"
             )
 
-        self._meta_fmu["grid_model"] = self._process_meta_fmu_grid_model()
+        # self._meta_fmu["grid_model"] = self._process_meta_fmu_grid_model()
 
     def _process_meta_fmu_grid_model(self):
         """Processing the fmu:grid_model section"""
@@ -448,7 +449,7 @@ class ExportData:
     # ==================================================================================
     # Public methods
 
-    def to_file(self, obj: Any, verbosity: Optional[str] = None):
+    def to_file(self, obj: Any, verbosity: Optional[str] = None) -> str:
         """Export a XTGeo data object to FMU file with rich metadata.
 
         Since xtgeo and Python  will know the datatype from the object, a general
@@ -468,11 +469,15 @@ class ExportData:
             verbosity: Verbosity level of logging messages. If not spesified,
                 use the verbosity level from the instance.
 
+        Returns:
+            String path (relative) to exported file.
         """
 
         logger.info("Export to file...")
         exporter = _ExportItem(self, obj, verbosity=verbosity)
-        exporter.save_to_file()
+        filepath = pathlib.Path(exporter.save_to_file())
+        relpath = filepath.relative_to(self._pwd)
+        return str(relpath)
 
 
 # ######################################################################################

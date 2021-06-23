@@ -77,6 +77,7 @@ def test_process_fmu_model():
     assert fmumodel["revision"] == "0.99.0"
 
 
+@pytest.mark.skip(reason="Postpone")
 def test_process_fmu_grid_model():
     """The (second order) private routine that provides fmu:grid_model"""
 
