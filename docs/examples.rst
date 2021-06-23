@@ -1,65 +1,95 @@
 Examples
 ========
 
-Exporting surfaces in RMS Python (tentative)
---------------------------------------------
+In the following is a list of examples you can study and copy.
 
-.. code-block:: python
+First is a snippet of the ``global_variables.yml`` file which holds the static
+metadata. In real cases this file will be much longer.
 
-    import xtgeo
-    from fmu.config import utilities as ut
-    from fmu.dataio import ExportData
+Then there are several examples for various datatypes. In general there is a python
+script, and next is an example from a metadata file that is produced by
+the script.
 
-    PRJ = project
+If working inside RMS we often retrieve RMS data from the project itself. In the
+examples the syntax for that is commented out, but it is still shown so you
+can comment it out in your code.
 
-    # load fmuconfig global variables
-    CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
+The global variables used here
+------------------------------
 
-    HNAMES = ["TopValysar", "TopVolon"]
-    DCATEGORIES = ["DS_extract_hum", "DS_interp"]
-    TCATEGORIES = ["TS_interp", "TS_inverted"]
+Here are the relevant sections in the global variables (output) file:
 
-    CLIPFOLDER = "Volume/example"
-    CLIPNAMES = ["STOOIP", "HCPV"]
-
-    # set my default format for surfaces to irap_binary since HDF is builtin default
-    ExportData.surface_fformat = "irap_binary"   # class attribute
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/fmuconfig/output/global_variables.yml
+   :language: yaml
 
 
-    def export_depth_horizons():
-        """Export horizons with 'depth' as content/scope."""
 
-        dexp = ExportData(project=PRJ, content="depth", config=CFG)
+Exporting fault polygons
+------------------------
 
-        # export depth surfaces
-        for cat in DCATEGORIES:
-            for hname in HNAMES:
-                surf = xtgeo.surface_from_roxar(PRJ, hname, cat, stype="horizons")
-                exp.to_file(surf)
+Python script
+~~~~~~~~~~~~~
 
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_faultpolygons.py
+   :language: python
 
-    def export_time_horizons():
-        """Export horizons with 'time' as content/scope."""
+Resulting metadata for TopVolantis polygons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        texp = ExportData(project=PRJ, content="time", config=CFG)
-
-        for cat in TCATEGORIES:
-            for hname in HNAMES:
-                surf = xtgeo.surface_from_roxar(PRJ, hname, cat, stype="horizons")
-                exp.to_file(surf)
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/polygons/.topvolantis--faultlines.pol.yml
+   :language: yaml
 
 
-    def export_volumetric_maps():
-        """Export horizons with 'volume' as content/scope."""
+Exporting average maps from grid properties
+-------------------------------------------
 
-        vexp = ExportData(project=PRJ, content="volume", config=CFG)
+Python script
+~~~~~~~~~~~~~
 
-        for cname in CLIPNAMES:
-            surf = xtgeo.surface_from_roxar(PRJ, cname, CLIPFOLDER, stype="clipboard")
-            vexp.to_file(surf)
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_propmaps.py
+   :language: python
 
 
-    if __name__ == "__main__":
-        export_depth_horizons()
-        export_time_horizons()
-        export_volumetric_maps()
+Resulting metadata for Therys average porosity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/maps/.therys--average_porosity.gri.yml
+   :language: yaml
+
+
+Exporting 3D grids with properties
+----------------------------------
+
+Python script
+~~~~~~~~~~~~~
+
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_grid3d.py
+   :language: python
+
+Resulting metadata for grid geometry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.geogrid.roff.yml
+   :language: yaml
+
+Resulting metadata for facies property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.geogrid--facies.roff.yml
+   :language: yaml
+
+
+Exporting volume tables RMS or file
+-----------------------------------
+
+Python script
+~~~~~~~~~~~~~
+
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_volumetables.py
+   :language: python
+
+Resulting metadata for volume table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/tables/.geogrid--volumes.csv.yml
+   :language: yaml

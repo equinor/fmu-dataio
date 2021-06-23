@@ -12,10 +12,10 @@ import xtgeo
 
 from . import _utils
 
-VALID_SURFACE_FORMATS = {"hdf": ".hdf", "irap_binary": ".gri"}
+VALID_SURFACE_FORMATS = {"irap_binary": ".gri"}
 VALID_GRID_FORMATS = {"hdf": ".hdf", "roff": ".roff"}
 VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
-VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
+VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".pol"}
 
 # the content must conform with the given json schema, e.g.
 # https://github.com/equinor/fmu-metadata/blob/dev/definitions/*/schema/fmu_results.json
@@ -79,7 +79,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         if self.name is None:
             self.name = "unknown"
 
-    def save_to_file(self):
+    def save_to_file(self) -> str:
         """Saving an instance to file with rich metadata for SUMO.
 
         Many metadata items are object independent and are treated directly in the
@@ -113,7 +113,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         self._data_process()
         self._data_process_object()
         self._fmu_inject_workflow()  # this will vary if surface, table, grid, ...
-        self._item_to_file()
+        fpath = self._item_to_file()
+        return fpath
 
     def _data_process(self):
         """Process som potentially common subfields in the data block.
@@ -123,7 +124,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         - top/base (from relation)
         - content
         - time
-        - properties
+        - properties? Disabled!
         - grid_model
         - is_observation
         - is_prediction
@@ -336,21 +337,20 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         meta["is_observation"] = self.dataio._is_observation
 
         # tmp solution for properties
-        meta["properties"] = list()
-        props = OrderedDict()
-        props["name"] = "SomeName"
-        props["attribute"] = "SomeAttribute"
-        props["is_discrete"] = False
-        props["calculation"] = None
-        meta["properties"].append(props)
+        # meta["properties"] = list()
+        # props = OrderedDict()
+        # props["name"] = "SomeName"
+        # props["attribute"] = "SomeAttribute"
+        # props["is_discrete"] = False
+        # props["calculation"] = None
+        # meta["properties"].append(props)
 
         # tmp:
         meta["grid_model"] = None
 
         # tmp:
-        meta["description"] = list()
-        meta["description"].append("This is description line 1")
-        meta["description"].append("This is description line 2")
+        if self.dataio._description is not None:
+            meta["description"] = self.dataio._description
 
     def _data_process_object(self):
         """Process data fileds which are object dependent.
@@ -504,13 +504,14 @@ class _ExportItem:  # pylint disable=too-few-public-methods
     def _item_to_file(self):
         logger.info("Export item to file...")
         if self.subtype == "RegularSurface":
-            self._item_to_file_regularsurface()
+            fpath = self._item_to_file_regularsurface()
         elif self.subtype == "Polygons":
-            self._item_to_file_polygons()
+            fpath = self._item_to_file_polygons()
         elif self.subtype in ("Grid", "GridProperty"):
-            self._item_to_file_gridlike()
+            fpath = self._item_to_file_gridlike()
         elif self.subtype == "DataFrame":
-            self._item_to_file_dataframe()
+            fpath = self._item_to_file_dataframe()
+        return fpath
 
     def _item_to_file_regularsurface(self):
         """Write RegularSurface to file"""
@@ -536,7 +537,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         if fmt not in VALID_SURFACE_FORMATS.keys():
             raise ValueError(f"The file format {fmt} is not supported.")
 
-        ext = VALID_SURFACE_FORMATS.get(fmt, ".hdf")
+        ext = VALID_SURFACE_FORMATS.get(fmt, ".irap_binary")
         outfile, metafile, relpath, abspath = _utils.verify_path(
             dataio, fpath, fname, ext
         )
@@ -555,9 +556,11 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             _utils.export_metadata_file(
                 metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
             )
+
         else:
-            self.dataio._meta_data["format"] = "hdf"
-            obj.to_hdf(outfile)
+            raise TypeError("Format ... is not implemened")
+
+        return str(outfile)
 
     def _item_to_file_gridlike(self):
         """Write Grid (geometry) or GridProperty to file"""
@@ -603,8 +606,9 @@ class _ExportItem:  # pylint disable=too-few-public-methods
                 metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
             )
         else:
-            self.dataio._meta_data["format"] = "hdf"
-            obj.to_hdf(outfile)
+            raise TypeError("Format ... is not implemened")
+
+        return str(outfile)
 
     def _item_to_file_polygons(self):
         """Write Polygons to file."""
@@ -639,8 +643,9 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         logger.info("Exported file is %s", outfile)
         if "csv" in fmt:
             renamings = {"X_UTME": "X", "Y_UTMN": "Y", "Z_TVDSS": "Z", "POLY_ID": "ID"}
-            obj.dataframe.rename(columns=renamings, inplace=True)
-            obj.dataframe.to_csv(outfile, index=False)
+            worker = obj.dataframe.copy()
+            worker.rename(columns=renamings, inplace=True)
+            worker.to_csv(outfile, index=False)
             md5sum = _utils.md5sum(outfile)
             self.dataio._meta_data["format"] = "csv"
 
@@ -652,9 +657,23 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             _utils.export_metadata_file(
                 metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
             )
+        elif "irap_ascii" in fmt:
+            obj.to_file(outfile)
+            md5sum = _utils.md5sum(outfile)
+            self.dataio._meta_data["format"] = "irap_ascii"
+
+            # populate the file block which needs to done here
+            dataio._meta_file["checksum_md5"] = md5sum
+            dataio._meta_file["relative_path"] = str(relpath)
+            dataio._meta_file["absolute_path"] = str(abspath)
+            allmeta = self._item_to_file_collect_all_metadata()
+            _utils.export_metadata_file(
+                metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
+            )
         else:
-            self.dataio._meta_data["format"] = "hdf"
-            obj.to_hdf(outfile)
+            raise TypeError("Format is not supported")
+
+        return str(outfile)
 
     def _item_to_file_dataframe(self):
         """Write DataFrame to file."""
@@ -699,7 +718,9 @@ class _ExportItem:  # pylint disable=too-few-public-methods
                 metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
             )
         else:
-            raise NotImplementedError("Other formats not supported yet for tables!")
+            raise TypeError("Other formats not supported yet for tables!")
+
+        return str(outfile)
 
     def _item_to_file_collect_all_metadata(self):
         """Process all metadata for actual instance."""
