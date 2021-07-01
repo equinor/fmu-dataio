@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# noqa # pylint: skip-file
+# flake8: noqa
+# pylint: skip-file
 import os
 import sys
 

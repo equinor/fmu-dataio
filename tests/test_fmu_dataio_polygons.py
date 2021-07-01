@@ -89,7 +89,7 @@ def test_polygons_io_larger_case_ertrun(tmp_path):
         is_observation=False,
         tagname="what Descr",
         verbosity="INFO",
-        runfolder=RUN,
+        runfolder=runfolder.resolve(),
         workflow="my current workflow",
     )
 
@@ -100,5 +100,5 @@ def test_polygons_io_larger_case_ertrun(tmp_path):
 
     exp.to_file(poly, verbosity="INFO")
 
-    # metadataout = tmp_path / "polygons" / ".topvolantis--what_descr.csv.yml"
-    # assert metadataout.is_file() is True
+    metadataout = out / ".topvolantis--what_descr.pol.yml"
+    assert metadataout.is_file() is True
