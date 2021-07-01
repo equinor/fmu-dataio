@@ -1,6 +1,7 @@
 """Test the surface_io module."""
 from collections import OrderedDict
 import logging
+import shutil
 import pandas as pd
 import yaml
 
@@ -26,6 +27,7 @@ with open("tests/data/drogon/global_config2/global_variables.yml", "r") as strea
     CFG2 = yaml.safe_load(stream)
 
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
+CASEPATH = "tests/data/drogon/ertrun1"
 
 
 def test_table_io(tmp_path):
@@ -46,8 +48,18 @@ def test_table_io(tmp_path):
 def test_tables_io_larger_case_ertrun(tmp_path):
     """Larger test table io as ERTRUN, uses global config from Drogon to tmp_path."""
 
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
+    current = tmp_path / "scratch" / "fields" / "user"
+    current.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(CASEPATH, current / "mycase")
+
+    fmu.dataio.ExportData.export_root = "../../share/results"
     fmu.dataio.ExportData.table_fformat = "csv"
+
+    runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
+    runfolder.mkdir(parents=True, exist_ok=True)
+    out = (
+        current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "tables"
+    )
 
     exp = fmu.dataio.ExportData(
         name="sometable",
@@ -58,7 +70,7 @@ def test_tables_io_larger_case_ertrun(tmp_path):
         is_observation=False,
         tagname="what Descr",
         verbosity="INFO",
-        runfolder=RUN,
+        runfolder=runfolder.resolve(),
         workflow="my current workflow",
     )
 
@@ -67,5 +79,5 @@ def test_tables_io_larger_case_ertrun(tmp_path):
 
     exp.to_file(table, verbosity="INFO")
 
-    metadataout = tmp_path / "tables" / ".sometable--what_descr.csv.yml"
+    metadataout = out / ".sometable--what_descr.csv.yml"
     assert metadataout.is_file() is True
