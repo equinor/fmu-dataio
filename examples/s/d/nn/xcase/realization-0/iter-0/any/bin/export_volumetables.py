@@ -16,7 +16,7 @@ IN_ROXAR = False
 
 PRJ = None
 if IN_ROXAR:
-    PRJ = project  # magical inside RMS
+    PRJ = project  # type: ignore # noqa # pylint: disable=undefined-variable
     VTABLES = ["geogrid_volumes", "simgrid_volumes"]
 else:
     VFOLDER = "../output/volumes/"
