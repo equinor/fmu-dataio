@@ -18,7 +18,7 @@ The processing is based on handling first level keys which are
     file         - file paths and checksums (change) still a discussion where to be
     tracklog     - data events, source = ?
     data         - about the data (see class). Inferred from data + fmuconfig
-    display      - Deduced mostly from fmuconfig
+    display      - Deduced mostly from fmuconfig (TODO: issue on wait)
     fmu          - Deduced from fmuconfig (and ERT run?)
     access       - Static, infer from fmuconfig
     masterdata   - Static, infer from fmuconfig
@@ -43,6 +43,7 @@ from . import _utils
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
 
+# the word "DOLLARS" refers losely to $schema and related keys (version, source)
 DOLLARS = OrderedDict(
     [
         (
@@ -450,10 +451,10 @@ class ExportData:
     # Public methods
 
     def to_file(self, obj: Any, verbosity: Optional[str] = None) -> str:
-        """Export a XTGeo data object to FMU file with rich metadata.
+        """Export a 'known' data object to FMU file with rich metadata.
 
-        Since xtgeo and Python  will know the datatype from the object, a general
-        function like this should work.
+        The 'known' datatype is a XTGeo object (e.g. a RegularSurface), a Pandas
+        Dataframe or (in future) a Arrow object.
 
         This function will also collect the data spesific class metadata. For "classic"
         files, the metadata will be stored i a YAML file with same name stem as the
@@ -462,7 +463,8 @@ class ExportData:
             top_volantis--depth.gri
             .top_volantis--depth.gri.yml
 
-        For HDF files the metadata will be stored on the _freeform_ block.
+        For HDF files the metadata may be stored on the _freeform_ block (yet to be
+        resolved)).
 
         Args:
             obj: XTGeo instance or a pandas instance (more to be supported).
@@ -470,7 +472,7 @@ class ExportData:
                 use the verbosity level from the instance.
 
         Returns:
-            String path (relative) to exported file.
+            String path (relative path) to exported file.
         """
 
         logger.info("Export to file...")

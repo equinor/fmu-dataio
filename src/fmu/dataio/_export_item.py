@@ -40,7 +40,7 @@ ALLOWED_CONTENTS = {
     },
     "fluid_contact": {"contact": str},
     "field_outline": {"contact": str},
-    "volume": None,
+    "volumes": None,
     "volumetrics": None,  # or?
     "undefined": None,
 }
@@ -91,16 +91,16 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         logger.info("Save to file...")
         if isinstance(self.obj, xtgeo.RegularSurface):
             self.subtype = "RegularSurface"
-            self.classname = "surface"
+            self.classname = "regularsurface"
         elif isinstance(self.obj, xtgeo.Polygons):
             self.subtype = "Polygons"
             self.classname = "polygons"
         elif isinstance(self.obj, xtgeo.Grid):
-            self.subtype = "Grid"
-            self.classname = "grid"
+            self.subtype = "CPGrid"
+            self.classname = "cpgrid"
         elif isinstance(self.obj, xtgeo.GridProperty):
-            self.subtype = "GridProperty"
-            self.classname = "grid_property"
+            self.subtype = "CPGridProperty"
+            self.classname = "cpgrid_property"
         elif isinstance(self.obj, pd.DataFrame):
             self.subtype = "DataFrame"
             self.classname = "table"
@@ -366,18 +366,18 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         if self.subtype == "RegularSurface":
             self._data_process_object_regularsurface()
-        elif self.subtype == "Grid":
-            self._data_process_object_grid()
-        elif self.subtype == "GridProperty":
-            self._data_process_object_gridproperty()
+        elif self.subtype == "CPGrid":
+            self._data_process_cpgrid()
+        elif self.subtype == "CPGridProperty":
+            self._data_process_cpgridproperty()
         elif self.subtype == "Polygons":
             self._data_process_object_polygons()
         elif self.subtype == "DataFrame":
             self._data_process_object_dataframe()
 
-    def _data_process_object_grid(self):
-        """Process/collect the data items for Grid"""
-        logger.info("Process data metadata for Grid")
+    def _data_process_cpgrid(self):
+        """Process/collect the data items for Corner Point Grid"""
+        logger.info("Process data metadata for CP Grid")
 
         dataio = self.dataio
         grid = self.obj
@@ -406,16 +406,16 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         meta["bbox"]["zmax"] = round(float(geox["zmax"]), 4)
         logger.info("Process data metadata for Grid... done!!")
 
-    def _data_process_object_gridproperty(self):
-        """Process/collect the data items for GridProperty"""
-        logger.info("Process data metadata for GridProperty")
+    def _data_process_cpgridproperty(self):
+        """Process/collect the data items for Corner Point GridProperty"""
+        logger.info("Process data metadata for CPGridProperty")
 
         dataio = self.dataio
         gridprop = self.obj
 
         meta = dataio._meta_data  # shortform
 
-        meta["layout"] = "gridproperty"
+        meta["layout"] = "cornerpoint_property"
 
         # define spec record
         specs = OrderedDict()
@@ -507,7 +507,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             fpath = self._item_to_file_regularsurface()
         elif self.subtype == "Polygons":
             fpath = self._item_to_file_polygons()
-        elif self.subtype in ("Grid", "GridProperty"):
+        elif self.subtype in ("CPGrid", "CPGridProperty"):
             fpath = self._item_to_file_gridlike()
         elif self.subtype == "DataFrame":
             fpath = self._item_to_file_dataframe()
