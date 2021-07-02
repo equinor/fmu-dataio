@@ -25,7 +25,10 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
+    "sphinx_togglebutton",
 ]
+
+togglebutton_hint = "YAML file: "
 
 apidoc_module_dir = "../src/fmu/dataio"
 apidoc_output_dir = "apiref"
@@ -47,7 +50,7 @@ master_doc = "index"
 # General information about the project.
 project = "fmu.dataio"
 current_year = date.today().year
-copyright = "Equinor 2019 - " + str(current_year) + f" (XTGeo release {release})"
+copyright = "Equinor " + str(current_year) + f" (fmu-dataio release {release})"
 
 
 # Sort members by input order in classes
