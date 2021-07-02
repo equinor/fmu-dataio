@@ -1,0 +1,16 @@
+dataio package
+==============
+
+.. automodule:: dataio
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   dataio.dataio
+   dataio.version

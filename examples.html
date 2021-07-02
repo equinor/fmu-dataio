@@ -1,0 +1,1211 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Examples &mdash; fmu.dataio 0.3.3.dev12+gdff2522 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API reference for fmu.dataio" href="apiref/modules.html" />
+    <link rel="prev" title="Overview" href="overview.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #C0C0C0" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> fmu.dataio
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-global-variables-used-here">The global variables used here</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exporting-fault-polygons">Exporting fault polygons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#python-script">Python script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resulting-metadata-for-topvolantis-polygons">Resulting metadata for TopVolantis polygons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exporting-average-maps-from-grid-properties">Exporting average maps from grid properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Python script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resulting-metadata-for-therys-average-porosity">Resulting metadata for Therys average porosity</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exporting-3d-grids-with-properties">Exporting 3D grids with properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Python script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resulting-metadata-for-grid-geometry">Resulting metadata for grid geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resulting-metadata-for-facies-property">Resulting metadata for facies property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exporting-volume-tables-rms-or-file">Exporting volume tables RMS or file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Python script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resulting-metadata-for-volume-table">Resulting metadata for volume table</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="apiref/modules.html">API reference for fmu.dataio</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fmu.dataio</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/examples.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>In the following is a list of examples you can study and copy.</p>
+<p>First is a snippet of the <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code> file which holds the static
+metadata. In real cases this file will be much longer.</p>
+<p>Then there are several examples for various datatypes. In general there is a python
+script, and next is an example from a metadata file that is produced by
+the script.</p>
+<p>If working inside RMS we often retrieve RMS data from the project itself. In the
+examples the syntax for that is commented out, but it is still shown so you
+can comment it out in your code.</p>
+<div class="section" id="the-global-variables-used-here">
+<h2>The global variables used here<a class="headerlink" href="#the-global-variables-used-here" title="Permalink to this headline">¶</a></h2>
+<p>Here are the relevant sections in the global variables (output) file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Autogenerated from global configuration.</span>
+<span class="c1"># DO NOT EDIT THIS FILE MANUALLY!</span>
+<span class="c1"># Machine st-linrgsxx.st.statoil.no by user nn, at 2021-06-23 07:35:54.428896, using fmu.config ver. 1.0.6.dev7+g6aee329</span>
+<span class="nt">masterdata</span><span class="p">:</span>
+  <span class="nt">smda</span><span class="p">:</span>
+    <span class="nt">country</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Norway</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">discovery</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">short_identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">field</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+    <span class="nt">coordinate_system</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span>
+    <span class="nt">stratigraphic_column</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
+<span class="nt">access</span><span class="p">:</span>
+  <span class="nt">asset</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Drogon</span>
+  <span class="nt">ssdl</span><span class="p">:</span>
+    <span class="nt">access_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">internal</span>
+    <span class="nt">rep_include</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">model</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ff</span>
+  <span class="nt">revision</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">21.1.0.dev</span>
+<span class="nt">stratigraphy</span><span class="p">:</span>
+  <span class="nt">MSL</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">MSL</span>
+  <span class="nt">Seabase</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Seabase</span>
+  <span class="nt">TopVolantis</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">VOLANTIS GP. Top</span>
+    <span class="nt">alias</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">TopVOLANTIS</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">TOP_VOLANTIS</span>
+    <span class="nt">stratigraphic_alias</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">TopValysar</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Valysar Fm. Top</span>
+  <span class="nt">TopTherys</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Therys Fm. Top</span>
+  <span class="nt">TopVolon</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Volon Fm. Top</span>
+  <span class="nt">BaseVolon</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Volon Fm. Base</span>
+  <span class="nt">BaseVolantis</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">VOLANTIS GP. Base</span>
+  <span class="nt">Mantle</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Mantle</span>
+  <span class="nt">Above</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Above</span>
+  <span class="nt">Valysar</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Valysar Fm.</span>
+  <span class="nt">Therys</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Therys Fm.</span>
+  <span class="nt">Volon</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Volon Fm.</span>
+  <span class="nt">Below</span><span class="p">:</span>
+    <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Below</span>
+<span class="nt">global</span><span class="p">:</span>
+  <span class="nt">GLOBAL_VARS_EXAMPLE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">99</span>
+  <span class="nt">OTHER</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">skipped</span>
+<span class="nt">rms</span><span class="p">:</span>
+  <span class="nt">horizons</span><span class="p">:</span>
+    <span class="nt">TOP_RES</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">TopVolantis</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">TopTherys</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">TopVolon</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">BaseVolantis</span>
+  <span class="nt">zones</span><span class="p">:</span>
+    <span class="nt">ZONE_RES</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Valysar</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Therys</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Volon</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="exporting-fault-polygons">
+<h2>Exporting fault polygons<a class="headerlink" href="#exporting-fault-polygons" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="python-script">
+<h3>Python script<a class="headerlink" href="#python-script" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Export faultpolygons via dataio with metadata.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">xtgeo</span>
+<span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">utils</span>
+<span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
+
+<span class="n">CFG</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
+
+<span class="n">HORISONNAMES</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][</span><span class="s2">&quot;horizons&quot;</span><span class="p">][</span><span class="s2">&quot;TOP_RES&quot;</span><span class="p">]</span>
+
+<span class="c1"># if inside RMS</span>
+<span class="n">RMS_POL_CATEGORY</span> <span class="o">=</span> <span class="s2">&quot;GL_faultlines_extract_postprocess&quot;</span>
+
+<span class="c1"># if running outside RMS using files that are stored e.g. on rms/output</span>
+<span class="n">FILEROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../output/polygons&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">export_faultlines</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return faultlines as both dataframe and original (xyz)&quot;&quot;&quot;</span>
+
+    <span class="n">ed</span> <span class="o">=</span> <span class="n">dataio</span><span class="o">.</span><span class="n">ExportData</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">CFG</span><span class="p">,</span>
+        <span class="n">content</span><span class="o">=</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="n">vertical_domain</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">},</span>
+        <span class="n">timedata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">tagname</span><span class="o">=</span><span class="s2">&quot;faultlines&quot;</span><span class="p">,</span>
+        <span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+        <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms structural model&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">hname</span> <span class="ow">in</span> <span class="n">HORISONNAMES</span><span class="p">:</span>
+
+        <span class="c1"># RMS version for reading polygons from a project:</span>
+        <span class="c1"># poly = xtgeo.polygons_from_roxar(project, hname, RMS_POL_CATEGORY)</span>
+
+        <span class="c1"># File version:</span>
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">xtgeo</span><span class="o">.</span><span class="n">polygons_from_file</span><span class="p">((</span><span class="n">FILEROOT</span> <span class="o">/</span> <span class="n">hname</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.pol&quot;</span><span class="p">))</span>
+
+        <span class="n">poly</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">hname</span>
+
+        <span class="c1"># export both csv and irap text format</span>
+        <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;irap_ascii&quot;</span><span class="p">]:</span>
+            <span class="n">ed</span><span class="o">.</span><span class="n">polygons_fformat</span> <span class="o">=</span> <span class="n">fmt</span>
+            <span class="n">ed</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">export_faultlines</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="resulting-metadata-for-topvolantis-polygons">
+<h3>Resulting metadata for TopVolantis polygons<a class="headerlink" href="#resulting-metadata-for-topvolantis-polygons" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">$schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
+<span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">fmu</span>
+<span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">polygons</span>
+<span class="nt">file</span><span class="p">:</span>
+  <span class="nt">checksum_md5</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">69b60d859a49063072f703ba3c20f461</span>
+  <span class="nt">relative_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/polygons/topvolantis--faultlines.pol</span>
+  <span class="nt">absolute_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/polygons/topvolantis--faultlines.pol</span>
+<span class="nt">access</span><span class="p">:</span>
+  <span class="nt">asset</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Drogon</span>
+  <span class="nt">ssdl</span><span class="p">:</span>
+    <span class="nt">access_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">internal</span>
+    <span class="nt">rep_include</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">masterdata</span><span class="p">:</span>
+  <span class="nt">smda</span><span class="p">:</span>
+    <span class="nt">country</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Norway</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">discovery</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">short_identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">field</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+    <span class="nt">coordinate_system</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span>
+    <span class="nt">stratigraphic_column</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
+<span class="nt">tracklog</span><span class="p">:</span>
+<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-07-02T11:02:12.142751&#39;</span>
+  <span class="nt">user</span><span class="p">:</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runner</span>
+  <span class="nt">event</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">created</span>
+<span class="nt">fmu</span><span class="p">:</span>
+  <span class="nt">model</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ff</span>
+    <span class="nt">revision</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">21.1.0.dev</span>
+  <span class="nt">workflow</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rms structural model</span>
+  <span class="nt">case</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xcase</span>
+    <span class="nt">user</span><span class="p">:</span>
+      <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nn</span>
+    <span class="nt">description</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Generated by nn at 2021-06-08T13:17:06.485667</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6fe60348-b386-4a68-9a0b-e8a4596af911</span>
+  <span class="nt">iteration</span><span class="p">:</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8483547b-2a22-2d07-5406-13493e216649</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">iter-0</span>
+    <span class="nt">runid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1736_24181_2021-6-08-11-16-55_941626024d</span>
+  <span class="nt">realization</span><span class="p">:</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">e7d033b9-d18b-023b-c5ab-ea8d639ccb3c</span>
+    <span class="nt">jobs</span><span class="p">:</span>
+      <span class="nt">umask</span><span class="p">:</span> <span class="s">&#39;0002&#39;</span>
+      <span class="nt">DATA_ROOT</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/project/fmu/tutorial/drogon/resmod/ff/users/nn/21.2.0/ert/model</span>
+      <span class="nt">global_environment</span><span class="p">:</span>
+        <span class="nt">TOOL_SITE_CONFIG</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">etc...</span>
+      <span class="nt">global_update_path</span><span class="p">:</span> <span class="p p-Indicator">{}</span>
+      <span class="nt">jobList</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">THIS_IS_ONLY_A_STUB!</span>
+        <span class="nt">executable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/prog/res/some</span>
+        <span class="nt">just_a_stub</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">run_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1736:24181:2021-6-08-11-16-55:941626024d</span>
+      <span class="nt">ert_pid</span><span class="p">:</span> <span class="s">&#39;1736&#39;</span>
+    <span class="nt">parameters</span><span class="p">:</span>
+      <span class="nt">SENSNAME</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rms_seed</span>
+      <span class="nt">SENSCASE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">p10_p90</span>
+      <span class="nt">RMS_SEED</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>
+      <span class="nt">THIS_FILE_IS_JUST_A_STUB</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">SOME</span><span class="p">:</span>
+        <span class="nt">OTHER</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">data</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">VOLANTIS GP. Top</span>
+  <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">alias</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">TopVOLANTIS</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">TOP_VOLANTIS</span>
+  <span class="nt">stratigraphic_alias</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">TopValysar</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Valysar Fm. Top</span>
+  <span class="nt">content</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth</span>
+  <span class="nt">unit</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">m</span>
+  <span class="nt">vertical_domain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth</span>
+  <span class="nt">depth_reference</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">msl</span>
+  <span class="nt">is_prediction</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">is_observation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">spec</span><span class="p">:</span>
+    <span class="nt">npolys</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6</span>
+  <span class="nt">bbox</span><span class="p">:</span>
+    <span class="nt">xmin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">459480.7</span>
+    <span class="nt">xmax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">465790.141</span>
+    <span class="nt">ymin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5929993.362</span>
+    <span class="nt">ymax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5937737.446</span>
+    <span class="nt">zmin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1557.431</span>
+    <span class="nt">zmax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1825.486</span>
+  <span class="nt">format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">irap_ascii</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="exporting-average-maps-from-grid-properties">
+<h2>Exporting average maps from grid properties<a class="headerlink" href="#exporting-average-maps-from-grid-properties" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Python script<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Export maps that holds certain average gridmodel properties.</span>
+
+<span class="sd">The files on disk are:</span>
+
+<span class="sd">facies_fraction_channels_volon.gri</span>
+<span class="sd">klogh_average_valysar.gri</span>
+<span class="sd">phit_average_therys.gri</span>
+
+<span class="sd">We wan to use the file names here to extract some data (like name of formation,</span>
+<span class="sd">e.g. Therys).</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">xtgeo</span>
+<span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
+<span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">ut</span>
+
+
+<span class="n">CFG</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
+
+<span class="c1"># property attributes, the key is &quot;pattern&quot; and the value is generic name to be used:</span>
+<span class="n">TRANSLATE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;facies_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;facies_fraction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;phit&quot;</span><span class="p">:</span> <span class="s2">&quot;porosity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;klog&quot;</span><span class="p">:</span> <span class="s2">&quot;permeability&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># name attributes, the key is &quot;pattern&quot; and the value is name to be used:</span>
+<span class="n">NAMETRANSLATE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;valysar&quot;</span><span class="p">:</span> <span class="s2">&quot;Valysar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;therys&quot;</span><span class="p">:</span> <span class="s2">&quot;Therys&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;volon&quot;</span><span class="p">:</span> <span class="s2">&quot;Volon&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">INPUT_FOLDER</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../output/maps/grid_averages&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Exporting maps from clipboard&quot;&quot;&quot;</span>
+
+    <span class="n">files</span> <span class="o">=</span> <span class="n">INPUT_FOLDER</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.gri&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">surf</span> <span class="o">=</span> <span class="n">xtgeo</span><span class="o">.</span><span class="n">surface_from_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="n">attribute</span> <span class="o">=</span> <span class="s2">&quot;unset&quot;</span>
+        <span class="k">for</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">TRANSLATE</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">attribute</span> <span class="o">=</span> <span class="n">attr</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;unset&quot;</span>
+        <span class="k">for</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">NAMETRANSLATE</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">attr</span>
+
+        <span class="n">ed</span> <span class="o">=</span> <span class="n">dataio</span><span class="o">.</span><span class="n">ExportData</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">CFG</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;fraction&quot;</span><span class="p">,</span>
+            <span class="n">content</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;property&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="n">attribute</span><span class="p">,</span> <span class="s2">&quot;is_discrete&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}},</span>
+            <span class="n">vertical_domain</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">},</span>
+            <span class="n">timedata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">tagname</span><span class="o">=</span><span class="s2">&quot;average_&quot;</span> <span class="o">+</span> <span class="n">attribute</span><span class="p">,</span>
+            <span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">,</span>
+            <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms property model&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">surf</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File name is </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;That&#39;s all&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="resulting-metadata-for-therys-average-porosity">
+<h3>Resulting metadata for Therys average porosity<a class="headerlink" href="#resulting-metadata-for-therys-average-porosity" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">$schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
+<span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">fmu</span>
+<span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">regularsurface</span>
+<span class="nt">file</span><span class="p">:</span>
+  <span class="nt">checksum_md5</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">7b8d677044c2701d88f1a95e85aec142</span>
+  <span class="nt">relative_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/maps/therys--average_porosity.gri</span>
+  <span class="nt">absolute_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/maps/therys--average_porosity.gri</span>
+<span class="nt">access</span><span class="p">:</span>
+  <span class="nt">asset</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Drogon</span>
+  <span class="nt">ssdl</span><span class="p">:</span>
+    <span class="nt">access_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">internal</span>
+    <span class="nt">rep_include</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">masterdata</span><span class="p">:</span>
+  <span class="nt">smda</span><span class="p">:</span>
+    <span class="nt">country</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Norway</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">discovery</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">short_identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">field</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+    <span class="nt">coordinate_system</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span>
+    <span class="nt">stratigraphic_column</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
+<span class="nt">tracklog</span><span class="p">:</span>
+<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-07-02T11:02:13.280648&#39;</span>
+  <span class="nt">user</span><span class="p">:</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runner</span>
+  <span class="nt">event</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">created</span>
+<span class="nt">fmu</span><span class="p">:</span>
+  <span class="nt">model</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ff</span>
+    <span class="nt">revision</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">21.1.0.dev</span>
+  <span class="nt">workflow</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rms property model</span>
+  <span class="nt">case</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xcase</span>
+    <span class="nt">user</span><span class="p">:</span>
+      <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nn</span>
+    <span class="nt">description</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Generated by nn at 2021-06-08T13:17:06.485667</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6fe60348-b386-4a68-9a0b-e8a4596af911</span>
+  <span class="nt">iteration</span><span class="p">:</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8483547b-2a22-2d07-5406-13493e216649</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">iter-0</span>
+    <span class="nt">runid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1736_24181_2021-6-08-11-16-55_941626024d</span>
+  <span class="nt">realization</span><span class="p">:</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">e7d033b9-d18b-023b-c5ab-ea8d639ccb3c</span>
+    <span class="nt">jobs</span><span class="p">:</span>
+      <span class="nt">umask</span><span class="p">:</span> <span class="s">&#39;0002&#39;</span>
+      <span class="nt">DATA_ROOT</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/project/fmu/tutorial/drogon/resmod/ff/users/nn/21.2.0/ert/model</span>
+      <span class="nt">global_environment</span><span class="p">:</span>
+        <span class="nt">TOOL_SITE_CONFIG</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">etc...</span>
+      <span class="nt">global_update_path</span><span class="p">:</span> <span class="p p-Indicator">{}</span>
+      <span class="nt">jobList</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">THIS_IS_ONLY_A_STUB!</span>
+        <span class="nt">executable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/prog/res/some</span>
+        <span class="nt">just_a_stub</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">run_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1736:24181:2021-6-08-11-16-55:941626024d</span>
+      <span class="nt">ert_pid</span><span class="p">:</span> <span class="s">&#39;1736&#39;</span>
+    <span class="nt">parameters</span><span class="p">:</span>
+      <span class="nt">SENSNAME</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rms_seed</span>
+      <span class="nt">SENSCASE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">p10_p90</span>
+      <span class="nt">RMS_SEED</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>
+      <span class="nt">THIS_FILE_IS_JUST_A_STUB</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">SOME</span><span class="p">:</span>
+        <span class="nt">OTHER</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">data</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Therys Fm.</span>
+  <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">content</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">property</span>
+  <span class="nt">property</span><span class="p">:</span>
+    <span class="nt">attribute</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">porosity</span>
+    <span class="nt">is_discrete</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">unit</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">fraction</span>
+  <span class="nt">vertical_domain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth</span>
+  <span class="nt">depth_reference</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">msl</span>
+  <span class="nt">is_prediction</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">is_observation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">layout</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">regular</span>
+  <span class="nt">spec</span><span class="p">:</span>
+    <span class="nt">ncol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">280</span>
+    <span class="nt">nrow</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">440</span>
+    <span class="nt">xori</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">461500.0</span>
+    <span class="nt">yori</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5926500.0</span>
+    <span class="nt">xinc</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25.0</span>
+    <span class="nt">yinc</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25.0</span>
+    <span class="nt">yflip</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+    <span class="nt">rotation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30.0</span>
+    <span class="nt">undef</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0e+30</span>
+  <span class="nt">bbox</span><span class="p">:</span>
+    <span class="nt">xmin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">456012.5</span>
+    <span class="nt">xmax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">467540.52719139645</span>
+    <span class="nt">ymin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5926500.0</span>
+    <span class="nt">ymax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5939492.128806534</span>
+    <span class="nt">zmin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0</span>
+    <span class="nt">zmax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.38215649127960205</span>
+  <span class="nt">format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">irap_binary</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="exporting-3d-grids-with-properties">
+<h2>Exporting 3D grids with properties<a class="headerlink" href="#exporting-3d-grids-with-properties" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3>Python script<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Export 3D griddata with properties.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">xtgeo</span>
+<span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
+<span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">ut</span>
+
+<span class="n">CFG</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
+
+<span class="n">FOLDER</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../output/grids&quot;</span><span class="p">)</span>
+<span class="n">GFILE</span> <span class="o">=</span> <span class="s2">&quot;gg&quot;</span>
+<span class="n">GNAME</span> <span class="o">=</span> <span class="s2">&quot;geogrid&quot;</span>
+<span class="n">PROPS_SEISMIC</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;phit&quot;</span><span class="p">,</span> <span class="s2">&quot;sw&quot;</span><span class="p">]</span>
+<span class="n">PROPS_OTHER</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;klogh&quot;</span><span class="p">,</span> <span class="s2">&quot;facies&quot;</span><span class="p">]</span>
+<span class="n">VERBOSITY</span> <span class="o">=</span> <span class="s2">&quot;WARNING&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">export_geogrid_geometry</span><span class="p">():</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="p">(</span><span class="n">FOLDER</span> <span class="o">/</span> <span class="n">GFILE</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.roff&quot;</span><span class="p">)</span>
+    <span class="n">grd</span> <span class="o">=</span> <span class="n">xtgeo</span><span class="o">.</span><span class="n">grid_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="n">ed</span> <span class="o">=</span> <span class="n">dataio</span><span class="o">.</span><span class="n">ExportData</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">CFG</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">GNAME</span><span class="p">,</span>
+        <span class="n">content</span><span class="o">=</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="n">vertical_domain</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">},</span>
+        <span class="n">timedata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">tagname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">verbosity</span><span class="o">=</span><span class="n">VERBOSITY</span><span class="p">,</span>
+        <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms structural model&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">grd</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stored grid as </span><span class="si">{</span><span class="n">out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">export_geogrid_parameters</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Export geogrid assosiated parameters based on user defined lists&quot;&quot;&quot;</span>
+
+    <span class="n">props</span> <span class="o">=</span> <span class="n">PROPS_SEISMIC</span> <span class="o">+</span> <span class="n">PROPS_OTHER</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Write grid properties...&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">propname</span> <span class="ow">in</span> <span class="n">props</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="p">(</span><span class="n">FOLDER</span> <span class="o">/</span> <span class="p">(</span><span class="n">GFILE</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">propname</span><span class="p">))</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.roff&quot;</span><span class="p">)</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="n">xtgeo</span><span class="o">.</span><span class="n">gridproperty_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">ed</span> <span class="o">=</span> <span class="n">dataio</span><span class="o">.</span><span class="n">ExportData</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">GNAME</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">CFG</span><span class="p">,</span>
+            <span class="n">content</span><span class="o">=</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span>
+            <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+            <span class="n">vertical_domain</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">},</span>
+            <span class="n">timedata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">tagname</span><span class="o">=</span><span class="n">propname</span><span class="p">,</span>
+            <span class="n">verbosity</span><span class="o">=</span><span class="n">VERBOSITY</span><span class="p">,</span>
+            <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms property model&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stored </span><span class="si">{</span><span class="n">propname</span><span class="si">}</span><span class="s2"> as </span><span class="si">{</span><span class="n">out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">export_geogrid_geometry</span><span class="p">()</span>
+    <span class="n">export_geogrid_parameters</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="resulting-metadata-for-grid-geometry">
+<h3>Resulting metadata for grid geometry<a class="headerlink" href="#resulting-metadata-for-grid-geometry" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">$schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
+<span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">fmu</span>
+<span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">cpgrid</span>
+<span class="nt">file</span><span class="p">:</span>
+  <span class="nt">checksum_md5</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">41bf70d37ba1bd2bbcfa02c199247e4c</span>
+  <span class="nt">relative_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/grids/geogrid.roff</span>
+  <span class="nt">absolute_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/geogrid.roff</span>
+<span class="nt">access</span><span class="p">:</span>
+  <span class="nt">asset</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Drogon</span>
+  <span class="nt">ssdl</span><span class="p">:</span>
+    <span class="nt">access_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">internal</span>
+    <span class="nt">rep_include</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">masterdata</span><span class="p">:</span>
+  <span class="nt">smda</span><span class="p">:</span>
+    <span class="nt">country</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Norway</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">discovery</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">short_identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">field</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+    <span class="nt">coordinate_system</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span>
+    <span class="nt">stratigraphic_column</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
+<span class="nt">tracklog</span><span class="p">:</span>
+<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-07-02T11:02:14.197751&#39;</span>
+  <span class="nt">user</span><span class="p">:</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runner</span>
+  <span class="nt">event</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">created</span>
+<span class="nt">fmu</span><span class="p">:</span>
+  <span class="nt">model</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ff</span>
+    <span class="nt">revision</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">21.1.0.dev</span>
+  <span class="nt">workflow</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rms structural model</span>
+  <span class="nt">case</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xcase</span>
+    <span class="nt">user</span><span class="p">:</span>
+      <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nn</span>
+    <span class="nt">description</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Generated by nn at 2021-06-08T13:17:06.485667</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6fe60348-b386-4a68-9a0b-e8a4596af911</span>
+  <span class="nt">iteration</span><span class="p">:</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8483547b-2a22-2d07-5406-13493e216649</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">iter-0</span>
+    <span class="nt">runid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1736_24181_2021-6-08-11-16-55_941626024d</span>
+  <span class="nt">realization</span><span class="p">:</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">e7d033b9-d18b-023b-c5ab-ea8d639ccb3c</span>
+    <span class="nt">jobs</span><span class="p">:</span>
+      <span class="nt">umask</span><span class="p">:</span> <span class="s">&#39;0002&#39;</span>
+      <span class="nt">DATA_ROOT</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/project/fmu/tutorial/drogon/resmod/ff/users/nn/21.2.0/ert/model</span>
+      <span class="nt">global_environment</span><span class="p">:</span>
+        <span class="nt">TOOL_SITE_CONFIG</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">etc...</span>
+      <span class="nt">global_update_path</span><span class="p">:</span> <span class="p p-Indicator">{}</span>
+      <span class="nt">jobList</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">THIS_IS_ONLY_A_STUB!</span>
+        <span class="nt">executable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/prog/res/some</span>
+        <span class="nt">just_a_stub</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">run_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1736:24181:2021-6-08-11-16-55:941626024d</span>
+      <span class="nt">ert_pid</span><span class="p">:</span> <span class="s">&#39;1736&#39;</span>
+    <span class="nt">parameters</span><span class="p">:</span>
+      <span class="nt">SENSNAME</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rms_seed</span>
+      <span class="nt">SENSCASE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">p10_p90</span>
+      <span class="nt">RMS_SEED</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>
+      <span class="nt">THIS_FILE_IS_JUST_A_STUB</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">SOME</span><span class="p">:</span>
+        <span class="nt">OTHER</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">data</span><span class="p">:</span>
+  <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">geogrid</span>
+  <span class="nt">content</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth</span>
+  <span class="nt">unit</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">m</span>
+  <span class="nt">vertical_domain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth</span>
+  <span class="nt">depth_reference</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">msl</span>
+  <span class="nt">is_prediction</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">is_observation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">layout</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">cornerpoint</span>
+  <span class="nt">spec</span><span class="p">:</span>
+    <span class="nt">ncol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">92</span>
+    <span class="nt">nrow</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">146</span>
+    <span class="nt">nlay</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">65</span>
+    <span class="nt">xshift</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0</span>
+    <span class="nt">yshift</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0</span>
+    <span class="nt">zshift</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0</span>
+    <span class="nt">xscale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
+    <span class="nt">yscale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
+    <span class="nt">zscale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
+    <span class="nt">subgrids</span><span class="p">:</span>
+      <span class="nt">subgrid_0</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">19</span>
+      <span class="nt">subgrid_1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">29</span>
+      <span class="nt">subgrid_2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">14</span>
+  <span class="nt">bbox</span><span class="p">:</span>
+    <span class="nt">xmin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">456063.6875</span>
+    <span class="nt">xmax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">467489.3438</span>
+    <span class="nt">ymin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5926551.0</span>
+    <span class="nt">ymax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5939441.0</span>
+    <span class="nt">zmin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1554.2631</span>
+    <span class="nt">zmax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2001.8425</span>
+  <span class="nt">format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">roff</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="resulting-metadata-for-facies-property">
+<h3>Resulting metadata for facies property<a class="headerlink" href="#resulting-metadata-for-facies-property" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">$schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
+<span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">fmu</span>
+<span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">cpgrid_property</span>
+<span class="nt">file</span><span class="p">:</span>
+  <span class="nt">checksum_md5</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ab96467396b4e89c25d17d61416df2f7</span>
+  <span class="nt">relative_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/grids/geogrid--facies.roff</span>
+  <span class="nt">absolute_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/geogrid--facies.roff</span>
+<span class="nt">access</span><span class="p">:</span>
+  <span class="nt">asset</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Drogon</span>
+  <span class="nt">ssdl</span><span class="p">:</span>
+    <span class="nt">access_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">internal</span>
+    <span class="nt">rep_include</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">masterdata</span><span class="p">:</span>
+  <span class="nt">smda</span><span class="p">:</span>
+    <span class="nt">country</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Norway</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">discovery</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">short_identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">field</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+    <span class="nt">coordinate_system</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span>
+    <span class="nt">stratigraphic_column</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
+<span class="nt">tracklog</span><span class="p">:</span>
+<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-07-02T11:02:14.697814&#39;</span>
+  <span class="nt">user</span><span class="p">:</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runner</span>
+  <span class="nt">event</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">created</span>
+<span class="nt">fmu</span><span class="p">:</span>
+  <span class="nt">model</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ff</span>
+    <span class="nt">revision</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">21.1.0.dev</span>
+  <span class="nt">workflow</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rms property model</span>
+  <span class="nt">case</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xcase</span>
+    <span class="nt">user</span><span class="p">:</span>
+      <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nn</span>
+    <span class="nt">description</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Generated by nn at 2021-06-08T13:17:06.485667</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6fe60348-b386-4a68-9a0b-e8a4596af911</span>
+  <span class="nt">iteration</span><span class="p">:</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8483547b-2a22-2d07-5406-13493e216649</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">iter-0</span>
+    <span class="nt">runid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1736_24181_2021-6-08-11-16-55_941626024d</span>
+  <span class="nt">realization</span><span class="p">:</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">e7d033b9-d18b-023b-c5ab-ea8d639ccb3c</span>
+    <span class="nt">jobs</span><span class="p">:</span>
+      <span class="nt">umask</span><span class="p">:</span> <span class="s">&#39;0002&#39;</span>
+      <span class="nt">DATA_ROOT</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/project/fmu/tutorial/drogon/resmod/ff/users/nn/21.2.0/ert/model</span>
+      <span class="nt">global_environment</span><span class="p">:</span>
+        <span class="nt">TOOL_SITE_CONFIG</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">etc...</span>
+      <span class="nt">global_update_path</span><span class="p">:</span> <span class="p p-Indicator">{}</span>
+      <span class="nt">jobList</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">THIS_IS_ONLY_A_STUB!</span>
+        <span class="nt">executable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/prog/res/some</span>
+        <span class="nt">just_a_stub</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">run_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1736:24181:2021-6-08-11-16-55:941626024d</span>
+      <span class="nt">ert_pid</span><span class="p">:</span> <span class="s">&#39;1736&#39;</span>
+    <span class="nt">parameters</span><span class="p">:</span>
+      <span class="nt">SENSNAME</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rms_seed</span>
+      <span class="nt">SENSCASE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">p10_p90</span>
+      <span class="nt">RMS_SEED</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>
+      <span class="nt">THIS_FILE_IS_JUST_A_STUB</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">SOME</span><span class="p">:</span>
+        <span class="nt">OTHER</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">data</span><span class="p">:</span>
+  <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">geogrid</span>
+  <span class="nt">content</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth</span>
+  <span class="nt">unit</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">m</span>
+  <span class="nt">vertical_domain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth</span>
+  <span class="nt">depth_reference</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">msl</span>
+  <span class="nt">is_prediction</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">is_observation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">layout</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">cornerpoint_property</span>
+  <span class="nt">spec</span><span class="p">:</span>
+    <span class="nt">ncol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">92</span>
+    <span class="nt">nrow</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">146</span>
+    <span class="nt">nlay</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">65</span>
+  <span class="nt">format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">roff</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="exporting-volume-tables-rms-or-file">
+<h2>Exporting volume tables RMS or file<a class="headerlink" href="#exporting-volume-tables-rms-or-file" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h3>Python script<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Read volume table from RMS or file and export to CSV for SUMO.</span>
+
+<span class="sd">In this example there is switch, IN_ROXAR which is set to True if using it inside</span>
+<span class="sd">RMS (to demostrate how volume tables can be fetched via Roxar API).</span>
+
+<span class="sd">For the file case, CSV files are read from disk. The dataio function is the same.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">fmu.dataio</span>
+<span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">ut</span>
+
+<span class="n">CFG</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
+
+<span class="n">IN_ROXAR</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">PRJ</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">if</span> <span class="n">IN_ROXAR</span><span class="p">:</span>
+    <span class="n">PRJ</span> <span class="o">=</span> <span class="n">project</span>  <span class="c1"># type: ignore # noqa # pylint: disable=undefined-variable</span>
+    <span class="n">VTABLES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;geogrid_volumes&quot;</span><span class="p">,</span> <span class="s2">&quot;simgrid_volumes&quot;</span><span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">VFOLDER</span> <span class="o">=</span> <span class="s2">&quot;../output/volumes/&quot;</span>
+    <span class="n">VFILES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;geogrid_vol.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;simgrid_vol.csv&quot;</span><span class="p">]</span>
+
+
+<span class="n">TAGNAME</span> <span class="o">=</span> <span class="s2">&quot;volumes&quot;</span>
+<span class="n">VERBOSITY</span> <span class="o">=</span> <span class="s2">&quot;WARNING&quot;</span>
+
+<span class="c1"># renaming columns from RMS to FMU standard</span>
+<span class="n">RENAMING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Proj. real.&quot;</span><span class="p">:</span> <span class="s2">&quot;REALIZATION&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Zone&quot;</span><span class="p">:</span> <span class="s2">&quot;ZONE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Segment&quot;</span><span class="p">:</span> <span class="s2">&quot;REGION&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BulkOil&quot;</span><span class="p">:</span> <span class="s2">&quot;BULK_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PoreOil&quot;</span><span class="p">:</span> <span class="s2">&quot;PORV_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HCPVOil&quot;</span><span class="p">:</span> <span class="s2">&quot;HCPV_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;STOIIP&quot;</span><span class="p">:</span> <span class="s2">&quot;STOIIP_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AssociatedGas&quot;</span><span class="p">:</span> <span class="s2">&quot;ASSOCIATEDGAS_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BulkGas&quot;</span><span class="p">:</span> <span class="s2">&quot;BULK_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PoreGas&quot;</span><span class="p">:</span> <span class="s2">&quot;PORV_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HCPVGas&quot;</span><span class="p">:</span> <span class="s2">&quot;HCPV_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GIIP&quot;</span><span class="p">:</span> <span class="s2">&quot;GIIP_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AssociatedLiquid&quot;</span><span class="p">:</span> <span class="s2">&quot;ASSOCIATEDOIL_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bulk&quot;</span><span class="p">:</span> <span class="s2">&quot;BULK_TOTAL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Pore&quot;</span><span class="p">:</span> <span class="s2">&quot;PORV_TOTAL&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">volume_as_dataframe_files</span><span class="p">(</span><span class="n">vfile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read volume (CSV files) and return dataframe.&quot;&quot;&quot;</span>
+
+    <span class="c1"># &quot;geogrid_vol.csv&quot; --&gt; &quot;geogrid&quot; etc</span>
+    <span class="n">gridname</span> <span class="o">=</span> <span class="n">vfile</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_vol.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">VFOLDER</span><span class="p">)</span> <span class="o">/</span> <span class="n">vfile</span>
+
+    <span class="n">dframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dframe</span><span class="p">,</span> <span class="n">gridname</span>
+
+
+<span class="k">def</span> <span class="nf">volume_as_dataframe_rms</span><span class="p">(</span><span class="n">vtable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read volume table in RMS and return dataframe.&quot;&quot;&quot;</span>
+
+    <span class="c1"># &quot;geogrid_volumes&quot; --&gt; &quot;geogrid&quot; etc</span>
+    <span class="n">gridname</span> <span class="o">=</span> <span class="n">vtable</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_volumes&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">table</span> <span class="o">=</span> <span class="n">PRJ</span><span class="o">.</span><span class="n">volumetric_tables</span><span class="p">[</span><span class="n">vtable</span><span class="p">]</span>
+    <span class="n">dtdict</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get_data_table</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+    <span class="n">dframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dtdict</span><span class="p">)</span>
+    <span class="n">dframe</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">RENAMING</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># skip REALIZATION</span>
+    <span class="n">dframe</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;REALIZATION&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dframe</span><span class="p">,</span> <span class="n">gridname</span>
+
+
+<span class="k">def</span> <span class="nf">export_dataio</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">gridname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the dataframe and export to SUMO via dataio.&quot;&quot;&quot;</span>
+
+    <span class="n">exp</span> <span class="o">=</span> <span class="n">fmu</span><span class="o">.</span><span class="n">dataio</span><span class="o">.</span><span class="n">ExportData</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">gridname</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">CFG</span><span class="p">,</span>
+        <span class="n">content</span><span class="o">=</span><span class="s2">&quot;volumetrics&quot;</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">tagname</span><span class="o">=</span><span class="n">TAGNAME</span><span class="p">,</span>
+        <span class="n">verbosity</span><span class="o">=</span><span class="n">VERBOSITY</span><span class="p">,</span>
+        <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;Volume calculation&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exported volume table for </span><span class="si">{</span><span class="n">gridname</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="n">IN_ROXAR</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">vtable</span> <span class="ow">in</span> <span class="n">VTABLES</span><span class="p">:</span>
+            <span class="n">export_dataio</span><span class="p">(</span><span class="o">*</span><span class="n">volume_as_dataframe_rms</span><span class="p">(</span><span class="n">vtable</span><span class="p">))</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">vfile</span> <span class="ow">in</span> <span class="n">VFILES</span><span class="p">:</span>
+            <span class="n">export_dataio</span><span class="p">(</span><span class="o">*</span><span class="n">volume_as_dataframe_files</span><span class="p">(</span><span class="n">vfile</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="resulting-metadata-for-volume-table">
+<h3>Resulting metadata for volume table<a class="headerlink" href="#resulting-metadata-for-volume-table" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">$schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
+<span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">fmu</span>
+<span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
+<span class="nt">file</span><span class="p">:</span>
+  <span class="nt">checksum_md5</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f59c4860d219dad01153b7f91bb30a4b</span>
+  <span class="nt">relative_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/tables/geogrid--volumes.csv</span>
+  <span class="nt">absolute_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/tables/geogrid--volumes.csv</span>
+<span class="nt">access</span><span class="p">:</span>
+  <span class="nt">asset</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Drogon</span>
+  <span class="nt">ssdl</span><span class="p">:</span>
+    <span class="nt">access_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">internal</span>
+    <span class="nt">rep_include</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">masterdata</span><span class="p">:</span>
+  <span class="nt">smda</span><span class="p">:</span>
+    <span class="nt">country</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Norway</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">discovery</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">short_identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+    <span class="nt">field</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+    <span class="nt">coordinate_system</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span>
+    <span class="nt">stratigraphic_column</span><span class="p">:</span>
+      <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
+      <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
+<span class="nt">tracklog</span><span class="p">:</span>
+<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-07-02T11:02:15.599143&#39;</span>
+  <span class="nt">user</span><span class="p">:</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runner</span>
+  <span class="nt">event</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">created</span>
+<span class="nt">fmu</span><span class="p">:</span>
+  <span class="nt">model</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ff</span>
+    <span class="nt">revision</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">21.1.0.dev</span>
+  <span class="nt">workflow</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Volume calculation</span>
+  <span class="nt">case</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xcase</span>
+    <span class="nt">user</span><span class="p">:</span>
+      <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nn</span>
+    <span class="nt">description</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Generated by nn at 2021-06-08T13:17:06.485667</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6fe60348-b386-4a68-9a0b-e8a4596af911</span>
+  <span class="nt">iteration</span><span class="p">:</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8483547b-2a22-2d07-5406-13493e216649</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">iter-0</span>
+    <span class="nt">runid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1736_24181_2021-6-08-11-16-55_941626024d</span>
+  <span class="nt">realization</span><span class="p">:</span>
+    <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0</span>
+    <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">e7d033b9-d18b-023b-c5ab-ea8d639ccb3c</span>
+    <span class="nt">jobs</span><span class="p">:</span>
+      <span class="nt">umask</span><span class="p">:</span> <span class="s">&#39;0002&#39;</span>
+      <span class="nt">DATA_ROOT</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/project/fmu/tutorial/drogon/resmod/ff/users/nn/21.2.0/ert/model</span>
+      <span class="nt">global_environment</span><span class="p">:</span>
+        <span class="nt">TOOL_SITE_CONFIG</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">etc...</span>
+      <span class="nt">global_update_path</span><span class="p">:</span> <span class="p p-Indicator">{}</span>
+      <span class="nt">jobList</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">THIS_IS_ONLY_A_STUB!</span>
+        <span class="nt">executable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/prog/res/some</span>
+        <span class="nt">just_a_stub</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">run_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1736:24181:2021-6-08-11-16-55:941626024d</span>
+      <span class="nt">ert_pid</span><span class="p">:</span> <span class="s">&#39;1736&#39;</span>
+    <span class="nt">parameters</span><span class="p">:</span>
+      <span class="nt">SENSNAME</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rms_seed</span>
+      <span class="nt">SENSCASE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">p10_p90</span>
+      <span class="nt">RMS_SEED</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>
+      <span class="nt">THIS_FILE_IS_JUST_A_STUB</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">SOME</span><span class="p">:</span>
+        <span class="nt">OTHER</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">data</span><span class="p">:</span>
+  <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">geogrid</span>
+  <span class="nt">content</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">volumetrics</span>
+  <span class="nt">unit</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">m</span>
+  <span class="nt">vertical_domain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth</span>
+  <span class="nt">depth_reference</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">msl</span>
+  <span class="nt">is_prediction</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">is_observation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">layout</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
+  <span class="nt">spec</span><span class="p">:</span>
+    <span class="nt">columns</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="s">&#39;Unnamed:</span><span class="nv"> </span><span class="s">0&#39;</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ZONE</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">REGION</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">BULK_OIL</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">PORV_OIL</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">HCPV_OIL</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">STOIIP_OIL</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ASSOCIATEDGAS_OIL</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">BULK_GAS</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">PORV_GAS</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">HCPV_GAS</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">GIIP_GAS</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ASSOCIATEDOIL_GAS</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">BULK_TOTAL</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">PORV_TOTAL</span>
+    <span class="nt">size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">315</span>
+  <span class="nt">format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">csv</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="apiref/modules.html" class="btn btn-neutral float-right" title="API reference for fmu.dataio" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="overview.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright Equinor 2019 - 2021 (XTGeo release 0.3.3.dev12+gdff2522).
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

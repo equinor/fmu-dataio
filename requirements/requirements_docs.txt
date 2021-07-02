@@ -1,5 +1,0 @@
-sphinx
-sphinx_rdt_theme
-autoapi
-sphinx-autodoc-typehints
-sphinxcontrib-apidoc

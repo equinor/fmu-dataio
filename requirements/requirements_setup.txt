@@ -1,3 +1,0 @@
-setuptools>=28
-setuptools_scm
-pytest-runner
