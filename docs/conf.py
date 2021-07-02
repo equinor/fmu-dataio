@@ -25,8 +25,10 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
-    "sphinx_toolbox.collapse",
+    "sphinx_togglebutton",
 ]
+
+togglebutton_hint = "YAML file: "
 
 apidoc_module_dir = "../src/fmu/dataio"
 apidoc_output_dir = "apiref"

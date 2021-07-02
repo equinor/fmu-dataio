@@ -17,10 +17,10 @@ can comment it out in your code.
 The global variables used here
 ------------------------------
 
-Here are the relevant sections in the global variables (output) file (press arrow to
+Here are the relevant sections in the global variables (output) file (press plus to
 expand):
 
-.. collapse:: Global variables
+.. toggle::
 
    .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/fmuconfig/output/global_variables.yml
       :language: yaml
@@ -36,10 +36,9 @@ Python script
 .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_faultpolygons.py
    :language: python
 
-Example on metadata
-~~~~~~~~~~~~~~~~~~~
+Press + to see generated YAML file.
 
-.. collapse:: Resulting metadata for TopVolantis polygons
+.. toggle::
 
    .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/polygons/.topvolantis--faultlines.pol.yml
       :language: yaml
@@ -56,10 +55,9 @@ Python script
    :language: python
 
 
-Example on metadata
-~~~~~~~~~~~~~~~~~~~
+Press + to see generated YAML file for metadata.
 
-.. collapse:: Resulting metadata for Therys average porosity
+.. toggle::
 
    .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/maps/.therys--average_porosity.gri.yml
       :language: yaml
@@ -75,15 +73,15 @@ Python script
 .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_grid3d.py
    :language: python
 
-Examples on metadata
-~~~~~~~~~~~~~~~~~~~~
+Press + to see generated YAML file for metadata.
 
-.. collapse:: Resulting metadata for grid geometry
+
+.. toggle::
 
    .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.geogrid.roff.yml
       :language: yaml
 
-.. collapse:: Resulting metadata for facies property
+.. toggle::
 
    .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.geogrid--facies.roff.yml
       :language: yaml
@@ -99,7 +97,7 @@ Python script
 .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_volumetables.py
    :language: python
 
-.. collapse:: Resulting metadata for volume table
+.. toggle::
 
    .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/tables/.geogrid--volumes.csv.yml
       :language: yaml

@@ -1,6 +1,6 @@
-sphinx==3.5
+sphinx
 sphinx-rtd-theme
 autoapi
 sphinx-autodoc-typehints
 sphinxcontrib-apidoc
-sphinx-toolbox
+sphinx-togglebutton
