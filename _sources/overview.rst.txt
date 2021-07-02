@@ -10,11 +10,11 @@ Static and dynamic metadata
 ---------------------------
 
 Metadata are in general "additional data about the data". For instance a pure surface
-export file (e.g. irpa binary) will have information about data itself (like
+export file (e.g. irap binary) will have information about data itself (like
 values in the map, and bounding box) but the file have no idea of which FMU run it
 belongs to, or which field it comes from.
 
-For an export some of the metadata are _static_, which mean that it will note change for
+For an export some of the metadata are *static*, which mean that it will note change for
 a run. Typical static metadata are field, country and coordinate system information
 
 Other metadata are dynamic, i.e. they will vary per item which is exported. For
@@ -27,11 +27,7 @@ Basicly it works like this in a FMU run:
     * Dynamic metadata must be provided in the export
 
 
-
-
-
-
 Prepare fmu-config
 ------------------
 
-For some
+Text to comes
