@@ -73,7 +73,7 @@ Python script
 .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_grid3d.py
    :language: python
 
-Press + to see generated YAML file for metadata.
+Press + to see generated YAML files for metadata.
 
 
 .. toggle::
