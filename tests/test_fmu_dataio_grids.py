@@ -3,6 +3,7 @@ from collections import OrderedDict
 import shutil
 import logging
 import json
+import pytest
 import xtgeo
 import yaml
 
@@ -40,13 +41,14 @@ def test_grid_io(tmp_path):
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.grid_fformat = "roff"
 
-    exp = fmu.dataio.ExportData()
+    exp = fmu.dataio.ExportData(content="depth")
     exp._pwd = tmp_path
     exp.to_file(grd)
 
     assert (tmp_path / "grids" / ".test.roff.yml").is_file() is True
 
 
+@pytest.mark.filterwarnings("ignore::UserWarning")
 def test_gridproperty_io(tmp_path):
     """Minimal test gridproperty io, uses tmp_path."""
 

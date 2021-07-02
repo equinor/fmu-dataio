@@ -244,3 +244,42 @@ def test_data_process_content_shall_fail():
     with pytest.raises(ei.ValidationError) as errmsg:
         exportitem._data_process_content()
     assert "is not valid for" in str(errmsg)
+
+
+def test_data_process_content_fluid_contact():
+    """Test the field fluid_contact."""
+    # test case 1
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content={"fluid_contact": {"contact": "owc"}},
+        timedata=[["20210101", "first"], [20210902, "second"]],
+        tagname="WhatEver",
+    )
+    obj = xtgeo.Polygons()
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem._data_process_content()
+
+    # test case 2
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content={"fluid_contact": {"wrong": "owc"}},
+        timedata=[["20210101", "first"], [20210902, "second"]],
+        tagname="WhatEver",
+    )
+    obj = xtgeo.Polygons()
+    with pytest.raises(ei.ValidationError) as errmsg:
+        exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+        exportitem._data_process_content()
+    assert "is not valid for" in str(errmsg)
+
+    # test case 3
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content={"field_outline": {"wrong": "owc"}},
+        timedata=[["20210101", "first"], [20210902, "second"]],
+        tagname="WhatEver",
+    )
+    obj = xtgeo.Polygons()

@@ -42,7 +42,7 @@ def test_surface_io(tmp_path):
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData()
+    exp = fmu.dataio.ExportData(content="depth")
     exp._pwd = tmp_path
     exp.to_file(srf)
 
