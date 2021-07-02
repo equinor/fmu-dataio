@@ -44,6 +44,13 @@ ALLOWED_CONTENTS = {
     "volumetrics": None,  # or?
 }
 
+# this setting will set if subkeys is required or not. If not found in list then
+# False is assumed.
+CONTENTS_REQUIRED = {
+    "fluid_contact": {"contact": True},
+    "field_outline": {"contact": False},
+}
+
 logger = logging.getLogger(__name__)
 
 
@@ -255,7 +262,12 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         usecontent = "unset"
         useextra = None
         if content is None:
-            usecontent = "undefined"
+            warnings.warn(
+                "The <content> is not provided which defaults to 'depth'. "
+                "It is strongly recommended that content is given explicitly!",
+                UserWarning,
+            )
+            usecontent = "depth"
 
         elif isinstance(content, str):
             usecontent = content
@@ -288,6 +300,19 @@ class _ExportItem:  # pylint disable=too-few-public-methods
                     )
             else:
                 raise ValidationError(f"Key <{key}> is not valid for <{name}>")
+
+        required = CONTENTS_REQUIRED.get(name, None)
+        if isinstance(required, dict):
+            rlist = list(required.items())
+            rkey, status = rlist.pop()
+            if rkey not in fields.keys() and status is True:
+                raise ValidationError(
+                    f"The subkey <{rkey}> is required for content <{name}> ",
+                    "but is not found",
+                )
+
+            # if name in CONTENTS_REQUIRED.keys():
+            #     if key in CONTENTS_REQUIRED[name] and CONTENTS_REQUIRED[name] is True
 
     def _data_process_timedata(self):
         """Process the time subfield."""

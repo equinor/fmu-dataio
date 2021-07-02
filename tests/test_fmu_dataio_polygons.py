@@ -48,7 +48,7 @@ def test_polygons_io(tmp_path):
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.polygons_fformat = "csv"
 
-    exp = fmu.dataio.ExportData(name="test")
+    exp = fmu.dataio.ExportData(name="test", content="depth")
     exp._pwd = tmp_path
     exp.to_file(srf)
 

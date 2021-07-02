@@ -1,0 +1,53 @@
+# build and test some end points
+name: Build and deploy docs for fmu-dataio
+
+# on: [push, pull_request]
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build_pywheels:
+    name: PY ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: [3.7]
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install and build docs
+        run: |
+          pip install pip -U && pip install wheel -U
+          pip install .[docs]
+          pip install xtgeo==2.15rc3
+          pip install git+https://github.com/equinor/fmu-config
+          sh examples/run_examples.sh
+          python setup.py build_sphinx
+      - name: Update GitHub pages
+        if: github.repository_owner == 'equinor' && github.ref == 'refs/heads/main'
+        run: |
+          cp -R ./build/sphinx/html ../html
+          git config --local user.email "fmu-dataio-github-action"
+          git config --local user.name "fmu-dataio-github-action"
+          git fetch origin gh-pages
+          git checkout --track origin/gh-pages
+          git clean -f -f -d -x  # Double -f is intentional.
+          git rm -r *
+          cp -R ../html/* .
+          touch .nojekyll  # If not, github pages ignores _* directories.
+          git add .
+          if git diff-index --quiet HEAD; then
+            echo "No changes in documentation. Skip documentation deploy."
+          else
+            git commit -m "Update Github Pages"
+            git push "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
+          fi

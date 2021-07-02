@@ -38,7 +38,7 @@ def test_table_io(tmp_path):
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.table_fformat = "csv"
 
-    exp = fmu.dataio.ExportData(name="test", verbosity="INFO")
+    exp = fmu.dataio.ExportData(name="test", verbosity="INFO", content="volumes")
     exp._pwd = tmp_path
     exp.to_file(table)
 

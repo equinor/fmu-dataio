@@ -4,6 +4,7 @@ from collections import OrderedDict
 import logging
 import json
 import pytest
+import xtgeo
 import fmu.dataio
 
 # pylint: disable=protected-access
@@ -77,27 +78,6 @@ def test_process_fmu_model():
     assert fmumodel["revision"] == "0.99.0"
 
 
-@pytest.mark.skip(reason="Postpone")
-def test_process_fmu_grid_model():
-    """The (second order) private routine that provides fmu:grid_model"""
-
-    # assert None when grid_model is not passed
-    case = fmu.dataio.ExportData()
-    case._config = CFG
-    fmugridmodel = case._process_meta_fmu_grid_model()
-    assert fmugridmodel is None
-
-    # assert ValueError when wrong format is passed
-    with pytest.raises(ValueError):
-        case = fmu.dataio.ExportData(grid_model="somestring")
-
-    # assert direct transfer when right format is passed
-    case = fmu.dataio.ExportData(grid_model={"name": "MyGridModel"})
-    case._config = CFG
-    fmugridmodel = case._process_meta_fmu_grid_model()
-    assert fmugridmodel == {"name": "MyGridModel"}
-
-
 def test_process_fmu_realisation():
     """The (second order) private routine that provides realization and iteration."""
     case = fmu.dataio.ExportData()
@@ -115,3 +95,19 @@ def test_process_fmu_realisation():
     assert r_meta["parameters"]["KVKH_CREVASSE"] == 0.3
     assert r_meta["parameters"]["GLOBVAR"]["VOLON_FLOODPLAIN_VOLFRAC"] == 0.256355
     assert c_meta["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
+
+
+def test_raise_userwarning_missing_content(tmp_path):
+    """Example on generting a GridProperty without content spesified."""
+
+    gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
+    gpr.name = "testgp"
+    fmu.dataio.ExportData.export_root = tmp_path.resolve()
+    fmu.dataio.ExportData.grid_fformat = "roff"
+
+    with pytest.warns(UserWarning, match="is not provided which defaults"):
+        exp = fmu.dataio.ExportData()
+        exp._pwd = tmp_path
+        exp.to_file(gpr)
+
+    assert (tmp_path / "grids" / ".testgp.roff.yml").is_file() is True

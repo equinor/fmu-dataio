@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 # The examples scripts are ran and included in the documentation!
 
 current=$PWD
