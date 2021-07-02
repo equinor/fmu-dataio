@@ -42,7 +42,6 @@ ALLOWED_CONTENTS = {
     "field_outline": {"contact": str},
     "volumes": None,
     "volumetrics": None,  # or?
-    "undefined": None,
 }
 
 logger = logging.getLogger(__name__)
