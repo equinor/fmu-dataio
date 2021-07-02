@@ -25,6 +25,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
+    "sphinx_toolbox.collapse",
 ]
 
 apidoc_module_dir = "../src/fmu/dataio"
@@ -47,7 +48,7 @@ master_doc = "index"
 # General information about the project.
 project = "fmu.dataio"
 current_year = date.today().year
-copyright = "Equinor 2019 - " + str(current_year) + f" (XTGeo release {release})"
+copyright = "Equinor " + str(current_year) + f" (fmu-dataio release {release})"
 
 
 # Sort members by input order in classes
