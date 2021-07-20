@@ -41,7 +41,6 @@ ALLOWED_CONTENTS = {
     "fluid_contact": {"contact": str},
     "field_outline": {"contact": str},
     "volumes": None,
-    "volumetrics": None,  # or?
 }
 
 # this setting will set if subkeys is required or not. If not found in list then
