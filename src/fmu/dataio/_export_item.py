@@ -43,7 +43,7 @@ ALLOWED_CONTENTS = {
     "field_outline": {"contact": str},
     "fault_lines": None,
     "volumes": None,
-    "volumetrics": None
+    "volumetrics": None,  # or?
 }
 
 # this setting will set if subkeys is required or not. If not found in list then
