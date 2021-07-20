@@ -281,7 +281,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             raise ValidationError(
                 f"Invalid content: <{usecontent}>! "
                 f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
-                )
+            )
 
         meta["content"] = usecontent
         if useextra:
