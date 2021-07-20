@@ -277,7 +277,10 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             useextra = content[usecontent]
 
         if usecontent not in ALLOWED_CONTENTS.keys():
-            raise ValidationError(f"Invalid content: <{usecontent}> is not in list!")
+            raise ValidationError(
+                f"Invalid content: <{usecontent}>! "
+                f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
+                )
 
         meta["content"] = usecontent
         if useextra:
