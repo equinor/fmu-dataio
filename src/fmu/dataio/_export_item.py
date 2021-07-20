@@ -31,6 +31,7 @@ VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".pol"}
 ALLOWED_CONTENTS = {
     "depth": None,
     "time": None,
+    "thickness": None,
     "property": {"attribute": str, "is_discrete": bool},
     "seismic": {
         "attribute": str,
