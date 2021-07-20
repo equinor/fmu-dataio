@@ -41,6 +41,7 @@ ALLOWED_CONTENTS = {
     },
     "fluid_contact": {"contact": str},
     "field_outline": {"contact": str},
+    "fault_lines": None,
     "volumes": None,
 }
 
