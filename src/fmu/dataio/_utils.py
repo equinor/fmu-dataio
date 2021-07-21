@@ -191,6 +191,21 @@ def read_parameters_txt(pfile):
       LOG10_MULTREGT:MULT_THERYS_VOLON -3.21365
       LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
 
+    Or the structure::
+                            SENSNAME     rms_seed
+                            SENSCASE     p10_p90
+                            RMS_SEED     1000
+                        KVKH_CHANNEL     0.6
+                       KVKH_CREVASSE     0.3
+      GLOBVAR:VOLON_FLOODPLAIN_VOLFRAC   0.256355
+          GLOBVAR:VOLON_PERMH_CHANNEL    1100
+           GLOBVAR:VOLON_PORO_CHANNEL    0.2
+      LOG10_GLOBVAR:FAULT_SEAL_SCALING   0.685516
+      LOG10_MULTREGT:MULT_THERYS_VOLON   -3.21365
+      LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
+
+    ...where leading whitespace is space, separator is tab
+
     This should be parsed as::
 
         {
@@ -203,11 +218,18 @@ def read_parameters_txt(pfile):
         }
     """
 
+    logger.debug("Reading parameters.txt from {}".format(pfile))
+
     with open(pfile, "r") as stream:
-        buffer = stream.read().replace(" ", ":").splitlines()
+        buffer_ = stream.read().splitlines()
+
+    logger.debug("buffer_ is of type {}".format(type(buffer_)))
+    logger.debug("buffer_ has {} lines".format(len(buffer_)))
+
+    buffer_ = [":".join(line.split()) for line in buffer_]
 
     param = OrderedDict()
-    for line in buffer:
+    for line in buffer_:
         items = line.split(":")
         if len(items) == 2:
             param[items[0]] = check_if_number(items[1])
