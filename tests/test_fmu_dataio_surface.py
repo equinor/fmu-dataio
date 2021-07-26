@@ -49,8 +49,6 @@ def test_surface_io(tmp_path):
     assert (tmp_path / "maps" / ".test.gri.yml").is_file() is True
 
 
-
-
 def test_surface_io_larger_case(tmp_path):
     """Larger test surface io, uses global config from Drogon to tmp_path."""
 
