@@ -49,6 +49,8 @@ def test_surface_io(tmp_path):
     assert (tmp_path / "maps" / ".test.gri.yml").is_file() is True
 
 
+
+
 def test_surface_io_larger_case(tmp_path):
     """Larger test surface io, uses global config from Drogon to tmp_path."""
 
@@ -137,6 +139,7 @@ def test_surface_io_larger_case_ertrun(tmp_path):
         meta["file"]["relative_path"]
         == "realization-0/iter-0/share/results/maps/topvolantis--what_descr.gri"
     )
+    assert meta["class"] == "surface", meta["class"]
     assert meta["fmu"]["model"]["name"] == "ff"
     assert meta["fmu"]["iteration"]["name"] == "iter-0"
     assert meta["fmu"]["realization"]["name"] == "realization-0"
