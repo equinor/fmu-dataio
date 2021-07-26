@@ -97,7 +97,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         logger.info("Save to file...")
         if isinstance(self.obj, xtgeo.RegularSurface):
             self.subtype = "RegularSurface"
-            self.classname = "regularsurface"
+            self.classname = "surface"
         elif isinstance(self.obj, xtgeo.Polygons):
             self.subtype = "Polygons"
             self.classname = "polygons"
