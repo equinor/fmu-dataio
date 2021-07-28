@@ -31,6 +31,7 @@ VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".pol"}
 ALLOWED_CONTENTS = {
     "depth": None,
     "time": None,
+    "thickness": None,
     "property": {"attribute": str, "is_discrete": bool},
     "seismic": {
         "attribute": str,
@@ -40,6 +41,7 @@ ALLOWED_CONTENTS = {
     },
     "fluid_contact": {"contact": str},
     "field_outline": {"contact": str},
+    "fault_lines": None,
     "volumes": None,
     "volumetrics": None,  # or?
 }
@@ -277,7 +279,10 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             useextra = content[usecontent]
 
         if usecontent not in ALLOWED_CONTENTS.keys():
-            raise ValidationError(f"Invalid content: <{usecontent}> is not in list!")
+            raise ValidationError(
+                f"Invalid content: <{usecontent}>! "
+                f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
+            )
 
         meta["content"] = usecontent
         if useextra:
