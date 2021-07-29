@@ -96,6 +96,7 @@ class ExportData:
         description: Optional[List[str]] = None,
         grid_model: Optional[dict] = None,
         access_ssdl: Optional[dict] = None,
+        display_name: Optional[str] = None,
         runfolder: Optional[str] = None,
         verbosity: Optional[str] = "CRITICAL",
     ) -> None:
@@ -130,6 +131,7 @@ class ExportData:
             access_ssdl: A dictionary that will overwrite the default ssdl
                 settings read from the config. Example:
                 ``{"access_level": "restricted", "rep_include": False}``
+            display_name: Set name for clients to use when visualizing.
             runfolder: Set toplevel of runfolder, where default is current directory
             verbosity: Is logging/message level for this module. Input as
                 in standard python logging; e.g. "WARNING", "INFO".
@@ -150,6 +152,7 @@ class ExportData:
         self._workflow = workflow
         self._description = description
         self._access_ssdl = access_ssdl
+        self._display_name = display_name
         self._verbosity = verbosity
 
         # keep track if case
@@ -181,7 +184,7 @@ class ExportData:
         self._get_meta_strat()
 
         # Get the metadata for some of the general stuff, fully or partly
-        # Note that data are found later (e.g. in _export_item)
+        # Note that data and display are found later (e.g. in _export_item)
         self._get_meta_masterdata()
         self._get_meta_access()
         self._get_meta_tracklog()
