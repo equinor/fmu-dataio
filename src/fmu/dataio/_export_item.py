@@ -548,6 +548,10 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         the object name. If that is not set, display.name will be exported
         as None/null.
 
+        The main concept followed for now is that the visualising client
+        is to take the most responsibility for how a data object is
+        visualized.
+
         """
 
         logger.info("Processing display")
