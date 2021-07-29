@@ -343,7 +343,7 @@ def test_display():
     exporter._display()
 
     # None of the fallbacks are set, so None should be exported
-    assert dataio._meta_display["name"] == None
+    assert dataio._meta_display["name"] is None
 
     # 4 assert that display_name is used when given
     dataio = fmu.dataio.ExportData(
