@@ -283,3 +283,80 @@ def test_data_process_content_fluid_contact():
         tagname="WhatEver",
     )
     obj = xtgeo.Polygons()
+
+
+def test_display():
+    """
+    Test the display.
+
+    For now, the display.name only is set. It is set by
+    input argument, with two fallbacks.
+
+    1) input argument to Export Data
+    2) Fallback: name argument to Export Data
+    3) Fallback: Object name
+
+    Note: Will not use object name if this is == "unknown",
+    which is the default in XTgeo.
+
+    """
+
+    # 1 assert that name argument is used when set
+    dataio = fmu.dataio.ExportData(
+        name="MyName", config=CFG2, content="depth", verbosity="DEBUG"
+    )
+
+    obj = xtgeo.RegularSurface(
+        name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
+    exporter._display()
+
+    # 'display_name' is not given, so 'name' should be used.
+    assert dataio._meta_display["name"] == "MyName"
+
+    # 2 assert that object argument is used when name argument not set
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    obj = xtgeo.RegularSurface(
+        name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
+    exporter._display()
+
+    # 'display_name' nor 'name' is given, object name should be used
+    assert dataio._meta_display["name"] == "ObjectName"
+
+    # 3 assert that None is set when nothing is given
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    obj = xtgeo.RegularSurface(ncol=3, nrow=4, xinc=22, yinc=22, values=0)
+    exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
+    exporter._display()
+
+    # None of the fallbacks are set, so None should be exported
+    assert dataio._meta_display["name"] == None
+
+    # 4 assert that display_name is used when given
+    dataio = fmu.dataio.ExportData(
+        name="MyName",
+        display_name="MyDisplayName",
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    obj = xtgeo.RegularSurface(
+        name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
+    exporter._display()
+    assert dataio._meta_display["name"] == "MyDisplayName"
