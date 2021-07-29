@@ -218,15 +218,15 @@ def read_parameters_txt(pfile):
     logger.debug("Reading parameters.txt from {}".format(pfile))
 
     with open(pfile, "r") as stream:
-        buffer_ = stream.read().splitlines()
+        buffer = stream.read().splitlines()
 
-    logger.debug("buffer_ is of type {}".format(type(buffer_)))
-    logger.debug("buffer_ has {} lines".format(len(buffer_)))
+    logger.debug("buffer is of type {}".format(type(buffer)))
+    logger.debug("buffer has {} lines".format(len(buffer)))
 
-    buffer_ = [":".join(line.split()) for line in buffer_]
+    buffer = [":".join(line.split()) for line in buffer]
 
     param = OrderedDict()
-    for line in buffer_:
+    for line in buffer:
         items = line.split(":")
         if len(items) == 2:
             param[items[0]] = check_if_number(items[1])
