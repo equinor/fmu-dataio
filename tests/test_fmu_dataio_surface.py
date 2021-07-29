@@ -46,6 +46,7 @@ def test_surface_io(tmp_path):
     exp._pwd = tmp_path
     exp.to_file(srf)
 
+    assert (tmp_path / "maps" / "test.gri").is_file() is True
     assert (tmp_path / "maps" / ".test.gri.yml").is_file() is True
 
 
