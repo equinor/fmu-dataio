@@ -191,20 +191,17 @@ def read_parameters_txt(pfile):
       LOG10_MULTREGT:MULT_THERYS_VOLON -3.21365
       LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
 
-    Or the structure::
+    ...but may also appear on a justified format, with leading
+    whitespace and tab-justified columns, legacy from earlier
+    versions but kept alive by some users::
+
                             SENSNAME     rms_seed
                             SENSCASE     p10_p90
                             RMS_SEED     1000
                         KVKH_CHANNEL     0.6
-                       KVKH_CREVASSE     0.3
-      GLOBVAR:VOLON_FLOODPLAIN_VOLFRAC   0.256355
           GLOBVAR:VOLON_PERMH_CHANNEL    1100
-           GLOBVAR:VOLON_PORO_CHANNEL    0.2
       LOG10_GLOBVAR:FAULT_SEAL_SCALING   0.685516
       LOG10_MULTREGT:MULT_THERYS_VOLON   -3.21365
-      LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
-
-    ...where leading whitespace is space, separator is tab
 
     This should be parsed as::
 
