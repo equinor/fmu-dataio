@@ -564,7 +564,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             meta["name"] = self.dataio._display_name
         elif self.dataio._name is not None:
             # second choice: name argument
-            logger.debug(f"display.name is set to name argument as fallback")
+            logger.debug("display.name is set to name argument as fallback")
             meta["name"] = self.dataio._name
         else:
             # third choice: object name, unless the XTgeo default "unknown"
