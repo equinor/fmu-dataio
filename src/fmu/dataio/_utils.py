@@ -215,13 +215,13 @@ def read_parameters_txt(pfile):
         }
     """
 
-    logger.debug("Reading parameters.txt from {}".format(pfile))
+    logger.debug("Reading parameters.txt from %s", pfile)
 
     with open(pfile, "r") as stream:
         buffer = stream.read().splitlines()
 
-    logger.debug("buffer is of type {}".format(type(buffer)))
-    logger.debug("buffer has {} lines".format(len(buffer)))
+    logger.debug("buffer is of type %s", type(buffer))
+    logger.debug("buffer has %s lines", str(len(buffer)))
 
     buffer = [":".join(line.split()) for line in buffer]
 
