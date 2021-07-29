@@ -579,6 +579,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
                 logger.debug("display.name could not be set")
                 meta["name"] = None
 
+        logger.info("Processing display is done!")
+
     def _item_to_file(self):
         logger.info("Export item to file...")
         logger.debug(f"subtype is {self.subtype}")
