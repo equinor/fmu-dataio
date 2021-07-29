@@ -2,6 +2,7 @@
 from collections import OrderedDict
 import shutil
 import logging
+import pytest
 import json
 import numpy as np
 import xtgeo
@@ -48,6 +49,25 @@ def test_surface_io(tmp_path):
 
     assert (tmp_path / "maps" / "test.gri").is_file() is True
     assert (tmp_path / "maps" / ".test.gri.yml").is_file() is True
+
+
+def test_surface_io_export_subfolder(tmp_path):
+    """Minimal test surface io with export_subfolder set,
+    uses tmp_path."""
+
+    srf = xtgeo.RegularSurface(
+        ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
+    )
+    fmu.dataio.ExportData.export_root = tmp_path.resolve()
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    exp = fmu.dataio.ExportData(content="depth")
+    exp._pwd = tmp_path
+    with pytest.warns(UserWarning):
+        exp.to_file(srf, subfolder="mysubfolder")
+
+    assert (tmp_path / "maps" / "mysubfolder" / "test.gri").is_file() is True
+    assert (tmp_path / "maps" / "mysubfolder" / ".test.gri.yml").is_file() is True
 
 
 def test_surface_io_larger_case(tmp_path):
