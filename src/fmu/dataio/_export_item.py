@@ -31,6 +31,7 @@ VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".pol"}
 ALLOWED_CONTENTS = {
     "depth": None,
     "time": None,
+    "thickness": None,
     "property": {"attribute": str, "is_discrete": bool},
     "seismic": {
         "attribute": str,
@@ -41,6 +42,7 @@ ALLOWED_CONTENTS = {
     "fluid_contact": {"contact": str},
     "field_outline": {"contact": str},
     "regions": None,
+    "fault_lines": None,
     "volumes": None,
     "volumetrics": None,  # or?
 }
@@ -98,7 +100,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         logger.info("Save to file...")
         if isinstance(self.obj, xtgeo.RegularSurface):
             self.subtype = "RegularSurface"
-            self.classname = "regularsurface"
+            self.classname = "surface"
         elif isinstance(self.obj, xtgeo.Polygons):
             self.subtype = "Polygons"
             self.classname = "polygons"
@@ -278,7 +280,10 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             useextra = content[usecontent]
 
         if usecontent not in ALLOWED_CONTENTS.keys():
-            raise ValidationError(f"Invalid content: <{usecontent}> is not in list!")
+            raise ValidationError(
+                f"Invalid content: <{usecontent}>! "
+                f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
+            )
 
         meta["content"] = usecontent
         if useextra:
