@@ -111,3 +111,29 @@ def test_raise_userwarning_missing_content(tmp_path):
         exp.to_file(gpr)
 
     assert (tmp_path / "grids" / ".testgp.roff.yml").is_file() is True
+
+
+def test_exported_filenames(tmp_path):
+    """Test that exported filenames are as expected"""
+
+    fmu.dataio.ExportData.export_root = tmp_path.resolve()
+
+    surf = xtgeo.RegularSurface(
+        ncol=20, nrow=30, xinc=20, yinc=20, values=0, name="test"
+    )
+
+    # test case 1, vanilla
+    exp = fmu.dataio.ExportData(
+        name="myname",
+        content="depth",
+    )
+    exp._pwd = tmp_path
+    exp.to_file(surf)
+
+    # test case 2, dots in name
+    exp = fmu.dataio.ExportData(
+        name="myname.with.dots",
+        content="depth",
+    )
+    exp._pwd = tmp_path
+    exp.to_file(surf)
