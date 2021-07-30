@@ -64,9 +64,10 @@ class ValidationError(ValueError):
 class _ExportItem:  # pylint disable=too-few-public-methods
     """Export of the actual data item with metadata."""
 
-    def __init__(self, dataio, obj, verbosity="warning"):
+    def __init__(self, dataio, obj, subfolder=None, verbosity="warning"):
         self.dataio = dataio
         self.obj = obj
+        self.subfolder = subfolder
         self.verbosity = verbosity
         self.subtype = None
         self.classname = "unset"
@@ -87,6 +88,13 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         if self.name is None:
             self.name = "unknown"
+
+        if subfolder is not None:
+            warnings.warn(
+                "Exporting to a subfolder is a deviation from the standard "
+                "and could have consequences for later dependencies",
+                UserWarning,
+            )
 
     def save_to_file(self) -> str:
         """Saving an instance to file with rich metadata for SUMO.
@@ -557,6 +565,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         fname, fpath = _utils.construct_filename(
             self.name,
             tagname=attr,
+            subfolder=self.subfolder,
             loc="surface",
             outroot=dataio.export_root,
             verbosity=dataio._verbosity,
@@ -606,6 +615,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         fname, fpath = _utils.construct_filename(
             self.name,
             tagname=attr,
+            subfolder=self.subfolder,
             loc="grid",
             outroot=dataio.export_root,
             verbosity=dataio._verbosity,
@@ -654,6 +664,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         fname, fpath = _utils.construct_filename(
             self.name,
             tagname=attr,
+            subfolder=self.subfolder,
             loc="polygons",
             outroot=dataio.export_root,
             verbosity=dataio._verbosity,
@@ -718,6 +729,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         fname, fpath = _utils.construct_filename(
             self.name,
             tagname=attr,
+            subfolder=self.subfolder,
             loc="table",
             outroot=dataio.export_root,
             verbosity=dataio._verbosity,

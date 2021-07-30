@@ -18,6 +18,7 @@ def construct_filename(
     tagname=None,
     t1=None,
     t2=None,
+    subfolder=None,
     fmu=1,
     outroot="../../share/results/",
     loc="surface",
@@ -79,6 +80,9 @@ def construct_filename(
             dest = outroot / "polygons"
         else:
             dest = outroot / "other"
+
+        if subfolder:
+            dest = dest / subfolder
 
     return stem, dest
 
