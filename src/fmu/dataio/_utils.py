@@ -191,6 +191,18 @@ def read_parameters_txt(pfile):
       LOG10_MULTREGT:MULT_THERYS_VOLON -3.21365
       LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
 
+    ...but may also appear on a justified format, with leading
+    whitespace and tab-justified columns, legacy from earlier
+    versions but kept alive by some users::
+
+                            SENSNAME     rms_seed
+                            SENSCASE     p10_p90
+                            RMS_SEED     1000
+                        KVKH_CHANNEL     0.6
+          GLOBVAR:VOLON_PERMH_CHANNEL    1100
+      LOG10_GLOBVAR:FAULT_SEAL_SCALING   0.685516
+      LOG10_MULTREGT:MULT_THERYS_VOLON   -3.21365
+
     This should be parsed as::
 
         {
@@ -203,8 +215,15 @@ def read_parameters_txt(pfile):
         }
     """
 
+    logger.debug("Reading parameters.txt from %s", pfile)
+
     with open(pfile, "r") as stream:
-        buffer = stream.read().replace(" ", ":").splitlines()
+        buffer = stream.read().splitlines()
+
+    logger.debug("buffer is of type %s", type(buffer))
+    logger.debug("buffer has %s lines", str(len(buffer)))
+
+    buffer = [":".join(line.split()) for line in buffer]
 
     param = OrderedDict()
     for line in buffer:
