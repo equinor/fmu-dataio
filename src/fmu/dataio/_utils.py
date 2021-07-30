@@ -90,10 +90,16 @@ def construct_filename(
 def verify_path(dataio, filedest, filename, ext, dryrun=False):
     logger.setLevel(level=dataio._verbosity)
 
+    logger.debug("Incoming filename is %s", filename)
+    logger.debug("Incoming ext is %s", ext)
+
     folder = dataio._pwd / filedest  # filedest shall be relative path to PWD
 
-    path = (Path(folder) / filename.lower()).with_suffix(ext)
+    path = Path(folder) / filename.lower()
+    path = path.with_suffix(path.suffix + ext)
     abspath = path.resolve()
+
+    logger.debug("path is %s", path)
 
     if not dryrun:
         if path.parent.exists():
