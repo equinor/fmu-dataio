@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>dataio.dataio module &mdash; fmu.dataio 0.4.1.dev4+ge00ecba documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 0.4.1.dev5+g0af3599 documentation</title>
   
 
   
@@ -287,7 +287,7 @@ in standard python logging; e.g. “WARNING”, “INFO”.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.to_file">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData.to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData.to_file" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData.to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData.to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Export a ‘known’ data object to FMU file with rich metadata.</p>
 <p>The ‘known’ datatype is a XTGeo object (e.g. a RegularSurface), a Pandas
 Dataframe or (in future) a Arrow object.</p>
@@ -304,6 +304,7 @@ resolved)).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – XTGeo instance or a pandas instance (more to be supported).</p></li>
+<li><p><strong>subfolder</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Optional subfolder below standard level to export to.</p></li>
 <li><p><strong>verbosity</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Verbosity level of logging messages. If not spesified,
 use the verbosity level from the instance.</p></li>
 </ul>
@@ -378,7 +379,7 @@ or similar.</p>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev4+ge00ecba).
+        &#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev5+g0af3599).
 
     </p>
   </div>
