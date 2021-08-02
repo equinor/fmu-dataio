@@ -50,6 +50,8 @@ def construct_filename(
 
     Destinations accoring to datatype
 
+    Remove dots from filename
+
     Returns stem for file name and destination
     """
     logger.setLevel(level=verbosity)
@@ -59,7 +61,7 @@ def construct_filename(
     outroot = Path(outroot)
 
     if fmu == 1:
-        stem = name.lower()
+        stem = name.lower().replace(".", "_")
 
         if tagname:
             stem += "--" + tagname.lower()
@@ -90,6 +92,7 @@ def construct_filename(
 def verify_path(dataio, filedest, filename, ext, dryrun=False):
     logger.setLevel(level=dataio._verbosity)
 
+    logger.debug("Incoming filedest is %s", filedest)
     logger.debug("Incoming filename is %s", filename)
     logger.debug("Incoming ext is %s", ext)
 
