@@ -138,5 +138,5 @@ def test_exported_filenames(tmp_path):
     )
     exp._pwd = tmp_path
     exp.to_file(surf)
-    assert (tmp_path / "maps" / "myname.with.dots.gri").is_file() is True
-    assert (tmp_path / "maps" / ".myname.with.dots.gri.yml").is_file() is True
+    assert (tmp_path / "maps" / "myname_with_dots.gri").is_file() is True
+    assert (tmp_path / "maps" / ".myname_with_dots.gri.yml").is_file() is True

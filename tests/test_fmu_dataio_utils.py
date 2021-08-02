@@ -71,12 +71,12 @@ CFG["masterdata"] = {
             20200101,
             20400909,
             "grid",
-            "some.with.dots--case8--20400909_20200101",
+            "some_with_dots--case8--20400909_20200101",
             "grids",
         ),
     ],
 )
-def test_utils_construct_file(
+def test_utils_construct_filename(
     tmp_path, name, tagname, t1, t2, loc, expectedstem, expectedpath
 ):
     """Testing construct file."""
@@ -103,7 +103,6 @@ def test_utils_verify_path():
         workflow="dummy",
     )
 
-    # test case 1, vanilla
     path, metapath, relpath, abspath = _utils.verify_path(
         ed,
         "tmp/share/results",
@@ -113,17 +112,6 @@ def test_utils_verify_path():
     )
 
     assert str(path).endswith("tmp/share/results/somefile.myext")
-
-    # test case 2, dots in filename
-    path, metapath, relpath, abspath = _utils.verify_path(
-        ed,
-        "tmp/share/results",
-        "somefile.with.dots",
-        ".myext",
-        dryrun=True,
-    )
-
-    assert str(path).endswith("tmp/share/results/somefile.with.dots.myext")
 
 
 def test_uuid_from_string():
