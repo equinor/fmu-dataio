@@ -533,6 +533,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
     def _display(self):
         """Process common subfields in the display block.
+
         For now, this is simply injecting a skeleton with loose
         defaults. We might want to be more elaborate in the future.
 
