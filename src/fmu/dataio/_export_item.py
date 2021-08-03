@@ -130,6 +130,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         self._data_process()
         self._data_process_object()
         self._fmu_inject_workflow()  # this will vary if surface, table, grid, ...
+        self._display()
         fpath = self._item_to_file()
         return fpath
 
@@ -539,8 +540,60 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         """Inject workflow into fmu metadata block."""
         self.dataio._meta_fmu["workflow"] = self.dataio._workflow
 
+    def _display(self):
+        """Process common subfields in the display block.
+
+        For now, this is simply injecting a skeleton with loose
+        defaults. We might want to be more elaborate in the future.
+
+        Pending discussions and learning from usage.
+
+        The main 'name' attribute may be related to master-data and/or
+        be a reference to other things, hence it cannot be prettified
+        for display on maps. The display.name serves this purpose.
+
+        display.name can be set through the display_name argument to
+        fmu.dataio.ExportData. If not set, the first fallback is the
+        name argument. If that is not set either, the last fallback is
+        the object name. If that is not set, display.name will be exported
+        as None/null.
+
+        The main concept followed for now is that the visualising client
+        is to take the most responsibility for how a data object is
+        visualized.
+
+        """
+
+        logger.info("Processing display")
+        meta = self.dataio._meta_display
+
+        # display.name
+        if self.dataio._display_name is not None:
+            # first choice: display_name argument
+            logger.debug("display.name is set from arguments")
+            meta["name"] = self.dataio._display_name
+        elif self.dataio._name is not None:
+            # second choice: name argument
+            logger.debug("display.name is set to name argument as fallback")
+            meta["name"] = self.dataio._name
+        else:
+            # third choice: object name, unless the XTgeo default "unknown"
+            try:
+                meta["name"] = self.obj.name
+                logger.debug("display.name is set to object name as fallback")
+
+                if meta["name"] == "unknown":
+                    logger.debug("Got default object name from XTgeo, changing to None")
+                    meta["name"] = None
+            except AttributeError:
+                logger.debug("display.name could not be set")
+                meta["name"] = None
+
+        logger.info("Processing display is done!")
+
     def _item_to_file(self):
         logger.info("Export item to file...")
+        logger.debug(f"subtype is {self.subtype}")
         if self.subtype == "RegularSurface":
             fpath = self._item_to_file_regularsurface()
         elif self.subtype == "Polygons":
@@ -781,6 +834,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         allmeta["tracklog"] = dataio._meta_tracklog
         allmeta["fmu"] = dataio._meta_fmu
         allmeta["data"] = dataio._meta_data
+        allmeta["display"] = dataio._meta_display
         logger.debug("\n%s", json.dumps(allmeta, indent=2, default=str))
 
         logger.info("Collect all metadata, done")

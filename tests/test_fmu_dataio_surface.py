@@ -164,4 +164,7 @@ def test_surface_io_larger_case_ertrun(tmp_path):
     assert meta["fmu"]["realization"]["name"] == "realization-0"
     assert meta["data"]["stratigraphic"] is True
 
+    # display_name is not set, checking that 'name' was used
+    assert meta["display"]["name"] == "TopVolantis"
+
     logger.debug("\n%s", json.dumps(meta, indent=2))
