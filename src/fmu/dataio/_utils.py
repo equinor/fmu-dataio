@@ -50,7 +50,13 @@ def construct_filename(
 
     Destinations accoring to datatype
 
-    Remove dots from filename
+    Removing dots from filename:
+    Currently, when multiple dots in a filename stem,
+    XTgeo, using pathlib, will interpret the part after the
+    last dot as the file suffix, and remove it. This causes
+    errors in the output filenames. While this is being
+    taken care of in XTgeo, we temporarily sanitize dots from
+    the outgoing filename only to avoid this.
 
     Returns stem for file name and destination
     """
