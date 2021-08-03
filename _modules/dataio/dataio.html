@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>dataio.dataio &mdash; fmu.dataio 0.4.1.dev5+g0af3599 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.4.1.dev6+g9074d45 documentation</title>
   
 
   
@@ -256,6 +256,7 @@
         <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">grid_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">access_ssdl</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">runfolder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">verbosity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -290,6 +291,7 @@
 <span class="sd">            access_ssdl: A dictionary that will overwrite the default ssdl</span>
 <span class="sd">                settings read from the config. Example:</span>
 <span class="sd">                ``{&quot;access_level&quot;: &quot;restricted&quot;, &quot;rep_include&quot;: False}``</span>
+<span class="sd">            display_name: Set name for clients to use when visualizing.</span>
 <span class="sd">            runfolder: Set toplevel of runfolder, where default is current directory</span>
 <span class="sd">            verbosity: Is logging/message level for this module. Input as</span>
 <span class="sd">                in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;.</span>
@@ -310,6 +312,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span> <span class="o">=</span> <span class="n">workflow</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="n">description</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_access_ssdl</span> <span class="o">=</span> <span class="n">access_ssdl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="o">=</span> <span class="n">display_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span> <span class="o">=</span> <span class="n">verbosity</span>
 
         <span class="c1"># keep track if case</span>
@@ -341,7 +344,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta_strat</span><span class="p">()</span>
 
         <span class="c1"># Get the metadata for some of the general stuff, fully or partly</span>
-        <span class="c1"># Note that data are found later (e.g. in _export_item)</span>
+        <span class="c1"># Note that data and display are found later (e.g. in _export_item)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta_masterdata</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta_access</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta_tracklog</span><span class="p">()</span>
@@ -863,7 +866,7 @@
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev5+g0af3599).
+        &#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev6+g9074d45).
 
     </p>
   </div>
