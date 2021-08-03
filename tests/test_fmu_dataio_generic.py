@@ -137,6 +137,28 @@ def test_exported_filenames(tmp_path):
         name="myname.with.dots", content="depth", verbosity="DEBUG"
     )
     exp._pwd = tmp_path
+
+    # for a surface...
     exp.to_file(surf)
     assert (tmp_path / "maps" / "myname_with_dots.gri").is_file() is True
     assert (tmp_path / "maps" / ".myname_with_dots.gri.yml").is_file() is True
+
+    # ...for a grid property...
+    gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
+    gpr.name = "testgp"
+    exp.to_file(gpr)
+    assert (tmp_path / "grids" / "myname_with_dots.roff").is_file() is True
+    assert (tmp_path / "grids" / ".myname_with_dots.roff.yml").is_file() is True
+
+    # ...for a polygon...
+    poly = xtgeo.Polygons()
+    poly.from_list([(1.0, 2.0, 3.0, 0), (1.0, 2.0, 3.0, 0)])
+    exp.to_file(poly)
+    assert (tmp_path / "polygons" / "myname_with_dots.csv").is_file() is True
+    assert (tmp_path / "polygons" / ".myname_with_dots.csv.yml").is_file() is True
+
+    # ...and for a table.
+    table = poly.dataframe
+    exp.to_file(table)
+    assert (tmp_path / "tables" / "myname_with_dots.csv").is_file() is True
+    assert (tmp_path / "tables" / ".myname_with_dots.csv.yml").is_file() is True
