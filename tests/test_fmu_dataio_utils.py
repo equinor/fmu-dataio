@@ -65,9 +65,18 @@ CFG["masterdata"] = {
             "some--case8--20400909_20200101",
             "grids",
         ),
+        (
+            "some.with.dots",
+            "case8",
+            20200101,
+            20400909,
+            "grid",
+            "some_with_dots--case8--20400909_20200101",
+            "grids",
+        ),
     ],
 )
-def test_utils_construct_file(
+def test_utils_construct_filename(
     tmp_path, name, tagname, t1, t2, loc, expectedstem, expectedpath
 ):
     """Testing construct file."""
@@ -101,12 +110,8 @@ def test_utils_verify_path():
         ".myext",
         dryrun=True,
     )
-    print()
 
-    print(path)
-    print(metapath)
-    print(relpath)
-    print(abspath)
+    assert str(path).endswith("tmp/share/results/somefile.myext")
 
 
 def test_uuid_from_string():
