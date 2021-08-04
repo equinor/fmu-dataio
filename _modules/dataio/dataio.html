@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>dataio.dataio &mdash; fmu.dataio 0.4.1.dev6+g9074d45 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.4.1.dev7+g81b4880 documentation</title>
   
 
   
@@ -614,7 +614,11 @@
     <span class="c1"># Public methods</span>
 
 <div class="viewcode-block" id="ExportData.to_file"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ExportData.to_file">[docs]</a>    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">subfolder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">subfolder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbosity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Export a &#39;known&#39; data object to FMU file with rich metadata.</span>
 
@@ -632,17 +636,19 @@
 <span class="sd">        resolved)).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            obj: XTGeo instance or a pandas instance (more to be supported).</span>
+<span class="sd">            obj: XTGeo instance or a Pandas Dataframe instance (more to be supported).</span>
 <span class="sd">            subfolder: Optional subfolder below standard level to export to.</span>
 <span class="sd">            verbosity: Verbosity level of logging messages. If not spesified,</span>
-<span class="sd">                use the verbosity level from the instance.</span>
+<span class="sd">                the verbosity level from the instance will be used.</span>
+<span class="sd">            index: This is special for Pandas Dataframes (tables) export, and</span>
+<span class="sd">                determines if the index column shall be exported to CSV.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            String path (relative path) to exported file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file...&quot;</span><span class="p">)</span>
-        <span class="n">exporter</span> <span class="o">=</span> <span class="n">_ExportItem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">subfolder</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="n">verbosity</span><span class="p">)</span>
+        <span class="n">exporter</span> <span class="o">=</span> <span class="n">_ExportItem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">subfolder</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exporter</span><span class="o">.</span><span class="n">save_to_file</span><span class="p">())</span>
         <span class="n">relpath</span> <span class="o">=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span></div></div>
@@ -866,7 +872,7 @@
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev6+g9074d45).
+        &#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev7+g81b4880).
 
     </p>
   </div>
