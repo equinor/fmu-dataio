@@ -42,6 +42,7 @@ ALLOWED_CONTENTS = {
     "fluid_contact": {"contact": str},
     "field_outline": {"contact": str},
     "regions": None,
+    "subcrop": None,
     "fault_lines": None,
     "volumes": None,
     "volumetrics": None,  # or?
