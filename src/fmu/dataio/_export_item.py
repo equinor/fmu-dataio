@@ -143,17 +143,17 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         These subfields are:
         - name
-        - top/base (from relation)
+        - top/base (from context)
         - content
         - time
         - properties? Disabled!
-        - grid_model
+        - context
         - is_observation
         - is_prediction
         - description
         """
         self._data_process_name()
-        self._data_process_relation()
+        self._data_process_context()
         self._data_process_content()
         self._data_process_timedata()
         self._data_process_various()
@@ -193,12 +193,12 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             "Evaluate data:name attribute done, true name is <%s>", meta["name"]
         )
 
-    def _data_process_relation(self):
-        """Process the relation input which gives offset and top/base settings.
+    def _data_process_context(self):
+        """Process the context input which gives offset and top/base settings.
 
         For example::
 
-          relation:
+          context:
              offset: 3.5
 
              top:
@@ -220,13 +220,13 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         validate at all?
 
         """
-        logger.info("Evaluate relation (offset, top, base), if any")
+        logger.info("Evaluate context (offset, top, base), if any")
         meta = self.dataio._meta_data
-        if self.dataio._relation is None:
-            logger.info("No relation found, which may be ok")
-            return  # relation data are missing
+        if self.dataio._context is None:
+            logger.info("No context found, which may be ok")
+            return  # context data are missing
 
-        rel = self.dataio._relation  # shall be a dictionary
+        rel = self.dataio._context  # shall be a dictionary
 
         offset = rel.get("offset", None)
         if offset is not None:
@@ -237,7 +237,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         top = rel.get("top", None)
         base = rel.get("base", None)
         if top is None or base is None:
-            logger.info("Relation top and/base is missing, skip further")
+            logger.info("context top and/base is missing, skip further")
             return
 
         topname = rel["top"].get("ref", None)
@@ -245,7 +245,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         if topname is None or basename is None:
             warnings.warn(
-                "Relation top and/base is present but <ref> is missing, skip further",
+                "context top and/base is present but <ref> is missing, skip further",
                 UserWarning,
             )
             return

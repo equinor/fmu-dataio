@@ -83,7 +83,7 @@ class ExportData:
     def __init__(
         self,
         name: Optional[str] = None,
-        relation: Optional[dict] = None,
+        context: Optional[dict] = None,
         config: Optional[dict] = None,
         content: Optional[Union[str, dict]] = None,
         unit: Optional[str] = None,
@@ -109,7 +109,7 @@ class ExportData:
                 name if found in stattic metadata `stratigraphy`. For example, if
                 "TopValysar" is the model name and the actual name
                 is "Valysar Top Fm." that latter name will be used.
-            relation: [EXPERIMENTAL] The relation of the object with respect to
+            context: [EXPERIMENTAL] The context of the object with respect to
                 itself and/or other stratigraphic units. The default is None, but for
                 e.g. seismic attributes this can be important. The input is a
                 dictionary with the following fields: [TODO]
@@ -138,7 +138,7 @@ class ExportData:
         """
 
         self._name = name
-        self._relation = relation
+        self._context = context
         self._config = config
         self._content = content
         self._unit = unit
@@ -265,9 +265,9 @@ class ExportData:
                 "so this is interpreted as not an ERT run!"
             )
 
-        # self._meta_fmu["grid_model"] = self._process_meta_fmu_grid_model()
+        # self._meta_fmu["p"] = self._process_meta_fmu_context()
 
-    def _process_meta_fmu_grid_model(self):
+    def _process_meta_fmu_context(self):
         """Processing the fmu:grid_model section"""
 
         if self._grid_model is None:
