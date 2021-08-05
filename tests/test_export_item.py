@@ -70,8 +70,8 @@ def test_data_process_name():
     assert dataio._meta_data["stratigraphic"] is False
 
 
-def test_data_process_relation():
-    """Test the _data_process_relation function."""
+def test_data_process_context():
+    """Test the _data_process_context function."""
     # 1: name is given by RMS name:
     rel1 = {
         "offset": 4.0,
@@ -94,7 +94,7 @@ def test_data_process_relation():
     # test rel1
     dataio = fmu.dataio.ExportData(
         name="Valysar",
-        relation=rel1,
+        context=rel1,
         config=CFG2,
         content="depth",
         tagname="WhatEver",
@@ -103,7 +103,7 @@ def test_data_process_relation():
 
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
 
-    exportitem._data_process_relation()
+    exportitem._data_process_context()
     assert dataio._meta_data["offset"] == 4.0
     assert dataio._meta_data["top"]["name"] == "VOLANTIS GP. Top"
     assert dataio._meta_data["base"]["stratigraphic"] is True
@@ -111,7 +111,7 @@ def test_data_process_relation():
     # test rel2
     dataio = fmu.dataio.ExportData(
         name="Valysar",
-        relation=rel2,
+        context=rel2,
         config=CFG2,
         content="depth",
         tagname="WhatEver",
@@ -121,13 +121,13 @@ def test_data_process_relation():
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
 
     with pytest.raises(ValueError) as verr:
-        exportitem._data_process_relation()
+        exportitem._data_process_context()
     assert "Cannot find Volon FM. Top" in str(verr)
 
     # test rel3
     dataio = fmu.dataio.ExportData(
         name="Valysar",
-        relation=rel3,
+        context=rel3,
         config=CFG2,
         content="depth",
         tagname="WhatEver",
@@ -137,8 +137,8 @@ def test_data_process_relation():
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
 
     # with pytest.warns(UserWarning) as uwarn:
-    #     exportitem._data_process_relation()
-    # assert "Relation top and/base is present but" in str(uwarn)
+    #     exportitem._data_process_context()
+    # assert "context top and/base is present but" in str(uwarn)
 
 
 def test_data_process_timedata():
