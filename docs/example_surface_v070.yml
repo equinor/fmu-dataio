@@ -127,6 +127,13 @@ data:
   grid_model: # Making this an object to allow for expanding in the future
     name: MyGrid # important for data identification, also important for other data types
 
+  # replace grid:model with relation
+  relation:
+    - type: parent # strict parent; need to present e.g. gridproperty need a grid
+      name: SomeGridModel
+    - type: derived # loose, not strictly needed
+      name: My struvturela model
+
   # SLITER MED DENNE!
   properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
     - name: PropertyName
