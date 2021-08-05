@@ -45,6 +45,7 @@ ALLOWED_CONTENTS = {
     "pinchout": None,
     "subcrop": None,
     "fault_lines": None,
+    "velocity": None,
     "volumes": None,
     "volumetrics": None,  # or?
 }
