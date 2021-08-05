@@ -50,6 +50,14 @@ def construct_filename(
 
     Destinations accoring to datatype
 
+    Removing dots from filename:
+    Currently, when multiple dots in a filename stem,
+    XTgeo, using pathlib, will interpret the part after the
+    last dot as the file suffix, and remove it. This causes
+    errors in the output filenames. While this is being
+    taken care of in XTgeo, we temporarily sanitize dots from
+    the outgoing filename only to avoid this.
+
     Returns stem for file name and destination
     """
     logger.setLevel(level=verbosity)
@@ -59,7 +67,7 @@ def construct_filename(
     outroot = Path(outroot)
 
     if fmu == 1:
-        stem = name.lower()
+        stem = name.lower().replace(".", "_")
 
         if tagname:
             stem += "--" + tagname.lower()
@@ -90,10 +98,17 @@ def construct_filename(
 def verify_path(dataio, filedest, filename, ext, dryrun=False):
     logger.setLevel(level=dataio._verbosity)
 
+    logger.debug("Incoming filedest is %s", filedest)
+    logger.debug("Incoming filename is %s", filename)
+    logger.debug("Incoming ext is %s", ext)
+
     folder = dataio._pwd / filedest  # filedest shall be relative path to PWD
 
-    path = (Path(folder) / filename.lower()).with_suffix(ext)
+    path = Path(folder) / filename.lower()
+    path = path.with_suffix(path.suffix + ext)
     abspath = path.resolve()
+
+    logger.debug("path is %s", path)
 
     if not dryrun:
         if path.parent.exists():

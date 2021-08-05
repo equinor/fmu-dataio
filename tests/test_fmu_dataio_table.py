@@ -43,6 +43,15 @@ def test_table_io(tmp_path):
     exp.to_file(table)
 
     assert (tmp_path / "tables" / ".test.csv.yml").is_file() is True
+    with open(tmp_path / "tables" / "test.csv") as stream:
+        header = stream.readline().split(",")
+    assert len(header) == 2
+
+    # export with index=True which will give three columns (first is the index column)
+    exp.to_file(table, index=True)
+    with open(tmp_path / "tables" / "test.csv") as stream:
+        header = stream.readline().split(",")
+    assert len(header) == 3
 
 
 def test_tables_io_larger_case_ertrun(tmp_path):

@@ -43,6 +43,7 @@ ALLOWED_CONTENTS = {
     "field_outline": {"contact": str},
     "regions": None,
     "pinchout": None,
+    "subcrop": None,
     "fault_lines": None,
     "volumes": None,
     "volumetrics": None,  # or?
@@ -65,11 +66,12 @@ class ValidationError(ValueError):
 class _ExportItem:  # pylint disable=too-few-public-methods
     """Export of the actual data item with metadata."""
 
-    def __init__(self, dataio, obj, subfolder=None, verbosity="warning"):
+    def __init__(self, dataio, obj, subfolder=None, verbosity="warning", index=False):
         self.dataio = dataio
         self.obj = obj
         self.subfolder = subfolder
         self.verbosity = verbosity
+        self.index_df = index
         self.subtype = None
         self.classname = "unset"
         self.name = "unknown"
@@ -801,7 +803,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         logger.info("Exported file is %s", outfile)
         if "csv" in dataio.table_fformat:
-            obj.to_csv(outfile)
+            obj.to_csv(outfile, index=self.index_df)
             md5sum = _utils.md5sum(outfile)
             self.dataio._meta_data["format"] = "csv"
 

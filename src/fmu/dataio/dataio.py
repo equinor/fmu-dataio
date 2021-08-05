@@ -454,7 +454,11 @@ class ExportData:
     # Public methods
 
     def to_file(
-        self, obj: Any, subfolder: Optional[str] = None, verbosity: Optional[str] = None
+        self,
+        obj: Any,
+        subfolder: Optional[str] = None,
+        verbosity: Optional[str] = None,
+        index: Optional[bool] = False,
     ) -> str:
         """Export a 'known' data object to FMU file with rich metadata.
 
@@ -472,17 +476,19 @@ class ExportData:
         resolved)).
 
         Args:
-            obj: XTGeo instance or a pandas instance (more to be supported).
+            obj: XTGeo instance or a Pandas Dataframe instance (more to be supported).
             subfolder: Optional subfolder below standard level to export to.
             verbosity: Verbosity level of logging messages. If not spesified,
-                use the verbosity level from the instance.
+                the verbosity level from the instance will be used.
+            index: This is special for Pandas Dataframes (tables) export, and
+                determines if the index column shall be exported to CSV.
 
         Returns:
             String path (relative path) to exported file.
         """
 
         logger.info("Export to file...")
-        exporter = _ExportItem(self, obj, subfolder, verbosity=verbosity)
+        exporter = _ExportItem(self, obj, subfolder, verbosity, index)
         filepath = pathlib.Path(exporter.save_to_file())
         relpath = filepath.relative_to(self._pwd)
         return str(relpath)
