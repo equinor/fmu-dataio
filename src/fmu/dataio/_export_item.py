@@ -326,7 +326,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             meta["parent"] = {"name": parent}
             self.parent_name = parent
         else:
-            if not "name" in parent:
+            if "name" not in parent:
                 raise ValidationError("Input 'parent' shall have a 'name' attribute!")
             meta["parent"] = parent
             self.parent_name = parent["name"]
