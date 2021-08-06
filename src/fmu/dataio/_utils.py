@@ -48,7 +48,7 @@ def construct_filename(
             e.g.
             geogrid_valysar--phit
 
-    Destinations accoring to datatype
+    Destinations accoring to datatype.
 
     Removing dots from filename:
     Currently, when multiple dots in a filename stem,
@@ -57,6 +57,8 @@ def construct_filename(
     errors in the output filenames. While this is being
     taken care of in XTgeo, we temporarily sanitize dots from
     the outgoing filename only to avoid this.
+
+    Space will also be replaced in file names.
 
     Returns stem for file name and destination
     """
@@ -67,7 +69,8 @@ def construct_filename(
     outroot = Path(outroot)
 
     if fmu == 1:
-        stem = name.lower().replace(".", "_")
+
+        stem = name.lower()
 
         if tagname:
             stem += "--" + tagname.lower()
@@ -77,6 +80,8 @@ def construct_filename(
 
         elif t1 and t2:
             stem += "--" + str(t2).lower() + "_" + str(t1).lower()
+
+        stem = stem.replace(".", "_").replace(" ", "_")
 
         if loc == "surface":
             dest = outroot / "maps"
