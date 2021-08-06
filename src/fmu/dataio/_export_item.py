@@ -331,7 +331,6 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             meta["parent"] = parent
             self.parent_name = parent["name"]
 
-
     @staticmethod
     def _data_process_content_validate(name, fields):
         valid = ALLOWED_CONTENTS.get(name, None)
