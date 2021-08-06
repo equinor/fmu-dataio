@@ -98,7 +98,7 @@ def test_process_fmu_realisation():
 
 
 def test_raise_userwarning_missing_content(tmp_path):
-    """Example on generting a GridProperty without content spesified."""
+    """Example on generating a GridProperty without content spesified."""
 
     gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
     gpr.name = "testgp"
@@ -106,11 +106,11 @@ def test_raise_userwarning_missing_content(tmp_path):
     fmu.dataio.ExportData.grid_fformat = "roff"
 
     with pytest.warns(UserWarning, match="is not provided which defaults"):
-        exp = fmu.dataio.ExportData()
+        exp = fmu.dataio.ExportData(parent="unset")
         exp._pwd = tmp_path
         exp.to_file(gpr)
 
-    assert (tmp_path / "grids" / ".testgp.roff.yml").is_file() is True
+    assert (tmp_path / "grids" / ".unset--testgp.roff.yml").is_file() is True
 
 
 def test_exported_filenames(tmp_path):
@@ -143,13 +143,6 @@ def test_exported_filenames(tmp_path):
     assert (tmp_path / "maps" / "myname_with_dots.gri").is_file() is True
     assert (tmp_path / "maps" / ".myname_with_dots.gri.yml").is_file() is True
 
-    # ...for a grid property...
-    gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
-    gpr.name = "testgp"
-    exp.to_file(gpr)
-    assert (tmp_path / "grids" / "myname_with_dots.roff").is_file() is True
-    assert (tmp_path / "grids" / ".myname_with_dots.roff.yml").is_file() is True
-
     # ...for a polygon...
     poly = xtgeo.Polygons()
     poly.from_list([(1.0, 2.0, 3.0, 0), (1.0, 2.0, 3.0, 0)])
@@ -162,3 +155,16 @@ def test_exported_filenames(tmp_path):
     exp.to_file(table)
     assert (tmp_path / "tables" / "myname_with_dots.csv").is_file() is True
     assert (tmp_path / "tables" / ".myname_with_dots.csv.yml").is_file() is True
+
+    # ...for a grid property...
+    exp = fmu.dataio.ExportData(
+        name="myname",
+        content="depth",
+        parent="unset",
+    )
+    exp._pwd = tmp_path
+    gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
+    gpr.name = "testgp"
+    exp.to_file(gpr)
+    assert (tmp_path / "grids" / "unset--myname.roff").is_file() is True
+    assert (tmp_path / "grids" / ".unset--myname.roff.yml").is_file() is True

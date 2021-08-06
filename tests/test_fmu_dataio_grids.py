@@ -57,11 +57,11 @@ def test_gridproperty_io(tmp_path):
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.grid_fformat = "roff"
 
-    exp = fmu.dataio.ExportData()
+    exp = fmu.dataio.ExportData(parent={"name": "Geogrid"})
     exp._pwd = tmp_path
     exp.to_file(gpr)
 
-    assert (tmp_path / "grids" / ".testgp.roff.yml").is_file() is True
+    assert (tmp_path / "grids" / ".geogrid--testgp.roff.yml").is_file() is True
 
 
 def test_grid_io_larger_case(tmp_path):
@@ -99,7 +99,7 @@ def test_gridprop_io_larger_case(tmp_path):
 
     # make a fake GridProp
     grdp = xtgeo.GridProperty(ncol=2, nrow=7, nlay=13)
-    grdp.name = "Volantis"
+    grdp.name = "poro"
 
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.grid_fformat = "roff"
@@ -109,16 +109,17 @@ def test_gridprop_io_larger_case(tmp_path):
         content={"property": {"attribute": "porosity"}},
         unit="fraction",
         vertical_domain={"depth": "msl"},
+        parent={"name": "Geogrid"},
         timedata=None,
         is_prediction=True,
         is_observation=False,
-        tagname="poro",
+        tagname="porotag",
         verbosity="INFO",
     )
     exp._pwd = tmp_path
     exp.to_file(grdp, verbosity="DEBUG")
 
-    metadataout = tmp_path / "grids" / ".volantis--poro.roff.yml"
+    metadataout = tmp_path / "grids" / ".geogrid--poro--porotag.roff.yml"
     assert metadataout.is_file() is True
     print(metadataout)
 
@@ -205,6 +206,7 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
         content={"property": {"attribute": "porosity"}},
         unit="fraction",
         vertical_domain={"depth": "msl"},
+        parent={"name": "Geogrid"},
         timedata=None,
         is_prediction=True,
         is_observation=False,
@@ -218,7 +220,7 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
 
     exp.to_file(grdp, verbosity="INFO")
 
-    metadataout = out / ".volantis--porosity.roff.yml"
+    metadataout = out / ".geogrid--volantis--porosity.roff.yml"
     assert metadataout.is_file() is True
 
     # now read the metadata file and test some key entries:
@@ -227,7 +229,7 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
 
     assert (
         meta["file"]["relative_path"]
-        == "realization-0/iter-0/share/results/grids/volantis--porosity.roff"
+        == "realization-0/iter-0/share/results/grids/geogrid--volantis--porosity.roff"
     )
     assert meta["fmu"]["model"]["name"] == "ff"
     assert meta["fmu"]["iteration"]["name"] == "iter-0"

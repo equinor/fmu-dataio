@@ -47,7 +47,8 @@ def export_geogrid_parameters():
         filename = (FOLDER / (GFILE + "_" + propname)).with_suffix(".roff")
         prop = xtgeo.gridproperty_from_file(filename)
         ed = dataio.ExportData(
-            name=GNAME,
+            name=propname,
+            parent={"name": GNAME},
             config=CFG,
             content="depth",
             unit="m",
@@ -55,7 +56,6 @@ def export_geogrid_parameters():
             timedata=None,
             is_prediction=True,
             is_observation=False,
-            tagname=propname,
             verbosity=VERBOSITY,
             workflow="rms property model",
         )

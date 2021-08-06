@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 def construct_filename(
     name,
+    pretagname=None,
     tagname=None,
     t1=None,
     t2=None,
@@ -74,6 +75,9 @@ def construct_filename(
 
         if tagname:
             stem += "--" + tagname.lower()
+
+        if pretagname:
+            stem = pretagname.lower() + "--" + stem
 
         if t1 and not t2:
             stem += "--" + str(t1).lower()
