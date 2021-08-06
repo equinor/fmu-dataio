@@ -76,6 +76,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         self.subtype = None
         self.classname = "unset"
         self.name = "unknown"
+        self.parent_name = None
 
         if self.verbosity is None:
             self.verbosity = self.dataio._verbosity
@@ -155,6 +156,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         self._data_process_name()
         self._data_process_context()
         self._data_process_content()
+        self._data_process_parent()
         self._data_process_timedata()
         self._data_process_various()
 
@@ -302,6 +304,33 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         if useextra:
             self._data_process_content_validate(usecontent, useextra)
             meta[usecontent] = useextra
+
+    def _data_process_parent(self):
+        """Process the parent block within data block.
+
+        A parent is only required for few datatypes, in particular a GridProperty
+        which will need a grid geometry name.
+        """
+        logger.info("Evaluate parent")
+        parent = self.dataio._parent
+        meta = self.dataio._meta_data
+
+        if self.classname == "cpgrid_property" and parent is None:
+            raise ValidationError("Input 'parent' is required for GridProperty!")
+        else:
+            if parent is None:
+                return
+
+        # evaluate 'parent' which can be a str or a dict
+        if isinstance(parent, str):
+            meta["parent"] = {"name": parent}
+            self.parent_name = parent
+        else:
+            if not "name" in parent:
+                raise ValidationError("Input 'parent' shall have a 'name' attribute!")
+            meta["parent"] = parent
+            self.parent_name = parent["name"]
+
 
     @staticmethod
     def _data_process_content_validate(name, fields):
@@ -621,6 +650,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         fname, fpath = _utils.construct_filename(
             self.name,
+            pretagname=None,
             tagname=attr,
             subfolder=self.subfolder,
             loc="surface",
@@ -671,6 +701,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         fname, fpath = _utils.construct_filename(
             self.name,
+            pretagname=self.parent_name,
             tagname=attr,
             subfolder=self.subfolder,
             loc="grid",
@@ -720,6 +751,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         fname, fpath = _utils.construct_filename(
             self.name,
+            pretagname=None,
             tagname=attr,
             subfolder=self.subfolder,
             loc="polygons",
@@ -785,6 +817,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         fname, fpath = _utils.construct_filename(
             self.name,
+            pretagname=None,
             tagname=attr,
             subfolder=self.subfolder,
             loc="table",

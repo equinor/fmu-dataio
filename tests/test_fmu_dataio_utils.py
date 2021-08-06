@@ -81,7 +81,7 @@ def test_utils_construct_filename(
 ):
     """Testing construct file."""
     stem, dest = _utils.construct_filename(
-        name, tagname=tagname, loc=loc, t1=t1, t2=t2, outroot=tmp_path
+        name, pretagname=None, tagname=tagname, loc=loc, t1=t1, t2=t2, outroot=tmp_path
     )
 
     assert stem == expectedstem

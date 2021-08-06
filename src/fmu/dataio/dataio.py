@@ -87,6 +87,7 @@ class ExportData:
         config: Optional[dict] = None,
         content: Optional[Union[str, dict]] = None,
         unit: Optional[str] = None,
+        parent: Optional[dict] = None,
         tagname: Optional[str] = None,
         vertical_domain: Optional[dict] = None,
         timedata: Optional[list] = None,
@@ -119,6 +120,8 @@ class ExportData:
             content: Is a string or a dictionary with one key. Example is "depth" or
                 {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}
             unit: Is the unit of the exported item(s), e.g. "m" or "fraction".
+            parent: This key is required for datatype GridProperty, and refers to the
+                name of the grid geometry
             tagname: This is a short tag description which be be a part of file name
             vertical_domain: This is dictionary with a key and a reference e.g.
                 {"depth": "msl"} which is default (if None is input)
@@ -142,6 +145,7 @@ class ExportData:
         self._config = config
         self._content = content
         self._unit = unit
+        self._parent = parent
         self._tagname = tagname
         self._timedata = timedata
         self._vertical_domain = (
@@ -265,36 +269,34 @@ class ExportData:
                 "so this is interpreted as not an ERT run!"
             )
 
-        # self._meta_fmu["p"] = self._process_meta_fmu_context()
+    # def _process_meta_fmu_context(self):
+    #     """Processing the fmu:grid_model section"""
 
-    def _process_meta_fmu_context(self):
-        """Processing the fmu:grid_model section"""
+    #     if self._grid_model is None:
+    #         logger.info("grid_model was None, assuming it was not passed")
+    #         return
 
-        if self._grid_model is None:
-            logger.info("grid_model was None, assuming it was not passed")
-            return
+    #     meta = self._grid_model
 
-        meta = self._grid_model
+    #     if not isinstance(meta, dict):
+    #         logger.error("grid_model: %s", str(meta))
+    #         logger.debug("grid_model type was %s", str(type(meta)))
+    #         raise ValueError("The grid_model argument must be of type dict")
 
-        if not isinstance(meta, dict):
-            logger.error("grid_model: %s", str(meta))
-            logger.debug("grid_model type was %s", str(type(meta)))
-            raise ValueError("The grid_model argument must be of type dict")
+    #     if "name" not in meta.keys():
+    #         logger.error("grid_model: %s", str(meta))
+    #         logger.debug("keys in meta: %s", str(meta.keys()))
+    #         raise ValueError("grid_model must contain 'name'")
 
-        if "name" not in meta.keys():
-            logger.error("grid_model: %s", str(meta))
-            logger.debug("keys in meta: %s", str(meta.keys()))
-            raise ValueError("grid_model must contain 'name'")
+    #     if not isinstance(meta["name"], str):
+    #         _gmname = meta["name"]  # shortform
+    #         logger.error("grid_model: %s", str(_gmname))
+    #         logger.debug("grid_model:name was of type %s", str(type(_gmname)))
+    #         raise ValueError("grid_model:name must be a string")
 
-        if not isinstance(meta["name"], str):
-            _gmname = meta["name"]  # shortform
-            logger.error("grid_model: %s", str(_gmname))
-            logger.debug("grid_model:name was of type %s", str(type(_gmname)))
-            raise ValueError("grid_model:name must be a string")
+    #     logger.info("grid_model section has been processed")
 
-        logger.info("grid_model section has been processed")
-
-        return meta
+    #     return meta
 
     def _process_meta_fmu_model(self):
         """Processing the fmu:model section."""
