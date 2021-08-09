@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>dataio.dataio &mdash; fmu.dataio 0.4.1.dev13+g447b772 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.4.1.dev18+ga5627f4 documentation</title>
   
 
   
@@ -243,10 +243,11 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">relation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tagname</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">vertical_domain</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">timedata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -269,7 +270,7 @@
 <span class="sd">                name if found in stattic metadata `stratigraphy`. For example, if</span>
 <span class="sd">                &quot;TopValysar&quot; is the model name and the actual name</span>
 <span class="sd">                is &quot;Valysar Top Fm.&quot; that latter name will be used.</span>
-<span class="sd">            relation: [EXPERIMENTAL] The relation of the object with respect to</span>
+<span class="sd">            context: [EXPERIMENTAL] The context of the object with respect to</span>
 <span class="sd">                itself and/or other stratigraphic units. The default is None, but for</span>
 <span class="sd">                e.g. seismic attributes this can be important. The input is a</span>
 <span class="sd">                dictionary with the following fields: [TODO]</span>
@@ -279,6 +280,8 @@
 <span class="sd">            content: Is a string or a dictionary with one key. Example is &quot;depth&quot; or</span>
 <span class="sd">                {&quot;fluid_contact&quot;: {&quot;xxx&quot;: &quot;yyy&quot;, &quot;zzz&quot;: &quot;uuu&quot;}}</span>
 <span class="sd">            unit: Is the unit of the exported item(s), e.g. &quot;m&quot; or &quot;fraction&quot;.</span>
+<span class="sd">            parent: This key is required for datatype GridProperty, and refers to the</span>
+<span class="sd">                name of the grid geometry</span>
 <span class="sd">            tagname: This is a short tag description which be be a part of file name</span>
 <span class="sd">            vertical_domain: This is dictionary with a key and a reference e.g.</span>
 <span class="sd">                {&quot;depth&quot;: &quot;msl&quot;} which is default (if None is input)</span>
@@ -298,10 +301,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_relation</span> <span class="o">=</span> <span class="n">relation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">context</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="o">=</span> <span class="n">content</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_unit</span> <span class="o">=</span> <span class="n">unit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tagname</span> <span class="o">=</span> <span class="n">tagname</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_timedata</span> <span class="o">=</span> <span class="n">timedata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertical_domain</span> <span class="o">=</span> <span class="p">(</span>
@@ -425,36 +429,34 @@
                 <span class="s2">&quot;so this is interpreted as not an ERT run!&quot;</span>
             <span class="p">)</span>
 
-        <span class="c1"># self._meta_fmu[&quot;grid_model&quot;] = self._process_meta_fmu_grid_model()</span>
+    <span class="c1"># def _process_meta_fmu_context(self):</span>
+    <span class="c1">#     &quot;&quot;&quot;Processing the fmu:grid_model section&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_process_meta_fmu_grid_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Processing the fmu:grid_model section&quot;&quot;&quot;</span>
+    <span class="c1">#     if self._grid_model is None:</span>
+    <span class="c1">#         logger.info(&quot;grid_model was None, assuming it was not passed&quot;)</span>
+    <span class="c1">#         return</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;grid_model was None, assuming it was not passed&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
+    <span class="c1">#     meta = self._grid_model</span>
 
-        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_model</span>
+    <span class="c1">#     if not isinstance(meta, dict):</span>
+    <span class="c1">#         logger.error(&quot;grid_model: %s&quot;, str(meta))</span>
+    <span class="c1">#         logger.debug(&quot;grid_model type was %s&quot;, str(type(meta)))</span>
+    <span class="c1">#         raise ValueError(&quot;The grid_model argument must be of type dict&quot;)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;grid_model: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">))</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;grid_model type was </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">meta</span><span class="p">)))</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The grid_model argument must be of type dict&quot;</span><span class="p">)</span>
+    <span class="c1">#     if &quot;name&quot; not in meta.keys():</span>
+    <span class="c1">#         logger.error(&quot;grid_model: %s&quot;, str(meta))</span>
+    <span class="c1">#         logger.debug(&quot;keys in meta: %s&quot;, str(meta.keys()))</span>
+    <span class="c1">#         raise ValueError(&quot;grid_model must contain &#39;name&#39;&quot;)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;grid_model: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">))</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;keys in meta: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;grid_model must contain &#39;name&#39;&quot;</span><span class="p">)</span>
+    <span class="c1">#     if not isinstance(meta[&quot;name&quot;], str):</span>
+    <span class="c1">#         _gmname = meta[&quot;name&quot;]  # shortform</span>
+    <span class="c1">#         logger.error(&quot;grid_model: %s&quot;, str(_gmname))</span>
+    <span class="c1">#         logger.debug(&quot;grid_model:name was of type %s&quot;, str(type(_gmname)))</span>
+    <span class="c1">#         raise ValueError(&quot;grid_model:name must be a string&quot;)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">_gmname</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>  <span class="c1"># shortform</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;grid_model: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_gmname</span><span class="p">))</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;grid_model:name was of type </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">_gmname</span><span class="p">)))</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;grid_model:name must be a string&quot;</span><span class="p">)</span>
+    <span class="c1">#     logger.info(&quot;grid_model section has been processed&quot;)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;grid_model section has been processed&quot;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">meta</span>
+    <span class="c1">#     return meta</span>
 
     <span class="k">def</span> <span class="nf">_process_meta_fmu_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Processing the fmu:model section.&quot;&quot;&quot;</span>
@@ -872,7 +874,7 @@
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev13+g447b772).
+        &#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev18+ga5627f4).
 
     </p>
   </div>

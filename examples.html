@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Examples &mdash; fmu.dataio 0.4.1.dev13+g447b772 documentation</title>
+  <title>Examples &mdash; fmu.dataio 0.4.1.dev18+ga5627f4 documentation</title>
   
 
   
@@ -384,7 +384,7 @@ expand):</p>
       <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
       <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-08-05T11:29:48.835712&#39;</span>
+<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-08-09T06:28:03.786740&#39;</span>
   <span class="nt">user</span><span class="p">:</span>
     <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runner</span>
   <span class="nt">event</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">created</span>
@@ -578,7 +578,7 @@ expand):</p>
       <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
       <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-08-05T11:29:49.928317&#39;</span>
+<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-08-09T06:28:05.129610&#39;</span>
   <span class="nt">user</span><span class="p">:</span>
     <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runner</span>
   <span class="nt">event</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">created</span>
@@ -716,7 +716,8 @@ expand):</p>
         <span class="n">filename</span> <span class="o">=</span> <span class="p">(</span><span class="n">FOLDER</span> <span class="o">/</span> <span class="p">(</span><span class="n">GFILE</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">propname</span><span class="p">))</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.roff&quot;</span><span class="p">)</span>
         <span class="n">prop</span> <span class="o">=</span> <span class="n">xtgeo</span><span class="o">.</span><span class="n">gridproperty_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="n">ed</span> <span class="o">=</span> <span class="n">dataio</span><span class="o">.</span><span class="n">ExportData</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">GNAME</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">propname</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">GNAME</span><span class="p">},</span>
             <span class="n">config</span><span class="o">=</span><span class="n">CFG</span><span class="p">,</span>
             <span class="n">content</span><span class="o">=</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span>
             <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
@@ -724,7 +725,6 @@ expand):</p>
             <span class="n">timedata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">tagname</span><span class="o">=</span><span class="n">propname</span><span class="p">,</span>
             <span class="n">verbosity</span><span class="o">=</span><span class="n">VERBOSITY</span><span class="p">,</span>
             <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms property model&quot;</span><span class="p">,</span>
         <span class="p">)</span>
@@ -746,7 +746,7 @@ expand):</p>
 <span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">cpgrid</span>
 <span class="nt">file</span><span class="p">:</span>
-  <span class="nt">checksum_md5</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">75ba485a1683f4d587accbe3603cfe2c</span>
+  <span class="nt">checksum_md5</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bda789c389db22c68d5958cd6fd861e2</span>
   <span class="nt">relative_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/grids/geogrid.roff</span>
   <span class="nt">absolute_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/geogrid.roff</span>
 <span class="nt">access</span><span class="p">:</span>
@@ -773,7 +773,7 @@ expand):</p>
       <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
       <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-08-05T11:29:50.829679&#39;</span>
+<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-08-09T06:28:06.195274&#39;</span>
   <span class="nt">user</span><span class="p">:</span>
     <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runner</span>
   <span class="nt">event</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">created</span>
@@ -860,7 +860,7 @@ expand):</p>
 <span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">cpgrid_property</span>
 <span class="nt">file</span><span class="p">:</span>
-  <span class="nt">checksum_md5</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">a03d61a1dcbebbf8e9a47df64345bcbe</span>
+  <span class="nt">checksum_md5</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">61a1e69b172dae2c6d89a938e660fbab</span>
   <span class="nt">relative_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/grids/geogrid--facies.roff</span>
   <span class="nt">absolute_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/geogrid--facies.roff</span>
 <span class="nt">access</span><span class="p">:</span>
@@ -887,7 +887,7 @@ expand):</p>
       <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
       <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-08-05T11:29:51.343145&#39;</span>
+<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-08-09T06:28:06.788599&#39;</span>
   <span class="nt">user</span><span class="p">:</span>
     <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runner</span>
   <span class="nt">event</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">created</span>
@@ -933,8 +933,10 @@ expand):</p>
         <span class="nt">OTHER</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
 <span class="nt">data</span><span class="p">:</span>
   <span class="nt">stratigraphic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">geogrid</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">facies</span>
   <span class="nt">content</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth</span>
+  <span class="nt">parent</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">geogrid</span>
   <span class="nt">unit</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">m</span>
   <span class="nt">vertical_domain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth</span>
   <span class="nt">depth_reference</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">msl</span>
@@ -947,7 +949,7 @@ expand):</p>
     <span class="nt">nlay</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">65</span>
   <span class="nt">format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">roff</span>
 <span class="nt">display</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">geogrid</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">facies</span>
 </pre></div>
 </div>
 </div>
@@ -1099,7 +1101,7 @@ expand):</p>
       <span class="nt">identifier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span>
       <span class="nt">uuid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">some-unique-id-to-be-provided-by-smda</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-08-05T11:29:52.225866&#39;</span>
+<span class="p p-Indicator">-</span> <span class="nt">datetime</span><span class="p">:</span> <span class="s">&#39;2021-08-09T06:28:07.873952&#39;</span>
   <span class="nt">user</span><span class="p">:</span>
     <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runner</span>
   <span class="nt">event</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">created</span>
@@ -1198,7 +1200,7 @@ expand):</p>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev13+g447b772).
+        &#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev18+ga5627f4).
 
     </p>
   </div>
