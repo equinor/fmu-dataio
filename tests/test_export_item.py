@@ -246,8 +246,36 @@ def test_data_process_content_shall_fail():
     assert "is not valid for" in str(errmsg)
 
 
+def test_data_process_content_validate():
+    """Test the content validation"""
+
+    # test case 1 - fluid contact, valid
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content={"fluid_contact": {"contact": "owc"}},
+    )
+    obj = xtgeo.Polygons()
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem._data_process_content()
+
+    assert "fluid_contact" in dataio._meta_data
+
+    # test case 2 - fluid contact, not valid, shall fail
+    dataio = fmu.dataio.ExportData(
+        name="SomeName",
+        config=CFG2,
+        content="fluid_contact",
+    )
+    obj = xtgeo.Polygons()
+    exportitem = ei._ExportItem(dataio, obj, verbosity="DEBUG")
+    with pytest.raises(ei.ValidationError):
+        exportitem._data_process_content()
+
+
 def test_data_process_content_fluid_contact():
     """Test the field fluid_contact."""
+
     # test case 1
     dataio = fmu.dataio.ExportData(
         name="Valysar",
