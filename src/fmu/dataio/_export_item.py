@@ -48,6 +48,7 @@ ALLOWED_CONTENTS = {
     "velocity": None,
     "volumes": None,
     "volumetrics": None,  # or?
+    "kxh": None # KH-product
 }
 
 # this setting will set if subkeys is required or not. If not found in list then
