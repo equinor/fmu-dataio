@@ -298,7 +298,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             useextra = content[usecontent]
 
         else:
-            raise ValidationError(f"content must be string or dict")
+            raise ValidationError("content must be string or dict")
 
         if usecontent not in ALLOWED_CONTENTS.keys():
             raise ValidationError(
