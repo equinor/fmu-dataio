@@ -276,6 +276,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         """Process the content block (within data block) which can complex."""
         logger.info("Evaluate content")
         content = self.dataio._content
+        logger.debug("content is %s of type %s", str(content), type(content))
         meta = self.dataio._meta_data
         usecontent = "unset"
         useextra = None
@@ -288,11 +289,16 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             usecontent = "depth"
 
         elif isinstance(content, str):
+            if content in CONTENTS_REQUIRED.keys():
+                raise ValidationError(f"content {content} requires additional input")
             usecontent = content
 
-        else:
+        elif isinstance(content, dict):
             usecontent = (list(content.keys()))[0]
             useextra = content[usecontent]
+
+        else:
+            raise ValidationError(f"content must be string or dict")
 
         if usecontent not in ALLOWED_CONTENTS.keys():
             raise ValidationError(
@@ -301,9 +307,13 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             )
 
         meta["content"] = usecontent
+        logger.debug("outgoing content is set to %s", usecontent)
         if useextra:
             self._data_process_content_validate(usecontent, useextra)
             meta[usecontent] = useextra
+        else:
+            logger.debug("content has no extra information")
+            logger.debug("content was %s", content)
 
     def _data_process_parent(self):
         """Process the parent block within data block.
@@ -333,9 +343,12 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
     @staticmethod
     def _data_process_content_validate(name, fields):
+        logger.debug("starting staticmethod _data_process_content_validate")
         valid = ALLOWED_CONTENTS.get(name, None)
         if valid is None:
             raise ValidationError(f"Cannot validate content for <{name}>")
+
+        logger.info("name: %s", name)
 
         for key, dtype in fields.items():
             if key in valid.keys():
@@ -351,7 +364,12 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         required = CONTENTS_REQUIRED.get(name, None)
         if isinstance(required, dict):
             rlist = list(required.items())
+            logger.info("rlist is %s", rlist)
+            logger.info("fields is %s", fields)
             rkey, status = rlist.pop()
+            logger.info("rkey not in fields.keys(): %s", str(rkey not in fields.keys()))
+            logger.info("rkey: %s", rkey)
+            logger.info("fields.keys(): %s", str(fields.keys()))
             if rkey not in fields.keys() and status is True:
                 raise ValidationError(
                     f"The subkey <{rkey}> is required for content <{name}> ",
