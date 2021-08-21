@@ -1,8 +1,11 @@
 """Test the main class DataExporter and functions in the dataio module, ExportData."""
 import pathlib
+import shutil
+import re
 from collections import OrderedDict
 import logging
 import json
+import yaml
 import pytest
 import xtgeo
 import fmu.dataio
@@ -168,3 +171,70 @@ def test_exported_filenames(tmp_path):
     exp.to_file(gpr)
     assert (tmp_path / "grids" / "unset--myname.roff").is_file() is True
     assert (tmp_path / "grids" / ".unset--myname.roff.yml").is_file() is True
+
+
+def test_file_block(tmp_path):
+    """Test the content of the file metadata block"""
+
+    # make it look like an ERT run
+    current = tmp_path / "scratch" / "fields" / "user"
+    current.mkdir(parents=True, exist_ok=True)
+
+    shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
+
+    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
+    runfolder.mkdir(parents=True, exist_ok=True)
+    out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
+
+    exp = fmu.dataio.ExportData(
+        config=CFG,
+        content="depth",
+        unit="m",
+        vertical_domain={"depth": "msl"},
+        timedata=None,
+        is_prediction=True,
+        is_observation=False,
+        tagname="what Descr",
+        verbosity="INFO",
+        runfolder=runfolder.resolve(),
+        workflow="my current workflow",
+    )
+
+    # make a fake RegularSurface
+    srf = xtgeo.RegularSurface(
+        ncol=20,
+        nrow=30,
+        xinc=20,
+        yinc=20,
+        values=0,
+        name="TopVolantis",
+    )
+    exp.to_file(srf, verbosity="INFO")
+
+    metadataout = out / ".topvolantis--what_descr.gri.yml"
+    assert metadataout.is_file() is True
+
+    # now read the metadata file and test some key entries:
+    with open(metadataout, "r") as stream:
+        meta = yaml.safe_load(stream)
+
+    rel_path = meta["file"]["relative_path"]
+    assert (
+        rel_path
+        == "realization-0/iter-0/share/results/maps/topvolantis--what_descr.gri"
+    )
+
+    abs_path = meta["file"]["absolute_path"]
+    assert len(abs_path) > len(rel_path)
+    assert abs_path.endswith(rel_path)
+
+    # does not test validity, just that it looks right
+    size_bytes = meta["file"]["size_bytes"]
+    assert isinstance(size_bytes, int)
+
+    # does not test validity, just that it looks right
+    checksum_md5 = meta["file"]["checksum_md5"]
+    assert re.match("^[a-z0-9]{32}", checksum_md5)
