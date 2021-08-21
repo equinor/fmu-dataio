@@ -197,6 +197,10 @@ def md5sum(fname):
     return hash_md5.hexdigest()
 
 
+def size(fname):
+    return Path(fname).stat().st_size
+
+
 def uuid_from_string(string):
     """Produce valid and repeteable UUID4 as a hash of given string"""
     return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())

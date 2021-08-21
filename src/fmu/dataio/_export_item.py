@@ -884,3 +884,6 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         md5sum = _utils.md5sum(outfile)
         self.dataio._meta_file["checksum_md5"] = md5sum
+
+        size_bytes = _utils.size(outfile)
+        self.dataio._meta_file["size_bytes"] = size_bytes
