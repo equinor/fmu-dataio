@@ -689,13 +689,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         logger.info("Exported file is %s", outfile)
         if "irap" in fmt:
             obj.to_file(outfile, fformat="irap_binary")
-            md5sum = _utils.md5sum(outfile)
             self.dataio._meta_data["format"] = "irap_binary"
-
-            # populate the file block which needs to done here
-            dataio._meta_file["checksum_md5"] = md5sum
-            dataio._meta_file["relative_path"] = str(relpath)
-            dataio._meta_file["absolute_path"] = str(abspath)
+            self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
                 metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
@@ -740,13 +735,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         logger.info("Exported file is %s", outfile)
         if "roff" in fmt:
             obj.to_file(outfile, fformat="roff")
-            md5sum = _utils.md5sum(outfile)
             self.dataio._meta_data["format"] = "roff"
-
-            # populate the file block which needs to done here
-            dataio._meta_file["checksum_md5"] = md5sum
-            dataio._meta_file["relative_path"] = str(relpath)
-            dataio._meta_file["absolute_path"] = str(abspath)
+            self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
                 metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
@@ -794,26 +784,16 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             worker = obj.dataframe.copy()
             worker.rename(columns=renamings, inplace=True)
             worker.to_csv(outfile, index=False)
-            md5sum = _utils.md5sum(outfile)
             self.dataio._meta_data["format"] = "csv"
-
-            # populate the file block which needs to done here
-            dataio._meta_file["checksum_md5"] = md5sum
-            dataio._meta_file["relative_path"] = str(relpath)
-            dataio._meta_file["absolute_path"] = str(abspath)
+            self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
                 metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
             )
         elif "irap_ascii" in fmt:
             obj.to_file(outfile)
-            md5sum = _utils.md5sum(outfile)
             self.dataio._meta_data["format"] = "irap_ascii"
-
-            # populate the file block which needs to done here
-            dataio._meta_file["checksum_md5"] = md5sum
-            dataio._meta_file["relative_path"] = str(relpath)
-            dataio._meta_file["absolute_path"] = str(abspath)
+            self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
                 metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
@@ -856,13 +836,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         logger.info("Exported file is %s", outfile)
         if "csv" in dataio.table_fformat:
             obj.to_csv(outfile, index=self.index_df)
-            md5sum = _utils.md5sum(outfile)
             self.dataio._meta_data["format"] = "csv"
-
-            # populate the file block which needs to done here
-            dataio._meta_file["checksum_md5"] = md5sum
-            dataio._meta_file["relative_path"] = str(relpath)
-            dataio._meta_file["absolute_path"] = str(abspath)
+            self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
                 metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
@@ -894,3 +869,22 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         logger.info("Collect all metadata, done")
         return allmeta
+
+    def _item_to_file_create_file_block(self, outfile, relpath, abspath):
+        """Process the file block.
+
+        The file block contains relative and absolute paths, file size
+        and md5 checksum. This function receives the paths, calculates
+        size and checksum, and populates the file block by inserting
+        directly to the premade dataio._meta_file.
+
+        """
+
+        self.dataio._meta_file["relative_path"] = str(relpath)
+        self.dataio._meta_file["absolute_path"] = str(abspath)
+
+        md5sum = _utils.md5sum(outfile)
+        self.dataio._meta_file["checksum_md5"] = md5sum
+
+        size_bytes = _utils.size(outfile)
+        self.dataio._meta_file["size_bytes"] = size_bytes
