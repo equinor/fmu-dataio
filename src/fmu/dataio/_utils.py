@@ -3,6 +3,7 @@ from os.path import join
 import logging
 from pathlib import Path
 from collections import OrderedDict
+import re
 
 import uuid
 import hashlib
@@ -291,3 +292,61 @@ def check_if_number(value):
         return res
 
     return value
+
+def get_context_from_pwd(pwd):
+    """Get the context in which fmu-dataio is running
+
+    Known contexts for running fmu-dataio:
+
+        FORWARD_MODEL:
+            cwd is runpath - /scratch/user/case/realization-X[/iter-X]
+            Iteration may or may not be present.
+            For now, do not support missing iteration.
+            This context can be detected by looking for the realization-.
+            pattern in cwd and its relative location.
+
+        Inside RMS, ERT-run:
+            cwd is /scratch/user/case/realization-X/iter-X/rms/model
+            Iteration may or may not be present. Do not support missing iter.
+            This context can be detected by looking for the realization-.
+            pattern + rms/model in cwd. Return "rms_job"
+
+        ERT WORKFLOW:
+            cwd is config-path. realization-. pattern not present.
+            Currently not detectable. Return None
+
+        Inside RMS, template-run (running the RMS GUI):
+            cwd is inherited.
+            Currently not detectable. Return None
+
+    The purpose of this utility function is to derive context by looking at the cwd.
+
+    Return context as one of:
+    * forward_job
+    * rms_job
+    if no context can be confirmed, return None
+    """
+    
+    logger.info("Getting context from cwd: %s", pwd)
+
+#    for num in range(len(self._pwd.parents)):
+#        logger.info("Looking in self._pwd.parents, level %s/%s". str(num), str(len(self._pwd.parents)))
+#        foldername = folders.parents[num].name
+#        if re.match("^realization-.", foldername):
+#            logger.info("the realization folder was found")
+
+    parents = Path(pwd).resolve().parents
+    logger.info("Evaluating: %s", str(pwd.parents[0].name))
+    if re.match("^realization-.", str(pwd.parents[0].name)):
+        return "ert_forward_job"
+
+    if re.match("^realization-.", str(pwd.parents[2].name)):
+        logger.debug("Evaluate %s", str(pwd.parents[2].name))
+
+        if pwd.name == "model":
+            logger.debug("pwd.name: %s", pwd.name)
+            if pwd.parents[0].name == "rms":
+                return "rms_job"
+            logger.debug("pwd.parents[0].name: %s", pwd.parents[0].name) 
+
+    return None
