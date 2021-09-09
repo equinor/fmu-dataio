@@ -293,7 +293,7 @@ def check_if_number(value):
 
     return value
 
-def get_context_from_pwd(pwd):
+def get_runinfo_from_pwd(pwd):
     """Get the context in which fmu-dataio is running
 
     Known contexts for running fmu-dataio:
@@ -321,32 +321,38 @@ def get_context_from_pwd(pwd):
 
     The purpose of this utility function is to derive context by looking at the cwd.
 
-    Return context as one of:
+    Return runcontext as a dictionary:
+   {"is_fmurun": <bool>, "fmu_runcontext": <str>}
+
+    where the following known runcontexts are supported
+
     * forward_job
     * rms_job
-    if no context can be confirmed, return None
+
+    if no runcontext can be confirmed, return {is_fmurun: False} 
+
     """
     
-    logger.info("Getting context from cwd: %s", pwd)
-
-#    for num in range(len(self._pwd.parents)):
-#        logger.info("Looking in self._pwd.parents, level %s/%s". str(num), str(len(self._pwd.parents)))
-#        foldername = folders.parents[num].name
-#        if re.match("^realization-.", foldername):
-#            logger.info("the realization folder was found")
+    logger.info("Getting runcontext from cwd: %s", pwd)
 
     parents = Path(pwd).resolve().parents
     logger.info("Evaluating: %s", str(pwd.parents[0].name))
+
+    _is_fmurun = False
+    _runcontext = None
+
+    # detect if we are in an ERT forward job
+    # pwd will look like this: /scratch/user/case/realization-0/iter-0/
     if re.match("^realization-.", str(pwd.parents[0].name)):
-        return "ert_forward_job"
+        _is_fmurun = True
+        _runcontext = "ert_forward_job"
 
+    # detect if we are in RMS, running as an ERT forward job
+    # pwd will look like this: /scratch/user/case/realization-0/iter-0/rms/model
     if re.match("^realization-.", str(pwd.parents[2].name)):
-        logger.debug("Evaluate %s", str(pwd.parents[2].name))
+        _is_fmurun = True
 
-        if pwd.name == "model":
-            logger.debug("pwd.name: %s", pwd.name)
-            if pwd.parents[0].name == "rms":
-                return "rms_job"
-            logger.debug("pwd.parents[0].name: %s", pwd.parents[0].name) 
+        if pwd.name == "model" and pwd.parents[0].name == "rms":
+            _runcontext = "rms_job"
 
-    return None
+    return {"is_fmurun": _is_fmurun, "fmu_runcontext": _runcontext} 
