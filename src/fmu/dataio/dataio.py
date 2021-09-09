@@ -379,7 +379,6 @@ class ExportData:
 
         folders = self._pwd
         logger.info("Folder to evaluate: %s", self._pwd)
-        therealization = None
         ertjob = OrderedDict()
 
         iterfolder = None
@@ -422,8 +421,7 @@ class ExportData:
 
         self._iterfolder = iterfolder.name
         self._realfolder = realfolder.name
-
-        therealization = realfolder.name.replace("realization-", "")
+        self._realization_id = realfolder.name.replace("realization-", "")
 
         # store parameters.txt and jobs.json
         parameters_file = iterfolder / "parameters.txt"
@@ -469,7 +467,7 @@ class ExportData:
         # ------------------------------------------------------------------------------
         # get the realization metadata
         r_meta = OrderedDict()
-        r_meta["id"] = int(therealization)
+        r_meta["id"] = int(self._realization_id)
         r_meta["name"] = realfolder.name
         r_meta["uuid"] = _utils.uuid_from_string(
             c_meta["uuid"] + str(i_meta["id"]) + str(r_meta["id"])
