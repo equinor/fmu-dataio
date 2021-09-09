@@ -26,7 +26,7 @@ CFG["stratigraphy"] = {"TopVolantis": {}}
 CFG["access"] = {"someaccess": "jail"}
 CFG["model"] = {"revision": "0.99.0"}
 
-RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
+RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms/model"
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -83,11 +83,12 @@ def test_process_fmu_model():
 
 def test_process_fmu_realisation():
     """The (second order) private routine that provides realization and iteration."""
-    case = fmu.dataio.ExportData()
-    case._config = CFG
-    case._pwd = pathlib.Path(RUN)
 
+    # test case 1, look like an FMU run
+    case = fmu.dataio.ExportData(runfolder=pathlib.Path(RUN))
+    case._config = CFG
     c_meta, i_meta, r_meta = case._process_meta_fmu_realization_iteration()
+
     logger.info("========== CASE")
     logger.info("%s", json.dumps(c_meta, indent=2, default=str))
     logger.info("========== ITER")
@@ -99,6 +100,14 @@ def test_process_fmu_realisation():
     assert r_meta["parameters"]["GLOBVAR"]["VOLON_FLOODPLAIN_VOLFRAC"] == 0.256355
     assert c_meta["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
 
+    # test case 2, do not look like an FMU run
+    case = fmu.dataio.ExportData(runfolder=pathlib.Path(RUN) / "some" / "path")
+    case._config = CFG
+    c_meta, i_meta, r_meta = case._process_meta_fmu_realization_iteration()
+
+    assert r_meta is None
+    assert i_meta is None
+    assert c_meta is None
 
 def test_raise_userwarning_missing_content(tmp_path):
     """Example on generating a GridProperty without content spesified."""
