@@ -167,10 +167,20 @@ class ExportData:
         self._realfolder = None
 
         logger.setLevel(level=self._verbosity)
-        self._pwd = pathlib.Path().absolute()
+
         logger.info("Create instance of ExportData")
+
         if runfolder:
             self._pwd = pathlib.Path(runfolder).absolute()
+        else:
+            self._pwd = pathlib.Path().absolute()
+
+        # later on we need to know what context we are running in
+        # so storing this into self._runinfo
+        self._runinfo = _utils.get_runinfo_from_pwd(self._pwd)
+
+        # derive some existing attributes from the runinfo for later use
+        self._is_fmurun = self._runinfo["is_fmurun"]
 
         # define chunks of metadata for primary first order categories
         # (except class which is set directly later)
@@ -257,6 +267,16 @@ class ExportData:
         if self._case:
             return
 
+        if not self._is_fmurun:
+            logger.info(
+                "Based on the context, this is not an FMU run."
+                "Metadata for case, iteration and realization will not be populated"
+                )
+            self._meta_fmu["case"] = None
+            self._meta_fmu["iteration"] = None
+            self._meta_fmu["realization"] = None
+            return
+
         c_meta, i_meta, r_meta = self._process_meta_fmu_realization_iteration()
         self._meta_fmu["case"] = c_meta
         self._meta_fmu["iteration"] = i_meta
@@ -329,7 +349,7 @@ class ExportData:
         return meta
 
     def _process_meta_fmu_realization_iteration(self):
-        """Detect if this is a realization run.
+        """Process metadata for realization and iteration if applicable
 
         To detect if a realization run:
         * See of parameters.txt json at iter level
@@ -345,7 +365,14 @@ class ExportData:
         higher up and generated in-advance.
         """
         logger.info("Process metadata for realization and iteration")
-        is_fmurun = False
+
+        if not self._is_fmurun:
+            # During actual usage, this should never occur - however
+            # we account for this to cater for tests
+            logger.debug("self._is_fmurun is %s", self._is_fmurun)
+            return None, None, None
+
+        logger.info("runinfo is %s", self._runinfo)
 
         folders = self._pwd
         logger.info("Folder to evaluate: %s", self._pwd)
@@ -356,40 +383,36 @@ class ExportData:
         casefolder = None
         userfolder = None
 
-        for num in range(len(folders.parents)):
-            foldername = folders.parents[num].name
-            if re.match("^realization-.", foldername):
-                is_fmurun = True
-                realfolder = pathlib.Path(self._pwd).resolve().parents[num]
-                iterfolder = pathlib.Path(self._pwd).resolve().parents[num - 1]
-                casefolder = pathlib.Path(self._pwd).resolve().parents[num + 1]
-                userfolder = pathlib.Path(self._pwd).resolve().parents[num + 2]
+        # Using the realfolder as anchor for finding other elements in the path
+        # Need to know where it is. This varies between types of run/context.
+        realfolder_locs = {"rms_job": 2, "ert_forward_job": 0}
 
-                logger.info("Realization folder is %s", realfolder.name)
-                logger.info("Iter folder is %s", iterfolder.name)
-                logger.info("Case folder is %s", casefolder.name)
-                logger.info("User folder is %s", userfolder.name)
+        rloc = realfolder_locs[self._runinfo["fmu_runcontext"]]  # shortform
+        realfolder = pathlib.Path(self._pwd).resolve().parents[rloc]
+        iterfolder = pathlib.Path(self._pwd).resolve().parents[rloc - 1]
+        casefolder = pathlib.Path(self._pwd).resolve().parents[rloc + 1]
+        userfolder = pathlib.Path(self._pwd).resolve().parents[rloc + 2]
 
-                self._iterfolder = iterfolder.name
-                self._realfolder = realfolder.name
+        logger.info("Realization folder is %s", realfolder)
+        logger.info("Iteration folder is %s", iterfolder)
+        logger.info("Case folder is %s", casefolder)
+        logger.info("User folder is %s", userfolder)
 
-                therealization = realfolder.name.replace("realization-", "")
+        self._iterfolder = iterfolder.name
+        self._realfolder = realfolder.name
 
-                # store parameters.txt and jobs.json
-                parameters_file = iterfolder / "parameters.txt"
-                if parameters_file.is_file():
-                    params = _utils.read_parameters_txt(parameters_file)
-                    ertjob["params"] = params
+        therealization = realfolder.name.replace("realization-", "")
 
-                jobs_file = iterfolder / "jobs.json"
-                if jobs_file.is_file():
-                    with open(jobs_file, "r") as stream:
-                        ertjob["jobs"] = json.load(stream)
+        # store parameters.txt and jobs.json
+        parameters_file = iterfolder / "parameters.txt"
+        if parameters_file.is_file():
+            params = _utils.read_parameters_txt(parameters_file)
+            ertjob["params"] = params
 
-                break
-
-        if not is_fmurun:
-            return None, None, None
+        jobs_file = iterfolder / "jobs.json"
+        if jobs_file.is_file():
+            with open(jobs_file, "r") as stream:
+                ertjob["jobs"] = json.load(stream)
 
         # ------------------------------------------------------------------------------
         # get the case metadata which shall be established already
