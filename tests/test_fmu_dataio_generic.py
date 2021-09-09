@@ -93,11 +93,11 @@ def test_process_fmu_realization_iteration():
     c_meta, i_meta, r_meta = case._process_meta_fmu_realization_iteration()
 
     logger.info("========== CASE")
-    #logger.info("%s", json.dumps(c_meta, indent=2, default=str))
+    # logger.info("%s", json.dumps(c_meta, indent=2, default=str))
     logger.info("========== ITER")
-    #logger.info("%s", json.dumps(i_meta, indent=2, default=str))
+    # logger.info("%s", json.dumps(i_meta, indent=2, default=str))
     logger.info("========== REAL")
-    #logger.info("%s", json.dumps(r_meta, indent=2, default=str))
+    # logger.info("%s", json.dumps(r_meta, indent=2, default=str))
 
     assert r_meta["parameters"]["KVKH_CREVASSE"] == 0.3
     assert r_meta["parameters"]["GLOBVAR"]["VOLON_FLOODPLAIN_VOLFRAC"] == 0.256355
@@ -120,6 +120,7 @@ def test_process_fmu_realization_iteration():
     assert r_meta is None
     assert i_meta is None
     assert c_meta is None
+
 
 def test_raise_userwarning_missing_content(tmp_path):
     """Example on generating a GridProperty without content spesified."""

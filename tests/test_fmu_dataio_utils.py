@@ -149,6 +149,7 @@ def test_parse_parameters_txt_justified():
     assert res["GLOBVAR"]["VOLON_PERMH_CHANNEL"] == 1100
     assert res["LOG10_MULTREGT"]["MULT_VALYSAR_THERYS"] == -3.2582
 
+
 def test_get_runinfo_from_pwd(tmp_path):
     """Test that correct context is derived from the current working directory
 
@@ -162,16 +163,18 @@ def test_get_runinfo_from_pwd(tmp_path):
     """
 
     # test case 1, context is forward job
-    current = tmp_path / "scratch" / "field" / "user" / "case" / "realization-10" / "iter-0"
+    current = (
+        tmp_path / "scratch" / "field" / "user" / "case" / "realization-10" / "iter-0"
+    )
     current.mkdir(parents=True, exist_ok=True)
     res = _utils.get_runinfo_from_pwd(current)
     assert res["is_fmurun"] == True
-    assert res["fmu_runcontext"]  == "ert_forward_job"
+    assert res["fmu_runcontext"] == "ert_forward_job"
 
     # test case 2, context is rms job run by ERT
     res = _utils.get_runinfo_from_pwd(current / "rms" / "model")
     assert res["is_fmurun"] == True
-    assert res["fmu_runcontext"]  == "rms_job"
+    assert res["fmu_runcontext"] == "rms_job"
 
     # test case 3, context is rms job not run by ERT
     current = tmp_path / "some" / "path" / "rms" / "model"

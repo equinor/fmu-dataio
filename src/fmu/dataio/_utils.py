@@ -293,46 +293,47 @@ def check_if_number(value):
 
     return value
 
+
 def get_runinfo_from_pwd(pwd):
     """Get the context in which fmu-dataio is running
 
-    Known contexts for running fmu-dataio:
+     Known contexts for running fmu-dataio:
 
-        FORWARD_MODEL:
-            cwd is runpath - /scratch/user/case/realization-X[/iter-X]
-            Iteration may or may not be present.
-            For now, do not support missing iteration.
-            This context can be detected by looking for the realization-.
-            pattern in cwd and its relative location.
+         FORWARD_MODEL:
+             cwd is runpath - /scratch/user/case/realization-X[/iter-X]
+             Iteration may or may not be present.
+             For now, do not support missing iteration.
+             This context can be detected by looking for the realization-.
+             pattern in cwd and its relative location.
 
-        Inside RMS, ERT-run:
-            cwd is /scratch/user/case/realization-X/iter-X/rms/model
-            Iteration may or may not be present. Do not support missing iter.
-            This context can be detected by looking for the realization-.
-            pattern + rms/model in cwd. Return "rms_job"
+         Inside RMS, ERT-run:
+             cwd is /scratch/user/case/realization-X/iter-X/rms/model
+             Iteration may or may not be present. Do not support missing iter.
+             This context can be detected by looking for the realization-.
+             pattern + rms/model in cwd. Return "rms_job"
 
-        ERT WORKFLOW:
-            cwd is config-path. realization-. pattern not present.
-            Currently not detectable. Return None
+         ERT WORKFLOW:
+             cwd is config-path. realization-. pattern not present.
+             Currently not detectable. Return None
 
-        Inside RMS, template-run (running the RMS GUI):
-            cwd is inherited.
-            Currently not detectable. Return None
+         Inside RMS, template-run (running the RMS GUI):
+             cwd is inherited.
+             Currently not detectable. Return None
 
-    The purpose of this utility function is to derive context by looking at the cwd.
+     The purpose of this utility function is to derive context by looking at the cwd.
 
-    Return runcontext as a dictionary:
-   {"is_fmurun": <bool>, "fmu_runcontext": <str>}
+     Return runcontext as a dictionary:
+    {"is_fmurun": <bool>, "fmu_runcontext": <str>}
 
-    where the following known runcontexts are supported
+     where the following known runcontexts are supported
 
-    * forward_job
-    * rms_job
+     * forward_job
+     * rms_job
 
-    if no runcontext can be confirmed, return {is_fmurun: False} 
+     if no runcontext can be confirmed, return {is_fmurun: False}
 
     """
-    
+
     logger.info("Getting runcontext from cwd: %s", pwd)
 
     parents = Path(pwd).resolve().parents
@@ -355,4 +356,4 @@ def get_runinfo_from_pwd(pwd):
         if pwd.name == "model" and pwd.parents[0].name == "rms":
             _runcontext = "rms_job"
 
-    return {"is_fmurun": _is_fmurun, "fmu_runcontext": _runcontext} 
+    return {"is_fmurun": _is_fmurun, "fmu_runcontext": _runcontext}
