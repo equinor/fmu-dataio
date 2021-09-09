@@ -271,7 +271,7 @@ class ExportData:
             logger.info(
                 "Based on the context, this is not an FMU run."
                 "Metadata for case, iteration and realization will not be populated"
-                )
+            )
             self._meta_fmu["case"] = None
             self._meta_fmu["iteration"] = None
             self._meta_fmu["realization"] = None
@@ -365,7 +365,7 @@ class ExportData:
         higher up and generated in-advance.
         """
 
-        logger.setLevel("DEBUG")
+        # logger.setLevel("DEBUG")
 
         logger.info("Process metadata for realization and iteration")
 
@@ -392,10 +392,10 @@ class ExportData:
 
         realfolder_locs = {"rms_job": 2, "ert_forward_job": 1}
 
-        fmu_runcontext = self._runinfo["fmu_runcontext"]   
+        fmu_runcontext = self._runinfo["fmu_runcontext"]
 
         if fmu_runcontext == "rms_job":
-            iterfolder = pathlib.Path(self._pwd).resolve().parents[1] 
+            iterfolder = pathlib.Path(self._pwd).resolve().parents[1]
             realfolder = pathlib.Path(self._pwd).resolve().parents[2]
             casefolder = pathlib.Path(self._pwd).resolve().parents[3]
             userfolder = pathlib.Path(self._pwd).resolve().parents[4]
@@ -428,6 +428,11 @@ class ExportData:
         if parameters_file.is_file():
             params = _utils.read_parameters_txt(parameters_file)
             ertjob["params"] = params
+        else:
+            logger.error(
+                "Could not find parameters.txt " "Looked here: %s", parameters_file
+            )
+            raise FileExistsError("parameters.txt was not found")
 
         jobs_file = iterfolder / "jobs.json"
         if jobs_file.is_file():
