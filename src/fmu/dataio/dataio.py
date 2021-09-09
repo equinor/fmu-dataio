@@ -364,12 +364,15 @@ class ExportData:
         Will also parse the fmu.case metadata block from file which is stored
         higher up and generated in-advance.
         """
+
+        logger.setLevel("DEBUG")
+
         logger.info("Process metadata for realization and iteration")
 
         if not self._is_fmurun:
             # During actual usage, this should never occur - however
             # we account for this to cater for tests
-            logger.debug("self._is_fmurun is %s", self._is_fmurun)
+            logger.info("self._is_fmurun is %s", self._is_fmurun)
             return None, None, None
 
         logger.info("runinfo is %s", self._runinfo)
@@ -383,15 +386,34 @@ class ExportData:
         casefolder = None
         userfolder = None
 
-        # Using the realfolder as anchor for finding other elements in the path
-        # Need to know where it is. This varies between types of run/context.
-        realfolder_locs = {"rms_job": 2, "ert_forward_job": 0}
+        # In this section, we are trying to derive four key folders from the
+        # current working directory path: realfolder, iterfolder, casefolder
+        # and userfolder. They can be named anything, except for the realization
+        # folder which, by our assumptions, is _always_ named "realization-<n>".
 
-        rloc = realfolder_locs[self._runinfo["fmu_runcontext"]]  # shortform
-        realfolder = pathlib.Path(self._pwd).resolve().parents[rloc]
-        iterfolder = pathlib.Path(self._pwd).resolve().parents[rloc - 1]
-        casefolder = pathlib.Path(self._pwd).resolve().parents[rloc + 1]
-        userfolder = pathlib.Path(self._pwd).resolve().parents[rloc + 2]
+        realfolder_locs = {"rms_job": 2, "ert_forward_job": 1}
+
+        fmu_runcontext = self._runinfo["fmu_runcontext"]   
+
+        if fmu_runcontext == "rms_job":
+            iterfolder = pathlib.Path(self._pwd).resolve().parents[1] 
+            realfolder = pathlib.Path(self._pwd).resolve().parents[2]
+            casefolder = pathlib.Path(self._pwd).resolve().parents[3]
+            userfolder = pathlib.Path(self._pwd).resolve().parents[4]
+        elif fmu_runcontext == "ert_forward_job":
+            iterfolder = pathlib.Path(self._pwd).resolve()
+            realfolder = pathlib.Path(self._pwd).resolve().parents[0]
+            casefolder = pathlib.Path(self._pwd).resolve().parents[1]
+            userfolder = pathlib.Path(self._pwd).resolve().parents[2]
+        else:
+            logger.error("self._runinfo was %s", self._runinfo)
+            raise RuntimeError("fmu_runcontext was not a known context")
+
+        # sanity check the realization folder, so we know we are not lost
+        if not re.match("^realization-.", realfolder.name):
+            logger.error("Failed sanity check: Realization folder")
+            logger.info("realfolder is %s", realfolder)
+            raise RuntimeError("Erroneous realization folder found")
 
         logger.info("Realization folder is %s", realfolder)
         logger.info("Iteration folder is %s", iterfolder)
