@@ -377,7 +377,6 @@ class ExportData:
 
         logger.info("runinfo is %s", self._runinfo)
 
-        folders = self._pwd
         logger.info("Folder to evaluate: %s", self._pwd)
         ertjob = OrderedDict()
 
@@ -389,8 +388,6 @@ class ExportData:
         # current working directory path: realfolder, iterfolder, casefolder
         # and userfolder. They can be named anything, except for the realization
         # folder which, by our assumptions, is _always_ named "realization-<n>".
-
-        realfolder_locs = {"rms_job": 2, "ert_forward_job": 1}
 
         fmu_runcontext = self._runinfo["fmu_runcontext"]
 

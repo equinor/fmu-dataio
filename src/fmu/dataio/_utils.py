@@ -336,7 +336,6 @@ def get_runinfo_from_pwd(pwd):
 
     logger.info("Getting runcontext from cwd: %s", pwd)
 
-    parents = Path(pwd).resolve().parents
     logger.info("Evaluating: %s", str(pwd.parents[0].name))
 
     _is_fmurun = False

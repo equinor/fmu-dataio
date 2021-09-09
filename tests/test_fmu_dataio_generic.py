@@ -4,7 +4,6 @@ import shutil
 import re
 from collections import OrderedDict
 import logging
-import json
 import yaml
 import pytest
 import xtgeo

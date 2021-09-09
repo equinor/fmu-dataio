@@ -168,22 +168,22 @@ def test_get_runinfo_from_pwd(tmp_path):
     )
     current.mkdir(parents=True, exist_ok=True)
     res = _utils.get_runinfo_from_pwd(current)
-    assert res["is_fmurun"] == True
+    assert res["is_fmurun"] is True
     assert res["fmu_runcontext"] == "ert_forward_job"
 
     # test case 2, context is rms job run by ERT
     res = _utils.get_runinfo_from_pwd(current / "rms" / "model")
-    assert res["is_fmurun"] == True
+    assert res["is_fmurun"] is True
     assert res["fmu_runcontext"] == "rms_job"
 
     # test case 3, context is rms job not run by ERT
     current = tmp_path / "some" / "path" / "rms" / "model"
     res = _utils.get_runinfo_from_pwd(current)
-    assert res["is_fmurun"] == False
+    assert res["is_fmurun"] is False
     assert res["fmu_runcontext"] is None
 
     # test case 4, context is an ert workflow
     current = tmp_path / "some" / "path" / "ert" / "model"
     res = _utils.get_runinfo_from_pwd(current)
-    assert res["is_fmurun"] == False
+    assert res["is_fmurun"] is False
     assert res["fmu_runcontext"] is None
