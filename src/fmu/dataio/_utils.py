@@ -355,4 +355,14 @@ def get_runinfo_from_pwd(pwd):
         if pwd.name == "model" and pwd.parents[0].name == "rms":
             _runcontext = "rms_job"
 
+    # detect if we are in rms/bin, running as an ERT forward job
+    # (which seems to be the case when building docs)
+    # pwd will look like this: /scratch/user/case/realization-0/iter-0/rms/bin
+    # we will call this "rms_job" as well.
+    if re.match("^realization-.", str(pwd.parents[2].name)):
+        _is_fmurun = True
+
+        if pwd.name == "bin" and pwd.parents[0].name == "rms":
+            _runcontext = "rms_job"
+
     return {"is_fmurun": _is_fmurun, "fmu_runcontext": _runcontext}

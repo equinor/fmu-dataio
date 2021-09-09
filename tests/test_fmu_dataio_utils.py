@@ -163,9 +163,7 @@ def test_get_runinfo_from_pwd(tmp_path):
     """
 
     # test case 1, context is forward job
-    current = (
-        tmp_path / "scratch" / "field" / "user" / "case" / "realization-10" / "iter-0"
-    )
+    current = tmp_path / "user" / "case" / "realization-10" / "iter-0"
     current.mkdir(parents=True, exist_ok=True)
     res = _utils.get_runinfo_from_pwd(current)
     assert res["is_fmurun"] is True
@@ -187,3 +185,9 @@ def test_get_runinfo_from_pwd(tmp_path):
     res = _utils.get_runinfo_from_pwd(current)
     assert res["is_fmurun"] is False
     assert res["fmu_runcontext"] is None
+
+    # test case 5, context is rms/bin during FMU runs
+    current = tmp_path / "user" / "case" / "realization-10" / "iter-0" / "rms" / "bin"
+    res = _utils.get_runinfo_from_pwd(current)
+    assert res["is_fmurun"] is True
+    assert res["fmu_runcontext"] == "rms_job"

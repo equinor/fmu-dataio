@@ -403,7 +403,7 @@ class ExportData:
             userfolder = pathlib.Path(self._pwd).resolve().parents[2]
         else:
             logger.error("self._runinfo was %s", self._runinfo)
-            raise RuntimeError("fmu_runcontext was not a known context")
+            raise RuntimeError("Unknown context: %s", self._runinfo["fmu_runcontext"])
 
         # sanity check the realization folder, so we know we are not lost
         if not re.match("^realization-.", realfolder.name):
