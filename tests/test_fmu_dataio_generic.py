@@ -81,26 +81,38 @@ def test_process_fmu_model():
     assert fmumodel["revision"] == "0.99.0"
 
 
-def test_process_fmu_realisation():
+def test_process_fmu_realization_iteration():
     """The (second order) private routine that provides realization and iteration."""
 
-    # test case 1, look like an FMU run
-    case = fmu.dataio.ExportData(runfolder=pathlib.Path(RUN))
+    base_runfolder = pathlib.Path("tests/data/drogon/ertrun1/")
+
+    # test case 1, look like an ert forward job
+    runfolder = base_runfolder / "realization-0" / "iter-0"
+    case = fmu.dataio.ExportData(runfolder=pathlib.Path(runfolder))
     case._config = CFG
     c_meta, i_meta, r_meta = case._process_meta_fmu_realization_iteration()
 
     logger.info("========== CASE")
-    logger.info("%s", json.dumps(c_meta, indent=2, default=str))
+    #logger.info("%s", json.dumps(c_meta, indent=2, default=str))
     logger.info("========== ITER")
-    logger.info("%s", json.dumps(i_meta, indent=2, default=str))
+    #logger.info("%s", json.dumps(i_meta, indent=2, default=str))
     logger.info("========== REAL")
-    logger.info("%s", json.dumps(r_meta, indent=2, default=str))
+    #logger.info("%s", json.dumps(r_meta, indent=2, default=str))
 
     assert r_meta["parameters"]["KVKH_CREVASSE"] == 0.3
     assert r_meta["parameters"]["GLOBVAR"]["VOLON_FLOODPLAIN_VOLFRAC"] == 0.256355
     assert c_meta["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
 
-    # test case 2, do not look like an FMU run
+    # test case 2, look like an RMS job during FMU run
+    runfolder = base_runfolder / "realization-0" / "iter-0" / "rms" / "model"
+    case = fmu.dataio.ExportData(runfolder=runfolder)
+    case._config = CFG
+    c_meta, i_meta, r_meta = case._process_meta_fmu_realization_iteration()
+    assert r_meta["parameters"]["KVKH_CREVASSE"] == 0.3
+    assert r_meta["parameters"]["GLOBVAR"]["VOLON_FLOODPLAIN_VOLFRAC"] == 0.256355
+    assert c_meta["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
+
+    # test case 3, look like something else
     case = fmu.dataio.ExportData(runfolder=pathlib.Path(RUN) / "some" / "path")
     case._config = CFG
     c_meta, i_meta, r_meta = case._process_meta_fmu_realization_iteration()
