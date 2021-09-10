@@ -79,7 +79,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         self.index_df = index
         self.subtype = None
         self.classname = "unset"
-        self.name = "unknown"
+        self.name = None
         self.parent_name = None
 
         if self.verbosity is None:
