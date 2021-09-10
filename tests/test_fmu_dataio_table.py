@@ -3,6 +3,7 @@ from collections import OrderedDict
 import logging
 import shutil
 import pandas as pd
+import pyarrow as pa
 import yaml
 
 import fmu.dataio
@@ -30,28 +31,57 @@ RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
 CASEPATH = "tests/data/drogon/ertrun1"
 
 
-def test_table_io(tmp_path):
+def test_table_io_pandas(tmp_path):
     """Minimal test tables io, uses tmp_path."""
 
     # make a small DataFrame
-    table = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
+    df = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.table_fformat = "csv"
 
     exp = fmu.dataio.ExportData(name="test", verbosity="INFO", content="volumes")
     exp._pwd = tmp_path
-    exp.to_file(table)
+    exp.to_file(df)
 
     assert (tmp_path / "tables" / ".test.csv.yml").is_file() is True
     with open(tmp_path / "tables" / "test.csv") as stream:
         header = stream.readline().split(",")
     assert len(header) == 2
 
+    with open(tmp_path / "tables" / ".test.csv.yml") as stream:
+        metadata = yaml.safe_load(stream)
+        assert metadata["data"]["layout"] == "table"
+        assert metadata["data"]["spec"]["size"] == 6
+
     # export with index=True which will give three columns (first is the index column)
-    exp.to_file(table, index=True)
+    exp.to_file(df, index=True)
     with open(tmp_path / "tables" / "test.csv") as stream:
         header = stream.readline().split(",")
     assert len(header) == 3
+
+
+def test_table_io_arrow(tmp_path):
+    """Test the support for PyArrow tables"""
+
+    # make a small pa.Table
+    df = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
+    table = pa.Table.from_pandas(df)
+    fmu.dataio.ExportData.export_root = tmp_path.resolve()
+
+    exp = fmu.dataio.ExportData(name="test", verbosity="INFO", content="smry")
+    exp._pwd = tmp_path
+    exp.to_file(table)
+
+    assert (tmp_path / "tables" / "test.arrow").is_file() is True
+    assert (tmp_path / "tables" / ".test.arrow.yml").is_file() is True
+
+    table_in = pa.feather.read_table(tmp_path / "tables" / "test.arrow")
+    assert table_in.num_columns == 2
+
+    with open(tmp_path / "tables" / ".test.arrow.yml") as stream:
+        metadata = yaml.safe_load(stream)
+        assert metadata["data"]["layout"] == "table"
+        assert metadata["data"]["spec"]["size"] == 6
 
 
 def test_tables_io_larger_case_ertrun(tmp_path):
