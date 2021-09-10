@@ -179,6 +179,13 @@ class ExportData:
         # so storing this into self._runinfo
         self._runinfo = _utils.get_runinfo_from_pwd(self._pwd)
 
+        # ...then we need to modify the export_root according to the context
+        _context = self._runinfo["fmu_runcontext"]
+        if _context == "ert_forward_job":
+            self.export_root = "share/results"
+            logger.info("fmu_runcontext is %s", _context)
+            logger.info("dataio.export_root is set to %s", self.export_root)
+
         # derive some existing attributes from the runinfo for later use
         self._is_fmurun = self._runinfo["is_fmurun"]
 
