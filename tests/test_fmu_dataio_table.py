@@ -114,9 +114,16 @@ def test_tables_io_larger_case_ertrun(tmp_path):
     )
 
     # make a fake DataFrame
-    table = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
+    df = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
 
-    exp.to_file(table, verbosity="INFO")
+    exp.to_file(df, verbosity="INFO")
 
     metadataout = out / ".sometable--what_descr.csv.yml"
+    assert metadataout.is_file() is True
+
+    # then try pyarrow
+    table = pa.Table.from_pandas(df)
+    exp.to_file(table, verbosity="INFO")
+
+    metadataout = out / ".sometable--what_descr.arrow.yml"
     assert metadataout.is_file() is True
