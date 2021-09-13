@@ -1,12 +1,11 @@
 """Module for private utilities/helpers for DataIO class."""
-from os.path import join
-import logging
-from pathlib import Path
-from collections import OrderedDict
-
-import uuid
 import hashlib
 import json
+import logging
+import uuid
+from collections import OrderedDict
+from os.path import join
+from pathlib import Path
 
 from . import _oyaml as oyaml
 
@@ -95,6 +94,8 @@ def construct_filename(
             dest = outroot / "tables"
         elif loc == "polygons":
             dest = outroot / "polygons"
+        elif loc == "cube":
+            dest = outroot / "cubes"
         else:
             dest = outroot / "other"
 
