@@ -24,21 +24,20 @@ The processing is based on handling first level keys which are
     masterdata   - Static, infer from fmuconfig
 
 """
-from typing import Optional, Union, Any, List
+import datetime
+import getpass
+import json
+import logging
 import pathlib
 import re
 import uuid
 from collections import OrderedDict
+from typing import Any, List, Optional, Union
 
-import datetime
-import getpass
-
-import logging
-import json
 import yaml
 
-from ._export_item import _ExportItem
 from . import _utils
+from ._export_item import _ExportItem
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -75,6 +74,7 @@ class ExportData:
     table_fformat = "csv"
     polygons_fformat = "csv"
     grid_fformat = "roff"
+    cube_fformat = "segy"
     export_root = "../../share/results"
     case_folder = "share/metadata"  # e.g. /some_rootpath/case/metadata
     createfolder = True

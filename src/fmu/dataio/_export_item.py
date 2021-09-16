@@ -1,9 +1,9 @@
 """Private module for Surface IO in DataIO class."""
-import warnings
-import logging
 import json
-from datetime import datetime
+import logging
+import warnings
 from collections import OrderedDict
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -17,6 +17,7 @@ from . import _utils
 VALID_SURFACE_FORMATS = {"irap_binary": ".gri"}
 VALID_GRID_FORMATS = {"hdf": ".hdf", "roff": ".roff"}
 VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv", "arrow": ".arrow"}
+VALID_CUBE_FORMATS = {"segy": ".segy"}
 VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".pol"}
 
 # the content must conform with the given json schema, e.g.
@@ -121,6 +122,9 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         elif isinstance(self.obj, xtgeo.Polygons):
             self.subtype = "Polygons"
             self.classname = "polygons"
+        elif isinstance(self.obj, xtgeo.Cube):
+            self.subtype = "RegularCube"
+            self.classname = "cube"
         elif isinstance(self.obj, xtgeo.Grid):
             self.subtype = "CPGrid"
             self.classname = "cpgrid"
@@ -462,6 +466,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         if self.subtype == "RegularSurface":
             self._data_process_object_regularsurface()
+        elif self.subtype == "RegularCube":
+            self._data_process_object_regularcube()
         elif self.subtype == "CPGrid":
             self._data_process_cpgrid()
         elif self.subtype == "CPGridProperty":
@@ -553,6 +559,50 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         meta["bbox"]["zmin"] = float(regsurf.values.min())
         meta["bbox"]["zmax"] = float(regsurf.values.max())
         logger.info("Process data metadata for RegularSurface... done!!")
+
+    def _data_process_object_regularcube(self):
+        """Process/collect the data items for RegularCube"""
+        logger.info("Process data metadata for RegularCube")
+
+        dataio = self.dataio
+        cube = self.obj
+
+        meta = dataio._meta_data  # shortform
+
+        meta["layout"] = "regular"
+
+        # define spec record
+        specs = cube.metadata.required
+        newspecs = OrderedDict()
+        for spec, val in specs.items():
+            if isinstance(val, (np.float32, np.float64)):
+                val = float(val)
+            newspecs[spec] = val
+        meta["spec"] = newspecs
+
+        meta["bbox"] = OrderedDict()
+
+        # current xtgeo is missing xmin, xmax etc attributes for cube, so need
+        # to compute (simplify when xtgeo has this):
+        xmin = 1.0e23
+        ymin = xmin
+        xmax = -1 * xmin
+        ymax = -1 * ymin
+
+        for corner in ((1, 1), (1, cube.nrow), (cube.ncol, 1), (cube.ncol, cube.nrow)):
+            xc, yc = cube.get_xy_value_from_ij(*corner)
+            xmin = xc if xc < xmin else xmin
+            xmax = xc if xc > xmax else xmax
+            ymin = yc if yc < ymin else ymin
+            ymax = yc if yc > ymax else ymax
+
+        meta["bbox"]["xmin"] = xmin
+        meta["bbox"]["xmax"] = xmax
+        meta["bbox"]["ymin"] = ymin
+        meta["bbox"]["ymax"] = ymax
+        meta["bbox"]["zmin"] = float(cube.zori)
+        meta["bbox"]["zmax"] = float(cube.zori + cube.zinc * (cube.nlay - 1))
+        logger.info("Process data metadata for RegularCube... done!!")
 
     def _data_process_object_polygons(self):
         """Process/collect the data items for Polygons"""
@@ -673,6 +723,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         logger.debug(f"subtype is {self.subtype}")
         if self.subtype == "RegularSurface":
             fpath = self._item_to_file_regularsurface()
+        elif self.subtype == "RegularCube":
+            fpath = self._item_to_file_cube()
         elif self.subtype == "Polygons":
             fpath = self._item_to_file_polygons()
         elif self.subtype in ("CPGrid", "CPGridProperty"):
@@ -705,7 +757,10 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         fmt = dataio.surface_fformat
 
         if fmt not in VALID_SURFACE_FORMATS.keys():
-            raise ValueError(f"The file format {fmt} is not supported.")
+            raise ValueError(
+                f"The file format {fmt} is not supported.",
+                f"Valid surface formats are: {list(VALID_SURFACE_FORMATS.keys())}",
+            )
 
         ext = VALID_SURFACE_FORMATS.get(fmt, ".irap_binary")
         outfile, metafile, relpath, abspath = _utils.verify_path(
@@ -724,6 +779,55 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         else:
             raise TypeError("Format ... is not implemened")
+
+        return str(outfile)
+
+    def _item_to_file_cube(self):
+        """Write Cube to file"""
+        logger.info("Export %s to file...", self.subtype)
+        dataio = self.dataio  # shorter
+        obj = self.obj
+
+        if isinstance(dataio._tagname, str):
+            attr = dataio._tagname.lower().replace(" ", "_")
+        else:
+            attr = None
+
+        fname, fpath = _utils.construct_filename(
+            self.name,
+            pretagname=None,
+            tagname=attr,
+            subfolder=self.subfolder,
+            loc="cube",
+            outroot=dataio.export_root,
+            verbosity=dataio._verbosity,
+        )
+
+        fmt = dataio.cube_fformat
+
+        if fmt not in VALID_CUBE_FORMATS.keys():
+            raise ValueError(
+                f"The file format {fmt} is not supported.",
+                f"Valid cube formats are: {list(VALID_CUBE_FORMATS.keys())}",
+            )
+
+        ext = VALID_CUBE_FORMATS.get(fmt, ".irap_binary")
+        outfile, metafile, relpath, abspath = _utils.verify_path(
+            dataio, fpath, fname, ext
+        )
+
+        logger.info("Exported file is %s", outfile)
+        if "segy" in fmt:
+            obj.to_file(outfile, fformat="segy")
+            self.dataio._meta_data["format"] = "segy"
+            self._item_to_file_create_file_block(outfile, relpath, abspath)
+            allmeta = self._item_to_file_collect_all_metadata()
+            _utils.export_metadata_file(
+                metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
+            )
+
+        else:
+            raise TypeError(f"Format <{fmt}> is not implemened")
 
         return str(outfile)
 
@@ -751,7 +855,10 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         fmt = dataio.grid_fformat
 
         if fmt not in VALID_GRID_FORMATS.keys():
-            raise ValueError(f"The file format {fmt} is not supported.")
+            raise ValueError(
+                f"The file format {fmt} is not supported.",
+                f"Valid grid(-prop) formats are: {list(VALID_GRID_FORMATS.keys())}",
+            )
 
         ext = VALID_GRID_FORMATS.get(fmt, ".hdf")
         outfile, metafile, relpath, abspath = _utils.verify_path(
@@ -796,7 +903,10 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         fmt = dataio.polygons_fformat
 
         if fmt not in VALID_POLYGONS_FORMATS.keys():
-            raise ValueError(f"The file format {fmt} is not supported.")
+            raise ValueError(
+                f"The file format {fmt} is not supported.",
+                f"Valid polygons formats are: {list(VALID_POLYGONS_FORMATS.keys())}",
+            )
 
         ext = VALID_POLYGONS_FORMATS.get(fmt, ".hdf")
 
@@ -862,7 +972,10 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             fmt = dataio.table_fformat
 
         if fmt not in VALID_TABLE_FORMATS.keys():
-            raise ValueError(f"The file format {fmt} is not supported.")
+            raise ValueError(
+                f"The file format {fmt} is not supported.",
+                f"Valid table formats are: {list(VALID_TABLE_FORMATS.keys())}",
+            )
 
         ext = VALID_TABLE_FORMATS[fmt]
         outfile, metafile, relpath, abspath = _utils.verify_path(
