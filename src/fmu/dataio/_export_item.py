@@ -607,7 +607,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         # define spec record
         meta["spec"] = OrderedDict()
-        meta["spec"]["columns"] = list(table.columns)
+        meta["spec"]["columns"] = list(table.column_names)
         meta["spec"]["size"] = table.num_columns * table.num_rows
 
         meta["bbox"] = None

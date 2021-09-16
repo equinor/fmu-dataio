@@ -82,6 +82,7 @@ def test_table_io_arrow(tmp_path):
         metadata = yaml.safe_load(stream)
         assert metadata["data"]["layout"] == "table"
         assert metadata["data"]["spec"]["size"] == 6
+        assert metadata["data"]["spec"]["columns"] == ["STOIIP", "PORO"]
 
 
 def test_tables_io_larger_case_ertrun(tmp_path):
