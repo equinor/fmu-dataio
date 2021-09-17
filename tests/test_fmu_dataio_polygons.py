@@ -1,11 +1,11 @@
 """Test the polygons_io module."""
-from collections import OrderedDict
 import logging
 import shutil
-import xtgeo
-import yaml
+from collections import OrderedDict
 
 import fmu.dataio
+import xtgeo
+import yaml
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -48,8 +48,7 @@ def test_polygons_io(tmp_path):
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.polygons_fformat = "csv"
 
-    exp = fmu.dataio.ExportData(name="test", content="depth")
-    exp._pwd = tmp_path
+    exp = fmu.dataio.ExportData(name="test", content="depth", runfolder=tmp_path)
     exp.to_file(srf)
 
     assert (tmp_path / "polygons" / ".test.csv.yml").is_file() is True

@@ -1,14 +1,14 @@
 """Test the surface_io module."""
-from collections import OrderedDict
-import shutil
-import logging
-import pytest
 import json
-import numpy as np
-import xtgeo
-import yaml
+import logging
+import shutil
+from collections import OrderedDict
 
 import fmu.dataio
+import numpy as np
+import pytest
+import xtgeo
+import yaml
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -43,8 +43,7 @@ def test_surface_io(tmp_path):
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(content="depth")
-    exp._pwd = tmp_path
+    exp = fmu.dataio.ExportData(content="depth", runfolder=tmp_path)
     exp.to_file(srf)
 
     assert (tmp_path / "maps" / "test.gri").is_file() is True
@@ -61,8 +60,7 @@ def test_surface_io_export_subfolder(tmp_path):
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(content="depth")
-    exp._pwd = tmp_path
+    exp = fmu.dataio.ExportData(content="depth", runfolder=tmp_path)
     with pytest.warns(UserWarning):
         exp.to_file(srf, subfolder="mysubfolder")
 
@@ -95,8 +93,8 @@ def test_surface_io_larger_case(tmp_path):
         is_observation=False,
         tagname="what Descr",
         verbosity="INFO",
+        runfolder=tmp_path,
     )
-    exp._pwd = tmp_path
     exp.to_file(srf, verbosity="DEBUG")
 
     metadataout = tmp_path / "maps" / ".topvolantis--what_descr.gri.yml"

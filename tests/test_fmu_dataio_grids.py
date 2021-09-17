@@ -1,13 +1,13 @@
 """Test the grid and grid property outputs."""
-from collections import OrderedDict
-import shutil
-import logging
 import json
+import logging
+import shutil
+from collections import OrderedDict
+
+import fmu.dataio
 import pytest
 import xtgeo
 import yaml
-
-import fmu.dataio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -41,8 +41,10 @@ def test_grid_io(tmp_path):
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.grid_fformat = "roff"
 
-    exp = fmu.dataio.ExportData(content="depth")
-    exp._pwd = tmp_path
+    exp = fmu.dataio.ExportData(
+        content="depth",
+        runfolder=tmp_path,
+    )
     exp.to_file(grd)
 
     assert (tmp_path / "grids" / ".test.roff.yml").is_file() is True
@@ -57,8 +59,7 @@ def test_gridproperty_io(tmp_path):
     fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.grid_fformat = "roff"
 
-    exp = fmu.dataio.ExportData(parent={"name": "Geogrid"})
-    exp._pwd = tmp_path
+    exp = fmu.dataio.ExportData(parent={"name": "Geogrid"}, runfolder=tmp_path)
     exp.to_file(gpr)
 
     assert (tmp_path / "grids" / ".geogrid--testgp.roff.yml").is_file() is True
@@ -85,8 +86,9 @@ def test_grid_io_larger_case(tmp_path):
         is_observation=False,
         tagname="what Descr",
         verbosity="INFO",
+        runfolder=tmp_path,
     )
-    exp._pwd = tmp_path
+
     exp.to_file(grd, verbosity="DEBUG")
 
     metadataout = tmp_path / "grids" / ".volantis--what_descr.roff.yml"
@@ -115,8 +117,8 @@ def test_gridprop_io_larger_case(tmp_path):
         is_observation=False,
         tagname="porotag",
         verbosity="INFO",
+        runfolder=tmp_path,
     )
-    exp._pwd = tmp_path
     exp.to_file(grdp, verbosity="DEBUG")
 
     metadataout = tmp_path / "grids" / ".geogrid--poro--porotag.roff.yml"
