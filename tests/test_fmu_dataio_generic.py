@@ -199,7 +199,7 @@ def test_exported_filenames(tmp_path):
         parent="unset",
         runfolder=tmp_path,
     )
-    exp._pwd = tmp_path
+
     gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
     gpr.name = "testgp"
     exp.to_file(gpr)
