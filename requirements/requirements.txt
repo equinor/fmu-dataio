@@ -1,2 +1,3 @@
 xtgeo>=2.14
 PyYAML
+pyarrow
