@@ -250,30 +250,10 @@ def read_parameters_txt(pfile):
 
     logger.debug("Reading parameters.txt from %s", pfile)
 
-    with open(pfile, "r") as stream:
-        buffer = stream.read().splitlines()
-
-    logger.debug("buffer is of type %s", type(buffer))
-    logger.debug("buffer has %s lines", str(len(buffer)))
-
-    buffer = [":".join(line.split()) for line in buffer]
-
-    param = OrderedDict()
-    for line in buffer:
-        items = line.split(":")
-        if len(items) == 2:
-            param[items[0]] = check_if_number(items[1])
-        elif len(items) == 3:
-            if items[0] not in param:
-                param[items[0]] = OrderedDict()
-
-            param[items[0]][items[1]] = check_if_number(items[2])
-        else:
-            raise RuntimeError(
-                f"Unexpected structure of parameters.txt, line is: {line}"
-            )
-
-    return param
+    dframe = pd.read_csv(
+        filename, comment="#", sep=r"\s", engine="python", names=["KEY", "VALUE"]
+    )
+    return dframe.set_index("KEY")["VALUE"].to_dict()
 
 
 def check_if_number(value):
