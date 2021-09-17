@@ -1,10 +1,11 @@
 """Test the main class DataExporter and functions in the dataio module."""
+import json
+import logging
 import pathlib
 from collections import OrderedDict
-import logging
-import json
-import yaml
+
 import fmu.dataio
+import yaml
 
 CFG = OrderedDict()
 CFG["model"] = {"name": "Test", "revision": "21.0.0"}
@@ -30,9 +31,8 @@ logger.setLevel(logging.INFO)
 def test_process_fmu_case():
     """The produce(!) the fmu case data."""
 
-    case = fmu.dataio.InitializeCase()
+    case = fmu.dataio.InitializeCase(runfolder=RUN)
     case._config = CFG
-    case._pwd = pathlib.Path(RUN)
 
     c_meta = case._establish_fmu_case_metadata(
         casename="testcase",
@@ -48,8 +48,11 @@ def test_process_fmu_case():
 def test_fmu_case_meta_to_file(tmp_path):
     """The produce(!) the fmu case data on disk."""
 
-    case = fmu.dataio.InitializeCase(verbosity="DEBUG", config=CFG)
-    case._pwd = pathlib.Path(RUN)
+    case = fmu.dataio.InitializeCase(
+        verbosity="DEBUG",
+        config=CFG,
+        runfolder=pathlib.Path(RUN),
+    )
 
     case.to_file(
         casename="testcase",
@@ -74,8 +77,7 @@ def test_persisted_case_uuid(tmp_path):
         in two separate runs will inherit the same uuid.
     """
 
-    case = fmu.dataio.InitializeCase(verbosity="DEBUG", config=CFG)
-    case._pwd = pathlib.Path(RUN)
+    case = fmu.dataio.InitializeCase(verbosity="DEBUG", config=CFG, runfolder=RUN)
     case.to_file(
         casename="testcase",
         rootfolder=str(tmp_path),
