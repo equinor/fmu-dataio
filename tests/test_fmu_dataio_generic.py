@@ -28,6 +28,8 @@ CFG["access"] = {"someaccess": "jail"}
 CFG["model"] = {"revision": "0.99.0"}
 
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
+RUNPATH = "tests/data/drogon/ertrun1/realization-0/iter-0"
+#                             case      real        iter
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -82,19 +84,52 @@ def test_process_fmu_model():
     assert fmumodel["revision"] == "0.99.0"
 
 
+def test_get_folderlist():
+    """Test the get_folderlist() helper function"""
+    case = fmu.dataio.ExportData(verbosity="INFO", dryrun=True, runfolder=RUN)
+
+    folderlist = case._get_folderlist()
+    assert folderlist[-1] == "rms"
+    assert folderlist[-2] == "iter-0"
+
+    case2 = fmu.dataio.ExportData(verbosity="INFO", dryrun=True, runfolder=RUNPATH)
+    folderlist = case2._get_folderlist()
+    assert folderlist[-1] == "iter-0"
+    assert folderlist[-2] == "realization-0"
+    print(folderlist)
+
+
 def test_process_fmu_realisation():
     """The (second order) private routine that provides realization and iteration."""
-    case = fmu.dataio.ExportData(runfolder=RUN, verbosity="INFO")
+    case = fmu.dataio.ExportData(runfolder=RUN, verbosity="INFO", dryrun=True)
     case._config = CFG
 
-    # c_meta, i_meta, r_meta = case._process_meta_fmu_realization_iteration()
-    # logger.info("\nCASE\n%s", json.dumps(c_meta, indent=2, default=str))
-    # logger.info("\nITER\n%s", json.dumps(i_meta, indent=2, default=str))
-    # logger.info("\nREAL\n%s", json.dumps(r_meta, indent=2, default=str))
+    c_meta, i_meta, r_meta = case._process_meta_fmu_realization_iteration()
+    logger.info("\nCASE\n%s", json.dumps(c_meta, indent=2, default=str))
+    logger.info("\nITER\n%s", json.dumps(i_meta, indent=2, default=str))
+    logger.info("\nREAL\n%s", json.dumps(r_meta, indent=2, default=str))
 
-    # assert r_meta["parameters"]["KVKH_CREVASSE"] == 0.3
-    # assert r_meta["parameters"]["GLOBVAR"]["VOLON_FLOODPLAIN_VOLFRAC"] == 0.256355
-    # assert c_meta["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
+    assert r_meta["parameters"]["KVKH_CREVASSE"] == 0.3
+    assert r_meta["parameters"]["GLOBVAR"]["VOLON_FLOODPLAIN_VOLFRAC"] == 0.256355
+    assert c_meta["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
+
+
+def test_process_fmu_realisation_from_runpath():
+    """The (second order) private routine that provides realization and iteration.
+
+    Now running directly from RUNPATH.
+    """
+    case = fmu.dataio.ExportData(runfolder=RUNPATH, verbosity="INFO", dryrun=True)
+    case._config = CFG
+
+    c_meta, i_meta, r_meta = case._process_meta_fmu_realization_iteration()
+    logger.info("\nCASE\n%s", json.dumps(c_meta, indent=2, default=str))
+    logger.info("\nITER\n%s", json.dumps(i_meta, indent=2, default=str))
+    logger.info("\nREAL\n%s", json.dumps(r_meta, indent=2, default=str))
+
+    assert r_meta["parameters"]["KVKH_CREVASSE"] == 0.3
+    assert r_meta["parameters"]["GLOBVAR"]["VOLON_FLOODPLAIN_VOLFRAC"] == 0.256355
+    assert c_meta["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
 
 
 def test_raise_userwarning_missing_content(tmp_path):
@@ -106,8 +141,7 @@ def test_raise_userwarning_missing_content(tmp_path):
     fmu.dataio.ExportData.grid_fformat = "roff"
 
     with pytest.warns(UserWarning, match="is not provided which defaults"):
-        exp = fmu.dataio.ExportData(parent="unset")
-        exp._pwd = tmp_path
+        exp = fmu.dataio.ExportData(parent="unset", runfolder=tmp_path)
         exp.to_file(gpr)
 
     assert (tmp_path / "grids" / ".unset--testgp.roff.yml").is_file() is True
@@ -126,18 +160,20 @@ def test_exported_filenames(tmp_path):
     exp = fmu.dataio.ExportData(
         name="myname",
         content="depth",
+        runfolder=tmp_path,
     )
-    exp._pwd = tmp_path
+
     exp.to_file(surf)
     assert (tmp_path / "maps" / "myname.gri").is_file() is True
     assert (tmp_path / "maps" / ".myname.gri.yml").is_file() is True
 
     # test case 2, dots in name
     exp = fmu.dataio.ExportData(
-        name="myname.with.dots", content="depth", verbosity="DEBUG"
+        name="myname.with.dots",
+        content="depth",
+        verbosity="DEBUG",
+        runfolder=tmp_path,
     )
-    exp._pwd = tmp_path
-
     # for a surface...
     exp.to_file(surf)
     assert (tmp_path / "maps" / "myname_with_dots.gri").is_file() is True
@@ -161,6 +197,7 @@ def test_exported_filenames(tmp_path):
         name="myname",
         content="depth",
         parent="unset",
+        runfolder=tmp_path,
     )
     exp._pwd = tmp_path
     gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
