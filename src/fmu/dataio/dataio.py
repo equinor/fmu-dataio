@@ -100,6 +100,7 @@ class ExportData:
         display_name: Optional[str] = None,
         runfolder: Optional[str] = None,
         verbosity: Optional[str] = "CRITICAL",
+        **kwargs,  # developer options
     ) -> None:
         """Instantate ExportData object.
 
@@ -183,6 +184,10 @@ class ExportData:
         self._meta_access = OrderedDict()  # access:
         self._meta_masterdata = OrderedDict()  # masterdata:
         self._meta_fmu = OrderedDict()  # fmu:
+
+        if kwargs.get("dryrun", False):  # developer option, for tests
+            logger.info("Dry run mode is active for __init__")
+            return
 
         # strat metadata are used as componenents in some of the other meta keys
         self._get_meta_strat()
