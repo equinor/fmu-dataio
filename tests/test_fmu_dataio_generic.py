@@ -1,7 +1,6 @@
 """Test the main class DataExporter and functions in the dataio module, ExportData."""
 import json
 import logging
-import pathlib
 import re
 import shutil
 from collections import OrderedDict
