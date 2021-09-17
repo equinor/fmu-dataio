@@ -1,5 +1,5 @@
 """Test dataio for cube (most often seismic cube)."""
-import json
+
 import logging
 import shutil
 from collections import OrderedDict
