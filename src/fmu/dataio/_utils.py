@@ -108,9 +108,9 @@ def construct_filename(
 def verify_path(dataio, filedest, filename, ext, dryrun=False):
     logger.setLevel(level=dataio._verbosity)
 
-    logger.debug("Incoming filedest is %s", filedest)
-    logger.debug("Incoming filename is %s", filename)
-    logger.debug("Incoming ext is %s", ext)
+    logger.info("Incoming filedest is %s", filedest)
+    logger.info("Incoming filename is %s", filename)
+    logger.info("Incoming ext is %s", ext)
 
     folder = dataio._pwd / filedest  # filedest shall be relative path to PWD
 
@@ -138,7 +138,7 @@ def verify_path(dataio, filedest, filename, ext, dryrun=False):
     # relative path
     relpath = str(filedest).replace("../", "")
     if dataio._realfolder is not None and dataio._iterfolder is not None:
-        relpath = join(f"{dataio._realfolder}/{dataio._iterfolder}", relpath)
+        relpath = join(f"{dataio._realfolder.name}/{dataio._iterfolder.name}", relpath)
     relpath = join(f"{relpath}/{filename.lower()}{ext}")
 
     logger.info("Full path to the actual file is: %s", abspath)
