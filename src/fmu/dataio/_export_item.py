@@ -7,6 +7,9 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
+from pyarrow import feather
+
 import xtgeo
 
 from . import _utils
@@ -14,7 +17,7 @@ from . import _utils
 VALID_SURFACE_FORMATS = {"irap_binary": ".gri"}
 VALID_GRID_FORMATS = {"hdf": ".hdf", "roff": ".roff"}
 VALID_CUBE_FORMATS = {"segy": ".segy"}
-VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv"}
+VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv", "arrow": ".arrow"}
 VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".pol"}
 
 # the content must conform with the given json schema, e.g.
@@ -49,6 +52,7 @@ ALLOWED_CONTENTS = {
     "volumes": None,
     "volumetrics": None,  # or?
     "khproduct": None,
+    "timeseries": None,
 }
 
 # this setting will set if subkeys is required or not. If not found in list then
@@ -129,6 +133,9 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             self.classname = "cpgrid_property"
         elif isinstance(self.obj, pd.DataFrame):
             self.subtype = "DataFrame"
+            self.classname = "table"
+        elif isinstance(self.obj, pa.Table):
+            self.subtype = "ArrowTable"
             self.classname = "table"
         else:
             raise NotImplementedError(
@@ -469,6 +476,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             self._data_process_object_polygons()
         elif self.subtype == "DataFrame":
             self._data_process_object_dataframe()
+        elif self.subtype == "ArrowTable":
+            self._data_process_object_arrowtable()
 
     def _data_process_cpgrid(self):
         """Process/collect the data items for Corner Point Grid"""
@@ -636,6 +645,24 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         meta["bbox"] = None
         logger.info("Process data metadata for DataFrame... done!!")
 
+    def _data_process_object_arrowtable(self):
+        """Process/collect the data items for pa.Table"""
+        logger.info("Process data metadata for ArrowTables (tables)")
+
+        dataio = self.dataio
+        table = self.obj
+        meta = dataio._meta_data  # shortform
+
+        meta["layout"] = "table"
+
+        # define spec record
+        meta["spec"] = OrderedDict()
+        meta["spec"]["columns"] = list(table.column_names)
+        meta["spec"]["size"] = table.num_columns * table.num_rows
+
+        meta["bbox"] = None
+        logger.info("Process data metadata for ArrowTable... done!!")
+
     def _fmu_inject_workflow(self):
         """Inject workflow into fmu metadata block."""
         self.dataio._meta_fmu["workflow"] = self.dataio._workflow
@@ -702,8 +729,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             fpath = self._item_to_file_polygons()
         elif self.subtype in ("CPGrid", "CPGridProperty"):
             fpath = self._item_to_file_gridlike()
-        elif self.subtype == "DataFrame":
-            fpath = self._item_to_file_dataframe()
+        elif self.subtype in ("DataFrame", "ArrowTable"):
+            fpath = self._item_to_file_table()
         return fpath
 
     def _item_to_file_regularsurface(self):
@@ -912,8 +939,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         return str(outfile)
 
-    def _item_to_file_dataframe(self):
-        """Write DataFrame to file."""
+    def _item_to_file_table(self):
+        """Write table to file."""
         dataio = self.dataio  # shorter
         obj = self.obj
 
@@ -932,7 +959,17 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             verbosity=dataio._verbosity,
         )
 
-        fmt = dataio.table_fformat
+        # Temporary (?) override so that pa.Table in can only become .arrow out for now
+        # Perhaps better to make the fmt an input argument rather than a class constant
+
+        if isinstance(obj, pa.Table):
+            logger.info(
+                "Incoming object is pa.Table, so setting outgoing table "
+                "format to 'arrow'"
+            )
+            fmt = "arrow"
+        else:
+            fmt = dataio.table_fformat
 
         if fmt not in VALID_TABLE_FORMATS.keys():
             raise ValueError(
@@ -946,9 +983,27 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         )
 
         logger.info("Exported file is %s", outfile)
-        if "csv" in dataio.table_fformat:
+
+        if fmt == "csv":
+            logger.info("Exporting table as csv")
             obj.to_csv(outfile, index=self.index_df)
             self.dataio._meta_data["format"] = "csv"
+            self._item_to_file_create_file_block(outfile, relpath, abspath)
+            allmeta = self._item_to_file_collect_all_metadata()
+            _utils.export_metadata_file(
+                metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
+            )
+        elif fmt == "arrow":
+            logger.info("Exporting table as arrow")
+            # comment taken from equinor/webviz_subsurface/smry2arrow.py
+
+            # Writing here is done through the feather import, but could also be
+            # done using pa.RecordBatchFileWriter.write_table() with a few
+            # pa.ipc.IpcWriteOptions(). It is convenient to use feather since it
+            # has ready configured defaults and the actual file format is the same
+            # (https://arrow.apache.org/docs/python/feather.html)
+            feather.write_feather(obj, dest=outfile)
+            self.dataio._meta_data["format"] = "arrow"
             self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
