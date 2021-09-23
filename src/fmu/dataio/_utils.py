@@ -20,7 +20,7 @@ def construct_filename(
     t2=None,
     subfolder=None,
     fmu=1,
-    outroot="../../share/results/",
+    outroot="share/results/",
     loc="surface",
     verbosity="WARNING",
 ):
@@ -112,7 +112,9 @@ def verify_path(dataio, filedest, filename, ext, dryrun=False):
     logger.info("Incoming filename is %s", filename)
     logger.info("Incoming ext is %s", ext)
 
-    folder = dataio._pwd / filedest  # filedest shall be relative path to PWD
+    logger.info("dataio._pwd is %s", dataio._pwd)
+    logger.info("dataio._runpath is %s", dataio._runpath)
+    folder = dataio._runpath / filedest  # filedest shall be relative path to runpath
 
     path = Path(folder) / filename.lower()
     path = path.with_suffix(path.suffix + ext)

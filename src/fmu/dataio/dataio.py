@@ -75,7 +75,7 @@ class ExportData:
     polygons_fformat = "csv"
     grid_fformat = "roff"
     cube_fformat = "segy"
-    export_root = "../../share/results"
+    export_root = "share/results"  # standard output location relative to runpath
     case_folder = "share/metadata"  # e.g. /some_rootpath/case/metadata
     createfolder = True
     meta_format = "yaml"
@@ -168,6 +168,11 @@ class ExportData:
         # store iter and realization folder names (when running ERT)
         self._iterfolder = None
         self._realfolder = None
+
+        # store runpath
+        # when running ERT, runpath is the runpath
+        # when running template/gui, runpath is set to root of model folder
+        self._runpath = None
 
         logger.setLevel(level=self._verbosity)
         self._pwd = pathlib.Path().absolute()
@@ -384,6 +389,14 @@ class ExportData:
                 self._iterfolder = pathlib.Path(casepath / realfolder / iterfolder)
                 self._realfolder = pathlib.Path(casepath / realfolder)
 
+                # Know where the runpath is and do everything relative to this
+                # When running outside ERT, runpath is the model root.
+                # (relatively, this will be the same as during ERT runs)
+                # For now, set runpath to the iter folder. This is not sustainable.
+                # Aim to get this from ERT during ERT-runs in the future?
+                self._runpath = self._iterfolder
+                logger.info("runpath is %s", self._runpath)
+
                 therealization = realfolder.replace("realization-", "")
 
                 # store parameters.txt and jobs.json
@@ -400,6 +413,13 @@ class ExportData:
                 break
 
         if not is_fmurun:
+            # For now, if not FMU run, assume that this is RMS GUI-run and act
+            # accordingly. This is not sustainable.
+            self._runpath = self._pwd / "../../"
+            logger.info(
+                "Not an fmu-run, setting runpath to %s",
+                self._runpath.resolve().absolute(),
+            )
             return None, None, None
 
         # ------------------------------------------------------------------------------
@@ -518,7 +538,7 @@ class ExportData:
         logger.info("Export to file...")
         exporter = _ExportItem(self, obj, subfolder, verbosity, index)
         filepath = pathlib.Path(exporter.save_to_file())
-        relpath = filepath.relative_to(self._pwd)
+        relpath = filepath.relative_to(self._runpath)
         return str(relpath)
 
 
