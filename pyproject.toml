@@ -23,4 +23,10 @@ exclude = '''
 '''
 
 [build-system]
-requires = ["pip>=19.1.1", "setuptools>=28", "setuptools_scm>=3.2.0", "wheel"]
+requires = [
+  "pip>=19.1.1",
+  "setuptools>=28",
+  "setuptools_scm>=3.2.0",
+  "wheel",
+  'pyarrow; python_version>"3.6.1"',
+]
