@@ -7,8 +7,14 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import pyarrow as pa
-from pyarrow import feather
+
+try:
+    import pyarrow as pa
+except ImportError:
+    HAS_PYARROW = False
+else:
+    HAS_PYARROW = True
+    from pyarrow import feather
 
 import xtgeo
 
@@ -134,7 +140,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         elif isinstance(self.obj, pd.DataFrame):
             self.subtype = "DataFrame"
             self.classname = "table"
-        elif isinstance(self.obj, pa.Table):
+        elif HAS_PYARROW and isinstance(self.obj, pa.Table):
             self.subtype = "ArrowTable"
             self.classname = "table"
         else:
@@ -962,7 +968,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         # Temporary (?) override so that pa.Table in can only become .arrow out for now
         # Perhaps better to make the fmt an input argument rather than a class constant
 
-        if isinstance(obj, pa.Table):
+        if HAS_PYARROW and isinstance(obj, pa.Table):
             logger.info(
                 "Incoming object is pa.Table, so setting outgoing table "
                 "format to 'arrow'"
