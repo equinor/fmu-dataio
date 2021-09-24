@@ -1,13 +1,19 @@
 """Test the surface_io module."""
 import logging
 import shutil
+import sys
 from collections import OrderedDict
 
 import pandas as pd
-import pyarrow as pa
-import yaml
+import pytest
+
+try:
+    import pyarrow as pa
+except ImportError:
+    pass
 
 import fmu.dataio
+import yaml
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -60,6 +66,7 @@ def test_table_io_pandas(tmp_path):
     assert len(header) == 3
 
 
+@pytest.mark.skipif("pyarrow" not in sys.modules, reason="requires pyarrow")
 def test_table_io_arrow(tmp_path):
     """Test the support for PyArrow tables"""
 
@@ -86,6 +93,7 @@ def test_table_io_arrow(tmp_path):
         assert metadata["data"]["spec"]["columns"] == ["STOIIP", "PORO"]
 
 
+@pytest.mark.skipif("pyarrow" not in sys.modules, reason="requires pyarrow")
 def test_tables_io_larger_case_ertrun(tmp_path):
     """Larger test table io as ERTRUN, uses global config from Drogon to tmp_path."""
 
