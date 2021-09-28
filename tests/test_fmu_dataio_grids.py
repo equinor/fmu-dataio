@@ -4,10 +4,11 @@ import logging
 import shutil
 from collections import OrderedDict
 
-import fmu.dataio
 import pytest
 import xtgeo
 import yaml
+
+import fmu.dataio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Setup for fmu.dataio package."""
 from glob import glob
-from os.path import splitext, basename
+from os.path import basename, splitext
 
 import setuptools
 
