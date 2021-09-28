@@ -390,7 +390,8 @@ class ExportData:
                 parameters_file = self._iterfolder / "parameters.txt"
                 if parameters_file.is_file():
                     params = _utils.read_parameters_txt(parameters_file)
-                    ertjob["params"] = params
+                    nested_params = _utils.nested_parameters_dict(params)
+                    ertjob["params"] = nested_params
 
                 jobs_file = self._iterfolder / "jobs.json"
                 if jobs_file.is_file():
