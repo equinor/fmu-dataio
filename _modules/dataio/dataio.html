@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.4.1.dev34+gb35a317 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.4.1.dev35+g080d221 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -460,7 +460,8 @@
                 <span class="n">parameters_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterfolder</span> <span class="o">/</span> <span class="s2">&quot;parameters.txt&quot;</span>
                 <span class="k">if</span> <span class="n">parameters_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                     <span class="n">params</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">read_parameters_txt</span><span class="p">(</span><span class="n">parameters_file</span><span class="p">)</span>
-                    <span class="n">ertjob</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
+                    <span class="n">nested_params</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">nested_parameters_dict</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+                    <span class="n">ertjob</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nested_params</span>
 
                 <span class="n">jobs_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterfolder</span> <span class="o">/</span> <span class="s2">&quot;jobs.json&quot;</span>
                 <span class="k">if</span> <span class="n">jobs_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
@@ -811,7 +812,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev34+gb35a317).</p>
+    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev35+g080d221).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
