@@ -3,10 +3,11 @@ import hashlib
 import json
 import logging
 import uuid
-from collections import OrderedDict
 from os.path import join
 from pathlib import Path
+from typing import Dict, List, Union
 
+from semeio.jobs.design_kw.design_kw import extract_key_value
 from . import _oyaml as oyaml
 
 logger = logging.getLogger(__name__)
@@ -207,7 +208,7 @@ def uuid_from_string(string):
     return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())
 
 
-def read_parameters_txt(pfile):
+def read_parameters_txt(pfile: Union[Path, str]) -> Dict[str, Union[str, float, int]]:
     """Read the parameters.txt file and convert to a dict.
 
     The parameters.txt file has this structure::
@@ -250,30 +251,46 @@ def read_parameters_txt(pfile):
 
     logger.debug("Reading parameters.txt from %s", pfile)
 
-    with open(pfile, "r") as stream:
-        buffer = stream.read().splitlines()
+    parameterlines = Path(pfile).read_text().splitlines()
 
-    logger.debug("buffer is of type %s", type(buffer))
-    logger.debug("buffer has %s lines", str(len(buffer)))
+    dict_str_to_str = extract_key_value(parameterlines)
+    return {key: check_if_number(value) for key, value in dict_str_to_str.items()}
 
-    buffer = [":".join(line.split()) for line in buffer]
 
-    param = OrderedDict()
-    for line in buffer:
-        items = line.split(":")
-        if len(items) == 2:
-            param[items[0]] = check_if_number(items[1])
-        elif len(items) == 3:
-            if items[0] not in param:
-                param[items[0]] = OrderedDict()
+def nested_parameters_dict(
+    paramdict: Dict[str, Union[str, int, float]]
+) -> Dict[str, Union[str, int, float, Dict[str, Union[str, int, float]]]]:
+    """Interpret a flat parameters dictionary into a nested dictionary, based on
+    presence of colons in keys.
 
-            param[items[0]][items[1]] = check_if_number(items[2])
+    This assumes that what comes before a ":" is sort of a namespace identifier.
+
+    In design_kw (semeio) this namespace identifier is actively ignored, meaning that
+    the keys without the namespace must be unique.
+    """
+    nested_dict: Dict[
+        str, Union[str, int, float, Dict[str, Union[str, int, float]]]
+    ] = {}
+    unique_keys: List[str] = []
+    for key, value in paramdict.items():
+        if ":" in key:
+            subdict, newkey = key.split(":", 1)
+            if not newkey:
+                raise ValueError(f"Empty parameter name in {key} after removing prefix")
+            if subdict not in nested_dict:
+                nested_dict[subdict] = {}
+            unique_keys.append(newkey)
+            nested_dict[subdict][newkey] = value  # type: ignore
         else:
-            raise RuntimeError(
-                f"Unexpected structure of parameters.txt, line is: {line}"
-            )
+            unique_keys.append(key)
+            nested_dict[key] = value
 
-    return param
+    if len(unique_keys) > len(set(unique_keys)):
+        raise ValueError(
+            "Keys in parameters dictionary are not unique after removal of namespace"
+        )
+
+    return nested_dict
 
 
 def check_if_number(value):
