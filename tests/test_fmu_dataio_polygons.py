@@ -62,7 +62,7 @@ def test_polygons_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.polygons_fformat = "irap_ascii"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"

@@ -12,17 +12,23 @@ from . import _oyaml as oyaml
 logger = logging.getLogger(__name__)
 
 
+def inherit_docstring(inherit_from):
+    """Local decorator to inherit a docstring"""
+
+    def decorator_set_docstring(func):
+        if func.__doc__ is None and inherit_from.__doc__ is not None:
+            func.__doc__ = inherit_from.__doc__
+        return func
+
+    return decorator_set_docstring
+
+
 def construct_filename(
-    name,
-    pretagname=None,
-    tagname=None,
-    t1=None,
-    t2=None,
-    subfolder=None,
-    fmu=1,
-    outroot="../../share/results/",
-    loc="surface",
-    verbosity="WARNING",
+    expitem,  # instance of _ExportItem class
+    fmustandard=1,
+    time1=None,
+    time2=None,
+    loc="other",
 ):
     """Construct filename stem according to datatype (class) and fmu style.
 
@@ -62,59 +68,49 @@ def construct_filename(
 
     Returns stem for file name and destination
     """
-    logger.setLevel(level=verbosity)
+    logger.setLevel(level=expitem.verbosity)
 
     stem = "unset"
 
-    outroot = Path(outroot)
+    outroot = Path(expitem.storefolder)
 
-    if fmu == 1:
+    if fmustandard == 1:
 
-        stem = name.lower()
+        stem = expitem.name.lower()
 
-        if tagname:
-            stem += "--" + tagname.lower()
+        if expitem.tagname:
+            stem += "--" + expitem.tagname.lower()
 
-        if pretagname:
-            stem = pretagname.lower() + "--" + stem
+        if expitem.parent:
+            stem = expitem.parent.lower() + "--" + stem
 
-        if t1 and not t2:
-            stem += "--" + str(t1).lower()
+        if time1 and not time2:
+            stem += "--" + str(time1).lower()
 
-        elif t1 and t2:
-            stem += "--" + str(t2).lower() + "_" + str(t1).lower()
+        elif time1 and time2:
+            stem += "--" + str(time2).lower() + "_" + str(time1).lower()
 
         stem = stem.replace(".", "_").replace(" ", "_")
 
-        if loc == "surface":
-            dest = outroot / "maps"
-        elif loc == "grid":
-            dest = outroot / "grids"
-        elif loc == "table":
-            dest = outroot / "tables"
-        elif loc == "polygons":
-            dest = outroot / "polygons"
-        elif loc == "cube":
-            dest = outroot / "cubes"
-        else:
-            dest = outroot / "other"
+        dest = outroot / loc
 
-        if subfolder:
-            dest = dest / subfolder
+        if expitem.subfolder:
+            dest = dest / expitem.subfolder
+
+        dest.mkdir(parents=True, exist_ok=True)
 
     return stem, dest
 
 
-def verify_path(dataio, filedest, filename, ext, dryrun=False):
-    logger.setLevel(level=dataio._verbosity)
+def verify_path(exportitem, filedest, filename, ext, dryrun=False):
+    """Verify paths and return cleaned items."""
+    logger.setLevel(level=exportitem.verbosity)
 
     logger.info("Incoming filedest is %s", filedest)
     logger.info("Incoming filename is %s", filename)
     logger.info("Incoming ext is %s", ext)
 
-    folder = dataio._pwd / filedest  # filedest shall be relative path to PWD
-
-    path = Path(folder) / filename.lower()
+    path = Path(filedest) / filename.lower()
     path = path.with_suffix(path.suffix + ext)
     abspath = path.resolve()
 
@@ -124,7 +120,7 @@ def verify_path(dataio, filedest, filename, ext, dryrun=False):
         if path.parent.exists():
             logger.info("Folder exists")
         else:
-            if dataio.createfolder:
+            if exportitem.createfolder:
                 logger.info("No such folder, will create")
                 path.parent.mkdir(parents=True, exist_ok=True)
             else:
@@ -132,13 +128,17 @@ def verify_path(dataio, filedest, filename, ext, dryrun=False):
 
     # create metafile path
     metapath = (
-        (Path(folder) / ("." + filename.lower())).with_suffix(ext + ".yml")
+        (Path(filedest) / ("." + filename.lower())).with_suffix(ext + ".yml")
     ).resolve()
 
     # relative path
-    relpath = str(filedest).replace("../", "")
-    if dataio._realfolder is not None and dataio._iterfolder is not None:
-        relpath = join(f"{dataio._realfolder.name}/{dataio._iterfolder.name}", relpath)
+    relpath = str(Path(abspath).relative_to(exportitem.dataio.pwd))
+    print("RELPATH", relpath)
+    # relpath = str(filedest).replace("../", "")
+    if exportitem.realfolder is not None and exportitem.iterfolder is not None:
+        relpath = join(
+            f"{exportitem.realfolder.name}/{exportitem.iterfolder.name}", relpath
+        )
     relpath = join(f"{relpath}/{filename.lower()}{ext}")
 
     logger.info("Full path to the actual file is: %s", abspath)

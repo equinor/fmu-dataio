@@ -113,7 +113,7 @@ def test_surface_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"

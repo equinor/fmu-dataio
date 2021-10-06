@@ -71,39 +71,89 @@ CONTENTS_REQUIRED = {
 logger = logging.getLogger(__name__)
 
 
+def _override_arg(obj, vname, proposal):
+    """Return correct argument for export() keys.
+
+    The _ExportItem class can receive args that comes directly from the DataIO class
+    attribute or from the export function itself. Rules, with examples
+    from "name" attribute (obj = dataio):
+
+    * dataio._name == None and name == None => use name
+    * dataio._name == "Some" and name == None => use obj._name
+    * dataio._name == None and name = "Some" => use name
+    * dataio._name == "Some" and name = "Other" => use name
+
+    """
+    instance_attr = getattr(obj, "_" + vname)
+    logger.info(
+        "Instance attribute %s has %s while proposal is %s",
+        vname,
+        instance_attr,
+        proposal,
+    )
+
+    if instance_attr is None:
+        return proposal
+
+    if instance_attr is not None and proposal is None:
+        return instance_attr
+
+    if instance_attr is not None and proposal is not None:
+        return proposal
+
+
 class ValidationError(ValueError):
-    pass
+    """Error in validating an item."""
 
 
-class _ExportItem:  # pylint disable=too-few-public-methods
+class _ExportItem:
     """Export of the actual data item with metadata."""
 
-    def __init__(self, dataio, obj, subfolder=None, verbosity="warning", index=False):
+    def __init__(
+        self,
+        dataio,
+        obj,
+        subfolder=None,
+        verbosity="WARNING",
+        use_index=False,
+        name=None,
+        parent=None,
+        tagname=None,
+        description=None,
+        display_name=None,
+        unit=None,
+        **kwargs,
+    ):
         self.dataio = dataio
         self.obj = obj
-        self.subfolder = subfolder
-        self.verbosity = verbosity
-        self.index_df = index
+        self.verbosity = _override_arg(dataio, "verbosity", verbosity)
+        self.name = _override_arg(dataio, "name", name)
+        self.parent = _override_arg(dataio, "parent", parent)
+        self.tagname = _override_arg(dataio, "tagname", tagname)
+        self.description = _override_arg(dataio, "description", description)
+        self.display_name = _override_arg(dataio, "display_name", display_name)
+        self.unit = _override_arg(dataio, "unit", unit)
+        self.subfolder = _override_arg(dataio, "subfolder", subfolder)
+        self.verbosity = _override_arg(dataio, "verbosity", verbosity)
+
+        self.use_index = use_index
+        self.use_index = kwargs.get(
+            "index", self.use_index
+        )  # bwcompatibility for "index"
+
         self.subtype = None
         self.classname = "unset"
-        self.name = "unknown"
-        self.parent_name = None
 
         if self.verbosity is None:
-            self.verbosity = self.dataio._verbosity
+            self.verbosity = "WARNING"  # fallback
 
         logger.setLevel(level=self.verbosity)
 
-        if self.dataio._name is not None:
-            self.name = self.dataio._name
-        else:
-            try:
-                self.name = self.obj.name
-            except AttributeError:
-                pass
+        self.realfolder = dataio.realfolder
+        self.iterfolder = dataio.iterfolder
+        self.createfolder = dataio.createfolder
 
-        if self.name is None:
-            self.name = "unknown"
+        self.storefolder = self.dataio.runpath / self.dataio.export_root
 
         if subfolder is not None:
             warnings.warn(
@@ -113,7 +163,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             )
 
     def save_to_file(self) -> str:
-        """Saving an instance to file with rich metadata for SUMO.
+        """Saving (export) an instance to file with rich metadata for SUMO.
 
         Many metadata items are object independent and are treated directly in the
         dataio module. Here additional metadata (dependent on this datatype) are
@@ -178,25 +228,29 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         self._data_process_various()
 
     def _data_process_name(self):
-        """Process the name subfield."""
+        """Process the name  and alos the display_name subfield."""
         # first detect if name is given, or infer name from object if possible
         # then determine if name is stratgraphic and assing a "true" valid name
         logger.info("Evaluate data:name attribute")
         usename = "unknown"
-        meta = self.dataio._meta_data
+        meta = self.dataio.metadata4data
 
-        if self.dataio._name is None:
+        if self.name is None or self.name == "unknown":
             try:
-                usename = self.obj._name
+                usename = self.obj.name
             except AttributeError:
-                warnings.warn("Cannot set name", UserWarning)
+                warnings.warn(
+                    "Cannot get name from object, assume 'unknown'", UserWarning
+                )
+                usename = "unknown"
         else:
-            usename = self.dataio._name
+            usename = self.name
 
+        self.name = usename
         # next check if usename has a "truename" and/or aliases from the config
-        strat = self.dataio._meta_strat  # shortform
+        strat = self.dataio.metadata4strat  # shortform
 
-        logger.debug("self.dataio._meta_strat is %s", self.dataio._meta_strat)
+        logger.debug("self.dataio.metadata4strat is %s", self.dataio.metadata4strat)
 
         if strat is None or usename not in strat:
             meta["stratigraphic"] = False
@@ -211,6 +265,9 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         logger.info(
             "Evaluate data:name attribute done, true name is <%s>", meta["name"]
         )
+
+        if self.display_name is None or self.display_name == "unknown":
+            self.display_name = self.name
 
     def _data_process_context(self):
         """Process the context input which gives offset and top/base settings.
@@ -240,12 +297,12 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         """
         logger.info("Evaluate context (offset, top, base), if any")
-        meta = self.dataio._meta_data
-        if self.dataio._context is None:
+        meta = self.dataio.metadata4data
+        if self.dataio.context is None:
             logger.info("No context found, which may be ok")
             return  # context data are missing
 
-        rel = self.dataio._context  # shall be a dictionary
+        rel = self.dataio.context  # shall be a dictionary
 
         offset = rel.get("offset", None)
         if offset is not None:
@@ -271,7 +328,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         # finally, validate if top/base name is stratigraphic and set metadata
         group = {"top": topname, "base": basename}
-        strat = self.dataio._meta_strat
+        strat = self.dataio.metadata4strat
         for item, somename in group.items():
             usename = somename
             offset = 0.0
@@ -292,9 +349,9 @@ class _ExportItem:  # pylint disable=too-few-public-methods
     def _data_process_content(self):
         """Process the content block (within data block) which can complex."""
         logger.info("Evaluate content")
-        content = self.dataio._content
+        content = self.dataio.content
         logger.debug("content is %s of type %s", str(content), type(content))
-        meta = self.dataio._meta_data
+        meta = self.dataio.metadata4data
         usecontent = "unset"
         useextra = None
         if content is None:
@@ -339,8 +396,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         which will need a grid geometry name.
         """
         logger.info("Evaluate parent")
-        parent = self.dataio._parent
-        meta = self.dataio._meta_data
+        parent = self.parent
+        meta = self.dataio.metadata4data
 
         if self.classname == "cpgrid_property" and parent is None:
             raise ValidationError("Input 'parent' is required for GridProperty!")
@@ -351,12 +408,12 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         # evaluate 'parent' which can be a str or a dict
         if isinstance(parent, str):
             meta["parent"] = {"name": parent}
-            self.parent_name = parent
+            self.parent = parent
         else:
             if "name" not in parent:
                 raise ValidationError("Input 'parent' shall have a 'name' attribute!")
             meta["parent"] = parent
-            self.parent_name = parent["name"]
+            self.parent = parent["name"]
 
     @staticmethod
     def _data_process_content_validate(name, fields):
@@ -400,8 +457,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         """Process the time subfield."""
         # first detect if timedata is given, the process it
         logger.info("Evaluate data:name attribute")
-        meta = self.dataio._meta_data
-        timedata = self.dataio._timedata
+        meta = self.dataio.metadata4data
+        timedata = self.dataio.timedata
         if timedata is None:
             return
 
@@ -434,13 +491,13 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             is_observation
         """
         logger.info("Process various general items in data block")
-        meta = self.dataio._meta_data
-        meta["unit"] = self.dataio._unit
+        meta = self.dataio.metadata4data
+        meta["unit"] = self.unit
         (meta["vertical_domain"], meta["depth_reference"],) = list(
-            self.dataio._vertical_domain.items()
+            self.dataio.vertical_domain.items()
         )[0]
-        meta["is_prediction"] = self.dataio._is_prediction
-        meta["is_observation"] = self.dataio._is_observation
+        meta["is_prediction"] = self.dataio.is_prediction
+        meta["is_observation"] = self.dataio.is_observation
 
         # tmp solution for properties
         # meta["properties"] = list()
@@ -455,8 +512,8 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         meta["grid_model"] = None
 
         # tmp:
-        if self.dataio._description is not None:
-            meta["description"] = self.dataio._description
+        if self.description is not None:
+            meta["description"] = self.description
 
     def _data_process_object(self):
         """Process data fileds which are object dependent.
@@ -492,7 +549,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio
         grid = self.obj
 
-        meta = dataio._meta_data  # shortform
+        meta = dataio.metadata4data  # shortform
 
         meta["layout"] = "cornerpoint"
 
@@ -523,7 +580,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio
         gridprop = self.obj
 
-        meta = dataio._meta_data  # shortform
+        meta = dataio.metadata4data  # shortform
 
         meta["layout"] = "cornerpoint_property"
 
@@ -543,7 +600,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio
         regsurf = self.obj
 
-        meta = dataio._meta_data  # shortform
+        meta = dataio.metadata4data  # shortform
 
         meta["layout"] = "regular"
 
@@ -573,7 +630,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio
         cube = self.obj
 
-        meta = dataio._meta_data  # shortform
+        meta = dataio.metadata4data  # shortform
 
         meta["layout"] = "regular"
 
@@ -596,11 +653,11 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         ymax = -1 * ymin
 
         for corner in ((1, 1), (1, cube.nrow), (cube.ncol, 1), (cube.ncol, cube.nrow)):
-            xc, yc = cube.get_xy_value_from_ij(*corner)
-            xmin = xc if xc < xmin else xmin
-            xmax = xc if xc > xmax else xmax
-            ymin = yc if yc < ymin else ymin
-            ymax = yc if yc > ymax else ymax
+            xco, yco = cube.get_xy_value_from_ij(*corner)
+            xmin = xco if xco < xmin else xmin
+            xmax = xco if xco > xmax else xmax
+            ymin = yco if yco < ymin else ymin
+            ymax = yco if yco > ymax else ymax
 
         meta["bbox"]["xmin"] = xmin
         meta["bbox"]["xmax"] = xmax
@@ -617,7 +674,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio
         poly = self.obj
 
-        meta = dataio._meta_data  # shortform
+        meta = dataio.metadata4data  # shortform
         meta["spec"] = OrderedDict()
         # number of polygons:
         meta["spec"]["npolys"] = np.unique(poly.dataframe[poly.pname].values).size
@@ -639,7 +696,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio
         dfr = self.obj
 
-        meta = dataio._meta_data  # shortform
+        meta = dataio.metadata4data  # shortform
 
         meta["layout"] = "table"
 
@@ -657,7 +714,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         dataio = self.dataio
         table = self.obj
-        meta = dataio._meta_data  # shortform
+        meta = dataio.metadata4data  # shortform
 
         meta["layout"] = "table"
 
@@ -671,7 +728,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
     def _fmu_inject_workflow(self):
         """Inject workflow into fmu metadata block."""
-        self.dataio._meta_fmu["workflow"] = self.dataio._workflow
+        self.dataio.metadata4fmu["workflow"] = self.dataio.workflow
 
     def _display(self):
         """Process common subfields in the display block.
@@ -698,17 +755,17 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         """
 
         logger.info("Processing display")
-        meta = self.dataio._meta_display
+        meta = self.dataio.metadata4display
 
         # display.name
-        if self.dataio._display_name is not None:
+        if self.display_name is not None:
             # first choice: display_name argument
             logger.debug("display.name is set from arguments")
-            meta["name"] = self.dataio._display_name
-        elif self.dataio._name is not None:
+            meta["name"] = self.display_name
+        elif self.name is not None:
             # second choice: name argument
             logger.debug("display.name is set to name argument as fallback")
-            meta["name"] = self.dataio._name
+            meta["name"] = self.name
         else:
             # third choice: object name, unless the XTgeo default "unknown"
             try:
@@ -745,20 +802,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio  # shorter
         obj = self.obj
 
-        if isinstance(dataio._tagname, str):
-            attr = dataio._tagname.lower().replace(" ", "_")
-        else:
-            attr = None
-
-        fname, fpath = _utils.construct_filename(
-            self.name,
-            pretagname=None,
-            tagname=attr,
-            subfolder=self.subfolder,
-            loc="surface",
-            outroot=dataio.export_root,
-            verbosity=dataio._verbosity,
-        )
+        fname, fpath = _utils.construct_filename(self, loc="maps")
 
         fmt = dataio.surface_fformat
 
@@ -770,13 +814,13 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         ext = VALID_SURFACE_FORMATS.get(fmt, ".irap_binary")
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio, fpath, fname, ext
+            self, fpath, fname, ext
         )
 
         logger.info("Exported file is %s", outfile)
         if "irap" in fmt:
             obj.to_file(outfile, fformat="irap_binary")
-            self.dataio._meta_data["format"] = "irap_binary"
+            self.dataio.metadata4data["format"] = "irap_binary"
             self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
@@ -794,20 +838,9 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio  # shorter
         obj = self.obj
 
-        if isinstance(dataio._tagname, str):
-            attr = dataio._tagname.lower().replace(" ", "_")
-        else:
-            attr = None
+        fname, fpath = _utils.construct_filename(self, loc="cubes")
 
-        fname, fpath = _utils.construct_filename(
-            self.name,
-            pretagname=None,
-            tagname=attr,
-            subfolder=self.subfolder,
-            loc="cube",
-            outroot=dataio.export_root,
-            verbosity=dataio._verbosity,
-        )
+        print("XXX", fpath)
 
         fmt = dataio.cube_fformat
 
@@ -819,13 +852,14 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         ext = VALID_CUBE_FORMATS.get(fmt, ".irap_binary")
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio, fpath, fname, ext
+            self, fpath, fname, ext
         )
+        print("XXX", outfile)
 
         logger.info("Exported file is %s", outfile)
         if "segy" in fmt:
             obj.to_file(outfile, fformat="segy")
-            self.dataio._meta_data["format"] = "segy"
+            self.dataio.metadata4data["format"] = "segy"
             self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
@@ -843,20 +877,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio  # shorter
         obj = self.obj
 
-        if isinstance(dataio._tagname, str):
-            attr = dataio._tagname.lower().replace(" ", "_")
-        else:
-            attr = None
-
-        fname, fpath = _utils.construct_filename(
-            self.name,
-            pretagname=self.parent_name,
-            tagname=attr,
-            subfolder=self.subfolder,
-            loc="grid",
-            outroot=dataio.export_root,
-            verbosity=dataio._verbosity,
-        )
+        fname, fpath = _utils.construct_filename(self, loc="grids")
 
         fmt = dataio.grid_fformat
 
@@ -868,13 +889,13 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         ext = VALID_GRID_FORMATS.get(fmt, ".hdf")
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio, fpath, fname, ext
+            self, fpath, fname, ext
         )
 
         logger.info("Exported file is %s", outfile)
         if "roff" in fmt:
             obj.to_file(outfile, fformat="roff")
-            self.dataio._meta_data["format"] = "roff"
+            self.dataio.metadata4data["format"] = "roff"
             self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
@@ -891,20 +912,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio  # shorter
         obj = self.obj
 
-        if isinstance(dataio._tagname, str):
-            attr = dataio._tagname.lower().replace(" ", "_")
-        else:
-            attr = None
-
-        fname, fpath = _utils.construct_filename(
-            self.name,
-            pretagname=None,
-            tagname=attr,
-            subfolder=self.subfolder,
-            loc="polygons",
-            outroot=dataio.export_root,
-            verbosity=dataio._verbosity,
-        )
+        fname, fpath = _utils.construct_filename(self, loc="polygons")
 
         fmt = dataio.polygons_fformat
 
@@ -917,7 +925,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         ext = VALID_POLYGONS_FORMATS.get(fmt, ".hdf")
 
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio, fpath, fname, ext
+            self, fpath, fname, ext
         )
 
         logger.info("Exported file is %s", outfile)
@@ -926,7 +934,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             worker = obj.dataframe.copy()
             worker.rename(columns=renamings, inplace=True)
             worker.to_csv(outfile, index=False)
-            self.dataio._meta_data["format"] = "csv"
+            self.dataio.metadata4data["format"] = "csv"
             self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
@@ -934,7 +942,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             )
         elif "irap_ascii" in fmt:
             obj.to_file(outfile)
-            self.dataio._meta_data["format"] = "irap_ascii"
+            self.dataio.metadata4data["format"] = "irap_ascii"
             self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
@@ -950,20 +958,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio  # shorter
         obj = self.obj
 
-        if isinstance(dataio._tagname, str):
-            attr = dataio._tagname.lower().replace(" ", "_")
-        else:
-            attr = None
-
-        fname, fpath = _utils.construct_filename(
-            self.name,
-            pretagname=None,
-            tagname=attr,
-            subfolder=self.subfolder,
-            loc="table",
-            outroot=dataio.export_root,
-            verbosity=dataio._verbosity,
-        )
+        fname, fpath = _utils.construct_filename(self, loc="tables")
 
         # Temporary (?) override so that pa.Table in can only become .arrow out for now
         # Perhaps better to make the fmt an input argument rather than a class constant
@@ -985,15 +980,15 @@ class _ExportItem:  # pylint disable=too-few-public-methods
 
         ext = VALID_TABLE_FORMATS.get(fmt, ".hdf")
         outfile, metafile, relpath, abspath = _utils.verify_path(
-            dataio, fpath, fname, ext
+            self, fpath, fname, ext
         )
 
         logger.info("Exported file is %s", outfile)
 
         if fmt == "csv":
             logger.info("Exporting table as csv")
-            obj.to_csv(outfile, index=self.index_df)
-            self.dataio._meta_data["format"] = "csv"
+            obj.to_csv(outfile, index=self.use_index)
+            self.dataio.metadata4data["format"] = "csv"
             self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
@@ -1009,7 +1004,7 @@ class _ExportItem:  # pylint disable=too-few-public-methods
             # has ready configured defaults and the actual file format is the same
             # (https://arrow.apache.org/docs/python/feather.html)
             feather.write_feather(obj, dest=outfile)
-            self.dataio._meta_data["format"] = "arrow"
+            self.dataio.metadata4data["format"] = "arrow"
             self._item_to_file_create_file_block(outfile, relpath, abspath)
             allmeta = self._item_to_file_collect_all_metadata()
             _utils.export_metadata_file(
@@ -1027,17 +1022,17 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         dataio = self.dataio
         allmeta = OrderedDict()
 
-        for dollar in dataio._meta_dollars.keys():
-            allmeta[dollar] = dataio._meta_dollars[dollar]
+        for dollar in dataio.metadata4dollars.keys():
+            allmeta[dollar] = dataio.metadata4dollars[dollar]
 
         allmeta["class"] = self.classname
-        allmeta["file"] = dataio._meta_file
-        allmeta["access"] = dataio._meta_access
-        allmeta["masterdata"] = dataio._meta_masterdata
-        allmeta["tracklog"] = dataio._meta_tracklog
-        allmeta["fmu"] = dataio._meta_fmu
-        allmeta["data"] = dataio._meta_data
-        allmeta["display"] = dataio._meta_display
+        allmeta["file"] = dataio.metadata4file
+        allmeta["access"] = dataio.metadata4access
+        allmeta["masterdata"] = dataio.metadata4masterdata
+        allmeta["tracklog"] = dataio.metadata4tracklog
+        allmeta["fmu"] = dataio.metadata4fmu
+        allmeta["data"] = dataio.metadata4data
+        allmeta["display"] = dataio.metadata4display
         logger.debug("\n%s", json.dumps(allmeta, indent=2, default=str))
 
         logger.info("Collect all metadata, done")
@@ -1049,15 +1044,15 @@ class _ExportItem:  # pylint disable=too-few-public-methods
         The file block contains relative and absolute paths, file size
         and md5 checksum. This function receives the paths, calculates
         size and checksum, and populates the file block by inserting
-        directly to the premade dataio._meta_file.
+        directly to the premade dataio.metadata4file.
 
         """
 
-        self.dataio._meta_file["relative_path"] = str(relpath)
-        self.dataio._meta_file["absolute_path"] = str(abspath)
+        self.dataio.metadata4file["relative_path"] = str(relpath)
+        self.dataio.metadata4file["absolute_path"] = str(abspath)
 
         md5sum = _utils.md5sum(outfile)
-        self.dataio._meta_file["checksum_md5"] = md5sum
+        self.dataio.metadata4file["checksum_md5"] = md5sum
 
         size_bytes = _utils.size(outfile)
-        self.dataio._meta_file["size_bytes"] = size_bytes
+        self.dataio.metadata4file["size_bytes"] = size_bytes

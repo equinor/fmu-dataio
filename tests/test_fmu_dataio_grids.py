@@ -137,7 +137,7 @@ def test_grid_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "roff"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
@@ -194,7 +194,7 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "roff"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"

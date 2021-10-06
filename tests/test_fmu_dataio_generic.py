@@ -4,6 +4,7 @@ import logging
 import re
 import shutil
 from collections import OrderedDict
+from pathlib import Path
 
 import fmu.dataio
 import pytest
@@ -49,9 +50,9 @@ def test_get_meta_dollars():
     """The private routine that provides special <names> (earlier with $ in front)."""
     case = fmu.dataio.ExportData()
     case._config = CFG
-    logger.info(case._meta_dollars)
-    assert "$schema" in case._meta_dollars
-    assert "fmu" in case._meta_dollars["source"]
+    logger.info(case.metadata4dollars)
+    assert "$schema" in case.metadata4dollars
+    assert "fmu" in case.metadata4dollars["source"]
 
 
 def test_get_meta_masterdata():
@@ -59,7 +60,7 @@ def test_get_meta_masterdata():
     case = fmu.dataio.ExportData()
     case._config = CFG
     case._get_meta_masterdata()
-    assert case._meta_masterdata["smda"]["country"][0]["identifier"] == "Norway"
+    assert case.metadata4masterdata["smda"]["country"][0]["identifier"] == "Norway"
 
 
 def test_get_meta_access():
@@ -67,7 +68,7 @@ def test_get_meta_access():
     case = fmu.dataio.ExportData()
     case._config = CFG
     case._get_meta_access()
-    assert case._meta_access["someaccess"] == "jail"
+    assert case.metadata4access["someaccess"] == "jail"
 
 
 def test_get_meta_tracklog():
@@ -215,7 +216,7 @@ def test_file_block(tmp_path):
 
     shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
@@ -234,6 +235,7 @@ def test_file_block(tmp_path):
         verbosity="INFO",
         runfolder=runfolder.resolve(),
         workflow="my current workflow",
+        inside_rms=True,  # pretend to be inside RMS since runfolder is at rms model
     )
 
     # make a fake RegularSurface
@@ -245,8 +247,8 @@ def test_file_block(tmp_path):
         values=0,
         name="TopVolantis",
     )
-    exp.to_file(srf, verbosity="INFO")
-
+    xx = exp.export(srf, verbosity="INFO")
+    print("XXXX", Path(xx).absolute())
     metadataout = out / ".topvolantis--what_descr.gri.yml"
     assert metadataout.is_file() is True
 
