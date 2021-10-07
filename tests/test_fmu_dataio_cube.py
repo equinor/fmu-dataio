@@ -133,7 +133,8 @@ def test_cube_io_larger_case_ertrun(tmp_path):
         tagname="what Descr",
         verbosity="INFO",
         runfolder=runfolder.resolve(),
-        runpath=runpath.resolve(),
+        # runpath=runpath.resolve(),
+        inside_rms=True,
         workflow="my current workflow",
     )
 
@@ -144,8 +145,8 @@ def test_cube_io_larger_case_ertrun(tmp_path):
     # assert metadataout.is_file() is True
 
     # now read the metadata file and test some key entries:
-    with open(metadataout, "r") as stream:
-        meta = yaml.safe_load(stream)
+    with open(metadataout, "r") as mstream:
+        meta = yaml.safe_load(mstream)
 
     # assert (
     #     meta["file"]["relative_path"]

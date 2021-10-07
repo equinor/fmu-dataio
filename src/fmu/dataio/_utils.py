@@ -132,7 +132,7 @@ def verify_path(exportitem, filedest, filename, ext, dryrun=False):
     ).resolve()
 
     # relative path
-    relpath = str(Path(abspath).relative_to(exportitem.dataio.pwd))
+    relpath = str(abspath.relative_to(exportitem.dataio.runpath.resolve()))
     print("RELPATH", relpath)
     # relpath = str(filedest).replace("../", "")
     if exportitem.realfolder is not None and exportitem.iterfolder is not None:

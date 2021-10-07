@@ -850,7 +850,7 @@ class _ExportItem:
                 f"Valid cube formats are: {list(VALID_CUBE_FORMATS.keys())}",
             )
 
-        ext = VALID_CUBE_FORMATS.get(fmt, ".irap_binary")
+        ext = VALID_CUBE_FORMATS.get(fmt, ".segy")
         outfile, metafile, relpath, abspath = _utils.verify_path(
             self, fpath, fname, ext
         )
