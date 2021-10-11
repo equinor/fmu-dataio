@@ -31,8 +31,8 @@ CFG["masterdata"] = {
 }
 
 CFG2 = {}
-with open("tests/data/drogon/global_config2/global_variables.yml", "r") as stream:
-    CFG2 = yaml.safe_load(stream)
+with open("tests/data/drogon/global_config2/global_variables.yml", "r") as mstream:
+    CFG2 = yaml.safe_load(mstream)
 
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
 CASEPATH = "tests/data/drogon/ertrun1"
@@ -51,6 +51,7 @@ def test_table_io_pandas(tmp_path):
         verbosity="INFO",
         content="volumes",
         runfolder=tmp_path,
+        use_index=False,
     )
     exp.to_file(df)
 
@@ -60,7 +61,7 @@ def test_table_io_pandas(tmp_path):
     assert len(header) == 2
 
     # export with index=True which will give three columns (first is the index column)
-    exp.to_file(df, index=True)
+    exp.to_file(df, use_index=True)
     with open(tmp_path / "tables" / "test.csv") as stream:
         header = stream.readline().split(",")
     assert len(header) == 3
@@ -120,6 +121,7 @@ def test_tables_io_larger_case_ertrun(tmp_path):
         tagname="what Descr",
         verbosity="INFO",
         runfolder=runfolder.resolve(),
+        inside_rms=True,
         workflow="my current workflow",
     )
 

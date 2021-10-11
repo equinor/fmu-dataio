@@ -89,6 +89,7 @@ def test_polygons_io_larger_case_ertrun(tmp_path):
         tagname="what Descr",
         verbosity="INFO",
         runfolder=runfolder.resolve(),
+        inside_rms=True,
         workflow="my current workflow",
     )
 

@@ -26,8 +26,84 @@ def inherit_docstring(inherit_from):
 def construct_filename(
     expitem,  # instance of _ExportItem class
     fmustandard=1,
-    time1=None,
-    time2=None,
+    timedata=None,
+    loc="other",
+):
+    """Construct filename stem according to datatype (class) and fmu style.
+
+    fmu style 1:
+
+        surface:
+            namehorizon--tagname
+            namehorizon--tagname--t1
+            namehorizon--tagname--t2_t1
+
+            e.g.
+            topvolantis--ds_gf_extracted
+            therys--facies_fraction_lowershoreface
+
+        grid (geometry):
+            gridname--<hash>
+
+        gridproperty
+            gridname--proptagname
+            gridname--tagname--t1
+            gridname--tagname--t2_t1
+
+            e.g.
+            geogrid_valysar--phit
+
+    Destinations accoring to datatype.
+
+    Removing dots from filename:
+    Currently, when multiple dots in a filename stem,
+    XTgeo, using pathlib, will interpret the part after the
+    last dot as the file suffix, and remove it. This causes
+    errors in the output filenames. While this is being
+    taken care of in XTgeo, we temporarily sanitize dots from
+    the outgoing filename only to avoid this.
+
+    Space will also be replaced in file names.
+
+    Returns stem for file name and destination
+    """
+    logger.setLevel(level=expitem.verbosity)
+
+    stem = "unset"
+
+    outroot = Path(expitem.storefolder)
+
+    if fmustandard == 1:
+
+        stem = expitem.name.lower()
+
+        if expitem.tagname:
+            stem += "--" + expitem.tagname.lower()
+
+        if expitem.parent:
+            stem = expitem.parent.lower() + "--" + stem
+
+        if time1 and not time2:
+            stem += "--" + str(time1).lower()
+
+        elif time1 and time2:
+            stem += "--" + str(time2).lower() + "_" + str(time1).lower()
+
+        stem = stem.replace(".", "_").replace(" ", "_")
+
+        dest = outroot / loc
+
+        if expitem.subfolder:
+            dest = dest / expitem.subfolder
+
+        dest.mkdir(parents=True, exist_ok=True)
+
+    return stem, dest
+
+def construct_filenamev2(
+    expitem,  # instance of _ExportItem class
+    fmustandard=1,
+    timedata=None,
     loc="other",
 ):
     """Construct filename stem according to datatype (class) and fmu style.
@@ -114,7 +190,8 @@ def verify_path(exportitem, filedest, filename, ext, dryrun=False):
     path = path.with_suffix(path.suffix + ext)
     abspath = path.resolve()
 
-    logger.debug("path is %s", path)
+    logger.info("Path with suffix is %s", path)
+    logger.info("Abspath (resolved) is %s", abspath)
 
     if not dryrun:
         if path.parent.exists():
@@ -132,7 +209,7 @@ def verify_path(exportitem, filedest, filename, ext, dryrun=False):
     ).resolve()
 
     # relative path
-    relpath = str(abspath.relative_to(exportitem.dataio.runpath.resolve()))
+    relpath = str(abspath.parent.relative_to(exportitem.dataio.runpath.resolve()))
     print("RELPATH", relpath)
     # relpath = str(filedest).replace("../", "")
     if exportitem.realfolder is not None and exportitem.iterfolder is not None:

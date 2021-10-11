@@ -146,6 +146,7 @@ class ExportData:
 
     surface_fformat = "irap_binary"
     table_fformat = "csv"
+    arrow_fformat = "arrow"
     polygons_fformat = "csv"
     grid_fformat = "roff"
     cube_fformat = "segy"
@@ -182,7 +183,7 @@ class ExportData:
         #    runfolder: Override _pwd (process working directory)
         #    dryrun: Set instance variables but do not run functions (for unit testing)
         #    inside_rms: If forced to true then pretend to be in rms env.
-
+        print("KWARGS", kwargs)
         self._runpath = runpath
         self._access_ssdl = access_ssdl
         self._config = config
@@ -196,6 +197,7 @@ class ExportData:
         )
         self._subfolder = subfolder
         self._use_index = use_index
+        print("USE INDEX is ", self._use_index)
         self._workflow = workflow
 
         # the following may change quickly in e.g. a loop and can be overridden
@@ -223,6 +225,12 @@ class ExportData:
         if kwargs.get("runfolder", None) is not None:
             self._pwd = pathlib.Path(kwargs["runfolder"]).absolute()
 
+        logger.info("Initial RUNPATH is %s", self._runpath)
+        logger.info(
+            "Inside RMS status (developer setting) is %s",
+            kwargs.get("inside_rms", False),
+        )
+
         # When running RMS, we are in conventionally in RUNPATH/rms/model, while
         # in other settings, we run right at RUNPATH level (e.g. ERT jobs)
         if self._runpath and isinstance(self._runpath, (str, pathlib.Path)):
@@ -236,6 +244,7 @@ class ExportData:
             logger.info("Pretend to run from inside RMS")
         else:
             self._runpath = self._pwd
+            logger.info("Assuming RUNPATH at PWD which is %s", self._pwd)
 
         logger.info("Current RUNPATH is %s", str(self._runpath))
 
@@ -608,7 +617,7 @@ class ExportData:
             logger.warning("Config is missing, not possible to parse stratigraphy")
             self.metadata4strat = None
         elif "stratigraphy" not in self._config:
-            logger.warn("Not possible to parse the stratigraphy section")
+            logger.warning("Not possible to parse the stratigraphy section")
             self.metadata4strat = None
         else:
             self.metadata4strat = self._config["stratigraphy"]
@@ -627,6 +636,8 @@ class ExportData:
         tagname: Optional[str] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
+        use_index: Optional[bool] = False,
+        **kwargs,
     ) -> str:
         """Export a 'known' data object to FMU storage solution with rich metadata.
 
@@ -665,10 +676,14 @@ class ExportData:
                 description of the data.
             display_name: Override eventual setting in class initialization. Set name
                 for clients to use when visualizing. Defaults to name if not given.
+            use_index: For Pandas table output. If True, then the index column will
+                be included. For backward compatibilty, ``ìndex`` also supported.
 
         Returns:
             String path (relative path) to exported file.
         """
+        if kwargs.get("index", False) is True:  # backward compatibility
+            use_index = True
 
         exporter = _ExportItem(
             self,
@@ -681,14 +696,16 @@ class ExportData:
             display_name=display_name,
             description=description,
             unit=unit,
+            use_index=use_index,
         )
 
         filepath = pathlib.Path(exporter.save_to_file())
-        print("XXX1", filepath)
-        print("XXX2", self._pwd)
-        print("XXX3 RUNPATH", self._runpath)
-        relpath = filepath.relative_to(self._runpath)
-        return str(relpath)
+        logger.info("Filepath (saving to file) is %s", filepath)
+        logger.info("Current PWD (dataio._pwd)is %s", self._pwd)
+        logger.info("Current RUNPATH is %s", self._runpath)
+        relpath = str(filepath.relative_to(self._runpath))
+        logger.info("Returning relative path as string: %s", relpath)
+        return relpath
 
     @deprecation.deprecated(
         deprecated_in="0.5",

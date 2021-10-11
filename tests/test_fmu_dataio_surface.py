@@ -132,6 +132,7 @@ def test_surface_io_larger_case_ertrun(tmp_path):
         verbosity="INFO",
         runfolder=runfolder.resolve(),
         workflow="my current workflow",
+        inside_rms=True,
     )
 
     # make a fake RegularSurface

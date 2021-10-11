@@ -8,6 +8,8 @@ import pytest
 import xtgeo
 import yaml
 
+# pylint: disable=no-member
+
 CFG = OrderedDict()
 CFG["template"] = {"name": "Test", "revision": "AUTO"}
 CFG["masterdata"] = {

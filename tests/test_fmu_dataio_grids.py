@@ -129,7 +129,8 @@ def test_gridprop_io_larger_case(tmp_path):
 def test_grid_io_larger_case_ertrun(tmp_path):
     """Larger test grid io as ERTRUN, uses global config from Drogon to tmp_path.
 
-    Need some file acrobatics here to make the tmp_path area look like an ERTRUN first.
+    Need some file acrobatics here to make the tmp_path area look like an ERTRUN first,
+    and in this case we pretend to be in RMS python.
     """
 
     current = tmp_path / "scratch" / "fields" / "user"
@@ -145,7 +146,6 @@ def test_grid_io_larger_case_ertrun(tmp_path):
     out = (
         current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "grids"
     )
-
     exp = fmu.dataio.ExportData(
         config=CFG2,
         content="depth",
@@ -156,7 +156,8 @@ def test_grid_io_larger_case_ertrun(tmp_path):
         is_observation=False,
         tagname="what Descr",
         verbosity="INFO",
-        runfolder=runfolder.resolve(),
+        runfolder=runfolder,
+        inside_rms=True,
         workflow="my current workflow",
     )
 
@@ -215,6 +216,7 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
         tagname="porosity",
         verbosity="INFO",
         runfolder=runfolder.resolve(),
+        inside_rms=True,
         workflow="my current workflow",
     )
 

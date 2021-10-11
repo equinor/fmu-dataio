@@ -121,7 +121,8 @@ def test_cube_io_larger_case_ertrun(tmp_path):
     )
     runpath = current / "mycase" / "realization-0" / "iter-0"
 
-    exp = fmu.dataio.ExportData(
+    # alternative 1, set inside_rms True (developer setting for testing)
+    exp1 = fmu.dataio.ExportData(
         config=CFG2,
         name="Volantis",
         content="depth",
@@ -138,20 +139,40 @@ def test_cube_io_larger_case_ertrun(tmp_path):
         workflow="my current workflow",
     )
 
+    # alternative 2, set runpath hard (developer setting for testing)
+    exp2 = fmu.dataio.ExportData(
+        config=CFG2,
+        name="Volantis",
+        content="depth",
+        unit="m",
+        vertical_domain={"depth": "msl"},
+        timedata=None,
+        is_prediction=True,
+        is_observation=False,
+        tagname="what Descr",
+        verbosity="INFO",
+        runfolder=runfolder.resolve(),
+        runpath=runpath.resolve(),
+        inside_rms=False,
+        workflow="my current workflow",
+    )
+
     cube = xtgeo.Cube(ncol=23, nrow=12, nlay=5)
-    exp.to_file(cube, verbosity="INFO")
+    exp1.to_file(cube, verbosity="INFO")
 
     metadataout = out / ".volantis--what_descr.segy.yml"
-    # assert metadataout.is_file() is True
+    assert metadataout.is_file() is True
+
+    exp2.to_file(cube, verbosity="INFO")
 
     # now read the metadata file and test some key entries:
     with open(metadataout, "r") as mstream:
         meta = yaml.safe_load(mstream)
 
-    # assert (
-    #     meta["file"]["relative_path"]
-    #     == "realization-0/iter-0/share/results/cubes/volantis--what_descr.segy"
-    # )
+    assert (
+        meta["file"]["relative_path"]
+        == "realization-0/iter-0/share/results/cubes/volantis--what_descr.segy"
+    )
     # assert meta["fmu"]["model"]["name"] == "ff"
     # assert meta["fmu"]["iteration"]["name"] == "iter-0"
     # assert meta["fmu"]["realization"]["name"] == "realization-0"
