@@ -54,7 +54,7 @@ def test_fmu_case_meta_to_file(tmp_path):
         runfolder=pathlib.Path(RUN),
     )
 
-    case.to_file(
+    case.export(
         casename="testcase",
         rootfolder=str(tmp_path),
         caseuser="ertuser",
@@ -78,7 +78,7 @@ def test_persisted_case_uuid(tmp_path):
     """
 
     case = fmu.dataio.InitializeCase(verbosity="DEBUG", config=CFG, runfolder=RUN)
-    case.to_file(
+    case.export(
         casename="testcase",
         rootfolder=str(tmp_path),
         caseuser="ertuser",
@@ -99,7 +99,7 @@ def test_persisted_case_uuid(tmp_path):
 
     first_uuid = case_metadata["fmu"]["case"]["uuid"]
 
-    case.to_file(
+    case.export(
         casename="testcase",
         rootfolder=str(tmp_path),
         caseuser="ertuser",

@@ -468,7 +468,7 @@ class ExportData:
         if revision == "AUTO":
             rev = None
             folders = self._pwd
-            for num in range(len(folders.parents)):
+            for num, _ in enumerate(folders.parents):
                 realfoldername = folders.parents[num].name
 
                 # match 20.1.xxx style or r003 style
@@ -680,7 +680,7 @@ class ExportData:
                 be included. For backward compatibilty, ``ìndex`` also supported.
 
         Returns:
-            String path (relative path) to exported file.
+            String path, relative to RUNPATH for exported file.
         """
         if kwargs.get("index", False) is True:  # backward compatibility
             use_index = True
@@ -801,14 +801,14 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
 
         logger.info("Case metadata file: %s", str(metafile))
 
-        existing_metadata = None
+        existing_metadata = {}
 
         if metafile.is_file():
             logger.debug("Case metadata file already exists. So parsing it.")
             with open(metafile, "r") as stream:
                 existing_metadata = yaml.safe_load(stream)
 
-        if existing_metadata is not None:
+        if existing_metadata:
             logger.debug("Reusing fmu.case.uuid")
             fmu_case_uuid = existing_metadata["fmu"]["case"]["uuid"]
         else:
@@ -890,7 +890,7 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
 
         return c_meta
 
-    def to_file(  # pylint: disable=arguments-differ
+    def export(  # pylint: disable=arguments-differ
         self,
         rootfolder="/tmp/",
         casename="unknown",
@@ -914,7 +914,7 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
         This will make an communication point to storage in cloud::
 
             case = InitializeCase(config=configdict)
-            case.to_file(rootfolder=somefolder, caseuser=some_user)
+            case.export(rootfolder=somefolder, caseuser=some_user)
         """
 
         c_meta = self._establish_fmu_case_metadata(
@@ -931,3 +931,13 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
 
         # write to file
         self._store_case_metadata(casefolder, c_meta)
+
+    @deprecation.deprecated(
+        deprecated_in="0.5",
+        removed_in="1.0",
+        current_version=version,
+        details="Method to_file() is deprecated. use export() instead",
+    )
+    def to_file(self, *args, **kwargs):
+        """(Deprecated) Use ``export`` function instead."""
+        self.export(*args, **kwargs)

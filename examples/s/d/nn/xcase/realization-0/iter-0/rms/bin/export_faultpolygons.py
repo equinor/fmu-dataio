@@ -44,7 +44,7 @@ def export_faultlines():
         # export both csv and irap text format
         for fmt in ["csv", "irap_ascii"]:
             ed.polygons_fformat = fmt
-            ed.to_file(poly, verbosity="WARNING")
+            ed.export(poly, verbosity="WARNING")
 
 
 if __name__ == "__main__":

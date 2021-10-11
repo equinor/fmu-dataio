@@ -89,7 +89,7 @@ def export_dataio(df, gridname):
         workflow="Volume calculation",
     )
 
-    out = exp.to_file(df)
+    out = exp.export(df)
     print(f"Exported volume table for {gridname} to {out}")
 
 

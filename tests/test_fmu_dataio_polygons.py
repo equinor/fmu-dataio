@@ -49,7 +49,7 @@ def test_polygons_io(tmp_path):
     fmu.dataio.ExportData.polygons_fformat = "csv"
 
     exp = fmu.dataio.ExportData(name="test", content="depth", runfolder=tmp_path)
-    exp.to_file(srf)
+    exp.export(srf)
 
     assert (tmp_path / "polygons" / ".test.csv.yml").is_file() is True
 
@@ -98,7 +98,7 @@ def test_polygons_io_larger_case_ertrun(tmp_path):
     poly.from_list([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
     print(poly.dataframe)
 
-    exp.to_file(poly, verbosity="INFO")
+    exp.export(poly, verbosity="INFO")
 
     metadataout = out / ".topvolantis--what_descr.pol.yml"
     assert metadataout.is_file() is True

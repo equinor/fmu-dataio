@@ -53,7 +53,7 @@ def test_table_io_pandas(tmp_path):
         runfolder=tmp_path,
         use_index=False,
     )
-    exp.to_file(df)
+    exp.export(df)
 
     assert (tmp_path / "tables" / ".test.csv.yml").is_file() is True
     with open(tmp_path / "tables" / "test.csv") as stream:
@@ -61,7 +61,7 @@ def test_table_io_pandas(tmp_path):
     assert len(header) == 2
 
     # export with index=True which will give three columns (first is the index column)
-    exp.to_file(df, use_index=True)
+    exp.export(df, use_index=True)
     with open(tmp_path / "tables" / "test.csv") as stream:
         header = stream.readline().split(",")
     assert len(header) == 3
@@ -79,7 +79,7 @@ def test_table_io_arrow(tmp_path):
     exp = fmu.dataio.ExportData(
         name="test", verbosity="INFO", content="timeseries", runfolder=tmp_path
     )
-    exp.to_file(table)
+    exp.export(table)
 
     assert (tmp_path / "tables" / "test.arrow").is_file() is True
     assert (tmp_path / "tables" / ".test.arrow.yml").is_file() is True
@@ -128,14 +128,14 @@ def test_tables_io_larger_case_ertrun(tmp_path):
     # make a fake DataFrame
     df = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
 
-    exp.to_file(df, verbosity="INFO")
+    exp.export(df, verbosity="INFO")
 
     metadataout = out / ".sometable--what_descr.csv.yml"
     assert metadataout.is_file() is True
 
     # then try pyarrow
     table = pa.Table.from_pandas(df)
-    exp.to_file(table, verbosity="INFO")
+    exp.export(table, verbosity="INFO")
 
     metadataout = out / ".sometable--what_descr.arrow.yml"
     assert metadataout.is_file() is True

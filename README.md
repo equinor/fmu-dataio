@@ -7,13 +7,13 @@ These fmu.dataio functions can be ran both inside RMS and outside RMS with
 exactly the same syntax.
 
 For surfaces, grids, wells, polygons, the input object must be parsed by
-xtgeo. Tables must be represented as a pandas dataframe.
+xtgeo. Tables must be represented as a pandas dataframe or pyarrow.
 
 A configuration input is required and will within Equinor be read from the
 so-called `global_variables.yml` produced by fmu-config. Details on syntax
 will be given in the documentation.
 
-As default, output with metadata will be stored in `../../share/results` for each
+As default, output with metadata will be stored in `share/results` for each
 realization, while ensemble metadata when run with ERT will be stored in
 `/scratch/<field>/<user>/<case>/share/metadata`
 
@@ -41,7 +41,7 @@ def initalize():
 
     mycase = InitializeCase(config=CFG)
 
-    mycase.to_file(rootfolder=CDIR, casename=CNAME, caseuser=CUSER, description=DSC)
+    mycase.export(rootfolder=CDIR, casename=CNAME, caseuser=CUSER, description=DSC)
 
 ```
 
@@ -66,11 +66,10 @@ def export_some_surface():
         timedata=None,
         is_prediction=True,
         is_observation=False,
-        tagname="Some Descr",
         verbosity="WARNING",
     )
 
-    exp.to_file(srf)
+    exp.export(srf, tagname="Some Descr")
 
 if __name__ == "__main__":
     export_some_surface()
@@ -99,10 +98,9 @@ def export_some_table():
         unit="m",
         is_prediction=True,
         is_observation=False,
-        tagname="voltable",
     )
 
-    exp.to_file(vol)
+    exp.export(vol, tagname="voltable")
 
 if __name__ == "__main__":
     export_some_table()

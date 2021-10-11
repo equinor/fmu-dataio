@@ -78,7 +78,7 @@ def _override_arg(obj, vname, proposal, default=None):
     """Return correct argument for export() keys.
 
     The _ExportItem class can receive args that comes directly from the DataIO class
-    attribute or from the export function itself. Rules, with examples
+    attribute *or* from the export function itself. Rules, with examples
     from "name" attribute (obj = dataio):
 
     * dataio._name == None and name == None => use name
@@ -94,15 +94,18 @@ def _override_arg(obj, vname, proposal, default=None):
         instance_attr,
         proposal,
     )
+    result = None
 
     if instance_attr is default:
-        return proposal
+        result = proposal
 
-    if instance_attr is not default and proposal is default:
-        return instance_attr
+    elif instance_attr is not default and proposal is default:
+        result = instance_attr
 
-    if instance_attr is not default and proposal is not default:
-        return proposal
+    elif instance_attr is not default and proposal is not default:
+        result = proposal
+
+    return result
 
 
 class ValidationError(ValueError):
@@ -149,12 +152,12 @@ class _ExportItem:
                 "index", self.use_index
             )  # bwcompatibility for deprecated "index"
             warnings.warn(
-                "Using 'index' is deprecated and will be reoved in future versions, "
+                "Using 'index' is deprecated and will be removed in future versions, "
                 "use 'use_index' instead.",
                 DeprecationWarning,
             )
+        logger.info("Using Pandas INDEX is %s", self.use_index)
 
-        logger.info("Use INDEX is %s", self.use_index)
         self.subtype = None
         self.classname = "unset"
 
@@ -242,7 +245,7 @@ class _ExportItem:
         self._fmu_inject_workflow()  # this will vary if surface, table, grid, ...
         self._display()
         fpath = self._item_to_file()
-        return fpath
+        return str(fpath)
 
     def _data_process(self):
         """Process som potentially common subfields in the data block.
@@ -401,7 +404,7 @@ class _ExportItem:
             usecontent = "depth"
 
         elif isinstance(content, str):
-            if content in CONTENTS_REQUIRED.keys():
+            if content in CONTENTS_REQUIRED:
                 raise ValidationError(f"content {content} requires additional input")
             usecontent = content
 
@@ -944,8 +947,16 @@ class _ExportItem:
             (Path(filepath) / ("." + filestem.lower())).with_suffix(ext + ".yml")
         ).resolve()
 
-        # get the relative path (relative to runpath)
-        relpath = abspath.parent.relative_to(self.dataio.runpath.resolve())
+        # get the relative path (relative to runptah if interactive, and to casedir
+        # if this is an ERT run)
+
+        useroot = self.dataio.runpath.resolve()
+        logger.info("The useroot (initial) is %s", useroot)
+        if self.iterfolder:
+            useroot = (useroot / "../..").resolve()
+            logger.info("The useroot (updated) is %s", useroot)
+
+        relpath = abspath.relative_to(useroot)
 
         logger.info("Full path to the actual file is: %s", path)
         logger.info("Full path to the actual file is (resolved): %s", abspath)
@@ -1001,225 +1012,6 @@ class _ExportItem:
         )
 
         return str(outfile)
-
-    # def _item_to_file_regularsurface(self):
-    #     """Write RegularSurface to file"""
-    #     logger.info("Export %s to file...", self.subtype)
-    #     dataio = self.dataio  # shorter
-    #     obj = self.obj
-
-    #     fname, fpath = _utils.construct_filename(self, loc="maps")
-
-    #     fmt = dataio.surface_fformat
-
-    #     if fmt not in VALID_SURFACE_FORMATS.keys():
-    #         raise ValueError(
-    #             f"The file format {fmt} is not supported.",
-    #             f"Valid surface formats are: {list(VALID_SURFACE_FORMATS.keys())}",
-    #         )
-
-    #     ext = VALID_SURFACE_FORMATS.get(fmt, ".irap_binary")
-    #     outfile, metafile, relpath, abspath = _utils.verify_path(
-    #         self, fpath, fname, ext
-    #     )
-
-    #     logger.info("Exported file is %s", outfile)
-    #     if "irap" in fmt:
-    #         obj.to_file(outfile, fformat="irap_binary")
-    #         self.dataio.metadata4data["format"] = "irap_binary"
-    #         self._item_to_file_create_file_block(outfile, relpath, abspath)
-    #         allmeta = self._item_to_file_collect_all_metadata()
-    #         _utils.export_metadata_file(
-    #             metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
-    #         )
-
-    #     else:
-    #         raise TypeError("Format ... is not implemened")
-
-    #     return str(outfile)
-
-    # def _item_to_file_cube(self):
-    #     """Write Cube to file"""
-    #     logger.info("Export %s to file...", self.subtype)
-    #     dataio = self.dataio  # shorter
-    #     obj = self.obj
-
-    #     fname, fpath = _utils.construct_filename(self, loc="cubes")
-
-    #     print("XXX", fpath)
-
-    #     fmt = dataio.cube_fformat
-
-    #     if fmt not in VALID_CUBE_FORMATS.keys():
-    #         raise ValueError(
-    #             f"The file format {fmt} is not supported.",
-    #             f"Valid cube formats are: {list(VALID_CUBE_FORMATS.keys())}",
-    #         )
-
-    #     ext = VALID_CUBE_FORMATS.get(fmt, ".segy")
-    #     outfile, metafile, relpath, abspath = _utils.verify_path(
-    #         self, fpath, fname, ext
-    #     )
-    #     print("XXX", outfile)
-
-    #     logger.info("Exported file is %s", outfile)
-    #     if "segy" in fmt:
-    #         obj.to_file(outfile, fformat="segy")
-    #         self.dataio.metadata4data["format"] = "segy"
-    #         self._item_to_file_create_file_block(outfile, relpath, abspath)
-    #         allmeta = self._item_to_file_collect_all_metadata()
-    #         _utils.export_metadata_file(
-    #             metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
-    #         )
-
-    #     else:
-    #         raise TypeError(f"Format <{fmt}> is not implemened")
-
-    #     return str(outfile)
-
-    # def _item_to_file_gridlike(self):
-    #     """Write Grid (geometry) or GridProperty to file"""
-    #     logger.info("Export %s to file...", self.subtype)
-    #     dataio = self.dataio  # shorter
-    #     obj = self.obj
-
-    #     fname, fpath = _utils.construct_filename(self, loc="grids")
-
-    #     fmt = dataio.grid_fformat
-
-    #     if fmt not in VALID_GRID_FORMATS.keys():
-    #         raise ValueError(
-    #             f"The file format {fmt} is not supported.",
-    #             f"Valid grid(-prop) formats are: {list(VALID_GRID_FORMATS.keys())}",
-    #         )
-
-    #     ext = VALID_GRID_FORMATS.get(fmt, ".hdf")
-    #     outfile, metafile, relpath, abspath = _utils.verify_path(
-    #         self, fpath, fname, ext
-    #     )
-
-    #     logger.info("Exported file is %s", outfile)
-    #     if "roff" in fmt:
-    #         obj.to_file(outfile, fformat="roff")
-    #         self.dataio.metadata4data["format"] = "roff"
-    #         self._item_to_file_create_file_block(outfile, relpath, abspath)
-    #         allmeta = self._item_to_file_collect_all_metadata()
-    #         _utils.export_metadata_file(
-    #             metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
-    #         )
-    #     else:
-    #         raise TypeError("Format ... is not implemened")
-
-    #     return str(outfile)
-
-    # def _item_to_file_polygons(self):
-    #     """Write Polygons to file."""
-    #     logger.info("Export %s to file...", self.subtype)
-    #     dataio = self.dataio  # shorter
-    #     obj = self.obj
-
-    #     fname, fpath = _utils.construct_filename(self, loc="polygons")
-
-    #     fmt = dataio.polygons_fformat
-
-    #     if fmt not in VALID_POLYGONS_FORMATS.keys():
-    #         raise ValueError(
-    #             f"The file format {fmt} is not supported.",
-    #             f"Valid polygons formats are: {list(VALID_POLYGONS_FORMATS.keys())}",
-    #         )
-
-    #     ext = VALID_POLYGONS_FORMATS.get(fmt, ".hdf")
-
-    #     outfile, metafile, relpath, abspath = _utils.verify_path(
-    #         self, fpath, fname, ext
-    #     )
-
-    #     logger.info("Exported file is %s", outfile)
-    #     if "csv" in fmt:
-    #         renamings = {"X_UTME": "X", "Y_UTMN": "Y", "Z_TVDSS": "Z", "POLY_ID": "ID"}
-    #         worker = obj.dataframe.copy()
-    #         worker.rename(columns=renamings, inplace=True)
-    #         worker.to_csv(outfile, index=False)
-    #         self.dataio.metadata4data["format"] = "csv"
-    #         self._item_to_file_create_file_block(outfile, relpath, abspath)
-    #         allmeta = self._item_to_file_collect_all_metadata()
-    #         _utils.export_metadata_file(
-    #             metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
-    #         )
-    #     elif "irap_ascii" in fmt:
-    #         obj.to_file(outfile)
-    #         self.dataio.metadata4data["format"] = "irap_ascii"
-    #         self._item_to_file_create_file_block(outfile, relpath, abspath)
-    #         allmeta = self._item_to_file_collect_all_metadata()
-    #         _utils.export_metadata_file(
-    #             metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
-    #         )
-    #     else:
-    #         raise TypeError("Format is not supported")
-
-    #     return str(outfile)
-
-    # def _item_to_file_table(self):
-    #     """Write table to file."""
-    #     dataio = self.dataio  # shorter
-    #     obj = self.obj
-
-    #     fname, fpath = _utils.construct_filename(self, loc="tables")
-
-    #     # Temporary (?) override so that pa.Table in can only become .arrow out for now
-    #     # Perhaps better to make the fmt an input argument rather than a class constant
-
-    #     if HAS_PYARROW and isinstance(obj, pa.Table):
-    #         logger.info(
-    #             "Incoming object is pa.Table, so setting outgoing table "
-    #             "format to 'arrow'"
-    #         )
-    #         fmt = "arrow"
-    #     else:
-    #         fmt = dataio.table_fformat
-
-    #     if fmt not in VALID_TABLE_FORMATS.keys():
-    #         raise ValueError(
-    #             f"The file format {fmt} is not supported.",
-    #             f"Valid table formats are: {list(VALID_TABLE_FORMATS.keys())}",
-    #         )
-
-    #     ext = VALID_TABLE_FORMATS.get(fmt, ".hdf")
-    #     outfile, metafile, relpath, abspath = _utils.verify_path(
-    #         self, fpath, fname, ext
-    #     )
-
-    #     logger.info("Exported file is %s", outfile)
-
-    #     if fmt == "csv":
-    #         logger.info("Exporting table as csv, with INDEX %s", self.use_index)
-    #         obj.to_csv(outfile, index=self.use_index)
-    #         self.dataio.metadata4data["format"] = "csv"
-    #         self._item_to_file_create_file_block(outfile, relpath, abspath)
-    #         allmeta = self._item_to_file_collect_all_metadata()
-    #         _utils.export_metadata_file(
-    #             metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
-    #         )
-    #     elif fmt == "arrow":
-    #         logger.info("Exporting table as arrow")
-    #         # comment taken from equinor/webviz_subsurface/smry2arrow.py
-
-    #         # Writing here is done through the feather import, but could also be
-    #         # done using pa.RecordBatchFileWriter.write_table() with a few
-    #         # pa.ipc.IpcWriteOptions(). It is convenient to use feather since it
-    #         # has ready configured defaults and the actual file format is the same
-    #         # (https://arrow.apache.org/docs/python/feather.html)
-    #         feather.write_feather(obj, dest=outfile)
-    #         self.dataio.metadata4data["format"] = "arrow"
-    #         self._item_to_file_create_file_block(outfile, relpath, abspath)
-    #         allmeta = self._item_to_file_collect_all_metadata()
-    #         _utils.export_metadata_file(
-    #             metafile, allmeta, verbosity=self.verbosity, savefmt=dataio.meta_format
-    #         )
-    #     else:
-    #         raise TypeError("Other formats not supported yet for tables!")
-
-    #     return str(outfile)
 
     def _item_to_file_collect_all_metadata(self):
         """Process all metadata for actual instance."""

@@ -4,7 +4,6 @@ import logging
 import re
 import shutil
 from collections import OrderedDict
-from pathlib import Path
 
 import fmu.dataio
 import pytest
@@ -142,7 +141,7 @@ def test_raise_userwarning_missing_content(tmp_path):
 
     with pytest.warns(UserWarning, match="is not provided which defaults"):
         exp = fmu.dataio.ExportData(parent="unset", runfolder=tmp_path)
-        exp.to_file(gpr)
+        exp.export(gpr)
 
     assert (tmp_path / "grids" / ".unset--testgp.roff.yml").is_file() is True
 
@@ -163,7 +162,7 @@ def test_exported_filenames(tmp_path):
         runfolder=tmp_path,
     )
 
-    exp.to_file(surf)
+    exp.export(surf)
     assert (tmp_path / "maps" / "myname.gri").is_file() is True
     assert (tmp_path / "maps" / ".myname.gri.yml").is_file() is True
 
@@ -175,20 +174,20 @@ def test_exported_filenames(tmp_path):
         runfolder=tmp_path,
     )
     # for a surface...
-    exp.to_file(surf)
+    exp.export(surf)
     assert (tmp_path / "maps" / "myname_with_dots.gri").is_file() is True
     assert (tmp_path / "maps" / ".myname_with_dots.gri.yml").is_file() is True
 
     # ...for a polygon...
     poly = xtgeo.Polygons()
     poly.from_list([(1.0, 2.0, 3.0, 0), (1.0, 2.0, 3.0, 0)])
-    exp.to_file(poly)
+    exp.export(poly)
     assert (tmp_path / "polygons" / "myname_with_dots.csv").is_file() is True
     assert (tmp_path / "polygons" / ".myname_with_dots.csv.yml").is_file() is True
 
     # ...and for a table.
     table = poly.dataframe
-    exp.to_file(table)
+    exp.export(table)
     assert (tmp_path / "tables" / "myname_with_dots.csv").is_file() is True
     assert (tmp_path / "tables" / ".myname_with_dots.csv.yml").is_file() is True
 
@@ -202,7 +201,7 @@ def test_exported_filenames(tmp_path):
 
     gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
     gpr.name = "testgp"
-    exp.to_file(gpr)
+    exp.export(gpr)
     assert (tmp_path / "grids" / "unset--myname.roff").is_file() is True
     assert (tmp_path / "grids" / ".unset--myname.roff.yml").is_file() is True
 
@@ -247,7 +246,8 @@ def test_file_block(tmp_path):
         values=0,
         name="TopVolantis",
     )
-    xx = exp.export(srf, verbosity="INFO")
+    assert exp.export(srf, verbosity="INFO") == "share/results/maps"
+
     metadataout = out / ".topvolantis--what_descr.gri.yml"
     assert metadataout.is_file() is True
 
@@ -261,14 +261,14 @@ def test_file_block(tmp_path):
         == "realization-0/iter-0/share/results/maps/topvolantis--what_descr.gri"
     )
 
-    # abs_path = meta["file"]["absolute_path"]
-    # assert len(abs_path) > len(rel_path)
-    # assert abs_path.endswith(rel_path)
+    abs_path = meta["file"]["absolute_path"]
+    assert len(abs_path) > len(rel_path)
+    assert abs_path.endswith(rel_path)
 
-    # # does not test validity, just that it looks right
-    # size_bytes = meta["file"]["size_bytes"]
-    # assert isinstance(size_bytes, int)
+    # does not test validity, just that it looks right
+    size_bytes = meta["file"]["size_bytes"]
+    assert isinstance(size_bytes, int)
 
-    # # does not test validity, just that it looks right
-    # checksum_md5 = meta["file"]["checksum_md5"]
-    # assert re.match("^[a-z0-9]{32}", checksum_md5)
+    # does not test validity, just that it looks right
+    checksum_md5 = meta["file"]["checksum_md5"]
+    assert re.match("^[a-z0-9]{32}", checksum_md5)
