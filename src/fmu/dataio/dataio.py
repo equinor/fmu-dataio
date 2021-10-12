@@ -113,7 +113,7 @@ class ExportData:
         content: Is a string or a dictionary with one key. Example is "depth" or
             {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}
         subfolder: It is possible to set one level of subfolders for file output.
-        use_index: This applies to Pandas (table) data only, and if True then the
+        include_index: This applies to Pandas (table) data only, and if True then the
             index column will be exported.
         vertical_domain: This is dictionary with a key and a reference e.g.
             {"depth": "msl"} which is default (if None is input)
@@ -150,8 +150,14 @@ class ExportData:
     polygons_fformat = "csv"
     grid_fformat = "roff"
     cube_fformat = "segy"
-    export_root = "share/results"  # this is relative to self._runpath!
-    case_folder = "share/metadata"  # another relative! e.g. /somepath/case/metadata
+
+    # this realization output which is relative to self._runpath!
+    export_root = "share/results"
+
+    # this is case folder which is "outside runs" i.e. another relative!
+    # e.g. /somepath/mycase/share/metadata
+    case_folder = "share/metadata"
+
     createfolder = True
     meta_format = "yaml"
 
@@ -166,7 +172,7 @@ class ExportData:
         is_observation: Optional[bool] = False,
         subfolder: Optional[str] = None,
         timedata: Optional[list] = None,
-        use_index: Optional[bool] = False,
+        include_index: Optional[bool] = False,
         vertical_domain: Optional[dict] = None,
         workflow: Optional[str] = None,
         # the following keys can be overridden in the export() function:
@@ -196,8 +202,8 @@ class ExportData:
             {"depth": "msl"} if vertical_domain is None else vertical_domain
         )
         self._subfolder = subfolder
-        self._use_index = use_index
-        print("USE INDEX is ", self._use_index)
+        self._include_index = include_index
+        print("USE INDEX is ", self._include_index)
         self._workflow = workflow
 
         # the following may change quickly in e.g. a loop and can be overridden
@@ -305,9 +311,9 @@ class ExportData:
         return self._subfolder
 
     @property
-    def use_index(self):
-        """Return use_index boolean."""
-        return self._use_index
+    def include_index(self):
+        """Return include_index boolean."""
+        return self._include_index
 
     @property
     def vertical_domain(self):
@@ -636,7 +642,7 @@ class ExportData:
         tagname: Optional[str] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
-        use_index: Optional[bool] = False,
+        include_index: Optional[bool] = False,
         **kwargs,
     ) -> str:
         """Export a 'known' data object to FMU storage solution with rich metadata.
@@ -676,14 +682,14 @@ class ExportData:
                 description of the data.
             display_name: Override eventual setting in class initialization. Set name
                 for clients to use when visualizing. Defaults to name if not given.
-            use_index: For Pandas table output. If True, then the index column will
+            include_index: For Pandas table output. If True, then the index column will
                 be included. For backward compatibilty, ``ìndex`` also supported.
 
         Returns:
             String path, relative to RUNPATH for exported file.
         """
         if kwargs.get("index", False) is True:  # backward compatibility
-            use_index = True
+            include_index = True
 
         exporter = _ExportItem(
             self,
@@ -696,7 +702,7 @@ class ExportData:
             display_name=display_name,
             description=description,
             unit=unit,
-            use_index=use_index,
+            include_index=include_index,
         )
 
         filepath = pathlib.Path(exporter.save_to_file())

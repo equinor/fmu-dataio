@@ -51,7 +51,7 @@ def test_table_io_pandas(tmp_path):
         verbosity="INFO",
         content="volumes",
         runfolder=tmp_path,
-        use_index=False,
+        include_index=False,
     )
     exp.export(df)
 
@@ -61,7 +61,7 @@ def test_table_io_pandas(tmp_path):
     assert len(header) == 2
 
     # export with index=True which will give three columns (first is the index column)
-    exp.export(df, use_index=True)
+    exp.export(df, include_index=True)
     with open(tmp_path / "tables" / "test.csv") as stream:
         header = stream.readline().split(",")
     assert len(header) == 3

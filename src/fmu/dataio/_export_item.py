@@ -121,7 +121,7 @@ class _ExportItem:
         obj,
         subfolder=None,
         verbosity="WARNING",
-        use_index=False,
+        include_index=False,
         name=None,
         parent=None,
         tagname=None,
@@ -141,22 +141,24 @@ class _ExportItem:
         self.unit = _override_arg(dataio, "unit", unit)
         self.subfolder = _override_arg(dataio, "subfolder", subfolder)
         self.verbosity = _override_arg(dataio, "verbosity", verbosity)
-        self.use_index = _override_arg(dataio, "use_index", use_index, default=False)
+        self.include_index = _override_arg(
+            dataio, "include_index", include_index, default=False
+        )
         logger.setLevel(level=self.verbosity)
 
         self.timedata = self.dataio.timedata  # the a bit complex time input
         self.times = None  # will be populated later as None or list of 2
 
         if "index" in kwargs:
-            self.use_index = kwargs.get(
-                "index", self.use_index
+            self.include_index = kwargs.get(
+                "index", self.include_index
             )  # bwcompatibility for deprecated "index"
             warnings.warn(
                 "Using 'index' is deprecated and will be removed in future versions, "
-                "use 'use_index' instead.",
+                "use 'include_index' instead.",
                 DeprecationWarning,
             )
-        logger.info("Using Pandas INDEX is %s", self.use_index)
+        logger.info("Using Pandas INDEX is %s", self.include_index)
 
         self.subtype = None
         self.classname = "unset"
@@ -987,8 +989,8 @@ class _ExportItem:
             self.obj.to_file(outfile)
             self.dataio.metadata4data["format"] = "irap_ascii"
         elif self.fmt == "csv" and self.subtype == "DataFrame":
-            logger.info("Exporting table as csv, with INDEX %s", self.use_index)
-            self.obj.to_csv(outfile, index=self.use_index)
+            logger.info("Exporting table as csv, with INDEX %s", self.include_index)
+            self.obj.to_csv(outfile, index=self.include_index)
             self.dataio.metadata4data["format"] = "csv"
         elif self.fmt == "arrow":
             logger.info("Exporting table as arrow")

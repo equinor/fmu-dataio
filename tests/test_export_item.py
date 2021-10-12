@@ -347,48 +347,48 @@ def test_display():
     # 'display_name' is not given, so 'name' should be used.
     assert dataio.metadata4display["name"] == "MyName"
 
-    # # 2 assert that object argument is used when name argument not set
-    # dataio = fmu.dataio.ExportData(
-    #     config=CFG2,
-    #     content="depth",
-    #     verbosity="DEBUG",
-    # )
+    # 2 assert that object argument is used when name argument not set
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
 
-    # obj = xtgeo.RegularSurface(
-    #     name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
-    # )
-    # exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
-    # exporter._display()
+    obj = xtgeo.RegularSurface(
+        name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
+    exporter._display()
 
-    # # 'display_name' nor 'name' is given, object name should be used
-    # assert dataio.metadata4display["name"] == "ObjectName"
+    # 'display_name' nor 'name' is given, object name should be used
+    assert dataio.metadata4display["name"] == "ObjectName"
 
-    # # 3 assert that None is set when nothing is given
-    # dataio = fmu.dataio.ExportData(
-    #     config=CFG2,
-    #     content="depth",
-    #     verbosity="DEBUG",
-    # )
+    # 3 assert that None is set when nothing is given
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
 
-    # obj = xtgeo.RegularSurface(ncol=3, nrow=4, xinc=22, yinc=22, values=0)
-    # exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
-    # exporter._display()
+    obj = xtgeo.RegularSurface(ncol=3, nrow=4, xinc=22, yinc=22, values=0)
+    exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
+    exporter._display()
 
-    # # None of the fallbacks are set, so None should be exported
-    # assert dataio.metadata4display["name"] is None
+    # None of the fallbacks are set, so None should be exported
+    assert dataio.metadata4display["name"] is None
 
-    # # 4 assert that display_name is used when given
-    # dataio = fmu.dataio.ExportData(
-    #     name="MyName",
-    #     display_name="MyDisplayName",
-    #     config=CFG2,
-    #     content="depth",
-    #     verbosity="DEBUG",
-    # )
+    # 4 assert that display_name is used when given
+    dataio = fmu.dataio.ExportData(
+        name="MyName",
+        display_name="MyDisplayName",
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
 
-    # obj = xtgeo.RegularSurface(
-    #     name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
-    # )
-    # exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
-    # exporter._display()
-    # assert dataio.metadata4display["name"] == "MyDisplayName"
+    obj = xtgeo.RegularSurface(
+        name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
+    exporter._display()
+    assert dataio.metadata4display["name"] == "MyDisplayName"
