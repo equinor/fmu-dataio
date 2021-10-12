@@ -3,11 +3,12 @@ import hashlib
 import json
 import logging
 import uuid
+
+from os.path import join
 from pathlib import Path
 from typing import Dict, List, Union
 
 from semeio.jobs.design_kw.design_kw import extract_key_value
-
 from . import _oyaml as oyaml
 
 logger = logging.getLogger(__name__)
@@ -131,7 +132,9 @@ def nested_parameters_dict(
 ) -> Dict[str, Union[str, int, float, Dict[str, Union[str, int, float]]]]:
     """Interpret a flat parameters dictionary into a nested dictionary, based on
     presence of colons in keys.
+
     This assumes that what comes before a ":" is sort of a namespace identifier.
+
     In design_kw (semeio) this namespace identifier is actively ignored, meaning that
     the keys without the namespace must be unique.
     """

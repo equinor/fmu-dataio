@@ -29,22 +29,52 @@ def test_uuid_from_string():
 
 
 def test_parse_parameters_txt():
-    """Testing parsing of parameters.txt to JSON"""
+    """Testing parsing of parameters.txt into a flat dictionary"""
 
     ptext = "tests/data/drogon/ertrun1/realization-1/iter-0/parameters.txt"
 
     res = _utils.read_parameters_txt(ptext)
 
     assert res["SENSNAME"] == "rms_seed"
-    assert res["GLOBVAR"]["VOLON_PERMH_CHANNEL"] == 1100
+
+    # Numbers in strings should be parsed as numbers:
+    assert res["GLOBVAR:VOLON_PERMH_CHANNEL"] == 1100
+
+
+@pytest.mark.parametrize(
+    "flat_dict, nested_dict",
+    [
+        ({}, {}),
+        ({"foo": "bar"}, {"foo": "bar"}),
+        ({"foo:bar": "com"}, {"foo": {"bar": "com"}}),
+        ({"foo:bar:com": "hoi"}, {"foo": {"bar:com": "hoi"}}),
+        (
+            {"fo": "ba", "foo:bar": "com", "fooo:barr:comm": "hoi"},
+            {"fo": "ba", "foo": {"bar": "com"}, "fooo": {"barr:comm": "hoi"}},
+        ),
+        (
+            {"foo:bar": "com", "foo:barr": "comm"},
+            {"foo": {"bar": "com", "barr": "comm"}},
+        ),
+        pytest.param(
+            {"foo:bar": "com1", "hoi:bar": "com2"},
+            None,
+            marks=pytest.mark.xfail(raises=ValueError),
+            id="non-unique_keys",
+        ),
+        pytest.param({"foo:": "com"}, None, marks=pytest.mark.xfail(raises=ValueError)),
+    ],
+)
+def test_nested_parameters(flat_dict, nested_dict):
+    assert _utils.nested_parameters_dict(flat_dict) == nested_dict
 
 
 def test_parse_parameters_txt_justified():
-    """Testing parsing of justified parameters.txt to JSON"""
+    """Testing parsing of justified parameters.txt into nested dictionary"""
 
     ptext = "tests/data/drogon/ertrun1/realization-0/iter-0/parameters_justified.txt"
 
-    res = _utils.read_parameters_txt(ptext)
+    res = _utils.nested_parameters_dict(_utils.read_parameters_txt(ptext))
 
     assert res["SENSNAME"] == "rms_seed"
     assert res["GLOBVAR"]["VOLON_PERMH_CHANNEL"] == 1100
