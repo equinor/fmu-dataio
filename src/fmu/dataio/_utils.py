@@ -3,12 +3,11 @@ import hashlib
 import json
 import logging
 import uuid
-
-from os.path import join
 from pathlib import Path
 from typing import Dict, List, Union
 
 from semeio.jobs.design_kw.design_kw import extract_key_value
+
 from . import _oyaml as oyaml
 
 logger = logging.getLogger(__name__)

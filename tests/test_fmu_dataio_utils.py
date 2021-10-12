@@ -2,6 +2,7 @@
 from collections import OrderedDict
 
 import fmu.dataio._utils as _utils
+import pytest
 
 CFG = OrderedDict()
 CFG["model"] = {"name": "Test", "revision": "21.0.0"}
