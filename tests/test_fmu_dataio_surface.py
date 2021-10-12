@@ -44,7 +44,7 @@ def test_surface_io(tmp_path):
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
     exp = fmu.dataio.ExportData(content="depth", runfolder=tmp_path)
-    exp.to_file(srf)
+    exp.export(srf)
 
     assert (tmp_path / "maps" / "test.gri").is_file() is True
     assert (tmp_path / "maps" / ".test.gri.yml").is_file() is True
@@ -62,7 +62,7 @@ def test_surface_io_export_subfolder(tmp_path):
 
     exp = fmu.dataio.ExportData(content="depth", runfolder=tmp_path)
     with pytest.warns(UserWarning):
-        exp.to_file(srf, subfolder="mysubfolder")
+        exp.export(srf, subfolder="mysubfolder")
 
     assert (tmp_path / "maps" / "mysubfolder" / "test.gri").is_file() is True
     assert (tmp_path / "maps" / "mysubfolder" / ".test.gri.yml").is_file() is True
@@ -95,7 +95,7 @@ def test_surface_io_larger_case(tmp_path):
         verbosity="INFO",
         runfolder=tmp_path,
     )
-    exp.to_file(srf, verbosity="DEBUG")
+    exp.export(srf, verbosity="DEBUG")
 
     metadataout = tmp_path / "maps" / ".topvolantis--what_descr.gri.yml"
     assert metadataout.is_file() is True
@@ -113,7 +113,7 @@ def test_surface_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
@@ -132,6 +132,7 @@ def test_surface_io_larger_case_ertrun(tmp_path):
         verbosity="INFO",
         runfolder=runfolder.resolve(),
         workflow="my current workflow",
+        inside_rms=True,
     )
 
     # make a fake RegularSurface
@@ -143,7 +144,7 @@ def test_surface_io_larger_case_ertrun(tmp_path):
         values=np.ma.ones((20, 30)),
         name="TopVolantis",
     )
-    exp.to_file(srf, verbosity="INFO")
+    exp.export(srf, verbosity="INFO")
 
     metadataout = out / ".topvolantis--what_descr.gri.yml"
     assert metadataout.is_file() is True

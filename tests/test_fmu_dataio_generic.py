@@ -10,7 +10,7 @@ import pytest
 import xtgeo
 import yaml
 
-# pylint: disable=protected-access
+# pylint: disable=protected-access, no-member
 
 CFG = OrderedDict()
 CFG["model"] = {"name": "Test", "revision": "21.0.0"}
@@ -49,9 +49,9 @@ def test_get_meta_dollars():
     """The private routine that provides special <names> (earlier with $ in front)."""
     case = fmu.dataio.ExportData()
     case._config = CFG
-    logger.info(case._meta_dollars)
-    assert "$schema" in case._meta_dollars
-    assert "fmu" in case._meta_dollars["source"]
+    logger.info(case.metadata4dollars)
+    assert "$schema" in case.metadata4dollars
+    assert "fmu" in case.metadata4dollars["source"]
 
 
 def test_get_meta_masterdata():
@@ -59,7 +59,7 @@ def test_get_meta_masterdata():
     case = fmu.dataio.ExportData()
     case._config = CFG
     case._get_meta_masterdata()
-    assert case._meta_masterdata["smda"]["country"][0]["identifier"] == "Norway"
+    assert case.metadata4masterdata["smda"]["country"][0]["identifier"] == "Norway"
 
 
 def test_get_meta_access():
@@ -67,7 +67,7 @@ def test_get_meta_access():
     case = fmu.dataio.ExportData()
     case._config = CFG
     case._get_meta_access()
-    assert case._meta_access["someaccess"] == "jail"
+    assert case.metadata4access["someaccess"] == "jail"
 
 
 def test_get_meta_tracklog():
@@ -141,7 +141,7 @@ def test_raise_userwarning_missing_content(tmp_path):
 
     with pytest.warns(UserWarning, match="is not provided which defaults"):
         exp = fmu.dataio.ExportData(parent="unset", runfolder=tmp_path)
-        exp.to_file(gpr)
+        exp.export(gpr)
 
     assert (tmp_path / "grids" / ".unset--testgp.roff.yml").is_file() is True
 
@@ -162,7 +162,7 @@ def test_exported_filenames(tmp_path):
         runfolder=tmp_path,
     )
 
-    exp.to_file(surf)
+    exp.export(surf)
     assert (tmp_path / "maps" / "myname.gri").is_file() is True
     assert (tmp_path / "maps" / ".myname.gri.yml").is_file() is True
 
@@ -174,20 +174,20 @@ def test_exported_filenames(tmp_path):
         runfolder=tmp_path,
     )
     # for a surface...
-    exp.to_file(surf)
+    exp.export(surf)
     assert (tmp_path / "maps" / "myname_with_dots.gri").is_file() is True
     assert (tmp_path / "maps" / ".myname_with_dots.gri.yml").is_file() is True
 
     # ...for a polygon...
     poly = xtgeo.Polygons()
     poly.from_list([(1.0, 2.0, 3.0, 0), (1.0, 2.0, 3.0, 0)])
-    exp.to_file(poly)
+    exp.export(poly)
     assert (tmp_path / "polygons" / "myname_with_dots.csv").is_file() is True
     assert (tmp_path / "polygons" / ".myname_with_dots.csv.yml").is_file() is True
 
     # ...and for a table.
     table = poly.dataframe
-    exp.to_file(table)
+    exp.export(table)
     assert (tmp_path / "tables" / "myname_with_dots.csv").is_file() is True
     assert (tmp_path / "tables" / ".myname_with_dots.csv.yml").is_file() is True
 
@@ -201,7 +201,7 @@ def test_exported_filenames(tmp_path):
 
     gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
     gpr.name = "testgp"
-    exp.to_file(gpr)
+    exp.export(gpr)
     assert (tmp_path / "grids" / "unset--myname.roff").is_file() is True
     assert (tmp_path / "grids" / ".unset--myname.roff.yml").is_file() is True
 
@@ -215,7 +215,7 @@ def test_file_block(tmp_path):
 
     shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
@@ -234,6 +234,7 @@ def test_file_block(tmp_path):
         verbosity="INFO",
         runfolder=runfolder.resolve(),
         workflow="my current workflow",
+        inside_rms=True,  # pretend to be inside RMS since runfolder is at rms model
     )
 
     # make a fake RegularSurface
@@ -245,7 +246,7 @@ def test_file_block(tmp_path):
         values=0,
         name="TopVolantis",
     )
-    exp.to_file(srf, verbosity="INFO")
+    assert exp.export(srf, verbosity="INFO") == "share/results/maps"
 
     metadataout = out / ".topvolantis--what_descr.gri.yml"
     assert metadataout.is_file() is True

@@ -1,5 +1,6 @@
 """Test dataio for cube (most often seismic cube)."""
 
+import json
 import logging
 import shutil
 from collections import OrderedDict
@@ -39,7 +40,7 @@ def test_cube_io(tmp_path):
     fmu.dataio.ExportData.cube_fformat = "segy"
 
     exp = fmu.dataio.ExportData(content="depth", name="testcube", runfolder=tmp_path)
-    exp.to_file(cube)
+    exp.export(cube)
 
     assert (tmp_path / "cubes" / ".testcube.segy.yml").is_file() is True
 
@@ -65,7 +66,7 @@ def test_cube_io_larger_case(tmp_path):
         verbosity="INFO",
         runfolder=tmp_path,
     )
-    exp.to_file(cube, verbosity="DEBUG")
+    exp.export(cube, verbosity="DEBUG")
 
     metadataout = tmp_path / "cubes" / ".volantis--what_descr.segy.yml"
     assert metadataout.is_file() is True
@@ -94,7 +95,7 @@ def test_cubeprop_io_larger_case(tmp_path):
         verbosity="INFO",
         runfolder=tmp_path,
     )
-    exp.to_file(cubep, verbosity="DEBUG")
+    exp.export(cubep, verbosity="DEBUG")
 
     metadataout = tmp_path / "cubes" / ".poro--porotag.segy.yml"
     assert metadataout.is_file() is True
@@ -112,15 +113,17 @@ def test_cube_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
     out = (
         current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "cubes"
     )
+    runpath = current / "mycase" / "realization-0" / "iter-0"
 
-    exp = fmu.dataio.ExportData(
+    # alternative 1, set inside_rms True (developer setting for testing)
+    exp1 = fmu.dataio.ExportData(
         config=CFG2,
         name="Volantis",
         content="depth",
@@ -132,28 +135,49 @@ def test_cube_io_larger_case_ertrun(tmp_path):
         tagname="what Descr",
         verbosity="INFO",
         runfolder=runfolder.resolve(),
+        # runpath=runpath.resolve(),
+        inside_rms=True,
+        workflow="my current workflow",
+    )
+
+    # alternative 2, set runpath hard (developer setting for testing)
+    exp2 = fmu.dataio.ExportData(
+        config=CFG2,
+        name="Volantis",
+        content="depth",
+        unit="m",
+        vertical_domain={"depth": "msl"},
+        timedata=None,
+        is_prediction=True,
+        is_observation=False,
+        tagname="what Descr",
+        verbosity="INFO",
+        runfolder=runfolder.resolve(),
+        runpath=runpath.resolve(),
+        inside_rms=False,
         workflow="my current workflow",
     )
 
     cube = xtgeo.Cube(ncol=23, nrow=12, nlay=5)
-    exp.to_file(cube, verbosity="INFO")
+    exp1.export(cube, verbosity="INFO")
 
     metadataout = out / ".volantis--what_descr.segy.yml"
     assert metadataout.is_file() is True
 
-    # now read the metadata file and test some key entries:
-    with open(metadataout, "r") as stream:
-        meta = yaml.safe_load(stream)
+    exp2.export(cube, verbosity="INFO")
 
+    # now read the metadata file and test some key entries:
+    with open(metadataout, "r") as mstream:
+        meta = yaml.safe_load(mstream)
     assert (
         meta["file"]["relative_path"]
         == "realization-0/iter-0/share/results/cubes/volantis--what_descr.segy"
     )
-    # assert meta["fmu"]["model"]["name"] == "ff"
-    # assert meta["fmu"]["iteration"]["name"] == "iter-0"
-    # assert meta["fmu"]["realization"]["name"] == "realization-0"
-    # assert meta["data"]["stratigraphic"] is False
-    # assert meta["data"]["bbox"]["xmin"] == 0.0
-    # assert meta["data"]["bbox"]["xmax"] == 550.0
+    assert meta["fmu"]["model"]["name"] == "ff"
+    assert meta["fmu"]["iteration"]["name"] == "iter-0"
+    assert meta["fmu"]["realization"]["name"] == "realization-0"
+    assert meta["data"]["stratigraphic"] is False
+    assert meta["data"]["bbox"]["xmin"] == 0.0
+    assert meta["data"]["bbox"]["xmax"] == 550.0
 
-    # logger.info("\n%s", json.dumps(meta, indent=2))
+    logger.info("\n%s", json.dumps(meta, indent=2))

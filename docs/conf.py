@@ -11,6 +11,7 @@ sys.path.insert(0, project_root)
 print(sys.path)
 
 from datetime import date
+
 import fmu.dataio
 
 # -- General configuration ---------------------------------------------

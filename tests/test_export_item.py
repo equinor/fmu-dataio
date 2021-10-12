@@ -1,13 +1,14 @@
 """Test the individual functions in module _export_item."""
-from collections import OrderedDict
-import xtgeo
 import json
-import yaml
-import pytest
+from collections import OrderedDict
 
 import fmu.dataio
 import fmu.dataio._export_item as ei
+import pytest
+import xtgeo
+import yaml
 
+# pylint: disable=no-member
 
 CFG = OrderedDict()
 CFG["template"] = {"name": "Test", "revision": "AUTO"}
@@ -33,13 +34,14 @@ def test_data_process_name():
         config=CFG2,
         content="depth",
         tagname="WhatEver",
+        verbosity="INFO",
     )
     obj = xtgeo.RegularSurface(
         name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
     )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_name()
-    assert dataio._meta_data["name"] == "Valysar Fm."
+    assert dataio.metadata4data["name"] == "Valysar Fm."
 
     # test case 2, name is given via object
     dataio = fmu.dataio.ExportData(
@@ -52,7 +54,7 @@ def test_data_process_name():
     )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_name()
-    assert dataio._meta_data["name"] == "Valysar Fm."
+    assert dataio.metadata4data["name"] == "Valysar Fm."
 
     # test case 3, name is given via object but not present in stratigraphy
     dataio = fmu.dataio.ExportData(
@@ -65,9 +67,9 @@ def test_data_process_name():
     )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_name()
-    assert dataio._meta_data["name"] == "Something else"
-    assert "stratigraphic" in dataio._meta_data
-    assert dataio._meta_data["stratigraphic"] is False
+    assert dataio.metadata4data["name"] == "Something else"
+    assert "stratigraphic" in dataio.metadata4data
+    assert dataio.metadata4data["stratigraphic"] is False
 
 
 def test_data_process_context():
@@ -104,9 +106,9 @@ def test_data_process_context():
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
 
     exportitem._data_process_context()
-    assert dataio._meta_data["offset"] == 4.0
-    assert dataio._meta_data["top"]["name"] == "VOLANTIS GP. Top"
-    assert dataio._meta_data["base"]["stratigraphic"] is True
+    assert dataio.metadata4data["offset"] == 4.0
+    assert dataio.metadata4data["top"]["name"] == "VOLANTIS GP. Top"
+    assert dataio.metadata4data["base"]["stratigraphic"] is True
 
     # test rel2
     dataio = fmu.dataio.ExportData(
@@ -156,9 +158,9 @@ def test_data_process_timedata():
     )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_timedata()
-    print(json.dumps(dataio._meta_data["time"], indent=2, default=str))
-    assert dataio._meta_data["time"][0]["value"] == "2021-01-01T00:00:00"
-    assert dataio._meta_data["time"][0]["label"] == "first"
+    print(json.dumps(dataio.metadata4data["time"], indent=2, default=str))
+    assert dataio.metadata4data["time"][0]["value"] == "2021-01-01T00:00:00"
+    assert dataio.metadata4data["time"][0]["label"] == "first"
 
 
 def test_data_process_content():
@@ -176,7 +178,7 @@ def test_data_process_content():
     )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_content()
-    assert dataio._meta_data["content"] == "depth"
+    assert dataio.metadata4data["content"] == "depth"
 
     # test case 2
     dataio = fmu.dataio.ExportData(
@@ -191,8 +193,10 @@ def test_data_process_content():
     )
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_content()
-    assert dataio._meta_data["content"] == "seismic"
-    assert dataio._meta_data["seismic"]["attribute"] == "attribute_timeshifted_somehow"
+    assert dataio.metadata4data["content"] == "seismic"
+    assert (
+        dataio.metadata4data["seismic"]["attribute"] == "attribute_timeshifted_somehow"
+    )
 
 
 def test_data_process_content_shall_fail():
@@ -259,7 +263,7 @@ def test_data_process_content_validate():
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_content()
 
-    assert "fluid_contact" in dataio._meta_data
+    assert "fluid_contact" in dataio.metadata4data
 
     # test case 2 - fluid contact, not valid, shall fail
     dataio = fmu.dataio.ExportData(
@@ -320,8 +324,8 @@ def test_display():
     For now, the display.name only is set. It is set by
     input argument, with two fallbacks.
 
-    1) input argument to Export Data
-    2) Fallback: name argument to Export Data
+    1) input argument to ExportData.export()
+    2) Fallback: name argument to Export Data initialisation
     3) Fallback: Object name
 
     Note: Will not use object name if this is == "unknown",
@@ -341,7 +345,7 @@ def test_display():
     exporter._display()
 
     # 'display_name' is not given, so 'name' should be used.
-    assert dataio._meta_display["name"] == "MyName"
+    assert dataio.metadata4display["name"] == "MyName"
 
     # 2 assert that object argument is used when name argument not set
     dataio = fmu.dataio.ExportData(
@@ -357,7 +361,7 @@ def test_display():
     exporter._display()
 
     # 'display_name' nor 'name' is given, object name should be used
-    assert dataio._meta_display["name"] == "ObjectName"
+    assert dataio.metadata4display["name"] == "ObjectName"
 
     # 3 assert that None is set when nothing is given
     dataio = fmu.dataio.ExportData(
@@ -371,7 +375,7 @@ def test_display():
     exporter._display()
 
     # None of the fallbacks are set, so None should be exported
-    assert dataio._meta_display["name"] is None
+    assert dataio.metadata4display["name"] is None
 
     # 4 assert that display_name is used when given
     dataio = fmu.dataio.ExportData(
@@ -387,4 +391,4 @@ def test_display():
     )
     exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
     exporter._display()
-    assert dataio._meta_display["name"] == "MyDisplayName"
+    assert dataio.metadata4display["name"] == "MyDisplayName"

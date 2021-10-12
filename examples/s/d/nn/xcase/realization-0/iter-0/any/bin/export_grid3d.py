@@ -33,7 +33,7 @@ def export_geogrid_geometry():
         workflow="rms structural model",
     )
 
-    out = ed.to_file(grd)
+    out = ed.export(grd)
     print(f"Stored grid as {out}")
 
 
@@ -60,7 +60,7 @@ def export_geogrid_parameters():
             workflow="rms property model",
         )
 
-        out = ed.to_file(prop)
+        out = ed.export(prop)
         print(f"Stored {propname} as {out}")
 
 

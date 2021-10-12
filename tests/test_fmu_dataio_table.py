@@ -31,8 +31,8 @@ CFG["masterdata"] = {
 }
 
 CFG2 = {}
-with open("tests/data/drogon/global_config2/global_variables.yml", "r") as stream:
-    CFG2 = yaml.safe_load(stream)
+with open("tests/data/drogon/global_config2/global_variables.yml", "r") as mstream:
+    CFG2 = yaml.safe_load(mstream)
 
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
 CASEPATH = "tests/data/drogon/ertrun1"
@@ -51,8 +51,9 @@ def test_table_io_pandas(tmp_path):
         verbosity="INFO",
         content="volumes",
         runfolder=tmp_path,
+        include_index=False,
     )
-    exp.to_file(df)
+    exp.export(df)
 
     assert (tmp_path / "tables" / ".test.csv.yml").is_file() is True
     with open(tmp_path / "tables" / "test.csv") as stream:
@@ -60,7 +61,7 @@ def test_table_io_pandas(tmp_path):
     assert len(header) == 2
 
     # export with index=True which will give three columns (first is the index column)
-    exp.to_file(df, index=True)
+    exp.export(df, include_index=True)
     with open(tmp_path / "tables" / "test.csv") as stream:
         header = stream.readline().split(",")
     assert len(header) == 3
@@ -78,7 +79,7 @@ def test_table_io_arrow(tmp_path):
     exp = fmu.dataio.ExportData(
         name="test", verbosity="INFO", content="timeseries", runfolder=tmp_path
     )
-    exp.to_file(table)
+    exp.export(table)
 
     assert (tmp_path / "tables" / "test.arrow").is_file() is True
     assert (tmp_path / "tables" / ".test.arrow.yml").is_file() is True
@@ -101,7 +102,7 @@ def test_tables_io_larger_case_ertrun(tmp_path):
     current.mkdir(parents=True, exist_ok=True)
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.table_fformat = "csv"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
@@ -120,20 +121,21 @@ def test_tables_io_larger_case_ertrun(tmp_path):
         tagname="what Descr",
         verbosity="INFO",
         runfolder=runfolder.resolve(),
+        inside_rms=True,
         workflow="my current workflow",
     )
 
     # make a fake DataFrame
     df = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
 
-    exp.to_file(df, verbosity="INFO")
+    exp.export(df, verbosity="INFO")
 
     metadataout = out / ".sometable--what_descr.csv.yml"
     assert metadataout.is_file() is True
 
     # then try pyarrow
     table = pa.Table.from_pandas(df)
-    exp.to_file(table, verbosity="INFO")
+    exp.export(table, verbosity="INFO")
 
     metadataout = out / ".sometable--what_descr.arrow.yml"
     assert metadataout.is_file() is True

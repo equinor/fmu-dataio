@@ -66,7 +66,7 @@ def main():
             verbosity="WARNING",
             workflow="rms property model",
         )
-        fname = ed.to_file(surf)
+        fname = ed.export(surf)
         print(f"File name is {fname}")
 
 

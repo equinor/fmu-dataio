@@ -45,7 +45,7 @@ def test_grid_io(tmp_path):
         content="depth",
         runfolder=tmp_path,
     )
-    exp.to_file(grd)
+    exp.export(grd)
 
     assert (tmp_path / "grids" / ".test.roff.yml").is_file() is True
 
@@ -60,7 +60,7 @@ def test_gridproperty_io(tmp_path):
     fmu.dataio.ExportData.grid_fformat = "roff"
 
     exp = fmu.dataio.ExportData(parent={"name": "Geogrid"}, runfolder=tmp_path)
-    exp.to_file(gpr)
+    exp.export(gpr)
 
     assert (tmp_path / "grids" / ".geogrid--testgp.roff.yml").is_file() is True
 
@@ -89,7 +89,7 @@ def test_grid_io_larger_case(tmp_path):
         runfolder=tmp_path,
     )
 
-    exp.to_file(grd, verbosity="DEBUG")
+    exp.export(grd, verbosity="DEBUG")
 
     metadataout = tmp_path / "grids" / ".volantis--what_descr.roff.yml"
     assert metadataout.is_file() is True
@@ -119,7 +119,7 @@ def test_gridprop_io_larger_case(tmp_path):
         verbosity="INFO",
         runfolder=tmp_path,
     )
-    exp.to_file(grdp, verbosity="DEBUG")
+    exp.export(grdp, verbosity="DEBUG")
 
     metadataout = tmp_path / "grids" / ".geogrid--poro--porotag.roff.yml"
     assert metadataout.is_file() is True
@@ -129,7 +129,8 @@ def test_gridprop_io_larger_case(tmp_path):
 def test_grid_io_larger_case_ertrun(tmp_path):
     """Larger test grid io as ERTRUN, uses global config from Drogon to tmp_path.
 
-    Need some file acrobatics here to make the tmp_path area look like an ERTRUN first.
+    Need some file acrobatics here to make the tmp_path area look like an ERTRUN first,
+    and in this case we pretend to be in RMS python.
     """
 
     current = tmp_path / "scratch" / "fields" / "user"
@@ -137,7 +138,7 @@ def test_grid_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "roff"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
@@ -145,7 +146,6 @@ def test_grid_io_larger_case_ertrun(tmp_path):
     out = (
         current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "grids"
     )
-
     exp = fmu.dataio.ExportData(
         config=CFG2,
         content="depth",
@@ -156,7 +156,8 @@ def test_grid_io_larger_case_ertrun(tmp_path):
         is_observation=False,
         tagname="what Descr",
         verbosity="INFO",
-        runfolder=runfolder.resolve(),
+        runfolder=runfolder,
+        inside_rms=True,
         workflow="my current workflow",
     )
 
@@ -164,7 +165,7 @@ def test_grid_io_larger_case_ertrun(tmp_path):
     grd.create_box()
     grd.name = "Volantis"
 
-    exp.to_file(grd, verbosity="INFO")
+    exp.export(grd, verbosity="INFO")
 
     metadataout = out / ".volantis--what_descr.roff.yml"
     assert metadataout.is_file() is True
@@ -194,7 +195,7 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "../../share/results"
+    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "roff"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
@@ -215,12 +216,13 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
         tagname="porosity",
         verbosity="INFO",
         runfolder=runfolder.resolve(),
+        inside_rms=True,
         workflow="my current workflow",
     )
 
     grdp = xtgeo.GridProperty(ncol=2, nrow=7, nlay=13, name="Volantis")
 
-    exp.to_file(grdp, verbosity="INFO")
+    exp.export(grdp, verbosity="INFO")
 
     metadataout = out / ".geogrid--volantis--porosity.roff.yml"
     assert metadataout.is_file() is True

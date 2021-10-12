@@ -3,150 +3,25 @@ import hashlib
 import json
 import logging
 import uuid
-from os.path import join
 from pathlib import Path
 from typing import Dict, List, Union
 
 from semeio.jobs.design_kw.design_kw import extract_key_value
+
 from . import _oyaml as oyaml
 
 logger = logging.getLogger(__name__)
 
 
-def construct_filename(
-    name,
-    pretagname=None,
-    tagname=None,
-    t1=None,
-    t2=None,
-    subfolder=None,
-    fmu=1,
-    outroot="../../share/results/",
-    loc="surface",
-    verbosity="WARNING",
-):
-    """Construct filename stem according to datatype (class) and fmu style.
+def inherit_docstring(inherit_from):
+    """Local decorator to inherit a docstring"""
 
-    fmu style 1:
+    def decorator_set_docstring(func):
+        if func.__doc__ is None and inherit_from.__doc__ is not None:
+            func.__doc__ = inherit_from.__doc__
+        return func
 
-        surface:
-            namehorizon--tagname
-            namehorizon--tagname--t1
-            namehorizon--tagname--t2_t1
-
-            e.g.
-            topvolantis--ds_gf_extracted
-            therys--facies_fraction_lowershoreface
-
-        grid (geometry):
-            gridname--<hash>
-
-        gridproperty
-            gridname--proptagname
-            gridname--tagname--t1
-            gridname--tagname--t2_t1
-
-            e.g.
-            geogrid_valysar--phit
-
-    Destinations accoring to datatype.
-
-    Removing dots from filename:
-    Currently, when multiple dots in a filename stem,
-    XTgeo, using pathlib, will interpret the part after the
-    last dot as the file suffix, and remove it. This causes
-    errors in the output filenames. While this is being
-    taken care of in XTgeo, we temporarily sanitize dots from
-    the outgoing filename only to avoid this.
-
-    Space will also be replaced in file names.
-
-    Returns stem for file name and destination
-    """
-    logger.setLevel(level=verbosity)
-
-    stem = "unset"
-
-    outroot = Path(outroot)
-
-    if fmu == 1:
-
-        stem = name.lower()
-
-        if tagname:
-            stem += "--" + tagname.lower()
-
-        if pretagname:
-            stem = pretagname.lower() + "--" + stem
-
-        if t1 and not t2:
-            stem += "--" + str(t1).lower()
-
-        elif t1 and t2:
-            stem += "--" + str(t2).lower() + "_" + str(t1).lower()
-
-        stem = stem.replace(".", "_").replace(" ", "_")
-
-        if loc == "surface":
-            dest = outroot / "maps"
-        elif loc == "grid":
-            dest = outroot / "grids"
-        elif loc == "table":
-            dest = outroot / "tables"
-        elif loc == "polygons":
-            dest = outroot / "polygons"
-        elif loc == "cube":
-            dest = outroot / "cubes"
-        else:
-            dest = outroot / "other"
-
-        if subfolder:
-            dest = dest / subfolder
-
-    return stem, dest
-
-
-def verify_path(dataio, filedest, filename, ext, dryrun=False):
-    logger.setLevel(level=dataio._verbosity)
-
-    logger.info("Incoming filedest is %s", filedest)
-    logger.info("Incoming filename is %s", filename)
-    logger.info("Incoming ext is %s", ext)
-
-    folder = dataio._pwd / filedest  # filedest shall be relative path to PWD
-
-    path = Path(folder) / filename.lower()
-    path = path.with_suffix(path.suffix + ext)
-    abspath = path.resolve()
-
-    logger.debug("path is %s", path)
-
-    if not dryrun:
-        if path.parent.exists():
-            logger.info("Folder exists")
-        else:
-            if dataio.createfolder:
-                logger.info("No such folder, will create")
-                path.parent.mkdir(parents=True, exist_ok=True)
-            else:
-                raise IOError(f"Folder {str(path.parent)} is not present.")
-
-    # create metafile path
-    metapath = (
-        (Path(folder) / ("." + filename.lower())).with_suffix(ext + ".yml")
-    ).resolve()
-
-    # relative path
-    relpath = str(filedest).replace("../", "")
-    if dataio._realfolder is not None and dataio._iterfolder is not None:
-        relpath = join(f"{dataio._realfolder.name}/{dataio._iterfolder.name}", relpath)
-    relpath = join(f"{relpath}/{filename.lower()}{ext}")
-
-    logger.info("Full path to the actual file is: %s", abspath)
-    logger.info("Full path to the metadata file (if used) is: %s", metapath)
-    logger.info("Relative path to actual file: %s", relpath)
-
-    return path, metapath, relpath, abspath
+    return decorator_set_docstring
 
 
 def drop_nones(dinput: dict) -> dict:
@@ -210,9 +85,7 @@ def uuid_from_string(string):
 
 def read_parameters_txt(pfile: Union[Path, str]) -> Dict[str, Union[str, float, int]]:
     """Read the parameters.txt file and convert to a dict.
-
     The parameters.txt file has this structure::
-
       SENSNAME rms_seed
       SENSCASE p10_p90
       RMS_SEED 1000
@@ -224,11 +97,9 @@ def read_parameters_txt(pfile: Union[Path, str]) -> Dict[str, Union[str, float, 
       LOG10_GLOBVAR:FAULT_SEAL_SCALING 0.685516
       LOG10_MULTREGT:MULT_THERYS_VOLON -3.21365
       LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
-
     ...but may also appear on a justified format, with leading
     whitespace and tab-justified columns, legacy from earlier
     versions but kept alive by some users::
-
                             SENSNAME     rms_seed
                             SENSCASE     p10_p90
                             RMS_SEED     1000
@@ -236,9 +107,7 @@ def read_parameters_txt(pfile: Union[Path, str]) -> Dict[str, Union[str, float, 
           GLOBVAR:VOLON_PERMH_CHANNEL    1100
       LOG10_GLOBVAR:FAULT_SEAL_SCALING   0.685516
       LOG10_MULTREGT:MULT_THERYS_VOLON   -3.21365
-
     This should be parsed as::
-
         {
         "SENSNAME": "rms_seed"
         "SENSCASE": "p10_p90"
