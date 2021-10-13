@@ -690,7 +690,7 @@ class ExportData:
                 be included. For backward compatibilty, ``ìndex`` also supported.
 
         Returns:
-            String path, relative to RUNPATH for exported file.
+            String: full path to exported item.
         """
         if kwargs.get("index", False) is True:  # backward compatibility
             include_index = True
@@ -709,13 +709,8 @@ class ExportData:
             include_index=include_index,
         )
 
-        filepath = pathlib.Path(exporter.save_to_file())
-        logger.info("Filepath (saving to file) is %s", filepath)
-        logger.info("Current PWD (dataio._pwd)is %s", self._pwd)
-        logger.info("Current RUNPATH is %s", self._runpath)
-        relpath = str(filepath.relative_to(self._runpath))
-        logger.info("Returning relative path as string: %s", relpath)
-        return relpath
+        # will return the absolute (resolved) path for exported file
+        return exporter.save_to_file()
 
     @deprecation.deprecated(
         deprecated_in="0.5",

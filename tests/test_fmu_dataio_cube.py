@@ -1,5 +1,4 @@
 """Test dataio for cube (most often seismic cube)."""
-
 import json
 import logging
 import shutil
@@ -140,21 +139,20 @@ def test_cube_io_larger_case_ertrun(tmp_path):
 
     metadataout = out / ".volantis--what_descr.segy.yml"
 
+    assert metadataout.is_file() is True
 
-#    assert metadataout.is_file() is True
+    # now read the metadata file and test some key entries:
+    with open(metadataout, "r") as mstream:
+        meta = yaml.safe_load(mstream)
+    assert (
+        meta["file"]["relative_path"]
+        == "realization-0/iter-0/share/results/cubes/volantis--what_descr.segy"
+    )
+    assert meta["fmu"]["model"]["name"] == "ff"
+    assert meta["fmu"]["iteration"]["name"] == "iter-0"
+    assert meta["fmu"]["realization"]["name"] == "realization-0"
+    assert meta["data"]["stratigraphic"] is False
+    assert meta["data"]["bbox"]["xmin"] == 0.0
+    assert meta["data"]["bbox"]["xmax"] == 550.0
 
-# now read the metadata file and test some key entries:
-# with open(metadataout, "r") as mstream:
-#     meta = yaml.safe_load(mstream)
-# assert (
-#     meta["file"]["relative_path"]
-#     == "realization-0/iter-0/share/results/cubes/volantis--what_descr.segy"
-# )
-# assert meta["fmu"]["model"]["name"] == "ff"
-# assert meta["fmu"]["iteration"]["name"] == "iter-0"
-# assert meta["fmu"]["realization"]["name"] == "realization-0"
-# assert meta["data"]["stratigraphic"] is False
-# assert meta["data"]["bbox"]["xmin"] == 0.0
-# assert meta["data"]["bbox"]["xmax"] == 550.0
-
-# logger.info("\n%s", json.dumps(meta, indent=2))
+    logger.info("\n%s", json.dumps(meta, indent=2))

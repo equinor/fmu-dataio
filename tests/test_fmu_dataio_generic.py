@@ -246,7 +246,7 @@ def test_file_block(tmp_path):
         values=0,
         name="TopVolantis",
     )
-    assert exp.export(srf, verbosity="INFO") == "share/results/maps"
+    assert exp.export(srf, verbosity="INFO") == str(out / "topvolantis--what_descr.gri")
 
     metadataout = out / ".topvolantis--what_descr.gri.yml"
     assert metadataout.is_file() is True

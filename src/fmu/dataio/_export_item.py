@@ -844,7 +844,7 @@ class _ExportItem:
 
         self._export_actual_object(outfile, metafile, relpath, abspath)
 
-        return fpath
+        return abspath
 
     def _construct_filename_fmustandard1(self):
         """Construct filename stem according to datatype (class) and fmu style 1.
@@ -958,6 +958,7 @@ class _ExportItem:
 
         relpath = abspath.relative_to(useroot)
 
+        path = path.absolute()  # may contain "../.." in path (not resolved)
         logger.info("Full path to the actual file is: %s", path)
         logger.info("Full path to the actual file is (resolved): %s", abspath)
         logger.info("Full path to the metadata file (if used) is: %s", metapath)
