@@ -175,8 +175,6 @@ class _ExportItem:
         self.iterfolder = dataio.iterfolder
         self.createfolder = dataio.createfolder
 
-        self.storefolder = self.dataio.runpath / self.dataio.export_root
-
         if subfolder is not None:
             warnings.warn(
                 "Exporting to a subfolder is a deviation from the standard "
@@ -888,7 +886,7 @@ class _ExportItem:
         Returns stem for file name and destination
         """
         stem = "unset"
-        outroot = self.storefolder
+        outroot = self.dataio.runpath / "share" / "results"
         loc = self.efolder
 
         stem = self.name.lower()

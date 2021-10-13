@@ -75,20 +75,19 @@ def test_table_io_arrow(tmp_path):
     # make a small pa.Table
     df = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
     table = pa.Table.from_pandas(df)
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
 
     exp = fmu.dataio.ExportData(
-        name="test", verbosity="INFO", content="timeseries", runfolder=tmp_path
+        name="test", verbosity="INFO", content="timeseries", runpath=tmp_path
     )
     exp.export(table)
 
-    assert (tmp_path / "tables" / "test.arrow").is_file() is True
-    assert (tmp_path / "tables" / ".test.arrow.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "tables" / "test.arrow").is_file() is True
+    assert (tmp_path / FMUP1 / "tables" / ".test.arrow.yml").is_file() is True
 
-    table_in = pa.feather.read_table(tmp_path / "tables" / "test.arrow")
+    table_in = pa.feather.read_table(tmp_path / FMUP1 / "tables" / "test.arrow")
     assert table_in.num_columns == 2
 
-    with open(tmp_path / "tables" / ".test.arrow.yml") as stream:
+    with open(tmp_path / FMUP1 / "tables" / ".test.arrow.yml") as stream:
         metadata = yaml.safe_load(stream)
         assert metadata["data"]["layout"] == "table"
         assert metadata["data"]["spec"]["size"] == 6
@@ -103,7 +102,6 @@ def test_tables_io_larger_case_ertrun(tmp_path):
     current.mkdir(parents=True, exist_ok=True)
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.table_fformat = "csv"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"

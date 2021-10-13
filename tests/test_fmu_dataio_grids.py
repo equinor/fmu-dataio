@@ -104,7 +104,6 @@ def test_gridprop_io_larger_case(tmp_path):
     grdp = xtgeo.GridProperty(ncol=2, nrow=7, nlay=13)
     grdp.name = "poro"
 
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.grid_fformat = "roff"
 
     exp = fmu.dataio.ExportData(
@@ -139,7 +138,6 @@ def test_grid_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "roff"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
@@ -196,7 +194,6 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "roff"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"

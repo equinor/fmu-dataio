@@ -41,14 +41,13 @@ def test_surface_io(tmp_path):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
     )
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(content="depth", runfolder=tmp_path)
+    exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path)
     exp.export(srf)
 
-    assert (tmp_path / "maps" / "test.gri").is_file() is True
-    assert (tmp_path / "maps" / ".test.gri.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "maps" / "test.gri").is_file() is True
+    assert (tmp_path / FMUP1 / "maps" / ".test.gri.yml").is_file() is True
 
 
 def test_surface_io_export_subfolder(tmp_path):
@@ -58,15 +57,16 @@ def test_surface_io_export_subfolder(tmp_path):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
     )
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(content="depth", runfolder=tmp_path)
+    exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path)
     with pytest.warns(UserWarning):
         exp.export(srf, subfolder="mysubfolder")
 
-    assert (tmp_path / "maps" / "mysubfolder" / "test.gri").is_file() is True
-    assert (tmp_path / "maps" / "mysubfolder" / ".test.gri.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "maps" / "mysubfolder" / "test.gri").is_file() is True
+    assert (
+        tmp_path / FMUP1 / "maps" / "mysubfolder" / ".test.gri.yml"
+    ).is_file() is True
 
 
 def test_surface_io_larger_case(tmp_path):
@@ -81,7 +81,6 @@ def test_surface_io_larger_case(tmp_path):
         values=np.ma.ones((20, 30)),
         name="TopVolantis",
     )
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
     exp = fmu.dataio.ExportData(
@@ -114,7 +113,6 @@ def test_surface_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"

@@ -151,9 +151,6 @@ class ExportData:
     grid_fformat = "roff"
     cube_fformat = "segy"
 
-    # this realization output which is relative to self._runpath!
-    export_root = "share/results"
-
     # this is case folder which is "outside runs" i.e. another relative!
     # e.g. /somepath/mycase/share/metadata
     case_folder = "share/metadata"
