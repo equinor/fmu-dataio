@@ -189,7 +189,6 @@ class ExportData:
         #    runfolder: Override _pwd (process working directory)
         #    dryrun: Set instance variables but do not run functions (for unit testing)
         #    inside_rms: If forced to true then pretend to be in rms env.
-        print("KWARGS", kwargs)
         self._runpath = runpath
         self._access_ssdl = access_ssdl
         self._config = config
@@ -203,7 +202,6 @@ class ExportData:
         )
         self._subfolder = subfolder
         self._include_index = include_index
-        print("USE INDEX is ", self._include_index)
         self._workflow = workflow
 
         # the following may change quickly in e.g. a loop and can be overridden
@@ -236,15 +234,15 @@ class ExportData:
             "Inside RMS status (developer setting) is %s",
             kwargs.get("inside_rms", False),
         )
-
         # When running RMS, we are in conventionally in RUNPATH/rms/model, while
         # in other settings, we run right at RUNPATH level (e.g. ERT jobs)
         if self._runpath and isinstance(self._runpath, (str, pathlib.Path)):
             self._runpath = pathlib.Path(self._runpath).absolute()
             logger.info("The runpath is hard set as %s", self._runpath)
-        elif self._runpath is None and ("RMS_COMPANYIMAGESPATH" in os.environ):
+        elif self._runpath is None and ("RMS_ENABLE_HAVANA_EXPORT" in os.environ):
+            # a bit fragile to rely on this variable, so TODO find more reliable method
             self._runpath = pathlib.Path("../../.").absolute()
-            logger.info("Detected to run from inside RMS")
+            logger.info("Detect 'inside RMS' from env var RMS_ENABLE_HAVANA_EXPORT")
         elif kwargs.get("inside_rms", False) is True and self._runpath is None:
             self._runpath = (self._pwd / "../../.").absolute()
             logger.info("Pretend to run from inside RMS")
