@@ -32,6 +32,8 @@ with open("tests/data/drogon/global_config2/global_variables.yml", "r") as strea
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
 CASEPATH = "tests/data/drogon/ertrun1"
 
+FMUP1 = "share/results"
+
 
 def test_grid_io(tmp_path):
     """Minimal test grid geometry io, uses tmp_path."""
@@ -39,16 +41,15 @@ def test_grid_io(tmp_path):
     grd = xtgeo.Grid()
     grd.create_box()
     grd.name = "test"
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.grid_fformat = "roff"
 
     exp = fmu.dataio.ExportData(
         content="depth",
-        runfolder=tmp_path,
+        runpath=tmp_path,
     )
     exp.export(grd)
 
-    assert (tmp_path / "grids" / ".test.roff.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "grids" / ".test.roff.yml").is_file() is True
 
 
 @pytest.mark.filterwarnings("ignore::UserWarning")
@@ -57,13 +58,12 @@ def test_gridproperty_io(tmp_path):
 
     gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
     gpr.name = "testgp"
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.grid_fformat = "roff"
 
-    exp = fmu.dataio.ExportData(parent={"name": "Geogrid"}, runfolder=tmp_path)
+    exp = fmu.dataio.ExportData(parent={"name": "Geogrid"}, runpath=tmp_path)
     exp.export(gpr)
 
-    assert (tmp_path / "grids" / ".geogrid--testgp.roff.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "grids" / ".geogrid--testgp.roff.yml").is_file() is True
 
 
 def test_grid_io_larger_case(tmp_path):
@@ -74,7 +74,6 @@ def test_grid_io_larger_case(tmp_path):
     grd.create_box()
     grd.name = "Volantis"
 
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.grid_fformat = "roff"
 
     exp = fmu.dataio.ExportData(
@@ -87,12 +86,12 @@ def test_grid_io_larger_case(tmp_path):
         is_observation=False,
         tagname="what Descr",
         verbosity="INFO",
-        runfolder=tmp_path,
+        runpath=tmp_path,
     )
 
     exp.export(grd, verbosity="DEBUG")
 
-    metadataout = tmp_path / "grids" / ".volantis--what_descr.roff.yml"
+    metadataout = tmp_path / FMUP1 / "grids" / ".volantis--what_descr.roff.yml"
     assert metadataout.is_file() is True
     print(metadataout)
 
@@ -117,11 +116,11 @@ def test_gridprop_io_larger_case(tmp_path):
         is_observation=False,
         tagname="porotag",
         verbosity="INFO",
-        runfolder=tmp_path,
+        runpath=tmp_path,
     )
     exp.export(grdp, verbosity="DEBUG")
 
-    metadataout = tmp_path / "grids" / ".geogrid--poro--porotag.roff.yml"
+    metadataout = tmp_path / FMUP1 / "grids" / ".geogrid--poro--porotag.roff.yml"
     assert metadataout.is_file() is True
     print(metadataout)
 

@@ -31,6 +31,8 @@ RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
 RUNPATH = "tests/data/drogon/ertrun1/realization-0/iter-0"
 #                             case      real        iter
 
+FMUP1 = "share/results"
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -96,7 +98,6 @@ def test_get_folderlist():
     folderlist = case2._get_folderlist()
     assert folderlist[-1] == "iter-0"
     assert folderlist[-2] == "realization-0"
-    print(folderlist)
 
 
 def test_process_fmu_realisation():
@@ -137,20 +138,17 @@ def test_raise_userwarning_missing_content(tmp_path):
 
     gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
     gpr.name = "testgp"
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.grid_fformat = "roff"
 
     with pytest.warns(UserWarning, match="is not provided which defaults"):
-        exp = fmu.dataio.ExportData(parent="unset", runfolder=tmp_path)
+        exp = fmu.dataio.ExportData(parent="unset", runpath=tmp_path)
         exp.export(gpr)
 
-    assert (tmp_path / "grids" / ".unset--testgp.roff.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "grids" / ".unset--testgp.roff.yml").is_file() is True
 
 
 def test_exported_filenames(tmp_path):
     """Test that exported filenames are as expected"""
-
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
 
     surf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=0, name="test"
@@ -160,51 +158,53 @@ def test_exported_filenames(tmp_path):
     exp = fmu.dataio.ExportData(
         name="myname",
         content="depth",
-        runfolder=tmp_path,
+        runpath=tmp_path,
     )
 
     exp.export(surf)
-    assert (tmp_path / "maps" / "myname.gri").is_file() is True
-    assert (tmp_path / "maps" / ".myname.gri.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "maps" / "myname.gri").is_file() is True
+    assert (tmp_path / FMUP1 / "maps" / ".myname.gri.yml").is_file() is True
 
     # test case 2, dots in name
     exp = fmu.dataio.ExportData(
         name="myname.with.dots",
         content="depth",
         verbosity="DEBUG",
-        runfolder=tmp_path,
+        runpath=tmp_path,
     )
     # for a surface...
     exp.export(surf)
-    assert (tmp_path / "maps" / "myname_with_dots.gri").is_file() is True
-    assert (tmp_path / "maps" / ".myname_with_dots.gri.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "maps" / "myname_with_dots.gri").is_file() is True
+    assert (tmp_path / FMUP1 / "maps" / ".myname_with_dots.gri.yml").is_file() is True
 
     # ...for a polygon...
     poly = xtgeo.Polygons()
     poly.from_list([(1.0, 2.0, 3.0, 0), (1.0, 2.0, 3.0, 0)])
     exp.export(poly)
-    assert (tmp_path / "polygons" / "myname_with_dots.csv").is_file() is True
-    assert (tmp_path / "polygons" / ".myname_with_dots.csv.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "polygons" / "myname_with_dots.csv").is_file() is True
+    assert (
+        tmp_path / FMUP1 / "polygons" / ".myname_with_dots.csv.yml"
+    ).is_file() is True
 
     # ...and for a table.
     table = poly.dataframe
     exp.export(table)
-    assert (tmp_path / "tables" / "myname_with_dots.csv").is_file() is True
-    assert (tmp_path / "tables" / ".myname_with_dots.csv.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "tables" / "myname_with_dots.csv").is_file() is True
+    assert (tmp_path / FMUP1 / "tables" / ".myname_with_dots.csv.yml").is_file() is True
 
     # ...for a grid property...
     exp = fmu.dataio.ExportData(
         name="myname",
         content="depth",
         parent="unset",
-        runfolder=tmp_path,
+        runpath=tmp_path,
     )
 
     gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
     gpr.name = "testgp"
     exp.export(gpr)
-    assert (tmp_path / "grids" / "unset--myname.roff").is_file() is True
-    assert (tmp_path / "grids" / ".unset--myname.roff.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "grids" / "unset--myname.roff").is_file() is True
+    assert (tmp_path / FMUP1 / "grids" / ".unset--myname.roff.yml").is_file() is True
 
 
 def test_file_block(tmp_path):

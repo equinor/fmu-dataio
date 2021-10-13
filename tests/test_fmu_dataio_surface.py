@@ -32,6 +32,7 @@ with open("tests/data/drogon/global_config2/global_variables.yml", "r") as strea
 
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
 CASEPATH = "tests/data/drogon/ertrun1"
+FMUP1 = "share/results"
 
 
 def test_surface_io(tmp_path):
@@ -93,11 +94,11 @@ def test_surface_io_larger_case(tmp_path):
         is_observation=False,
         tagname="what Descr",
         verbosity="INFO",
-        runfolder=tmp_path,
+        runpath=tmp_path,
     )
     exp.export(srf, verbosity="DEBUG")
 
-    metadataout = tmp_path / "maps" / ".topvolantis--what_descr.gri.yml"
+    metadataout = tmp_path / FMUP1 / "maps" / ".topvolantis--what_descr.gri.yml"
     assert metadataout.is_file() is True
     print(metadataout)
 

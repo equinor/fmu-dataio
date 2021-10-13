@@ -102,7 +102,9 @@ class ExportData:
     Args:
         runpath: The relative location of the current run root. This is optional and
             will in most cased be auto-detected, assuming that FMU folder conventions
-            are followed.
+            are followed. For an ERT run e.g. /scratch/xx/nn/case/realization-0/iter-0/.
+            while in a revision at project disc it will the revision root e.g.
+            /project/xx/resmod/ff/21.1.0/.
         context: [EXPERIMENTAL] The context of the object with respect to
             itself and/or other stratigraphic units. The default is None, but for
             e.g. seismic attributes this can be important. The input is a
@@ -183,7 +185,8 @@ class ExportData:
         **kwargs,  # developer options
     ) -> None:
         # kwargs:
-        #    runfolder: Override _pwd (process working directory)
+        #    runfolder: Override _pwd (process working directory) and this a developer
+        #        developer setting when running tests e.g. in pytest's tmp_path
         #    dryrun: Set instance variables but do not run functions (for unit testing)
         #    inside_rms: If forced to true then pretend to be in rms env.
         self._runpath = runpath
@@ -236,13 +239,18 @@ class ExportData:
         if self._runpath and isinstance(self._runpath, (str, pathlib.Path)):
             self._runpath = pathlib.Path(self._runpath).absolute()
             logger.info("The runpath is hard set as %s", self._runpath)
+        elif kwargs.get("inside_rms", False) is True and self._runpath is None:
+            # Note that runfolder in this case need to be set, pretending to be in the
+            # rms/model folder. This is merely a developer setting when running pytest
+            # in tmp_path!
+            self._runpath = (self._pwd / "../../.").absolute()
+            logger.info("Pretend to run from inside RMS")
         elif self._runpath is None and ("RMS_ENABLE_HAVANA_EXPORT" in os.environ):
+            # this is the case when running RMS which happens in runpath/rms/model
+            # menaing that actual root runpath is at ../.. Note:
             # a bit fragile to rely on this variable, so TODO find more reliable method
             self._runpath = pathlib.Path("../../.").absolute()
             logger.info("Detect 'inside RMS' from env var RMS_ENABLE_HAVANA_EXPORT")
-        elif kwargs.get("inside_rms", False) is True and self._runpath is None:
-            self._runpath = (self._pwd / "../../.").absolute()
-            logger.info("Pretend to run from inside RMS")
         else:
             self._runpath = self._pwd
             logger.info("Assuming RUNPATH at PWD which is %s", self._pwd)
@@ -600,7 +608,7 @@ class ExportData:
         return c_meta, i_meta, r_meta
 
     def _get_folderlist(self) -> list:
-        """Return a list of pure folder names including current up to system root.
+        """Return a list of pure folder names including current PWD up to system root.
 
         For example: current is /scratch/xfield/nn/case/realization-33/iter-1
         shall return ['', 'scratch', 'xfield', 'nn', 'case', 'realization-33', 'iter-1']

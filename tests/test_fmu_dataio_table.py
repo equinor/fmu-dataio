@@ -37,6 +37,7 @@ with open("tests/data/drogon/global_config2/global_variables.yml", "r") as mstre
 
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
 CASEPATH = "tests/data/drogon/ertrun1"
+FMUP1 = "share/results"
 
 
 def test_table_io_pandas(tmp_path):
@@ -44,26 +45,25 @@ def test_table_io_pandas(tmp_path):
 
     # make a small DataFrame
     df = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.table_fformat = "csv"
 
     exp = fmu.dataio.ExportData(
         name="test",
         verbosity="INFO",
         content="volumes",
-        runfolder=tmp_path,
+        runpath=tmp_path,
         include_index=False,
     )
     exp.export(df)
 
-    assert (tmp_path / "tables" / ".test.csv.yml").is_file() is True
-    with open(tmp_path / "tables" / "test.csv") as stream:
+    assert (tmp_path / FMUP1 / "tables" / ".test.csv.yml").is_file() is True
+    with open(tmp_path / FMUP1 / "tables" / "test.csv") as stream:
         header = stream.readline().split(",")
     assert len(header) == 2
 
     # export with index=True which will give three columns (first is the index column)
     exp.export(df, include_index=True)
-    with open(tmp_path / "tables" / "test.csv") as stream:
+    with open(tmp_path / FMUP1 / "tables" / "test.csv") as stream:
         header = stream.readline().split(",")
     assert len(header) == 3
 
