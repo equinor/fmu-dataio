@@ -2,11 +2,12 @@
 import json
 from collections import OrderedDict
 
-import fmu.dataio
-import fmu.dataio._export_item as ei
 import pytest
 import xtgeo
 import yaml
+
+import fmu.dataio
+import fmu.dataio._export_item as ei
 
 # pylint: disable=no-member
 

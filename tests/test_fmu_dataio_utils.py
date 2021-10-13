@@ -1,8 +1,9 @@
 """Test the surface_io module."""
 from collections import OrderedDict
 
-import fmu.dataio._utils as _utils
 import pytest
+
+import fmu.dataio._utils as _utils
 
 CFG = OrderedDict()
 CFG["model"] = {"name": "Test", "revision": "21.0.0"}

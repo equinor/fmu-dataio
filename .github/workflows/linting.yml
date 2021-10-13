@@ -19,3 +19,5 @@ jobs:
           black --check *.py src tests
           pip install flake8
           flake8 src tests
+          pip install isort
+          isort --profile=black *.py src tests

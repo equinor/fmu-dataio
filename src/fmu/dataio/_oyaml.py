@@ -5,7 +5,6 @@ from collections import OrderedDict
 
 import yaml as pyyaml
 
-
 _items = "viewitems" if sys.version_info < (3,) else "items"
 
 

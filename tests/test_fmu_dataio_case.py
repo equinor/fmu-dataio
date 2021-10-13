@@ -4,8 +4,9 @@ import logging
 import pathlib
 from collections import OrderedDict
 
-import fmu.dataio
 import yaml
+
+import fmu.dataio
 
 CFG = OrderedDict()
 CFG["model"] = {"name": "Test", "revision": "21.0.0"}

@@ -5,10 +5,11 @@ import re
 import shutil
 from collections import OrderedDict
 
-import fmu.dataio
 import pytest
 import xtgeo
 import yaml
+
+import fmu.dataio
 
 # pylint: disable=protected-access, no-member
 

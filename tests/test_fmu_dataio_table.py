@@ -12,8 +12,9 @@ try:
 except ImportError:
     pass
 
-import fmu.dataio
 import yaml
+
+import fmu.dataio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

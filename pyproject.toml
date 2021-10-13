@@ -22,6 +22,9 @@ exclude = '''
 )/
 '''
 
+[tool.isort]
+profile = "black"
+
 [build-system]
 requires = [
   "pip>=19.1.1",
