@@ -215,7 +215,6 @@ def test_file_block(tmp_path):
 
     shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"

@@ -39,19 +39,19 @@ POLY = [
     (1.1, 2.0, 3.0, 2),
 ]
 CASEPATH = "tests/data/drogon/ertrun1"
+FMUP1 = "share/results"
 
 
 def test_polygons_io(tmp_path):
     """Minimal test polygons io, uses tmp_path."""
 
     srf = xtgeo.Polygons(POLY)
-    fmu.dataio.ExportData.export_root = tmp_path.resolve()
     fmu.dataio.ExportData.polygons_fformat = "csv"
 
-    exp = fmu.dataio.ExportData(name="test", content="depth", runfolder=tmp_path)
+    exp = fmu.dataio.ExportData(name="test", content="depth", runpath=tmp_path)
     exp.export(srf)
 
-    assert (tmp_path / "polygons" / ".test.csv.yml").is_file() is True
+    assert (tmp_path / FMUP1 / "polygons" / ".test.csv.yml").is_file() is True
 
 
 def test_polygons_io_larger_case_ertrun(tmp_path):
@@ -62,7 +62,6 @@ def test_polygons_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.export_root = "share/results"
     fmu.dataio.ExportData.polygons_fformat = "irap_ascii"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
