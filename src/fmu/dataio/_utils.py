@@ -6,8 +6,7 @@ import uuid
 from pathlib import Path
 from typing import Dict, List, Union
 
-from semeio.jobs.design_kw.design_kw import extract_key_value
-
+from . import _design_kw
 from . import _oyaml as oyaml
 
 logger = logging.getLogger(__name__)
@@ -122,7 +121,7 @@ def read_parameters_txt(pfile: Union[Path, str]) -> Dict[str, Union[str, float, 
 
     parameterlines = Path(pfile).read_text().splitlines()
 
-    dict_str_to_str = extract_key_value(parameterlines)
+    dict_str_to_str = _design_kw.extract_key_value(parameterlines)
     return {key: check_if_number(value) for key, value in dict_str_to_str.items()}
 
 
