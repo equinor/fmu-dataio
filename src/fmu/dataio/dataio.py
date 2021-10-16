@@ -538,13 +538,14 @@ class ExportData:
 
                 therealization = realfolder.replace("realization-", "")
 
-                # store parameters.txt and jobs.json
+                # store parameters.txt
                 parameters_file = self._iterfolder / "parameters.txt"
                 if parameters_file.is_file():
                     params = _utils.read_parameters_txt(parameters_file)
                     nested_params = _utils.nested_parameters_dict(params)
                     ertjob["params"] = nested_params
 
+                # store jobs.json
                 jobs_file = self._iterfolder / "jobs.json"
                 if jobs_file.is_file():
                     with open(jobs_file, "r") as stream:
@@ -594,7 +595,12 @@ class ExportData:
         r_meta["uuid"] = _utils.uuid_from_string(
             c_meta["uuid"] + str(i_meta["id"]) + str(r_meta["id"])
         )
-        r_meta["jobs"] = ertjob["jobs"]
+
+        # Note! export of the "jobs" content is paused. This exports a large amount
+        # of data to outgoing metadata, which puts strain on downstream usage. Until
+        # clear use case is present, halt the export.
+
+        # r_meta["jobs"] = ertjob["jobs"]
         r_meta["parameters"] = ertjob["params"]
 
         logger.info("Got metadata for fmu:realization")
