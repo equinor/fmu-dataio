@@ -141,7 +141,7 @@ def test_cube_io_larger_case_ertrun(tmp_path):
     assert metadataout.is_file() is True
 
     # now read the metadata file and test some key entries:
-    with open(metadataout, "r") as mstream:
+    with open(metadataout, "r", encoding="utf8") as mstream:
         meta = yaml.safe_load(mstream)
     assert (
         meta["file"]["relative_path"]
