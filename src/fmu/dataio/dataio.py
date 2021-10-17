@@ -28,9 +28,9 @@ import datetime
 import getpass
 import json
 import logging
-import os
 import pathlib
 import re
+import sys
 import uuid
 from collections import OrderedDict
 from typing import Any, List, Optional, Union
@@ -245,12 +245,15 @@ class ExportData:
             # in tmp_path!
             self._runpath = (self._pwd / "../../.").absolute()
             logger.info("Pretend to run from inside RMS")
-        elif self._runpath is None and ("RMS_ENABLE_HAVANA_EXPORT" in os.environ):
+        elif (
+            self._runpath is None
+            and "rms" in sys.executable
+            and "komodo" not in sys.executable
+        ):
             # this is the case when running RMS which happens in runpath/rms/model
-            # menaing that actual root runpath is at ../.. Note:
-            # a bit fragile to rely on this variable, so TODO find more reliable method
+            # menaing that actual root runpath is at ../..
             self._runpath = pathlib.Path("../../.").absolute()
-            logger.info("Detect 'inside RMS' from env var RMS_ENABLE_HAVANA_EXPORT")
+            logger.info("Detect 'inside RMS' from 'rms' being in sys.executable")
         else:
             self._runpath = self._pwd
             logger.info("Assuming RUNPATH at PWD which is %s", self._pwd)
