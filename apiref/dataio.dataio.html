@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 0.4.1.dev38+ga443c46 documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 0.4.1.dev44+gf98e5c9 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -143,7 +143,9 @@ will win.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>runpath</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The relative location of the current run root. This is optional and
 will in most cased be auto-detected, assuming that FMU folder conventions
-are followed.</p></li>
+are followed. For an ERT run e.g. /scratch/xx/nn/case/realization-0/iter-0/.
+while in a revision at project disc it will the revision root e.g.
+/project/xx/resmod/ff/21.1.0/.</p></li>
 <li><p><strong>context</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – [EXPERIMENTAL] The context of the object with respect to
 itself and/or other stratigraphic units. The default is None, but for
 e.g. seismic attributes this can be important. The input is a
@@ -212,11 +214,6 @@ in standard python logging; e.g. “WARNING”, “INFO”.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.cube_fformat">
 <span class="sig-name descname"><span class="pre">cube_fformat</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'segy'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.cube_fformat" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dataio.dataio.ExportData.export_root">
-<span class="sig-name descname"><span class="pre">export_root</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'share/results'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.export_root" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -361,11 +358,11 @@ for clients to use when visualizing. Defaults to name if not given.</p></li>
 be included. For backward compatibilty, <code class="docutils literal notranslate"><span class="pre">ìndex</span></code> also supported.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>full path to exported item.</p>
 </dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>String path, relative to RUNPATH for exported file.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>String</p>
 </dd>
 </dl>
 </dd></dl>
@@ -440,7 +437,7 @@ or similar.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev38+ga443c46).</p>
+    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev44+gf98e5c9).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.4.1.dev38+ga443c46 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.4.1.dev44+gf98e5c9 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -98,9 +98,9 @@
 <span class="kn">import</span> <span class="nn">getpass</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
@@ -172,7 +172,9 @@
 <span class="sd">    Args:</span>
 <span class="sd">        runpath: The relative location of the current run root. This is optional and</span>
 <span class="sd">            will in most cased be auto-detected, assuming that FMU folder conventions</span>
-<span class="sd">            are followed.</span>
+<span class="sd">            are followed. For an ERT run e.g. /scratch/xx/nn/case/realization-0/iter-0/.</span>
+<span class="sd">            while in a revision at project disc it will the revision root e.g.</span>
+<span class="sd">            /project/xx/resmod/ff/21.1.0/.</span>
 <span class="sd">        context: [EXPERIMENTAL] The context of the object with respect to</span>
 <span class="sd">            itself and/or other stratigraphic units. The default is None, but for</span>
 <span class="sd">            e.g. seismic attributes this can be important. The input is a</span>
@@ -221,9 +223,6 @@
     <span class="n">grid_fformat</span> <span class="o">=</span> <span class="s2">&quot;roff&quot;</span>
     <span class="n">cube_fformat</span> <span class="o">=</span> <span class="s2">&quot;segy&quot;</span>
 
-    <span class="c1"># this realization output which is relative to self._runpath!</span>
-    <span class="n">export_root</span> <span class="o">=</span> <span class="s2">&quot;share/results&quot;</span>
-
     <span class="c1"># this is case folder which is &quot;outside runs&quot; i.e. another relative!</span>
     <span class="c1"># e.g. /somepath/mycase/share/metadata</span>
     <span class="n">case_folder</span> <span class="o">=</span> <span class="s2">&quot;share/metadata&quot;</span>
@@ -256,10 +255,10 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># developer options</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># kwargs:</span>
-        <span class="c1">#    runfolder: Override _pwd (process working directory)</span>
+        <span class="c1">#    runfolder: Override _pwd (process working directory) and this a developer</span>
+        <span class="c1">#        developer setting when running tests e.g. in pytest&#39;s tmp_path</span>
         <span class="c1">#    dryrun: Set instance variables but do not run functions (for unit testing)</span>
         <span class="c1">#    inside_rms: If forced to true then pretend to be in rms env.</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;KWARGS&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">runpath</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_access_ssdl</span> <span class="o">=</span> <span class="n">access_ssdl</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
@@ -273,7 +272,6 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_subfolder</span> <span class="o">=</span> <span class="n">subfolder</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_include_index</span> <span class="o">=</span> <span class="n">include_index</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;USE INDEX is &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_include_index</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span> <span class="o">=</span> <span class="n">workflow</span>
 
         <span class="c1"># the following may change quickly in e.g. a loop and can be overridden</span>
@@ -306,18 +304,26 @@
             <span class="s2">&quot;Inside RMS status (developer setting) is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;inside_rms&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">)</span>
-
         <span class="c1"># When running RMS, we are in conventionally in RUNPATH/rms/model, while</span>
         <span class="c1"># in other settings, we run right at RUNPATH level (e.g. ERT jobs)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The runpath is hard set as </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;RMS_COMPANYIMAGESPATH&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detected to run from inside RMS&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;inside_rms&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Note that runfolder in this case need to be set, pretending to be in the</span>
+            <span class="c1"># rms/model folder. This is merely a developer setting when running pytest</span>
+            <span class="c1"># in tmp_path!</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">/</span> <span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Pretend to run from inside RMS&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="s2">&quot;rms&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span>
+            <span class="ow">and</span> <span class="s2">&quot;komodo&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span>
+        <span class="p">):</span>
+            <span class="c1"># this is the case when running RMS which happens in runpath/rms/model</span>
+            <span class="c1"># menaing that actual root runpath is at ../..</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detect &#39;inside RMS&#39; from &#39;rms&#39; being in sys.executable&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Assuming RUNPATH at PWD which is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">)</span>
@@ -675,7 +681,7 @@
         <span class="k">return</span> <span class="n">c_meta</span><span class="p">,</span> <span class="n">i_meta</span><span class="p">,</span> <span class="n">r_meta</span>
 
     <span class="k">def</span> <span class="nf">_get_folderlist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return a list of pure folder names including current up to system root.</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of pure folder names including current PWD up to system root.</span>
 
 <span class="sd">        For example: current is /scratch/xfield/nn/case/realization-33/iter-1</span>
 <span class="sd">        shall return [&#39;&#39;, &#39;scratch&#39;, &#39;xfield&#39;, &#39;nn&#39;, &#39;case&#39;, &#39;realization-33&#39;, &#39;iter-1&#39;]</span>
@@ -757,7 +763,7 @@
 <span class="sd">                be included. For backward compatibilty, ``ìndex`` also supported.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            String path, relative to RUNPATH for exported file.</span>
+<span class="sd">            String: full path to exported item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># backward compatibility</span>
             <span class="n">include_index</span> <span class="o">=</span> <span class="kc">True</span>
@@ -776,13 +782,8 @@
             <span class="n">include_index</span><span class="o">=</span><span class="n">include_index</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">filepath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exporter</span><span class="o">.</span><span class="n">save_to_file</span><span class="p">())</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Filepath (saving to file) is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Current PWD (dataio._pwd)is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Current RUNPATH is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">)</span>
-        <span class="n">relpath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">))</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returning relative path as string: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">relpath</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">relpath</span></div>
+        <span class="c1"># will return the absolute (resolved) path for exported file</span>
+        <span class="k">return</span> <span class="n">exporter</span><span class="o">.</span><span class="n">save_to_file</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ExportData.to_file"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ExportData.to_file">[docs]</a>    <span class="nd">@deprecation</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span>
         <span class="n">deprecated_in</span><span class="o">=</span><span class="s2">&quot;0.5&quot;</span><span class="p">,</span>
@@ -1027,7 +1028,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev38+ga443c46).</p>
+    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.4.1.dev44+gf98e5c9).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
