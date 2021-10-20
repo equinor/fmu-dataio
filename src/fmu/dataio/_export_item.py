@@ -499,16 +499,29 @@ class _ExportItem:
         # first detect if timedata is given, the process it
         logger.info("Evaluate data:name attribute")
         meta = self.dataio.metadata4data
+
+        datelimits = (18140517, 33000101)
+
         if self.timedata is None:
             return
 
         self.times = []  # e.g. ["20211102", "20231101"] or ["20211102", None]
         for xtime in self.timedata:
+            if isinstance(xtime[0], int):
+                if xtime[0] < datelimits[0] or xtime[0] > datelimits[1]:
+                    raise ValidationError(
+                        "Integer date input seems to be outside reasonable "
+                        f"limits: {datelimits}"
+                    )
             tdate = str(xtime[0])
             tlabel = None
             if len(xtime) > 1:
                 tlabel = xtime[1]
             tdate = tdate.replace("-", "")  # 2021-04-23  -->  20210403
+            if tdate and int(tdate) < datelimits[0] or int(tdate) > datelimits[1]:
+                raise ValidationError(
+                    f"Date input outside reasonable limits: {datelimits}"
+                )
             tdate = datetime.strptime(tdate, "%Y%m%d")
             self.times.append(tdate)
             tdate = tdate.strftime("%Y-%m-%dT%H:%M:%S")
@@ -854,7 +867,7 @@ class _ExportItem:
             surface:
                 namehorizon--tagname
                 namehorizon--tagname--t1
-                namehorizon--tagname--t2_t1
+                namehorizon--tagname--t1_t2  # t1 is monitor time while t2 is base time
 
                 e.g.
                 topvolantis--ds_gf_extracted
@@ -866,20 +879,21 @@ class _ExportItem:
             gridproperty
                 gridname--proptagname
                 gridname--tagname--t1
-                gridname--tagname--t2_t1
+                gridname--tagname--t1_t2
 
                 e.g.
                 geogrid_valysar--phit
 
         Destinations accoring to datatype.
 
-        Removing dots from filename:
-        Currently, when multiple dots in a filename stem,
-        XTgeo, using pathlib, will interpret the part after the
-        last dot as the file suffix, and remove it. This causes
-        errors in the output filenames. While this is being
-        taken care of in XTgeo, we temporarily sanitize dots from
-        the outgoing filename only to avoid this.
+        For timedata with two dates, the standard is some--monitortime_basetime. Hence
+        t1 is newer than t2.
+
+        Removing dots from filename: Currently, when multiple dots in a filename stem,
+        XTgeo, using pathlib, will interpret the part after the last dot as the file
+        suffix, and remove it. This causes errors in the output filenames. While this is
+        being taken care of in XTgeo, we temporarily sanitize dots from the outgoing
+        filename only to avoid this.
 
         Space will also be replaced in file names.
 
@@ -898,13 +912,19 @@ class _ExportItem:
             stem = self.parent.lower() + "--" + stem
 
         if self.times:
-            time1 = self.times[0]
-            time2 = self.times[1]
-            if time1 and not time2:
-                stem += "--" + str(time1)
+            time0 = self.times[0]
+            time1 = self.times[1]
+            if time0 and not time1:
+                stem += "--" + (str(time0)[0:10]).replace("-", "")
 
-            elif time1 and time2:
-                stem += "--" + str(time2) + "_" + str(time1)
+            elif time0 and time1:
+                monitor = (str(time0)[0:10]).replace("-", "")
+                base = (str(time1)[0:10]).replace("-", "")
+                if monitor == base:
+                    warnings.warn(
+                        "The monitor date and base date are equal", UserWarning
+                    )  # TODO: consider add clocktimes in such cases?
+                stem += "--" + monitor + "_" + base
 
         stem = stem.replace(".", "_").replace(" ", "_")
 

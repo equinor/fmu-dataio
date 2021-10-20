@@ -151,7 +151,7 @@ def test_data_process_timedata():
         name="Valysar",
         config=CFG2,
         content="depth",
-        timedata=[["20210101", "first"], [20210902, "second"]],
+        timedata=[["20230101", "monitor"], [20210902, "base"]],
         tagname="WhatEver",
     )
     obj = xtgeo.RegularSurface(
@@ -160,8 +160,8 @@ def test_data_process_timedata():
     exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
     exportitem._data_process_timedata()
     print(json.dumps(dataio.metadata4data["time"], indent=2, default=str))
-    assert dataio.metadata4data["time"][0]["value"] == "2021-01-01T00:00:00"
-    assert dataio.metadata4data["time"][0]["label"] == "first"
+    assert dataio.metadata4data["time"][0]["value"] == "2023-01-01T00:00:00"
+    assert dataio.metadata4data["time"][0]["label"] == "monitor"
 
 
 def test_data_process_content():
@@ -171,7 +171,7 @@ def test_data_process_content():
         name="Valysar",
         config=CFG2,
         content="depth",
-        timedata=[["20210101", "first"], [20210902, "second"]],
+        timedata=[["20230101", "monitor"], [20210902, "base"]],
         tagname="WhatEver",
     )
     obj = xtgeo.RegularSurface(
@@ -186,7 +186,7 @@ def test_data_process_content():
         name="Valysar",
         config=CFG2,
         content={"seismic": {"attribute": "attribute_timeshifted_somehow"}},
-        timedata=[["20210101", "first"], [20210902, "second"]],
+        timedata=[["20230101", "monitor"], [20210902, "base"]],
         tagname="WhatEver",
     )
     obj = xtgeo.RegularSurface(
@@ -207,7 +207,7 @@ def test_data_process_content_shall_fail():
         name="Valysar",
         config=CFG2,
         content="something_invalid",
-        timedata=[["20210101", "first"], [20210902, "second"]],
+        timedata=[["20230101", "monitor"], [20210902, "base"]],
         tagname="WhatEver",
     )
     obj = xtgeo.RegularSurface(
@@ -223,7 +223,7 @@ def test_data_process_content_shall_fail():
         name="Valysar",
         config=CFG2,
         content={"seismic": {"attribute": 100}},
-        timedata=[["20210101", "first"], [20210902, "second"]],
+        timedata=[["20230101", "monitor"], [20210902, "base"]],
         tagname="WhatEver",
     )
     obj = xtgeo.RegularSurface(
@@ -239,7 +239,7 @@ def test_data_process_content_shall_fail():
         name="Valysar",
         config=CFG2,
         content={"seismic": {"invalid_attribute": "some"}},
-        timedata=[["20210101", "first"], [20210902, "second"]],
+        timedata=[["20230101", "monitor"], [20210902, "base"]],
         tagname="WhatEver",
     )
     obj = xtgeo.RegularSurface(
@@ -286,7 +286,7 @@ def test_data_process_content_fluid_contact():
         name="Valysar",
         config=CFG2,
         content={"fluid_contact": {"contact": "owc"}},
-        timedata=[["20210101", "first"], [20210902, "second"]],
+        timedata=[["20230101", "monitor"], [20210902, "base"]],
         tagname="WhatEver",
     )
     obj = xtgeo.Polygons()
@@ -298,7 +298,7 @@ def test_data_process_content_fluid_contact():
         name="Valysar",
         config=CFG2,
         content={"fluid_contact": {"wrong": "owc"}},
-        timedata=[["20210101", "first"], [20210902, "second"]],
+        timedata=[["20210101", "monitor"], [20210902, "base"]],
         tagname="WhatEver",
     )
     obj = xtgeo.Polygons()
@@ -312,7 +312,7 @@ def test_data_process_content_fluid_contact():
         name="Valysar",
         config=CFG2,
         content={"field_outline": {"wrong": "owc"}},
-        timedata=[["20210101", "first"], [20210902, "second"]],
+        timedata=[["20230101", "monitor"], [20210902, "base"]],
         tagname="WhatEver",
     )
     obj = xtgeo.Polygons()

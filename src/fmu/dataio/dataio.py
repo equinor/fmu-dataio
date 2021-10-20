@@ -120,7 +120,7 @@ class ExportData:
         vertical_domain: This is dictionary with a key and a reference e.g.
             {"depth": "msl"} which is default (if None is input)
         timedata: If given, a list of lists with dates, .e.g.
-            [[20200101, "firsttime"], [20180101, "secondtime"]] or just [[20210101]]
+            [[20200101, "monitor"], [20180101, "base"]] or just [[20210101]]
         is_prediction: True (default) of model prediction data
         is_observation: Default is False.
         workflow: Short tag desciption of workflow (as description)
