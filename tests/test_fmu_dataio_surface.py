@@ -3,6 +3,7 @@ import json
 import logging
 import shutil
 from collections import OrderedDict
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -49,6 +50,90 @@ def test_surface_io(tmp_path):
 
     assert (tmp_path / FMUP1 / "maps" / "test.gri").is_file() is True
     assert (tmp_path / FMUP1 / "maps" / ".test.gri.yml").is_file() is True
+
+
+@pytest.mark.parametrize(
+    "dates, expected",
+    [
+        (
+            [[20440101, "monitor"], [20230101, "base"]],
+            "test--20440101_20230101",
+        ),
+        (
+            [["20440101", "monitor"], [20230101, "base"]],
+            "test--20440101_20230101",
+        ),
+        (
+            [["20440101", "monitor"], ["20230101", "base"]],
+            "test--20440101_20230101",
+        ),
+        (
+            [["2044-01-01", "monitor"], ["20230101", "base"]],
+            "test--20440101_20230101",
+        ),
+    ],
+)
+def test_surface_io_with_timedata(tmp_path, dates, expected):
+    """Minimal test surface io with timedata, uses tmp_path."""
+
+    # make a fake RegularSurface
+    srf = xtgeo.RegularSurface(
+        ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
+    )
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    exp = fmu.dataio.ExportData(
+        content="depth",
+        timedata=dates,
+        runpath=tmp_path,
+    )
+    out = Path(exp.export(srf)).stem
+
+    assert expected == out
+
+
+@pytest.mark.parametrize(
+    "dates, errmessage",
+    [
+        (
+            [[40440101, "monitor"], [20230101, "base"]],
+            "Integer date input seems to be outside reasonable limits",
+        ),
+        (
+            [[20210101, "monitor"], [17220101, "base"]],
+            "Integer date input seems to be outside reasonable limits",
+        ),
+        (
+            [["20210101", "monitor"], ["17220101", "base"]],
+            "Date input outside reasonable limits",
+        ),
+        (
+            [["2021-01-01", "monitor"], ["1722-01-01", "base"]],
+            "Date input outside reasonable limits",
+        ),
+        (
+            [["666", "monitor"], ["1722-01-01", "base"]],
+            "Date input outside reasonable limits",
+        ),
+    ],
+)
+def test_surface_io_with_timedata_shall_fail(tmp_path, dates, errmessage):
+    """Minimal test surface io with timedata, uses tmp_path, with invalid input."""
+
+    # make a fake RegularSurface
+    srf = xtgeo.RegularSurface(
+        ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
+    )
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    exp = fmu.dataio.ExportData(
+        content="depth",
+        timedata=dates,
+        runpath=tmp_path,
+    )
+    with pytest.raises(ValueError) as err:
+        exp.export(srf)
+    assert errmessage in str(err.value)
 
 
 def test_surface_io_export_subfolder(tmp_path):
