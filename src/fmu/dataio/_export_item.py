@@ -901,6 +901,9 @@ class _ExportItem:
         """
         stem = "unset"
         outroot = self.dataio.runpath / "share" / "results"
+        if self.dataio.is_observation:
+            outroot = self.dataio.runpath / "share" / "observations"
+
         loc = self.efolder
 
         stem = self.name.lower()

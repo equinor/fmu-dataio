@@ -114,7 +114,13 @@ def test_cube_io_larger_case_ertrun(tmp_path):
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
     out = (
-        current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "cubes"
+        current
+        / "mycase"
+        / "realization-0"
+        / "iter-0"
+        / "share"
+        / "observations"
+        / "cubes"
     )
 
     # alternative 1, set inside_rms True (developer setting for testing)
@@ -126,7 +132,7 @@ def test_cube_io_larger_case_ertrun(tmp_path):
         vertical_domain={"depth": "msl"},
         timedata=None,
         is_prediction=True,
-        is_observation=False,
+        is_observation=True,
         tagname="what Descr",
         verbosity="INFO",
         runfolder=runfolder.resolve(),
