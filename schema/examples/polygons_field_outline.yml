@@ -1,0 +1,154 @@
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
+version: "0.8.0" # including for REP and others to build logic on.
+source: fmu  # always included, and always this value if FMU made it. For quick identification for external consumers.
+
+tracklog:
+  - datetime: 2020-10-28T14:28:02
+    user:
+      id: peesv
+    event: created
+  - datetime: 2020-10-28T14:46:14
+    user: 
+      id: peesv
+    event: updated
+
+class: polygons
+
+# fmu:
+# The fmu block in data objects have more sub-elements compared to ensemble objects.
+
+fmu:
+  model:
+    name: ff
+    revision: 21.0.0.dev
+    description:
+      - detailed description
+      - optional
+
+  workflow: # not sure, but a reference to the workflow / job that made this. Making it expandable.
+    reference: rms/structural_model
+
+  case:
+    name: MyCaseName
+    uuid: 8bb56d60-8758-481a-89a4-6bac8561d38e # (pseudo-)random valid uuid4
+    user:
+      id: jriv # $USER from ERT
+    description:
+      - yet other detailed description
+      - optional
+    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration/case
+
+  iteration:
+    id: 0 # always an int, will be 0 for e.g. "pred"
+    uuid: 4b939310-34b1-4179-802c-49460bc0f799 # hash of case.uuid + iteration.id
+    name: "iter-0" # /"pred"
+
+  realization:  # could be expanded in the future?
+    id: 33
+    uuid: 29a15b21-ce13-471b-9a4a-0f791552aa51 # hash of case.uuid + iteration.uuid + realization.id
+    name: "realization-33"
+    parameters: # directly pass parameters.txt. This is potentially a lot of content, only a stub is included here.
+      SENSNAME: faultseal
+      SENSCASE: low
+      RMS_SEED: 1006
+      KVKH_CHANNEL: 0.6
+      KVKH_CREVASSE: 0.3
+      KVKH_LS: 0.7
+      KVKH_US: 0.6
+      FAULT_SEAL_SCALING: 0.1
+      FWL_CENTRAL: 1677
+    jobs: # directly pass jobs.json. This is a lot of content, only a stub is included here.
+      umask: '0002'
+      DATA_ROOT: /some/path/20.4.0_20201106/ert/model
+      anything: something
+      something:
+        anything: something
+      global_update_path: {}
+      jobList:
+      - name: MAKE_DIRECTORY
+        min_arg: 1
+        anything: something
+
+file:
+  relative_path: realization-33/iter-0/share/results/polygons/field_outline--goc.gri # case-relative
+  absolute_path: /some/absolute/path//realization-33/iter-0/share/results/polygons/field_outline--goc.gri
+  checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
+
+data: # The data block describes the actual data (e.g. surface). Only present in data objects
+
+  # if stratigraphic, name must match the strat column. This is the official name of this surface.
+  name: field_outline--goc
+  stratigraphic: false  # if true, this is a stratigraphic surface found in the strat column
+
+  # content is flexible more than standardized for now.
+  content: field_outline
+
+  # 
+  field_outline:
+    contact: goc
+
+  properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
+    - name: PropertyName
+      attribute: goc
+      is_discrete: false # to be used for discrete values in surfaces.
+      calculation: null # max/min/rms/var/maxpos/sum/etc
+
+  format: csv
+  unit: m
+  vertical_domain: depth # / time / null
+  depth_reference: msl # / seabed / etc # mandatory when vertical_domain is depth?
+  spec:
+    npolys: 6
+  bbox:
+    xmin: 456012.5003497944
+    xmax: 467540.52762886323
+    ymin: 5926499.999511719
+    ymax: 5939492.128326312
+    zmin: 1244.039
+    zmax: 2302.683
+  time:
+    - value: 2020-10-28T14:28:02
+      label: "some label"
+    - value: 2020-10-28T14:28:02
+      label: "some other label"
+  is_prediction: true # A mechanism for separating pure QC output from actual predictions
+  is_observation: false # Used for 4D data currently but also valid for other data?
+  description:
+    - Field outline calculated as intersection between top reservoir and the GOC
+    - Made in a FMU workflow
+
+display:
+  name: Field outline
+  subtitle: (GOC)
+  line:
+    show: true
+    color: red
+    style: solid
+  fill:
+    show: false
+
+access:
+  asset:
+    name: Drogon
+  ssdl:
+    access_level: internal
+    rep_include: true
+
+masterdata:
+  smda:
+    country:
+      - identifier: Norway
+        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+      - short_identifier: DROGON
+        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    field:
+      - identifier: DROGON
+        uuid: 00000000-0000-0000-0000-000000000000
+    coordinate_system:  # changing from "coordinates" to clarify this is not content
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    stratigraphic_column:
+      identifier: DROGON_2020
+      uuid: 12345678-1234-1234-1234-123456789012
+

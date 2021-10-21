@@ -1,0 +1,70 @@
+# example YAML file for ensembles (a parent object in Sumo)
+
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
+version: "0.8.0" # including for REP and others to build logic on.
+source: fmu  # always included, and always this value if FMU made it. For quick identification for external consumers.
+
+tracklog:
+  - datetime: 2020-10-28T14:28:02
+    user:
+      id: peesv
+    event: created
+  - datetime: 2020-10-28T14:46:14
+    user: 
+      id: peesv
+    event: updated
+
+class: case
+
+# no "data" block in ensemble objects
+
+# the "fmu" block in ensembles only have "model" and "ensemble" sub-elements
+fmu:
+  model:
+    name: ff
+    revision: 21.0.0.dev
+    description:
+      - detailed description
+      - optional
+
+  case:
+    name: MyCaseName
+    uuid: 8bb56d60-8758-481a-89a4-6bac8561d38e # (pseudo-)random valid uuid4
+    user:
+      id: jriv # $USER from ERT
+    description:
+      - yet other detailed description
+      - optional
+    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration/case
+
+# access:
+# Level containing properties used for access control
+
+access:
+  asset:
+    name: Drogon  # adding level to make room for unique ID in the future
+
+# ensemble objects have no ssdl details
+
+# masterdata:
+# These are static data read from external config YAML file (fmuconfig or similar).
+# Some of these static data are used while processing to populate some non-required
+# fields in data block (for example names alias, color-tables)
+
+masterdata:
+  smda:
+    country:
+      - identifier: Norway
+        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+      - short_identifier: DROGON
+        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    field:
+      - identifier: DROGON
+        uuid: 00000000-0000-0000-0000-000000000000
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    stratigraphic_column:
+      identifier: DROGON_2020
+      uuid: 12345678-1234-1234-1234-123456789012
