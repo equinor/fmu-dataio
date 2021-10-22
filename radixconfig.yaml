@@ -12,7 +12,6 @@ spec:
     - name: prod
   components:
     - name: main
-      src: "schema/app/."
       publicPort: http
       ports:
         - name: http
