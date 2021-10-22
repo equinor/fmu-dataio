@@ -152,8 +152,8 @@ def test_cube_io_larger_case_ertrun(tmp_path):
         meta = yaml.safe_load(mstream)
     assert (
         meta["file"]["relative_path"]
-        == "realization-0/iter-0/share/observations/cubes/volantis--what_descr" + \
-        "--20290101_19990601.segy"
+        == "realization-0/iter-0/share/observations/cubes/volantis--what_descr"
+        + "--20290101_19990601.segy"
     )
     assert meta["fmu"]["model"]["name"] == "ff"
     assert meta["fmu"]["iteration"]["name"] == "iter-0"
