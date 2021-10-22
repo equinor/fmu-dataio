@@ -24,7 +24,7 @@ def test_schema_basic_json_syntax():
     """Confirm that schemas are valid JSON"""
 
     # find and parse all schema files
-    path = PurePath(TESTDIR, "../schema/schema/*.json")
+    path = PurePath(TESTDIR, "../schema/definitions/*/schema/*.json")
     schema_file_paths = glob.glob(str(path))
 
     # check that schemas are there
@@ -37,7 +37,7 @@ def test_schema_basic_json_syntax():
 def test_schema_example_filenames():
     """Assert that all examples are .yml, not .yaml"""
 
-    searchpath = str(PurePath(TESTDIR, "../schema/examples/*.*"))
+    searchpath = str(PurePath(TESTDIR, "../schema/definitions/*/examples/*.*"))
     filenames = glob.glob(searchpath)
 
     # check that examples are there
@@ -47,26 +47,34 @@ def test_schema_example_filenames():
         assert filename.endswith(".yml"), filename
 
 
-def test_schema_validate_examples_as_is():
+def test_schema_080_validate_examples_as_is():
     """Confirm that examples are valid against the schema"""
 
     # parse the schema
-    schema = _parse_json(str(PurePath(TESTDIR, "../schema/schema/fmu_results.json")))
+    schema = _parse_json(
+        str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
     examples = [
         _parse_yaml(str(path))
-        for path in glob.glob(str(PurePath(TESTDIR, "../schema/examples/*.yml")))
+        for path in glob.glob(
+            str(PurePath(TESTDIR, "../schema/definitions/0.8.0/examples/*.yml"))
+        )
     ]
 
     for example in examples:
         jsonschema.validate(instance=example, schema=schema)
 
 
-def test_schema_logic_case():
+def test_schema_080_logic_case():
     """Asserting validation failure when illegal contents in case example"""
 
     # parse the schema and one example
-    schema = _parse_json(str(PurePath(TESTDIR, "../schema/schema/fmu_results.json")))
-    example = _parse_yaml(str(PurePath(TESTDIR, "../schema/examples/case.yml")))
+    schema = _parse_json(
+        str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
+    example = _parse_yaml(
+        str(PurePath(TESTDIR, "../schema/definitions/0.8.0/examples/case.yml"))
+    )
 
     # assert validation with no changes
     jsonschema.validate(instance=example, schema=schema)
@@ -86,16 +94,23 @@ def test_schema_logic_case():
         jsonschema.validate(instance=_example, schema=schema)
 
 
-def test_schema_logic_field_outline():
+def test_schema_080_logic_field_outline():
     """
     Test content-specific rule:
         When content == field_outline, require the field_outline field
     """
 
     # parse the schema and polygons
-    schema = _parse_json(str(PurePath(TESTDIR, "../schema/schema/fmu_results.json")))
+    schema = _parse_json(
+        str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
     metadata = _parse_yaml(
-        str(PurePath(TESTDIR, "../schema/examples/polygons_field_outline.yml"))
+        str(
+            PurePath(
+                TESTDIR,
+                "../schema/definitions/0.8.0/examples/polygons_field_outline.yml",
+            )
+        )
     )
 
     # check that assumptions for the test is true
@@ -112,12 +127,16 @@ def test_schema_logic_field_outline():
         jsonschema.validate(instance=_metadata, schema=schema)
 
 
-def test_schema_masterdata_smda():
+def test_schema_080_masterdata_smda():
     """Test schema logic for masterdata.smda"""
 
     # parse the schema and one example
-    schema = _parse_json(str(PurePath(TESTDIR, "../schema/schema/fmu_results.json")))
-    example = _parse_yaml(str(PurePath(TESTDIR, "../schema/examples/case.yml")))
+    schema = _parse_json(
+        str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
+    example = _parse_yaml(
+        str(PurePath(TESTDIR, "../schema/definitions/0.8.0/examples/case.yml"))
+    )
 
     # assert validation with no changes
     jsonschema.validate(instance=example, schema=schema)
