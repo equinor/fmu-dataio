@@ -114,7 +114,13 @@ def test_cube_io_larger_case_ertrun(tmp_path):
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
     out = (
-        current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "cubes"
+        current
+        / "mycase"
+        / "realization-0"
+        / "iter-0"
+        / "share"
+        / "observations"
+        / "cubes"
     )
 
     # alternative 1, set inside_rms True (developer setting for testing)
@@ -124,9 +130,9 @@ def test_cube_io_larger_case_ertrun(tmp_path):
         content="depth",
         unit="m",
         vertical_domain={"depth": "msl"},
-        timedata=None,
+        timedata=[[20290101, "monitor"], [19990601, "base"]],
         is_prediction=True,
-        is_observation=False,
+        is_observation=True,
         tagname="what Descr",
         verbosity="INFO",
         runfolder=runfolder.resolve(),
@@ -137,7 +143,7 @@ def test_cube_io_larger_case_ertrun(tmp_path):
     cube = xtgeo.Cube(ncol=23, nrow=12, nlay=5)
     exp1.export(cube, verbosity="INFO")
 
-    metadataout = out / ".volantis--what_descr.segy.yml"
+    metadataout = out / ".volantis--what_descr--20290101_19990601.segy.yml"
 
     assert metadataout.is_file() is True
 
@@ -146,7 +152,8 @@ def test_cube_io_larger_case_ertrun(tmp_path):
         meta = yaml.safe_load(mstream)
     assert (
         meta["file"]["relative_path"]
-        == "realization-0/iter-0/share/results/cubes/volantis--what_descr.segy"
+        == "realization-0/iter-0/share/observations/cubes/volantis--what_descr"
+        + "--20290101_19990601.segy"
     )
     assert meta["fmu"]["model"]["name"] == "ff"
     assert meta["fmu"]["iteration"]["name"] == "iter-0"

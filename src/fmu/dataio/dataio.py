@@ -122,7 +122,8 @@ class ExportData:
         timedata: If given, a list of lists with dates, .e.g.
             [[20200101, "monitor"], [20180101, "base"]] or just [[20210101]]
         is_prediction: True (default) of model prediction data
-        is_observation: Default is False.
+        is_observation: Default is False. If True, then disk storage will be on the
+            "share/observations" folder
         workflow: Short tag desciption of workflow (as description)
 
         name: The name of the object. If not set it is tried to be inferred from
