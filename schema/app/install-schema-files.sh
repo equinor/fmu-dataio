@@ -13,11 +13,11 @@ fi
 
 echo "URIPREFIX=$URIPREFIX"
 
-test -d schema/definitions || die 1 "Definitions not found."
+test -d ./definitions || die 1 "Definitions not found."
 
 mkdir schemas || die 1 "Unable to create directory 'schemas'."
 
-find schema/definitions -type d -name schema -print | \
+find ./definitions -type d -name schema -print | \
     while read dir; do
         pdir=`dirname "$dir"`
         sdir=schemas/`basename "$pdir"`
