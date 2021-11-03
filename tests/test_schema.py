@@ -1,8 +1,4 @@
-"""
-
-Tests for schema and examples.
-
-"""
+"""Tests for schema and examples."""
 
 import json
 from pathlib import Path, PurePath
@@ -90,9 +86,9 @@ def test_schema_080_logic_case():
 
 
 def test_schema_080_logic_field_outline():
-    """
-    Test content-specific rule:
-        When content == field_outline, require the field_outline field
+    """Test content-specific rule
+
+    When content == field_outline, require the field_outline field
     """
 
     # parse the schema and polygons
