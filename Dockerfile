@@ -9,14 +9,12 @@ USER 0
 RUN apt update
 RUN apt install -y jq
 
-# relative to Dockerfile??
-COPY ../definitions definitions/
+COPY schema/definitions definitions/
 
-COPY ./app/install-schema-files.sh /docker-entrypoint.d/50-install-schema-files.sh
+COPY schema/app/install-schema-files.sh /docker-entrypoint.d/50-install-schema-files.sh
 RUN chmod +x /docker-entrypoint.d/50-install-schema-files.sh
 
-# relative to Dockerfile??
-COPY ./app/fmu-schemas.conf /etc/nginx/conf.d
+COPY schema/app/fmu-schemas.conf /etc/nginx/conf.d
 
 RUN rm /etc/nginx/conf.d/default.conf
 
