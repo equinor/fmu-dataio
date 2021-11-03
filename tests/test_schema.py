@@ -5,13 +5,11 @@ Tests for schema and examples.
 """
 
 import json
-import glob
 from pathlib import Path, PurePath
 import datetime
 
 import pytest
 import yaml
-
 import jsonschema
 
 from copy import deepcopy
@@ -23,9 +21,8 @@ TESTDIR = Path(__file__).parent.absolute()
 def test_schema_basic_json_syntax():
     """Confirm that schemas are valid JSON"""
 
-    # find and parse all schema files
-    path = PurePath(TESTDIR, "../schema/definitions/*/schema/*.json")
-    schema_file_paths = glob.glob(str(path))
+    # find and parse all schema files. Listing to catch if none are found.
+    schema_file_paths = list(TESTDIR.glob("../schema/definitions/*/schema/*.json"))
 
     # check that schemas are there
     assert len(schema_file_paths) > 0
@@ -37,14 +34,14 @@ def test_schema_basic_json_syntax():
 def test_schema_example_filenames():
     """Assert that all examples are .yml, not .yaml"""
 
-    searchpath = str(PurePath(TESTDIR, "../schema/definitions/*/examples/*.*"))
-    filenames = glob.glob(searchpath)
+    # find and parse all example files. Listing to catch if none are found.
+    filenames = list(TESTDIR.glob("../schema/definitions/*/examples/*.*"))
 
     # check that examples are there
     assert len(filenames) > 0
 
     for filename in filenames:
-        assert filename.endswith(".yml"), filename
+        assert filename.name.endswith(".yml"), filename
 
 
 def test_schema_080_validate_examples_as_is():
@@ -56,9 +53,7 @@ def test_schema_080_validate_examples_as_is():
     )
     examples = [
         _parse_yaml(str(path))
-        for path in glob.glob(
-            str(PurePath(TESTDIR, "../schema/definitions/0.8.0/examples/*.yml"))
-        )
+        for path in TESTDIR.glob("../schema/definitions/0.8.0/examples/*.yml")
     ]
 
     for example in examples:
