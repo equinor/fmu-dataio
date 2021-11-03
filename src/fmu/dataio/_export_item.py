@@ -50,6 +50,7 @@ ALLOWED_CONTENTS = {
         "zrange": float,
         "filter_size": float,
         "scaling_factor": float,
+        "offset": float,
     },
     "fluid_contact": {"contact": str},
     "field_outline": {"contact": str},
