@@ -6,9 +6,10 @@ spec:
   build:
     secrets:
   environments:
-    - name: dev
+    - name: test
       build:
-        from: radixalize
+        from: main
+    - name: dev
     - name: prod
   components:
     - name: main
