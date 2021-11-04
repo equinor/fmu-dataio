@@ -151,6 +151,7 @@ class ExportData:
     table_fformat = "csv"
     arrow_fformat = "arrow"
     polygons_fformat = "csv"
+    points_fformat = "csv"
     grid_fformat = "roff"
     cube_fformat = "segy"
 
