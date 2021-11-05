@@ -1,7 +1,7 @@
 apiVersion: radix.equinor.com/v1
 kind: RadixApplication
 metadata:
-  name: fmu-schemas-testrun
+  name: fmu-schema-testrun
 spec:
   build:
     secrets:
