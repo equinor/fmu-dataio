@@ -2,4 +2,4 @@
 *
 
 # un-ignore schema folder
-!/schema/**
+!schema/**
