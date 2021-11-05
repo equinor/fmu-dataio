@@ -10,6 +10,7 @@ RUN apt update
 RUN apt install -y jq
 
 COPY schema/definitions definitions/
+RUN chown -R 101:101 .
 
 COPY schema/app/install-schema-files.sh /docker-entrypoint.d/50-install-schema-files.sh
 RUN chmod +x /docker-entrypoint.d/50-install-schema-files.sh
