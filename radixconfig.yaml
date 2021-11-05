@@ -1,15 +1,14 @@
 apiVersion: radix.equinor.com/v1
 kind: RadixApplication
 metadata:
-  name: fmu-schemas
+  name: fmu-schemas-testrun
 spec:
   build:
     secrets:
   environments:
-    - name: test
+    - name: dev
       build:
         from: integrate_schema
-    - name: dev
     - name: prod
   components:
     - name: main
