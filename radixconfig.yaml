@@ -3,8 +3,6 @@ kind: RadixApplication
 metadata:
   name: fmu-schema-testrun
 spec:
-  build:
-    secrets:
   environments:
     - name: dev
       build:
