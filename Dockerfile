@@ -1,4 +1,4 @@
-FROM nginxinc/nginx-unprivileged:1.18
+FROM nginxinc/nginx-unprivileged:latest
 
 ARG uriprefix
 ENV URIPREFIX=${uriprefix}
