@@ -8,7 +8,7 @@ spec:
   environments:
     - name: test
       build:
-        from: main
+        from: integrate_schema
     - name: dev
     - name: prod
   components:
