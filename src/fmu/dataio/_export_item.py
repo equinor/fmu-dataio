@@ -27,7 +27,7 @@ VALID_GRID_FORMATS = {"hdf": ".hdf", "roff": ".roff"}
 VALID_CUBE_FORMATS = {"segy": ".segy"}
 VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv", "arrow": ".arrow"}
 VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".pol"}
-
+VALID_POINTS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".poi"}
 
 # the content must conform with the given json schema, e.g.
 # https://github.com/equinor/fmu-metadata/blob/dev/definitions/*/schema/fmu_results.json
@@ -50,6 +50,7 @@ ALLOWED_CONTENTS = {
         "zrange": float,
         "filter_size": float,
         "scaling_factor": float,
+        "offset": str,
     },
     "fluid_contact": {"contact": str},
     "field_outline": {"contact": str},
@@ -204,6 +205,12 @@ class _ExportItem:
             self.efolder = "polygons"
             self.valid = VALID_POLYGONS_FORMATS
             self.fmt = self.dataio.polygons_fformat
+        elif isinstance(self.obj, xtgeo.Points):
+            self.subtype = "Points"
+            self.classname = "points"
+            self.efolder = "points"
+            self.valid = VALID_POINTS_FORMATS
+            self.fmt = self.dataio.points_fformat
         elif isinstance(self.obj, xtgeo.Cube):
             self.subtype = "RegularCube"
             self.classname = "cube"
@@ -592,6 +599,8 @@ class _ExportItem:
             self._data_process_cpgridproperty()
         elif self.subtype == "Polygons":
             self._data_process_object_polygons()
+        elif self.subtype == "Points":
+            self._data_process_object_points()
         elif self.subtype == "DataFrame":
             self._data_process_object_dataframe()
         elif self.subtype == "ArrowTable":
@@ -743,6 +752,40 @@ class _ExportItem:
         meta["bbox"]["zmin"] = float(zmin)
         meta["bbox"]["zmax"] = float(zmax)
         logger.info("Process data metadata for Polygons... done!!")
+
+    def _data_process_object_points(self):
+        """Process/collect the data items for Points"""
+        logger.info("Process data metadata for Points")
+
+        dataio = self.dataio
+        poi = self.obj
+
+        meta = dataio.metadata4data
+        # shortform
+        meta["spec"] = OrderedDict()
+
+        # list attributes (extra columns)
+        if len(poi.dataframe.columns) > 3:
+            attrnames = poi.dataframe.columns[3:]
+            meta["spec"]["attributes"] = list(attrnames)
+        meta["spec"]["size"] = int(poi.dataframe.size)
+
+        # min, max:
+        xmin = poi.dataframe[poi.xname].min()
+        xmax = poi.dataframe[poi.xname].max()
+        ymin = poi.dataframe[poi.yname].min()
+        ymax = poi.dataframe[poi.yname].max()
+        zmin = poi.dataframe[poi.zname].min()
+        zmax = poi.dataframe[poi.zname].max()
+
+        meta["bbox"] = OrderedDict()
+        meta["bbox"]["xmin"] = float(xmin)
+        meta["bbox"]["xmax"] = float(xmax)
+        meta["bbox"]["ymin"] = float(ymin)
+        meta["bbox"]["ymax"] = float(ymax)
+        meta["bbox"]["zmin"] = float(zmin)
+        meta["bbox"]["zmax"] = float(zmax)
+        logger.info("Process data metadata for Points... done!!")
 
     def _data_process_object_dataframe(self):
         """Process/collect the data items for DataFrame."""
@@ -901,6 +944,9 @@ class _ExportItem:
         """
         stem = "unset"
         outroot = self.dataio.runpath / "share" / "results"
+        if self.dataio.is_observation:
+            outroot = self.dataio.runpath / "share" / "observations"
+
         loc = self.efolder
 
         stem = self.name.lower()
@@ -1004,7 +1050,16 @@ class _ExportItem:
             worker.rename(columns=renamings, inplace=True)
             worker.to_csv(outfile, index=False)
             self.dataio.metadata4data["format"] = "csv"
+        elif "csv" in self.fmt and self.subtype == "Points":
+            renamings = {self.obj.xname: "X", self.obj.yname: "Y", self.obj.zname: "Z"}
+            worker = self.obj.dataframe.copy()
+            worker.rename(columns=renamings, inplace=True)
+            worker.to_csv(outfile, index=False)
+            self.dataio.metadata4data["format"] = "csv"
         elif "irap_ascii" in self.fmt and self.subtype == "Polygons":
+            self.obj.to_file(outfile)
+            self.dataio.metadata4data["format"] = "irap_ascii"
+        elif "irap_ascii" in self.fmt and self.subtype == "Points":
             self.obj.to_file(outfile)
             self.dataio.metadata4data["format"] = "irap_ascii"
         elif self.fmt == "csv" and self.subtype == "DataFrame":

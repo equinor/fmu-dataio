@@ -186,6 +186,13 @@ def test_exported_filenames(tmp_path):
         tmp_path / FMUP1 / "polygons" / ".myname_with_dots.csv.yml"
     ).is_file() is True
 
+    # ...for a points object...
+    poi = xtgeo.Points()
+    poi.from_list([(1.0, 2.0, 3.0, 0), (1.0, 2.0, 3.0, 0)])
+    exp.export(poi)
+    assert (tmp_path / FMUP1 / "points" / "myname_with_dots.csv").is_file() is True
+    assert (tmp_path / FMUP1 / "points" / ".myname_with_dots.csv.yml").is_file() is True
+
     # ...and for a table.
     table = poly.dataframe
     exp.export(table)

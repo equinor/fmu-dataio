@@ -185,7 +185,9 @@ def test_data_process_content():
     dataio = fmu.dataio.ExportData(
         name="Valysar",
         config=CFG2,
-        content={"seismic": {"attribute": "attribute_timeshifted_somehow"}},
+        content={
+            "seismic": {"attribute": "attribute_timeshifted_somehow", "offset": "mid"}
+        },
         timedata=[["20230101", "monitor"], [20210902, "base"]],
         tagname="WhatEver",
     )
@@ -198,6 +200,7 @@ def test_data_process_content():
     assert (
         dataio.metadata4data["seismic"]["attribute"] == "attribute_timeshifted_somehow"
     )
+    assert dataio.metadata4data["seismic"]["offset"] == "mid"
 
 
 def test_data_process_content_shall_fail():
