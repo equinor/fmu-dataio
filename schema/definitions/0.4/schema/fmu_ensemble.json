@@ -1,0 +1,303 @@
+{
+    "title": "fmu_ensemble",
+    "description": "FMU ensemble object",
+    "required": [
+        "source",
+        "user",
+        "datetime",
+        "field_id",
+        "fmu_ensemble",
+        "fmu_template",
+        "coordinate_reference_system"
+    ],
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "class": {
+            "description": "Object type information",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "description": "The data type this document describes",
+                    "type": "string",
+                    "examples": [
+                        "fmu_ensemble"
+                    ]
+                },
+                "class_version": {
+                    "description": "The version of the metadata definitions used.",
+                    "type": "string",
+                    "examples": [
+                        "0.8"
+                    ]
+                }
+            }
+        },
+        "source": {
+            "description": "Source system for this data object.",
+            "type": "string",
+            "examples": [
+                "fmu"
+            ]
+        },
+        "user": {
+            "description": "User name for user who created this data object.",
+            "type": "string",
+            "examples": [
+                "peesv"
+            ]
+        },
+        "datetime": {
+            "description": "Datetime for the generation of the metadata for this object.",
+            "type": "string",
+            "examples": [
+                "2020-06-26 09:28:32"
+            ]
+        },
+        "field_id": {
+            "description": "Block describing the field/asset/unit that owns this data object.",
+            "type": "object",
+            "properties": {
+                "field_name": {
+                    "description": "The field name, written as in SMDA",
+                    "type": "string",
+                    "examples": [
+                        "JOHAN SVERDRUP"
+                    ]
+                },
+                "field_guid": {
+                    "description": "The field guid as in SMDA",
+                    "type": "integer",
+                    "examples": [
+                        268281971
+                    ]
+                }
+            }
+        },
+        "country_identifier": {
+            "description": "The country identifier, as in SMDA",
+            "type": "string",
+            "examples": [
+                "Norway"
+            ]
+        },
+        "fmu_ensemble": {
+            "description": "Block containing metadata for the FMU ensemble in which these polygons were created.",
+            "type": "object",
+            "properties": {
+                "fmu_ensemble_id": {
+                    "description": "The unique ID of this FMU ensemble.",
+                    "type": "string",
+                    "examples": [
+                        "e00a862d-06f8-4ff9-a19f-9eaf09cc8c87"
+                    ]
+                },
+                "case": {
+                    "description": "The name of this FMU case",
+                    "type": "string",
+                    "examples": [
+                        "MyCaseName"
+                    ]
+                },
+                "iteration": {
+                    "description": "The name of this iteration",
+                    "type": "string",
+                    "examples": [
+                        "iter-0"
+                    ]
+                },
+                "runs": {
+                    "description": "List of runs made for this ensemble",
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "user": {
+                                "description": "The user who conducted this run",
+                                "type": "string",
+                                "examples": [
+                                    "peesv"
+                                ]
+                            },
+                            "datetime": {
+                                "description": "Datetime for the initializing of this run on YYYY-MM-DD HH:MM:SS format",
+                                "type": "string",
+                                "examples": [
+                                    "2019-01-25 18:38:00"
+                                ]
+                            },
+                            "configpath": {
+                                "description": "Absolute path to the ERT config file for this run",
+                                "type": "string",
+                                "examples": [
+                                    "/project/johan_sverdrup/resmod/ff/..."
+                                ]
+                            }
+                        }
+                    },
+                    "examples": [
+                        {
+                            "user": "peesv",
+                            "datetime": "2020-06-26 09:28:32",
+                            "configpath": "/project/johan_sverdrup/resmod/...",
+                            "runpath": "/scratch/johan_sverdrup/..."
+                        },
+                        {
+                            "user": "someuser",
+                            "datetime": "2020-06-26 09:52:02",
+                            "configpath": "/project/johan_sverdrup/resmod/...",
+                            "runpath": "/scratch/johan_sverdrup/..."
+                        }
+                    ]
+                }
+            }
+        },
+        "fmu_template": {
+            "description": "Block describing the FMU template used to produce this data object",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "$comment": "This attribute is intended for human reading. No logic should be built on the contents of this attribute.",
+                    "description": "A free-text description of this model setup.",
+                    "type": "string",
+                    "examples": [
+                        "The continously updated full field reservoir model for Johan Sverdrup."
+                    ]
+                },
+                "workflow_manager": {
+                    "description": "The workflow manager used",
+                    "type": "string",
+                    "examples": [
+                        "ert"
+                    ]
+                },
+                "workflow_manager_version": {
+                    "description": "The version of the workflow manager used",
+                    "type": "string",
+                    "examples": [
+                        "2.2.1"
+                    ]
+                },
+                "stratigraphic_column": {
+                    "description": "The stratigraphic column used in this template, matching valid column in SMDA",
+                    "type": "string",
+                    "examples": [
+                        "JOHAN SVERDRUP 2015"
+                    ]
+                },
+                "model_name": {
+                    "description": "The name of the model setup for which this template belongs",
+                    "type": "string",
+                    "examples": [
+                        "ff"
+                    ]
+                },
+                "model_revision": {
+                    "description": "The model revision used in this template",
+                    "type": "string",
+                    "examples": [
+                        "2020a b007.1.0"
+                    ]
+                },
+                "static_model_software": {
+                    "description": "The static modeling software used in this template",
+                    "type": "string",
+                    "examples": [
+                        "rms"
+                    ]
+                },
+                "static_model_software_version": {
+                    "description": "The version of the static modeling software used in this template",
+                    "type": "string",
+                    "examples": [
+                        "10.1.3"
+                    ]
+                },
+                "simulator": {
+                    "description": "The simulator used for this ensemble",
+                    "type": "string",
+                    "examples": [
+                        "eclipse"
+                    ]
+                },
+                "simulator_version": {
+                    "description": "The version of the simulator used",
+                    "type": "string",
+                    "examples": [
+                        "xx"
+                    ]
+                }
+            }
+        },
+        "coordinate_reference_system": {
+            "description": "Block describing the coordinate reference system for which this data object belongs to.",
+            "type": "object",
+            "properties": {
+                "base_system": {
+                    "description": "The base system",
+                    "type": "string",
+                    "examples": [
+                        "WGS84"
+                    ]
+                },
+                "central_meridian": {
+                    "description": "The central meridian",
+                    "type": "integer",
+                    "examples": [
+                        3
+                    ]
+                },
+                "datum": {
+                    "description": "The datum",
+                    "type": "string",
+                    "examples": [
+                        "OW_European_Datum_1950"
+                    ]
+                },
+                "hemisphere": {
+                    "description": "The hemisphere",
+                    "type": "string",
+                    "examples": [
+                        "Northern"
+                    ]
+                },
+                "name": {
+                    "description": "The name of the coordinate system, matching SMDA",
+                    "type": "string",
+                    "examples": [
+                        "ST_ED50_UTM31N_P23031_T1133"
+                    ]
+                },
+                "projection": {
+                    "description": "The projection",
+                    "type": "string",
+                    "examples": [
+                        "UTM"
+                    ]
+                },
+                "zone": {
+                    "description": "The zone",
+                    "type": "integer",
+                    "examples": [
+                        31
+                    ]
+                },
+                "epsg_version": {
+                    "description": "The EPSG version for this coordinate system",
+                    "type": "integer",
+                    "examples": [
+                        8
+                    ]
+                },
+                "epsg_code": {
+                    "description": "The EPSG code for this coordinate system",
+                    "type": "integer",
+                    "examples": [
+                        23031
+                    ]
+                }
+            }
+        }
+    }
+}

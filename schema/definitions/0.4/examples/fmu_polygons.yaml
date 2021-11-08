@@ -1,0 +1,101 @@
+# Example yaml generated from schema.
+# Schema: ../schema/fmu_polygons.json
+# Schema title: fmu_polygons
+# Schema description: FMU output polygons data object
+# Last updated: 2020-08-05 15:09:29
+
+# NOTE! Not all attributes are mandatory, but some are.
+# If in doubt, refer to the schema or the documentation.
+
+class:
+  class_version: '0.8'
+  type: fmu_polygons
+coordinate_reference_system:
+  base_system: WGS84
+  central_meridian: 3
+  datum: OW_European_Datum_1950
+  epsg_code: 23031
+  epsg_version: 8
+  hemisphere: Northern
+  name: ST_ED50_UTM31N_P23031_T1133
+  projection: UTM
+  zone: 31
+country_identifier: Norway
+data:
+  aggregation:
+    realizations:
+    - 0
+    - 1
+    - 2
+    - 343
+    - 643
+    type: mean
+  alias:
+  - Eiriksson_Fm_1_Top
+  - E1Top
+  - Eiriksson1Top
+  - TopEirikssonFm_1
+  checksum: 4ef5b9fe983532a69932c8a0573da53f
+  custom:
+    MyCustomAttribute: MyCustomValue
+    MyOtherCustomAttribute: MyOtherCustomValue
+  depth_reference: msl
+  description: Field outline calculated from the structural model
+  fmu_module: rms
+  fmu_submodule: structural_model
+  format: csv
+  location:
+    xmax: 532584.0
+    xmin: 465634.0
+    ymax: 7955750.0
+    ymin: 7902850.0
+  name: Eiriksson Fm. 1 JS Top
+  realization: 10
+  relative_file_path: realization-20/pred/share/depth/stored--filename.csv
+  time:
+    t1: '2020-01-25'
+    t1_label: MyLabel
+    t2: '2059-01-25'
+    t2_label: MyLabel
+  unit: m
+  vertical_domain: depth
+datetime: '2020-06-26 09:28:32'
+field_id:
+  field_guid: 268281971
+  field_name: JOHAN SVERDRUP
+fmu_ensemble:
+  case: MyCaseName
+  fmu_ensemble_id: e00a862d-06f8-4ff9-a19f-9eaf09cc8c87
+  iteration: iter-0
+  runs:
+  - configpath: /project/johan_sverdrup/resmod/...
+    datetime: '2020-06-26 09:28:32'
+    runpath: /scratch/johan_sverdrup/...
+    user: peesv
+  - configpath: /project/johan_sverdrup/resmod/...
+    datetime: '2020-06-26 09:52:02'
+    runpath: /scratch/johan_sverdrup/...
+    user: someuser
+fmu_template:
+  model_name: ff
+  model_revision: 2020a b007.1.0
+  simulator: eclipse
+  simulator_version: xx
+  static_model_software: rms
+  static_model_software_version: 10.1.3
+  stratigraphic_column: JOHAN SVERDRUP 2015
+  workflow_manager: ert
+  workflow_manager_version: 2.2.1
+rep_include: true
+sensitivity: internal
+source: fmu
+user: peesv
+visual_settings:
+  display_name: Field Outline
+  lines:
+    color: black
+    visible: true
+  points:
+    color: '#000000'
+    visible: true
+  subtitle: MySubTitle
