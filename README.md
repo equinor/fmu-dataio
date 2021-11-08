@@ -21,8 +21,7 @@ realization, while ensemble metadata when run with ERT will be stored in
 Definitions of metadata applied to FMU results are in the form of a [JSON schema](https://json-schema.org/).
 Within Equinor, the schema is available on a Radix-hosted endpoint.
 
-**DEV** ![](https://api.radix.equinor.com/api/v1/applications/fmu-schemas/environments/prod/buildstatus)
-**PROD** ![](https://api.radix.equinor.com/api/v1/applications/fmu-schemas/environments/dev/buildstatus)
+**DEV** ![](https://api.radix.equinor.com/api/v1/applications/fmu-schemas/environments/dev/buildstatus)
 
 ## Usage
 
