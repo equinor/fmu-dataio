@@ -1,0 +1,41 @@
+apiVersion: radix.equinor.com/v1
+kind: RadixApplication
+metadata:
+  name: fmu-schema-testrun
+spec:
+  environments:
+    - name: dev
+      build:
+        from: integrate_schema
+    - name: prod
+  components:
+    - name: main
+      publicPort: http
+      ports:
+        - name: http
+          port: 8080
+      ingressConfiguration:
+        - stickysessions
+      environmentConfig:
+        - environment: dev
+          horizontalScaling:
+            minReplicas: 1
+            maxReplicas: 2
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+        - environment: prod
+          horizontalScaling:
+            minReplicas: 1
+            maxReplicas: 2
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"

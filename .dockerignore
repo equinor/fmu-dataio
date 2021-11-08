@@ -1,0 +1,5 @@
+# ignore everything
+*
+
+# un-ignore schema folder
+!schema/**
