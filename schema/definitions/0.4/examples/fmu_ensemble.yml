@@ -1,0 +1,53 @@
+# Example yaml generated from schema.
+# Schema: ../schema/fmu_ensemble.json
+# Schema title: fmu_ensemble
+# Schema description: FMU ensemble object
+# Last updated: 2020-08-05 15:09:29
+
+# NOTE! Not all attributes are mandatory, but some are.
+# If in doubt, refer to the schema or the documentation.
+
+class:
+  class_version: '0.8'
+  type: fmu_ensemble
+coordinate_reference_system:
+  base_system: WGS84
+  central_meridian: 3
+  datum: OW_European_Datum_1950
+  epsg_code: 23031
+  epsg_version: 8
+  hemisphere: Northern
+  name: ST_ED50_UTM31N_P23031_T1133
+  projection: UTM
+  zone: 31
+country_identifier: Norway
+datetime: '2020-06-26 09:28:32'
+field_id:
+  field_guid: 268281971
+  field_name: JOHAN SVERDRUP
+fmu_ensemble:
+  case: MyCaseName
+  fmu_ensemble_id: e00a862d-06f8-4ff9-a19f-9eaf09cc8c87
+  iteration: iter-0
+  runs:
+  - configpath: /project/johan_sverdrup/resmod/...
+    datetime: '2020-06-26 09:28:32'
+    runpath: /scratch/johan_sverdrup/...
+    user: peesv
+  - configpath: /project/johan_sverdrup/resmod/...
+    datetime: '2020-06-26 09:52:02'
+    runpath: /scratch/johan_sverdrup/...
+    user: someuser
+fmu_template:
+  description: The continously updated full field reservoir model for Johan Sverdrup.
+  model_name: ff
+  model_revision: 2020a b007.1.0
+  simulator: eclipse
+  simulator_version: xx
+  static_model_software: rms
+  static_model_software_version: 10.1.3
+  stratigraphic_column: JOHAN SVERDRUP 2015
+  workflow_manager: ert
+  workflow_manager_version: 2.2.1
+source: fmu
+user: peesv
