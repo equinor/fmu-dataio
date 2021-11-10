@@ -28,6 +28,7 @@ import datetime
 import getpass
 import json
 import logging
+import os
 import pathlib
 import re
 import sys
@@ -111,7 +112,11 @@ class ExportData:
             dictionary with the following fields: [TODO]
         config: A configuation dictionary. In the standard case this is read
             from FMU global variables (via fmuconfig). The dictionary must contain
-            some predefined main level keys to work with fmu-dataio.
+            some predefined main level keys to work with fmu-dataio. If the key is
+            missing or key value is None, then it will look for the environment variable
+            FMU_CONFIG_FILE to detect the file. If that is missing it will assume
+            the the FMU config is ../../fmuconfig/output/global_variables.yml. If
+            no success in finding the file, a RuntimeError will be raised.
         content: Is a string or a dictionary with one key. Example is "depth" or
             {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}
         subfolder: It is possible to set one level of subfolders for file output.
@@ -193,7 +198,10 @@ class ExportData:
         #    inside_rms: If forced to true then pretend to be in rms env.
         self._runpath = runpath
         self._access_ssdl = access_ssdl
-        self._config = config
+        if config is None:
+            self.detect_config()
+        else:
+            self._config = config
         self._content = content
         self._context = context
         self._is_prediction = is_prediction
@@ -366,6 +374,21 @@ class ExportData:
     # ==================================================================================
     # Private metadata methods which retrieve metadata that are not closely linked to
     # the actual instance to be exported.
+
+    def _detect_config(self):
+        """Try to detect the config from env variable or standard location."""
+
+        if "FMU_GLOBAL_CONFIG" in os.environ:
+            cfg_file = os.environ["FMU_GLOBAL_CONFIG"]
+            with open(cfg_file, "r", encoding="utf8") as stream:
+                try:
+                    self._config = yaml.safe_load(stream)
+                except yaml.YAMLError as exc:
+                    print(exc)
+
+            return
+
+        default = "../../fmuconfig/output/global_variables.yml"
 
     def _get_meta_masterdata(self) -> None:
         """Get metadata from masterdata section in config.
