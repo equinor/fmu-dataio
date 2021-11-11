@@ -1,6 +1,7 @@
 """Test the main class DataExporter and functions in the dataio module, ExportData."""
 import json
 import logging
+import os
 import re
 import shutil
 from collections import OrderedDict
@@ -31,7 +32,11 @@ RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
 RUNPATH = "tests/data/drogon/ertrun1/realization-0/iter-0"
 #                             case      real        iter
 
+GLOBAL_CONFIG = "tests/data/drogon/global_config2/global_variables.yml"
+GLOBAL_CONFIG_INVALID = "tests/data/drogon/global_config2/not_valid_yaml.yml"
+
 FMUP1 = "share/results"
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -98,6 +103,42 @@ def test_get_folderlist():
     folderlist = case2._get_folderlist()
     assert folderlist[-1] == "iter-0"
     assert folderlist[-2] == "realization-0"
+
+
+def test_process_fmu_config_from_env():
+    """Apply config from the env variabel FMU_GLOBAL_CONFIG"""
+    os.environ["FMU_GLOBAL_CONFIG"] = GLOBAL_CONFIG
+
+    edata = fmu.dataio.ExportData(
+        config=None, runfolder=RUN, verbosity="INFO", dryrun=True
+    )
+    assert (
+        edata._config["masterdata"]["smda"]["coordinate_system"]["identifier"]
+        == "ST_WGS84_UTM37N_P32637"
+    )
+
+
+def test_process_fmu_config_from_env_fail():
+    """Apply config from the env variabel FMU_GLOBAL_CONFIG"""
+    os.environ["FMU_GLOBAL_CONFIG"] = "non_existing_file"
+
+    with pytest.raises(FileNotFoundError):
+        _ = fmu.dataio.ExportData(
+            config=None, runfolder=RUN, verbosity="INFO", dryrun=True
+        )
+    del os.environ["FMU_GLOBAL_CONFIG"]
+
+
+def test_process_fmu_config_from_env_invalid_yaml():
+    """Apply config from the env variabel FMU_GLOBAL_CONFIG but the file is not YAML."""
+    os.environ["FMU_GLOBAL_CONFIG"] = GLOBAL_CONFIG_INVALID
+
+    with pytest.raises(yaml.YAMLError):
+        _ = fmu.dataio.ExportData(
+            config=None, runfolder=RUN, verbosity="INFO", dryrun=True
+        )
+
+    del os.environ["FMU_GLOBAL_CONFIG"]
 
 
 def test_process_fmu_realisation():
