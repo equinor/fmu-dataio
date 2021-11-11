@@ -33,6 +33,7 @@ import pathlib
 import re
 import sys
 import uuid
+import warnings
 from collections import OrderedDict
 from typing import Any, List, Optional, Union
 
@@ -114,9 +115,8 @@ class ExportData:
             from FMU global variables (via fmuconfig). The dictionary must contain
             some predefined main level keys to work with fmu-dataio. If the key is
             missing or key value is None, then it will look for the environment variable
-            FMU_CONFIG_FILE to detect the file. If that is missing it will assume
-            the the FMU config is ../../fmuconfig/output/global_variables.yml. If
-            no success in finding the file, a RuntimeError will be raised.
+            FMU_GLOBAL_CONFIG to detect the file. If no success in finding the file,
+            a UserWarning is made.
         content: Is a string or a dictionary with one key. Example is "depth" or
             {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}
         subfolder: It is possible to set one level of subfolders for file output.
@@ -196,10 +196,13 @@ class ExportData:
         #        developer setting when running tests e.g. in pytest's tmp_path
         #    dryrun: Set instance variables but do not run functions (for unit testing)
         #    inside_rms: If forced to true then pretend to be in rms env.
+        self._verbosity = verbosity
+        logger.setLevel(level=self._verbosity)
+
         self._runpath = runpath
         self._access_ssdl = access_ssdl
         if config is None:
-            self.detect_config()
+            self._try_get_config()
         else:
             self._config = config
         self._content = content
@@ -223,8 +226,6 @@ class ExportData:
         self._description = description
         self._unit = unit
 
-        self._verbosity = verbosity
-
         # keep track of case
         self._case = False
 
@@ -232,7 +233,6 @@ class ExportData:
         self._iterfolder = None
         self._realfolder = None
 
-        logger.setLevel(level=self._verbosity)
         self._pwd = pathlib.Path().absolute()  # process working directory
 
         # developer option (for testing): set another pwd
@@ -375,20 +375,28 @@ class ExportData:
     # Private metadata methods which retrieve metadata that are not closely linked to
     # the actual instance to be exported.
 
-    def _detect_config(self):
-        """Try to detect the config from env variable or standard location."""
+    def _try_get_config(self):
+        """Try to detect and get the config from env variable."""
+        envvar = "FMU_GLOBAL_CONFIG"
 
-        if "FMU_GLOBAL_CONFIG" in os.environ:
-            cfg_file = os.environ["FMU_GLOBAL_CONFIG"]
-            with open(cfg_file, "r", encoding="utf8") as stream:
-                try:
-                    self._config = yaml.safe_load(stream)
-                except yaml.YAMLError as exc:
-                    print(exc)
-
+        if envvar in os.environ:
+            cfg = os.environ[envvar]
+            logger.info("Set global config from env variable %s as %s", envvar, cfg)
+        else:
+            warnings.warn(
+                "The key 'config' is set to None, and not able to detect a "
+                f"config file from environment variable {envvar}. Use None as config.",
+                UserWarning,
+            )
+            self._config = None
             return
 
-        default = "../../fmuconfig/output/global_variables.yml"
+        with open(cfg, "r", encoding="utf8") as stream:
+            try:
+                self._config = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+                raise
 
     def _get_meta_masterdata(self) -> None:
         """Get metadata from masterdata section in config.
@@ -768,7 +776,9 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
     Args:
         config: A configuation dictionary. In the standard case this is read
             from FMU global vaiables (via fmuconfig). The dictionary must contain
-            some predefined main level keys.
+            some predefined main level keys. If config is None and the env variable
+            FMU_GLOBAL_CONFIG pointing to file is provided, then it will attempt to
+            parse that file.
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO".
     """
@@ -779,13 +789,16 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
         verbosity: Optional[str] = "CRITICAL",
         **kwargs,
     ) -> None:
-
-        self._config = config
         self._verbosity = verbosity
+        logger.setLevel(level=self._verbosity)
+
+        if config is None:
+            self._try_get_config()
+        else:
+            self._config = config
 
         self._case = True
 
-        logger.setLevel(level=self._verbosity)
         self._pwd = pathlib.Path().absolute()
         logger.info("Create instance of InitializeCase")
 
