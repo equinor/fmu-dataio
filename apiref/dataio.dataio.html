@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 0.6.1.dev5+g2b9d766 documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 0.6.1.dev9+gc9652ff documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -152,7 +152,10 @@ e.g. seismic attributes this can be important. The input is a
 dictionary with the following fields: [TODO]</p></li>
 <li><p><strong>config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – A configuation dictionary. In the standard case this is read
 from FMU global variables (via fmuconfig). The dictionary must contain
-some predefined main level keys to work with fmu-dataio.</p></li>
+some predefined main level keys to work with fmu-dataio. If the key is
+missing or key value is None, then it will look for the environment variable
+FMU_GLOBAL_CONFIG to detect the file. If no success in finding the file,
+a UserWarning is made.</p></li>
 <li><p><strong>content</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Is a string or a dictionary with one key. Example is “depth” or
 {“fluid_contact”: {“xxx”: “yyy”, “zzz”: “uuu”}}</p></li>
 <li><p><strong>subfolder</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – It is possible to set one level of subfolders for file output.</p></li>
@@ -394,7 +397,9 @@ be included. For backward compatibilty, <code class="docutils literal notranslat
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – A configuation dictionary. In the standard case this is read
 from FMU global vaiables (via fmuconfig). The dictionary must contain
-some predefined main level keys.</p></li>
+some predefined main level keys. If config is None and the env variable
+FMU_GLOBAL_CONFIG pointing to file is provided, then it will attempt to
+parse that file.</p></li>
 <li><p><strong>verbosity</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Is logging/message level for this module. Input as
 in standard python logging; e.g. “WARNING”, “INFO”.</p></li>
 </ul>
@@ -449,7 +454,7 @@ or similar.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.6.1.dev5+g2b9d766).</p>
+    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.6.1.dev9+gc9652ff).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

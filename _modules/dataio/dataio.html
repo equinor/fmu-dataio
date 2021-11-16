@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.6.1.dev5+g2b9d766 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.6.1.dev9+gc9652ff documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -98,10 +98,12 @@
 <span class="kn">import</span> <span class="nn">getpass</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
@@ -181,7 +183,10 @@
 <span class="sd">            dictionary with the following fields: [TODO]</span>
 <span class="sd">        config: A configuation dictionary. In the standard case this is read</span>
 <span class="sd">            from FMU global variables (via fmuconfig). The dictionary must contain</span>
-<span class="sd">            some predefined main level keys to work with fmu-dataio.</span>
+<span class="sd">            some predefined main level keys to work with fmu-dataio. If the key is</span>
+<span class="sd">            missing or key value is None, then it will look for the environment variable</span>
+<span class="sd">            FMU_GLOBAL_CONFIG to detect the file. If no success in finding the file,</span>
+<span class="sd">            a UserWarning is made.</span>
 <span class="sd">        content: Is a string or a dictionary with one key. Example is &quot;depth&quot; or</span>
 <span class="sd">            {&quot;fluid_contact&quot;: {&quot;xxx&quot;: &quot;yyy&quot;, &quot;zzz&quot;: &quot;uuu&quot;}}</span>
 <span class="sd">        subfolder: It is possible to set one level of subfolders for file output.</span>
@@ -261,9 +266,15 @@
         <span class="c1">#        developer setting when running tests e.g. in pytest&#39;s tmp_path</span>
         <span class="c1">#    dryrun: Set instance variables but do not run functions (for unit testing)</span>
         <span class="c1">#    inside_rms: If forced to true then pretend to be in rms env.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span> <span class="o">=</span> <span class="n">verbosity</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">runpath</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_access_ssdl</span> <span class="o">=</span> <span class="n">access_ssdl</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_try_get_config</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="o">=</span> <span class="n">content</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">context</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_prediction</span> <span class="o">=</span> <span class="n">is_prediction</span>
@@ -285,8 +296,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="n">description</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_unit</span> <span class="o">=</span> <span class="n">unit</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span> <span class="o">=</span> <span class="n">verbosity</span>
-
         <span class="c1"># keep track of case</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_case</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -294,7 +303,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_iterfolder</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_realfolder</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>  <span class="c1"># process working directory</span>
 
         <span class="c1"># developer option (for testing): set another pwd</span>
@@ -436,6 +444,29 @@
     <span class="c1"># ==================================================================================</span>
     <span class="c1"># Private metadata methods which retrieve metadata that are not closely linked to</span>
     <span class="c1"># the actual instance to be exported.</span>
+
+    <span class="k">def</span> <span class="nf">_try_get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Try to detect and get the config from env variable.&quot;&quot;&quot;</span>
+        <span class="n">envvar</span> <span class="o">=</span> <span class="s2">&quot;FMU_GLOBAL_CONFIG&quot;</span>
+
+        <span class="k">if</span> <span class="n">envvar</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="n">cfg</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">envvar</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set global config from env variable </span><span class="si">%s</span><span class="s2"> as </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">envvar</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The key &#39;config&#39; is set to None, and not able to detect a &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;config file from environment variable </span><span class="si">{</span><span class="n">envvar</span><span class="si">}</span><span class="s2">. Use None as config.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+                <span class="k">raise</span>
 
     <span class="k">def</span> <span class="nf">_get_meta_masterdata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get metadata from masterdata section in config.</span>
@@ -815,7 +846,9 @@
 <span class="sd">    Args:</span>
 <span class="sd">        config: A configuation dictionary. In the standard case this is read</span>
 <span class="sd">            from FMU global vaiables (via fmuconfig). The dictionary must contain</span>
-<span class="sd">            some predefined main level keys.</span>
+<span class="sd">            some predefined main level keys. If config is None and the env variable</span>
+<span class="sd">            FMU_GLOBAL_CONFIG pointing to file is provided, then it will attempt to</span>
+<span class="sd">            parse that file.</span>
 <span class="sd">        verbosity: Is logging/message level for this module. Input as</span>
 <span class="sd">            in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -826,13 +859,16 @@
         <span class="n">verbosity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span> <span class="o">=</span> <span class="n">verbosity</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_try_get_config</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_case</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Create instance of InitializeCase&quot;</span><span class="p">)</span>
 
@@ -1036,7 +1072,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.6.1.dev5+g2b9d766).</p>
+    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.6.1.dev9+gc9652ff).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
