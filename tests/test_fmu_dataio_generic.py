@@ -346,3 +346,12 @@ def test_fmu_block(tmp_path):
     # workflow shall be a dictionary
     assert isinstance(meta["fmu"]["workflow"], dict)
     assert meta["fmu"]["workflow"]["reference"] == "my current workflow"
+
+    assert meta["fmu"]["model"]["revision"] == "0.99.0"
+    # assert meta["fmu"]["model"]["name"] == "ff"  # TODO
+
+    assert meta["fmu"]["case"]["name"] == "somecasename"
+    assert meta["fmu"]["case"]["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
+
+    assert isinstance(meta["fmu"]["case"]["user"], dict)
+    assert "id" in meta["fmu"]["case"]["user"]
