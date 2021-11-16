@@ -78,6 +78,20 @@ def test_get_meta_tracklog():
     # placeholder
 
 
+def test_get_meta_fmu():
+    """The private routine that provides the fmu block"""
+    case = fmu.dataio.ExportData()
+    case._config = CFG
+    case._workflow = "my workflow"
+    case._get_meta_fmu()
+    assert case.metadata4fmu["workflow"] == {"reference": "my workflow"}
+
+    # TODO
+    # - iteration
+    # - case
+    # - realization
+
+
 def test_process_fmu_model():
     """The (second order) private routine that provides fmu:model"""
     case = fmu.dataio.ExportData()
