@@ -249,7 +249,6 @@ class _ExportItem:
 
         self._data_process()
         self._data_process_object()
-        self._fmu_inject_workflow()  # this will vary if surface, table, grid, ...
         self._display()
         fpath = self._item_to_file()
         return str(fpath)
@@ -823,10 +822,6 @@ class _ExportItem:
 
         meta["bbox"] = None
         logger.info("Process data metadata for ArrowTable... done!!")
-
-    def _fmu_inject_workflow(self):
-        """Inject workflow into fmu metadata block."""
-        self.dataio.metadata4fmu["workflow"] = self.dataio.workflow
 
     def _display(self):
         """Process common subfields in the display block.
