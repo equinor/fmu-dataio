@@ -419,7 +419,7 @@ class ExportData:
         if not self._case and self._workflow is not None:
             logger.info("Set fmu.workflow...")
             self.metadata4fmu["workflow"] = OrderedDict()
-            self.metadata4fmu["workflow"]["refence"] = self._workflow
+            self.metadata4fmu["workflow"]["reference"] = self._workflow
 
         self.metadata4fmu["element"] = None
 
