@@ -175,7 +175,7 @@ class ExportData:
         timedata: Optional[list] = None,
         include_index: Optional[bool] = False,
         vertical_domain: Optional[dict] = None,
-        workflow: Optional[str] = None,
+        workflow: Optional[Union[str, dict]] = None,
         # the following keys can be overridden in the export() function:
         name: Optional[str] = None,
         parent: Optional[dict] = None,
@@ -409,7 +409,9 @@ class ExportData:
         The fmu block consist of these subkeys:
             model:
             case:
-            workflow:
+            workflow: Can be dict or str. If str, it is to be used as the value for
+                      the 'reference' key and be inserted into dict. If dict, it shall
+                      contain the 'reference' key then be used directly.
             element:  # if aggadation
             realization OR aggradation:
             iteration:
@@ -417,9 +419,7 @@ class ExportData:
         logger.info("Set fmu metadata for model/workflow/...")
         self.metadata4fmu["model"] = self._process_meta_fmu_model()
         if not self._case and self._workflow is not None:
-            logger.info("Set fmu.workflow...")
-            self.metadata4fmu["workflow"] = OrderedDict()
-            self.metadata4fmu["workflow"]["reference"] = self._workflow
+            self._process_meta_fmu_workflow()
 
         self.metadata4fmu["element"] = None
 
@@ -437,6 +437,29 @@ class ExportData:
                 "Note that metadata for realization is None, "
                 "so this is interpreted as not an ERT run!"
             )
+
+    def _process_meta_fmu_workflow(self):
+        """Processing the fmu.workflow section"""
+
+        logger.info("Process fmu.workflow...")
+        if isinstance(self._workflow, dict):
+            logger.info("Workflow input argument is a dictionary")
+            if not "reference" in self._workflow.keys():
+                raise ValueError("'reference' key not found in workflow dictionary")
+            if not isinstance(self._workflow["reference"], str):
+                logger.info(
+                    "workflow.reference is a %s", type(self._workflow["reference"])
+                )
+                raise ValueError("'reference' value was not a string")
+            self.metadata4fmu["workflow"] = self._workflow
+        elif isinstance(self._workflow, str):
+            logger.info("Workflow input argument is a string")
+            self.metadata4fmu["workflow"] = OrderedDict()
+            self.metadata4fmu["workflow"]["reference"] = self._workflow
+        else:
+            logger.info("workflow input argument was not given as dict or str")
+            logger.debug("workflow input argument was %s", self._workflow)
+            raise ValueError("workflow input argument is not valid")
 
     # def _process_meta_fmu_context(self):
     #     """Processing the fmu:grid_model section"""

@@ -78,18 +78,31 @@ def test_get_meta_tracklog():
     # placeholder
 
 
-def test_get_meta_fmu():
-    """The private routine that provides the fmu block"""
+def test_process_fmu_workflow():
+    """The (second order) routine that processes fmu.workflow"""
+
     case = fmu.dataio.ExportData()
     case._config = CFG
-    case._workflow = "my workflow"
-    case._get_meta_fmu()
-    assert case.metadata4fmu["workflow"] == {"reference": "my workflow"}
 
-    # TODO
-    # - iteration
-    # - case
-    # - realization
+    # If string is given, it shall be put into the reference sublevel
+    case._workflow = "my workflow 1"
+    case._process_meta_fmu_workflow()
+    assert case.metadata4fmu["workflow"] == {"reference": "my workflow 1"}
+
+    # If dict is given, it shall contain the reference sublevel, and be used directly
+    case._workflow = {"reference": "my workflow 2"}
+    case._process_meta_fmu_workflow()
+    assert case.metadata4fmu["workflow"] == {"reference": "my workflow 2"}
+
+    # workflow dict shall contain the "reference" key
+    case._workflow = {"wrong": "my workflow 3"}
+    with pytest.raises(ValueError):
+        case._process_meta_fmu_workflow()
+
+    # workflow shall be str or dict
+    case._workflow = 1.0
+    with pytest.raises(ValueError):
+        case._process_meta_fmu_workflow()
 
 
 def test_process_fmu_model():
