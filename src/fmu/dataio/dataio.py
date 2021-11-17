@@ -444,7 +444,7 @@ class ExportData:
         logger.info("Process fmu.workflow...")
         if isinstance(self._workflow, dict):
             logger.info("Workflow input argument is a dictionary")
-            if not "reference" in self._workflow.keys():
+            if "reference" not in self._workflow.keys():
                 raise ValueError("'reference' key not found in workflow dictionary")
             if not isinstance(self._workflow["reference"], str):
                 logger.info(
