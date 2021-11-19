@@ -1,4 +1,4 @@
-"""Private module for Surface IO in DataIO class."""
+"""Private module for the DataIO class."""
 import json
 import logging
 import warnings
@@ -29,9 +29,10 @@ VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv", "arrow": ".arrow"}
 VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".pol"}
 VALID_POINTS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".poi"}
 
-# the content must conform with the given json schema, e.g.
-# https://github.com/equinor/fmu-metadata/blob/dev/definitions/*/schema/fmu_results.json
-#
+# The produced metadata must conform with the corresponding JSON schema.
+# Metadata definitions are stored under schema/
+
+# Some content types have additional input requirements.
 # When value is None, a repeat field shall not be present, otherwise it may be as this:
 # content: seismics
 # seismics:
@@ -66,7 +67,7 @@ ALLOWED_CONTENTS = {
 }
 
 # this setting will set if subkeys is required or not. If not found in list then
-# False is assumed.
+# assume False.
 CONTENTS_REQUIRED = {
     "fluid_contact": {"contact": True},
     "field_outline": {"contact": False},
@@ -184,13 +185,13 @@ class _ExportItem:
             )
 
     def save_to_file(self) -> str:
-        """Saving (export) an instance to file with rich metadata for SUMO.
+        """Save (export) an instance to file with rich metadata.
 
         Many metadata items are object independent and are treated directly in the
         dataio module. Here additional metadata (dependent on this datatype) are
         collected/processed and subsequently both 'independent' and object dependent
-        a final metadata file (or part of file if HDF) are collected and
-        written to disk here.
+        metadata are collected and written to disk here (as separate file or bundled
+        with data, depending on data type and format).
         """
         logger.info("Save to file...")
         if isinstance(self.obj, xtgeo.RegularSurface):
@@ -254,7 +255,7 @@ class _ExportItem:
         return str(fpath)
 
     def _data_process(self):
-        """Process som potentially common subfields in the data block.
+        """Process some potentially common subfields in the data block.
 
         These subfields are:
         - name
@@ -275,9 +276,11 @@ class _ExportItem:
         self._data_process_various()
 
     def _data_process_name(self):
-        """Process the name  and alos the display_name subfield."""
-        # first detect if name is given, or infer name from object if possible
-        # then determine if name is stratgraphic and assing a "true" valid name
+        """Process the name and also the display_name subfield.
+
+        First detect if name is given, or infer name from object if possible
+        then determine if name is stratgraphic and assing a "true" valid name
+        """
         logger.info("Evaluate data:name attribute")
         usename = "unknown"
         meta = self.dataio.metadata4data
@@ -394,7 +397,7 @@ class _ExportItem:
             meta[item]["offset"] = offset
 
     def _data_process_content(self):
-        """Process the content block (within data block) which can complex."""
+        """Process the content block (within data block) which can be complex."""
         logger.info("Evaluate content")
         content = self.dataio.content
         logger.debug("content is %s of type %s", str(content), type(content))
@@ -497,11 +500,8 @@ class _ExportItem:
                     "but is not found",
                 )
 
-            # if name in CONTENTS_REQUIRED.keys():
-            #     if key in CONTENTS_REQUIRED[name] and CONTENTS_REQUIRED[name] is True
-
     def _data_process_timedata(self):
-        """Process the time subfield and also contruct self.times."""
+        """Process the time subfield and also construct self.times."""
         # first detect if timedata is given, the process it
         logger.info("Evaluate data:name attribute")
         meta = self.dataio.metadata4data
@@ -560,15 +560,6 @@ class _ExportItem:
         meta["is_prediction"] = self.dataio.is_prediction
         meta["is_observation"] = self.dataio.is_observation
 
-        # tmp solution for properties
-        # meta["properties"] = list()
-        # props = OrderedDict()
-        # props["name"] = "SomeName"
-        # props["attribute"] = "SomeAttribute"
-        # props["is_discrete"] = False
-        # props["calculation"] = None
-        # meta["properties"].append(props)
-
         # tmp:
         meta["grid_model"] = None
 
@@ -577,7 +568,7 @@ class _ExportItem:
             meta["description"] = self.description
 
     def _data_process_object(self):
-        """Process data fileds which are object dependent.
+        """Process data fields which are object dependent.
 
         I.e::
 

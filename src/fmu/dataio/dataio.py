@@ -1,26 +1,25 @@
 """Module for DataIO class.
 
-The metadata spec is presented in
-https://github.com/equinor/fmu-metadata/
+The metadata spec is documented as a JSON schema, stored under schema/.
 
 The processing is based on handling first level keys which are
 
 * Scalar special::
 
     $schema      |
-    version      |     hard set in code
+    version      |     hard set in code, corresponding to schema version
     source       |
 
 * ``class``        - determined by datatype, inferred
 
 * Nested attributes::
 
-    file         - file paths and checksums (change) still a discussion where to be
-    tracklog     - data events, source = ?
-    data         - about the data (see class). Inferred from data + fmuconfig
+    file         - information about the data object origin as file on disk
+    tracklog     - events recorded on these data
+    data         - about the data (see class). Inferred from input, data + fmuconfig
     display      - Deduced mostly from fmuconfig (TODO: issue on wait)
-    fmu          - Deduced from fmuconfig (and ERT run?)
-    access       - Static, infer from fmuconfig
+    fmu          - Deduced from fmuconfig and ERT
+    access       - Govern permissions for exported data, infer from fmuconfig or args
     masterdata   - Static, infer from fmuconfig
 
 """
@@ -435,18 +434,8 @@ class ExportData:
         logger.info("Metadata for tracklog is set")
 
     def _get_meta_fmu(self) -> None:
-        """Get metadata for fmu key.
+        """Get metadata for fmu key."""
 
-        The fmu block consist of these subkeys:
-            model:
-            case:
-            workflow: Can be dict or str. If str, it is to be used as the value for
-                      the 'reference' key and be inserted into dict. If dict, it shall
-                      contain the 'reference' key then be used directly.
-            element:  # if aggadation
-            realization OR aggradation:
-            iteration:
-        """
         logger.info("Set fmu metadata for model/workflow/...")
         self.metadata4fmu["model"] = self._process_meta_fmu_model()
         if not self._case and self._workflow is not None:
@@ -470,7 +459,18 @@ class ExportData:
             )
 
     def _process_meta_fmu_workflow(self):
-        """Processing the fmu.workflow section"""
+        """Processing the fmu.workflow section.
+
+        self._workflow can be either a str or a dict. Outgoing worklow tag in
+        metadata shall be a dict, containing at least a 'reference' key:
+        "workflow": {"reference": "MyString"}.
+
+        If self._workflow is provided as a string, the dictionary will be made and the
+        string will be used as the value for the 'reference' key.
+
+        If self._workflow is provided as a dict, it shall contain the 'reference' key.
+        If self._workflow is provided as a dict, it will be used directly.
+        """
 
         logger.info("Process fmu.workflow...")
         if isinstance(self._workflow, dict):
@@ -479,7 +479,8 @@ class ExportData:
                 raise ValueError("'reference' key not found in workflow dictionary")
             if not isinstance(self._workflow["reference"], str):
                 logger.info(
-                    "workflow.reference is a %s", type(self._workflow["reference"])
+                    "workflow.reference is of type %s",
+                    type(self._workflow["reference"]),
                 )
                 raise ValueError("'reference' value was not a string")
             self.metadata4fmu["workflow"] = self._workflow
@@ -554,9 +555,11 @@ class ExportData:
     def _process_meta_fmu_realization_iteration(self):
         """Detect if this is a ERT run and in case provide real, iter, case info.
 
-        To detect if a realization run:
-        * See if parameters.txt json at iter level
-        * find iter name and realization number from folder names
+        fmu-dataio will run in different contexts. One of those contexts is when in
+        an FMU run, orchestrated by ERT. To detect if we are in such context:
+
+        * See if parameters.txt exists on RUNPATH.
+        * Find iter name and realization number from folder names
 
         e.g.
         /scratch/xxx/user/case/realization-11/iter-3
@@ -714,10 +717,10 @@ class ExportData:
         include_index: Optional[bool] = False,
         **kwargs,
     ) -> str:
-        """Export a 'known' data object to FMU storage solution with rich metadata.
+        """Export data objects of 'known' type to FMU storage solution with metadata.
 
-        The 'known' datatype is a XTGeo object (e.g. a RegularSurface), a Pandas
-        Dataframe or (in future) a Arrow object.
+        A 'known' type is a type which is known to fmu-dataio. Examples of such known
+        types are XTGeo objects (e.g. a RegularSurface), a Pandas Dataframe, etc.
 
         This function will also collect the data spesific class metadata. For "classic"
         files, the metadata will be stored i a YAML file with same name stem as the
@@ -726,15 +729,14 @@ class ExportData:
             top_volantis--depth.gri
             .top_volantis--depth.gri.yml
 
-        For HDF files the metadata may be stored on the _freeform_ block (yet to be
-        resolved)).
+        For formats supporting embedded metadata, other solutions may be used.
 
         Args:
             obj: XTGeo instance or a Pandas Dataframe instance (more to be supported).
             subfolder: Optional subfolder below standard level to export to.
             verbosity: Verbosity level of logging messages. If not spesified,
                 the verbosity level from the instance will be used.
-            name: Override eventual setting in class initialization. The name of the
+            name: Override any setting in class initialization. The name of the
                 object. If not set it is tried to be inferred from
                 the xtgeo/pandas/... object. The name is then checked towards the
                 stratigraphy list, and name is replaced with official stratigraphic
@@ -742,17 +744,17 @@ class ExportData:
                 "TopValysar" is the model name and the actual name
                 is "Valysar Top Fm." that latter name will be used.
             unit: Is the unit of the exported item(s), e.g. "m" or "fraction".
-            tagname: Override eventual setting in class initialization. This is a short
+            tagname: Override any setting in class initialization. This is a short
                 tag description which be be a part of file name.
-            parent: Override eventual setting in class initialization. This key is
+            parent: Override any setting in class initialization. This key is
                 required for datatype GridProperty, and refers to the name of the
                 grid geometry.
-            description: Override eventual setting in class initialization. A multiline
+            description: Override any setting in class initialization. A multiline
                 description of the data.
-            display_name: Override eventual setting in class initialization. Set name
+            display_name: Override any setting in class initialization. Set name
                 for clients to use when visualizing. Defaults to name if not given.
             include_index: For Pandas table output. If True, then the index column will
-                be included. For backward compatibilty, ``ìndex`` also supported.
+                be included. For backward compatibilty, ``index`` also supported.
 
         Returns:
             String: full path to exported item.
@@ -781,7 +783,7 @@ class ExportData:
         deprecated_in="0.5",
         removed_in="1.0",
         current_version=version,
-        details="Method to_file() is deprecated. use export() instead",
+        details="Method to_file() is deprecated. Use export() instead",
     )
     def to_file(self, *args, **kwargs):
         """(Deprecated) Use ``export`` function instead."""
@@ -797,8 +799,8 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
     """Instantate ExportData object.
 
     Args:
-        config: A configuation dictionary. In the standard case this is read
-            from FMU global vaiables (via fmuconfig). The dictionary must contain
+        config: A configuration dictionary. In the standard case this is read
+            from FMU global variables (via fmuconfig). The dictionary must contain
             some predefined main level keys. If config is None and the env variable
             FMU_GLOBAL_CONFIG pointing to file is provided, then it will attempt to
             parse that file.
@@ -909,7 +911,7 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
             raise ValueError("Access information missing.")
         if "asset" not in self.metadata4access.keys():
 
-            logger.error("the access field in the metadata was missing the asset field")
+            logger.error("'access' key not found under 'asset'")
         meta["access"] = {"asset": self.metadata4access["asset"]}
 
         meta["masterdata"] = self.metadata4masterdata
@@ -973,7 +975,7 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
         restart_from=None,
         description=None,
     ):
-        """Export the case metadata to file, e.g. when ERT run.
+        """Export the case metadata to file, e.g. when in an ERT run.
 
         This will be the configuration file and output the data necessary to
         generate a general case ID, typically done as a hook workflow in ERT
@@ -1011,7 +1013,7 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
         deprecated_in="0.5",
         removed_in="1.0",
         current_version=version,
-        details="Method to_file() is deprecated. use export() instead",
+        details="Method to_file() is deprecated. Use export() instead",
     )
     def to_file(self, *args, **kwargs):
         """(Deprecated) Use ``export`` function instead."""
