@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 0.7.1.dev1+gfab8dff documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 0.7.1.dev2+g9e45178 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -168,7 +168,7 @@ index column will be exported.</p></li>
 <li><p><strong>is_prediction</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – True (default) of model prediction data</p></li>
 <li><p><strong>is_observation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – Default is False. If True, then disk storage will be on the
 “share/observations” folder</p></li>
-<li><p><strong>workflow</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Short tag desciption of workflow (as description)</p></li>
+<li><p><strong>workflow</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Short tag desciption of workflow (as description)</p></li>
 <li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the object. If not set it is tried to be inferred from
 the xtgeo/pandas/… object. The name is then checked towards the
 stratigraphy list, and name is replaced with official stratigraphic
@@ -454,7 +454,7 @@ or similar.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.7.1.dev1+gfab8dff).</p>
+    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.7.1.dev2+g9e45178).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
