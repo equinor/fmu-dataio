@@ -83,6 +83,33 @@ def test_get_meta_tracklog():
     # placeholder
 
 
+def test_process_fmu_workflow():
+    """The (second order) routine that processes fmu.workflow"""
+
+    case = fmu.dataio.ExportData()
+    case._config = CFG
+
+    # If string is given, it shall be put into the reference sublevel
+    case._workflow = "my workflow 1"
+    case._process_meta_fmu_workflow()
+    assert case.metadata4fmu["workflow"] == {"reference": "my workflow 1"}
+
+    # If dict is given, it shall contain the reference sublevel, and be used directly
+    case._workflow = {"reference": "my workflow 2"}
+    case._process_meta_fmu_workflow()
+    assert case.metadata4fmu["workflow"] == {"reference": "my workflow 2"}
+
+    # workflow dict shall contain the "reference" key
+    case._workflow = {"wrong": "my workflow 3"}
+    with pytest.raises(ValueError):
+        case._process_meta_fmu_workflow()
+
+    # workflow shall be str or dict
+    case._workflow = 1.0
+    with pytest.raises(ValueError):
+        case._process_meta_fmu_workflow()
+
+
 def test_process_fmu_model():
     """The (second order) private routine that provides fmu:model"""
     case = fmu.dataio.ExportData()
@@ -320,3 +347,65 @@ def test_file_block(tmp_path):
     # does not test validity, just that it looks right
     checksum_md5 = meta["file"]["checksum_md5"]
     assert re.match("^[a-z0-9]{32}", checksum_md5)
+
+
+def test_fmu_block(tmp_path):
+    """Test the content of the fmu metadata block"""
+
+    # make it look like an ERT run
+    current = tmp_path / "scratch" / "fields" / "user"
+    current.mkdir(parents=True, exist_ok=True)
+
+    shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
+
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
+    runfolder.mkdir(parents=True, exist_ok=True)
+    out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
+
+    exp = fmu.dataio.ExportData(
+        config=CFG,
+        content="depth",
+        unit="m",
+        vertical_domain={"depth": "msl"},
+        timedata=None,
+        is_prediction=True,
+        is_observation=False,
+        tagname="what Descr",
+        verbosity="INFO",
+        runfolder=runfolder.resolve(),
+        workflow="my current workflow",
+        inside_rms=True,  # pretend to be inside RMS since runfolder is at rms model
+    )
+
+    # make a fake RegularSurface
+    srf = xtgeo.RegularSurface(
+        ncol=20,
+        nrow=30,
+        xinc=20,
+        yinc=20,
+        values=0,
+        name="TopVolantis",
+    )
+    assert exp.export(srf, verbosity="INFO") == str(out / "topvolantis--what_descr.gri")
+
+    metadataout = out / ".topvolantis--what_descr.gri.yml"
+    assert metadataout.is_file() is True
+
+    # now read the metadata file and test some key entries:
+    with open(metadataout, "r") as stream:
+        meta = yaml.safe_load(stream)
+
+    # workflow shall be a dictionary
+    assert isinstance(meta["fmu"]["workflow"], dict)
+    assert meta["fmu"]["workflow"]["reference"] == "my current workflow"
+
+    assert meta["fmu"]["model"]["revision"] == "0.99.0"
+    # assert meta["fmu"]["model"]["name"] == "ff"  # TODO
+
+    assert meta["fmu"]["case"]["name"] == "somecasename"
+    assert meta["fmu"]["case"]["uuid"] == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
+
+    assert isinstance(meta["fmu"]["case"]["user"], dict)
+    assert "id" in meta["fmu"]["case"]["user"]
