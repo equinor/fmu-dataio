@@ -279,7 +279,7 @@ class _ExportItem:
         """Process the name and also the display_name subfield.
 
         First detect if name is given, or infer name from object if possible
-        then determine if name is stratgraphic and assing a "true" valid name
+        then determine if name is stratigraphic and assing a "true" valid name
         """
         logger.info("Evaluate data:name attribute")
         usename = "unknown"
