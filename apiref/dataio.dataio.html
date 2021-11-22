@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 0.7.1.dev2+g9e45178 documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 0.7.2.dev1+ge5f6440 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -85,26 +85,25 @@
   <section id="module-dataio.dataio">
 <span id="dataio-dataio-module"></span><h1>dataio.dataio module<a class="headerlink" href="#module-dataio.dataio" title="Permalink to this headline"></a></h1>
 <p>Module for DataIO class.</p>
-<p>The metadata spec is presented in
-<a class="reference external" href="https://github.com/equinor/fmu-metadata/">https://github.com/equinor/fmu-metadata/</a></p>
+<p>The metadata spec is documented as a JSON schema, stored under schema/.</p>
 <p>The processing is based on handling first level keys which are</p>
 <ul>
 <li><p>Scalar special:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$schema      |
-version      |     hard set in code
+version      |     hard set in code, corresponding to schema version
 source       |
 </pre></div>
 </div>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">class</span></code>        - determined by datatype, inferred</p></li>
 <li><p>Nested attributes:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>file         - file paths and checksums (change) still a discussion where to be
-tracklog     - data events, source = ?
-data         - about the data (see class). Inferred from data + fmuconfig
-display      - Deduced mostly from fmuconfig (TODO: issue on wait)
-fmu          - Deduced from fmuconfig (and ERT run?)
-access       - Static, infer from fmuconfig
-masterdata   - Static, infer from fmuconfig
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">file</span>         <span class="o">-</span> <span class="n">information</span> <span class="n">about</span> <span class="n">the</span> <span class="n">data</span> <span class="nb">object</span> <span class="n">origin</span> <span class="k">as</span> <span class="n">file</span> <span class="n">on</span> <span class="n">disk</span>
+<span class="n">tracklog</span>     <span class="o">-</span> <span class="n">events</span> <span class="n">recorded</span> <span class="n">on</span> <span class="n">these</span> <span class="n">data</span>
+<span class="n">data</span>         <span class="o">-</span> <span class="n">about</span> <span class="n">the</span> <span class="n">data</span> <span class="p">(</span><span class="n">see</span> <span class="n">class</span><span class="p">)</span><span class="o">.</span> <span class="n">Inferred</span> <span class="kn">from</span> <span class="nn">input</span><span class="p">,</span> <span class="n">data</span> <span class="o">+</span> <span class="n">fmuconfig</span>
+<span class="n">display</span>      <span class="o">-</span> <span class="n">Deduced</span> <span class="n">mostly</span> <span class="kn">from</span> <span class="nn">fmuconfig</span> <span class="p">(</span><span class="n">TODO</span><span class="p">:</span> <span class="n">issue</span> <span class="n">on</span> <span class="n">wait</span><span class="p">)</span>
+<span class="n">fmu</span>          <span class="o">-</span> <span class="n">Deduced</span> <span class="kn">from</span> <span class="nn">fmuconfig</span> <span class="ow">and</span> <span class="n">ERT</span>
+<span class="n">access</span>       <span class="o">-</span> <span class="n">Govern</span> <span class="n">permissions</span> <span class="k">for</span> <span class="n">exported</span> <span class="n">data</span><span class="p">,</span> <span class="n">infer</span> <span class="kn">from</span> <span class="nn">fmuconfig</span> <span class="ow">or</span> <span class="n">args</span>
+<span class="n">masterdata</span>   <span class="o">-</span> <span class="n">Static</span><span class="p">,</span> <span class="n">infer</span> <span class="kn">from</span> <span class="nn">fmuconfig</span>
 </pre></div>
 </div>
 </li>
@@ -327,9 +326,9 @@ in standard python logging; e.g. “WARNING”, “INFO”.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.export">
 <span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData.export" title="Permalink to this definition"></a></dt>
-<dd><p>Export a ‘known’ data object to FMU storage solution with rich metadata.</p>
-<p>The ‘known’ datatype is a XTGeo object (e.g. a RegularSurface), a Pandas
-Dataframe or (in future) a Arrow object.</p>
+<dd><p>Export data objects of ‘known’ type to FMU storage solution with metadata.</p>
+<p>A ‘known’ type is a type which is known to fmu-dataio. Examples of such known
+types are XTGeo objects (e.g. a RegularSurface), a Pandas Dataframe, etc.</p>
 <p>This function will also collect the data spesific class metadata. For “classic”
 files, the metadata will be stored i a YAML file with same name stem as the
 data, but with a . in front and “yml” and suffix, e.g.:</p>
@@ -337,8 +336,7 @@ data, but with a . in front and “yml” and suffix, e.g.:</p>
 <span class="o">.</span><span class="n">top_volantis</span><span class="o">--</span><span class="n">depth</span><span class="o">.</span><span class="n">gri</span><span class="o">.</span><span class="n">yml</span>
 </pre></div>
 </div>
-<p>For HDF files the metadata may be stored on the _freeform_ block (yet to be
-resolved)).</p>
+<p>For formats supporting embedded metadata, other solutions may be used.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -346,7 +344,7 @@ resolved)).</p>
 <li><p><strong>subfolder</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Optional subfolder below standard level to export to.</p></li>
 <li><p><strong>verbosity</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Verbosity level of logging messages. If not spesified,
 the verbosity level from the instance will be used.</p></li>
-<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Override eventual setting in class initialization. The name of the
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Override any setting in class initialization. The name of the
 object. If not set it is tried to be inferred from
 the xtgeo/pandas/… object. The name is then checked towards the
 stratigraphy list, and name is replaced with official stratigraphic
@@ -354,17 +352,17 @@ name if found in static metadata <cite>stratigraphy</cite>. For example, if
 “TopValysar” is the model name and the actual name
 is “Valysar Top Fm.” that latter name will be used.</p></li>
 <li><p><strong>unit</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Is the unit of the exported item(s), e.g. “m” or “fraction”.</p></li>
-<li><p><strong>tagname</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Override eventual setting in class initialization. This is a short
+<li><p><strong>tagname</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Override any setting in class initialization. This is a short
 tag description which be be a part of file name.</p></li>
-<li><p><strong>parent</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Override eventual setting in class initialization. This key is
+<li><p><strong>parent</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Override any setting in class initialization. This key is
 required for datatype GridProperty, and refers to the name of the
 grid geometry.</p></li>
-<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Override eventual setting in class initialization. A multiline
+<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Override any setting in class initialization. A multiline
 description of the data.</p></li>
-<li><p><strong>display_name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Override eventual setting in class initialization. Set name
+<li><p><strong>display_name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Override any setting in class initialization. Set name
 for clients to use when visualizing. Defaults to name if not given.</p></li>
 <li><p><strong>include_index</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – For Pandas table output. If True, then the index column will
-be included. For backward compatibilty, <code class="docutils literal notranslate"><span class="pre">ìndex</span></code> also supported.</p></li>
+be included. For backward compatibilty, <code class="docutils literal notranslate"><span class="pre">index</span></code> also supported.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -381,7 +379,7 @@ be included. For backward compatibilty, <code class="docutils literal notranslat
 <span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData.to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData.to_file" title="Permalink to this definition"></a></dt>
 <dd><p>(Deprecated) Use <code class="docutils literal notranslate"><span class="pre">export</span></code> function instead.</p>
 <div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version 0.5: </span>This will be removed in 1.0. Method to_file() is deprecated. use export() instead</p>
+<p><span class="versionmodified deprecated">Deprecated since version 0.5: </span>This will be removed in 1.0. Method to_file() is deprecated. Use export() instead</p>
 </div>
 </dd></dl>
 
@@ -395,8 +393,8 @@ be included. For backward compatibilty, <code class="docutils literal notranslat
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – A configuation dictionary. In the standard case this is read
-from FMU global vaiables (via fmuconfig). The dictionary must contain
+<li><p><strong>config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – A configuration dictionary. In the standard case this is read
+from FMU global variables (via fmuconfig). The dictionary must contain
 some predefined main level keys. If config is None and the env variable
 FMU_GLOBAL_CONFIG pointing to file is provided, then it will attempt to
 parse that file.</p></li>
@@ -408,7 +406,7 @@ in standard python logging; e.g. “WARNING”, “INFO”.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="dataio.dataio.InitializeCase.export">
 <span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rootfolder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">casename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'unknown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caseuser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nn'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart_from</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#InitializeCase.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.InitializeCase.export" title="Permalink to this definition"></a></dt>
-<dd><p>Export the case metadata to file, e.g. when ERT run.</p>
+<dd><p>Export the case metadata to file, e.g. when in an ERT run.</p>
 <p>This will be the configuration file and output the data necessary to
 generate a general case ID, typically done as a hook workflow in ERT
 or similar.</p>
@@ -435,7 +433,7 @@ or similar.</p>
 <span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#InitializeCase.to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.InitializeCase.to_file" title="Permalink to this definition"></a></dt>
 <dd><p>(Deprecated) Use <code class="docutils literal notranslate"><span class="pre">export</span></code> function instead.</p>
 <div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version 0.5: </span>This will be removed in 1.0. Method to_file() is deprecated. use export() instead</p>
+<p><span class="versionmodified deprecated">Deprecated since version 0.5: </span>This will be removed in 1.0. Method to_file() is deprecated. Use export() instead</p>
 </div>
 </dd></dl>
 
@@ -454,7 +452,7 @@ or similar.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.7.1.dev2+g9e45178).</p>
+    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.7.2.dev1+ge5f6440).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

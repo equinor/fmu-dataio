@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.7.1.dev2+g9e45178 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.7.2.dev1+ge5f6440 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -70,27 +70,26 @@
   <h1>Source code for dataio.dataio</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Module for DataIO class.</span>
 
-<span class="sd">The metadata spec is presented in</span>
-<span class="sd">https://github.com/equinor/fmu-metadata/</span>
+<span class="sd">The metadata spec is documented as a JSON schema, stored under schema/.</span>
 
 <span class="sd">The processing is based on handling first level keys which are</span>
 
 <span class="sd">* Scalar special::</span>
 
 <span class="sd">    $schema      |</span>
-<span class="sd">    version      |     hard set in code</span>
+<span class="sd">    version      |     hard set in code, corresponding to schema version</span>
 <span class="sd">    source       |</span>
 
 <span class="sd">* ``class``        - determined by datatype, inferred</span>
 
 <span class="sd">* Nested attributes::</span>
 
-<span class="sd">    file         - file paths and checksums (change) still a discussion where to be</span>
-<span class="sd">    tracklog     - data events, source = ?</span>
-<span class="sd">    data         - about the data (see class). Inferred from data + fmuconfig</span>
+<span class="sd">    file         - information about the data object origin as file on disk</span>
+<span class="sd">    tracklog     - events recorded on these data</span>
+<span class="sd">    data         - about the data (see class). Inferred from input, data + fmuconfig</span>
 <span class="sd">    display      - Deduced mostly from fmuconfig (TODO: issue on wait)</span>
-<span class="sd">    fmu          - Deduced from fmuconfig (and ERT run?)</span>
-<span class="sd">    access       - Static, infer from fmuconfig</span>
+<span class="sd">    fmu          - Deduced from fmuconfig and ERT</span>
+<span class="sd">    access       - Govern permissions for exported data, infer from fmuconfig or args</span>
 <span class="sd">    masterdata   - Static, infer from fmuconfig</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -505,18 +504,8 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata for tracklog is set&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_meta_fmu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get metadata for fmu key.</span>
+        <span class="sd">&quot;&quot;&quot;Get metadata for fmu key.&quot;&quot;&quot;</span>
 
-<span class="sd">        The fmu block consist of these subkeys:</span>
-<span class="sd">            model:</span>
-<span class="sd">            case:</span>
-<span class="sd">            workflow: Can be dict or str. If str, it is to be used as the value for</span>
-<span class="sd">                      the &#39;reference&#39; key and be inserted into dict. If dict, it shall</span>
-<span class="sd">                      contain the &#39;reference&#39; key then be used directly.</span>
-<span class="sd">            element:  # if aggadation</span>
-<span class="sd">            realization OR aggradation:</span>
-<span class="sd">            iteration:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set fmu metadata for model/workflow/...&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata4fmu</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_meta_fmu_model</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -540,7 +529,18 @@
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_meta_fmu_workflow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Processing the fmu.workflow section&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Processing the fmu.workflow section.</span>
+
+<span class="sd">        self._workflow can be either a str or a dict. Outgoing worklow tag in</span>
+<span class="sd">        metadata shall be a dict, containing at least a &#39;reference&#39; key:</span>
+<span class="sd">        &quot;workflow&quot;: {&quot;reference&quot;: &quot;MyString&quot;}.</span>
+
+<span class="sd">        If self._workflow is provided as a string, the dictionary will be made and the</span>
+<span class="sd">        string will be used as the value for the &#39;reference&#39; key.</span>
+
+<span class="sd">        If self._workflow is provided as a dict, it shall contain the &#39;reference&#39; key.</span>
+<span class="sd">        If self._workflow is provided as a dict, it will be used directly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Process fmu.workflow...&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -549,7 +549,8 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;reference&#39; key not found in workflow dictionary&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span><span class="p">[</span><span class="s2">&quot;reference&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;workflow.reference is a </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span><span class="p">[</span><span class="s2">&quot;reference&quot;</span><span class="p">])</span>
+                    <span class="s2">&quot;workflow.reference is of type </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span><span class="p">[</span><span class="s2">&quot;reference&quot;</span><span class="p">]),</span>
                 <span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;reference&#39; value was not a string&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">metadata4fmu</span><span class="p">[</span><span class="s2">&quot;workflow&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span>
@@ -624,9 +625,11 @@
     <span class="k">def</span> <span class="nf">_process_meta_fmu_realization_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Detect if this is a ERT run and in case provide real, iter, case info.</span>
 
-<span class="sd">        To detect if a realization run:</span>
-<span class="sd">        * See if parameters.txt json at iter level</span>
-<span class="sd">        * find iter name and realization number from folder names</span>
+<span class="sd">        fmu-dataio will run in different contexts. One of those contexts is when in</span>
+<span class="sd">        an FMU run, orchestrated by ERT. To detect if we are in such context:</span>
+
+<span class="sd">        * See if parameters.txt exists on RUNPATH.</span>
+<span class="sd">        * Find iter name and realization number from folder names</span>
 
 <span class="sd">        e.g.</span>
 <span class="sd">        /scratch/xxx/user/case/realization-11/iter-3</span>
@@ -784,10 +787,10 @@
         <span class="n">include_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Export a &#39;known&#39; data object to FMU storage solution with rich metadata.</span>
+        <span class="sd">&quot;&quot;&quot;Export data objects of &#39;known&#39; type to FMU storage solution with metadata.</span>
 
-<span class="sd">        The &#39;known&#39; datatype is a XTGeo object (e.g. a RegularSurface), a Pandas</span>
-<span class="sd">        Dataframe or (in future) a Arrow object.</span>
+<span class="sd">        A &#39;known&#39; type is a type which is known to fmu-dataio. Examples of such known</span>
+<span class="sd">        types are XTGeo objects (e.g. a RegularSurface), a Pandas Dataframe, etc.</span>
 
 <span class="sd">        This function will also collect the data spesific class metadata. For &quot;classic&quot;</span>
 <span class="sd">        files, the metadata will be stored i a YAML file with same name stem as the</span>
@@ -796,15 +799,14 @@
 <span class="sd">            top_volantis--depth.gri</span>
 <span class="sd">            .top_volantis--depth.gri.yml</span>
 
-<span class="sd">        For HDF files the metadata may be stored on the _freeform_ block (yet to be</span>
-<span class="sd">        resolved)).</span>
+<span class="sd">        For formats supporting embedded metadata, other solutions may be used.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            obj: XTGeo instance or a Pandas Dataframe instance (more to be supported).</span>
 <span class="sd">            subfolder: Optional subfolder below standard level to export to.</span>
 <span class="sd">            verbosity: Verbosity level of logging messages. If not spesified,</span>
 <span class="sd">                the verbosity level from the instance will be used.</span>
-<span class="sd">            name: Override eventual setting in class initialization. The name of the</span>
+<span class="sd">            name: Override any setting in class initialization. The name of the</span>
 <span class="sd">                object. If not set it is tried to be inferred from</span>
 <span class="sd">                the xtgeo/pandas/... object. The name is then checked towards the</span>
 <span class="sd">                stratigraphy list, and name is replaced with official stratigraphic</span>
@@ -812,17 +814,17 @@
 <span class="sd">                &quot;TopValysar&quot; is the model name and the actual name</span>
 <span class="sd">                is &quot;Valysar Top Fm.&quot; that latter name will be used.</span>
 <span class="sd">            unit: Is the unit of the exported item(s), e.g. &quot;m&quot; or &quot;fraction&quot;.</span>
-<span class="sd">            tagname: Override eventual setting in class initialization. This is a short</span>
+<span class="sd">            tagname: Override any setting in class initialization. This is a short</span>
 <span class="sd">                tag description which be be a part of file name.</span>
-<span class="sd">            parent: Override eventual setting in class initialization. This key is</span>
+<span class="sd">            parent: Override any setting in class initialization. This key is</span>
 <span class="sd">                required for datatype GridProperty, and refers to the name of the</span>
 <span class="sd">                grid geometry.</span>
-<span class="sd">            description: Override eventual setting in class initialization. A multiline</span>
+<span class="sd">            description: Override any setting in class initialization. A multiline</span>
 <span class="sd">                description of the data.</span>
-<span class="sd">            display_name: Override eventual setting in class initialization. Set name</span>
+<span class="sd">            display_name: Override any setting in class initialization. Set name</span>
 <span class="sd">                for clients to use when visualizing. Defaults to name if not given.</span>
 <span class="sd">            include_index: For Pandas table output. If True, then the index column will</span>
-<span class="sd">                be included. For backward compatibilty, ``ìndex`` also supported.</span>
+<span class="sd">                be included. For backward compatibilty, ``index`` also supported.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            String: full path to exported item.</span>
@@ -851,7 +853,7 @@
         <span class="n">deprecated_in</span><span class="o">=</span><span class="s2">&quot;0.5&quot;</span><span class="p">,</span>
         <span class="n">removed_in</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
         <span class="n">current_version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
-        <span class="n">details</span><span class="o">=</span><span class="s2">&quot;Method to_file() is deprecated. use export() instead&quot;</span><span class="p">,</span>
+        <span class="n">details</span><span class="o">=</span><span class="s2">&quot;Method to_file() is deprecated. Use export() instead&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;(Deprecated) Use ``export`` function instead.&quot;&quot;&quot;</span>
@@ -867,8 +869,8 @@
     <span class="sd">&quot;&quot;&quot;Instantate ExportData object.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        config: A configuation dictionary. In the standard case this is read</span>
-<span class="sd">            from FMU global vaiables (via fmuconfig). The dictionary must contain</span>
+<span class="sd">        config: A configuration dictionary. In the standard case this is read</span>
+<span class="sd">            from FMU global variables (via fmuconfig). The dictionary must contain</span>
 <span class="sd">            some predefined main level keys. If config is None and the env variable</span>
 <span class="sd">            FMU_GLOBAL_CONFIG pointing to file is provided, then it will attempt to</span>
 <span class="sd">            parse that file.</span>
@@ -979,7 +981,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Access information missing.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;asset&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata4access</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
 
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;the access field in the metadata was missing the asset field&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&#39;access&#39; key not found under &#39;asset&#39;&quot;</span><span class="p">)</span>
         <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;asset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata4access</span><span class="p">[</span><span class="s2">&quot;asset&quot;</span><span class="p">]}</span>
 
         <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;masterdata&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata4masterdata</span>
@@ -1043,7 +1045,7 @@
         <span class="n">restart_from</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Export the case metadata to file, e.g. when ERT run.</span>
+        <span class="sd">&quot;&quot;&quot;Export the case metadata to file, e.g. when in an ERT run.</span>
 
 <span class="sd">        This will be the configuration file and output the data necessary to</span>
 <span class="sd">        generate a general case ID, typically done as a hook workflow in ERT</span>
@@ -1081,7 +1083,7 @@
         <span class="n">deprecated_in</span><span class="o">=</span><span class="s2">&quot;0.5&quot;</span><span class="p">,</span>
         <span class="n">removed_in</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
         <span class="n">current_version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
-        <span class="n">details</span><span class="o">=</span><span class="s2">&quot;Method to_file() is deprecated. use export() instead&quot;</span><span class="p">,</span>
+        <span class="n">details</span><span class="o">=</span><span class="s2">&quot;Method to_file() is deprecated. Use export() instead&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;(Deprecated) Use ``export`` function instead.&quot;&quot;&quot;</span>
@@ -1095,7 +1097,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.7.1.dev2+g9e45178).</p>
+    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.7.2.dev1+ge5f6440).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
