@@ -436,7 +436,7 @@ class ExportData:
 
         a_cfg = self._config["access"]
 
-        if not "asset" in a_cfg:
+        if "asset" not in a_cfg:
             # asset shall be present if config is used
             raise ValueError("The 'access.asset' field not found in the config")
 
