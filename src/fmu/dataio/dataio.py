@@ -142,7 +142,7 @@ class ExportData:
             name of the grid geometry.
         tagname: This is a short tag description which be be a part of file name.
         description: A multiline description of the data.
-        access_ssdl: A dictionary that will overwrite the default ssdl
+        access_ssdl: A dictionary that will overwrite or append to the default ssdl
             settings read from the config. Example:
             ``{"access_level": "restricted", "rep_include": False}``
         display_name: Set name for clients to use when visualizing.
@@ -414,15 +414,51 @@ class ExportData:
         logger.info("Metadata for masterdata is set!")
 
     def _get_meta_access(self) -> None:
-        """Get metadata overall (default) from access section in config."""
-        # note that access should be possible to change per object
-        if self._config is None or "access" not in self._config.keys():
-            logger.warning("No access section present")
-            self.metadata4access = None
+        """Get metadata overall (default) from access section in config.
+
+        Access should be possible to change per object, based on user input.
+        This is done through the access_ssdl input argument.
+
+        The "asset" field shall come from the config. This is static information.
+
+        The "ssdl" field can come from the config, or be explicitly given through
+        the "access_ssdl" input argument. If the access_ssdl input argument is present,
+        its contents shall take presedence.
+
+        """
+
+        logger.info("_get_meta_access()")
+
+        if self._config is None:
+            # DISCUSS: Should we allow no config? Or raise when missing?
+            logger.debug("No config is given, returning")
             return
 
-        self.metadata4access = self._config["access"]
-        logger.info("Metadata for access is set!")
+        a_cfg = self._config["access"]
+
+        if not "asset" in a_cfg:
+            # asset shall be present if config is used
+            raise ValueError("The 'access.asset' field not found in the config")
+
+        # initialize and populate with defaults from config
+        self.metadata4access = OrderedDict()
+        a_meta = self.metadata4access  # shortform
+
+        # if there is a config, the 'asset' tag shall be present
+        a_meta["asset"] = a_cfg["asset"]
+        logger.debug("meta is now: %s", a_meta)
+        logger.info("access.asset is %s", a_meta["asset"])
+
+        # ssdl
+        if "ssdl" in a_cfg:
+            a_meta["ssdl"] = a_cfg["ssdl"]
+
+        # if input argument, expand or overwrite ssdl tag contents from config
+        if not self._case and self._access_ssdl is not None:
+            logger.info("access_ssdl has been given: %s", self._access_ssdl)
+            a_meta["ssdl"] = {**a_meta["ssdl"], **self._access_ssdl}
+
+        logger.info("access has been set")
 
     def _get_meta_tracklog(self) -> None:
         """Get metadata for tracklog section."""
