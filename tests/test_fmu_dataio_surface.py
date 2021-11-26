@@ -56,6 +56,14 @@ def test_surface_io(tmp_path):
     "dates, expected",
     [
         (
+            [[20440109, "monitor"]],
+            "test--20440109",
+        ),
+        (
+            [[20440111, "monitor"], None],
+            "test--20440111",
+        ),
+        (
             [[20440101, "monitor"], [20230101, "base"]],
             "test--20440101_20230101",
         ),
