@@ -3,6 +3,7 @@ import json
 import logging
 import warnings
 from collections import OrderedDict
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import Tuple
@@ -503,6 +504,11 @@ class _ExportItem:
     def _data_process_timedata(self):
         """Process the time subfield and also construct self.times."""
         # first detect if timedata is given, the process it
+        # timedata may be like:
+        #       None
+        #       [["20220101", "monitor"], ["20200101", "base"]]
+        #       [["20220101", None], ["20200101", None]]
+        #       [["20220101", "any"], None]
         logger.info("Evaluate data:name attribute")
         meta = self.dataio.metadata4data
 
@@ -511,8 +517,20 @@ class _ExportItem:
         if self.timedata is None:
             return
 
+        # this is used in file name construction:
         self.times = []  # e.g. ["20211102", "20231101"] or ["20211102", None]
-        for xtime in self.timedata:
+
+        # normally self.timedata (input) has two entries, but one may accepted,
+        # implicitly meaning the second item is None
+        usetimedata = deepcopy(self.timedata)
+        if len(usetimedata) == 1:
+            usetimedata.append(None)
+
+        for xtime in usetimedata:
+            if xtime is None:
+                self.times.append(None)
+                continue
+
             if isinstance(xtime[0], int):
                 if xtime[0] < datelimits[0] or xtime[0] > datelimits[1]:
                     raise ValidationError(
