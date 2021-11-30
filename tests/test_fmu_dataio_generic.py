@@ -82,7 +82,7 @@ def test_get_meta_access():
     case._get_meta_access()
     assert case.metadata4access == {}  # detecting empty dict
 
-    # test case 2: access_ssdl is not given
+    # test case 2: access_ssdl is not given, ssdl is kept as-is from config
     case = fmu.dataio.ExportData()
     case._config = CFG
     case._get_meta_access()
@@ -92,7 +92,7 @@ def test_get_meta_access():
         "some_access_tag": True,  # default
     }
 
-    # test case 3: access_ssdl is given with both
+    # test case 3: both access_ssdl tags in config are given and overwritten
     case = fmu.dataio.ExportData(
         access_ssdl={"access_level": "asset", "some_access_tag": False}
     )
@@ -104,7 +104,7 @@ def test_get_meta_access():
         "some_access_tag": False,  # input
     }
 
-    # test case 4: access_ssdl is given with access_level only
+    # test case 4: only ssdl.access_level is given to overwrite from config
     case = fmu.dataio.ExportData(access_ssdl={"access_level": "asset"})
     case._config = CFG
     case._get_meta_access()
@@ -114,7 +114,7 @@ def test_get_meta_access():
         "some_access_tag": True,  # default
     }
 
-    # test case 5: access_ssdl is given with some_access_tag only
+    # test case 5: only ssdl.some_access_tag is given to overwrite from config
     case = fmu.dataio.ExportData(access_ssdl={"some_access_tag": False})
     case._config = CFG
     case._get_meta_access()
