@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.7.2.dev2+g1e16fc1 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.7.3.dev1+gc389a1a documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -211,7 +211,7 @@
 <span class="sd">            name of the grid geometry.</span>
 <span class="sd">        tagname: This is a short tag description which be be a part of file name.</span>
 <span class="sd">        description: A multiline description of the data.</span>
-<span class="sd">        access_ssdl: A dictionary that will overwrite the default ssdl</span>
+<span class="sd">        access_ssdl: A dictionary that will overwrite or append to the default ssdl</span>
 <span class="sd">            settings read from the config. Example:</span>
 <span class="sd">            ``{&quot;access_level&quot;: &quot;restricted&quot;, &quot;rep_include&quot;: False}``</span>
 <span class="sd">        display_name: Set name for clients to use when visualizing.</span>
@@ -483,15 +483,51 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata for masterdata is set!&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_meta_access</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get metadata overall (default) from access section in config.&quot;&quot;&quot;</span>
-        <span class="c1"># note that access should be possible to change per object</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s2">&quot;access&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No access section present&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">metadata4access</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="sd">&quot;&quot;&quot;Get metadata overall (default) from access section in config.</span>
+
+<span class="sd">        Access should be possible to change per object, based on user input.</span>
+<span class="sd">        This is done through the access_ssdl input argument.</span>
+
+<span class="sd">        The &quot;asset&quot; field shall come from the config. This is static information.</span>
+
+<span class="sd">        The &quot;ssdl&quot; field can come from the config, or be explicitly given through</span>
+<span class="sd">        the &quot;access_ssdl&quot; input argument. If the access_ssdl input argument is present,</span>
+<span class="sd">        its contents shall take presedence.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;_get_meta_access()&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># DISCUSS: Should we allow no config? Or raise when missing?</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No config is given, returning&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata4access</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">]</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata for access is set!&quot;</span><span class="p">)</span>
+        <span class="n">a_cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;asset&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">a_cfg</span><span class="p">:</span>
+            <span class="c1"># asset shall be present if config is used</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;access.asset&#39; field not found in the config&quot;</span><span class="p">)</span>
+
+        <span class="c1"># initialize and populate with defaults from config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata4access</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">a_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata4access</span>  <span class="c1"># shortform</span>
+
+        <span class="c1"># if there is a config, the &#39;asset&#39; tag shall be present</span>
+        <span class="n">a_meta</span><span class="p">[</span><span class="s2">&quot;asset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">a_cfg</span><span class="p">[</span><span class="s2">&quot;asset&quot;</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;meta is now: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">a_meta</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;access.asset is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">a_meta</span><span class="p">[</span><span class="s2">&quot;asset&quot;</span><span class="p">])</span>
+
+        <span class="c1"># ssdl</span>
+        <span class="k">if</span> <span class="s2">&quot;ssdl&quot;</span> <span class="ow">in</span> <span class="n">a_cfg</span><span class="p">:</span>
+            <span class="n">a_meta</span><span class="p">[</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">a_cfg</span><span class="p">[</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span>
+
+        <span class="c1"># if input argument, expand or overwrite ssdl tag contents from config</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_access_ssdl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;access_ssdl has been given: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_access_ssdl</span><span class="p">)</span>
+            <span class="n">a_meta</span><span class="p">[</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">a_meta</span><span class="p">[</span><span class="s2">&quot;ssdl&quot;</span><span class="p">],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_access_ssdl</span><span class="p">}</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;access has been set&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_meta_tracklog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get metadata for tracklog section.&quot;&quot;&quot;</span>
@@ -1097,7 +1133,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.7.2.dev2+g1e16fc1).</p>
+    <p>&#169; Copyright Equinor 2021 (fmu-dataio release 0.7.3.dev1+gc389a1a).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
