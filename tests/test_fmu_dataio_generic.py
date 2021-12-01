@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 from collections import OrderedDict
+from copy import deepcopy
 
 import pytest
 import xtgeo
@@ -25,7 +26,10 @@ CFG["masterdata"] = {
     }
 }
 CFG["stratigraphy"] = {"TopVolantis": {}}
-CFG["access"] = {"someaccess": "jail"}
+CFG["access"] = {
+    "asset": "Drogon",
+    "ssdl": {"access_level": "internal", "some_access_tag": True},
+}
 CFG["model"] = {"revision": "0.99.0"}
 
 RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
@@ -72,10 +76,67 @@ def test_get_meta_masterdata():
 
 def test_get_meta_access():
     """The private routine that provides access."""
+
+    # test case 1: No config
+    case = fmu.dataio.ExportData()
+    case._get_meta_access()
+    assert case.metadata4access == {}  # detecting empty dict
+
+    # test case 2: access_ssdl is not given, ssdl is kept as-is from config
     case = fmu.dataio.ExportData()
     case._config = CFG
     case._get_meta_access()
-    assert case.metadata4access["someaccess"] == "jail"
+    assert case.metadata4access["asset"] == "Drogon"
+    assert case.metadata4access["ssdl"] == {
+        "access_level": "internal",  # default
+        "some_access_tag": True,  # default
+    }
+
+    # test case 3: both access_ssdl tags in config are given and overwritten
+    case = fmu.dataio.ExportData(
+        access_ssdl={"access_level": "asset", "some_access_tag": False}
+    )
+    case._config = CFG
+    case._get_meta_access()
+    assert case.metadata4access["asset"] == "Drogon"
+    assert case.metadata4access["ssdl"] == {
+        "access_level": "asset",  # input
+        "some_access_tag": False,  # input
+    }
+
+    # test case 4: only ssdl.access_level is given to overwrite from config
+    case = fmu.dataio.ExportData(access_ssdl={"access_level": "asset"})
+    case._config = CFG
+    case._get_meta_access()
+    assert case.metadata4access["asset"] == "Drogon"
+    assert case.metadata4access["ssdl"] == {
+        "access_level": "asset",  # input
+        "some_access_tag": True,  # default
+    }
+
+    # test case 5: only ssdl.some_access_tag is given to overwrite from config
+    case = fmu.dataio.ExportData(access_ssdl={"some_access_tag": False})
+    case._config = CFG
+    case._get_meta_access()
+    assert case.metadata4access["asset"] == "Drogon"
+    assert case.metadata4access["ssdl"] == {
+        "access_level": "internal",  # default
+        "some_access_tag": False,  # input
+    }
+
+    # test case 6: asset is not present in config, shall raise
+    case = fmu.dataio.ExportData(access_ssdl={"some_access_tag": False})
+    _tmp_cfg = deepcopy(CFG)
+    del _tmp_cfg["access"]["asset"]
+    case._config = _tmp_cfg
+    with pytest.raises(ValueError):
+        case._get_meta_access()
+
+    # test case 7: access_ssdl is not given as a dict
+    case = fmu.dataio.ExportData(access_ssdl="somestring")
+    case._config = CFG
+    with pytest.raises(TypeError):
+        case._get_meta_access()
 
 
 def test_get_meta_tracklog():
@@ -409,3 +470,87 @@ def test_fmu_block(tmp_path):
 
     assert isinstance(meta["fmu"]["case"]["user"], dict)
     assert "id" in meta["fmu"]["case"]["user"]
+
+
+def test_access_block(tmp_path):
+    """Test the content of the access block"""
+
+    # make it look like an ERT run
+    current = tmp_path / "scratch" / "fields" / "user"
+    current.mkdir(parents=True, exist_ok=True)
+
+    shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
+
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
+    runfolder.mkdir(parents=True, exist_ok=True)
+    out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
+
+    exp = fmu.dataio.ExportData(
+        config=CFG,
+        content="depth",
+        unit="m",
+        vertical_domain={"depth": "msl"},
+        timedata=None,
+        is_prediction=True,
+        is_observation=False,
+        tagname="what Descr",
+        verbosity="INFO",
+        runfolder=runfolder.resolve(),
+        workflow="my current workflow",
+        inside_rms=True,  # pretend to be inside RMS since runfolder is at rms model
+    )
+
+    # make a fake RegularSurface
+    srf = xtgeo.RegularSurface(
+        ncol=20,
+        nrow=30,
+        xinc=20,
+        yinc=20,
+        values=0,
+        name="TopVolantis",
+    )
+    assert exp.export(srf, verbosity="INFO") == str(out / "topvolantis--what_descr.gri")
+
+    metadataout = out / ".topvolantis--what_descr.gri.yml"
+    assert metadataout.is_file() is True
+
+    # now read the metadata file and test some key entries:
+    with open(metadataout, "r") as stream:
+        meta = yaml.safe_load(stream)
+
+    # access shall be a dictionary and shall contain keys 'asset' and 'ssdl'
+    assert isinstance(meta["access"], dict)
+    assert "asset" in meta["access"]
+    assert "ssdl" in meta["access"]
+
+    # access.ssdl shall be present and be a dictionary
+    assert isinstance(meta["access"]["ssdl"], dict)
+
+    # if not explicitly given, default shall be used
+    assert meta["access"] == {
+        "asset": "Drogon",
+        "ssdl": {"access_level": "internal", "some_access_tag": True},
+    }
+
+    # if explicitly given, defaults shall be overrided for those fields given
+    fmu.dataio.ExportData(
+        config=CFG,
+        content="depth",
+        unit="m",
+        vertical_domain={"depth": "msl"},
+        timedata=None,
+        is_prediction=True,
+        is_observation=False,
+        tagname="what Descr",
+        verbosity="INFO",
+        runfolder=runfolder.resolve(),
+        workflow="my current workflow",
+        access={"asset": "Drogon"},
+    ).export(srf, verbosity="INFO")
+
+    assert meta["access"] == {
+        "asset": "Drogon",
+        "ssdl": {"access_level": "internal", "some_access_tag": True},
+    }
