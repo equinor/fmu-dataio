@@ -32,7 +32,6 @@ import pathlib
 import re
 import sys
 import uuid
-import warnings
 from collections import OrderedDict
 from typing import Any, List, Optional, Union
 
@@ -200,10 +199,7 @@ class ExportData:
 
         self._runpath = runpath
         self._access_ssdl = access_ssdl
-        if config is None:
-            self._try_get_config()
-        else:
-            self._config = config
+        self._config = self._config_get(config)
         self._content = content
         self._context = context
         self._is_prediction = is_prediction
@@ -374,28 +370,84 @@ class ExportData:
     # Private metadata methods which retrieve metadata that are not closely linked to
     # the actual instance to be exported.
 
-    def _try_get_config(self):
-        """Try to detect and get the config from env variable."""
-        envvar = "FMU_GLOBAL_CONFIG"
+    def _config_get(self, args_config):
+        """Get the config.
+
+        Config can be provided directly as dictionary in arguments, and will take
+        presendence if provided. If not provided, fall-back is to look for pointer
+        to a config file in environment variables.
+
+        """
+
+        if args_config is None:
+            logger.info("Config is not given as argument")
+            config = None
+        elif isinstance(args_config, dict):
+            logger.info("Config is given as dict in arguments")
+            config = args_config
+        else:
+            logger.info("type of config from args was %s", type(args_config))
+            raise TypeError("When config is given as argument, it must be a dictionary")
+
+        if config is None:
+            config = self._config_from_environment_variable()
+
+        if self._config_validate(config):
+            return config
+
+        raise RuntimeError("Could not get config.")
+
+    def _config_from_environment_variable(self, envvar="FMU_GLOBAL_CONFIG"):
+        """Get the config from environment variable.
+
+        This function is only called if config SHALL be fetched from the environment
+        variable: Raise if the environment variable is not found.
+
+        Returns: config (dict)
+        """
+
+        logger.info("config is still None, try to get from environment variable")
 
         if envvar in os.environ:
-            cfg = os.environ[envvar]
-            logger.info("Set global config from env variable %s as %s", envvar, cfg)
-        else:
-            warnings.warn(
-                "The key 'config' is set to None, and not able to detect a "
-                f"config file from environment variable {envvar}. Use None as config.",
-                UserWarning,
+            cfg_path = os.environ[envvar]
+            logger.info(
+                "Set global config from env variable %s as %s", envvar, cfg_path
             )
-            self._config = None
-            return
+        else:
+            logger.info("Environment variable %s was not found.", envvar)
+            raise ValueError(
+                (
+                    "No config was received. "
+                    "The config must be given explicitly as an input argument, or "
+                    "the environment variable %s must point to a valid yaml file.",
+                    envvar,
+                )
+            )
 
-        with open(cfg, "r", encoding="utf8") as stream:
+        with open(cfg_path, "r", encoding="utf8") as stream:
             try:
-                self._config = yaml.safe_load(stream)
+                config = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
                 print(exc)
                 raise
+
+        return config
+
+    def _config_validate(self, config):
+        """Validate the config.
+
+        Check that required keys in config are present.
+
+        Returns bool. True if config is valid.
+        """
+
+        config_required_keys = ["access", "masterdata", "model"]
+
+        for required_key in config_required_keys:
+            if required_key not in config:
+                raise ValueError("Required key '%s' not found in config.", required_key)
+
+        return config
 
     def _get_meta_masterdata(self) -> None:
         """Get metadata from masterdata section in config.
@@ -853,10 +905,7 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
         self._verbosity = verbosity
         logger.setLevel(level=self._verbosity)
 
-        if config is None:
-            self._try_get_config()
-        else:
-            self._config = config
+        self._config = self._config_get(config)
 
         self._case = True
 
