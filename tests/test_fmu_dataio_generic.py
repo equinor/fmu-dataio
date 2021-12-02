@@ -182,6 +182,20 @@ def test_get_folderlist():
     assert folderlist[-2] == "realization-0"
 
 
+def test_process_config():
+    """Test raise when no config provided"""
+    with pytest.raises(ValueError):
+        fmu.dataio.ExportData(config=None)
+
+
+def test_validate_config():
+    """Test raise when missing required config keys"""
+    _tmp_cfg = deepcopy(CFG)
+    del _tmp_cfg["model"]
+    with pytest.raises(ValueError):
+        fmu.dataio.ExportData(config=_tmp_cfg)
+
+
 def test_process_fmu_config_from_env():
     """Apply config from the env variabel FMU_GLOBAL_CONFIG"""
     os.environ["FMU_GLOBAL_CONFIG"] = GLOBAL_CONFIG
