@@ -22,6 +22,11 @@ CFG["masterdata"] = {
         "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
     }
 }
+CFG["access"] = {
+    "asset": "Drogon",
+    "ssdl": {"access_level": "internal", "some_access_tag": True},
+}
+CFG["model"] = {"revision": "0.99.0"}
 
 CFG2 = {}
 with open("tests/data/drogon/global_config2/global_variables.yml", "r") as stream:
@@ -49,7 +54,9 @@ def test_polygons_io(tmp_path):
     srf = xtgeo.Polygons(POLY)
     fmu.dataio.ExportData.polygons_fformat = "csv"
 
-    exp = fmu.dataio.ExportData(name="test", content="depth", runpath=tmp_path)
+    exp = fmu.dataio.ExportData(
+        name="test", content="depth", runpath=tmp_path, config=CFG
+    )
     exp.export(srf)
 
     assert (tmp_path / FMUP1 / "polygons" / ".test.csv.yml").is_file() is True

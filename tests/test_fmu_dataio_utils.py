@@ -15,6 +15,11 @@ CFG["masterdata"] = {
         "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
     }
 }
+CFG["access"] = {
+    "asset": "Drogon",
+    "ssdl": {"access_level": "internal", "some_access_tag": True},
+}
+CFG["model"] = {"revision": "0.99.0"}
 
 
 def test_uuid_from_string():

@@ -24,6 +24,11 @@ CFG["masterdata"] = {
         "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
     }
 }
+CFG["access"] = {
+    "asset": "Drogon",
+    "ssdl": {"access_level": "internal", "some_access_tag": True},
+}
+CFG["model"] = {"revision": "0.99.0"}
 
 CFG2 = {}
 with open("tests/data/drogon/global_config2/global_variables.yml", "r") as stream:
@@ -46,6 +51,7 @@ def test_grid_io(tmp_path):
     exp = fmu.dataio.ExportData(
         content="depth",
         runpath=tmp_path,
+        config=CFG,
     )
     exp.export(grd)
 
@@ -60,7 +66,9 @@ def test_gridproperty_io(tmp_path):
     gpr.name = "testgp"
     fmu.dataio.ExportData.grid_fformat = "roff"
 
-    exp = fmu.dataio.ExportData(parent={"name": "Geogrid"}, runpath=tmp_path)
+    exp = fmu.dataio.ExportData(
+        parent={"name": "Geogrid"}, runpath=tmp_path, config=CFG
+    )
     exp.export(gpr)
 
     assert (tmp_path / FMUP1 / "grids" / ".geogrid--testgp.roff.yml").is_file() is True

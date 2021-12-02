@@ -23,6 +23,13 @@ CFG["masterdata"] = {
         "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
     }
 }
+CFG["access"] = {"asset": "Drogon", "ssdl": "internal"}
+CFG["model"] = {"revision": "0.99.0"}
+CFG["access"] = {
+    "asset": "Drogon",
+    "ssdl": {"access_level": "internal", "some_access_tag": True},
+}
+CFG["model"] = {"revision": "0.99.0"}
 
 CFG2 = {}
 with open("tests/data/drogon/global_config2/global_variables.yml", "r") as stream:
@@ -39,7 +46,9 @@ def test_cube_io(tmp_path):
     cube = xtgeo.Cube(ncol=5, nrow=8, nlay=3, values=0.0)
     fmu.dataio.ExportData.cube_fformat = "segy"
 
-    exp = fmu.dataio.ExportData(content="depth", name="testcube", runpath=tmp_path)
+    exp = fmu.dataio.ExportData(
+        content="depth", name="testcube", runpath=tmp_path, config=CFG
+    )
 
     exp.export(cube)
 

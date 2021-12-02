@@ -23,6 +23,11 @@ CFG["masterdata"] = {
         "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
     }
 }
+CFG["access"] = {
+    "asset": "Drogon",
+    "ssdl": {"access_level": "internal", "some_access_tag": True},
+}
+CFG["model"] = {"revision": "0.99.0"}
 
 CFG2 = {}
 with open("tests/data/drogon/global_config2/global_variables.yml", "r") as stream:
@@ -60,7 +65,9 @@ def test_points_io(tmp_path):
     pox = xtgeo.Points(POI)
     fmu.dataio.ExportData.points_fformat = "csv"
 
-    exp = fmu.dataio.ExportData(name="test", content="depth", runpath=tmp_path)
+    exp = fmu.dataio.ExportData(
+        name="test", content="depth", runpath=tmp_path, config=CFG
+    )
     exp.export(pox)
 
     assert (tmp_path / FMUP1 / "points" / ".test.csv.yml").is_file() is True
@@ -81,7 +88,9 @@ def test_points_io_with_attrs(tmp_path):
     )
     print(pox.dataframe)
     fmu.dataio.ExportData.points_fformat = "csv"
-    exp = fmu.dataio.ExportData(name="test2", content="depth", runpath=tmp_path)
+    exp = fmu.dataio.ExportData(
+        name="test2", content="depth", runpath=tmp_path, config=CFG
+    )
     exp.export(pox)
 
     assert (tmp_path / FMUP1 / "points" / ".test2.csv.yml").is_file() is True
