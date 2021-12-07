@@ -3,6 +3,8 @@ from collections import OrderedDict
 
 import pytest
 
+import xtgeo
+
 import fmu.dataio._utils as _utils
 
 CFG = OrderedDict()
@@ -81,3 +83,22 @@ def test_parse_parameters_txt_justified():
     assert res["SENSNAME"] == "rms_seed"
     assert res["GLOBVAR"]["VOLON_PERMH_CHANNEL"] == 1100
     assert res["LOG10_MULTREGT"]["MULT_VALYSAR_THERYS"] == -3.2582
+
+
+def test_get_object_name():
+    """Test the method for getting name from a data object"""
+
+    surface = xtgeo.RegularSurface(
+        ncol=3, nrow=4, xinc=22, yinc=22, values=0, name="MyName"
+    )
+    assert _utils.get_object_name(surface) == "MyName"
+
+    # no name should return None
+    surface = xtgeo.RegularSurface(ncol=3, nrow=4, xinc=22, yinc=22, values=0)
+    assert _utils.get_object_name(surface) is None
+
+    # default name from XTgeo should return None
+    surface = xtgeo.RegularSurface(
+        ncol=3, nrow=4, xinc=22, yinc=22, values=0, name="unknown"
+    )
+    assert _utils.get_object_name(surface) is None

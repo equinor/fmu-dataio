@@ -177,3 +177,25 @@ def check_if_number(value):
         return res
 
     return value
+
+
+def get_object_name(obj):
+    """Get the name of the object.
+
+    If not possible, return None.
+    If result is 'unknown', return None.
+
+    """
+
+    logger.debug("Getting name from the data object itself")
+
+    try:
+        name = obj.name
+        if name == "unknown":
+            logger.debug("Got 'unknown' as name from the object, returning None")
+            return
+    except AttributeError:
+        logger.info("display.name could not be set")
+        return
+
+    return name
