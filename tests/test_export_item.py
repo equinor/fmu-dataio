@@ -321,11 +321,6 @@ def test_data_process_content_fluid_contact():
     obj = xtgeo.Polygons()
 
 
-def test_display():
-    """Test the display block placeholder."""
-    pass
-
-
 def test_display_name():
     """Test the display.name.
 
