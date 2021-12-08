@@ -3,6 +3,8 @@ from collections import OrderedDict
 
 import pytest
 
+import pandas as pd
+
 import xtgeo
 
 import fmu.dataio._utils as _utils
@@ -88,17 +90,50 @@ def test_parse_parameters_txt_justified():
 def test_get_object_name():
     """Test the method for getting name from a data object"""
 
-    surface = xtgeo.RegularSurface(
-        ncol=3, nrow=4, xinc=22, yinc=22, values=0, name="MyName"
-    )
-    assert _utils.get_object_name(surface) == "MyName"
-
-    # no name should return None
+    # surface with no name, shall return None
     surface = xtgeo.RegularSurface(ncol=3, nrow=4, xinc=22, yinc=22, values=0)
     assert _utils.get_object_name(surface) is None
 
-    # default name from XTgeo should return None
-    surface = xtgeo.RegularSurface(
-        ncol=3, nrow=4, xinc=22, yinc=22, values=0, name="unknown"
+    # surface with name, shall return the name
+    surface.name = "MySurfaceName"
+    assert _utils.get_object_name(surface) == "MySurfaceName"
+
+    # dataframe: shall return None
+    table = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+    assert _utils.get_object_name(table) is None
+
+    # polygons with no name, shall return None
+    poly = xtgeo.Polygons()
+    poly.from_list([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
+    assert _utils.get_object_name(poly) is None
+
+    # polygons with name, shall return name
+    poly.name = "MyPolygonsName"
+    assert _utils.get_object_name(poly) == "MyPolygonsName"
+
+    # points with no name, shall return None
+    points = xtgeo.Points(
+        [
+            (1.0, 2.0, 3.0),
+            (1.5, 2.5, 3.5),
+            (1.2, 2.2, 3.1),
+            (1.1, 2.0, 3.0),
+            (1.1, 2.0, 3.0),
+            (1.1, 2.0, 3.0),
+            (1.1, 2.0, 3.0),
+        ]
     )
-    assert _utils.get_object_name(surface) is None
+    assert _utils.get_object_name(points) is None
+
+    # points with name, shall return name
+    points.name = "MyPointsName"
+    assert _utils.get_object_name(points) == "MyPointsName"
+
+    # grid with no name, shall return None
+    grid = xtgeo.Grid()
+    grid.create_box()
+    assert _utils.get_object_name(grid) is None
+
+    # grid with name, shall return name
+    grid.name = "MyGridName"
+    assert _utils.get_object_name(grid) == "MyGridName"
