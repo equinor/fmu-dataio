@@ -445,7 +445,7 @@ class ExportData:
 
         for required_key in config_required_keys:
             if required_key not in config:
-                raise ValueError("Required key '%s' not found in config.", required_key)
+                raise ValueError(f"Required key '{required_key}' not found in config.")
 
         return config
 
