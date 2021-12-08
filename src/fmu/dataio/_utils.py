@@ -6,6 +6,8 @@ import uuid
 from pathlib import Path
 from typing import Dict, List, Union
 
+import xtgeo
+
 from . import _design_kw
 from . import _oyaml as oyaml
 
@@ -183,7 +185,9 @@ def get_object_name(obj):
     """Get the name of the object.
 
     If not possible, return None.
-    If result is 'unknown', return None.
+    If result is 'unknown', return None (XTgeo defaults)
+    If object is a polygon, and object name is 'poly', return None (XTgeo defaults)
+    If object is a grid, and object name is 'noname', return None (XTgeo defaults)
 
     """
 
@@ -191,11 +195,20 @@ def get_object_name(obj):
 
     try:
         name = obj.name
-        if name == "unknown":
-            logger.debug("Got 'unknown' as name from the object, returning None")
-            return
     except AttributeError:
         logger.info("display.name could not be set")
+        return
+
+    if isinstance(obj, xtgeo.RegularSurface) and name == "unknown":
+        logger.debug("Got 'unknown' as name from a surface object, returning None")
+        return
+
+    if isinstance(obj, xtgeo.Polygons) and name == "poly":
+        logger.debug("Got 'poly' as name from a polygons object, returning None")
+        return
+
+    if isinstance(obj, xtgeo.Grid) and name == "noname":
+        logger.debug("Got 'noname' as name from grids object, returning None")
         return
 
     return name
