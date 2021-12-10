@@ -251,7 +251,7 @@ class _ExportItem:
 
         self._data_process()
         self._data_process_object()
-        self._display()
+        self._display_process()
         fpath = self._item_to_file()
         return str(fpath)
 
@@ -316,9 +316,6 @@ class _ExportItem:
         logger.info(
             "Evaluate data:name attribute done, true name is <%s>", meta["name"]
         )
-
-        if self.display_name is None or self.display_name == "unknown":
-            self.display_name = self.name
 
     def _data_process_context(self):
         """Process the context input which gives offset and top/base settings.
@@ -832,7 +829,7 @@ class _ExportItem:
         meta["bbox"] = None
         logger.info("Process data metadata for ArrowTable... done!!")
 
-    def _display(self):
+    def _display_process(self):
         """Process common subfields in the display block.
 
         For now, this is simply injecting a skeleton with loose
@@ -857,30 +854,23 @@ class _ExportItem:
         """
 
         logger.info("Processing display")
+        self._display_process_name()
+        logger.info("Display has been processed.")
+
+    def _display_process_name(self):
+        """Process display.name"""
+
+        logger.info("Processing display name")
         meta = self.dataio.metadata4display
 
-        # display.name
-        if self.display_name is not None:
-            # first choice: display_name argument
-            logger.debug("display.name is set from arguments")
-            meta["name"] = self.display_name
-        elif self.name is not None:
-            # second choice: name argument
-            logger.debug("display.name is set to name argument as fallback")
-            meta["name"] = self.name
-        else:
-            # third choice: object name, unless the XTgeo default "unknown"
-            try:
-                meta["name"] = self.obj.name
-                logger.debug("display.name is set to object name as fallback")
+        logger.debug("self.display_name is %s", self.display_name)
+        logger.debug("self.name is %s", self.name)
 
-                if meta["name"] == "unknown":
-                    logger.debug("Got default object name from XTgeo, changing to None")
-                    meta["name"] = None
-            except AttributeError:
-                logger.debug("display.name could not be set")
-                meta["name"] = None
+        meta["name"] = (
+            self.display_name or self.name or _utils.get_object_name(self.obj)
+        )
 
+        logger.info("display.name is set to %s", meta["name"])
         logger.info("Processing display is done!")
 
     def _item_to_file(self):

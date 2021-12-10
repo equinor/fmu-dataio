@@ -321,23 +321,55 @@ def test_data_process_content_fluid_contact():
     obj = xtgeo.Polygons()
 
 
-def test_display():
-    """
-    Test the display.
+def test_display_name():
+    """Test the display.name.
 
-    For now, the display.name only is set. It is set by
-    input argument, with two fallbacks.
+    display.name is the desired name to display on maps e.g. if the actual name is not
+    display-friendly.
 
-    1) input argument to ExportData.export()
-    2) Fallback: name argument to Export Data initialisation
-    3) Fallback: Object name
+    It is set by input argument
+
+    1) Input argument to ExportData.export() (priority 1)
+    2) Input argument to ExportData() (priority 2)
+    3) Fallback: name argument to Export Data initialisation (priority 3)
+    4) Fallback: Object name (priority 4)
 
     Note: Will not use object name if this is == "unknown",
     which is the default in XTgeo.
 
     """
 
-    # 1 assert that name argument is used when set
+    # display_name as argument to ExportData.export() only
+    dataio = fmu.dataio.ExportData(
+        name="MyName", config=CFG2, content="depth", verbosity="DEBUG"
+    )
+
+    obj = xtgeo.RegularSurface(
+        name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exporter = ei._ExportItem(dataio, obj, display_name="ExportName", verbosity="DEBUG")
+    exporter._display_process()
+
+    assert dataio.metadata4display["name"] == "ExportName"
+
+    # display_name as argument to ExportData() AND ExportData.export(), use latter
+    dataio = fmu.dataio.ExportData(
+        name="MyName",
+        display_name="MyIgnoredDisplayName",
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    obj = xtgeo.RegularSurface(
+        name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exporter = ei._ExportItem(dataio, obj, display_name="ExportName", verbosity="DEBUG")
+    exporter._display_process()
+
+    assert dataio.metadata4display["name"] == "ExportName"
+
+    # display_name as argument to ExportData(), not to ExportData.export()
     dataio = fmu.dataio.ExportData(
         name="MyName", config=CFG2, content="depth", verbosity="DEBUG"
     )
@@ -346,12 +378,11 @@ def test_display():
         name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
     )
     exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
-    exporter._display()
+    exporter._display_process()
 
-    # 'display_name' is not given, so 'name' should be used.
     assert dataio.metadata4display["name"] == "MyName"
 
-    # 2 assert that object argument is used when name argument not set
+    # no display_name, no name. Use object name.
     dataio = fmu.dataio.ExportData(
         config=CFG2,
         content="depth",
@@ -362,12 +393,11 @@ def test_display():
         name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
     )
     exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
-    exporter._display()
+    exporter._display_process()
 
-    # 'display_name' nor 'name' is given, object name should be used
     assert dataio.metadata4display["name"] == "ObjectName"
 
-    # 3 assert that None is set when nothing is given
+    # no name, no display_name, no object-name: Return None
     dataio = fmu.dataio.ExportData(
         config=CFG2,
         content="depth",
@@ -376,12 +406,26 @@ def test_display():
 
     obj = xtgeo.RegularSurface(ncol=3, nrow=4, xinc=22, yinc=22, values=0)
     exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
-    exporter._display()
+    exporter._display_process()
 
-    # None of the fallbacks are set, so None should be exported
     assert dataio.metadata4display["name"] is None
 
-    # 4 assert that display_name is used when given
+    # when 'unknown' received from the data object, return None
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    obj = xtgeo.RegularSurface(
+        ncol=3, nrow=4, xinc=22, yinc=22, values=0, name="unknown"
+    )
+    exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
+    exporter._display_process()
+
+    assert dataio.metadata4display["name"] is None
+
+    # display_name always used when given
     dataio = fmu.dataio.ExportData(
         name="MyName",
         display_name="MyDisplayName",
@@ -394,5 +438,20 @@ def test_display():
         name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
     )
     exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
-    exporter._display()
+    exporter._display_process()
     assert dataio.metadata4display["name"] == "MyDisplayName"
+
+    # display_name always used when given even when it is "unknown"
+    dataio = fmu.dataio.ExportData(
+        display_name="unknown",
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    obj = xtgeo.RegularSurface(
+        name="ObjectName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
+    exporter._display_process()
+    assert dataio.metadata4display["name"] == "unknown"
