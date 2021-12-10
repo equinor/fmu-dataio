@@ -392,10 +392,12 @@ class ExportData:
         if config is None:
             config = self._config_from_environment_variable()
 
-        if self._config_validate(config):
-            return config
+        self._config_validate(config)
 
-        raise RuntimeError("Could not get config.")
+        if config is None:
+            raise RuntimeError("Could not get config.")
+
+        return config
 
     def _config_from_environment_variable(self, envvar="FMU_GLOBAL_CONFIG"):
         """Get the config from environment variable.
@@ -436,9 +438,9 @@ class ExportData:
     def _config_validate(self, config):
         """Validate the config.
 
-        Check that required keys in config are present.
+        Not a full validation. For now, just check that some required
+        keys are present in the config and raise if not.
 
-        Returns bool. True if config is valid.
         """
 
         config_required_keys = ["access", "masterdata", "model"]
@@ -446,8 +448,6 @@ class ExportData:
         for required_key in config_required_keys:
             if required_key not in config:
                 raise ValueError(f"Required key '{required_key}' not found in config.")
-
-        return config
 
     def _get_meta_masterdata(self) -> None:
         """Get metadata from masterdata section in config.
