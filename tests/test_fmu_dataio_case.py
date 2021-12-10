@@ -19,7 +19,6 @@ CFG["masterdata"] = {
     }
 }
 CFG["stratigraphy"] = {"TopVolantis": {}}
-CFG["access"] = {"someaccess": "jail"}
 CFG["model"] = {"revision": "0.99.0"}
 CFG["access"] = {"asset": "Drogon", "ssdl": "internal"}
 
@@ -32,8 +31,7 @@ logger.setLevel(logging.INFO)
 def test_process_fmu_case():
     """The produce(!) the fmu case data."""
 
-    case = fmu.dataio.InitializeCase(runfolder=RUN)
-    case._config = CFG
+    case = fmu.dataio.InitializeCase(runfolder=RUN, config=CFG)
 
     c_meta = case._establish_fmu_case_metadata(
         casename="testcase",

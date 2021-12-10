@@ -30,6 +30,11 @@ CFG["masterdata"] = {
         "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
     }
 }
+CFG["access"] = {
+    "asset": "Drogon",
+    "ssdl": {"access_level": "internal", "some_access_tag": True},
+}
+CFG["model"] = {"revision": "0.99.0"}
 
 CFG2 = {}
 with open("tests/data/drogon/global_config2/global_variables.yml", "r") as mstream:
@@ -53,6 +58,7 @@ def test_table_io_pandas(tmp_path):
         content="volumes",
         runpath=tmp_path,
         include_index=False,
+        config=CFG,
     )
     exp.export(df)
 
@@ -77,7 +83,11 @@ def test_table_io_arrow(tmp_path):
     table = pa.Table.from_pandas(df)
 
     exp = fmu.dataio.ExportData(
-        name="test", verbosity="INFO", content="timeseries", runpath=tmp_path
+        name="test",
+        verbosity="INFO",
+        content="timeseries",
+        runpath=tmp_path,
+        config=CFG,
     )
     exp.export(table)
 
