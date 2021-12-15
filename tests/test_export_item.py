@@ -404,8 +404,7 @@ def test_display_name():
         verbosity="DEBUG",
     )
 
-    grid = xtgeo.Grid()
-    grid.create_box()
+    grid = xtgeo.create_box_grid((10, 10, 10))
     grid.name = "ObjectName"
 
     exporter = ei._ExportItem(dataio, grid, verbosity="DEBUG")
@@ -548,8 +547,7 @@ def test_display_name():
         verbosity="DEBUG",
     )
 
-    grid = xtgeo.Grid()
-    grid.create_box()
+    grid = xtgeo.create_box_grid((10, 10, 10))
 
     exporter = ei._ExportItem(dataio, grid, verbosity="DEBUG")
     exporter._display_process()
