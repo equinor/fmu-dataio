@@ -118,6 +118,36 @@ def test_schema_080_logic_field_outline():
         jsonschema.validate(instance=_metadata, schema=schema)
 
 
+def test_schema_080_logic_fluid_contact():
+    """Test content-specific rule
+
+    When content == fluid_contact, require the fluid_contact field
+    """
+
+    # parse the schema and polygons
+    schema = _parse_json(
+        str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
+    metadata = _parse_yaml(
+        str(
+            PurePath(
+                TESTDIR,
+                "../schema/definitions/0.8.0/examples/surface_fluid_contact.yml",
+            )
+        )
+    )
+
+    # check that assumptions for the test is true
+    assert metadata["data"]["content"] == "fluid_contact"
+    assert "fluid_contact" in metadata["data"]
+
+    # assert failure when content is fluid_contact and fluid_contact block missing
+    _metadata = deepcopy(metadata)
+    del _metadata["data"]["fluid_contact"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_metadata, schema=schema)
+
+
 def test_schema_080_masterdata_smda():
     """Test schema logic for masterdata.smda"""
 

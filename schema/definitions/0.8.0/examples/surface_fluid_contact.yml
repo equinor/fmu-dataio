@@ -1,6 +1,6 @@
 $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
 version: "0.8.0" # including for REP and others to build logic on.
-source: fmu  # always included, and always this value if FMU made it. For quick identification for external consumers.
+source: fmu # always included, and always this value if FMU made it. For quick identification for external consumers.
 
 tracklog:
   - datetime: 2020-10-28T14:28:02
@@ -8,7 +8,7 @@ tracklog:
       id: peesv
     event: created
   - datetime: 2020-10-28T14:46:14
-    user: 
+    user:
       id: peesv
     event: updated
 
@@ -39,14 +39,14 @@ fmu:
     description:
       - yet other detailed description
       - optional
-    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration/case
+    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100 # fmu.iteration.uuid for another iteration/case
 
   iteration:
     id: 0 # always an int, will be 0 for e.g. "pred"
     uuid: 4b939310-34b1-4179-802c-49460bc0f799 # hash of case.uuid + iteration.id
     name: "iter-0" # /"pred"
 
-  realization:  # could be expanded in the future?
+  realization: # could be expanded in the future?
     id: 33
     uuid: 29a15b21-ce13-471b-9a4a-0f791552aa51 # hash of case.uuid + iteration.uuid + realization.id
     name: "realization-33"
@@ -61,29 +61,27 @@ fmu:
       FAULT_SEAL_SCALING: 0.1
       FWL_CENTRAL: 1677
     jobs: # directly pass jobs.json. This is a lot of content, only a stub is included here.
-      umask: '0002'
+      umask: "0002"
       DATA_ROOT: /some/path/20.4.0_20201106/ert/model
       anything: something
       something:
         anything: something
       global_update_path: {}
       jobList:
-      - name: MAKE_DIRECTORY
-        min_arg: 1
-        anything: something
+        - name: MAKE_DIRECTORY
+          min_arg: 1
+          anything: something
 
 file:
   relative_path: realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri # case-relative
   absolute_path: /some/absolute/path//realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri
-  checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
-
+  checksum_md5: kjhsdfvsdlfk23knerknvk23 # checksum of the file, not the data.
 
 data: # The data block describes the actual data (e.g. surface).Only present in data objects
-
   # if stratigraphic, name must match the strat column. This is the official name of this surface.
   name: volantis_top-volantis_base
-  stratigraphic: false  # if true, this is a stratigraphic surface found in the strat column
-  offset: 0.0  # to be used if a specific horizon is represented with an offset.
+  stratigraphic: false # if true, this is a stratigraphic surface found in the strat column
+  offset: 0.0 # to be used if a specific horizon is represented with an offset.
 
   top: # not required, but allowed
     name: volantis_gp_top
@@ -105,6 +103,7 @@ data: # The data block describes the actual data (e.g. surface).Only present in 
 
   fluid_contact: # When content == fluid_contact, include this
     contact: owc # / fwl / goc / fgl /etc - trying to avoid "type"
+    truncated: true # is the contact surface truncated to the stratigraphy?
   properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
     - name: PropertyName
       attribute: owc
@@ -128,7 +127,7 @@ data: # The data block describes the actual data (e.g. surface).Only present in 
     yinc: 25.0
     yflip: 1
     rotation: 30.000000834826057
-    undef: 1.0e+33  # Allow both number and string
+    undef: 1.0e+33 # Allow both number and string
   bbox:
     xmin: 456012.5003497944
     xmax: 467540.52762886323
@@ -186,10 +185,9 @@ masterdata:
     field:
       - identifier: DROGON
         uuid: 00000000-0000-0000-0000-000000000000
-    coordinate_system:  # changing from "coordinates" to clarify this is not content
+    coordinate_system: # changing from "coordinates" to clarify this is not content
       identifier: ST_WGS84_UTM37N_P32637
       uuid: ad214d85-dac7-19da-e053-c918a4889309
     stratigraphic_column:
       identifier: DROGON_2020
       uuid: 12345678-1234-1234-1234-123456789012
-

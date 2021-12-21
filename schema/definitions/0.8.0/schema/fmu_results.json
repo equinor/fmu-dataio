@@ -485,6 +485,13 @@
                                 "owc",
                                 "fwl"
                             ]
+                        },
+                        "truncated": {
+                            "type": "boolean",
+                            "$comment": "Is this contact surface truncated to the stratigraphy?",
+                            "examples": [
+                                true
+                            ]
                         }
                     }
                 },
