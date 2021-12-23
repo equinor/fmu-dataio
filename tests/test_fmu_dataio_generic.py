@@ -562,3 +562,71 @@ def test_access_block(tmp_path):
         "asset": "Drogon",
         "ssdl": {"access_level": "internal", "some_access_tag": True},
     }
+
+
+def test_data_block(tmp_path):
+    """Test the content of the data metadata block"""
+
+    # make it look like an ERT run
+    current = tmp_path / "scratch" / "fields" / "user"
+    current.mkdir(parents=True, exist_ok=True)
+
+    shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
+
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
+    runfolder.mkdir(parents=True, exist_ok=True)
+    out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
+
+    with open(GLOBAL_CONFIG, "r") as stream:
+        _config = yaml.safe_load(stream)
+
+    exp = fmu.dataio.ExportData(
+        config=_config,
+        content="depth",
+        unit="m",
+        vertical_domain={"depth": "msl"},
+        timedata=None,
+        is_prediction=True,
+        is_observation=False,
+        tagname="what Descr",
+        verbosity="INFO",
+        runfolder=runfolder.resolve(),
+        workflow="my current workflow",
+        description="Some description",
+        inside_rms=True,  # pretend to be inside RMS since runfolder is at rms model
+    )
+
+    # make a fake RegularSurface
+    srf = xtgeo.RegularSurface(
+        ncol=20,
+        nrow=30,
+        xinc=1,
+        yinc=1,
+        values=0,
+        name="TopVolantis",
+    )
+    assert exp.export(srf, verbosity="INFO") == str(out / "topvolantis--what_descr.gri")
+
+    metadataout = out / ".topvolantis--what_descr.gri.yml"
+    assert metadataout.is_file() is True
+
+    # now read the metadata file and test some key entries:
+    with open(metadataout, "r") as stream:
+        meta = yaml.safe_load(stream)
+
+    assert meta["data"]["stratigraphic"] is True
+    assert meta["data"]["name"] == "VOLANTIS GP. Top"
+    assert meta["data"]["content"] == "depth"
+    assert meta["data"]["vertical_domain"] == "depth"
+    assert meta["data"]["depth_reference"] == "msl"
+    assert meta["data"]["is_prediction"] is True
+    assert meta["data"]["is_observation"] is False
+    assert meta["data"]["layout"] == "regular"
+    assert meta["data"]["description"] == ["Some description"]
+
+    assert isinstance(meta["data"]["spec"], dict)
+    assert isinstance(meta["data"]["bbox"], dict)
+
+    assert meta["data"]["format"] == "irap_binary"
