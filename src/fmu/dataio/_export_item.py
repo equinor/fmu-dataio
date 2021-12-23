@@ -54,7 +54,7 @@ ALLOWED_CONTENTS = {
         "scaling_factor": float,
         "offset": str,
     },
-    "fluid_contact": {"contact": str},
+    "fluid_contact": {"contact": str, "truncated": bool},
     "field_outline": {"contact": str},
     "regions": None,
     "pinchout": None,
