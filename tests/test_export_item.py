@@ -164,6 +164,82 @@ def test_data_process_timedata():
     assert dataio.metadata4data["time"][0]["label"] == "monitor"
 
 
+def test_data_process_description():
+    """Test the _data_process_timedata function."""
+
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=1, nrow=1, xinc=1, yinc=1, values=0
+    )
+
+    # give string, expect array
+    dataio = fmu.dataio.ExportData(
+        name="TheName",
+        config=CFG2,
+        content="depth",
+        description="StringExportData",
+    )
+
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem._data_process_description()
+    assert dataio.metadata4data["description"] == ["StringExportData"]
+
+    exportitem = ei._ExportItem(
+        dataio,
+        obj,
+        description="StringExportItem",
+        verbosity="INFO",
+    )
+    exportitem._data_process_description()
+    assert dataio.metadata4data["description"] == ["StringExportItem"]
+
+    # give array, expect array
+    dataio = fmu.dataio.ExportData(
+        name="TheName",
+        config=CFG2,
+        content="depth",
+        description=["ArrayExportData"],
+    )
+
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem._data_process_description()
+    assert dataio.metadata4data["description"] == ["ArrayExportData"]
+
+    exportitem = ei._ExportItem(
+        dataio,
+        obj,
+        description=["ArrayExportItem"],
+        verbosity="INFO",
+    )
+    exportitem._data_process_description()
+    assert dataio.metadata4data["description"] == ["ArrayExportItem"]
+
+    # give multiarray, expect array
+    dataio = fmu.dataio.ExportData(
+        name="TheName",
+        config=CFG2,
+        content="depth",
+        description=["ArrayExportData", "OtherArrayExportData"],
+    )
+
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem._data_process_description()
+    assert dataio.metadata4data["description"] == [
+        "ArrayExportData",
+        "OtherArrayExportData",
+    ]
+
+    # give nothing, expect nothing
+    dataio = fmu.dataio.ExportData(
+        name="TheName",
+        config=CFG2,
+        content="depth",
+    )
+
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem._data_process_description()
+    assert "description" not in dataio.metadata4data
+
+
 def test_data_process_content():
     """Test the _data_process_content function."""
     # test case 1

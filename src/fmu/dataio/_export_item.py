@@ -274,6 +274,7 @@ class _ExportItem:
         self._data_process_content()
         self._data_process_parent()
         self._data_process_timedata()
+        self._data_process_description()
         self._data_process_various()
 
     def _data_process_name(self):
@@ -554,6 +555,29 @@ class _ExportItem:
                 usetime["label"] = tlabel
             meta["time"].append(usetime)
 
+    def _data_process_description(self):
+        """Process the data.description item.
+
+        Description is described as an array in the schema. But intuitively it is
+        provided as a string. Also need to maintain backwards compatibility for
+        string as input.
+
+        If description is not given, return without action
+        If description is array, stringify all items
+        If description is string, convert to single-item array
+
+        """
+
+        meta = self.dataio.metadata4data
+
+        if self.description is None:
+            return
+
+        if isinstance(self.description, list):
+            meta["description"] = [str(item) for item in self.description]
+        elif isinstance(self.description, str):
+            meta["description"] = [self.description]
+
     def _data_process_various(self):
         """Process "all the rest" of the generic items.
 
@@ -577,10 +601,6 @@ class _ExportItem:
 
         # tmp:
         meta["grid_model"] = None
-
-        # tmp:
-        if self.description is not None:
-            meta["description"] = self.description
 
     def _data_process_object(self):
         """Process data fields which are object dependent.
