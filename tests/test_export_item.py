@@ -382,7 +382,7 @@ def test_display_name():
 
     assert dataio.metadata4display["name"] == "MyName"
 
-    # no display_name, no name. Use object name.
+    # no display_name, no name. Use object name. (surface)
     dataio = fmu.dataio.ExportData(
         config=CFG2,
         content="depth",
@@ -397,6 +397,57 @@ def test_display_name():
 
     assert dataio.metadata4display["name"] == "ObjectName"
 
+    # no display_name, no name. Use object name. (grid)
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    grid = xtgeo.create_box_grid((10, 10, 10))
+    grid.name = "ObjectName"
+
+    exporter = ei._ExportItem(dataio, grid, verbosity="DEBUG")
+    exporter._display_process()
+
+    assert dataio.metadata4display["name"] == "ObjectName"
+
+    # no display, no name. Use object name. (polygons)
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    poly = xtgeo.Polygons()
+    poly.from_list([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
+    poly.name = "ObjectName"
+
+    exporter = ei._ExportItem(dataio, poly, verbosity="DEBUG")
+    exporter._display_process()
+
+    assert dataio.metadata4display["name"] == "ObjectName"
+
+    # no display, no name. Use object name. (points)
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    points = xtgeo.Points(
+        [
+            (1.0, 2.0, 3.0),
+            (1.1, 2.0, 3.0),
+        ]
+    )
+    points.name = "ObjectName"
+
+    exporter = ei._ExportItem(dataio, points, verbosity="DEBUG")
+    exporter._display_process()
+
+    assert dataio.metadata4display["name"] == "ObjectName"
+
     # no name, no display_name, no object-name: Return None
     dataio = fmu.dataio.ExportData(
         config=CFG2,
@@ -405,21 +456,6 @@ def test_display_name():
     )
 
     obj = xtgeo.RegularSurface(ncol=3, nrow=4, xinc=22, yinc=22, values=0)
-    exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
-    exporter._display_process()
-
-    assert dataio.metadata4display["name"] is None
-
-    # when 'unknown' received from the data object, return None
-    dataio = fmu.dataio.ExportData(
-        config=CFG2,
-        content="depth",
-        verbosity="DEBUG",
-    )
-
-    obj = xtgeo.RegularSurface(
-        ncol=3, nrow=4, xinc=22, yinc=22, values=0, name="unknown"
-    )
     exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
     exporter._display_process()
 
@@ -455,3 +491,65 @@ def test_display_name():
     exporter = ei._ExportItem(dataio, obj, verbosity="DEBUG")
     exporter._display_process()
     assert dataio.metadata4display["name"] == "unknown"
+
+    # when 'unknown' received from surface object, return None
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    surf = xtgeo.RegularSurface(
+        ncol=3, nrow=4, xinc=22, yinc=22, values=0, name="unknown"
+    )
+    exporter = ei._ExportItem(dataio, surf, verbosity="DEBUG")
+    exporter._display_process()
+
+    assert dataio.metadata4display["name"] is None
+
+    # when 'poly' received from polygons object, return None
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    poly = xtgeo.Polygons()
+    poly.from_list([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
+
+    exporter = ei._ExportItem(dataio, poly, verbosity="DEBUG")
+    exporter._display_process()
+
+    assert dataio.metadata4display["name"] is None
+
+    # when 'points' received from points object, return None
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    points = xtgeo.Points(
+        [
+            (1.0, 2.0, 3.0),
+            (1.1, 2.0, 3.0),
+        ]
+    )
+    exporter = ei._ExportItem(dataio, points, verbosity="DEBUG")
+    exporter._display_process()
+
+    assert dataio.metadata4display["name"] is None
+
+    # when nothing received from grid object, return None
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+    )
+
+    grid = xtgeo.create_box_grid((10, 10, 10))
+
+    exporter = ei._ExportItem(dataio, grid, verbosity="DEBUG")
+    exporter._display_process()
+
+    assert dataio.metadata4display["name"] is None
