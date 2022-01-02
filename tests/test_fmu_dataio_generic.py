@@ -558,6 +558,10 @@ def test_access_block(tmp_path):
         access={"asset": "Drogon"},
     ).export(srf, verbosity="INFO")
 
+    # now read the metadata file and test some key entries:
+    with open(metadataout, "r") as stream:
+        meta = yaml.safe_load(stream)
+
     assert meta["access"] == {
         "asset": "Drogon",
         "ssdl": {"access_level": "internal", "some_access_tag": True},
