@@ -333,7 +333,7 @@ def test_data_process_content_shall_fail():
 def test_data_process_content_validate():
     """Test the content validation"""
 
-    # test case 1 - fluid contact, valid
+    # fluid contact, valid without "truncated"
     dataio = fmu.dataio.ExportData(
         name="Valysar",
         config=CFG2,
@@ -345,7 +345,19 @@ def test_data_process_content_validate():
 
     assert "fluid_contact" in dataio.metadata4data
 
-    # test case 2 - fluid contact, not valid, shall fail
+    # fluid contact, valid with "truncated"
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content={"fluid_contact": {"contact": "owc", "truncated": True}},
+    )
+    obj = xtgeo.Polygons()
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem._data_process_content()
+
+    assert "fluid_contact" in dataio.metadata4data
+
+    # fluid contact, not valid, shall fail
     dataio = fmu.dataio.ExportData(
         name="SomeName",
         config=CFG2,
