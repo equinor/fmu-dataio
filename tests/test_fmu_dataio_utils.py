@@ -67,11 +67,10 @@ def test_parse_parameters_txt():
             {"foo:bar": "com", "foo:barr": "comm"},
             {"foo": {"bar": "com", "barr": "comm"}},
         ),
-        pytest.param(
+        # GEN_KW lookalike
+        (
             {"foo:bar": "com1", "hoi:bar": "com2"},
-            None,
-            marks=pytest.mark.xfail(raises=ValueError),
-            id="non-unique_keys",
+            {"foo": {"bar": "com1"}, "hoi": {"bar": "com2"}},
         ),
         pytest.param({"foo:": "com"}, None, marks=pytest.mark.xfail(raises=ValueError)),
     ],
@@ -90,6 +89,14 @@ def test_parse_parameters_txt_justified():
     assert res["SENSNAME"] == "rms_seed"
     assert res["GLOBVAR"]["VOLON_PERMH_CHANNEL"] == 1100
     assert res["LOG10_MULTREGT"]["MULT_VALYSAR_THERYS"] == -3.2582
+
+
+def test_parse_parameters_txt_genkw():
+    """Testing parsing of parameters.txt from GEN_KW"""
+
+    ptext = "tests/data/drogon/ertrun1/realization-0/iter-0/parameters_genkw.txt"
+
+    res = _utils.nested_parameters_dict(_utils.read_parameters_txt(ptext))
 
 
 def test_get_object_name():
