@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.8.1.dev4+ge2a1464 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.8.1.dev5+g1b9c6a9 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -102,6 +102,7 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
@@ -780,7 +781,7 @@
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
         <span class="c1"># ------------------------------------------------------------------------------</span>
-        <span class="c1"># get the case metadata which shall be established already</span>
+        <span class="c1"># get the case metadata which should be established already (but see exception)</span>
         <span class="n">casemetaroot</span> <span class="o">=</span> <span class="n">casepath</span> <span class="o">/</span> <span class="s2">&quot;share&quot;</span> <span class="o">/</span> <span class="s2">&quot;metadata&quot;</span> <span class="o">/</span> <span class="s2">&quot;fmu_case&quot;</span>
 
         <span class="c1"># may be json or yml</span>
@@ -789,15 +790,27 @@
             <span class="n">casemetafile</span> <span class="o">=</span> <span class="n">casemetaroot</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">casemetafile</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                 <span class="k">break</span>
-        <span class="k">if</span> <span class="n">casemetafile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot find any case metafile! </span><span class="si">{</span><span class="n">casemetafile</span><span class="si">}</span><span class="s2">.*&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">casemetafile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">casemetafile</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Read existing case metadata from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">casemetafile</span><span class="p">))</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Read existing case metadata from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">casemetafile</span><span class="p">))</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">casemetafile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+                <span class="n">inmeta</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>  <span class="c1"># will read json also?</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">casemetafile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
-            <span class="n">inmeta</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>  <span class="c1"># will read json also?</span>
-
-        <span class="n">c_meta</span> <span class="o">=</span> <span class="n">inmeta</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;case&quot;</span><span class="p">]</span>
+            <span class="n">c_meta</span> <span class="o">=</span> <span class="n">inmeta</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;case&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># allow case metadata to be missing but issue a warning; consider this</span>
+            <span class="c1"># as a tmp solution as long as fmu-dataio/sumo is under development!</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot find the case metadata YAML or JSON file! The run will &quot;</span>
+                <span class="s2">&quot;continue, but SUMO upload will not be possible! In future versions, &quot;</span>
+                <span class="s2">&quot;a case metadata file will be a requirement! &quot;</span><span class="p">,</span>
+                <span class="ne">FutureWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># make a fake case name / uuid</span>
+            <span class="n">c_meta</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;MISSING!&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;0000000-0000-0000-0000-000000000000&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
 
         <span class="c1"># ------------------------------------------------------------------------------</span>
         <span class="c1"># get the iteration metadata</span>
@@ -1182,7 +1195,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.8.1.dev4+ge2a1464).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.8.1.dev5+g1b9c6a9).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
