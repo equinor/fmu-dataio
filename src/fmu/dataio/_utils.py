@@ -155,11 +155,6 @@ def nested_parameters_dict(
             unique_keys.append(key)
             nested_dict[key] = value
 
-    #    if len(unique_keys) > len(set(unique_keys)):
-    #        raise ValueError(
-    #            "Keys in parameters dictionary are not unique after removal of namespace"
-    #        )
-
     return nested_dict
 
 
