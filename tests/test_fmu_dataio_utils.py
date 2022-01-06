@@ -98,6 +98,8 @@ def test_parse_parameters_txt_genkw():
 
     res = _utils.nested_parameters_dict(_utils.read_parameters_txt(ptext))
 
+    assert res["CATEGORY1"]["SOMENAME"] == -0.01
+
 
 def test_get_object_name():
     """Test the method for getting name from a data object"""
