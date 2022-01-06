@@ -261,3 +261,62 @@ def test_surface_io_larger_case_ertrun(tmp_path):
     assert meta["display"]["name"] == "TopVolantis"
 
     logger.debug("\n%s", json.dumps(meta, indent=2))
+
+
+def test_surface_io_larger_case_ertrun_missing_casemetadata(tmp_path):
+    """As above but case metadata will be missing, and this shall issue a warning."""
+
+    current = tmp_path / "scratch" / "fields" / "user"
+    current.mkdir(parents=True, exist_ok=True)
+
+    shutil.copytree(CASEPATH, current / "mycase")
+    shutil.rmtree(current / "mycase" / "share" / "metadata")
+
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
+    runfolder.mkdir(parents=True, exist_ok=True)
+    out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
+
+    with pytest.warns(FutureWarning, match="Cannot find the case metadata"):
+        exp = fmu.dataio.ExportData(
+            config=CFG2,
+            content="depth",
+            unit="m",
+            vertical_domain={"depth": "msl"},
+            timedata=None,
+            is_prediction=True,
+            is_observation=False,
+            tagname="what Descr",
+            verbosity="INFO",
+            runfolder=runfolder.resolve(),
+            workflow="my current workflow",
+            inside_rms=True,
+        )
+
+    # make a fake RegularSurface
+    srf = xtgeo.RegularSurface(
+        ncol=20,
+        nrow=30,
+        xinc=20,
+        yinc=20,
+        values=np.ma.ones((20, 30)),
+        name="TopVolantis",
+    )
+
+    exp.export(srf, verbosity="INFO")
+
+    metadataout = out / ".topvolantis--what_descr.gri.yml"
+    assert metadataout.is_file() is True
+
+    # now read the metadata file and test some key entries:
+    with open(metadataout, "r") as astream:
+        meta = yaml.safe_load(astream)
+
+    assert (
+        meta["file"]["relative_path"]
+        == "realization-0/iter-0/share/results/maps/topvolantis--what_descr.gri"
+    )
+    assert meta["class"] == "surface", meta["class"]
+    assert meta["fmu"]["case"]["name"] == "MISSING!"
+    assert meta["fmu"]["model"]["name"] == "ff"

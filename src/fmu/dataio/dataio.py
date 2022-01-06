@@ -32,6 +32,7 @@ import pathlib
 import re
 import sys
 import uuid
+import warnings
 from collections import OrderedDict
 from typing import Any, List, Optional, Union
 
@@ -710,7 +711,7 @@ class ExportData:
             return None, None, None
 
         # ------------------------------------------------------------------------------
-        # get the case metadata which shall be established already
+        # get the case metadata which should be established already (but see exception)
         casemetaroot = casepath / "share" / "metadata" / "fmu_case"
 
         # may be json or yml
@@ -719,15 +720,27 @@ class ExportData:
             casemetafile = casemetaroot.with_suffix(ext)
             if casemetafile.is_file():
                 break
-        if casemetafile is None:
-            raise RuntimeError(f"Cannot find any case metafile! {casemetafile}.*")
+        if casemetafile is not None and casemetafile.is_file():
+            logger.info("Read existing case metadata from %s", str(casemetafile))
 
-        logger.info("Read existing case metadata from %s", str(casemetafile))
+            with open(casemetafile, "r") as stream:
+                inmeta = yaml.safe_load(stream)  # will read json also?
 
-        with open(casemetafile, "r") as stream:
-            inmeta = yaml.safe_load(stream)  # will read json also?
-
-        c_meta = inmeta["fmu"]["case"]
+            c_meta = inmeta["fmu"]["case"]
+        else:
+            # allow case metadata to be missing but issue a warning; consider this
+            # as a tmp solution as long as fmu-dataio/sumo is under development!
+            warnings.warn(
+                "Cannot find the case metadata YAML or JSON file! The run will "
+                "continue, but SUMO upload will not be possible! In future versions, "
+                "a case metadata file will be a requirement! ",
+                FutureWarning,
+            )
+            # make a fake case name / uuid
+            c_meta = {
+                "name": "MISSING!",
+                "uuid": "0000000-0000-0000-0000-000000000000",
+            }
 
         # ------------------------------------------------------------------------------
         # get the iteration metadata
