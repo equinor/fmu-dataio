@@ -391,6 +391,13 @@
                             "examples": [
                                 1.0e+33
                             ]
+                        },
+                        "npolys": {
+                            "description": "The number of individual polygons in the data object",
+                            "type": "integer",
+                            "examples": [
+                                1
+                            ]
                         }
                     }
                 },
