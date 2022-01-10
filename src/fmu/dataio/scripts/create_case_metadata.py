@@ -2,7 +2,7 @@
 
 """
 
-Initialize an FMU case with metadata and Sumo registration (optional).
+Create FMU case metadata and register case on Sumo (optional).
 This script is intended to be run through an ERT HOOK PRESIM workflow.
 
 Script will parse global variables from the template location. If
@@ -27,14 +27,14 @@ logger.setLevel(logging.CRITICAL)
 
 # This documentation is for ERT workflow
 DESCRIPTION = """
-WF_INITIALIZE_CASE will initialize a case with fmu-dataio by producing case metadata
-and registering the case on Sumo (optional)
+WF_CREATE_CASE_METADATA will create case metadata with fmu-dataio and storing on disk
+and on Sumo.
 """
 
 EXAMPLES = """
-Create an ERT workflow e.g. called ``ert/bin/workflows/initialize_case`` with the 
+Create an ERT workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with the 
 contents::
-  WF_INITIALIZE_CASE <caseroot> <casename> <username> <sumo> <sumo_env>
+  WF_CREATE_CASE_METADATA <caseroot> <casename> <username> <sumo> <sumo_env>
   ...where
     <ert_caseroot> (Path): Absolute path to root of the case, typically <SCRATCH>/<US...
     <ert_config_path> (Path): Absolute path to ERT config, typically /project/etc/etc
@@ -54,44 +54,47 @@ def main() -> None:
     # this is technically never to be used, but assuming it will be more confusing
     # to remove it than to leave it in. Since it is here, making sure that it will
     # work if called. When script is called from an ERT workflow, it will be called
-    # through the 'run' method on the WfInitializeCase class.
+    # through the 'run' method on the WfCreateCaseMetadata class.
 
     parser = get_parser()
     commandline_args = parser.parse_args()
-    initialize_case_main(commandline_args)
+    create_case_metadata_main(commandline_args)
 
 
-class WfInitializeCase(ErtScript):
+class WfCreateCaseMetadata(ErtScript):
     """A class with a run() function that can be registered as an ERT plugin.
 
     This is used for the ERT workflow context."""
 
-    # the class is prefixed Wf to avoid collision with fmu.dataio.InitializeCase
+    # the class is prefixed Wf to avoid collision with a potential identical class
+    # name in fmu-dataio
 
     # pylint: disable=too-few-public-methods
     def run(self, *args) -> None:
         # pylint: disable=no-self-use
-        """Parse arguments and call _initialize_case_main()"""
+        """Parse arguments and call _create_case_metadata_main()"""
         parser = get_parser()
         workflow_args = parser.parse_args(args)
-        initialize_case_main(workflow_args)
+        create_case_metadata_main(workflow_args)
 
 
-def initialize_case_main(args) -> None:
-    """Initialize the case and register on Sumo if applicable."""
+def create_case_metadata_main(args) -> None:
+    """Create the case metadata and register case on Sumo."""
 
     logger.setLevel(level=args.verbosity)
     check_arguments(args)
     case_metadata_path = create_metadata(args)
     register_on_sumo(args, case_metadata_path)
 
-    logger.debug("initialize_case.py has finished.")
+    logger.debug("create_case_metadata.py has finished.")
 
 
 def create_metadata(args) -> str:
     """Create the case metadata and print them to the disk"""
     _global_variables_path = Path(args.ert_config_path, args.global_variables_path)
     global_variables = _parse_yaml(_global_variables_path)
+
+    # fmu.dataio.InitializeCase class is scheduled to be renamed.
 
     case = InitializeCase(config=global_variables)
     case_metadata_path = case.export(
@@ -182,9 +185,9 @@ def get_parser() -> argparse.ArgumentParser:
 
 @hook_implementation
 def legacy_ertscript_workflow(config) -> None:
-    """Hook the InitializeCase class into ERT with the name WF_INITIALIZE_CASE,
-    and inject documentation"""
-    workflow = config.add_workflow(WfInitializeCase, "WF_INITIALIZE_CASE")
+    """Hook the WfCreateCaseMetadata class into ERT with the name
+    WF_CREATE_CASE_METADATA and inject documentation"""
+    workflow = config.add_workflow(WfCreateCaseMetadata, "WF_CREATE_CASE_METADATA")
     workflow.parser = get_parser
     workflow.description = DESCRIPTION
     workflow.examples = EXAMPLES

@@ -45,7 +45,7 @@ setuptools.setup(
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
     entry_points={
         "ert": [
-            "dataio_case_metadata = fmu.dataio.scripts.initialize_case",
+            "dataio_case_metadata = fmu.dataio.scripts.create_case_metadata",
         ],
     },
     install_requires=REQUIREMENTS,
