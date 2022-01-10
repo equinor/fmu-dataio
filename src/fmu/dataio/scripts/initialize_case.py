@@ -43,7 +43,7 @@ contents::
     <sumo> (optional) (bool): If passed, do not register case on Sumo. Default: False
     <sumo_env> (str) (optional): Sumo environment to use. Default: "prod"
     <global_variables_path> (str): Path to global_variables relative to config path
-    <verbose> (str): Set log level to INFO. Default: WARNING
+    <verbosity> (str): Set log level. Default: WARNING
 
 """  # noqa
 
@@ -80,11 +80,7 @@ class WfInitializeCase(ErtScript):
 def initialize_case_main(args) -> None:
     """Initialize the case and register on Sumo if applicable."""
 
-    if args.verbose:
-        logger.setLevel(level=logging.INFO)
-    if args.debug:
-        logger.setLevel(level=logging.DEBUG)
-
+    logger.setLevel(level=args.verbosity)
     check_arguments(args)
     case_metadata_path = create_metadata(args)
     register_on_sumo(args, case_metadata_path)
@@ -178,11 +174,8 @@ def get_parser() -> argparse.ArgumentParser:
         help="Directly specify path to global variables relative to ert config path",
         default="../../fmuconfig/output/global_variables.yml",
     )
-    parser.add_argument("--verbose", action="store_true", help="Verbose logging")
     parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Print debug information",
+        "--verbosity", type=str, help="Set log level", default="WARNING"
     )
     return parser
 
