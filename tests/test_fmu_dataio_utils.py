@@ -117,8 +117,7 @@ def test_get_object_name():
     assert _utils.get_object_name(table) is None
 
     # polygons with no name, shall return None
-    poly = xtgeo.Polygons()
-    poly.from_list([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
+    poly = xtgeo.Polygons([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
     assert _utils.get_object_name(poly) is None
 
     # polygons with name, shall return name
@@ -144,8 +143,7 @@ def test_get_object_name():
     assert _utils.get_object_name(points) == "MyPointsName"
 
     # grid with no name, shall return None
-    grid = xtgeo.Grid()
-    grid.create_box()
+    grid = xtgeo.create_box_grid((2, 4, 6))
     assert _utils.get_object_name(grid) is None
 
     # grid with name, shall return name

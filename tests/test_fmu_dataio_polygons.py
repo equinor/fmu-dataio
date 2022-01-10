@@ -101,8 +101,7 @@ def test_polygons_io_larger_case_ertrun(tmp_path):
     )
 
     # make a fake Polygons object
-    poly = xtgeo.Polygons()
-    poly.from_list([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
+    poly = xtgeo.Polygons([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
     print(poly.dataframe)
 
     exp.export(poly, verbosity="INFO")
