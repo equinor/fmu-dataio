@@ -51,10 +51,10 @@ contents::
 def main() -> None:
     """Entry point from command line"""
 
-    # this is technically never to be used, but assuming it will be more confusing
-    # to remove it than to leave it in. Since it is here, making sure that it will
-    # work if called. When script is called from an ERT workflow, it will be called
-    # through the 'run' method on the WfCreateCaseMetadata class.
+    # When script is called from an ERT workflow, it will be called through the 'run'
+    # method on the WfCreateCaseMetadata class. This context is the intended usage.
+    # The command line entry point is still included, to clarify the difference and
+    # for debugging purposes.
 
     parser = get_parser()
     commandline_args = parser.parse_args()
