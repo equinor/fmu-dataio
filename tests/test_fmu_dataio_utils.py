@@ -1,10 +1,8 @@
 """Test the surface_io module."""
 from collections import OrderedDict
 
-import pytest
-
 import pandas as pd
-
+import pytest
 import xtgeo
 
 import fmu.dataio._utils as _utils
