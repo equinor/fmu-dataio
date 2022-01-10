@@ -181,8 +181,8 @@ def test_grid_io_larger_case_ertrun(tmp_path):
     assert metadataout.is_file() is True
 
     # now read the metadata file and test some key entries:
-    with open(metadataout, "r") as stream:
-        meta = yaml.safe_load(stream)
+    with open(metadataout, "r") as stream2:
+        meta = yaml.safe_load(stream2)
 
     assert (
         meta["file"]["relative_path"]
@@ -237,8 +237,8 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
     assert metadataout.is_file() is True
 
     # now read the metadata file and test some key entries:
-    with open(metadataout, "r") as stream:
-        meta = yaml.safe_load(stream)
+    with open(metadataout, "r") as stream3:
+        meta = yaml.safe_load(stream3)
 
     assert (
         meta["file"]["relative_path"]
