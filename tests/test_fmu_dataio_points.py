@@ -48,9 +48,9 @@ POI = [
 
 # points with extra columns (attributes)
 POI2 = {
-    "X": [1.0, 2.0],
-    "Y": [1.1, 2.1],
-    "Z": [1.2, 2.2],
+    "X_UTME": [1.0, 2.0],
+    "Y_UTMN": [1.1, 2.1],
+    "Z_TVDSS": [1.2, 2.2],
     "A1": [1.0, 2.0],
     "A2": ["x1", "x2"],
 }
@@ -76,17 +76,13 @@ def test_points_io(tmp_path):
 def test_points_io_with_attrs(tmp_path):
     """Minimal test points io with attributes, uses tmp_path."""
 
-    pox = xtgeo.Points()
     dfr = pd.DataFrame(POI2)
-    print(dfr)
-    pox.from_dataframe(
-        dfr,
-        east="X",
-        north="Y",
-        tvdmsl="Z",
-        attributes={"A1": "A1", "A2": "A2"},
-    )
-    print(pox.dataframe)
+
+    # Not recommended approach but needed due to issues in xtgeo 2.16/2.17
+    # A better approach will be: pox = xtgeo.Points(dfr)
+    pox = xtgeo.Points()
+    pox.dataframe = dfr
+
     fmu.dataio.ExportData.points_fformat = "csv"
     exp = fmu.dataio.ExportData(
         name="test2", content="depth", runpath=tmp_path, config=CFG
@@ -131,8 +127,7 @@ def test_points_io_larger_case_ertrun(tmp_path):
     )
 
     # make a fake points object
-    poi = xtgeo.Points()
-    poi.from_list([(123.0, 345.0, 222.0), (123.0, 345.0, 222.0)])
+    poi = xtgeo.Points([(123.0, 345.0, 222.0), (124.0, 346.0, 223.0)])
     print(poi.dataframe)
 
     exp.export(poi, verbosity="INFO")
