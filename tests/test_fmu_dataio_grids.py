@@ -43,8 +43,7 @@ FMUP1 = "share/results"
 def test_grid_io(tmp_path):
     """Minimal test grid geometry io, uses tmp_path."""
 
-    grd = xtgeo.Grid()
-    grd.create_box()
+    grd = xtgeo.create_box_grid(dimension=(2, 3, 4))
     grd.name = "test"
     fmu.dataio.ExportData.grid_fformat = "roff"
 
@@ -78,8 +77,7 @@ def test_grid_io_larger_case(tmp_path):
     """Larger test grid io, uses global config from Drogon to tmp_path."""
 
     # make a fake Grid
-    grd = xtgeo.Grid()
-    grd.create_box()
+    grd = xtgeo.create_box_grid(dimension=(2, 3, 4))
     grd.name = "Volantis"
 
     fmu.dataio.ExportData.grid_fformat = "roff"
@@ -167,8 +165,14 @@ def test_grid_io_larger_case_ertrun(tmp_path):
         workflow="my current workflow",
     )
 
-    grd = xtgeo.Grid()
-    grd.create_box()
+    grd = xtgeo.create_box_grid(
+        dimension=(10, 12, 6),
+        origin=(10.0, 20.0, 1000.0),
+        oricenter=False,
+        increment=(100, 150, 5),
+        rotation=30.0,
+        flip=1,
+    )
     grd.name = "Volantis"
 
     exp.export(grd, verbosity="INFO")
@@ -177,8 +181,8 @@ def test_grid_io_larger_case_ertrun(tmp_path):
     assert metadataout.is_file() is True
 
     # now read the metadata file and test some key entries:
-    with open(metadataout, "r") as stream:
-        meta = yaml.safe_load(stream)
+    with open(metadataout, "r") as stream2:
+        meta = yaml.safe_load(stream2)
 
     assert (
         meta["file"]["relative_path"]
@@ -233,8 +237,8 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
     assert metadataout.is_file() is True
 
     # now read the metadata file and test some key entries:
-    with open(metadataout, "r") as stream:
-        meta = yaml.safe_load(stream)
+    with open(metadataout, "r") as stream3:
+        meta = yaml.safe_load(stream3)
 
     assert (
         meta["file"]["relative_path"]

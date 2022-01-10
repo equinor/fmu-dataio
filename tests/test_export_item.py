@@ -507,8 +507,7 @@ def test_display_name():
         verbosity="DEBUG",
     )
 
-    poly = xtgeo.Polygons()
-    poly.from_list([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
+    poly = xtgeo.Polygons([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
     poly.name = "ObjectName"
 
     exporter = ei._ExportItem(dataio, poly, verbosity="DEBUG")
@@ -602,8 +601,7 @@ def test_display_name():
         verbosity="DEBUG",
     )
 
-    poly = xtgeo.Polygons()
-    poly.from_list([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
+    poly = xtgeo.Polygons([(123.0, 345.0, 222.0, 0), (123.0, 345.0, 222.0, 0)])
 
     exporter = ei._ExportItem(dataio, poly, verbosity="DEBUG")
     exporter._display_process()
