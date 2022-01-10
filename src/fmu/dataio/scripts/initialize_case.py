@@ -58,7 +58,7 @@ def main() -> None:
 
     parser = get_parser()
     commandline_args = parser.parse_args()
-    _initialize_case_main(commandline_args)
+    initialize_case_main(commandline_args)
 
 
 class WfInitializeCase(ErtScript):
@@ -74,10 +74,10 @@ class WfInitializeCase(ErtScript):
         """Parse arguments and call _initialize_case_main()"""
         parser = get_parser()
         workflow_args = parser.parse_args(args)
-        _initialize_case_main(workflow_args)
+        initialize_case_main(workflow_args)
 
 
-def _initialize_case_main(args) -> None:
+def initialize_case_main(args) -> None:
     """Initialize the case and register on Sumo if applicable."""
 
     if args.verbose:
@@ -85,14 +85,14 @@ def _initialize_case_main(args) -> None:
     if args.debug:
         logger.setLevel(level=logging.DEBUG)
 
-    _check_arguments(args)
-    case_metadata_path = _create_metadata(args)
-    _register_on_sumo(args, case_metadata_path)
+    check_arguments(args)
+    case_metadata_path = create_metadata(args)
+    register_on_sumo(args, case_metadata_path)
 
     logger.debug("initialize_case.py has finished.")
 
 
-def _create_metadata(args) -> str:
+def create_metadata(args) -> str:
     """Create the case metadata and print them to the disk"""
     _global_variables_path = Path(args.ert_config_path, args.global_variables_path)
     global_variables = _parse_yaml(_global_variables_path)
@@ -111,7 +111,7 @@ def _create_metadata(args) -> str:
     return case_metadata_path
 
 
-def _register_on_sumo(args, case_metadata_path) -> str:
+def register_on_sumo(args, case_metadata_path) -> str:
     """Register the case on Sumo by sending the case metadata"""
 
     env = args.sumo_env
@@ -146,7 +146,7 @@ def _parse_yaml(path):
     return data
 
 
-def _check_arguments(args):
+def check_arguments(args):
     """Do basic sanity checks of input"""
 
     logger.debug("Checking input arguments")
