@@ -43,7 +43,7 @@ FMU1SHARE = "share/results"
 def test_cube_io(tmp_path):
     """Minimal test cube geometry io, uses tmp_path."""
 
-    cube = xtgeo.Cube(ncol=5, nrow=8, nlay=3, values=0.0)
+    cube = xtgeo.Cube(ncol=5, nrow=8, nlay=3, xinc=25, yinc=25, zinc=2, values=0.0)
     fmu.dataio.ExportData.cube_fformat = "segy"
 
     exp = fmu.dataio.ExportData(
@@ -59,7 +59,9 @@ def test_cube_io_larger_case(tmp_path):
     """Larger test cube io, uses global config from Drogon to tmp_path."""
 
     # make a fake cube
-    cube = xtgeo.Cube(ncol=33, nrow=44, nlay=22, values=0.0)
+    cube = xtgeo.Cube(
+        ncol=33, nrow=44, nlay=22, xinc=12.0, yinc=12.0, zinc=3.0, values=0.0
+    )
 
     exp = fmu.dataio.ExportData(
         config=CFG2,
@@ -85,7 +87,9 @@ def test_cubeprop_io_larger_case(tmp_path):
     """Larger test cube io, uses global config from Drogon to tmp_path."""
 
     # make a fake cubeProp
-    cubep = xtgeo.Cube(ncol=2, nrow=7, nlay=13)
+    cubep = xtgeo.Cube(
+        ncol=2, nrow=7, nlay=13, xinc=12.0, yinc=12.0, zinc=3.0, values=0.0
+    )
 
     fmu.dataio.ExportData.cube_fformat = "segy"
 
@@ -149,7 +153,10 @@ def test_cube_io_larger_case_ertrun(tmp_path):
         workflow="my current workflow",
     )
 
-    cube = xtgeo.Cube(ncol=23, nrow=12, nlay=5)
+    cube = xtgeo.Cube(
+        ncol=23, nrow=12, nlay=5, xinc=25.0, yinc=25.0, zinc=2.0, values=0.0
+    )
+
     exp1.export(cube, verbosity="INFO")
 
     metadataout = out / ".volantis--what_descr--20290101_19990601.segy.yml"
