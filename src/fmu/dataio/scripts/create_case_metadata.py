@@ -20,7 +20,6 @@ from res.job_queue import ErtScript  # type: ignore
 
 from fmu.config._loader import FmuLoader
 from fmu.dataio import InitializeCase
-from fmu.sumo.uploader import SumoConnection, CaseOnDisk
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -120,6 +119,9 @@ def register_on_sumo(args, case_metadata_path) -> str:
     else:
         logger.info("Sumo registration has been deactivated through arguments")
         return
+
+    # lazy loading of Sumo dependencies
+    from fmu.sumo.uploader import SumoConnection, CaseOnDisk
 
     # establish connection
     sumo_conn = SumoConnection(env=env)
