@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 
-"""
+"""Create FMU case metadata and register case on Sumo (optional).
 
-Create FMU case metadata and register case on Sumo (optional).
 This script is intended to be run through an ERT HOOK PRESIM workflow.
 
 Script will parse global variables from the template location. If
 pointed towards the produced global_variables, fmu-config should run
-before this script to make sure global_variables is updated.
+before this script to make sure global_variables is updated."""
 
-"""
 import yaml
 import argparse
 import logging
