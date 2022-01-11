@@ -185,8 +185,7 @@ def get_parser() -> argparse.ArgumentParser:
 
 @hook_implementation
 def legacy_ertscript_workflow(config) -> None:
-    """Hook the WfCreateCaseMetadata class into ERT with the name
-    WF_CREATE_CASE_METADATA and inject documentation"""
+    """Hook the WfCreateCaseMetadata class with documentation into ERT."""
     workflow = config.add_workflow(WfCreateCaseMetadata, "WF_CREATE_CASE_METADATA")
     workflow.parser = get_parser
     workflow.description = DESCRIPTION
