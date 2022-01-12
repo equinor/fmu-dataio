@@ -16,7 +16,6 @@ from pathlib import Path
 from ert_shared.plugins.plugin_manager import hook_implementation  # type: ignore
 from res.job_queue import ErtScript  # type: ignore
 
-from fmu.config._loader import FmuLoader
 from fmu.dataio import InitializeCase
 
 logger = logging.getLogger(__name__)
@@ -140,7 +139,7 @@ def _parse_yaml(path):
     """Parse the global variables, return as dict"""
 
     with open(path, "r") as stream:
-        data = yaml.load(stream, Loader=FmuLoader)
+        data = yaml.safe_load(stream)
 
     return data
 
