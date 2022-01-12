@@ -3,6 +3,7 @@ import logging
 import shutil
 from collections import OrderedDict
 
+import pandas as pd
 import xtgeo
 import yaml
 
@@ -60,6 +61,26 @@ def test_polygons_io(tmp_path):
     exp.export(srf)
 
     assert (tmp_path / FMUP1 / "polygons" / ".test.csv.yml").is_file() is True
+
+    thedataframe = pd.read_csv(tmp_path / FMUP1 / "polygons" / "test.csv")
+    assert list(thedataframe.columns) == ["X", "Y", "Z", "ID"]
+
+
+def test_polygons_io_xtgeo_csv(tmp_path):
+    """Minimal test polygons io, uses csv with xtgeo column names"""
+
+    srf = xtgeo.Polygons(POLY)
+    fmu.dataio.ExportData.polygons_fformat = "csv|xtgeo"
+
+    exp = fmu.dataio.ExportData(
+        name="test99", content="depth", runpath=tmp_path, config=CFG
+    )
+    exp.export(srf)
+
+    assert (tmp_path / FMUP1 / "polygons" / ".test99.csv.yml").is_file() is True
+
+    thedataframe = pd.read_csv(tmp_path / FMUP1 / "polygons" / "test99.csv")
+    assert list(thedataframe.columns) == ["X_UTME", "Y_UTMN", "Z_TVDSS", "POLY_ID"]
 
 
 def test_polygons_io_larger_case_ertrun(tmp_path):

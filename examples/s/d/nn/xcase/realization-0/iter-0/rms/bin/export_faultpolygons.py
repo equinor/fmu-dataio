@@ -1,7 +1,9 @@
 """Export faultpolygons via dataio with metadata."""
 from pathlib import Path
+
 import xtgeo
 from fmu.config import utilities as utils
+
 import fmu.dataio as dataio
 
 CFG = utils.yaml_load("../../fmuconfig/output/global_variables.yml")
@@ -41,8 +43,10 @@ def export_faultlines():
 
         poly.name = hname
 
-        # export both csv and irap text format
-        for fmt in ["csv", "irap_ascii"]:
+        # Export both csv (keeping xtgeo column names) and irap text format
+        # The difference bewtween "csv" and "csv|xtgeo" is that the latter will keep
+        # xtgeo column names as-is while "csv" will force column names to "X Y Z ID"
+        for fmt in ["csv|xtgeo", "irap_ascii"]:
             ed.polygons_fformat = fmt
             ed.export(poly, verbosity="WARNING")
 

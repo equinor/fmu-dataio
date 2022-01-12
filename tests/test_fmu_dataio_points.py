@@ -71,6 +71,30 @@ def test_points_io(tmp_path):
     exp.export(pox)
 
     assert (tmp_path / FMUP1 / "points" / ".test.csv.yml").is_file() is True
+    thedataframe = pd.read_csv(tmp_path / FMUP1 / "points" / "test.csv")
+
+    assert list(thedataframe.columns) == ["X", "Y", "Z"]
+
+
+def test_points_io_xtgeo_csv(tmp_path):
+    """Minimal test points io, uses csv with xtgeo column names"""
+
+    pox = xtgeo.Points(POI)
+    fmu.dataio.ExportData.points_fformat = "csv|xtgeo"
+
+    exp = fmu.dataio.ExportData(
+        name="test98",
+        content="depth",
+        runpath=tmp_path,
+        config=CFG,
+        verbosity="INFO",
+    )
+    exp.export(pox)
+
+    assert (tmp_path / FMUP1 / "points" / ".test98.csv.yml").is_file() is True
+    thedataframe = pd.read_csv(tmp_path / FMUP1 / "points" / "test98.csv")
+
+    assert list(thedataframe.columns) == ["X_UTME", "Y_UTMN", "Z_TVDSS"]
 
 
 def test_points_io_with_attrs(tmp_path):

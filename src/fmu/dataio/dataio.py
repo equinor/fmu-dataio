@@ -154,8 +154,8 @@ class ExportData:
     surface_fformat = "irap_binary"
     table_fformat = "csv"
     arrow_fformat = "arrow"
-    polygons_fformat = "csv"
-    points_fformat = "csv"
+    polygons_fformat = "csv"  # or use "csv|xtgeo" to avoid renaming of xtgeo columns
+    points_fformat = "csv"  # or use "csv|xtgeo" to avoid renaming of xtgeo columns
     grid_fformat = "roff"
     cube_fformat = "segy"
 
