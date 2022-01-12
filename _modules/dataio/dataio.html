@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.9.1.dev5+g4489784 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.9.1.dev6+g9c2dd6e documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -1110,6 +1110,8 @@
                 <span class="s2">&quot;Metadata case file already exists for the case!: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">metafile</span>
             <span class="p">)</span>
 
+        <span class="k">return</span> <span class="n">metafile</span>
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_establish_fmu_case_metadata</span><span class="p">(</span>
         <span class="n">casename</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
@@ -1174,8 +1176,8 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;C_META is:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">c_meta</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;case_folder:</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">casefolder</span><span class="p">)</span>
 
-        <span class="c1"># write to file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_store_case_metadata</span><span class="p">(</span><span class="n">casefolder</span><span class="p">,</span> <span class="n">c_meta</span><span class="p">)</span></div>
+        <span class="c1"># write to file and return the path to stored metadata</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_store_case_metadata</span><span class="p">(</span><span class="n">casefolder</span><span class="p">,</span> <span class="n">c_meta</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InitializeCase.to_file"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.to_file">[docs]</a>    <span class="nd">@deprecation</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span>
         <span class="n">deprecated_in</span><span class="o">=</span><span class="s2">&quot;0.5&quot;</span><span class="p">,</span>
@@ -1195,7 +1197,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.9.1.dev5+g4489784).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.9.1.dev6+g9c2dd6e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
