@@ -1040,6 +1040,8 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
                 "Metadata case file already exists for the case!: %s", metafile
             )
 
+        return metafile
+
     @staticmethod
     def _establish_fmu_case_metadata(
         casename="unknown",
@@ -1104,8 +1106,8 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
         logger.info("C_META is:\n%s", json.dumps(c_meta, indent=2))
         logger.info("case_folder:%s", casefolder)
 
-        # write to file
-        self._store_case_metadata(casefolder, c_meta)
+        # write to file and return the path to stored metadata
+        return self._store_case_metadata(casefolder, c_meta)
 
     @deprecation.deprecated(
         deprecated_in="0.5",

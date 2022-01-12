@@ -43,6 +43,11 @@ setuptools.setup(
     packages=setuptools.find_packages("src"),
     package_dir={"": "src"},
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
+    entry_points={
+        "ert": [
+            "dataio_case_metadata = fmu.dataio.scripts.create_case_metadata",
+        ],
+    },
     install_requires=REQUIREMENTS,
     setup_requires=SETUP_REQUIREMENTS,
     use_scm_version={"write_to": "src/fmu/dataio/version.py"},
