@@ -27,8 +27,18 @@ VALID_SURFACE_FORMATS = {"irap_binary": ".gri"}
 VALID_GRID_FORMATS = {"hdf": ".hdf", "roff": ".roff"}
 VALID_CUBE_FORMATS = {"segy": ".segy"}
 VALID_TABLE_FORMATS = {"hdf": ".hdf", "csv": ".csv", "arrow": ".arrow"}
-VALID_POLYGONS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".pol"}
-VALID_POINTS_FORMATS = {"hdf": ".hdf", "csv": ".csv", "irap_ascii": ".poi"}
+VALID_POLYGONS_FORMATS = {
+    "hdf": ".hdf",
+    "csv": ".csv",  # columns will be X Y Z, ID
+    "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS, POLY_ID
+    "irap_ascii": ".pol",
+}
+VALID_POINTS_FORMATS = {
+    "hdf": ".hdf",
+    "csv": ".csv",  # columns will be X Y Z
+    "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS
+    "irap_ascii": ".poi",
+}
 
 # The produced metadata must conform with the corresponding JSON schema.
 # Metadata definitions are stored under schema/
@@ -1059,15 +1069,26 @@ class _ExportItem:
             self.obj.to_file(outfile, fformat="roff")
             self.dataio.metadata4data["format"] = "roff"
         elif "csv" in self.fmt and self.subtype == "Polygons":
-            renamings = {"X_UTME": "X", "Y_UTMN": "Y", "Z_TVDSS": "Z", "POLY_ID": "ID"}
             worker = self.obj.dataframe.copy()
-            worker.rename(columns=renamings, inplace=True)
+            if "xtgeo" not in self.fmt:
+                renamings = {
+                    self.obj.xname: "X",
+                    self.obj.yname: "Y",
+                    self.obj.zname: "Z",
+                    self.obj.pname: "ID",
+                }
+                worker.rename(columns=renamings, inplace=True)
             worker.to_csv(outfile, index=False)
             self.dataio.metadata4data["format"] = "csv"
         elif "csv" in self.fmt and self.subtype == "Points":
-            renamings = {self.obj.xname: "X", self.obj.yname: "Y", self.obj.zname: "Z"}
             worker = self.obj.dataframe.copy()
-            worker.rename(columns=renamings, inplace=True)
+            if "xtgeo" not in self.fmt:
+                renamings = {
+                    self.obj.xname: "X",
+                    self.obj.yname: "Y",
+                    self.obj.zname: "Z",
+                }
+                worker.rename(columns=renamings, inplace=True)
             worker.to_csv(outfile, index=False)
             self.dataio.metadata4data["format"] = "csv"
         elif "irap_ascii" in self.fmt and self.subtype == "Polygons":
