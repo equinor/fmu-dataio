@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Examples &mdash; fmu.dataio 0.9.1.dev4+gd9abce2 documentation</title>
+  <title>Examples &mdash; fmu.dataio 0.9.1.dev5+g4489784 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -208,8 +208,10 @@ expand):</p>
 <h3>Python script<a class="headerlink" href="#python-script" title="Permalink to this headline"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Export faultpolygons via dataio with metadata.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
 <span class="kn">import</span> <span class="nn">xtgeo</span>
 <span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">utils</span>
+
 <span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
 
 <span class="n">CFG</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
@@ -249,8 +251,10 @@ expand):</p>
 
         <span class="n">poly</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">hname</span>
 
-        <span class="c1"># export both csv and irap text format</span>
-        <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;irap_ascii&quot;</span><span class="p">]:</span>
+        <span class="c1"># Export both csv (keeping xtgeo column names) and irap text format</span>
+        <span class="c1"># The difference bewtween &quot;csv&quot; and &quot;csv|xtgeo&quot; is that the latter will keep</span>
+        <span class="c1"># xtgeo column names as-is while &quot;csv&quot; will force column names to &quot;X Y Z ID&quot;</span>
+        <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;csv|xtgeo&quot;</span><span class="p">,</span> <span class="s2">&quot;irap_ascii&quot;</span><span class="p">]:</span>
             <span class="n">ed</span><span class="o">.</span><span class="n">polygons_fformat</span> <span class="o">=</span> <span class="n">fmt</span>
             <span class="n">ed</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
 
@@ -572,7 +576,7 @@ expand):</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.9.1.dev4+gd9abce2).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.9.1.dev5+g4489784).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
