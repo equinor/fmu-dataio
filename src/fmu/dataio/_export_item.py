@@ -1165,3 +1165,201 @@ class _ExportItem:
 
         size_bytes = _utils.size(outfile)
         self.dataio.metadata4file["size_bytes"] = size_bytes
+
+
+# ======================================================================================
+# AggregatedData
+
+
+class _ExportAggregatedItem(_ExportItem):
+    """Creation and export of metadata for an aggregation"""
+
+    # perhaps misleading class name if the class primarily will produce
+    # and return metadata only, not do any export.
+
+    def __init__(  # pylint: disable=super-init-not-called
+        self,
+        dataio,
+        obj,
+        operation,
+        source_metadata,
+        name: str = None,
+        verbosity: str = "CRITICAL",
+    ) -> None:
+
+        logger.setLevel(level=verbosity)
+        logger.debug("initializing _ExportAggregatedItem")
+
+        self.dataio = dataio
+        self.obj = obj
+        self.operation = operation
+        self.source_metadata = source_metadata
+
+        # optional arguments
+        self.name = name
+
+        # populated later
+        self.template = None
+
+    def _create_template(self):
+        """Create the template."""
+
+        # The template is an instance of the metadata which will form the starting point
+        # for the actual metadata. Unlike single items, the aggregated data shall
+        # already be shipped to this method with valid metadata. Therefore, we can look
+        # up some contents from this rather than make from scratch or derive from file
+        # system etc.
+
+        # Take first item. Use json to create thread-safe deep copy.
+        self.template = json.loads(json.dumps(self.source_metadata[0]))
+        logger.debug("self.template has been set")
+
+    def _get_realization_ids(self):
+        """From the source_metadata, get the list of realization ids"""
+        # But what about aggregated aggregations...? Multi-model stuff?
+        # For now assume that source is realizations.
+
+        ids = [meta["fmu"]["realization"]["id"] for meta in self.source_metadata]
+        return ids
+
+    def _process_meta_fmu(self):
+        """Process the fmu block."""
+
+        logger.debug("Start _process_meta_fmu")
+
+        # shall be similar to the source metadata except for realization/aggregation
+        self.dataio.meta["fmu"] = {
+            key: self.template["fmu"][key]
+            for key in self.template["fmu"]
+            if key != "realization"  # skip the "realization" block if present
+        }
+
+        # create fmu.aggregation
+        aggmeta = OrderedDict()
+        aggmeta["operation"] = self.operation
+        aggmeta["realization_ids"] = self._get_realization_ids()
+
+        self.dataio.meta["fmu"]["aggregation"] = aggmeta
+
+    def _process_meta_data(self):
+        """Process the data block"""
+
+        logger.debug("Start _process_meta_data")
+
+        meta_data = OrderedDict()
+
+        # object-dependent attributes:
+
+        # data.name | argument or template
+        meta_data["name"] = self.name or self.template["data"]["name"]
+
+        # data.statigraphic | template
+        meta_data["stratigraphic"] = self.template["data"]["stratigraphic"]
+
+        # data.content | template
+        meta_data["content"] = self.template["data"]["content"]
+
+        # data.timedata | template if present
+        meta_data["time"] = self.template["data"].get("time", None)
+
+        # data.unit | template if present
+        meta_data["unit"] = self.template["data"].get("unit", None)
+
+        # data.vertical_domain | template if present
+        meta_data["vertical_domain"] = self.template["data"].get(
+            "vertical_domain", None
+        )
+
+        # data.depth_reference | template if present
+        meta_data["depth_reference"] = self.template["data"].get(
+            "depth_reference", None
+        )
+
+        # data.is_prediction | template
+        meta_data["is_prediction"] = self.template["data"]["is_prediction"]
+
+        # data.is_observation | template
+        meta_data["is_observation"] = self.template["data"]["is_observation"]
+
+        self.dataio.meta["data"] = meta_data
+
+    def _process_meta_data_obj_regularsurface(self):
+        """Process/collect the data items for RegularSurface"""
+
+        # !!!!
+        # overlapping with similar function in _ExportItem, consider joining
+
+        logger.info("Process aggregated data metadata for RegularSurface")
+
+        regsurf = self.obj
+
+        self.subtype = "RegularSurface"
+        logger.debug("subtype is %s", self.subtype)
+
+        meta = self.dataio.meta
+        meta_data = meta["data"]
+
+        meta["class"] = "surface"
+        logger.debug("class is set")
+
+        self.valid = VALID_SURFACE_FORMATS  # for later
+        logger.debug(self.dataio)
+        self.fmt = self.dataio.surface_fformat  # for later
+
+        meta_data["layout"] = "regular"
+
+        # define spec record
+        specs = regsurf.metadata.required
+        newspecs = OrderedDict()
+        for spec, val in specs.items():
+            if isinstance(val, (np.float32, np.float64)):
+                val = float(val)
+            newspecs[spec] = val
+        meta_data["spec"] = newspecs
+        meta_data["spec"]["undef"] = 1.0e30  # irap binary undef
+
+        meta_data["bbox"] = OrderedDict()
+        meta_data["bbox"]["xmin"] = float(regsurf.xmin)
+        meta_data["bbox"]["xmax"] = float(regsurf.xmax)
+        meta_data["bbox"]["ymin"] = float(regsurf.ymin)
+        meta_data["bbox"]["ymax"] = float(regsurf.ymax)
+        meta_data["bbox"]["zmin"] = float(regsurf.values.min())
+        meta_data["bbox"]["zmax"] = float(regsurf.values.max())
+
+        meta_data["format"] = self.fmt
+
+        logger.info("Process data metadata for aggregated RegularSurface... done!!")
+
+    def _process_the_rest(self):
+        """Process everything not yet processed by bulk copying from the template"""
+        logger.debug("add_the_rest is starting")
+        logger.debug("Keys already in the metadata: %s", str(self.dataio.meta.keys()))
+        for key in self.template:
+            if key not in self.dataio.meta:
+                logger.debug("Adding block %s from the template", key)
+                self.dataio.meta[key] = self.template[key]
+
+        # probably some bad pointers being created here, should deep copy instead?
+
+    def produce_metadata(self):
+        """Make the aggregated metadata"""
+
+        logger.debug("produce_metadata")
+
+        if isinstance(self.obj, xtgeo.RegularSurface):
+            self.subtype = "RegularSurface"
+
+        if self.subtype != "RegularSurface":
+            raise NotImplementedError("Only RegularSurface for now.")
+
+        self._create_template()
+        self._process_meta_fmu()
+        self._process_meta_data()
+        self._process_meta_data_obj_regularsurface()
+
+        # get the rest from the template
+        # need to check for consistency here!
+
+        self._process_the_rest()
+
+        logger.debug("produce_metadata has finished")

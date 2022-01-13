@@ -40,7 +40,7 @@ import deprecation
 import yaml
 
 from . import _utils
-from ._export_item import _ExportItem
+from ._export_item import _ExportItem, _ExportAggregatedItem
 from .version import version
 
 logger = logging.getLogger(__name__)
@@ -1118,3 +1118,89 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
     def to_file(self, *args, **kwargs):
         """(Deprecated) Use ``export`` function instead."""
         self.export(*args, **kwargs)
+
+
+# ######################################################################################
+# ExportAggregatedData
+# ######################################################################################
+
+
+class ExportAggregatedData(ExportData):  # pylint: disable=too-few-public-methods
+    """Instantate ExportAggregatedData object.
+
+    ExportAggregatedData is a child class of ExportData tailored to produce metadata
+    for aggregations.
+
+    Args:
+        source_metadata: A list of metadata dictionaries corresponding to the source
+            data objects used in the aggregation.
+        element_id: A UUID that connects different aggregations produced from the same
+            source data objects. E.g. the same prediction across many realizations in
+            an FMU setting.
+        verbosity: Is logging/message level for this module. Input as
+            in standard python logging; e.g. "WARNING", "INFO".
+    """
+
+    # responsibility currently assumed by the aggregator:
+    # - The list of metadata matches the actual data used
+
+    def __init__(  # pylint: disable=super-init-not-called
+        self,
+        source_metadata: list,
+        element_id: str,
+        verbosity: Optional[str] = "CRITICAL",
+    ) -> None:
+        self._verbosity = verbosity
+        logger.setLevel(level=self._verbosity)
+
+        logger.debug("Initialize ExportAggregatedData")
+
+        self.source_metadata = source_metadata
+        logger.debug("source_metadata has length %s", str(len(source_metadata)))
+        self.element_id = element_id
+        logger.debug("element_id is %s", element_id)
+
+        # initialize the metadata
+        self.meta = OrderedDict()
+
+        logger.debug("ExportAggregatedData is initialized")
+
+    def _generate_metadata(self, obj, operation: str, verbosity: str = "CRITICAL"):
+        logger.setLevel(verbosity)
+        exporter = _ExportAggregatedItem(
+            self, obj, operation, self.source_metadata, verbosity=verbosity
+        )
+        exporter.produce_metadata()
+        return self.meta
+
+    # ==================================================================================
+    # Public methods
+
+    # public method is an empty shell, as the actual function may be called
+    # also in other contexts and may have more options exposed.
+    def generate_metadata(self, obj, operation, verbosity: str = "CRITICAL"):
+        """Generate the aggregated metadata.
+
+        Args:
+            obj (): The data object
+            operation (str): The operation conducted.
+        Returns:
+            metadata (dict): Metadata for the aggregation.
+
+        """
+
+        return self._generate_metadata(obj, operation, verbosity)
+
+    def export(self, obj, operation):
+        """Export the aggregated object with rich metadata.
+
+        Args:
+            obj (): The data object.
+            operation (str): The operation conducted.
+        Returns:
+            save_path (path): Path to the saved file."""
+
+        raise NotImplementedError(
+            "Export of aggregated data is not implemented. "
+            "Please use the generate_metadata() method and handle the export elsewhere."
+        )
