@@ -7,23 +7,27 @@
 
 import shutil
 import logging
-from pathlib import Path
+from pathlib import Path, PurePath
 
 import numpy as np
 
 import yaml
-import xtgeo
+import json
+import jsonschema
 
+import xtgeo
 import fmu.dataio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 CFG2 = {}
+
 with open("tests/data/drogon/global_config2/global_variables.yml", "r") as stream:
     CFG2 = yaml.safe_load(stream)
 
 CASEPATH = "tests/data/drogon/ertrun1"
+TESTDIR = Path(__file__).parent.absolute()
 
 
 def _create_realization_surfaces(tmp_path):
@@ -99,15 +103,34 @@ def _open_metadata(path):
     return data
 
 
+def _parse_json(schema_path):
+    """Parse the schema, return JSON"""
+    with open(schema_path) as stream:
+        data = json.load(stream)
+
+    return data
+
+
 def test_get_realization_ids():
     """Test the get_realization_ids method"""
     metas = [{"fmu": {"realization": {"id": x}}} for x in [0, 1, 3, 5]]
-    exp = fmu.dataio.ExportAggregatedData(source_metadata=metas, element_id=0)
+    exp = fmu.dataio._export_item._ExportAggregatedItem(
+        dataio=None,
+        obj=None,
+        operation=None,
+        source_metadata=metas,
+        verbosity="DEBUG",
+    )
     assert exp._get_realization_ids() == [0, 1, 3, 5]
 
 
+def test_create_template():
+    """Test the create_template private method"""
+    pass
+
+
 def test_check_consistency():
-    """Test the check_consistency method"""
+    """Test the check_consistency private method"""
 
     # all surface shall be from the same case/iteration?
 
@@ -121,7 +144,7 @@ def test_check_consistency():
 
 
 def test_generate_metadata(tmp_path):
-    """Test the generate metadata method"""
+    """Test the generate_metadata public method"""
 
     # make realizations
     export_paths, realizations, constant_values = _create_realization_surfaces(tmp_path)
@@ -146,18 +169,28 @@ def test_generate_metadata(tmp_path):
     exp = fmu.dataio.ExportAggregatedData(
         source_metadata=metadatas,  # list of metadata for the surfaces used
         element_id="0000-0000-00000",
+        verbosity="DEBUG",
     )
-    meta = exp.generate_metadata(meansurf, operation="mean")
+    meta = exp.generate_metadata(meansurf, operation="mean", verbosity="DEBUG")
     # ...possible alternative/addition to an export function, e.g. exp.export(meansurf)
     # as the use cases most likely will want to retain the result in memory and send
     # it to an API rather than write to disk. If service wants to write to disk, it can
     # dump it afterwards or we can add an .export method.
 
+    print(meta)
+
     # verify the results
-    assert "realization" not in meta["data"]
-    assert "aggregation" in meta["data"]
-    aggmeta = meta["data"]["aggregation"]
-    assert aggmeta["operation"] == "mean"
-    assert aggmeta["realization_ids"] == realizations
+    assert "realization" not in meta["fmu"]
+    assert "aggregation" in meta["fmu"]
+
+    assert meta["fmu"]["aggregation"]["operation"] == "mean"
+    assert meta["fmu"]["aggregation"]["realization_ids"] == realizations
+    assert meta["class"] == "surface"
+
+    assert "access" in meta
 
     # validation against schema
+    schema = _parse_json(
+        str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
+    jsonschema.validate(instance=meta, schema=schema)
