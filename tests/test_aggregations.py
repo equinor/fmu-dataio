@@ -54,15 +54,6 @@ def _create_realization_surfaces(tmp_path):
             current / "mycase" / f"realization-{real}" / "iter-0" / "rms" / "model"
         )
         runfolder.mkdir(parents=True, exist_ok=True)
-        out = (
-            current
-            / "mycase"
-            / f"realization-{real}"
-            / "iter-0"
-            / "share"
-            / "results"
-            / "maps"
-        )
 
         # fake the export of a single realization surface
         exp = fmu.dataio.ExportData(
