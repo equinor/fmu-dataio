@@ -9,6 +9,8 @@ import shutil
 import logging
 from pathlib import Path, PurePath
 
+import pytest
+
 import numpy as np
 
 import yaml
@@ -16,7 +18,9 @@ import json
 import jsonschema
 
 import xtgeo
+
 import fmu.dataio
+import fmu.dataio._export_item as ei
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -117,10 +121,13 @@ def test_get_realization_ids():
 
 def test_create_template():
     """Test the create_template private method"""
+
+    # leaving this as a placeholder until we agree on the concepts.
+
     pass
 
 
-def test_check_consistency():
+def test_check_consistency(tmp_path):
     """Test the check_consistency private method"""
 
     # all surface shall be from the same case/iteration?
@@ -131,7 +138,56 @@ def test_check_consistency():
 
     # all surfaces shall have same data.name?
 
-    pass
+    # make realizations
+    export_paths, _, _ = _create_realization_surfaces(tmp_path)
+
+    # read the generated realization metadatas
+    metadatas = [_open_metadata(export_path) for export_path in export_paths]
+
+    # make a fake surface to use further in these tests
+    obj = xtgeo.RegularSurface(
+        name="SomeAggregatedSurface", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+
+    # verify that they are consistent out of the box
+    dataio = fmu.dataio.ExportAggregatedData(
+        source_metadata=metadatas,  # list of metadata for the surfaces used
+        element_id="0000-0000-00000",
+        verbosity="DEBUG",
+    )
+    exportitem = ei._ExportAggregatedItem(
+        dataio, obj, "mean", source_metadata=metadatas, verbosity="DEBUG"
+    )
+    exportitem._check_consistency()
+
+    # assert failure when case name is not the same
+    _original = metadatas[0]["fmu"]["case"]["name"]
+    metadatas[0]["fmu"]["case"]["name"] = "different case name"
+    with pytest.raises(ValueError) as e_info:
+        exportitem._check_consistency()
+    assert "fmu.case.name" in str(e_info)
+    metadatas[0]["fmu"]["case"]["name"] = _original
+
+    # assert failure when case uuid is not the same
+    _original = metadatas[0]["fmu"]["case"]["uuid"]
+    metadatas[0]["fmu"]["case"]["uuid"] = "a different uuid"
+    with pytest.raises(ValueError) as e_info:
+        exportitem._check_consistency()
+    assert "fmu.case.uuid" in str(e_info)
+    metadatas[0]["fmu"]["case"]["uuid"] = _original
+
+    # assert failure when content is not the same
+    _original = metadatas[0]["data"]["content"]
+    metadatas[0]["data"]["content"] = "a different content"
+    with pytest.raises(ValueError) as e_info:
+        exportitem._check_consistency()
+    assert "data.content" in str(e_info)
+
+    # assert warning only when explicitly set
+    exportitem.raise_on_inconsistency = False
+    with pytest.warns(UserWarning, match="data.content"):
+        exportitem._check_consistency()
+    metadatas[0]["data"]["content"] = _original
 
 
 def test_generate_metadata(tmp_path):
@@ -167,8 +223,6 @@ def test_generate_metadata(tmp_path):
     # as the use cases most likely will want to retain the result in memory and send
     # it to an API rather than write to disk. If service wants to write to disk, it can
     # dump it afterwards or we can add an .export method.
-
-    print(meta)
 
     # verify the results
     assert "realization" not in meta["fmu"]

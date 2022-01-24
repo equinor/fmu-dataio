@@ -1195,11 +1195,14 @@ class _ExportAggregatedItem(_ExportItem):
         self.operation = operation
         self.source_metadata = source_metadata
 
+        self.raise_on_inconsistency = True
+
         # optional arguments
         self.name = name
 
-        # populated later
-        self.template = None
+        self.template = None  # populated later
+
+        logger.debug("_ExportAggregatedItem.__init__() has finished")
 
     def _create_template(self):
         """Create the template."""
@@ -1221,6 +1224,64 @@ class _ExportAggregatedItem(_ExportItem):
 
         ids = [meta["fmu"]["realization"]["id"] for meta in self.source_metadata]
         return ids
+
+    def _check_consistency(self):
+        """Check the consistency on incoming realization metadata.
+
+        This method is verifying some key assumptions for the rest of the code on how
+        the individual realizations are consistent with eachother. This is important
+        given the assumption that the first realization metadata can be used as a
+        template for populating aggregated metadata."""
+
+        def _dict_lookup_from_dots(mydict, dottedkeys):
+            """Look up a value in a dict based on dotted annotation.
+
+            E.g. one.two.three --> mydict["one"]["two"]["three"]"""
+
+            # Putting it temporarily here.
+            # If we go further with this, move to utils or similar.
+
+            logger.debug("Finding %s", dottedkeys)
+            logger.debug("keys: %s", dottedkeys)
+
+            _tmp = mydict.copy()
+            for key in dottedkeys.split("."):
+                if not isinstance(_tmp, dict):
+                    logger.debug("key is %s", key)
+                    logger.debug("_tmp is %s", _tmp)
+                    raise KeyError(f"Could not find {key} when getting {dottedkeys}")
+                _tmp = _tmp[key]
+
+            return _tmp
+
+        logger.debug("_check_consistency on self.source_metadata")
+        logger.debug("self.raise_on_inconsistency: %s", self.raise_on_inconsistency)
+
+        # List of items that shall be consistent through aggregation inputs
+        # Alternatively, could blacklist. Downside is if user wants to add something
+        # to the metadata, outside schema, which is varying across aggregation inputs.
+        # Alternatively-alternatively, we do not check for consistency at all and leave
+        # it to the caller to sort it out. This should come with a warning.
+        consistent_items = [
+            "class",
+            "fmu.case.name",
+            "fmu.case.uuid",
+            "data.content",
+        ]
+
+        for item in consistent_items:
+            logger.debug("Checking consistency in %s", item)
+            # check each consistent item across all
+            _source_values = [
+                _dict_lookup_from_dots(meta, item) for meta in self.source_metadata
+            ]
+
+            if len(set(_source_values)) != 1:
+                if self.raise_on_inconsistency:
+                    raise ValueError(f"Inconsistency in {item}")
+                warnings.warn(UserWarning(f"Inconsistency in {item}"))
+
+        logger.debug("_check_consistency has ended")
 
     def _process_meta_fmu(self):
         """Process the fmu block."""
@@ -1303,7 +1364,6 @@ class _ExportAggregatedItem(_ExportItem):
         logger.debug("class is set")
 
         self.valid = VALID_SURFACE_FORMATS  # for later
-        logger.debug(self.dataio)
         self.fmt = self.dataio.surface_fformat  # for later
 
         meta_data["layout"] = "regular"
@@ -1353,13 +1413,14 @@ class _ExportAggregatedItem(_ExportItem):
             raise NotImplementedError("Only RegularSurface for now.")
 
         self._create_template()
+
+        self._check_consistency()
+
         self._process_meta_fmu()
         self._process_meta_data()
         self._process_meta_data_obj_regularsurface()
 
         # get the rest from the template
-        # need to check for consistency here!
-
         self._process_the_rest()
 
         logger.debug("produce_metadata has finished")
