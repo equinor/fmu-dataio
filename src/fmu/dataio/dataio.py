@@ -1181,6 +1181,10 @@ class ExportAggregatedData(ExportData):  # pylint: disable=too-few-public-method
     def generate_metadata(self, obj, operation, verbosity: str = "CRITICAL"):
         """Generate the aggregated metadata.
 
+        The context of this public method is when a service has the aggregated file,
+        but needs metadata to be created. This function therefore does not store
+        anything to disk, but returns the created metadata as a python dictionary.
+
         Args:
             obj (): The data object
             operation (str): The operation conducted.
@@ -1193,6 +1197,10 @@ class ExportAggregatedData(ExportData):  # pylint: disable=too-few-public-method
 
     def export(self, obj, operation):
         """Export the aggregated object with rich metadata.
+
+        The context of this public method is when a service has the aggregated file,
+        and wants to store the metadata and the file to disk as with regular realization
+        data objects.
 
         Args:
             obj (): The data object.
