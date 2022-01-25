@@ -1233,18 +1233,18 @@ class _ExportAggregatedItem(_ExportItem):
         given the assumption that the first realization metadata can be used as a
         template for populating aggregated metadata."""
 
+        # Temporary placement of utility functions - to be moved to utils or similar.
+
         def _dict_lookup_from_dots(mydict, dottedkeys):
             """Look up a value in a dict based on dotted annotation.
 
             E.g. one.two.three --> mydict["one"]["two"]["three"]"""
 
-            # Putting it temporarily here.
-            # If we go further with this, move to utils or similar.
-
             logger.debug("Finding %s", dottedkeys)
             logger.debug("keys: %s", dottedkeys)
 
             _tmp = mydict.copy()
+            logger.debug("copy OK")
             for key in dottedkeys.split("."):
                 if not isinstance(_tmp, dict):
                     logger.debug("key is %s", key)
@@ -1252,7 +1252,20 @@ class _ExportAggregatedItem(_ExportItem):
                     raise KeyError(f"Could not find {key} when getting {dottedkeys}")
                 _tmp = _tmp[key]
 
+            logger.debug("return from dict lookup")
             return _tmp
+
+        def _all_list_items_equal(source_values: list):
+            """True if all values in list are equal"""
+
+            logger.debug("Start _all_equal()")
+            for item in source_values:
+                if item != source_values[0]:
+                    return False
+
+            return True
+
+        # /temporary placement of utility functions
 
         logger.debug("_check_consistency on self.source_metadata")
         logger.debug("self.raise_on_inconsistency: %s", self.raise_on_inconsistency)
@@ -1267,16 +1280,19 @@ class _ExportAggregatedItem(_ExportItem):
             "fmu.case.name",
             "fmu.case.uuid",
             "data.content",
+            "masterdata",
+            "version",
+            "data.vertical_domain",
         ]
 
         for item in consistent_items:
             logger.debug("Checking consistency in %s", item)
-            # check each consistent item across all
-            _source_values = [
+
+            source_values = [
                 _dict_lookup_from_dots(meta, item) for meta in self.source_metadata
             ]
 
-            if len(set(_source_values)) != 1:
+            if not _all_list_items_equal(source_values):
                 if self.raise_on_inconsistency:
                     raise ValueError(f"Inconsistency in {item}")
                 warnings.warn(UserWarning(f"Inconsistency in {item}"))

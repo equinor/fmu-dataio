@@ -176,6 +176,31 @@ def test_check_consistency(tmp_path):
     assert "fmu.case.uuid" in str(e_info)
     metadatas[0]["fmu"]["case"]["uuid"] = _original
 
+    # assert failure when masterdata is not the same
+    # also testing when value is a dict
+    _original = metadatas[0]["masterdata"]
+    metadatas[0]["masterdata"] = {"not": "right"}
+    with pytest.raises(ValueError) as e_info:
+        exportitem._check_consistency()
+    assert "masterdata" in str(e_info)
+    metadatas[0]["masterdata"] = _original
+
+    # assert failure when version is not the same
+    _original = metadatas[0]["version"]
+    metadatas[0]["version"] = {"not": "right"}
+    with pytest.raises(ValueError) as e_info:
+        exportitem._check_consistency()
+    assert "version" in str(e_info)
+    metadatas[0]["version"] = _original
+
+    # assert failure when data.vertical_domain is not the same
+    _original = metadatas[0]["data"]["vertical_domain"]
+    metadatas[0]["data"]["vertical_domain"] = 12345.0
+    with pytest.raises(ValueError) as e_info:
+        exportitem._check_consistency()
+    assert "data.vertical_domain" in str(e_info)
+    metadatas[0]["data"]["vertical_domain"] = _original
+
     # assert failure when content is not the same
     _original = metadatas[0]["data"]["content"]
     metadatas[0]["data"]["content"] = "a different content"
@@ -183,7 +208,7 @@ def test_check_consistency(tmp_path):
         exportitem._check_consistency()
     assert "data.content" in str(e_info)
 
-    # assert warning only when explicitly set
+    # ... + assert warning only when explicitly set
     exportitem.raise_on_inconsistency = False
     with pytest.warns(UserWarning, match="data.content"):
         exportitem._check_consistency()
