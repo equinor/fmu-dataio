@@ -1137,11 +1137,9 @@
                     "$comment": "This is the fmu block as it appears in data objects",
                     "required": [
                         "model",
-                        "case",
-                        "iteration",
-                        "workflow"
+                        "case"
                     ],
-                    "$comment": "Data objects can be either realization or aggregation - never both.",
+                    "$comment": "Data objects can be either realization, aggregation or input",
                     "oneOf": [
                         {
                             "required": [
@@ -1151,6 +1149,11 @@
                         {
                             "required": [
                                 "aggregation"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "input"
                             ]
                         }
                     ],
