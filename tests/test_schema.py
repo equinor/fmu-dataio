@@ -48,12 +48,17 @@ def test_schema_080_validate_examples_as_is():
         str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
     )
     examples = [
-        _parse_yaml(str(path))
+        (path, _parse_yaml(str(path)))
         for path in TESTDIR.glob("../schema/definitions/0.8.0/examples/*.yml")
     ]
 
-    for example in examples:
-        jsonschema.validate(instance=example, schema=schema)
+    for path, example in examples:
+        try:
+            jsonschema.validate(instance=example, schema=schema)
+        except jsonschema.exceptions.ValidationError as err:
+            raise jsonschema.exceptions.ValidationError(
+                f"{Path(path).name}: {str(err)}"
+            )
 
 
 def test_schema_080_logic_case():
