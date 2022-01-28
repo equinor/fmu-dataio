@@ -30,6 +30,7 @@
         "fmu.realization.uuid",
         "fmu.aggregation.operation",
         "fmu.aggregation.realization_ids",
+        "fmu.input.source",
         "file"
     ],
     "definitions": {
