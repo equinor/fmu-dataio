@@ -360,10 +360,10 @@
                                 25.0
                             ]
                         },
-                        "yori": {
+                        "yinc": {
                             "type": "number",
                             "examples": [
-                                461499.9997558594
+                                10.0
                             ]
                         },
                         "yflip": {
@@ -1161,9 +1161,6 @@
                         },
                         "workflow": {
                             "$ref": "#/definitions/fmu/workflow"
-                        },
-                        "realization": {
-                            "$ref": "#/definitions/fmu/realization"
                         },
                         "aggregation": {
                             "$ref": "#/definitions/fmu/aggregation"
