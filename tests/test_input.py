@@ -2,12 +2,8 @@
 
 import logging
 
-from collections import OrderedDict
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
-import pytest
 import xtgeo
 import yaml
 
