@@ -3,6 +3,7 @@
 
 from fmu.dataio.dataio import ExportData  # noqa  # type: ignore
 from fmu.dataio.dataio import InitializeCase  # noqa  # type: ignore
+from fmu.dataio.dataio import ExportInputData  # noqa  # type: ignore
 
 try:
     from .version import version

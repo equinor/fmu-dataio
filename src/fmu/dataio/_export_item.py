@@ -967,9 +967,14 @@ class _ExportItem:
         Returns stem for file name and destination
         """
         stem = "unset"
-        outroot = self.dataio.runpath / "share" / "results"
-        if self.dataio.is_observation:
-            outroot = self.dataio.runpath / "share" / "observations"
+
+        if self.dataio._exporting_input:
+            outroot = self.dataio.runpath / "share" / "input"
+        else:
+            if self.dataio.is_observation:
+                outroot = self.dataio.runpath / "share" / "observations"
+            else:
+                outroot = self.dataio.runpath / "share" / "results"
 
         loc = self.efolder
 

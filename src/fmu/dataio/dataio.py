@@ -180,6 +180,8 @@ class ExportData:
         include_index: Optional[bool] = False,
         vertical_domain: Optional[dict] = None,
         workflow: Optional[Union[str, dict]] = None,
+        exporting_input: Optional[bool] = False,
+        caseroot: Optional[Union[str, pathlib.Path]] = None,
         # the following keys can be overridden in the export() function:
         name: Optional[str] = None,
         parent: Optional[dict] = None,
@@ -223,46 +225,19 @@ class ExportData:
         self._unit = unit
 
         # keep track of case
+        # TODO: Need to differentiate the different usages of "case"
+        # Here, the _case refers to case metadata
         self._case = False
 
         # store iter and realization folder names (when running ERT)
         self._iterfolder = None
         self._realfolder = None
 
-        self._pwd = pathlib.Path().absolute()  # process working directory
+        # for exporting case-wide data (but not case metadata, which is separate thing)
+        self._exporting_input = exporting_input
+        self._caseroot = caseroot
 
         self._process_pwd_runpath(kwargs)
-
-        logger.info("Initial RUNPATH is %s", self._runpath)
-        logger.info(
-            "Inside RMS status (developer setting) is %s",
-            kwargs.get("inside_rms", False),
-        )
-        # When running RMS, we are in conventionally in RUNPATH/rms/model, while
-        # in other settings, we run right at RUNPATH level (e.g. ERT jobs)
-        if self._runpath and isinstance(self._runpath, (str, pathlib.Path)):
-            self._runpath = pathlib.Path(self._runpath).absolute()
-            logger.info("The runpath is hard set as %s", self._runpath)
-        elif kwargs.get("inside_rms", False) is True and self._runpath is None:
-            # Note that runfolder in this case need to be set, pretending to be in the
-            # rms/model folder. This is merely a developer setting when running pytest
-            # in tmp_path!
-            self._runpath = (self._pwd / "../../.").absolute()
-            logger.info("Pretend to run from inside RMS")
-        elif (
-            self._runpath is None
-            and "rms" in sys.executable
-            and "komodo" not in sys.executable
-        ):
-            # this is the case when running RMS which happens in runpath/rms/model
-            # menaing that actual root runpath is at ../..
-            self._runpath = pathlib.Path("../../.").absolute()
-            logger.info("Detect 'inside RMS' from 'rms' being in sys.executable")
-        else:
-            self._runpath = self._pwd
-            logger.info("Assuming RUNPATH at PWD which is %s", self._pwd)
-
-        logger.info("Current RUNPATH is %s", str(self._runpath))
 
         # define chunks of metadata for primary first order categories
         # (except class which is set directly later)
@@ -1169,3 +1144,124 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
     def to_file(self, *args, **kwargs):
         """(Deprecated) Use ``export`` function instead."""
         self.export(*args, **kwargs)
+
+
+# ######################################################################################
+# ExportInputData
+# ######################################################################################
+
+
+class ExportInputData(ExportData):  # pylint: disable=too-few-public-methods
+    """Instantate ExportInputData object.
+
+    This class enables export of input data with rich metadata.
+
+    We expect all input data to be available through existing API's, but this is not
+    fully the case yet. Therefore, we will support export of input data as part of FMU
+    cases for an interim time. The purpose of this is to enable several use cases
+    relying on input data. These use cases are important for the feedback to the main
+    parts of fmu-dataio which is related to the export of data produced during FMU runs.
+
+    The exported input will look and feel like FMU results. A dedicated fmu.input
+    attribute is included in the schema.
+
+    The idea is that input data will be differentiated by having the `input` tag present
+    in outgoing metadata.
+
+    This is a separate class, since the ExportData class is tailored for the FORWARD_JOB
+    context. Input on case level will typically be exported in the WORKFLOW context, and
+    will not have realization information available. This may change over time.
+
+    """
+
+    # for now assume case wide input data only (no iteration, realization)
+
+    def __init__(  # pylint: disable=super-init-not-called
+        self,
+        caseroot: pathlib.Path,
+        runpath: Optional[str] = None,
+        access_ssdl: Optional[dict] = None,
+        config: Optional[dict] = None,
+        content: Optional[Union[str, dict]] = None,
+        is_prediction: Optional[bool] = True,
+        is_observation: Optional[bool] = False,
+        subfolder: Optional[str] = None,
+        timedata: Optional[list] = None,
+        include_index: Optional[bool] = False,
+        vertical_domain: Optional[dict] = None,
+        # the following keys can be overridden in the generate_metadata() function:
+        name: Optional[str] = None,
+        parent: Optional[dict] = None,
+        tagname: Optional[str] = None,
+        display_name: Optional[str] = None,
+        description: Optional[List[str]] = None,
+        unit: Optional[str] = None,
+        verbosity: Optional[str] = "CRITICAL",
+        **kwargs,  # developer options
+    ) -> None:
+
+        # For now, mostly a direct copy of ExportData arguments
+        # Removed some args related directly to file names etc.
+
+        self._case = False  # InputData is never a case
+
+        self._verbosity = verbosity
+        logger.setLevel(level=self._verbosity)
+
+        self._runpath = runpath
+        self._access_ssdl = access_ssdl
+        self._config = self._config_get(config)
+        self._content = content
+        self._context = None  # not in use?
+        self._is_prediction = is_prediction
+        self._is_observation = is_observation
+        self._timedata = timedata
+        self._vertical_domain = (
+            {"depth": "msl"} if vertical_domain is None else vertical_domain
+        )
+        self._subfolder = subfolder  # not relevant for input
+        self._include_index = include_index
+        self._workflow = None  # not relevant for input
+
+        # the following may change quickly in e.g. a loop and can be overridden
+        # in export():
+        self._name = name
+        self._parent = parent
+        self._tagname = tagname
+        self._display_name = display_name
+        self._description = description
+        self._unit = unit
+
+        # store iter and realization folder names (when running ERT)
+        self._iterfolder = None
+        self._realfolder = None
+
+        # for exporting case-wide data (but not case metadata, which is separate thing)
+        self._exporting_input = True
+        self._caseroot = caseroot
+
+        self._process_pwd_runpath(kwargs)
+
+        # define chunks of metadata for primary first order categories
+        # (except class which is set directly later)
+        self.metadata4strat = None
+        self.metadata4dollars = DOLLARS  # schema, version, source
+        self.metadata4file = OrderedDict()  # file (to be populated in export job)
+        self.metadata4tracklog = []  # tracklog:
+        self.metadata4data = OrderedDict()  # data:
+        self.metadata4display = OrderedDict()  # display:
+        self.metadata4access = OrderedDict()  # access:
+        self.metadata4masterdata = OrderedDict()  # masterdata:
+        self.metadata4fmu = OrderedDict()  # fmu:
+
+        if kwargs.get("dryrun", False):  # developer option, for tests
+            logger.info("Dry run mode is active for __init__")
+            return
+
+        self._get_meta_strat()
+        self._get_meta_masterdata()
+        self._get_meta_access()
+        self._get_meta_tracklog()
+        self._get_meta_fmu()
+
+        logger.debug("Initialize ExportInputData")
