@@ -266,7 +266,8 @@ class ExportData:
             self._runpath = self._pwd
             logger.info("Assuming RUNPATH at PWD which is %s", self._pwd)
 
-        logger.info("Current RUNPATH is %s", str(self._runpath))
+        # run private method for processing the pwd
+        self._process_pwd_runpath(kwargs)
 
         # define chunks of metadata for primary first order categories
         # (except class which is set directly later)
@@ -368,6 +369,51 @@ class ExportData:
     def pwd(self):
         """Return pwd Path object."""
         return self._pwd
+
+    # ==================================================================================
+    # Private utility methods
+
+    def _process_pwd_runpath(self, kwargs):
+        """Process self._pwd and self._runpath"""
+
+        self._pwd = pathlib.Path().absolute()  # process working directory
+
+        # developer option (for testing): set another pwd
+        if kwargs.get("runfolder", None) is not None:
+            self._pwd = pathlib.Path(kwargs["runfolder"]).absolute()
+
+        logger.info("Initial RUNPATH is %s", self._runpath)
+        logger.info(
+            "Inside RMS status (developer setting) is %s",
+            kwargs.get("inside_rms", False),
+        )
+        # Context 1: Running RMS, we are in conventionally in RUNPATH/rms/model
+        # Context 2: ERT FORWARD_JOB, running at RUNPATH level
+        # Context 3: ERT WORKFLOW_JOB, running somewhere/anywhere else
+
+        if self._runpath and isinstance(self._runpath, (str, pathlib.Path)):
+            self._runpath = pathlib.Path(self._runpath).absolute()
+            logger.info("The runpath is hard set as %s", self._runpath)
+        elif kwargs.get("inside_rms", False) is True and self._runpath is None:
+            # Note that runfolder in this case need to be set, pretending to be in the
+            # rms/model folder. This is merely a developer setting when running pytest
+            # in tmp_path!
+            self._runpath = (self._pwd / "../../.").absolute()
+            logger.info("Pretend to run from inside RMS")
+        elif (
+            self._runpath is None
+            and "rms" in sys.executable
+            and "komodo" not in sys.executable
+        ):
+            # this is the case when running RMS which happens in runpath/rms/model
+            # menaing that actual root runpath is at ../..
+            self._runpath = pathlib.Path("../../.").absolute()
+            logger.info("Detect 'inside RMS' from 'rms' being in sys.executable")
+        else:
+            self._runpath = self._pwd
+            logger.info("Assuming RUNPATH at PWD which is %s", self._pwd)
+
+        logger.info("Current RUNPATH is %s", str(self._runpath))
 
     # ==================================================================================
     # Private metadata methods which retrieve metadata that are not closely linked to
