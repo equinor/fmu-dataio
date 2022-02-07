@@ -223,6 +223,8 @@ class ExportData:
         self._unit = unit
 
         # keep track of case
+        # TODO: Need to differentiate the different usages of "case"
+        # Here, the _case refers to case metadata
         self._case = False
 
         # store iter and realization folder names (when running ERT)
