@@ -226,8 +226,8 @@ class ExportData:
         self._case = False
 
         # store iter and realization folder names (when running ERT)
-        self._iterfolder = None
-        self._realfolder = None
+        self._itername = None
+        self._realname = None
 
         self._pwd = pathlib.Path().absolute()  # process working directory
 
@@ -353,14 +353,14 @@ class ExportData:
         return self._workflow
 
     @property
-    def iterfolder(self):
-        """Return iterfolder string."""
-        return self._iterfolder
+    def itername(self):
+        """Return itername string."""
+        return self._itername
 
     @property
-    def realfolder(self):
-        """Return realfolder string."""
-        return self._realfolder
+    def realname(self):
+        """Return realname string."""
+        return self._realname
 
     @property
     def pwd(self):
@@ -687,20 +687,20 @@ class ExportData:
                 logger.info("User folder is %s", userfolder)
                 logger.info("Root path for case is %s", casepath.resolve())
 
-                self._iterfolder = pathlib.Path(casepath / realfolder / iterfolder)
-                self._realfolder = pathlib.Path(casepath / realfolder)
+                self._itername = pathlib.Path(casepath / realfolder / iterfolder)
+                self._realname = pathlib.Path(casepath / realfolder)
 
                 therealization = realfolder.replace("realization-", "")
 
                 # store parameters.txt
-                parameters_file = self._iterfolder / "parameters.txt"
+                parameters_file = self._itername / "parameters.txt"
                 if parameters_file.is_file():
                     params = _utils.read_parameters_txt(parameters_file)
                     nested_params = _utils.nested_parameters_dict(params)
                     ertjob["params"] = nested_params
 
                 # store jobs.json
-                jobs_file = self._iterfolder / "jobs.json"
+                jobs_file = self._itername / "jobs.json"
                 if jobs_file.is_file():
                     with open(jobs_file, "r") as stream:
                         ertjob["jobs"] = json.load(stream)
