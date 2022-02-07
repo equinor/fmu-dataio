@@ -129,6 +129,8 @@ class ExportData:
         is_observation: Default is False. If True, then disk storage will be on the
             "share/observations" folder
         workflow: Short tag desciption of workflow (as description)
+        casepath: Absolute path to the case root. If not provided, it will be attempted
+            parsed from the file structure.
 
         name: The name of the object. If not set it is tried to be inferred from
             the xtgeo/pandas/... object. The name is then checked towards the
@@ -227,44 +229,24 @@ class ExportData:
         # Here, the _case refers to case metadata
         self._case = False
 
-        # store iter and realization folder names (when running ERT)
-        self._itername = None
-        self._realname = None
+        # keep track of this is an FMU run or not. FMU run here refers to the FORWARD
+        # context (realization ran by ERT)
+        self._is_fmurun = None
 
-        self._pwd = pathlib.Path().absolute()  # process working directory
+        # store placeholder for ERT information
+        self._ert = OrderedDict()
 
-        # developer option (for testing): set another pwd
-        if kwargs.get("runfolder", None) is not None:
-            self._pwd = pathlib.Path(kwargs["runfolder"]).absolute()
+        # store iter and realization names, paths and ids (when running ERT)
+        self._itername = None  # name of the folder, e.g. "iter-0"
+        self._realname = None  # name of the folder, e.g. "realization-0"
+        self._iterpath = None  # path to the iteration
+        self._realpath = None  # path to the realization
+        self._iteration_id = None  # id of the iteration, e.g. "0"
+        self._realization_id = None  # id of the realization, e.g. "0"
 
-        logger.info("Initial RUNPATH is %s", self._runpath)
-        logger.info(
-            "Inside RMS status (developer setting) is %s",
-            kwargs.get("inside_rms", False),
-        )
-        # When running RMS, we are in conventionally in RUNPATH/rms/model, while
-        # in other settings, we run right at RUNPATH level (e.g. ERT jobs)
-        if self._runpath and isinstance(self._runpath, (str, pathlib.Path)):
-            self._runpath = pathlib.Path(self._runpath).absolute()
-            logger.info("The runpath is hard set as %s", self._runpath)
-        elif kwargs.get("inside_rms", False) is True and self._runpath is None:
-            # Note that runfolder in this case need to be set, pretending to be in the
-            # rms/model folder. This is merely a developer setting when running pytest
-            # in tmp_path!
-            self._runpath = (self._pwd / "../../.").absolute()
-            logger.info("Pretend to run from inside RMS")
-        elif (
-            self._runpath is None
-            and "rms" in sys.executable
-            and "komodo" not in sys.executable
-        ):
-            # this is the case when running RMS which happens in runpath/rms/model
-            # menaing that actual root runpath is at ../..
-            self._runpath = pathlib.Path("../../.").absolute()
-            logger.info("Detect 'inside RMS' from 'rms' being in sys.executable")
-        else:
-            self._runpath = self._pwd
-            logger.info("Assuming RUNPATH at PWD which is %s", self._pwd)
+        # store case root and uuid
+        self._casepath = None
+        self._case_uuid = None
 
         # run private method for processing the pwd
         self._process_pwd_runpath(kwargs)
@@ -578,22 +560,56 @@ class ExportData:
         if not self._case and self._workflow is not None:
             self._process_meta_fmu_workflow()
 
+        # fmu.element is defaulted to None. Only used in aggregations.
         self.metadata4fmu["element"] = None
 
+        # return now if this is exporting case metadata only
         if self._case:
             return
 
-        c_meta, i_meta, r_meta = self._process_meta_fmu_realization_iteration()
-        self.metadata4fmu["case"] = c_meta
-        self.metadata4fmu["iteration"] = i_meta
-        self.metadata4fmu["realization"] = r_meta
-        logger.info("Metadata for realization/iteration/case is parsed!")
+        self._parse_scratch_folder_structure()
 
-        if r_meta is None:
-            logger.info(
-                "Note that metadata for realization is None, "
-                "so this is interpreted as not an ERT run!"
-            )
+        logger.debug("self._is_fmurun is %s", self._is_fmurun)
+
+        if self._is_fmurun:
+            c_meta = self._process_meta_fmu_case()
+            self.metadata4fmu["case"] = c_meta
+            self._case_uuid = self.metadata4fmu["case"]["uuid"]
+            logger.debug("self._case_uuid has been set to %s", self._case_uuid)
+
+        if self._is_fmurun:
+
+            self._get_ert_information()
+
+            i_meta = self._process_meta_fmu_iteration()
+            self.metadata4fmu["iteration"] = i_meta
+
+            r_meta = self._process_meta_fmu_realization()
+            self.metadata4fmu["realization"] = r_meta
+
+    def _get_ert_information(self):
+        """Parse relevant system files from ERT"""
+
+        logger.debug("parsing ERT files")
+
+        # store parameters.txt
+        parameters_file = self._iterpath / "parameters.txt"
+        if parameters_file.is_file():
+            params = _utils.read_parameters_txt(parameters_file)
+            nested_params = _utils.nested_parameters_dict(params)
+            self._ert["params"] = nested_params
+            logger.debug("parameters.txt parsed.")
+        logger.debug("parameters.txt was not found")
+
+        # store jobs.json
+        jobs_file = self._iterpath / "jobs.json"
+        if jobs_file.is_file():
+            with open(jobs_file, "r") as stream:
+                self._ert["jobs"] = json.load(stream)
+            logger.debug("jobs.json parsed.")
+        logger.debug("jobs.json was not found")
+
+        logger.debug("ERT files has been parsed.")
 
     def _process_meta_fmu_workflow(self):
         """Processing the fmu.workflow section.
@@ -689,8 +705,8 @@ class ExportData:
         logger.info("Got metadata for fmu:model")
         return meta
 
-    def _process_meta_fmu_realization_iteration(self):
-        """Detect if this is a ERT run and in case provide real, iter, case info.
+    def _parse_scratch_folder_structure(self):
+        """Detect if this is a ERT run and set the relevant instance variables.
 
         fmu-dataio will run in different contexts. One of those contexts is when in
         an FMU run, orchestrated by ERT. To detect if we are in such context:
@@ -703,17 +719,13 @@ class ExportData:
 
         The iter folder may have other names, like "pred" which is fully
         supported. Then iter number (id) shall be 0.
-
-        Will also parse the fmu.case metadata block from file which is stored
-        higher up and generated in-advance.
         """
-        logger.info("Process metadata for realization and iteration")
-        is_fmurun = False
+
+        logger.info("Parsing folder structure")
+
+        self._is_fmurun = False
 
         folders = self._get_folderlist()
-
-        therealization = None
-        ertjob = OrderedDict()
 
         iterfolder = None
         casefolder = None
@@ -721,7 +733,7 @@ class ExportData:
 
         for num, folder in enumerate(folders):
             if folder and re.match("^realization-.", folder):
-                is_fmurun = True
+                self._is_fmurun = True
                 realfolder = folders[num]
                 iterfolder = folders[num + 1]
                 casefolder = folders[num - 1]
@@ -735,32 +747,102 @@ class ExportData:
                 logger.info("User folder is %s", userfolder)
                 logger.info("Root path for case is %s", casepath.resolve())
 
-                self._itername = pathlib.Path(casepath / realfolder / iterfolder)
-                self._realname = pathlib.Path(casepath / realfolder)
+                self._casepath = casepath
+                logger.debug("self._casepath has been set to %s", self._casepath)
 
-                therealization = realfolder.replace("realization-", "")
+                # store findings
+                self._itername = iterfolder  # name of the folder
+                logger.debug("self._itername set to %s", self._itername)
 
-                # store parameters.txt
-                parameters_file = self._itername / "parameters.txt"
-                if parameters_file.is_file():
-                    params = _utils.read_parameters_txt(parameters_file)
-                    nested_params = _utils.nested_parameters_dict(params)
-                    ertjob["params"] = nested_params
+                self._realname = realfolder  # name of the folder
+                logger.debug("self._realname set to %s", self._realname)
 
-                # store jobs.json
-                jobs_file = self._itername / "jobs.json"
-                if jobs_file.is_file():
-                    with open(jobs_file, "r") as stream:
-                        ertjob["jobs"] = json.load(stream)
+                # also derive the realization_id (realization number) from the folder
+                self._realization_id = int(self._realname.replace("realization-", ""))
 
-                break
+                # also derive iteration_id from the folder
+                if "iter-" in str(iterfolder):
+                    self._iteration_id = int(iterfolder.replace("iter-", ""))
+                elif isinstance(iterfolder, str):
+                    # any custom name of the iteration, like "pred"
+                    self._iteration_id = 0
+                else:
+                    raise ValueError("Could not derive iteration ID")
 
-        if not is_fmurun:
-            return None, None, None
+                self._iterpath = pathlib.Path(casepath / realfolder / iterfolder)
+                logger.debug("self._iterpath set to %s", self._iterpath)
 
-        # ------------------------------------------------------------------------------
-        # get the case metadata which should be established already (but see exception)
-        casemetaroot = casepath / "share" / "metadata" / "fmu_case"
+                self._realpath = pathlib.Path(casepath / realfolder)
+                logger.debug("self._realpath set to %s", self._realpath)
+
+                return
+
+        logger.info("Could not recognize folder structure, assuming non FMU run.")
+
+    def _process_meta_fmu_iteration(self):
+        """Get the iteration metadata"""
+
+        if self._iteration_id is None:
+            raise ValueError("self._iteration_id has not been set.")
+
+        if self._case_uuid is None:
+            raise ValueError("self._case_uuid has not been set.")
+
+        i_meta = OrderedDict()
+        i_meta["id"] = self._iteration_id
+        i_meta["uuid"] = _utils.uuid_from_string(
+            self._case_uuid + str(self._iteration_id)
+        )
+        i_meta["name"] = self._itername
+        i_meta["runid"] = self._ert["jobs"]["run_id"]
+        logger.info("Got metadata for fmu.iteration")
+        logger.debug("Iteration meta: \n%s", json.dumps(i_meta, indent=2, default=str))
+
+        return i_meta
+
+    def _process_meta_fmu_realization(self):
+        """Get the realization metadata."""
+
+        if self._realname is None:
+            raise ValueError("self._realname has not been set.")
+
+        if self._realization_id is None:
+            raise ValueError("self._realization_id has not been set.")
+
+        if self._iteration_id is None:
+            # in future, allowing for realizations without iterations may be needed.
+            raise ValueError("self._iteration_id has not been set.")
+
+        if self._case_uuid is None:
+            raise ValueError("self._case_uuid has not been set.")
+
+        r_meta = OrderedDict()
+
+        r_meta["id"] = self._realization_id
+        r_meta["name"] = self._realname
+        r_meta["uuid"] = _utils.uuid_from_string(
+            self._case_uuid + str(self._iteration_id) + str(self._realization_id)
+        )
+
+        # Note! export of the "jobs" content is paused. This exports a large amount
+        # of data to outgoing metadata, which puts strain on downstream usage. Until
+        # clear use case is present, halt the export.
+
+        # r_meta["jobs"] = self._ert["jobs"]
+        r_meta["parameters"] = self._ert["params"]
+
+        logger.info("Got metadata for fmu:realization")
+        logger.debug("Realiz. meta: \n%s", json.dumps(r_meta, indent=2, default=str))
+
+        return r_meta
+
+    def _process_meta_fmu_case(self):
+        """Process fmu.case"""
+
+        if self._casepath is None:
+            raise RuntimeError("self._casepath has not been set")
+
+        casemetaroot = self._casepath / "share" / "metadata" / "fmu_case"
 
         # may be json or yml
         casemetafile = None
@@ -768,6 +850,10 @@ class ExportData:
             casemetafile = casemetaroot.with_suffix(ext)
             if casemetafile.is_file():
                 break
+
+        logger.debug("casemetafile is %s", casemetafile)
+        logger.debug("casemetafile exists: %s", casemetafile.is_file())
+
         if casemetafile is not None and casemetafile.is_file():
             logger.info("Read existing case metadata from %s", str(casemetafile))
 
@@ -776,6 +862,7 @@ class ExportData:
 
             c_meta = inmeta["fmu"]["case"]
         else:
+            logger.debug("Case metadata not found, issuing warning")
             # allow case metadata to be missing but issue a warning; consider this
             # as a tmp solution as long as fmu-dataio/sumo is under development!
             warnings.warn(
@@ -787,42 +874,12 @@ class ExportData:
             # make a fake case name / uuid
             c_meta = {
                 "name": "MISSING!",
-                "uuid": "0000000-0000-0000-0000-000000000000",
+                "uuid": "not-a-valid-uuid",
             }
 
-        # ------------------------------------------------------------------------------
-        # get the iteration metadata
-        runid = ertjob["jobs"]["run_id"].replace(":", "_")
-        i_meta = OrderedDict()
-        i_meta["uuid"] = _utils.uuid_from_string(c_meta["uuid"] + iterfolder)
-        i_meta["id"] = 0
-        if "iter-" in iterfolder:
-            i_meta["id"] = int(iterfolder.replace("iter-", ""))
-        i_meta["name"] = iterfolder
-        i_meta["runid"] = runid
-
-        # ------------------------------------------------------------------------------
-        # get the realization metadata
-        r_meta = OrderedDict()
-        r_meta["id"] = int(therealization)
-        r_meta["name"] = realfolder
-        r_meta["uuid"] = _utils.uuid_from_string(
-            c_meta["uuid"] + str(i_meta["id"]) + str(r_meta["id"])
-        )
-
-        # Note! export of the "jobs" content is paused. This exports a large amount
-        # of data to outgoing metadata, which puts strain on downstream usage. Until
-        # clear use case is present, halt the export.
-
-        # r_meta["jobs"] = ertjob["jobs"]
-        r_meta["parameters"] = ertjob["params"]
-
-        logger.info("Got metadata for fmu:realization")
         logger.debug("Case meta: \n%s", json.dumps(c_meta, indent=2, default=str))
-        logger.debug("Iteration meta: \n%s", json.dumps(i_meta, indent=2, default=str))
-        logger.debug("Realiz. meta: \n%s", json.dumps(r_meta, indent=2, default=str))
 
-        return c_meta, i_meta, r_meta
+        return c_meta
 
     def _get_folderlist(self) -> list:
         """Return a list of pure folder names including current PWD up to system root.
