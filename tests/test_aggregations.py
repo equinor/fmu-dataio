@@ -215,10 +215,15 @@ def test_check_consistency(tmp_path):
     metadatas[0]["data"]["content"] = _original
 
 
-def test_generate_metadata(tmp_path):
-    """Test the generate_metadata public method"""
+def test_generate_metadata_instance(tmp_path):
+    """Test the generate_metadata public method.
 
-    # make realizations
+    In this test, pretend to be an aggregation service which is using fmu-dataio only
+    for creating metadata. In this context, the service will never materialize a file
+    to the disk. All communication will be across REST API.
+    """
+
+    # Dummy: make some realizations
     export_paths, realizations, constant_values = _create_realization_surfaces(tmp_path)
 
     # Pretend to be an aggregation service which has collected a set of surfaces with
@@ -237,10 +242,13 @@ def test_generate_metadata(tmp_path):
     # pretend to be aggregation service, and create an aggregation
     meansurf = surfaces.apply(np.nanmean, axis=0)
 
+    # the element_id connects multiple aggregations from the same source
+    element_id = "0000-0000-00000"
+
     # pretend to be aggregation service generating metadata for an aggregation
     exp = fmu.dataio.ExportAggregatedData(
         source_metadata=metadatas,  # list of metadata for the surfaces used
-        element_id="0000-0000-00000",
+        element_id="0000-0000-00000",  # aggregation service holds the element.id
         verbosity="DEBUG",
     )
     meta = exp.generate_metadata(meansurf, operation="mean", verbosity="DEBUG")
@@ -248,6 +256,9 @@ def test_generate_metadata(tmp_path):
     # as the use cases most likely will want to retain the result in memory and send
     # it to an API rather than write to disk. If service wants to write to disk, it can
     # dump it afterwards or we can add an .export method.
+
+    # at this point, the aggregation service will send the results somewhere else, e.g.
+    # Sumo or similar.
 
     # verify the results
     assert "realization" not in meta["fmu"]
@@ -260,9 +271,9 @@ def test_generate_metadata(tmp_path):
     assert "access" in meta
 
     assert "file" in meta
-    assert meta["file"]["relative_path"].startswith("iter-0/share/results"), meta[
-        "file"
-    ]["relative_path"]
+    _frp = meta["file"]["relative_path"]
+    assert _frp.startswith("iter-0/share/results"), _frp
+    assert _frp.endswith("--mean.gri"), _frp
 
     # validation against schema
     schema = _parse_json(
