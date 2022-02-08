@@ -1426,8 +1426,11 @@ class _ExportAggregatedItem(_ExportItem):
         # get stem name from template and reuse that further
         logger.debug("file is %s", self.template["file"])
         logger.debug("file.relative_path is %s", self.template["file"]["relative_path"])
-        stem = Path(self.template["file"]["relative_path"]).stem
+        _relative_file_path = Path(self.template["file"]["relative_path"])
+        stem = _relative_file_path.stem
         logger.debug("stem is %s", stem)
+        suffix = _relative_file_path.suffix
+        logger.debug("suffix is %s", suffix)
 
         # set the results folder based on the class
         if self.classname == "surface":
@@ -1443,7 +1446,7 @@ class _ExportAggregatedItem(_ExportItem):
             / "share"
             / "results"
             / results_folder
-            / f"{stem}--{self.operation}"
+            / f"{stem}--{self.operation}{suffix}"
         )
         logger.debug("relative_path is %s", meta["file"]["relative_path"])
 
