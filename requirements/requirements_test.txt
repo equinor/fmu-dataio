@@ -1,2 +1,2 @@
 pytest
--e https://github.com/equinor/fmu-config.git@master#egg=fmu-config
+-e git+https://github.com/equinor/fmu-config.git@master#egg=fmu-config
