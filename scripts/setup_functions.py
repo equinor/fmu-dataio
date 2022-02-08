@@ -1,19 +1,29 @@
 """Setup helpers for setup.py in fmu.dataio package."""
+import fnmatch
 import os
+from distutils.command.clean import clean as _clean
 from os.path import exists
 from shutil import rmtree
-import fnmatch
+from urllib.parse import urlparse
 
-from distutils.command.clean import clean as _clean
+from pip._internal.req import parse_requirements as parse
 
 
-def parse_requirements(filename):
-    """Load requirements from a pip requirements file."""
-    try:
-        lineiter = (line.strip() for line in open(filename))
-        return [line for line in lineiter if line and not line.startswith("#")]
-    except OSError:
-        return []
+def _format_requirement(req):
+    if req.is_editable:
+        # parse out egg=... fragment from VCS URL
+        parsed = urlparse(req.requirement)
+        egg_name = parsed.fragment.partition("egg=")[-1]
+        without_fragment = parsed._replace(fragment="").geturl()
+        return f"{egg_name} @ {without_fragment}"
+    return req.requirement
+
+
+def parse_requirements(fname):
+    """Turn requirements.txt into a list"""
+    reqs = parse(fname, session="test")
+    print(reqs)
+    return [_format_requirement(ir) for ir in reqs]
 
 
 # ======================================================================================

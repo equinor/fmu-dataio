@@ -44,7 +44,7 @@ from ._export_item import _ExportItem
 from .version import version
 
 logger = logging.getLogger(__name__)
-logger.setLevel("INFO")
+logger.setLevel(logging.CRITICAL)
 
 # the word "DOLLARS" refers losely to $schema and related keys (version, source)
 DOLLARS = OrderedDict(
