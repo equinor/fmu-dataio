@@ -1279,6 +1279,7 @@ class _ExportAggregatedItem(_ExportItem):
             "class",
             "fmu.case.name",
             "fmu.case.uuid",
+            "fmu.iteration.id",
             "data.content",
             "masterdata",
             "version",
