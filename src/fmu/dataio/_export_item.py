@@ -1003,8 +1003,6 @@ class _ExportItem:
         if self.subfolder:
             dest = dest / self.subfolder
 
-        dest.mkdir(parents=True, exist_ok=True)
-
         return stem, dest
 
     def _verify_path(
@@ -1029,8 +1027,8 @@ class _ExportItem:
             if path.parent.exists():
                 logger.info("Folder exists")
             else:
-                # this folder should have been made in _construct_filename...
-                raise IOError(f"Folder {str(path.parent)} is not present.")
+                logger.info("Making folder: %s", path.parent)
+                path.parent.mkdir(parents=True, exist_ok=True)
 
         # create metafile path
         metapath = (
