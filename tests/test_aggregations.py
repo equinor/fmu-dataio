@@ -259,6 +259,11 @@ def test_generate_metadata(tmp_path):
 
     assert "access" in meta
 
+    assert "file" in meta
+    assert meta["file"]["relative_path"].startswith("iter-0/share/results"), meta[
+        "file"
+    ]["relative_path"]
+
     # validation against schema
     schema = _parse_json(
         str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
