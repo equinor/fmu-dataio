@@ -639,3 +639,46 @@ def test_display_name():
     exporter._display_process()
 
     assert dataio.metadata4display["name"] is None
+
+
+def test_verify_path(tmp_path):
+    """Test the _verify_path private routine."""
+
+    points = xtgeo.Points(
+        [
+            (1.0, 2.0, 3.0),
+            (1.1, 2.0, 3.0),
+        ]
+    )
+
+    dataio = fmu.dataio.ExportData(
+        config=CFG2,
+        content="depth",
+        verbosity="DEBUG",
+        runpath=tmp_path,
+    )
+
+    exporter = ei._ExportItem(dataio, points, verbosity="DEBUG")
+
+    # plain
+    in_filestem = "myfilestem"
+    in_filepath = tmp_path / "my/file/path"
+    in_ext = ".myext"
+    path, metapath, relpath, abspath = exporter._verify_path(
+        in_filestem, in_filepath, in_ext, dryrun=True
+    )
+
+    assert path == tmp_path / "my/file/path/myfilestem.myext", path
+    assert metapath == tmp_path / "my/file/path/.myfilestem.myext.yml", metapath
+    assert abspath == tmp_path / "my/file/path/myfilestem.myext", abspath
+    assert relpath == Path("my/file/path/myfilestem.myext"), relpath
+
+    # abspath shall be resolved
+    in_filestem = "myfilestem"
+    in_filepath = tmp_path / "my/otherfile/otherpath/../../file/path"
+    in_ext = ".myext"
+    path, metapath, relpath, abspath = exporter._verify_path(
+        in_filestem, in_filepath, in_ext, dryrun=True
+    )
+
+    assert abspath == tmp_path / "my/file/path/myfilestem.myext", abspath
