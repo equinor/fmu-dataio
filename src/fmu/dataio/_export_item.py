@@ -1259,8 +1259,11 @@ class _ExportAggregatedItem(_ExportItem):
             """True if all values in list are equal"""
 
             logger.debug("Start _all_equal()")
-            for item in source_values:
+            for i, item in enumerate(source_values):
                 if item != source_values[0]:
+                    logger.debug("Item %s is not equal to item 0", i)
+                    logger.debug("Item 0: %s", source_values[0])
+                    logger.debug("Item %s: %s", i, item)
                     return False
 
             return True
@@ -1285,6 +1288,9 @@ class _ExportAggregatedItem(_ExportItem):
             "version",
             "data.vertical_domain",
         ]
+
+        # Should/could also check if the stem of the filename are consistent.
+        # Cannot check for the file path, as it includes realization-#.
 
         for item in consistent_items:
             logger.debug("Checking consistency in %s", item)
@@ -1407,6 +1413,42 @@ class _ExportAggregatedItem(_ExportItem):
 
         logger.info("Process data metadata for aggregated RegularSurface... done!!")
 
+    def _process_meta_file(self):
+        """Process the file block."""
+
+        # the file block shall have "relative_file_path".
+        # if exported to the disk, we need to add more (absolute_file_path, checksum)
+
+        # get iteration name
+        itername = self.template["fmu"]["iteration"]["name"]
+        logger.debug("itername is %s", itername)
+
+        # get stem name from template and reuse that further
+        logger.debug("file is %s", self.template["file"])
+        logger.debug("file.relative_path is %s", self.template["file"]["relative_path"])
+        stem = Path(self.template["file"]["relative_path"]).stem
+        logger.debug("stem is %s", stem)
+
+        # set the results folder based on the class
+        if self.classname == "surface":
+            results_folder = "maps"
+        else:
+            raise NotImplementedError("Only class 'surface' is currently supported")
+
+        # build the relative filename
+        meta = self.dataio.meta
+        meta["file"] = OrderedDict()
+        meta["file"]["relative_path"] = str(
+            Path(itername)
+            / "share"
+            / "results"
+            / results_folder
+            / f"{stem}--{self.operation}"
+        )
+        logger.debug("relative_path is %s", meta["file"]["relative_path"])
+
+        logger.debug("_process_meta_file is finished.")
+
     def _process_the_rest(self):
         """Process everything not yet processed by bulk copying from the template"""
         logger.debug("add_the_rest is starting")
@@ -1425,6 +1467,7 @@ class _ExportAggregatedItem(_ExportItem):
 
         if isinstance(self.obj, xtgeo.RegularSurface):
             self.subtype = "RegularSurface"
+            self.classname = "surface"
 
         if self.subtype != "RegularSurface":
             raise NotImplementedError("Only RegularSurface for now.")
@@ -1435,7 +1478,13 @@ class _ExportAggregatedItem(_ExportItem):
 
         self._process_meta_fmu()
         self._process_meta_data()
-        self._process_meta_data_obj_regularsurface()
+
+        if self.subtype == "RegularSurface":
+            self._process_meta_data_obj_regularsurface()
+        else:
+            raise NotImplementedError("Only RegularSurface for now.")
+
+        self._process_meta_file()
 
         # get the rest from the template
         self._process_the_rest()
