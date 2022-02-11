@@ -1,6 +1,7 @@
 """Test the individual functions in module _export_item."""
 import json
 from collections import OrderedDict
+from pathlib import Path
 
 import pytest
 import xtgeo

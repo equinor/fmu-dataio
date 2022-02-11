@@ -1120,6 +1120,8 @@ class _ExportItem:
             metafile, allmeta, verbosity=self.verbosity, savefmt=self.dataio.meta_format
         )
 
+        logger.debug("_export_actual_object finished")
+
         return str(outfile)
 
     def _item_to_file_collect_all_metadata(self):
@@ -1140,7 +1142,7 @@ class _ExportItem:
         allmeta["fmu"] = dataio.metadata4fmu
         allmeta["data"] = dataio.metadata4data
         allmeta["display"] = dataio.metadata4display
-        logger.debug("\n%s", json.dumps(allmeta, indent=2, default=str))
+        # logger.debug("\n%s", json.dumps(allmeta, indent=2, default=str))
 
         logger.info("Collect all metadata, done")
         return allmeta
@@ -1180,7 +1182,6 @@ class _ExportAggregatedItem(_ExportItem):
         dataio,
         obj,
         operation,
-        source_metadata,
         name: str = None,
         verbosity: str = "CRITICAL",
     ) -> None:
@@ -1188,10 +1189,11 @@ class _ExportAggregatedItem(_ExportItem):
         logger.setLevel(level=verbosity)
         logger.debug("initializing _ExportAggregatedItem")
 
+        self.verbosity = verbosity
+
         self.dataio = dataio
         self.obj = obj
         self.operation = operation
-        self.source_metadata = source_metadata
 
         self.raise_on_inconsistency = True
 
@@ -1199,6 +1201,7 @@ class _ExportAggregatedItem(_ExportItem):
         self.name = name
 
         self.template = None  # populated later
+        self.classname = None
 
         logger.debug("_ExportAggregatedItem.__init__() has finished")
 
@@ -1266,7 +1269,7 @@ class _ExportAggregatedItem(_ExportItem):
 
             return True
 
-        # /temporary placement of utility functions
+        # /temporary placement of utility functions #TODO
 
         logger.debug("_check_consistency on self.dataio.source_metadata")
         logger.debug("self.raise_on_inconsistency: %s", self.raise_on_inconsistency)
@@ -1337,7 +1340,7 @@ class _ExportAggregatedItem(_ExportItem):
 
         logger.debug("Start _process_meta_data")
 
-        meta_data = OrderedDict()
+        meta_data = self.dataio.metadata4data
 
         # object-dependent attributes:
 
@@ -1387,11 +1390,10 @@ class _ExportAggregatedItem(_ExportItem):
         self.subtype = "RegularSurface"
         logger.debug("subtype is %s", self.subtype)
 
-        meta = self.dataio.meta
-        meta_data = meta["data"]
+        meta_data = self.dataio.metadata4data
 
-        meta["class"] = "surface"
-        logger.debug("class is set")
+        self.classname = "surface"
+        logger.debug("self.class is set to surface")
 
         self.valid = VALID_SURFACE_FORMATS  # for later
         self.fmt = self.dataio.surface_fformat  # for later
@@ -1423,6 +1425,8 @@ class _ExportAggregatedItem(_ExportItem):
     def _process_meta_file(self):
         """Process the file block."""
 
+        logger.debug("_process_meta_file")
+
         # the file block shall have "relative_file_path".
         # if exported to the disk, we need to add more (absolute_file_path, checksum)
 
@@ -1446,29 +1450,41 @@ class _ExportAggregatedItem(_ExportItem):
             raise NotImplementedError("Only class 'surface' is currently supported")
 
         # build the relative filename
-        meta = self.dataio.meta
-        meta["file"] = OrderedDict()
-        meta["file"]["relative_path"] = str(
+        fmeta = self.dataio.metadata4file
+        fmeta["relative_path"] = str(
             Path(itername)
             / "share"
             / "results"
             / results_folder
             / f"{stem}--{self.operation}{suffix}"
         )
-        logger.debug("relative_path is %s", meta["file"]["relative_path"])
+        logger.debug("relative_path is %s", fmeta["relative_path"])
+
+        self.dataio.meta["file"] = fmeta
 
         logger.debug("_process_meta_file is finished.")
 
     def _process_the_rest(self):
-        """Process everything not yet processed by bulk copying from the template"""
-        logger.debug("add_the_rest is starting")
-        logger.debug("Keys already in the metadata: %s", str(self.dataio.meta.keys()))
-        for key in self.template:
-            if key not in self.dataio.meta:
-                logger.debug("Adding block %s from the template", key)
-                self.dataio.meta[key] = self.template[key]
+        """Process the remaining blocks."""
 
-        # probably some bad pointers being created here, should deep copy instead?
+        logger.debug("_process_the_rest()")
+        meta_access = self.dataio.metadata4access
+
+        # access: shall be as in the template (for now)
+        # TODO allow custom access on aggregs.
+        for key in self.template["access"]:
+            meta_access[key] = self.template["access"][key]
+
+        logger.debug("metadata for access has been processed")
+
+        # masterdata: shall be as in template
+        meta_masterdata = self.dataio.metadata4masterdata
+        for key in self.template["masterdata"]:
+            meta_masterdata[key] = self.template["masterdata"][key]
+
+        logger.debug("metadata for masterdata has been processed")
+
+        logger.debug("_process_the_rest has finished")
 
     def produce_metadata(self):
         """Make the aggregated metadata"""
@@ -1500,3 +1516,39 @@ class _ExportAggregatedItem(_ExportItem):
         self._process_the_rest()
 
         logger.debug("produce_metadata has finished")
+
+        self.dataio.meta = self._item_to_file_collect_all_metadata()
+
+        # logger.debug(self.dataio.meta)
+
+        return self.dataio.meta
+
+    def _item_to_file(self, fpath):
+        logger.info("Export item to file...")
+
+        fstem = fpath.stem
+        ext = fpath.suffix
+
+        logger.debug("fpath is %s", fpath)
+        logger.debug("fstem is %s", fstem)
+        logger.debug("ext is %s", ext)
+
+        outfile, metafile, relpath, abspath = self._verify_path(
+            fstem, fpath.parent, ext
+        )
+
+        logger.debug("outfile is %s", outfile)
+
+        logger.debug("Calling self._export_actual_object from _item_to_file")
+        self._export_actual_object(outfile, metafile, relpath, abspath)
+        logger.debug("item_to_file is finished")
+        return abspath
+
+    def save_to_file(self, casepath):
+        """Save to file."""
+        logger.debug("_ExportAggregatedItem.save_to_file()")
+        rfpath = Path(self.dataio.meta["file"]["relative_path"])
+        logger.debug("rfpath from metadata: %s", rfpath)
+        fpath = Path(casepath) / rfpath
+        logger.debug("fpath is %s", fpath)
+        return self._item_to_file(fpath)

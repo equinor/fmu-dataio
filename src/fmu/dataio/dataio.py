@@ -1163,15 +1163,46 @@ class ExportAggregatedData(ExportData):  # pylint: disable=too-few-public-method
         # initialize the metadata
         self.meta = OrderedDict()
 
+        # define chunks of metadata for primary first order categories
+        # (except class which is set directly later)
+        self.metadata4strat = None
+        self.metadata4dollars = DOLLARS  # schema, version, source
+        self.metadata4file = OrderedDict()  # file (to be populated in export job)
+        self.metadata4tracklog = []  # tracklog:
+        self.metadata4data = OrderedDict()  # data:
+        self.metadata4display = OrderedDict()  # display:
+        self.metadata4access = OrderedDict()  # access:
+        self.metadata4masterdata = OrderedDict()  # masterdata:
+        self.metadata4fmu = OrderedDict()  # fmu:
+
+        # populate tracklog
+        self._get_meta_tracklog()
+
         logger.debug("ExportAggregatedData is initialized")
 
     def _generate_metadata(self, obj, operation: str, verbosity: str = "CRITICAL"):
+        """Generate the metadata."""
+
         logger.setLevel(verbosity)
-        exporter = _ExportAggregatedItem(
-            self, obj, operation, self.source_metadata, verbosity=verbosity
-        )
+
+        exporter = _ExportAggregatedItem(self, obj, operation, verbosity=verbosity)
+        return exporter.produce_metadata()
+
+    def _export(self, obj, operation: str, casepath: str, verbosity: str = "CRITICAL"):
+        logger.setLevel(verbosity)
+        logger.debug("Calling _export()")
+        self._runpath = casepath
+        exporter = _ExportAggregatedItem(self, obj, operation, verbosity=verbosity)
+
+        # the .iterfolder attribute is used later to determine if we are in an ERT
+        # context, so setting this to None
+        exporter.iterfolder = None
+
         exporter.produce_metadata()
-        return self.meta
+        savedpath = exporter.save_to_file(casepath)
+        logger.debug("Returning from _export.")
+        logger.debug("savedpath is %s", savedpath)
+        return savedpath
 
     # ==================================================================================
     # Public methods
@@ -1195,7 +1226,7 @@ class ExportAggregatedData(ExportData):  # pylint: disable=too-few-public-method
 
         return self._generate_metadata(obj, operation, verbosity)
 
-    def export(self, obj, operation):
+    def export(self, obj, operation, casepath, verbosity: str = "CRITICAL"):
         """Export the aggregated object with rich metadata.
 
         The context of this public method is when a service has the aggregated file,
@@ -1205,10 +1236,9 @@ class ExportAggregatedData(ExportData):  # pylint: disable=too-few-public-method
         Args:
             obj (): The data object.
             operation (str): The operation conducted.
+            casepath (path): Absolute path to root of case. Will be used as root for the
+                filepath to disk
         Returns:
             save_path (path): Path to the saved file."""
 
-        raise NotImplementedError(
-            "Export of aggregated data is not implemented. "
-            "Please use the generate_metadata() method and handle the export elsewhere."
-        )
+        return self._export(obj, operation, casepath, verbosity)

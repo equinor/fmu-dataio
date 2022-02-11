@@ -109,11 +109,13 @@ def _parse_json(schema_path):
 def test_get_realization_ids():
     """Test the get_realization_ids method"""
     metas = [{"fmu": {"realization": {"id": x}}} for x in [0, 1, 3, 5]]
+
+    dataio = fmu.dataio.ExportAggregatedData(source_metadata=metas)
+
     exp = fmu.dataio._export_item._ExportAggregatedItem(
-        dataio=None,
+        dataio=dataio,
         obj=None,
         operation=None,
-        source_metadata=metas,
         verbosity="DEBUG",
     )
     assert exp._get_realization_ids() == [0, 1, 3, 5]
@@ -155,9 +157,7 @@ def test_check_consistency(tmp_path):
         aggregation_id="0000-0000-00000",
         verbosity="DEBUG",
     )
-    exportitem = ei._ExportAggregatedItem(
-        dataio, obj, "mean", source_metadata=metadatas, verbosity="DEBUG"
-    )
+    exportitem = ei._ExportAggregatedItem(dataio, obj, "mean", verbosity="DEBUG")
     exportitem._check_consistency()
 
     # assert failure when case name is not the same
@@ -271,6 +271,7 @@ def test_generate_metadata_instance(tmp_path):
     assert "access" in meta
 
     assert "file" in meta
+    assert "relative_path" in meta["file"]
     _frp = meta["file"]["relative_path"]
     assert _frp.startswith("iter-0/share/results"), _frp
     assert _frp.endswith("--mean.gri"), _frp
