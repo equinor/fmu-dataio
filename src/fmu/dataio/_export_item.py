@@ -1212,7 +1212,7 @@ class _ExportAggregatedItem(_ExportItem):
         # system etc.
 
         # Take first item. Use json to create thread-safe deep copy.
-        self.template = json.loads(json.dumps(self.source_metadata[0]))
+        self.template = json.loads(json.dumps(self.dataio.source_metadata[0]))
         logger.debug("self.template has been set")
 
     def _get_realization_ids(self):
@@ -1220,7 +1220,7 @@ class _ExportAggregatedItem(_ExportItem):
         # But what about aggregated aggregations...? Multi-model stuff?
         # For now assume that source is realizations.
 
-        ids = [meta["fmu"]["realization"]["id"] for meta in self.source_metadata]
+        ids = [meta["fmu"]["realization"]["id"] for meta in self.dataio.source_metadata]
         return ids
 
     def _check_consistency(self):
@@ -1268,7 +1268,7 @@ class _ExportAggregatedItem(_ExportItem):
 
         # /temporary placement of utility functions
 
-        logger.debug("_check_consistency on self.source_metadata")
+        logger.debug("_check_consistency on self.dataio.source_metadata")
         logger.debug("self.raise_on_inconsistency: %s", self.raise_on_inconsistency)
 
         # List of items that shall be consistent through aggregation inputs
@@ -1294,7 +1294,8 @@ class _ExportAggregatedItem(_ExportItem):
             logger.debug("Checking consistency in %s", item)
 
             source_values = [
-                _dict_lookup_from_dots(meta, item) for meta in self.source_metadata
+                _dict_lookup_from_dots(meta, item)
+                for meta in self.dataio.source_metadata
             ]
 
             if not _all_list_items_equal(source_values):
