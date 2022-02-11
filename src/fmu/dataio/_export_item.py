@@ -1320,6 +1320,7 @@ class _ExportAggregatedItem(_ExportItem):
         aggmeta = OrderedDict()
         aggmeta["operation"] = self.operation
         aggmeta["realization_ids"] = self._get_realization_ids()
+        aggmeta["id"] = self.dataio.aggregation_id
 
         self.dataio.meta["fmu"]["aggregation"] = aggmeta
 

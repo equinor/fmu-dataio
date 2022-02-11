@@ -1134,9 +1134,9 @@ class ExportAggregatedData(ExportData):  # pylint: disable=too-few-public-method
     Args:
         source_metadata: A list of metadata dictionaries corresponding to the source
             data objects used in the aggregation.
-        element_id: A UUID that connects different aggregations produced from the same
-            source data objects. E.g. the same prediction across many realizations in
-            an FMU setting.
+        aggregation_id: An ID that connects different aggregations produced from the
+            same source data objects. E.g. the same prediction across many realizations
+            in an FMU setting.
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO".
     """
@@ -1147,7 +1147,7 @@ class ExportAggregatedData(ExportData):  # pylint: disable=too-few-public-method
     def __init__(  # pylint: disable=super-init-not-called
         self,
         source_metadata: list,
-        element_id: str,
+        aggregation_id: str,
         verbosity: Optional[str] = "CRITICAL",
     ) -> None:
         self._verbosity = verbosity
@@ -1157,8 +1157,8 @@ class ExportAggregatedData(ExportData):  # pylint: disable=too-few-public-method
 
         self.source_metadata = source_metadata
         logger.debug("source_metadata has length %s", str(len(source_metadata)))
-        self.element_id = element_id
-        logger.debug("element_id is %s", element_id)
+        self.aggregation_id = aggregation_id
+        logger.debug("aggregation_id is %s", aggregation_id)
 
         # initialize the metadata
         self.meta = OrderedDict()

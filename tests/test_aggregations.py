@@ -152,7 +152,7 @@ def test_check_consistency(tmp_path):
     # verify that they are consistent out of the box
     dataio = fmu.dataio.ExportAggregatedData(
         source_metadata=metadatas,  # list of metadata for the surfaces used
-        element_id="0000-0000-00000",
+        aggregation_id="0000-0000-00000",
         verbosity="DEBUG",
     )
     exportitem = ei._ExportAggregatedItem(
@@ -242,13 +242,10 @@ def test_generate_metadata_instance(tmp_path):
     # pretend to be aggregation service, and create an aggregation
     meansurf = surfaces.apply(np.nanmean, axis=0)
 
-    # the element_id connects multiple aggregations from the same source
-    element_id = "0000-0000-00000"
-
     # pretend to be aggregation service generating metadata for an aggregation
     exp = fmu.dataio.ExportAggregatedData(
         source_metadata=metadatas,  # list of metadata for the surfaces used
-        element_id="0000-0000-00000",  # aggregation service holds the element.id
+        aggregation_id="0000-0000-00000",
         verbosity="DEBUG",
     )
     meta = exp.generate_metadata(meansurf, operation="mean", verbosity="DEBUG")
@@ -264,8 +261,11 @@ def test_generate_metadata_instance(tmp_path):
     assert "realization" not in meta["fmu"]
     assert "aggregation" in meta["fmu"]
 
-    assert meta["fmu"]["aggregation"]["operation"] == "mean"
-    assert meta["fmu"]["aggregation"]["realization_ids"] == realizations
+    aggmeta = meta["fmu"]["aggregation"]
+    assert aggmeta["operation"] == "mean"
+    assert aggmeta["realization_ids"] == realizations
+    assert "id" in aggmeta
+
     assert meta["class"] == "surface"
 
     assert "access" in meta
@@ -308,13 +308,10 @@ def test_generate_metadata_export_files(tmp_path):
     # pretend to be aggregation service, and create an aggregation
     meansurf = surfaces.apply(np.nanmean, axis=0)
 
-    # the element_id connects multiple aggregations from the same source
-    element_id = "0000-0000-00000"
-
     # pretend to be aggregation service generating metadata for an aggregation
     exp = fmu.dataio.ExportAggregatedData(
         source_metadata=metadatas,  # list of metadata for the surfaces used
-        element_id=element_id,  # aggregation service holds the element.id
+        aggregation_id="0000-0000-00000",  # aggregation service holds the element.id
         verbosity="DEBUG",
     )
     outpath = tmp_path
