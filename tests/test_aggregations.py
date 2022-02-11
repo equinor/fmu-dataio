@@ -280,3 +280,76 @@ def test_generate_metadata_instance(tmp_path):
         str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
     )
     jsonschema.validate(instance=meta, schema=schema)
+
+
+def test_generate_metadata_export_files(tmp_path):
+    """Test the export public method.
+
+    In this test, pretend to be an aggregation service which is using fmu-dataio both
+    for creating metadata and for exporting to disk.
+    """
+
+    # Dummy: make some realizations
+    export_paths, realizations, constant_values = _create_realization_surfaces(tmp_path)
+
+    # Pretend to be an aggregation service which has collected a set of surfaces with
+    # corresponding metadata compliant with fmu-dataio.
+    surfaces = xtgeo.Surfaces(export_paths)
+    metadatas = [_open_metadata(export_path) for export_path in export_paths]
+
+    # verify assumptions
+    assert (
+        len(surfaces.surfaces)
+        == len(metadatas)
+        == len(realizations)
+        == len(constant_values)
+    )
+
+    # pretend to be aggregation service, and create an aggregation
+    meansurf = surfaces.apply(np.nanmean, axis=0)
+
+    # the element_id connects multiple aggregations from the same source
+    element_id = "0000-0000-00000"
+
+    # pretend to be aggregation service generating metadata for an aggregation
+    exp = fmu.dataio.ExportAggregatedData(
+        source_metadata=metadatas,  # list of metadata for the surfaces used
+        element_id=element_id,  # aggregation service holds the element.id
+        verbosity="DEBUG",
+    )
+    outpath = tmp_path
+    savedpath = exp.export(
+        meansurf, operation="mean", casepath=outpath, verbosity="DEBUG"
+    )
+
+    sharepath = "iter-0/share/results/maps/"
+    outfile = Path(outpath) / sharepath / "constantvalueis0--what_descr--mean.gri"
+    assert savedpath == outfile, (str(savedpath), str(outfile))
+    assert outfile.exists()
+
+    outmetafile = (
+        Path(outpath) / sharepath / ".constantvalueis0--what_descr--mean.gri.yml"
+    )
+
+    with open(outmetafile, "r") as stream:
+        meta = yaml.safe_load(stream)
+
+    assert "realization" not in meta["fmu"]
+    assert "aggregation" in meta["fmu"]
+
+    assert meta["fmu"]["aggregation"]["operation"] == "mean"
+    assert meta["fmu"]["aggregation"]["realization_ids"] == realizations
+    assert meta["class"] == "surface"
+
+    assert "access" in meta
+
+    assert "file" in meta
+    assert meta["file"]["relative_path"].startswith("iter-0/share/results"), meta[
+        "file"
+    ]["relative_path"]
+
+    # validation against schema
+    schema = _parse_json(
+        str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
+    jsonschema.validate(instance=meta, schema=schema)
