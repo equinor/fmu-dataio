@@ -1234,43 +1234,6 @@ class _ExportAggregatedItem(_ExportItem):
         given the assumption that the first realization metadata can be used as a
         template for populating aggregated metadata."""
 
-        # Temporary placement of utility functions - to be moved to utils or similar.
-
-        def _dict_lookup_from_dots(mydict, dottedkeys):
-            """Look up a value in a dict based on dotted annotation.
-
-            E.g. one.two.three --> mydict["one"]["two"]["three"]"""
-
-            logger.debug("Finding %s", dottedkeys)
-            logger.debug("keys: %s", dottedkeys)
-
-            _tmp = mydict.copy()
-            logger.debug("copy OK")
-            for key in dottedkeys.split("."):
-                if not isinstance(_tmp, dict):
-                    logger.debug("key is %s", key)
-                    logger.debug("_tmp is %s", _tmp)
-                    raise KeyError(f"Could not find {key} when getting {dottedkeys}")
-                _tmp = _tmp[key]
-
-            logger.debug("return from dict lookup")
-            return _tmp
-
-        def _all_list_items_equal(source_values: list):
-            """True if all values in list are equal"""
-
-            logger.debug("Start _all_equal()")
-            for i, item in enumerate(source_values):
-                if item != source_values[0]:
-                    logger.debug("Item %s is not equal to item 0", i)
-                    logger.debug("Item 0: %s", source_values[0])
-                    logger.debug("Item %s: %s", i, item)
-                    return False
-
-            return True
-
-        # /temporary placement of utility functions #TODO
-
         logger.debug("_check_consistency on self.dataio.source_metadata")
         logger.debug("self.raise_on_inconsistency: %s", self.raise_on_inconsistency)
 
@@ -1297,11 +1260,11 @@ class _ExportAggregatedItem(_ExportItem):
             logger.debug("Checking consistency in %s", item)
 
             source_values = [
-                _dict_lookup_from_dots(meta, item)
+                _utils.dict_lookup_from_dots(meta, item)
                 for meta in self.dataio.source_metadata
             ]
 
-            if not _all_list_items_equal(source_values):
+            if not _utils.all_list_items_equal(source_values):
                 if self.raise_on_inconsistency:
                     raise ValueError(f"Inconsistency in {item}")
                 warnings.warn(UserWarning(f"Inconsistency in {item}"))

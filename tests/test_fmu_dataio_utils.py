@@ -147,3 +147,19 @@ def test_get_object_name():
     # grid with name, shall return name
     grid.name = "MyGridName"
     assert _utils.get_object_name(grid) == "MyGridName"
+
+
+def test_dict_lookup_from_dots():
+    """Test the dict_lookup_from_dots utility function."""
+
+    mydict = {"one": {"two": {"three": "myvalue"}}}
+    assert _utils.dict_lookup_from_dots(mydict, "one.two.three") == "myvalue"
+
+
+def test_all_list_items_equal():
+    """Test the all_list_items_equal utility function."""
+
+    assert _utils.all_list_items_equal([1, 1, 1, 1]) is True
+    assert _utils.all_list_items_equal(["1", "1", "1", "1"]) is True
+    assert _utils.all_list_items_equal([1, 1, 1, 2]) is False
+    assert _utils.all_list_items_equal(["1", "1", "1", "2"]) is False

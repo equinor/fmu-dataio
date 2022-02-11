@@ -207,3 +207,38 @@ def get_object_name(obj):
         return
 
     return name
+
+
+def dict_lookup_from_dots(mydict, dottedkeys):
+    """Look up a value in a dict based on dotted annotation.
+
+    E.g. one.two.three --> mydict["one"]["two"]["three"]"""
+
+    logger.debug("Finding %s", dottedkeys)
+    logger.debug("keys: %s", dottedkeys)
+
+    _tmp = mydict.copy()
+    logger.debug("copy OK")
+    for key in dottedkeys.split("."):
+        if not isinstance(_tmp, dict):
+            logger.debug("key is %s", key)
+            logger.debug("_tmp is %s", _tmp)
+            raise KeyError(f"Could not find {key} when getting {dottedkeys}")
+        _tmp = _tmp[key]
+
+    logger.debug("return from dict lookup")
+    return _tmp
+
+
+def all_list_items_equal(source_values: list):
+    """True if all values in list are equal"""
+
+    logger.debug("Start _all_equal()")
+    for i, item in enumerate(source_values):
+        if item != source_values[0]:
+            logger.debug("Item %s is not equal to item 0", i)
+            logger.debug("Item 0: %s", source_values[0])
+            logger.debug("Item %s: %s", i, item)
+            return False
+
+    return True
