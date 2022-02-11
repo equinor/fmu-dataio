@@ -1307,22 +1307,29 @@ class _ExportAggregatedItem(_ExportItem):
     def _process_meta_fmu(self):
         """Process the fmu block."""
 
+        # aggregations has fundamental differences compared to exporting other objects
+        # so overwriting the function from Super().
+
         logger.debug("Start _process_meta_fmu")
 
+        meta_fmu = self.dataio.metadata4fmu
+
         # shall be similar to the source metadata except for realization/aggregation
-        self.dataio.meta["fmu"] = {
-            key: self.template["fmu"][key]
-            for key in self.template["fmu"]
-            if key != "realization"  # skip the "realization" block if present
-        }
+        for key in [key for key in self.template["fmu"] if key != "realization"]:
+            meta_fmu[key] = self.template["fmu"][key]
 
         # create fmu.aggregation
         aggmeta = OrderedDict()
         aggmeta["operation"] = self.operation
         aggmeta["realization_ids"] = self._get_realization_ids()
-        aggmeta["id"] = self.dataio.aggregation_id
+        if self.dataio.aggregation_id is not None:
+            aggmeta["id"] = self.dataio.aggregation_id
+        else:
+            logger.info("aggregation_id has not been set")
 
-        self.dataio.meta["fmu"]["aggregation"] = aggmeta
+        meta_fmu["aggregation"] = aggmeta
+
+        self.dataio.metadata4fmu = meta_fmu
 
     def _process_meta_data(self):
         """Process the data block"""

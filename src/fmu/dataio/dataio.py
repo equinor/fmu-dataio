@@ -1147,7 +1147,7 @@ class ExportAggregatedData(ExportData):  # pylint: disable=too-few-public-method
     def __init__(  # pylint: disable=super-init-not-called
         self,
         source_metadata: list,
-        aggregation_id: str,
+        aggregation_id: str = None,
         verbosity: Optional[str] = "CRITICAL",
     ) -> None:
         self._verbosity = verbosity
