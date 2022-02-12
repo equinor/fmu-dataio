@@ -1,0 +1,12 @@
+{
+    "umask" : "0002",
+    "DATA_ROOT": "/project/fmu/tutorial/drogon/resmod/ff/users/nn/21.2.0/ert/model",
+    "global_environment" : {"TOOL_SITE_CONFIG" : "etc..."},
+    "global_update_path" : {},
+    "jobList" : [ {"name" : "THIS_IS_ONLY_A_STUB!",
+                   "executable" : "/prog/res/some",
+                   "just_a_stub" : 1
+                  }],
+    "run_id" : "1736:24181:2021-6-08-11-16-55:941626024d",
+    "ert_pid" : "1736"
+}
