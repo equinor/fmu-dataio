@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.10.1.dev1+g59c8119 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.10.2.dev1+g944a318 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -15,6 +15,9 @@
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script>let toggleHintShow = 'YAML file: ';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
         <script src="../../_static/togglebutton.js"></script>
         <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script src="../../_static/js/theme.js"></script>
@@ -267,7 +270,6 @@
         <span class="c1">#    inside_rms: If forced to true then pretend to be in rms env.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span> <span class="o">=</span> <span class="n">verbosity</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">runpath</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_access_ssdl</span> <span class="o">=</span> <span class="n">access_ssdl</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
@@ -330,6 +332,8 @@
             <span class="c1"># menaing that actual root runpath is at ../..</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detect &#39;inside RMS&#39; from &#39;rms&#39; being in sys.executable&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;RUN_DATAIO_EXAMPLES&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>  <span class="c1"># special; for repo doc examples!</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Assuming RUNPATH at PWD which is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">)</span>
@@ -1197,7 +1201,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.1.dev1+g59c8119).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.2.dev1+g944a318).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
