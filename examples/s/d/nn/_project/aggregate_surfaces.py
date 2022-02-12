@@ -203,5 +203,5 @@ def main():
         print(f"surface has been saved: {savedpath}")
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#    main()
