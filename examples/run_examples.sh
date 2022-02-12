@@ -8,7 +8,7 @@ current=$PWD
 
 # empty current results
 echo "Remove former output..."
-rm -fr examples/s/d/nn/xcase/realization-0/iter-0/share/results/*
+rm -fr examples/s/d/nn/xcase/realization-*/iter-0/share/results/*
 
 # Note! run from RUNPATH, NOT being inside RMS but need RUN_DATAIO_EXAMPLES env!
 cd $current/examples/s/d/nn/xcase/realization-0/iter-0/rms/bin
