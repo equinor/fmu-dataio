@@ -25,27 +25,12 @@ the given list of source metadata will be used as a template.
 """
 
 from pathlib import Path
+import yaml
 
 import numpy as np
 
 import xtgeo
 import fmu.dataio
-
-
-def _parse_surface(fname):
-    """Parse an IRAP binary surface.
-
-    Args:
-        fname (Path): Absolute path to surface
-    Returns:
-        surface (xtgeo.RegularSurface)
-        metadata (dict)
-
-    """
-
-    surface = xtgeo.RegularSurface(fname)
-    metadata_filename = _metadata_filename(fname)
-    metadata = _parse_yaml()
 
 
 def _parse_yaml(fname):
@@ -69,7 +54,7 @@ def _metadata_filename(fname):
 
     """
 
-    return Path(fname.parent) / "." + fname.name + ".yml"
+    return Path(fname.parent, "." + fname.name + ".yml")
 
 
 def _get_realizations(casepath):
@@ -78,7 +63,7 @@ def _get_realizations(casepath):
     # Ideally we get this from ERT or traverse the disk to find out. For the sake of the
     # example we just hardcode it here.
 
-    return [0, 1, 2, 3, 4]
+    return [0, 1, 9]
 
 
 def _get_source_surfaces_from_disk(
@@ -127,7 +112,7 @@ def main():
     """Aggregate one surface across X realizations from the example case."""
 
     # get the input realisations
-    casepath = Path("../xcase/").resolve
+    casepath = Path("examples/s/d/nn/xcase/").resolve()
 
     # Assuming that we know the surface name here.
     # Usually, this would be derived from a wildcard search on realization-0 or similar
@@ -135,7 +120,9 @@ def main():
     # and it has the same filename across all realizations.
 
     iter_name = "iter-0"
-    relative_path = "share/results/maps/topvolantis--depth.gri"  # exists in all reals
+    relative_path = (
+        "share/results/maps/topvolantis--ds_extract_geogrid.gri"  # exists in all reals
+    )
 
     reals = _get_realizations(casepath)
 
@@ -161,7 +148,8 @@ def main():
     }
 
     # now populate with metadata
-    for aggregation in aggregations:
+    for agg in aggregations:
+        aggregation = aggregations[agg]
         operation = aggregation["operation"]
         surface = aggregation["surface"]
         aggregation_id = "0000-0000"  # an identifier for these aggregations
@@ -174,9 +162,8 @@ def main():
             verbosity="DEBUG",
         )
         # We generate metadata and store in the dictionary for later usage
-        aggregation["metadata"] = exp.generate_metadata(
-            surface=surface, operation=operation, casepath=casepath
-        )
+        metadata = exp.generate_metadata(obj=surface, operation=operation)
+        aggregation["metadata"] = metadata
 
     # End result is a dictionary populated with aggregated surfaces + metadata
     # Now we can do whatever we want with these. They can go to a visualization
@@ -187,7 +174,8 @@ def main():
     # Example II: In the case where we want them to be stored to the /scratch disk,
     # we can do this with fmu.dataio directly
 
-    for aggregation in aggregations:
+    for agg in aggregations:
+        aggregation = aggregations[agg]
         operation = aggregation["operation"]
         surface = aggregation["surface"]
         aggregation_id = "0000-0000"  # an identifier for these aggregations
@@ -198,10 +186,10 @@ def main():
             verbosity="DEBUG",
         )
         # We export the surface + metadata to disk
-        savedpath = exp.export(surface=surface, operation=operation, casepath=casepath)
+        savedpath = exp.export(obj=surface, operation=operation, casepath=casepath)
 
         print(f"surface has been saved: {savedpath}")
 
 
-# if __name__ == "__main__":
-#    main()
+if __name__ == "__main__":
+    main()
