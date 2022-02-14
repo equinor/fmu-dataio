@@ -1347,51 +1347,6 @@ class _ExportAggregatedItem(_ExportItem):
 
         self.dataio.meta["data"] = meta_data
 
-    def _process_meta_data_obj_regularsurface(self):
-        """Process/collect the data items for RegularSurface"""
-
-        # !!!!
-        # overlapping with similar function in _ExportItem, consider joining
-
-        logger.info("Process aggregated data metadata for RegularSurface")
-
-        regsurf = self.obj
-
-        self.subtype = "RegularSurface"
-        logger.debug("subtype is %s", self.subtype)
-
-        meta_data = self.dataio.metadata4data
-
-        self.classname = "surface"
-        logger.debug("self.class is set to surface")
-
-        self.valid = VALID_SURFACE_FORMATS  # for later
-        self.fmt = self.dataio.surface_fformat  # for later
-
-        meta_data["layout"] = "regular"
-
-        # define spec record
-        specs = regsurf.metadata.required
-        newspecs = OrderedDict()
-        for spec, val in specs.items():
-            if isinstance(val, (np.float32, np.float64)):
-                val = float(val)
-            newspecs[spec] = val
-        meta_data["spec"] = newspecs
-        meta_data["spec"]["undef"] = 1.0e30  # irap binary undef
-
-        meta_data["bbox"] = OrderedDict()
-        meta_data["bbox"]["xmin"] = float(regsurf.xmin)
-        meta_data["bbox"]["xmax"] = float(regsurf.xmax)
-        meta_data["bbox"]["ymin"] = float(regsurf.ymin)
-        meta_data["bbox"]["ymax"] = float(regsurf.ymax)
-        meta_data["bbox"]["zmin"] = float(regsurf.values.min())
-        meta_data["bbox"]["zmax"] = float(regsurf.values.max())
-
-        meta_data["format"] = self.fmt
-
-        logger.info("Process data metadata for aggregated RegularSurface... done!!")
-
     def _process_meta_file(self):
         """Process the file block."""
 
@@ -1472,12 +1427,11 @@ class _ExportAggregatedItem(_ExportItem):
         self._check_consistency()
 
         self._process_meta_fmu()
-        self._process_meta_data()
 
-        if self.subtype == "RegularSurface":
-            self._process_meta_data_obj_regularsurface()
-        else:
-            raise NotImplementedError("Only RegularSurface for now.")
+        self._process_meta_data()
+        self._data_process_object()
+
+        self.dataio.metadata4data["format"] = self.fmt
 
         self._process_meta_file()
 
