@@ -1446,25 +1446,13 @@ class _ExportAggregatedItem(_ExportItem):
 
         return self.dataio.meta
 
-    def _item_to_file(self, fpath, fstem, fext):
-        logger.info("_item_to_file (agg)")
-
-        logger.debug("fpath is %s", fpath)
-        logger.debug("fstem is %s", fstem)
-        logger.debug("fext is %s", fext)
-
-        outfile, metafile, relpath, abspath = self._verify_path(fpath, fstem, fext)
-
-        logger.debug("outfile is %s", outfile)
-
-        logger.debug("Calling self._export_actual_object from _item_to_file")
-        self._export_actual_object(outfile, metafile, relpath, abspath)
-        logger.debug("item_to_file is finished")
-
-        return str(abspath)
-
     def save_to_file(self, casepath):
-        """Save to file (agg)."""
+        """Save to file.
+
+        When saving an aggregated surface, we need to know the casepath. So this method
+        is overwriting the similar method from ExportItem().
+        """
+
         logger.debug("_ExportAggregatedItem.save_to_file()")
 
         # get "full" (relative) path from metadata
