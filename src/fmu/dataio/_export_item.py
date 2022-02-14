@@ -1305,10 +1305,14 @@ class _ExportAggregatedItem(_ExportItem):
 
         self.dataio.metadata4fmu = meta_fmu
 
-    def _process_meta_data(self):
-        """Process the data block"""
+    def _data_process(self):
+        """Process the data block for aggregations.
 
-        logger.debug("Start _process_meta_data")
+        Since aggregations primarily derives the data block from the template,
+        we override the one in ExportItem().
+        """
+
+        logger.debug("Start _data_process")
 
         meta_data = self.dataio.metadata4data
 
@@ -1428,7 +1432,7 @@ class _ExportAggregatedItem(_ExportItem):
 
         self._process_meta_fmu()
 
-        self._process_meta_data()
+        self._data_process()
         self._data_process_object()
 
         self.dataio.metadata4data["format"] = self.fmt
