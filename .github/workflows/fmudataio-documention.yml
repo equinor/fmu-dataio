@@ -38,10 +38,10 @@ jobs:
         if: github.repository_owner == 'equinor'
         run: |
           cp -R ./build/sphinx/html ../html
-          git config --local user.email "fmu-dataio-github-user"
-          git config --local user.name "fmu-dataio-github-user"
-          git fetch origin gh-pages
-          git checkout --track origin/gh-pages
+          git config --local user.email "fmu-dataio-github-action"
+          git config --local user.name "fmu-dataio-github-action"
+          git fetch origin gh-pages2
+          git checkout --track origin/gh-pages2
           git clean -f -f -d -x  # Double -f is intentional.
           git rm -r *
           cp -R ../html/* .
@@ -52,5 +52,5 @@ jobs:
             echo "No changes in documentation. Skip documentation deploy."
           else
             git commit -m "Update Github Pages"
-            git push "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
+            git push "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages2
           fi
