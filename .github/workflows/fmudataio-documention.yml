@@ -45,13 +45,12 @@ jobs:
 
       - name: Update GH pages latest always
         run: |
-          git clean -f -f -d -x  # Double -f is intentional.
-          git rm -rf latest
           mkdir -p latest
+          rm -rf latest/*
+          touch latest/.nojekyll
           cp -R ../html/* latest/.
-          pushd latest
-          touch .nojekyll  # If not, github pages ignores _* directories.
-          git add .
+          git add latest
+          git clean -f -f -d -x  # Double -f is intentional.
           echo "Ready for commit"
           if git diff-index --quiet HEAD; then
             echo "No changes in documentation. Skip documentation deploy."
