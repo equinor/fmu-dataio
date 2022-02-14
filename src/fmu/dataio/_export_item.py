@@ -210,8 +210,9 @@ class _ExportItem:
         self._data_process()
         self._data_process_object()
         self._display_process()
-        fpath = self._item_to_file()
-        return str(fpath)
+        fpath, fstem, fext = self._construct_filename_fmustandard1()
+
+        return self._item_to_file(fpath, fstem, fext)
 
     def _set_format_specific_constants(self):
         """Based on data object format, set some constants"""
@@ -910,12 +911,9 @@ class _ExportItem:
         logger.info("display.name is set to %s", meta["name"])
         logger.info("Processing display is done!")
 
-    def _item_to_file(self):
+    def _item_to_file(self, fpath: Path, fstem: str, fext: str):
         logger.info("Export item to file...")
         logger.debug("Subtype is %s", self.subtype)
-
-        # fstem is filename without suffix
-        fstem, fpath = self._construct_filename_fmustandard1()
 
         if self.fmt not in self.valid.keys():
             raise ValueError(
@@ -923,15 +921,11 @@ class _ExportItem:
                 f"Valid {self.subtype} formats are: {list(self.valid.keys())}",
             )
 
-        ext = self.valid.get(self.fmt, None)
-        if ext is None:
-            raise RuntimeError(f"Cannot get correct file extension for {self.fmt}")
-
-        outfile, metafile, relpath, abspath = self._verify_path(fstem, fpath, ext)
+        outfile, metafile, relpath, abspath = self._verify_path(fpath, fstem, fext)
 
         self._export_actual_object(outfile, metafile, relpath, abspath)
 
-        return abspath
+        return str(abspath)
 
     def _construct_filename_fmustandard1(self):
         """Construct filename stem according to datatype (class) and fmu style 1.
@@ -971,28 +965,29 @@ class _ExportItem:
 
         Space will also be replaced in file names.
 
-        Returns stem for file name and destination
+        Returns destination folder, filename stem and extention
         """
-        stem = "unset"
+
+        # stem
         outroot = self.dataio.runpath / "share" / "results"
         if self.dataio.is_observation:
             outroot = self.dataio.runpath / "share" / "observations"
 
         loc = self.efolder
 
-        stem = self.name.lower()
+        fstem = self.name.lower()
 
         if self.tagname:
-            stem += "--" + self.tagname.lower()
+            fstem += "--" + self.tagname.lower()
 
         if self.parent:
-            stem = self.parent.lower() + "--" + stem
+            fstem = self.parent.lower() + "--" + fstem
 
         if self.times:
             time0 = self.times[0]
             time1 = self.times[1]
             if time0 and not time1:
-                stem += "--" + (str(time0)[0:10]).replace("-", "")
+                fstem += "--" + (str(time0)[0:10]).replace("-", "")
 
             elif time0 and time1:
                 monitor = (str(time0)[0:10]).replace("-", "")
@@ -1001,25 +996,30 @@ class _ExportItem:
                     warnings.warn(
                         "The monitor date and base date are equal", UserWarning
                     )  # TODO: consider add clocktimes in such cases?
-                stem += "--" + monitor + "_" + base
+                fstem += "--" + monitor + "_" + base
 
-        stem = stem.replace(".", "_").replace(" ", "_")
+        fstem = fstem.replace(".", "_").replace(" ", "_")
 
-        dest = outroot / loc
-
+        # destination
+        fpath = outroot / loc
         if self.subfolder:
-            dest = dest / self.subfolder
+            fpath = fpath / self.subfolder
 
-        return stem, dest
+        # extension
+        fext = self.valid.get(self.fmt, None)
+        if fext is None:
+            raise RuntimeError(f"Cannot get correct file extension for {self.fmt}")
+
+        return str(fpath), str(fstem), str(fext)
 
     def _verify_path(
-        self, filestem: str, filepath: Path, ext: str, dryrun=False
+        self, filepath: str, filestem: str, ext: str, dryrun=False
     ) -> Tuple[Path, Path, Path, Path]:
         """Combine file name, extensions, etc, verify paths and return cleaned items."""
 
-        logger.info("Incoming file stem is %s", filestem)
-        logger.info("Incoming file path is %s", filepath)
-        logger.info("Incoming ext is %s", ext)
+        logger.info("Incoming file path is %s", filepath)  # shall be folderpath
+        logger.info("Incoming file stem is %s", filestem)  # shall be string
+        logger.info("Incoming ext is %s", ext)  # shall be string
 
         path = Path(filepath) / filestem.lower()
         path = path.with_suffix(path.suffix + ext)
@@ -1446,32 +1446,44 @@ class _ExportAggregatedItem(_ExportItem):
 
         return self.dataio.meta
 
-    def _item_to_file(self, fpath):
-        logger.info("Export item to file...")
-
-        fstem = fpath.stem
-        ext = fpath.suffix
+    def _item_to_file(self, fpath, fstem, fext):
+        logger.info("_item_to_file (agg)")
 
         logger.debug("fpath is %s", fpath)
         logger.debug("fstem is %s", fstem)
-        logger.debug("ext is %s", ext)
+        logger.debug("fext is %s", fext)
 
-        outfile, metafile, relpath, abspath = self._verify_path(
-            fstem, fpath.parent, ext
-        )
+        outfile, metafile, relpath, abspath = self._verify_path(fpath, fstem, fext)
 
         logger.debug("outfile is %s", outfile)
 
         logger.debug("Calling self._export_actual_object from _item_to_file")
         self._export_actual_object(outfile, metafile, relpath, abspath)
         logger.debug("item_to_file is finished")
-        return abspath
+
+        return str(abspath)
 
     def save_to_file(self, casepath):
-        """Save to file."""
+        """Save to file (agg)."""
         logger.debug("_ExportAggregatedItem.save_to_file()")
+
+        # get "full" (relative) path from metadata
         rfpath = Path(self.dataio.meta["file"]["relative_path"])
         logger.debug("rfpath from metadata: %s", rfpath)
-        fpath = Path(casepath) / rfpath
+
+        # ...and build the full path by combining with casepath
+        fname = Path(casepath) / rfpath
+        logger.debug("fname is %s", fname)
+
+        # extract the fpath, fstem and ext from the full path
+        fpath = fname.parent
+        fstem = str(fname.stem)
+        ext = fname.suffix
+
         logger.debug("fpath is %s", fpath)
-        return self._item_to_file(fpath)
+        logger.debug("fstem is %s", fstem)
+        logger.debug("ext is %s", ext)
+
+        savedpath = self._item_to_file(fpath, fstem, ext)
+        logger.debug("savedpath from _item_to_file: %s", savedpath)
+        return savedpath

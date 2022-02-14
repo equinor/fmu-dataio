@@ -666,7 +666,7 @@ def test_verify_path(tmp_path):
     in_filepath = tmp_path / "my/file/path"
     in_ext = ".myext"
     path, metapath, relpath, abspath = exporter._verify_path(
-        in_filestem, in_filepath, in_ext, dryrun=True
+        in_filepath, in_filestem, in_ext, dryrun=True
     )
 
     assert path == tmp_path / "my/file/path/myfilestem.myext", path
@@ -679,7 +679,7 @@ def test_verify_path(tmp_path):
     in_filepath = tmp_path / "my/otherfile/otherpath/../../file/path"
     in_ext = ".myext"
     path, metapath, relpath, abspath = exporter._verify_path(
-        in_filestem, in_filepath, in_ext, dryrun=True
+        in_filepath, in_filestem, in_ext, dryrun=True
     )
 
     assert abspath == tmp_path / "my/file/path/myfilestem.myext", abspath

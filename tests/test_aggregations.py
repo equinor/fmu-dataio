@@ -322,7 +322,7 @@ def test_generate_metadata_export_files(tmp_path):
 
     sharepath = "iter-0/share/results/maps/"
     outfile = Path(outpath) / sharepath / "constantvalueis0--what_descr--mean.gri"
-    assert savedpath == outfile, (str(savedpath), str(outfile))
+    assert savedpath == str(outfile), (str(savedpath), str(outfile))
     assert outfile.exists()
 
     outmetafile = (
