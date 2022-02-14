@@ -1463,15 +1463,12 @@ class _ExportAggregatedItem(_ExportItem):
 
         logger.debug("produce_metadata")
 
-        if isinstance(self.obj, xtgeo.RegularSurface):
-            self.subtype = "RegularSurface"
-            self.classname = "surface"
+        self._set_format_specific_constants()
 
         if self.subtype != "RegularSurface":
             raise NotImplementedError("Only RegularSurface for now.")
 
         self._create_template()
-
         self._check_consistency()
 
         self._process_meta_fmu()
