@@ -205,6 +205,18 @@ class _ExportItem:
         with data, depending on data type and format).
         """
         logger.info("Save to file...")
+
+        self._set_format_specific_constants()
+        self._data_process()
+        self._data_process_object()
+        self._display_process()
+        fpath = self._item_to_file()
+        return str(fpath)
+
+    def _set_format_specific_constants(self):
+        """Based on data object format, set some constants"""
+        logger.debug("_set_format_specific_constants")
+
         if isinstance(self.obj, xtgeo.RegularSurface):
             self.subtype = "RegularSurface"
             self.classname = "surface"
@@ -258,12 +270,7 @@ class _ExportItem:
                 "This data type is not (yet) supported: ", type(self.obj)
             )
         logger.info("Found %s", self.subtype)
-
-        self._data_process()
-        self._data_process_object()
-        self._display_process()
-        fpath = self._item_to_file()
-        return str(fpath)
+        logger.debug("_set_format_specific_constants ended")
 
     def _data_process(self):
         """Process some potentially common subfields in the data block.
@@ -1400,10 +1407,12 @@ class _ExportAggregatedItem(_ExportItem):
         # get stem name from template and reuse that further
         logger.debug("file is %s", self.template["file"])
         logger.debug("file.relative_path is %s", self.template["file"]["relative_path"])
+
         _relative_file_path = Path(self.template["file"]["relative_path"])
         stem = _relative_file_path.stem
-        logger.debug("stem is %s", stem)
         suffix = _relative_file_path.suffix
+
+        logger.debug("stem is %s", stem)
         logger.debug("suffix is %s", suffix)
 
         # set the results folder based on the class
