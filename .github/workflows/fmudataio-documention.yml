@@ -35,11 +35,11 @@ jobs:
           sh examples/run_examples.sh
           python setup.py build_sphinx
       - name: Update GitHub pages
-        if: github.repository_owner == 'equinor' && github.ref == 'refs/heads/main'
+        if: github.repository_owner == 'equinor'
         run: |
           cp -R ./build/sphinx/html ../html
-          git config --local user.email "fmu-dataio-github-action"
-          git config --local user.name "fmu-dataio-github-action"
+          git config --local user.email "fmu-dataio-github-action2"
+          git config --local user.name "fmu-dataio-github-action2"
           git fetch origin gh-pages
           git checkout --track origin/gh-pages
           git clean -f -f -d -x  # Double -f is intentional.
