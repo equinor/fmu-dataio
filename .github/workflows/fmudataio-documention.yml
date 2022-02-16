@@ -47,5 +47,5 @@ jobs:
           publish_dir: ./gh_pages
           publish_branch: gh-pages-pr
           allow_empty_commit: true
-          user_name: "github-actions[bot]"
-          user_email: "github-actions[bot]@users.noreply.github.com"
+          # user_name: "github-actions[bot]"
+          # user_email: "github-actions[bot]@users.noreply.github.com"
