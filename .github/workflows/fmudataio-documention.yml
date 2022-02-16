@@ -56,7 +56,10 @@ jobs:
           fi
       - name: Commit documentation changes
         run: |
-          cp -r build/sphinx/html/* gh-pages/
+          git fetch origin gh-pages
+          git checkout --track origin/gh-pages
+          mkdir -p gh-pages
+          cp -R build/sphinx/html/* gh-pages/
           cd gh-pages
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
