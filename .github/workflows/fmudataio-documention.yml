@@ -55,7 +55,7 @@ jobs:
             git push "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
           fi
       - name: Commit documentation changes
-	run: |
+        run: |
           git clone https://github.com/equinor/fmu-dataio.git --branch gh-pages --single-branch gh-pages
           cp -r docs/build/sphinx/html/* gh-pages/
           cd gh-pages
@@ -66,8 +66,8 @@ jobs:
           # The above command will fail if no changes were present, so we ignore
           # the return code.
       - name: Push changes
-	uses: ad-m/github-push-action@master
-	with:
+        uses: ad-m/github-push-action@master
+        with:
           branch: gh-pages
           directory: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
