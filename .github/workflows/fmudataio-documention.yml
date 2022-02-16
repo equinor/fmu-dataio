@@ -4,8 +4,8 @@ name: Build and deploy docs for fmu-dataio
 # on: [push, pull_request]
 
 on:
-  pull_request:
-    branches: [main]
+  # pull_request:
+  #   branches: [main]
   push:
     branches: [main]
 
@@ -65,8 +65,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add .
           git commit -m "Update documentation" -a || true
-          # The above command will fail if no changes were present, so we ignore
-          # the return code.
+          # The above command fails if no changes, so we ignore the return code.
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
