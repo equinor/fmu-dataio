@@ -41,9 +41,9 @@ jobs:
           # git commit -m "Update documentation" -a || true
           # # The above command fails if no changes, so we ignore the return code.
       - name: Push changes
-        uses: peaceiris/actions-gh-pages@v3.7.3
+        uses: peaceiris/actions-gh-pages@v3.8.0
         with:
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./gh_pages
           publish_branch: gh-pages-pr
           allow_empty_commit: true
