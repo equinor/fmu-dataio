@@ -119,6 +119,10 @@ class ExportData:
         content: Is a string or a dictionary with one key. Example is "depth" or
             {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}
         subfolder: It is possible to set one level of subfolders for file output.
+            The input will only accept a single folder name, i.e. no paths
+        forcefolder: This setting shall only be used as exception, and will make it
+            possible to output to a non-standard folder. A ``/`` in front will indicate
+            an absolute path; otherwise it will be relative to RUNPATH. Use with care.
         include_index: This applies to Pandas (table) data only, and if True then the
             index column will be exported.
         vertical_domain: This is dictionary with a key and a reference e.g.
@@ -176,6 +180,7 @@ class ExportData:
         is_prediction: Optional[bool] = True,
         is_observation: Optional[bool] = False,
         subfolder: Optional[str] = None,
+        forcefolder: Optional[str] = None,
         timedata: Optional[list] = None,
         include_index: Optional[bool] = False,
         vertical_domain: Optional[dict] = None,
@@ -208,7 +213,7 @@ class ExportData:
         self._vertical_domain = (
             {"depth": "msl"} if vertical_domain is None else vertical_domain
         )
-        self._subfolder = subfolder
+        self._subfolder = self._check_subfolder(subfolder)
         self._include_index = include_index
         self._workflow = workflow
 
@@ -267,6 +272,9 @@ class ExportData:
 
         logger.info("Current RUNPATH is %s", str(self._runpath))
 
+        # need to set/check forcefolder after RUNPATH is set:
+        self._forcefolder = self._check_forcefolder(forcefolder)
+
         # define chunks of metadata for primary first order categories
         # (except class which is set directly later)
         self.metadata4strat = None
@@ -295,6 +303,51 @@ class ExportData:
 
         logger.info("Create instance of ExportData")
 
+    @staticmethod
+    def _check_subfolder(foldername: Optional[str] = None):
+        """Check and verify subfolder."""
+        if foldername is None:
+            return
+
+        if "/" in foldername:
+            raise ValueError(
+                "The subfolder input contains '/' which is illegal. Consider using"
+                "the forcefolder key instead if paths are required."
+            )
+        else:
+            warnings.warn(
+                "Exporting to a subfolder is a deviation from the standard "
+                "and could have consequences for later dependencies",
+                UserWarning,
+            )
+        return foldername
+
+    def _check_forcefolder(self, foldername: Optional[str] = None):
+        """Check and verify forcefolder path, and always return an absolute path.
+
+        In case '/some/path' the path is considered to be absolute
+        In case 'some/path' the path is considered to be relative to RUNPATH
+
+        """
+        if foldername is None:
+            return
+        if not isinstance(foldername, str):
+            raise ValueError("The forcefolder input must be a string")
+
+        warnings.warn(
+            "Using the forcefolder key shall only be done in exceptional cases",
+            UserWarning,
+        )
+
+        if foldername.startswith("/"):
+            # this is a brutal force as it also resets runpath!
+            self._runpath = pathlib.Path("/")
+            logger.info("The runpath is reset! %s", self._runpath)
+            return pathlib.Path(foldername)
+
+        else:
+            return self._runpath / foldername
+
     # ==================================================================================
     # Private attributes that are or may be exposed read-only for other classes
 
@@ -322,6 +375,11 @@ class ExportData:
     def subfolder(self):
         """Return subfolder name."""
         return self._subfolder
+
+    @property
+    def forcefolder(self):
+        """Return forcefolder name."""
+        return self._forcefolder
 
     @property
     def include_index(self):
@@ -809,6 +867,7 @@ class ExportData:
         self,
         obj: Any,
         subfolder: Optional[str] = None,
+        forcefolder: Optional[str] = None,
         verbosity: Optional[str] = None,
         name: Optional[str] = None,
         unit: Optional[str] = None,
@@ -867,7 +926,8 @@ class ExportData:
         exporter = _ExportItem(
             self,
             obj,
-            subfolder=subfolder,
+            subfolder=self._check_subfolder(subfolder),
+            forcefolder=self._check_forcefolder(forcefolder),
             verbosity=verbosity,
             name=name,
             parent=parent,

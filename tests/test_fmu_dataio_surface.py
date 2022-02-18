@@ -146,8 +146,7 @@ def test_surface_io_with_timedata_shall_fail(tmp_path, dates, errmessage):
 
 
 def test_surface_io_export_subfolder(tmp_path):
-    """Minimal test surface io with export_subfolder set,
-    uses tmp_path."""
+    """Minimal test surface io with export_subfolder set, uses tmp_path."""
 
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
@@ -162,6 +161,84 @@ def test_surface_io_export_subfolder(tmp_path):
     assert (
         tmp_path / FMUP1 / "maps" / "mysubfolder" / ".test.gri.yml"
     ).is_file() is True
+
+
+def test_surface_io_export_subfolder_illegal(tmp_path):
+    """Minimal test surface io with sufolder, using illegal path."""
+
+    srf = xtgeo.RegularSurface(
+        ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
+    )
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
+    with pytest.raises(ValueError):
+        exp.export(srf, subfolder="../mysubfolder")
+
+
+def test_surface_io_export_forcefolder_absolute(tmp_path):
+    """Minimal test surface io with forcefolder set, uses tmp_path."""
+
+    srf = xtgeo.RegularSurface(
+        ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test234"
+    )
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
+    with pytest.warns(UserWarning):
+        exp.export(srf, forcefolder=str(tmp_path))
+
+    assert (tmp_path / "test234.gri").is_file() is True
+
+
+def test_surface_io_export_forcefolder_relative(tmp_path):
+    """Minimal test surface io with forcefolder set as relative to runpath"""
+
+    srf = xtgeo.RegularSurface(
+        ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test235"
+    )
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
+    with pytest.warns(UserWarning):
+        exp.export(srf, forcefolder="share/results/myfolder")
+
+    assert (tmp_path / "share/results/myfolder" / "test235.gri").is_file() is True
+
+
+def test_surface_io_export_forcefolder_illegal_folder_create(tmp_path):
+    """Test with forcefolder set as absolute to a path with only admin rights."""
+
+    srf = xtgeo.RegularSurface(
+        ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test235"
+    )
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    exp = fmu.dataio.ExportData(
+        content="depth", runpath=tmp_path, config=CFG, verbosity="INFO"
+    )
+
+    # try to make a folder under /usr/bin which is illegal unless root rights
+    with pytest.raises(PermissionError):
+        exp.export(srf, forcefolder="/usr/bin/whatever")
+
+
+def test_surface_io_export_forcefolder_illegal_folder_store(tmp_path):
+    """Test with forcefolder store in folder with admin rights."""
+
+    srf = xtgeo.RegularSurface(
+        ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test235"
+    )
+    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+
+    exp = fmu.dataio.ExportData(
+        content="depth", runpath=tmp_path, config=CFG, verbosity="INFO"
+    )
+
+    # legal path, but still not allowed to write a file, which returns different
+    # exceptions dependent if xtgeo or Pandas, or ...
+    with pytest.raises((IOError, Exception)):
+        exp.export(srf, forcefolder="/usr/bin")
 
 
 def test_surface_io_larger_case(tmp_path):
