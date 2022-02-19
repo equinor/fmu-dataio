@@ -26,5 +26,7 @@ for num in 0 1 9; do
     python export_a_surface.py
 done
 
+cd $current/examples/s/d/nn/_project
+python aggregate_surfaces.py
 
 cd $current
