@@ -103,3 +103,59 @@ Python script
       :language: yaml
 
 |
+
+Aggregated surface
+-----------------------------------
+
+When many realizations of the same data object are created, i.e. FMU level 4 and 5,
+the results are represented by the *distribution* of objects it produces, e.g. across
+all realizations. To effectively communicate, analyze, compare and visualize such
+results they are aggregated into statistical representations of the distribution.
+
+Aggregated surfaces are therefore representations of a distribution of surfaces,
+typically in the form of new surfaces representing point-wise statistics of the input
+realisations.
+
+
+   Statistical surfaces are created by an aggregation service in some form, such as a 
+   Python script collecting surfaces across all realizations of an ensemble, stacking
+   their values and calculating statistics on each coordinate. For each coordinate,
+   there will be one value per realization.
+   
+   E.g. the **mean** of
+
+   - real1/mysurface
+   - real2/mysurface
+   - real2/mysurface
+   - ...
+   - realn/mysurface)
+
+   = meansurface, which is a surface where each coordinate represent the **mean** value
+   in this coordinate across the ensemble of realizations.
+
+The example below show how fmu-dataio can be used to
+1) Produce metadata for an existing aggregated surface, and/or
+2) Produce metadata + export an aggregated surface to disk.
+
+...in two different contexts:
+1) Realisations are store on the disk (aka scratch disk pattern)
+2) Realisations are stored in the cloud (aka Sumo pattern)
+
+Creating metadata for aggregations is different compared to doing it for realizations.
+The main difference is that while realization metadata are entirely made - aggregation
+metadata take much of their attributes from the input surfaces. In fmu-dataio, the first
+instance in the given list of source metadata will be used as a template.
+
+
+Python script
+~~~~~~~~~~~~~
+
+.. literalinclude:: ../examples/s/d/nn/_project/aggregate_surfaces.py
+   :language: python
+
+|
+
+   An aggregated surface usually belongs to a specific iteration of a specific case from
+   an FMU run. It is made by a post-process which hooks across (usually) all
+   realizations in an iteration/ensemble. From the FMU perspective, aggregations can be
+   seen as a subtype of *post-processed* data.
