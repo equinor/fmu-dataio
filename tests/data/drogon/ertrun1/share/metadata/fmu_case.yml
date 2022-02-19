@@ -38,7 +38,7 @@ masterdata:
         uuid: 00000000-0000-0000-0000-000000000000
     stratigraphic_column:
       identifier: DROGON_2020
-      uuid: some-unique-id-to-be-provided-by-smda
+      uuid: 00000000-0000-0000-0000-000000000000
 access:
   asset:
     name: Drogon # adding level to make room for unique ID in the future
