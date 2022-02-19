@@ -1007,6 +1007,16 @@
                         ]
                     }
                 }
+            },
+            "input": {
+                "type": "object",
+                "properties": {
+                    "source": {
+                        "$comment": "Temporary attribute during development",
+                        "type": "string",
+                        "description": "The source from which this input data came from"
+                    }
+                }
             }
         },
         "file": {
@@ -1165,6 +1175,9 @@
                         },
                         "aggregation": {
                             "$ref": "#/definitions/fmu/aggregation"
+                        },
+                        "input": {
+                            "$ref": "#/definitions/fmu/input"
                         }
                     }
                 },
