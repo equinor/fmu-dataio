@@ -30,7 +30,7 @@
         "fmu.realization.uuid",
         "fmu.aggregation.operation",
         "fmu.aggregation.realization_ids",
-        "file"
+        "file.relative_path"
     ],
     "definitions": {
         "generic": {
