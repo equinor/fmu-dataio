@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
 ## Installation
 
-Install a specific version (e.g. 0.1.1) directly from github through
+Install a specific version (e.g. 0.1.1) directly from github through:
 
 ```console
 pip install git+ssh://git@github.com/equinor/fmu-dataio@0.1.1

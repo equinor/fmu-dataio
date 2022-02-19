@@ -199,7 +199,6 @@ class ExportData:
         #    inside_rms: If forced to true then pretend to be in rms env.
         self._verbosity = verbosity
         logger.setLevel(level=self._verbosity)
-
         self._runpath = runpath
         self._access_ssdl = access_ssdl
         self._config = self._config_get(config)
@@ -391,6 +390,8 @@ class ExportData:
             # menaing that actual root runpath is at ../..
             self._runpath = pathlib.Path("../../.").absolute()
             logger.info("Detect 'inside RMS' from 'rms' being in sys.executable")
+        elif "RUN_DATAIO_EXAMPLES" in os.environ:  # special; for repo doc examples!
+            self._runpath = pathlib.Path("../../.").absolute()
         else:
             self._runpath = self._pwd
             logger.info("Assuming RUNPATH at PWD which is %s", self._pwd)
