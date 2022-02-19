@@ -1,11 +1,16 @@
 """Test the ExportInputData module"""
 
 import logging
+from pathlib import Path
+import shutil
 
 import numpy as np
 import pandas as pd
 import xtgeo
 import yaml
+import json
+
+import jsonschema
 
 import fmu.dataio
 
@@ -18,6 +23,8 @@ with open("tests/data/drogon/global_config2/global_variables.yml", "r") as strea
 
 CASEPATH = "tests/data/drogon/ertrun1"
 
+TESTDIR = Path(__file__).parent.absolute()
+SCHEMA = TESTDIR / "../schema/definitions/0.8.0/schema/fmu_results.json"
 
 # use case example: A set of input data is exported to /scratch to be available
 # within the case structure. The file already exists on disk, OR the file is dumped
@@ -38,8 +45,11 @@ def test_input_surface(tmp_path):
     )
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
+    # set up the case structure
+    current = tmp_path / "scratch" / "fields" / "user"
+    current.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(CASEPATH, current / "mycase")
     casefolder = tmp_path / "scratch" / "fields" / "user" / "mycase"
-    casefolder.mkdir(parents=True, exist_ok=True)
     out = casefolder / "share" / "input" / "maps"
 
     exp = fmu.dataio.ExportInputData(
@@ -51,14 +61,34 @@ def test_input_surface(tmp_path):
         is_prediction=True,
         is_observation=False,
         tagname="what Descr",
-        caseroot=casefolder.resolve(),
-        verbosity="INFO",
+        casepath=casefolder.resolve(),
+        source="mysource",
+        verbosity="DEBUG",
     )
 
     # save to file, on <case>/share/input
-    exp.export(srf, verbosity="INFO")
+    exp.export(srf, verbosity="DEBUG")
     assert (out / "topvolantis--what_descr.gri").is_file() is True
     assert (out / ".topvolantis--what_descr.gri.yml").is_file() is True
+
+    with open(out / ".topvolantis--what_descr.gri.yml", "r") as stream:
+        metadata = yaml.safe_load(stream)
+
+    assert isinstance(metadata, dict)
+
+    assert "fmu" in metadata
+    assert "input" in metadata["fmu"]
+    assert "model" in metadata["fmu"]
+    assert "case" in metadata["fmu"]
+    assert "realization" not in metadata["fmu"]
+    assert metadata["fmu"]["input"]["source"] == "mysource"
+
+    assert "file" in metadata
+    assert "data" in metadata
+
+    # validate exported metadata
+    schema = _parse_json(SCHEMA)
+    jsonschema.validate(instance=metadata, schema=schema)
 
 
 def test_input_table(tmp_path):
@@ -67,12 +97,16 @@ def test_input_table(tmp_path):
     # make a fake RegularSurface
     df = pd.DataFrame({"col1": [1, 2, 3, 4, 5], "col2": [11, 12, 13, 14, 15]})
 
+    # set up the case structure
+    current = tmp_path / "scratch" / "fields" / "user"
+    current.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(CASEPATH, current / "mycase")
     casefolder = tmp_path / "scratch" / "fields" / "user" / "mycase"
-    casefolder.mkdir(parents=True, exist_ok=True)
     out = casefolder / "share" / "input" / "tables"
 
     exp = fmu.dataio.ExportInputData(
         name="mytesttable",
+        source="mysource",
         config=CFG2,
         content="depth",
         unit="m",
@@ -81,11 +115,19 @@ def test_input_table(tmp_path):
         is_prediction=True,
         is_observation=False,
         tagname="what Descr",
-        caseroot=casefolder.resolve(),
-        verbosity="INFO",
+        casepath=casefolder.resolve(),
+        verbosity="DEBUG",
     )
 
     # save to file, on <case>/share/input
-    exp.export(df, verbosity="INFO")
+    exp.export(df, verbosity="DEBUG")
     assert (out / "mytesttable--what_descr.csv").is_file() is True
     assert (out / ".mytesttable--what_descr.csv.yml").is_file() is True
+
+
+def _parse_json(schema_path):
+    """Parse the schema, return JSON"""
+    with open(schema_path) as stream:
+        data = json.load(stream)
+
+    return data
