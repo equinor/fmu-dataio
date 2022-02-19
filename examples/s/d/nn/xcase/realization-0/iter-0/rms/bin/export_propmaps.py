@@ -11,10 +11,11 @@ e.g. Therys).
 
 """
 from pathlib import Path
+
 import xtgeo
-import fmu.dataio as dataio
 from fmu.config import utilities as ut
 
+import fmu.dataio as dataio
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
@@ -63,8 +64,9 @@ def main():
             is_prediction=True,
             is_observation=False,
             tagname="average_" + attribute,
-            verbosity="WARNING",
+            verbosity="INFO",
             workflow="rms property model",
+            inside_rms=False,  # if actually ran inside RMS, this is True!
         )
         fname = ed.export(surf)
         print(f"File name is {fname}")

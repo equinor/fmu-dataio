@@ -129,6 +129,8 @@ class ExportData:
         is_observation: Default is False. If True, then disk storage will be on the
             "share/observations" folder
         workflow: Short tag desciption of workflow (as description)
+        casepath: Absolute path to the case root. If not provided, it will be attempted
+            parsed from the file structure.
 
         name: The name of the object. If not set it is tried to be inferred from
             the xtgeo/pandas/... object. The name is then checked towards the
@@ -199,7 +201,6 @@ class ExportData:
         #    inside_rms: If forced to true then pretend to be in rms env.
         self._verbosity = verbosity
         logger.setLevel(level=self._verbosity)
-
         self._runpath = runpath
         self._access_ssdl = access_ssdl
         self._config = self._config_get(config)
@@ -229,7 +230,8 @@ class ExportData:
         # Here, the _case refers to case metadata
         self._case = False
 
-        # keep track of this is an FMU run or not
+        # keep track of this is an FMU run or not. FMU run here refers to the FORWARD
+        # context (realization ran by ERT)
         self._is_fmurun = None
 
         # store placeholder for ERT information
@@ -255,6 +257,7 @@ class ExportData:
         self._exporting_input = exporting_input
         self._inputsource = None
 
+        # run private method for processing the pwd
         self._process_pwd_runpath(kwargs)
 
         # define chunks of metadata for primary first order categories
@@ -345,22 +348,22 @@ class ExportData:
 
     @property
     def iterpath(self):
-        """Return iterfolder string."""
+        """Return the path to the iterfolder."""
         return self._iterpath
 
     @property
     def realpath(self):
-        """Return realfolder string."""
+        """Return path to the realization folder."""
         return self._realpath
 
     @property
     def itername(self):
-        """Return iterfolder string."""
+        """Return the name of the iterfolder."""
         return self._itername
 
     @property
     def realname(self):
-        """Return realfolder string."""
+        """Return name of the realfolder."""
         return self._realname
 
     @property
@@ -415,6 +418,8 @@ class ExportData:
                 raise RuntimeError("case_root is not set to a valid path")
             self._runpath = self._casepath
             logger.info("Runpath set to %s", self._runpath)
+        elif "RUN_DATAIO_EXAMPLES" in os.environ:  # special; for repo doc examples!
+            self._runpath = pathlib.Path("../../.").absolute()
         else:
             self._runpath = self._pwd
             logger.info("Assuming RUNPATH at PWD which is %s", self._pwd)
@@ -584,8 +589,10 @@ class ExportData:
         if not self._case and self._workflow is not None:
             self._process_meta_fmu_workflow()
 
+        # fmu.element is defaulted to None. Only used in aggregations.
         self.metadata4fmu["element"] = None
 
+        # return now if this is exporting case metadata only
         if self._case:
             return
 
@@ -593,7 +600,7 @@ class ExportData:
             self.metadata4fmu["input"] = OrderedDict()
             self.metadata4fmu["input"]["source"] = self._inputsource
 
-        self._parse_folder_structure()
+        self._parse_scratch_folder_structure()
 
         logger.debug("self._is_fmurun is %s", self._is_fmurun)
 
@@ -731,7 +738,7 @@ class ExportData:
         logger.info("Got metadata for fmu:model")
         return meta
 
-    def _parse_folder_structure(self):
+    def _parse_scratch_folder_structure(self):
         """Detect if this is a ERT run and set the relevant instance variables.
 
         fmu-dataio will run in different contexts. One of those contexts is when in
@@ -745,12 +752,10 @@ class ExportData:
 
         The iter folder may have other names, like "pred" which is fully
         supported. Then iter number (id) shall be 0.
-
-        If the ERT context is detected, will set the relevant instance variables
-
         """
 
         logger.info("Parsing folder structure")
+
         self._is_fmurun = False
 
         folders = self._get_folderlist()

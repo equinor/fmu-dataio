@@ -232,12 +232,12 @@ def test_process_fmu_config_from_env_invalid_yaml():
     del os.environ["FMU_GLOBAL_CONFIG"]
 
 
-def test_parse_folder_structure():
+def test_parse_scratch_folder_structure():
     """The private routine that parses the folder structure and derives information"""
     case = fmu.dataio.ExportData(
         runfolder=RUN, verbosity="INFO", dryrun=True, config=CFG
     )
-    case._parse_folder_structure()
+    case._parse_scratch_folder_structure()
     assert str(case._casepath).endswith("drogon/ertrun1")
     assert str(case._realpath).endswith("drogon/ertrun1/realization-0")
     assert str(case._iterpath).endswith("drogon/ertrun1/realization-0/iter-0")
@@ -255,7 +255,7 @@ def test_get_ert_information():
         runfolder=RUN, verbosity="INFO", dryrun=True, config=CFG
     )
 
-    case._parse_folder_structure()
+    case._parse_scratch_folder_structure()
     case._get_ert_information()
 
     assert isinstance(case._ert["params"], dict)
@@ -268,7 +268,7 @@ def test_process_fmu_case():
         runfolder=RUN, verbosity="INFO", dryrun=True, config=CFG
     )
 
-    case._parse_folder_structure()
+    case._parse_scratch_folder_structure()
     case._get_ert_information()
     c_meta = case._process_meta_fmu_case()
 
@@ -281,7 +281,7 @@ def test_process_fmu_realization():
         runfolder=RUN, verbosity="INFO", dryrun=True, config=CFG
     )
 
-    case._parse_folder_structure()
+    case._parse_scratch_folder_structure()
     case._get_ert_information()
     c_meta = case._process_meta_fmu_case()
     case._case_uuid = c_meta["uuid"]
@@ -303,7 +303,7 @@ def test_process_fmu_realization_from_runpath():
         runfolder=RUNPATH, verbosity="INFO", dryrun=True, config=CFG
     )
 
-    case._parse_folder_structure()
+    case._parse_scratch_folder_structure()
     case._get_ert_information()
     c_meta = case._process_meta_fmu_case()
     case._case_uuid = c_meta["uuid"]
@@ -321,7 +321,7 @@ def test_process_fmu_iteration():
     case = fmu.dataio.ExportData(
         runfolder=RUN, verbosity="INFO", dryrun=True, config=CFG
     )
-    case._parse_folder_structure()
+    case._parse_scratch_folder_structure()
     case._get_ert_information()
     c_meta = case._process_meta_fmu_case()
     case._case_uuid = c_meta["uuid"]
