@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.10.3.dev2+g04d9e0a documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.10.3.dev3+g6140b25 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -202,6 +202,8 @@
 <span class="sd">        is_observation: Default is False. If True, then disk storage will be on the</span>
 <span class="sd">            &quot;share/observations&quot; folder</span>
 <span class="sd">        workflow: Short tag desciption of workflow (as description)</span>
+<span class="sd">        casepath: Absolute path to the case root. If not provided, it will be attempted</span>
+<span class="sd">            parsed from the file structure.</span>
 
 <span class="sd">        name: The name of the object. If not set it is tried to be inferred from</span>
 <span class="sd">            the xtgeo/pandas/... object. The name is then checked towards the</span>
@@ -295,50 +297,31 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_unit</span> <span class="o">=</span> <span class="n">unit</span>
 
         <span class="c1"># keep track of case</span>
+        <span class="c1"># TODO: Need to differentiate the different usages of &quot;case&quot;</span>
+        <span class="c1"># Here, the _case refers to case metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_case</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="c1"># store iter and realization folder names (when running ERT)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_iterfolder</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_realfolder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># keep track of this is an FMU run or not. FMU run here refers to the FORWARD</span>
+        <span class="c1"># context (realization ran by ERT)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_fmurun</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>  <span class="c1"># process working directory</span>
+        <span class="c1"># store placeholder for ERT information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ert</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
 
-        <span class="c1"># developer option (for testing): set another pwd</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;runfolder&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;runfolder&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+        <span class="c1"># store iter and realization names, paths and ids (when running ERT)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_itername</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># name of the folder, e.g. &quot;iter-0&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_realname</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># name of the folder, e.g. &quot;realization-0&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_iterpath</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># path to the iteration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_realpath</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># path to the realization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_id</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># id of the iteration, e.g. &quot;0&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_realization_id</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># id of the realization, e.g. &quot;0&quot;</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initial RUNPATH is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Inside RMS status (developer setting) is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;inside_rms&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="c1"># When running RMS, we are in conventionally in RUNPATH/rms/model, while</span>
-        <span class="c1"># in other settings, we run right at RUNPATH level (e.g. ERT jobs)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The runpath is hard set as </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;inside_rms&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Note that runfolder in this case need to be set, pretending to be in the</span>
-            <span class="c1"># rms/model folder. This is merely a developer setting when running pytest</span>
-            <span class="c1"># in tmp_path!</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">/</span> <span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Pretend to run from inside RMS&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="s2">&quot;rms&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span>
-            <span class="ow">and</span> <span class="s2">&quot;komodo&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span>
-        <span class="p">):</span>
-            <span class="c1"># this is the case when running RMS which happens in runpath/rms/model</span>
-            <span class="c1"># menaing that actual root runpath is at ../..</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detect &#39;inside RMS&#39; from &#39;rms&#39; being in sys.executable&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">&quot;RUN_DATAIO_EXAMPLES&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>  <span class="c1"># special; for repo doc examples!</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Assuming RUNPATH at PWD which is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">)</span>
+        <span class="c1"># store case root and uuid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Current RUNPATH is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">))</span>
+        <span class="c1"># run private method for processing the pwd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_pwd_runpath</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># define chunks of metadata for primary first order categories</span>
         <span class="c1"># (except class which is set directly later)</span>
@@ -427,19 +410,66 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">iterfolder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return iterfolder string.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterfolder</span>
+    <span class="k">def</span> <span class="nf">itername</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return itername string.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_itername</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">realfolder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return realfolder string.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_realfolder</span>
+    <span class="k">def</span> <span class="nf">realname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return realname string.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_realname</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pwd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return pwd Path object.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
+
+    <span class="c1"># ==================================================================================</span>
+    <span class="c1"># Private utility methods</span>
+
+    <span class="k">def</span> <span class="nf">_process_pwd_runpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process self._pwd and self._runpath&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>  <span class="c1"># process working directory</span>
+
+        <span class="c1"># developer option (for testing): set another pwd</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;runfolder&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;runfolder&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initial RUNPATH is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Inside RMS status (developer setting) is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;inside_rms&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="c1"># Context 1: Running RMS, we are in conventionally in RUNPATH/rms/model</span>
+        <span class="c1"># Context 2: ERT FORWARD_JOB, running at RUNPATH level</span>
+        <span class="c1"># Context 3: ERT WORKFLOW_JOB, running somewhere/anywhere else</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The runpath is hard set as </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;inside_rms&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Note that runfolder in this case need to be set, pretending to be in the</span>
+            <span class="c1"># rms/model folder. This is merely a developer setting when running pytest</span>
+            <span class="c1"># in tmp_path!</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">/</span> <span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Pretend to run from inside RMS&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="s2">&quot;rms&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span>
+            <span class="ow">and</span> <span class="s2">&quot;komodo&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span>
+        <span class="p">):</span>
+            <span class="c1"># this is the case when running RMS which happens in runpath/rms/model</span>
+            <span class="c1"># menaing that actual root runpath is at ../..</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detect &#39;inside RMS&#39; from &#39;rms&#39; being in sys.executable&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;RUN_DATAIO_EXAMPLES&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>  <span class="c1"># special; for repo doc examples!</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Assuming RUNPATH at PWD which is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Current RUNPATH is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">))</span>
 
     <span class="c1"># ==================================================================================</span>
     <span class="c1"># Private metadata methods which retrieve metadata that are not closely linked to</span>
@@ -604,22 +634,56 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_meta_fmu_workflow</span><span class="p">()</span>
 
+        <span class="c1"># fmu.element is defaulted to None. Only used in aggregations.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata4fmu</span><span class="p">[</span><span class="s2">&quot;element&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="c1"># return now if this is exporting case metadata only</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="n">c_meta</span><span class="p">,</span> <span class="n">i_meta</span><span class="p">,</span> <span class="n">r_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_meta_fmu_realization_iteration</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata4fmu</span><span class="p">[</span><span class="s2">&quot;case&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_meta</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata4fmu</span><span class="p">[</span><span class="s2">&quot;iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_meta</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata4fmu</span><span class="p">[</span><span class="s2">&quot;realization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_meta</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata for realization/iteration/case is parsed!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_scratch_folder_structure</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">r_meta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Note that metadata for realization is None, &quot;</span>
-                <span class="s2">&quot;so this is interpreted as not an ERT run!&quot;</span>
-            <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;self._is_fmurun is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fmurun</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fmurun</span><span class="p">:</span>
+            <span class="n">c_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_meta_fmu_case</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata4fmu</span><span class="p">[</span><span class="s2">&quot;case&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_meta</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata4fmu</span><span class="p">[</span><span class="s2">&quot;case&quot;</span><span class="p">][</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;self._case_uuid has been set to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fmurun</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_ert_information</span><span class="p">()</span>
+
+            <span class="n">i_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_meta_fmu_iteration</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata4fmu</span><span class="p">[</span><span class="s2">&quot;iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_meta</span>
+
+            <span class="n">r_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_meta_fmu_realization</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata4fmu</span><span class="p">[</span><span class="s2">&quot;realization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_meta</span>
+
+    <span class="k">def</span> <span class="nf">_get_ert_information</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse relevant system files from ERT&quot;&quot;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;parsing ERT files&quot;</span><span class="p">)</span>
+
+        <span class="c1"># store parameters.txt</span>
+        <span class="n">parameters_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterpath</span> <span class="o">/</span> <span class="s2">&quot;parameters.txt&quot;</span>
+        <span class="k">if</span> <span class="n">parameters_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">read_parameters_txt</span><span class="p">(</span><span class="n">parameters_file</span><span class="p">)</span>
+            <span class="n">nested_params</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">nested_parameters_dict</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ert</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nested_params</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;parameters.txt parsed.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;parameters.txt was not found&quot;</span><span class="p">)</span>
+
+        <span class="c1"># store jobs.json</span>
+        <span class="n">jobs_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterpath</span> <span class="o">/</span> <span class="s2">&quot;jobs.json&quot;</span>
+        <span class="k">if</span> <span class="n">jobs_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jobs_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ert</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;jobs.json parsed.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;jobs.json was not found&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;ERT files has been parsed.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_meta_fmu_workflow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Processing the fmu.workflow section.</span>
@@ -715,8 +779,8 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Got metadata for fmu:model&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">meta</span>
 
-    <span class="k">def</span> <span class="nf">_process_meta_fmu_realization_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Detect if this is a ERT run and in case provide real, iter, case info.</span>
+    <span class="k">def</span> <span class="nf">_parse_scratch_folder_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detect if this is a ERT run and set the relevant instance variables.</span>
 
 <span class="sd">        fmu-dataio will run in different contexts. One of those contexts is when in</span>
 <span class="sd">        an FMU run, orchestrated by ERT. To detect if we are in such context:</span>
@@ -729,17 +793,13 @@
 
 <span class="sd">        The iter folder may have other names, like &quot;pred&quot; which is fully</span>
 <span class="sd">        supported. Then iter number (id) shall be 0.</span>
-
-<span class="sd">        Will also parse the fmu.case metadata block from file which is stored</span>
-<span class="sd">        higher up and generated in-advance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Process metadata for realization and iteration&quot;</span><span class="p">)</span>
-        <span class="n">is_fmurun</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Parsing folder structure&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_fmurun</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_folderlist</span><span class="p">()</span>
-
-        <span class="n">therealization</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">ertjob</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
 
         <span class="n">iterfolder</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">casefolder</span> <span class="o">=</span> <span class="kc">None</span>
@@ -747,7 +807,7 @@
 
         <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">folder</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">folders</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">folder</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^realization-.&quot;</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
-                <span class="n">is_fmurun</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_fmurun</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">realfolder</span> <span class="o">=</span> <span class="n">folders</span><span class="p">[</span><span class="n">num</span><span class="p">]</span>
                 <span class="n">iterfolder</span> <span class="o">=</span> <span class="n">folders</span><span class="p">[</span><span class="n">num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
                 <span class="n">casefolder</span> <span class="o">=</span> <span class="n">folders</span><span class="p">[</span><span class="n">num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
@@ -761,32 +821,102 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;User folder is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">userfolder</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Root path for case is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">casepath</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_iterfolder</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">casepath</span> <span class="o">/</span> <span class="n">realfolder</span> <span class="o">/</span> <span class="n">iterfolder</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_realfolder</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">casepath</span> <span class="o">/</span> <span class="n">realfolder</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="o">=</span> <span class="n">casepath</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;self._casepath has been set to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span><span class="p">)</span>
 
-                <span class="n">therealization</span> <span class="o">=</span> <span class="n">realfolder</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;realization-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="c1"># store findings</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_itername</span> <span class="o">=</span> <span class="n">iterfolder</span>  <span class="c1"># name of the folder</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;self._itername set to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_itername</span><span class="p">)</span>
 
-                <span class="c1"># store parameters.txt</span>
-                <span class="n">parameters_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterfolder</span> <span class="o">/</span> <span class="s2">&quot;parameters.txt&quot;</span>
-                <span class="k">if</span> <span class="n">parameters_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-                    <span class="n">params</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">read_parameters_txt</span><span class="p">(</span><span class="n">parameters_file</span><span class="p">)</span>
-                    <span class="n">nested_params</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">nested_parameters_dict</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-                    <span class="n">ertjob</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nested_params</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_realname</span> <span class="o">=</span> <span class="n">realfolder</span>  <span class="c1"># name of the folder</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;self._realname set to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_realname</span><span class="p">)</span>
 
-                <span class="c1"># store jobs.json</span>
-                <span class="n">jobs_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterfolder</span> <span class="o">/</span> <span class="s2">&quot;jobs.json&quot;</span>
-                <span class="k">if</span> <span class="n">jobs_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jobs_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
-                        <span class="n">ertjob</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+                <span class="c1"># also derive the realization_id (realization number) from the folder</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_realization_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_realname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;realization-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
 
-                <span class="k">break</span>
+                <span class="c1"># also derive iteration_id from the folder</span>
+                <span class="k">if</span> <span class="s2">&quot;iter-&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">iterfolder</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">iterfolder</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;iter-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterfolder</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="c1"># any custom name of the iteration, like &quot;pred&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_id</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not derive iteration ID&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_fmurun</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_iterpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">casepath</span> <span class="o">/</span> <span class="n">realfolder</span> <span class="o">/</span> <span class="n">iterfolder</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;self._iterpath set to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterpath</span><span class="p">)</span>
 
-        <span class="c1"># ------------------------------------------------------------------------------</span>
-        <span class="c1"># get the case metadata which should be established already (but see exception)</span>
-        <span class="n">casemetaroot</span> <span class="o">=</span> <span class="n">casepath</span> <span class="o">/</span> <span class="s2">&quot;share&quot;</span> <span class="o">/</span> <span class="s2">&quot;metadata&quot;</span> <span class="o">/</span> <span class="s2">&quot;fmu_case&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_realpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">casepath</span> <span class="o">/</span> <span class="n">realfolder</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;self._realpath set to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_realpath</span><span class="p">)</span>
+
+                <span class="k">return</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Could not recognize folder structure, assuming non FMU run.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_process_meta_fmu_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the iteration metadata&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;self._iteration_id has not been set.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;self._case_uuid has not been set.&quot;</span><span class="p">)</span>
+
+        <span class="n">i_meta</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">i_meta</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_id</span>
+        <span class="n">i_meta</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">uuid_from_string</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_iteration_id</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">i_meta</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_itername</span>
+        <span class="n">i_meta</span><span class="p">[</span><span class="s2">&quot;runid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ert</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">][</span><span class="s2">&quot;run_id&quot;</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Got metadata for fmu.iteration&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Iteration meta: </span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">i_meta</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">i_meta</span>
+
+    <span class="k">def</span> <span class="nf">_process_meta_fmu_realization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the realization metadata.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_realname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;self._realname has not been set.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_realization_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;self._realization_id has not been set.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># in future, allowing for realizations without iterations may be needed.</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;self._iteration_id has not been set.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;self._case_uuid has not been set.&quot;</span><span class="p">)</span>
+
+        <span class="n">r_meta</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+        <span class="n">r_meta</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_realization_id</span>
+        <span class="n">r_meta</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_realname</span>
+        <span class="n">r_meta</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">uuid_from_string</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_iteration_id</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_realization_id</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Note! export of the &quot;jobs&quot; content is paused. This exports a large amount</span>
+        <span class="c1"># of data to outgoing metadata, which puts strain on downstream usage. Until</span>
+        <span class="c1"># clear use case is present, halt the export.</span>
+
+        <span class="c1"># r_meta[&quot;jobs&quot;] = self._ert[&quot;jobs&quot;]</span>
+        <span class="n">r_meta</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ert</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Got metadata for fmu:realization&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Realiz. meta: </span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r_meta</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">r_meta</span>
+
+    <span class="k">def</span> <span class="nf">_process_meta_fmu_case</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process fmu.case&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;self._casepath has not been set&quot;</span><span class="p">)</span>
+
+        <span class="n">casemetaroot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="o">/</span> <span class="s2">&quot;share&quot;</span> <span class="o">/</span> <span class="s2">&quot;metadata&quot;</span> <span class="o">/</span> <span class="s2">&quot;fmu_case&quot;</span>
 
         <span class="c1"># may be json or yml</span>
         <span class="n">casemetafile</span> <span class="o">=</span> <span class="kc">None</span>
@@ -794,6 +924,10 @@
             <span class="n">casemetafile</span> <span class="o">=</span> <span class="n">casemetaroot</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">casemetafile</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                 <span class="k">break</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;casemetafile is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">casemetafile</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;casemetafile exists: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">casemetafile</span><span class="o">.</span><span class="n">is_file</span><span class="p">())</span>
+
         <span class="k">if</span> <span class="n">casemetafile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">casemetafile</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Read existing case metadata from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">casemetafile</span><span class="p">))</span>
 
@@ -802,6 +936,7 @@
 
             <span class="n">c_meta</span> <span class="o">=</span> <span class="n">inmeta</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;case&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Case metadata not found, issuing warning&quot;</span><span class="p">)</span>
             <span class="c1"># allow case metadata to be missing but issue a warning; consider this</span>
             <span class="c1"># as a tmp solution as long as fmu-dataio/sumo is under development!</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -813,42 +948,12 @@
             <span class="c1"># make a fake case name / uuid</span>
             <span class="n">c_meta</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;MISSING!&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;0000000-0000-0000-0000-000000000000&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;not-a-valid-uuid&quot;</span><span class="p">,</span>
             <span class="p">}</span>
 
-        <span class="c1"># ------------------------------------------------------------------------------</span>
-        <span class="c1"># get the iteration metadata</span>
-        <span class="n">runid</span> <span class="o">=</span> <span class="n">ertjob</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">][</span><span class="s2">&quot;run_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
-        <span class="n">i_meta</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-        <span class="n">i_meta</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">uuid_from_string</span><span class="p">(</span><span class="n">c_meta</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">iterfolder</span><span class="p">)</span>
-        <span class="n">i_meta</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">if</span> <span class="s2">&quot;iter-&quot;</span> <span class="ow">in</span> <span class="n">iterfolder</span><span class="p">:</span>
-            <span class="n">i_meta</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">iterfolder</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;iter-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-        <span class="n">i_meta</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iterfolder</span>
-        <span class="n">i_meta</span><span class="p">[</span><span class="s2">&quot;runid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">runid</span>
-
-        <span class="c1"># ------------------------------------------------------------------------------</span>
-        <span class="c1"># get the realization metadata</span>
-        <span class="n">r_meta</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-        <span class="n">r_meta</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">therealization</span><span class="p">)</span>
-        <span class="n">r_meta</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">realfolder</span>
-        <span class="n">r_meta</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">uuid_from_string</span><span class="p">(</span>
-            <span class="n">c_meta</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i_meta</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">r_meta</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Note! export of the &quot;jobs&quot; content is paused. This exports a large amount</span>
-        <span class="c1"># of data to outgoing metadata, which puts strain on downstream usage. Until</span>
-        <span class="c1"># clear use case is present, halt the export.</span>
-
-        <span class="c1"># r_meta[&quot;jobs&quot;] = ertjob[&quot;jobs&quot;]</span>
-        <span class="n">r_meta</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ertjob</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Got metadata for fmu:realization&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Case meta: </span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">c_meta</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">))</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Iteration meta: </span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">i_meta</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">))</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Realiz. meta: </span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r_meta</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">c_meta</span><span class="p">,</span> <span class="n">i_meta</span><span class="p">,</span> <span class="n">r_meta</span>
+        <span class="k">return</span> <span class="n">c_meta</span>
 
     <span class="k">def</span> <span class="nf">_get_folderlist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return a list of pure folder names including current PWD up to system root.</span>
@@ -1201,7 +1306,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.3.dev2+g04d9e0a).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.3.dev3+g6140b25).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
