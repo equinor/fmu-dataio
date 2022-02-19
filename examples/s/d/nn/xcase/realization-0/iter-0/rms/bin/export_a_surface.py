@@ -14,14 +14,18 @@ import fmu.dataio as dataio
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
 
-INPUT_FOLDER = Path("../output/maps/props")
-FILE = "poro_average.gri"
+FILES = [
+    "../output/maps/props/poro_average.gri",
+    "../output/maps/structure/topvolantis--ds_extract_geogrid.gri",
+]
 
 
 def main():
-    """Exporting maps from clipboard"""
+    """Exporting maps from RMS"""
 
-    surf = xtgeo.surface_from_file(INPUT_FOLDER / FILE)
+    # Export a property map
+
+    surf = xtgeo.surface_from_file(FILES[0])
     print(f"Average value of map is {surf.values.mean()}")
 
     ed = dataio.ExportData(
@@ -38,6 +42,27 @@ def main():
     )
     fname = ed.export(surf, name="all")  # note that 'name' here will be used
     print(f"File name is {fname}")
+
+    # Export a structural map
+
+    print("Export a depth map...")
+    surf = xtgeo.surface_from_file(FILES[1])
+    print(f"Average value of map is {surf.values.mean()}")
+
+    ed = dataio.ExportData(
+        config=CFG,
+        name="TopVolantis",  # will be translated to strat column name
+        unit="m",
+        vertical_domain={"depth": "msl"},
+        content="depth",
+        timedata=None,
+        is_prediction=True,
+        is_observation=False,
+        tagname="ds_extract_geogrid",
+        workflow="rms structural model",
+    )
+    fname = ed.export(surf)
+    print(f"Structural map file name is {fname}")
 
 
 if __name__ == "__main__":
