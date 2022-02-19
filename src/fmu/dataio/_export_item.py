@@ -184,8 +184,8 @@ class _ExportItem:
         if self.verbosity is None:
             self.verbosity = "WARNING"  # fallback
 
-        self.realfolder = dataio.realfolder
-        self.iterfolder = dataio.iterfolder
+        self.realname = dataio.realname
+        self.itername = dataio.itername
         self.createfolder = dataio.createfolder
 
         if subfolder is not None:
@@ -1047,9 +1047,11 @@ class _ExportItem:
 
         useroot = self.dataio.runpath.resolve()
         logger.info("The useroot (initial) is %s", useroot)
-        if self.iterfolder:
+        if self.itername:
             useroot = (useroot / "../..").resolve()
             logger.info("The useroot (updated) is %s", useroot)
+        else:
+            logger.info("No itername, so not updating useroot")
 
         relpath = abspath.relative_to(useroot)
 
@@ -1147,7 +1149,7 @@ class _ExportItem:
         allmeta["fmu"] = dataio.metadata4fmu
         allmeta["data"] = dataio.metadata4data
         allmeta["display"] = dataio.metadata4display
-        logger.debug("\n%s", json.dumps(allmeta, indent=2, default=str))
+        # logger.debug("\n%s", json.dumps(allmeta, indent=2, default=str))
 
         logger.info("Collect all metadata, done")
         return allmeta
