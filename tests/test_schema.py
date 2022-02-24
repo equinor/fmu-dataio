@@ -70,14 +70,22 @@ def test_schema_080_file_block():
     # shall validate as-is
     jsonschema.validate(instance=metadata, schema=schema)
 
+    # shall validate without absolute_path
+    del metadata["file"]["absolute_path"]
+    jsonschema.validate(instance=metadata, schema=schema)
+
     # md5 checksum shall be a string
     metadata["file"]["checksum_md5"] = 123.4
     with pytest.raises(jsonschema.exceptions.ValidationError):
         jsonschema.validate(instance=metadata, schema=schema)
 
-    # shall validate without checksum_md5 and absolute_path
+    # shall not validate without checksum_md5
     del metadata["file"]["checksum_md5"]
-    del metadata["file"]["absolute_path"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=metadata, schema=schema)
+
+    # shall validate when checksum is put back in
+    metadata["file"]["checksum_md5"] = "somechecksum"
     jsonschema.validate(instance=metadata, schema=schema)
 
     # shall not validate without relative_path

@@ -30,7 +30,8 @@
         "fmu.realization.uuid",
         "fmu.aggregation.operation",
         "fmu.aggregation.realization_ids",
-        "file.relative_path"
+        "file.relative_path",
+        "file.checksum_md5"
     ],
     "definitions": {
         "generic": {
@@ -1020,7 +1021,8 @@
             "$comment": "A lot of logic exists on top of the file name now, legacy but not likely to disappear soon",
             "type": "object",
             "required": [
-                "relative_path"
+                "relative_path",
+                "checksum_md5"
             ],
             "properties": {
                 "relative_path": {
@@ -1038,7 +1040,7 @@
                     ]
                 },
                 "checksum_md5": {
-                    "description": "md5 checksum of the file as it appears on disk",
+                    "description": "md5 checksum of the file or bytestring",
                     "type": "string",
                     "examples": [
                         "kjhsdfvsdlfk23knerknvk23"
