@@ -6,7 +6,7 @@ an FMU run to files with metadata, ready for uploading in SUMO
 
 The library works both inside RMS and outside RMS.
 
-Static and object-specific metadata
+Static and dynamic metadata
 -----------------------------------
 
 Metadata are in general "additional data about the data". For instance a pure surface
@@ -14,22 +14,17 @@ export file (e.g. irap binary) will have information about data itself (like
 values in the map, and bounding box) but the file have no idea of which FMU run it
 belongs to, or which field it comes from.
 
-Some metadata contents are *static for the model*, meaning that they will be
-the same for all runs of a specific model setup. Examples are masterdata relations
-(**field**, **country**, etc).
+For an export some of the metadata are *static*, which mean that it will note change for
+a run. Typical static metadata are field, country and coordinate system information
 
-Some metadata contents are *static to the FMU case*, meaning that they will be the same
-for all data belonging to a specific case. Example: Metadata about the case itself.
-
-Other metadata are object-specific, i.e. they will vary per item which is exported. For
-instance, content metadata are object-specific as some surfaces are in depth domain, some in
+Other metadata are dynamic, i.e. they will vary per item which is exported. For
+instance, content metadata are dynamic as some surfaces are in depth domain, some in
 time and other represents e.g. an average property.
 
 Basicly it works like this in a FMU run:
 
-    * *Metadata static for the model* comes from the fmu-config YAML file.
-    * *Metadata static for the case* comes from ERT.
-    * *Object-specific metadata* must be provided in the export.
+    * Static metadata comes from the fmuconfig YAML file.
+    * Dynamic metadata must be provided in the export
 
 The metadata is materialized as .yaml-files together with the actual data files, as
 described in the FMU standard. This means that for each file, e.g. an exported surface

@@ -29,7 +29,7 @@ extensions = [
     "sphinx_togglebutton",
 ]
 
-togglebutton_hint = "Expand"
+togglebutton_hint = "YAML file: "
 
 apidoc_module_dir = "../src/fmu/dataio"
 apidoc_output_dir = "apiref"
