@@ -56,6 +56,36 @@ def test_schema_080_validate_examples_as_is():
         jsonschema.validate(instance=example, schema=schema)
 
 
+def test_schema_080_file_block():
+    """Test variations on the file block."""
+
+    # parse the schema
+    schema = _parse_json(
+        str(PurePath(TESTDIR, "../schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
+    metadata = _parse_yaml(
+        TESTDIR / "../schema/definitions/0.8.0/examples/surface_depth.yml"
+    )
+
+    # shall validate as-is
+    jsonschema.validate(instance=metadata, schema=schema)
+
+    # md5 checksum shall be a string
+    metadata["file"]["checksum_md5"] = 123.4
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=metadata, schema=schema)
+
+    # shall validate without checksum_md5 and absolute_path
+    del metadata["file"]["checksum_md5"]
+    del metadata["file"]["absolute_path"]
+    jsonschema.validate(instance=metadata, schema=schema)
+
+    # shall not validate without relative_path
+    del metadata["file"]["relative_path"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=metadata, schema=schema)
+
+
 def test_schema_080_logic_case():
     """Asserting validation failure when illegal contents in case example"""
 

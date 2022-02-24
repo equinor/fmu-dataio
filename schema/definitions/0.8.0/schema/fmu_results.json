@@ -30,7 +30,7 @@
         "fmu.realization.uuid",
         "fmu.aggregation.operation",
         "fmu.aggregation.realization_ids",
-        "file"
+        "file.relative_path"
     ],
     "definitions": {
         "generic": {
@@ -1020,9 +1020,7 @@
             "$comment": "A lot of logic exists on top of the file name now, legacy but not likely to disappear soon",
             "type": "object",
             "required": [
-                "relative_path",
-                "absolute_path",
-                "checksum_md5"
+                "relative_path"
             ],
             "properties": {
                 "relative_path": {
