@@ -1,7 +1,7 @@
 The FMU results data model
 ##########################
 
-This section described the data model used for FMU results when exporting with
+This section describes the data model used for FMU results when exporting with
 fmu-dataio. For the time being, the data model is hosted as part of fmu-datio.
 
   The data model described herein is new and shiny, and experimental in many aspects.
@@ -33,13 +33,13 @@ of using in other contexts a metadata instance pertaining to this definition wil
 created.
 
 About the data model
-===================
+====================
 
 Why is it made?
 ---------------
 
 FMU is a mighty system developed by and for the subsurface community in Equinor, to
-make reservoir modeling more effective, less error-prone and more repeatable with higher quality,
+make reservoir modeling more efficient, less error-prone and more repeatable with higher quality,
 mainly through automation of cross-disciplinary workflows.
 
 FMU is defined more and more by the data it produces, and direct and indirect dependencies on
