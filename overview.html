@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overview &mdash; fmu.dataio 0.10.3.dev4+g8651508 documentation</title>
+  <title>Overview &mdash; fmu.dataio 0.10.3.dev5+ga28cb9f documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -16,7 +16,7 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script>let toggleHintShow = 'YAML file: ';</script>
+        <script>let toggleHintShow = 'Expand';</script>
         <script>let toggleHintHide = 'Click to hide';</script>
         <script>let toggleOpenOnPrint = 'true';</script>
         <script src="_static/togglebutton.js"></script>
@@ -45,12 +45,13 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#static-and-dynamic-metadata">Static and dynamic metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#static-and-object-specific-metadata">Static and object-specific metadata</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#prepare-fmu-config">Prepare fmu-config</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apiref/modules.html">API reference for fmu.dataio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datamodel.html">The FMU results data model</a></li>
 </ul>
 
         </div>
@@ -82,24 +83,39 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">fmu-dataio</span></code> library works as an engine to transfer data (results) from
 an FMU run to files with metadata, ready for uploading in SUMO</p>
 <p>The library works both inside RMS and outside RMS.</p>
-<section id="static-and-dynamic-metadata">
-<h2>Static and dynamic metadata<a class="headerlink" href="#static-and-dynamic-metadata" title="Permalink to this headline"></a></h2>
+<section id="static-and-object-specific-metadata">
+<h2>Static and object-specific metadata<a class="headerlink" href="#static-and-object-specific-metadata" title="Permalink to this headline"></a></h2>
 <p>Metadata are in general “additional data about the data”. For instance a pure surface
 export file (e.g. irap binary) will have information about data itself (like
 values in the map, and bounding box) but the file have no idea of which FMU run it
 belongs to, or which field it comes from.</p>
-<p>For an export some of the metadata are <em>static</em>, which mean that it will note change for
-a run. Typical static metadata are field, country and coordinate system information</p>
-<p>Other metadata are dynamic, i.e. they will vary per item which is exported. For
-instance, content metadata are dynamic as some surfaces are in depth domain, some in
+<p>Some metadata contents are <em>static for the model</em>, meaning that they will be
+the same for all runs of a specific model setup. Examples are masterdata relations
+(<strong>field</strong>, <strong>country</strong>, etc).</p>
+<p>Some metadata contents are <em>static to the FMU case</em>, meaning that they will be the same
+for all data belonging to a specific case. Example: Metadata about the case itself.</p>
+<p>Other metadata are object-specific, i.e. they will vary per item which is exported. For
+instance, content metadata are object-specific as some surfaces are in depth domain, some in
 time and other represents e.g. an average property.</p>
 <p>Basicly it works like this in a FMU run:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Static metadata comes from the fmuconfig YAML file.</p></li>
-<li><p>Dynamic metadata must be provided in the export</p></li>
+<li><p><em>Metadata static for the model</em> comes from the fmu-config YAML file.</p></li>
+<li><p><em>Metadata static for the case</em> comes from ERT.</p></li>
+<li><p><em>Object-specific metadata</em> must be provided in the export.</p></li>
 </ul>
 </div></blockquote>
+<p>The metadata is materialized as .yaml-files together with the actual data files, as
+described in the FMU standard. This means that for each file, e.g. an exported surface
+called <cite>my_surface.gri</cite> there will be a corresponding .yaml file called <cite>.mysurface.gri.yml</cite>.</p>
+<p>The data model used for FMU results is a partly denormalized data model, meaning that some
+static data will be repeated across many data objects. Example: Each exported data object contains
+basic information about the FMU case it belongs to, such as a unique ID for this case,
+its name, the user that made it, which model template was used, etc. This information
+if stored in <em>every</em> exported .yml file. This may seem counter-intuitive and differs
+from a relational database (where this information would typically be stored once, and
+refered to when needed).</p>
+<p>The FMU results data model is further documented <a class="reference external" href="./datamodel.html">here</a></p>
 </section>
 <section id="prepare-fmu-config">
 <h2>Prepare fmu-config<a class="headerlink" href="#prepare-fmu-config" title="Permalink to this headline"></a></h2>
@@ -118,7 +134,7 @@ time and other represents e.g. an average property.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.3.dev4+g8651508).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.3.dev5+ga28cb9f).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

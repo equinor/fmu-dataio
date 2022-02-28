@@ -9,6 +9,7 @@ Contents:
    overview
    examples
    apiref/modules
+   datamodel
 
 Indices and tables
 ==================
