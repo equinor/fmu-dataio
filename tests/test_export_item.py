@@ -409,6 +409,52 @@ def test_data_process_content_fluid_contact():
     obj = xtgeo.Polygons()
 
 
+def test_data_process_tagname():
+    """Test the data.tagname entry."""
+
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content="depth",
+        tagname="what_ever",  # valid tagname
+    )
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem._data_process_tagname()
+    assert dataio.metadata4data["tagname"] == "what_ever"
+
+    # allow tagname not given, shall then not be in metadata
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content="depth",
+    )
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+    exportitem._data_process_tagname()
+    assert "tagname" not in dataio.metadata4data
+
+    # give warning when tagname is not proper, then correct it
+    dataio = fmu.dataio.ExportData(
+        name="Valysar",
+        config=CFG2,
+        content="depth",
+        tagname="wha t.EvEr",  # non-valid tagname
+    )
+    obj = xtgeo.RegularSurface(
+        name="SomeName", ncol=3, nrow=4, xinc=22, yinc=22, values=0
+    )
+    exportitem = ei._ExportItem(dataio, obj, verbosity="INFO")
+
+    with pytest.warns(UserWarning, match="shall be lowercase"):
+        exportitem._data_process_tagname()
+    assert dataio.metadata4data["tagname"] == "wha_t_ever"
+
+
 def test_display_name():
     """Test the display.name.
 

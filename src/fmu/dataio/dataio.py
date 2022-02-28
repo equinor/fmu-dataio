@@ -952,7 +952,7 @@ class ExportData:
                 is "Valysar Top Fm." that latter name will be used.
             unit: Is the unit of the exported item(s), e.g. "m" or "fraction".
             tagname: Override any setting in class initialization. This is a short
-                tag description which be be a part of file name.
+                tag description which will be a part of file name and data.tagname.
             parent: Override any setting in class initialization. This key is
                 required for datatype GridProperty, and refers to the name of the
                 grid geometry.
