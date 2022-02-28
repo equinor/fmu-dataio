@@ -13,7 +13,7 @@
         "data.stratigraphic_alias",
         "data.offset",
         "data.content",
-        "data.tag",
+        "data.tagname",
         "data.vertical_domain",
         "data.grid_model",
         "data.bbox",
@@ -160,7 +160,6 @@
             "title": "The data block",
             "required": [
                 "content",
-                "tag",
                 "name",
                 "format",
                 "spec",
@@ -237,7 +236,7 @@
                         "depth"
                     ]
                 },
-                "tag": {
+                "tagname": {
                     "type": "string",
                     "description": "A semi-human readable tag for internal usage and uniqueness",
                     "examples": [
