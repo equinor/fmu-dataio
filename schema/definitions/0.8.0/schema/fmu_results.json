@@ -30,7 +30,8 @@
         "fmu.realization.uuid",
         "fmu.aggregation.operation",
         "fmu.aggregation.realization_ids",
-        "file"
+        "file.relative_path",
+        "file.checksum_md5"
     ],
     "definitions": {
         "generic": {
@@ -1021,7 +1022,6 @@
             "type": "object",
             "required": [
                 "relative_path",
-                "absolute_path",
                 "checksum_md5"
             ],
             "properties": {
@@ -1040,7 +1040,7 @@
                     ]
                 },
                 "checksum_md5": {
-                    "description": "md5 checksum of the file as it appears on disk",
+                    "description": "md5 checksum of the file or bytestring",
                     "type": "string",
                     "examples": [
                         "kjhsdfvsdlfk23knerknvk23"

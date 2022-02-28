@@ -186,8 +186,8 @@ class _ExportItem:
         if self.verbosity is None:
             self.verbosity = "WARNING"  # fallback
 
-        self.realfolder = dataio.realfolder
-        self.iterfolder = dataio.iterfolder
+        self.realname = dataio.realname
+        self.itername = dataio.itername
         self.createfolder = dataio.createfolder
 
     def save_to_file(self) -> str:
@@ -1041,9 +1041,11 @@ class _ExportItem:
 
         useroot = self.dataio.runpath.resolve()
         logger.info("The useroot (initial) is %s", useroot)
-        if self.iterfolder:
+        if self.itername:
             useroot = (useroot / "../..").resolve()
             logger.info("The useroot (updated) is %s", useroot)
+        else:
+            logger.info("No itername, so not updating useroot")
 
         relpath = abspath.relative_to(useroot)
 
