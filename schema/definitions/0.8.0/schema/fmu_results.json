@@ -13,6 +13,7 @@
         "data.stratigraphic_alias",
         "data.offset",
         "data.content",
+        "data.tag",
         "data.vertical_domain",
         "data.grid_model",
         "data.bbox",
@@ -159,6 +160,7 @@
             "title": "The data block",
             "required": [
                 "content",
+                "tag",
                 "name",
                 "format",
                 "spec",
@@ -233,6 +235,14 @@
                     "description": "The contents of this data object",
                     "examples": [
                         "depth"
+                    ]
+                },
+                "tag": {
+                    "type": "string",
+                    "description": "A semi-human readable tag for internal usage and uniqueness",
+                    "examples": [
+                        "ds_extract_geogrid",
+                        "ds_post_strucmod"
                     ]
                 },
                 "properties": {

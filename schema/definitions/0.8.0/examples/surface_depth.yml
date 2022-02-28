@@ -96,8 +96,11 @@ data: # The data block describes the actual data (e.g. surface). Only present in
     - somename_fm_1_top
     - top_somename
 
-  # content is flexible more than standardized for now.
+  # content is white-listed and standardized
   content: depth
+
+  # tag is flexible. The tag is intended primarily for providing uniqueness. The tagname will also be part of the outgoing file name on disk.
+  tag: ds_extract_geogrid
 
   # no content-specific attribute for "depth" but can come in the future
 
