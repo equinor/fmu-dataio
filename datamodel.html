@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 0.10.3.dev6+gae3d3ad documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 0.10.3.dev7+g1370ec0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -135,6 +135,7 @@ uploaded to e.g. Sumo, validation will be done on the incoming data to ensure co
         <span class="s2">&quot;data.stratigraphic_alias&quot;</span><span class="p">,</span>
         <span class="s2">&quot;data.offset&quot;</span><span class="p">,</span>
         <span class="s2">&quot;data.content&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data.tagname&quot;</span><span class="p">,</span>
         <span class="s2">&quot;data.vertical_domain&quot;</span><span class="p">,</span>
         <span class="s2">&quot;data.grid_model&quot;</span><span class="p">,</span>
         <span class="s2">&quot;data.bbox&quot;</span><span class="p">,</span>
@@ -355,6 +356,14 @@ uploaded to e.g. Sumo, validation will be done on the incoming data to ensure co
                     <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;The contents of this data object&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;examples&quot;</span><span class="o">:</span> <span class="p">[</span>
                         <span class="s2">&quot;depth&quot;</span>
+                    <span class="p">]</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;tagname&quot;</span><span class="o">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;A semi-human readable tag for internal usage and uniqueness&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;examples&quot;</span><span class="o">:</span> <span class="p">[</span>
+                        <span class="s2">&quot;ds_extract_geogrid&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ds_post_strucmod&quot;</span>
                     <span class="p">]</span>
                 <span class="p">},</span>
                 <span class="s2">&quot;properties&quot;</span><span class="o">:</span> <span class="p">{</span>
@@ -2026,8 +2035,11 @@ actual schema.</p>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">somename_fm_1_top</span><span class="w"></span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">top_somename</span><span class="w"></span>
 
-<span class="w">  </span><span class="c1"># content is flexible more than standardized for now.</span><span class="w"></span>
+<span class="w">  </span><span class="c1"># content is white-listed and standardized</span><span class="w"></span>
 <span class="w">  </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">depth</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1"># tagname is flexible. The tag is intended primarily for providing uniqueness. The tagname will also be part of the outgoing file name on disk.</span><span class="w"></span>
+<span class="w">  </span><span class="nt">tagname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ds_extract_geogrid</span><span class="w"></span>
 
 <span class="w">  </span><span class="c1"># no content-specific attribute for &quot;depth&quot; but can come in the future</span><span class="w"></span>
 
@@ -2161,7 +2173,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.3.dev6+gae3d3ad).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.3.dev7+g1370ec0).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
