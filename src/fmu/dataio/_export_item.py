@@ -133,6 +133,7 @@ class _ExportItem:
         dataio,
         obj,
         subfolder=None,
+        forcefolder=None,
         verbosity="WARNING",
         include_index=False,
         name=None,
@@ -153,6 +154,7 @@ class _ExportItem:
         self.display_name = _override_arg(dataio, "display_name", display_name)
         self.unit = _override_arg(dataio, "unit", unit)
         self.subfolder = _override_arg(dataio, "subfolder", subfolder)
+        self.forcefolder = _override_arg(dataio, "forcefolder", forcefolder)
         self.verbosity = _override_arg(dataio, "verbosity", verbosity)
         self.include_index = _override_arg(
             dataio, "include_index", include_index, default=False
@@ -187,13 +189,6 @@ class _ExportItem:
         self.realname = dataio.realname
         self.itername = dataio.itername
         self.createfolder = dataio.createfolder
-
-        if subfolder is not None:
-            warnings.warn(
-                "Exporting to a subfolder is a deviation from the standard "
-                "and could have consequences for later dependencies",
-                UserWarning,
-            )
 
     def save_to_file(self) -> str:
         """Save (export) an instance to file with rich metadata.
@@ -1000,6 +995,10 @@ class _ExportItem:
 
         dest = outroot / loc
 
+        # override in case of forcefolder!
+        if self.forcefolder:
+            dest = self.forcefolder
+
         if self.subfolder:
             dest = dest / self.subfolder
 
@@ -1037,7 +1036,7 @@ class _ExportItem:
             (Path(filepath) / ("." + filestem.lower())).with_suffix(ext + ".yml")
         ).resolve()
 
-        # get the relative path (relative to runptah if interactive, and to casedir
+        # get the relative path (relative to runpath if interactive, and to casedir
         # if this is an ERT run)
 
         useroot = self.dataio.runpath.resolve()
