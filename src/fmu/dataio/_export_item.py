@@ -280,6 +280,7 @@ class _ExportItem:
         self._data_process_parent()
         self._data_process_timedata()
         self._data_process_description()
+        self._data_process_tagname()
         self._data_process_various()
 
     def _data_process_name(self):
@@ -582,6 +583,41 @@ class _ExportItem:
             meta["description"] = [str(item) for item in self.description]
         elif isinstance(self.description, str):
             meta["description"] = [self.description]
+
+    def _data_process_tagname(self):
+        """Process the data.tagname attribute.
+
+        The tagname will be included in outgoing filename if file is exported, and will
+        then be made filename-friendly. The tagname used in the file shall be identical
+        to the one used in data.tagname. Therefore, we will require that incoming
+        tagname is filename friendly.
+
+        For now we will change it with a warning.
+
+        # TODO align this with similar operation in _construct_filename_fmustandard1()
+
+        """
+
+        if self.tagname is None:
+            logger.debug("Incoming tagname is None - returning")
+            return
+
+        meta = self.dataio.metadata4data  # short form
+
+        logger.debug("Incoming tagname is %s", self.tagname)
+
+        tagname = self.tagname.lower().replace(" ", "_").replace(".", "_")
+
+        if tagname != self.tagname:
+            logger.debug("Tagname was changed to %s", tagname)
+            warnings.warn(
+                "'tagname' shall be lowercase and not contain special characters."
+                "The provided tagname will be changed to {tagname}."
+                "In future versions, illegal characters in tagname will not be allowed",
+                UserWarning,
+            )
+
+        meta["tagname"] = tagname
 
     def _data_process_various(self):
         """Process "all the rest" of the generic items.
