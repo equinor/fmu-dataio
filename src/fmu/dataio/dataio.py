@@ -119,7 +119,8 @@ class ExportData:
         content: Is a string or a dictionary with one key. Example is "depth" or
             {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}
         subfolder: It is possible to set one level of subfolders for file output.
-            The input will only accept a single folder name, i.e. no paths
+            The input should only accept a single folder name, i.e. no paths. If
+            paths are present, a deprecation warning will be raised.
         forcefolder: This setting shall only be used as exception, and will make it
             possible to output to a non-standard folder. A ``/`` in front will indicate
             an absolute path; otherwise it will be relative to RUNPATH. Use with care.
@@ -293,9 +294,12 @@ class ExportData:
             return
 
         if "/" in foldername:
-            raise ValueError(
-                "The subfolder input contains '/' which is illegal. Consider using"
-                "the forcefolder key instead if paths are required."
+            warnings.warn(
+                "The subfolder input contains a path reference '/' which is currently "
+                "allowed, but is an antipattern. In future versions only subfolder "
+                "names without path references will be allowed. Consider using "
+                "the 'forcefolder' key instead if special paths are required.",
+                UserWarning,
             )
         else:
             warnings.warn(

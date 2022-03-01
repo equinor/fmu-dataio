@@ -163,7 +163,7 @@ def test_surface_io_export_subfolder(tmp_path):
     ).is_file() is True
 
 
-def test_surface_io_export_subfolder_illegal(tmp_path):
+def test_surface_io_export_subfolder_w_path_warn(tmp_path):
     """Minimal test surface io with sufolder, using illegal path."""
 
     srf = xtgeo.RegularSurface(
@@ -172,8 +172,8 @@ def test_surface_io_export_subfolder_illegal(tmp_path):
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
     exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
-    with pytest.raises(ValueError):
-        exp.export(srf, subfolder="../mysubfolder")
+    # with pytest.warns(UserWarning):
+    exp.export(srf, subfolder="../mysubfolder")
 
 
 def test_surface_io_export_forcefolder_absolute(tmp_path):
