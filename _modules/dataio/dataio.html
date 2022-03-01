@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.10.3.dev5+ga28cb9f documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.10.3.dev6+gae3d3ad documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -193,6 +193,11 @@
 <span class="sd">        content: Is a string or a dictionary with one key. Example is &quot;depth&quot; or</span>
 <span class="sd">            {&quot;fluid_contact&quot;: {&quot;xxx&quot;: &quot;yyy&quot;, &quot;zzz&quot;: &quot;uuu&quot;}}</span>
 <span class="sd">        subfolder: It is possible to set one level of subfolders for file output.</span>
+<span class="sd">            The input should only accept a single folder name, i.e. no paths. If</span>
+<span class="sd">            paths are present, a deprecation warning will be raised.</span>
+<span class="sd">        forcefolder: This setting shall only be used as exception, and will make it</span>
+<span class="sd">            possible to output to a non-standard folder. A ``/`` in front will indicate</span>
+<span class="sd">            an absolute path; otherwise it will be relative to RUNPATH. Use with care.</span>
 <span class="sd">        include_index: This applies to Pandas (table) data only, and if True then the</span>
 <span class="sd">            index column will be exported.</span>
 <span class="sd">        vertical_domain: This is dictionary with a key and a reference e.g.</span>
@@ -252,6 +257,7 @@
         <span class="n">is_prediction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_observation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">subfolder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forcefolder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">timedata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">include_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">vertical_domain</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -284,7 +290,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertical_domain</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">}</span> <span class="k">if</span> <span class="n">vertical_domain</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vertical_domain</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_subfolder</span> <span class="o">=</span> <span class="n">subfolder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subfolder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_subfolder</span><span class="p">(</span><span class="n">subfolder</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_include_index</span> <span class="o">=</span> <span class="n">include_index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_workflow</span> <span class="o">=</span> <span class="n">workflow</span>
 
@@ -324,6 +330,9 @@
         <span class="c1"># run private method for processing the pwd</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_pwd_runpath</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
+        <span class="c1"># need to set/check forcefolder after RUNPATH is set:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_forcefolder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_forcefolder</span><span class="p">(</span><span class="n">forcefolder</span><span class="p">)</span>
+
         <span class="c1"># define chunks of metadata for primary first order categories</span>
         <span class="c1"># (except class which is set directly later)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata4strat</span> <span class="o">=</span> <span class="kc">None</span>
@@ -352,6 +361,54 @@
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Create instance of ExportData&quot;</span><span class="p">)</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_subfolder</span><span class="p">(</span><span class="n">foldername</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check and verify subfolder.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">foldername</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">foldername</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The subfolder input contains a path reference &#39;/&#39; which is currently &quot;</span>
+                <span class="s2">&quot;allowed, but is an antipattern. In future versions only subfolder &quot;</span>
+                <span class="s2">&quot;names without path references will be allowed. Consider using &quot;</span>
+                <span class="s2">&quot;the &#39;forcefolder&#39; key instead if special paths are required.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Exporting to a subfolder is a deviation from the standard &quot;</span>
+                <span class="s2">&quot;and could have consequences for later dependencies&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">foldername</span>
+
+    <span class="k">def</span> <span class="nf">_check_forcefolder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">foldername</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check and verify forcefolder path, and always return an absolute path.</span>
+
+<span class="sd">        In case &#39;/some/path&#39; the path is considered to be absolute</span>
+<span class="sd">        In case &#39;some/path&#39; the path is considered to be relative to RUNPATH</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">foldername</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">foldername</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The forcefolder input must be a string&quot;</span><span class="p">)</span>
+
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Using the forcefolder key shall only be done in exceptional cases&quot;</span><span class="p">,</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">foldername</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
+            <span class="c1"># this is a brutal force as it also resets runpath!</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The runpath is reset! </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">foldername</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runpath</span> <span class="o">/</span> <span class="n">foldername</span>
+
     <span class="c1"># ==================================================================================</span>
     <span class="c1"># Private attributes that are or may be exposed read-only for other classes</span>
 
@@ -379,6 +436,11 @@
     <span class="k">def</span> <span class="nf">subfolder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return subfolder name.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subfolder</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">forcefolder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return forcefolder name.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forcefolder</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">include_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -988,6 +1050,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
         <span class="n">subfolder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forcefolder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">verbosity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1046,7 +1109,8 @@
         <span class="n">exporter</span> <span class="o">=</span> <span class="n">_ExportItem</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">obj</span><span class="p">,</span>
-            <span class="n">subfolder</span><span class="o">=</span><span class="n">subfolder</span><span class="p">,</span>
+            <span class="n">subfolder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_check_subfolder</span><span class="p">(</span><span class="n">subfolder</span><span class="p">),</span>
+            <span class="n">forcefolder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_check_forcefolder</span><span class="p">(</span><span class="n">forcefolder</span><span class="p">),</span>
             <span class="n">verbosity</span><span class="o">=</span><span class="n">verbosity</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
@@ -1307,7 +1371,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.3.dev5+ga28cb9f).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.3.dev6+gae3d3ad).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
