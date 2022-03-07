@@ -167,6 +167,23 @@ with information about the case - signalling that *this entity* belongs to *this
 the intention of the FMU results data model to maintain *all* information about a case, and 
 in the future it is expected that ERT will serve case information beyond the basics.
 
+    **Dot-annotation** - we like it and use it. This is what it means:
+
+    The metadata structure is a dictionary-like structure, e.g.
+
+    .. code-block:: json
+
+        {
+            "myfirstkey": {
+                "mykey": "myvalue",
+                "anotherkey": "anothervalue"
+                }
+        }
+    
+    ::
+    Annotating tracks along a dictionary can be tricky. With dot-annotation, we can refer to ```mykey``` in the example above as ``myfirstkey.mykey``. This will be a pointer to ``myvalue`` in this case. You will see dot annotation in the explanations of the various metadata blocks below: Now you know what it means!
+
+
 
 Uniqueness
 ----------
