@@ -244,7 +244,7 @@ Example:
             }
           },
           {
-            "$comment": "Conditional schema B - 'if class != case do NOT make myotherproperty required'",
+            "$comment": "Conditional schema B - 'if class != case do NOT make myproperty required'",
             "properties": {
               "myproperty": {
                 "type": "string",
@@ -255,32 +255,10 @@ Example:
     
     ::
 
+For metadata describing a ``case``, requirements are different compared to metadata describing data objects.
 
-
-The following rules are embedded with the schema:
-
-If **class** == **case**, the object is a ``case`` object. For ``case`` objects, the following blocks are required:
- - **fmu.model**
- - **fmu.case**
- - **access.asset** 
- 
-If **class** != **case**, the above are still required, in addition to:
- - **data**
- - **file**
- - **fmu.iteration**
- - **fmu.workflow**
- - **fmu.realization** OR **fmu.realization**
-
-
-  The ``case`` object is special, and should be seen as fundamentally different from the data objects, even
-  if the schema is shared.
-
-
-Content-specific requirements are included for selected contents:
-
-If **data.content** == "fluid_contact", the **data.fluid_contact** field is required.
-If **data.content** == "field_outline", the **data.field_outline** field is required.
-If **data.content** == "seismic", the **data.seismic** field is required.
+For selected contents, a content-specific block under **data** is required. This is implemented for 
+"fluid_contact", "field_outline" and "seismic".
 
 
 
@@ -644,13 +622,6 @@ The following attributes are contractual:
 * fmu.aggregation.realization_ids
 * file.relative_path
 * file.checksum_md5
-
-
-Required vs non-required
-------------------------
-
-Not all attributes are required in all contexts. For details, please refer to the
-actual schema.
 
 
 Metadata example
