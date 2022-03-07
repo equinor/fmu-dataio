@@ -654,7 +654,7 @@ actual schema.
 
 
 Metadata example
-----------------
+================
 
 Expand below to see a full example of valid metadata for surface exported from FMU.
 
@@ -664,6 +664,8 @@ Expand below to see a full example of valid metadata for surface exported from F
       :language: yaml
 
 |
+
+You will find more examples in `fmu-dataio github repository <https://github.com/equinor/fmu-dataio/tree/main/schema/definitions/0.8.0>`__. 
 
 
 FAQ
