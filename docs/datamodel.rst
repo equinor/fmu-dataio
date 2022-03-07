@@ -216,28 +216,76 @@ Logical rules
 -------------
 
 The schema contains some logical rules which are applied during validation. These are
-rules of type "if this, then that". Example: If **data.content** is "field_outline",
-then **data.field_outline** shall be present.
+rules of type "if this, then that". They are, however, not explicitly written (nor readable)
+as such directly. This type of logic is implemented in the schema by explicitly generating
+subschemas that A) are only valid for specific conditions, and B) contain requirements for
+that specific situation. In this manner, one can assure that if a specific condition is
+met, the associated requirements for that condition is used.
+
+Example:
+
+    .. code-block:: json
+
+        "oneOf": [
+          {
+            "$comment": "This is the 'if class == case' schema",
+            "$comment": "If class == case, 'myproperty' is required",
+            "required": [
+              "myproperty"
+            ],
+            "properties": {
+              "class": {
+                "$comment": "This schema will not be valid if class != case",
+                "enum": ["case"]
+                },
+              "myproperty": {
+                "type": "string",
+                "example": "sometext"
+            }
+          },
+          {
+            "$comment": "This is the 'elif class != case' schema",
+            "$comment": "If class != case, 'myproperty' is not required",
+            "properties": {
+              "myproperty": {
+                "type": "string",
+                "example": "sometext"
+            }
+          },
+    
+    ::
+
+
+
+The following rules are embedded with the schema:
+
+If **class** == **case**, the object is a ``case`` object. For ``case`` objects, the following blocks are required:
+ - **fmu.model**
+ - **fmu.case**
+ - **access.asset** 
+ 
+If **class** != **case**, the above are still required, in addition to:
+ - **data**
+ - **file**
+ - **fmu.iteration**
+ - **fmu.workflow**
+ - **fmu.realization** OR **fmu.realization**
+
+
+  The ``case`` object is special, and should be seen as fundamentally different from the data objects, even
+  if the schema is shared.
+
+
+Content-specific requirements are included for selected contents:
+
+If **data.content** == "fluid_contact", the **data.fluid_contact** field is required.
+If **data.content** == "field_outline", the **data.field_outline** field is required.
+If **data.content** == "seismic", the **data.seismic** field is required.
+
 
 
 The metadata structure
 ======================
-
-    **Dot-annotation** - we like it and use it. This is what it means:
-
-    The metadata structure is a dictionary-like structure, e.g.
-
-    .. code-block:: json
-
-        {
-            "myfirstkey": {
-                "mykey": "myvalue",
-                "anotherkey": "anothervalue"
-                }
-        }
-    
-    ::
-    Annotating tracks along a dictionary can be tricky. With dot-annotation, we can refer to ```mykey``` in the example above as ``myfirstkey.mykey``. This will be a pointer to ``myvalue`` in this case. You will see dot annotation in the explanations of the various metadata blocks below: Now you know what it means!
 
 Root attributes
 ---------------
