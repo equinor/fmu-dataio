@@ -229,30 +229,29 @@ Example:
 
         "oneOf": [
           {
-            "$comment": "This is the 'if class == case' schema",
-            "$comment": "If class == case, 'myproperty' is required",
+            "$comment": "Conditional schema A - 'if class == case make myproperty required'",
             "required": [
               "myproperty"
             ],
             "properties": {
               "class": {
-                "$comment": "This schema will not be valid if class != case",
                 "enum": ["case"]
                 },
               "myproperty": {
                 "type": "string",
                 "example": "sometext"
+              }
             }
           },
           {
-            "$comment": "This is the 'elif class != case' schema",
-            "$comment": "If class != case, 'myproperty' is not required",
+            "$comment": "Conditional schema B - 'if class != case do NOT make myotherproperty required'",
             "properties": {
               "myproperty": {
                 "type": "string",
                 "example": "sometext"
+              },
             }
-          },
+        ]
     
     ::
 
