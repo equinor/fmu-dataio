@@ -323,7 +323,13 @@ has the following defined sub-attributes:
 file
 ~~~~
 
-The ``file`` block contains references to this data object as a file on a disk. A filename in this context can be actual, or abstract. Particularly the ``relative_path`` is, and will most likely remain, an important identifier for individual file objects within an FMU case - irrespective of the existance of an actual file system.
+The ``file`` block contains references to this data object as a file on a disk. A filename 
+in this context can be actual, or abstract. Particularly the ``relative_path`` is, and will 
+most likely remain, an important identifier for individual file objects within an FMU 
+case - irrespective of the existance of an actual file system. For this reason, the 
+``relative_path`` - as well as the ``checksum_md5`` will be generated even if a file is
+not saved to disk. The ``absolute_path`` will only be generated in the case of actually
+creating a file on disk and is not required under this schema.
 
 * **file.relative_path**: [path] The path of a file relative to the case root.
 * **file.absolute_path**: [path] The absolute path of a file, e.g. /scratch/field/user/case/etc
@@ -571,7 +577,8 @@ The following attributes are contractual:
 * fmu.realization.uuid
 * fmu.aggregation.operation
 * fmu.aggregation.realization_ids
-* file
+* file.relative_path
+* file.checksum_md5
 
 
 Required vs non-required
