@@ -82,7 +82,7 @@ manager (ERT).
 
 
 Standardized vs anarchy
-----------------------
+-----------------------
 
 Creating a data model for FMU results brings with it some standard. In essence, this
 represents the next evolution of the existing FMU standard. We haven't called it "FMU standard 2.0"
@@ -204,7 +204,7 @@ then **data.field_outline** shall be present.
 
 
 The metadata structure
-===============
+======================
 
     **Dot-annotation** - we like it and use it. This is what it means:
 
@@ -215,16 +215,12 @@ The metadata structure
         {
             "myfirstkey": {
                 "mykey": "myvalue",
-                "anotherkey": "anothervalue",
+                "anotherkey": "anothervalue"
                 }
         }
     
     ::
-
-    Annotating tracks along a dictionary can be tricky. Wit dot-annotation, we can refer
-    to ```mykey``` in the example above as ``myfirstkey.mykey``. This will be a pointer to
-    ``myvalue`` in this case. You will see dot annotation in the explanations of the various metadata blocks below:
-    Now you know what it means!
+    Annotating tracks along a dictionary can be tricky. With dot-annotation, we can refer to ```mykey``` in the example above as ``myfirstkey.mykey``. This will be a pointer to ``myvalue`` in this case. You will see dot annotation in the explanations of the various metadata blocks below: Now you know what it means!
 
 Root attributes
 ---------------
@@ -303,7 +299,7 @@ object was exported. ``fmu.case`` has the following subattributes, and more may 
 
     If an FMU data object is exported outside the case context, this block will not be present.
 
-**fmu.iteration**: The ``fmu.iteration`` block contains information about the iteration this data object belongs to. The ``fmu.iteration`
+**fmu.iteration**: The ``fmu.iteration`` block contains information about the iteration this data object belongs to. The ``fmu.iteration``
 has the following defined sub-attributes:
 
 * **fmu.iteration.id**: [int] The internal ID of the iteration, typically represented by an integer.
