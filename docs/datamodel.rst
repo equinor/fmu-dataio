@@ -357,6 +357,8 @@ The ``data`` block contains information about the data contains in this object.
 * **data.stratigraphic_alias**: [list] A list of strings representing stratigraphic aliases for this *data.name*. E.g. the top of the uppermost member of a formation will be alias to the top of the formation.
 * **data.alias**: [list] Other known-as names for *data.name*. Typically names used within specific software, e.g. RMS and others.
 
+* **data.tagname**: [string] An identifier for this/these data object(s). Similar to the second part of the generated filename in disk-oriented FMU data standard.
+
 * **data.properties**: A list of dictionary objects, where each object describes a property contained by this data object.
   
   * **data.properties.<item>.name**: [string] The name of this property.
