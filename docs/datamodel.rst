@@ -180,8 +180,6 @@ in the future it is expected that ERT will serve case information beyond the bas
                 }
         }
     
-    ::
-
     Annotating tracks along a dictionary can be tricky. With dot-annotation, we can refer to ```mykey``` in the example above as ``myfirstkey.mykey``. This will be a pointer to ``myvalue`` in this case. You will see dot annotation in the explanations of the various metadata blocks below: Now you know what it means!
 
 
