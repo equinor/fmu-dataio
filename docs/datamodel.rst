@@ -4,10 +4,9 @@ The FMU results data model
 This section describes the data model used for FMU results when exporting with
 fmu-dataio. For the time being, the data model is hosted as part of fmu-datio.
 
-  The data model described herein is new and shiny, and experimental in many aspects.
-  Any feedback on this is greatly appreciated. The most effective feedback is to apply
-  the data model, then use the resulting metadata.
-
+The data model described herein is new and shiny, and experimental in many aspects.
+Any feedback on this is greatly appreciated. The most effective feedback is to apply
+the data model, then use the resulting metadata.
 
 The FMU data model is described using a `JSON Schema <https://json-schema.org/>`__ which
 contains rules and definitions for all attributes in the data model. This means, in
@@ -167,20 +166,22 @@ with information about the case - signalling that *this entity* belongs to *this
 the intention of the FMU results data model to maintain *all* information about a case, and 
 in the future it is expected that ERT will serve case information beyond the basics.
 
-    **Dot-annotation** - we like it and use it. This is what it means:
+.. note::
 
-    The metadata structure is a dictionary-like structure, e.g.
+  **Dot-annotation** - we like it and use it. This is what it means:
 
-    .. code-block:: json
+  The metadata structure is a dictionary-like structure, e.g.
 
-        {
-            "myfirstkey": {
-                "mykey": "myvalue",
-                "anotherkey": "anothervalue"
-                }
-        }
-    
-    Annotating tracks along a dictionary can be tricky. With dot-annotation, we can refer to ```mykey``` in the example above as ``myfirstkey.mykey``. This will be a pointer to ``myvalue`` in this case. You will see dot annotation in the explanations of the various metadata blocks below: Now you know what it means!
+  .. code-block:: json
+
+      {
+          "myfirstkey": {
+              "mykey": "myvalue",
+              "anotherkey": "anothervalue"
+              }
+      }
+
+  Annotating tracks along a dictionary can be tricky. With dot-annotation, we can refer to ```mykey``` in the example above as ``myfirstkey.mykey``. This will be a pointer to ``myvalue`` in this case. You will see dot annotation in the explanations of the various metadata blocks below: Now you know what it means!
 
 
 Uniqueness
@@ -205,9 +206,11 @@ Data produced by pre- or post-processes will contain information about the ``cas
 not about ``realization`` implicitly meaning that they belong to a specific
 case but not any specific realizations.
 
-    The ``case`` object is a bit special: It represents the parent object, and records
-    information about the case only. It follows the same patterns as for individual data objects
-    but will not contain the ``data`` block which is mandatory for data objects.
+.. note::
+
+  The ``case`` object is a bit special: It represents the parent object, and records
+  information about the case only. It follows the same patterns as for individual data objects
+  but will not contain the ``data`` block which is mandatory for data objects.
 
 
 Logical rules
@@ -300,9 +303,10 @@ may not make sense or be applicable. Within the fmu-block, there are more blocks
 
 **fmu.model**: The ``fmu.model`` block contains information about the model used. 
 
-    Synonyms for "model" in this context are "template", "setup", etc. The term "model"
-    is ultra-generic but was chosen before e.g. "template" as the latter deviates from
-    daily communications and is, if possible, even more generic than "model".
+.. note::
+  Synonyms for "model" in this context are "template", "setup", etc. The term "model"
+  is ultra-generic but was chosen before e.g. "template" as the latter deviates from
+  daily communications and is, if possible, even more generic than "model".
 
 **fmu.workflow**: The ``fmu.workflow`` block refers to specific subworkflows within the large
 FMU workflow being ran. This has not (yet?) been standardized, mainly due to the lack
@@ -310,17 +314,17 @@ of programmatic access to the workflows being run in important software within F
 One sub-attribute has been defined and is used:
 **fmu.workflow.reference**: A string referring to which workflow this data object was exported by.
 
-*A key usage of* ``fmu.workflow.reference`` *is related to ensuring uniqueness of data objects.*
+.. note:: A key usage of ``fmu.workflow.reference`` is related to ensuring uniqueness of data objects.
 
-    **Example of uniqueness challenge**
-    During an hypothetical FMU workflow, a surface representing a specific horizon in
-    depth is exported multiple times during the run for QC purposes. E.g. a representation
-    of *Volantis Gp. Top* is first exported at the start of the workflow, then 2-3 times during
-    depth conversion to record changes, then at the start of structural modeling, then 4-5
-    times during structural modeling to record changes, then extracted from multiple grids.
+**Example of uniqueness challenge**
+During an hypothetical FMU workflow, a surface representing a specific horizon in
+depth is exported multiple times during the run for QC purposes. E.g. a representation
+of *Volantis Gp. Top* is first exported at the start of the workflow, then 2-3 times during
+depth conversion to record changes, then at the start of structural modeling, then 4-5
+times during structural modeling to record changes, then extracted from multiple grids.
 
-    The end result is 10+ versions of *Volantis Gp. Top* which are identical except from
-    which workflow they were produced.
+The end result is 10+ versions of *Volantis Gp. Top* which are identical except from
+which workflow they were produced by.
 
 **fmu.case**: The ``fmu.case`` block contains information about the case from which this data
 object was exported. ``fmu.case`` has the following subattributes, and more may arrive:
@@ -335,7 +339,7 @@ object was exported. ``fmu.case`` has the following subattributes, and more may 
 * **fmu.case.description**: [list of strings] (a free-text description of this case) (optional)
 * **fmu.case.restart_from**: [uuid] (experimental) The intention with this attribute is to flag when a case is a restart fromm another case. Implementation of this attribute in fmu-dataio is pending alignment with ERT.
 
-    If an FMU data object is exported outside the case context, this block will not be present.
+.. note:: If an FMU data object is exported outside the case context, this block will not be present.
 
 **fmu.iteration**: The ``fmu.iteration`` block contains information about the iteration this data object belongs to. The ``fmu.iteration``
 has the following defined sub-attributes:
@@ -353,9 +357,10 @@ has the following defined sub-attributes:
 
 **fmu.jobs**: Directly pass "jobs.json". Temporarily deactivated in fmu-dataio pending further alignment with ERT.
 
-    The blocks within the ``fmu`` section signal by their presence which context a data object is exported under. Example: If an
-    aggregated object contains ``fmu.case`` and ``fmu.iteration`, but not ``fmu.realization``, it can be assumed that this object belongs
-    to this ``case`` and ``iteration`` but not to any specific ``realization``.
+.. note::
+  The blocks within the ``fmu`` section signal by their presence which context a data object is exported under. Example: If an
+  aggregated object contains ``fmu.case`` and ``fmu.iteration`, but not ``fmu.realization``, it can be assumed that this object belongs
+  to this ``case`` and ``iteration`` but not to any specific ``realization``.
 
 
 file
@@ -384,7 +389,7 @@ The ``data`` block contains information about the data contains in this object.
 * **data.stratigraphic**: [bool] True if this is defined in the stratigraphic column.
 * **data.offset**: If a specific horizon is represented with an offset, e.g. "2 m below Top Volantis".
 
-    If data object represents an interval, the data.top and data.base attributes can be used.
+.. note:: If data object represents an interval, the data.top and data.base attributes can be used.
 
 * **data.top**:
   
@@ -410,7 +415,7 @@ The ``data`` block contains information about the data contains in this object.
   * **data.properties.<item>.is_discrete**: [bool] Flag if this property is is_discrete.
   * **data.properties.<item>.calculation**: [string] A reference to a calculation performed to derive this property.
 
-    The ``data.properties`` concept is experimental. Use cases include surfaces containing multiple properties/attributes, grids with parameters, etc.
+.. note:: The ``data.properties`` concept is experimental. Use cases include surfaces containing multiple properties/attributes, grids with parameters, etc.
 
 * **data.format**: [string] A reference to a known file format.
 * **data.layout**: [string] A reference to the layout of the data object. Examples: "regular", "cornerpoint", "structured"
@@ -450,7 +455,7 @@ The ``data`` block contains information about the data contains in this object.
   * **data.time.value**: [datetime] A datetime representation
   * **data.time.label**: [string] A label corresponding to the timestamp
 
-    data.time items can be repeated to include many time stamps
+.. note:: **data.time** items can be repeated to include many time stamps
 
 * **data.is_prediction**: [bool] True if this is a prediction
 * **data.is_observation**: [bool] True if this is an observation
@@ -564,8 +569,9 @@ The tracklog is a list of *tracklog_events* with the following definition:
   * **tracklog.<tracklog_event>.event**: [string] String representing the event
 
 
-    The "tracklog" concept is included but considered heavily experimental for now. The concept of
-    data lineage goes far beyond this, and this should not be read as the full lineage of these data.
+.. note::
+  The "tracklog" concept is included but considered heavily experimental for now. The concept of
+  data lineage goes far beyond this, and this should not be read as the full lineage of these data.
 
 
 
