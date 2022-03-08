@@ -13,23 +13,6 @@ contains rules and definitions for all attributes in the data model. This means,
 practice, that outgoing metadata from FMU needs to comply with the schema. If data is
 uploaded to e.g. Sumo, validation will be done on the incoming data to ensure consistency.
 
-The full schema:
-
-.. toggle::
-
-   .. literalinclude:: ../schema/definitions/0.8.0/schema/fmu_results.json
-      :language: js
-
-|
-
-For the average user, there is no need to deep-dive into the schema itself. The purpose
-of fmu-dataio is to broker between the different other data models used in FMU, and the
-definitions of FMU results. E.g. RMS has its data model, Eclipse has its data model, ERT
-has its data model, and so on.
-
-What you need to know is that for every data object exported out of FMU with the intention
-of using in other contexts a metadata instance pertaining to this definition will also be
-created.
 
 About the data model
 ====================
@@ -273,14 +256,29 @@ For selected contents, a content-specific block under **data** is required. This
 The metadata structure
 ======================
 
+Full schema
+-----------
+
+.. toggle::
+
+   .. literalinclude:: ../schema/definitions/0.8.0/schema/fmu_results.json
+      :language: js
+
+For the average user, there is no need to deep-dive into the schema itself. The purpose
+of fmu-dataio is to broker between the different other data models used in FMU, and the
+definitions of FMU results. E.g. RMS has its data model, Eclipse has its data model, ERT
+has its data model, and so on.
+
+What you need to know is that for every data object exported out of FMU with the intention
+of using in other contexts a metadata instance pertaining to this definition will also be
+created.
+
 Outgoing metadata for an individual data object (file) in the FMU context will contain
 the relevant root attributes and blocks described further down this document. Not all
 data objects will contain all attributes and blocks - this depends on the data type, the
 context it is exported in and the data available.
 
-Examples:
-
-Data produced by pre- or post-processes will contain information about the ``case`` but 
+Example: Data produced by pre- or post-processes will contain information about the ``case`` but 
 not about ``realization`` implicitly meaning that they belong to a specific
 case but not any specific realizations.
 
