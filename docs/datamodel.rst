@@ -39,7 +39,8 @@ Why is it made?
 
 FMU is a mighty system developed by and for the subsurface community in Equinor, to
 make reservoir modeling more efficient, less error-prone and more repeatable with higher quality,
-mainly through automation of cross-disciplinary workflows.
+mainly through automation of cross-disciplinary workflows. It combines off-the-shelf software
+with in-house components such as the ERT orchestrator.
 
 FMU is defined more and more by the data it produces, and direct and indirect dependencies on
 output from FMU is increasing. When FMU results started to be regularly transferred to cloud
@@ -208,34 +209,18 @@ in the future it is expected that ERT will serve case information beyond the bas
 
   Annotating tracks along a dictionary can be tricky. With dot-annotation, we can refer to ```mykey``` in the example above as ``myfirstkey.mykey``. This will be a pointer to ``myvalue`` in this case. You will see dot annotation in the explanations of the various metadata blocks below: Now you know what it means!
 
-
-Uniqueness
+Weaknesses
 ----------
 
-A key requirement to the data model is that it needs to facilitate granularity down to
-absolute uniquness for each data object existing within an FMU case. Currently, this is
-not trivial in practice. (See also ``fmu.workflow`` and ``file.relative_path``)
+**uniqueness**
+The data model currently has challenges wrt ensuring uniqueness. Uniqueness is a challenge
+in this context, as a centralized data model cannot (and should not!) dictate in detail nor
+define in detail which data an FMU user should be able to export from local workflows.
 
-
-Assembling metadata
--------------------
-
-Outgoing metadata for an individual data object (file) in the FMU context will contain
-the relevant root attributes and blocks described further down this document. Not all
-data objects will contain all attributes and blocks - this depends on the data type, the
-context it is exported in and the data available.
-
-Examples:
-
-Data produced by pre- or post-processes will contain information about the ``case`` but 
-not about ``realization`` implicitly meaning that they belong to a specific
-case but not any specific realizations.
-
-.. note::
-
-  The ``case`` object is a bit special: It represents the parent object, and records
-  information about the case only. It follows the same patterns as for individual data objects
-  but will not contain the ``data`` block which is mandatory for data objects.
+**understanding validation errors**
+When validating against the current schema, understanding the reasons for non-validation
+can be tricky. The root cause of this is the use of conditional logic in the schemas - 
+a functionality JSON Schema is not designed for. See `Logical rules <datamodel.html#logical-rules>`__.
 
 
 Logical rules
@@ -287,6 +272,24 @@ For selected contents, a content-specific block under **data** is required. This
 
 The metadata structure
 ======================
+
+Outgoing metadata for an individual data object (file) in the FMU context will contain
+the relevant root attributes and blocks described further down this document. Not all
+data objects will contain all attributes and blocks - this depends on the data type, the
+context it is exported in and the data available.
+
+Examples:
+
+Data produced by pre- or post-processes will contain information about the ``case`` but 
+not about ``realization`` implicitly meaning that they belong to a specific
+case but not any specific realizations.
+
+.. note::
+
+  The ``case`` object is a bit special: It represents the parent object, and records
+  information about the case only. It follows the same patterns as for individual data objects
+  but will not contain the ``data`` block which is mandatory for data objects.
+
 
 Root attributes
 ---------------
@@ -384,7 +387,7 @@ has the following defined sub-attributes:
 
 .. note::
   The blocks within the ``fmu`` section signal by their presence which context a data object is exported under. Example: If an
-  aggregated object contains ``fmu.case`` and ``fmu.iteration`, but not ``fmu.realization``, it can be assumed that this object belongs
+  aggregated object contains ``fmu.case`` and ``fmu.iteration``, but not ``fmu.realization``, it can be assumed that this object belongs
   to this ``case`` and ``iteration`` but not to any specific ``realization``.
 
 
