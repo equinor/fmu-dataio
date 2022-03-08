@@ -96,12 +96,13 @@ Second, a denormalized data model enables us to utilize search engine technologi
 for indexing. This is not efficient for a normalized data model. The penalty for 
 duplicating metadata across many individual files is returned in speed and ease-of-use.
 
-Note: The data model is only denormalized *to a certain point*. Most likely, it is better
-described as a hybrid. Example: The concept of a *case* is used in FMU context. In the 
-outgoing metadata for FMU results, some information about the current case is included.
-However, *details* about the case is out of scope. For this, a consumer would have to
-refer to the owner of the *case* definition. In FMU contexts, this will be the workflow
-manager (ERT).
+.. note:: 
+  The data model is only denormalized *to a certain point*. Most likely, it is better
+  described as a hybrid. Example: The concept of a *case* is used in FMU context. In the 
+  outgoing metadata for FMU results, some information about the current case is included.
+  However, *details* about the case is out of scope. For this, a consumer would have to
+  refer to the owner of the *case* definition. In FMU contexts, this will be the workflow
+  manager (ERT).
 
 
 Standardized vs anarchy
