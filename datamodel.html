@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 0.10.3.dev7+g1370ec0 documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 0.11.1.dev1+g2bb11f8 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -49,16 +49,17 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">The FMU results data model</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#about-the-data-model">About the data model</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#why-is-it-made">Why is it made?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scope-of-this-data-model">Scope of this data model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#a-denormalized-data-model">A denormalized data model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#standardized-vs-anarchy">Standardized vs anarchy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#relations-to-other-data-models">Relations to other data models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#the-parent-child-principle">The parent/child principle</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#uniqueness">Uniqueness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#assembling-metadata">Assembling metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#weaknesses">Weaknesses</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#logical-rules">Logical rules</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#the-metadata-structure">The metadata structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#full-schema">Full schema</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#root-attributes">Root attributes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#blocks">Blocks</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#fmu">fmu</a></li>
@@ -70,12 +71,13 @@
 <li class="toctree-l4"><a class="reference internal" href="#tracklog">tracklog</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#changes-and-revisions">Changes and revisions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#contractual-attributes">Contractual attributes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#required-vs-non-required">Required vs non-required</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#metadata-example">Metadata example</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#changes-and-revisions">Changes and revisions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#contractual-attributes">Contractual attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#metadata-example">Metadata example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#faq">FAQ</a></li>
 </ul>
 </li>
@@ -109,16 +111,220 @@
 <h1>The FMU results data model<a class="headerlink" href="#the-fmu-results-data-model" title="Permalink to this headline"></a></h1>
 <p>This section describes the data model used for FMU results when exporting with
 fmu-dataio. For the time being, the data model is hosted as part of fmu-datio.</p>
-<blockquote>
-<div><p>The data model described herein is new and shiny, and experimental in many aspects.
+<p>The data model described herein is new and shiny, and experimental in many aspects.
 Any feedback on this is greatly appreciated. The most effective feedback is to apply
 the data model, then use the resulting metadata.</p>
-</div></blockquote>
 <p>The FMU data model is described using a <a class="reference external" href="https://json-schema.org/">JSON Schema</a> which
 contains rules and definitions for all attributes in the data model. This means, in
 practice, that outgoing metadata from FMU needs to comply with the schema. If data is
 uploaded to e.g. Sumo, validation will be done on the incoming data to ensure consistency.</p>
-<p>The full schema:</p>
+<section id="about-the-data-model">
+<h2>About the data model<a class="headerlink" href="#about-the-data-model" title="Permalink to this headline"></a></h2>
+<section id="why-is-it-made">
+<h3>Why is it made?<a class="headerlink" href="#why-is-it-made" title="Permalink to this headline"></a></h3>
+<p>FMU is a mighty system developed by and for the subsurface community in Equinor, to
+make reservoir modeling more efficient, less error-prone and more repeatable with higher quality,
+mainly through automation of cross-disciplinary workflows. It combines off-the-shelf software
+with in-house components such as the ERT orchestrator.</p>
+<p>FMU is defined more and more by the data it produces, and direct and indirect dependencies on
+output from FMU is increasing. When FMU results started to be regularly transferred to cloud
+storage for direct consumption from 2017/2018 and outwards, the need for stable metadata on
+outgoing data became immiment. Local development on Johan Sverdrup was initiated to cater
+for the digital ecosystem evolving in and around that particular project, and the need for
+generalizing became apparent with the development of Sumo, Webviz and other initiatives.</p>
+<p>The purpose of the data model is to cater for the existing dependencies, as well as enable
+more direct usage of FMU results in different contexts. The secondary objective of this
+data model is to create a normalization layer between the components that create data
+and the components that use those data. The data model is designed to also be adapted
+to other sources of data than FMU.</p>
+</section>
+<section id="scope-of-this-data-model">
+<h3>Scope of this data model<a class="headerlink" href="#scope-of-this-data-model" title="Permalink to this headline"></a></h3>
+<p>This data model covers data produced by FMU workflows. This includes data generated by
+direct runs of model templates, data produced by pre-processing workflows, data produced
+in individual realizations or hooked workflows, and data produced by post-processing workflows.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>An example of a pre-processing workflow is a set of jobs modifying selected input data
+for later use in the FMU workflows and/or for comparison with other results in a QC context.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>An example of a post-processing workflow is a script that aggregates results across many
+realizations and/or iterations of an FMU case.</p>
+</div>
+<p>This data model covers data that, in the FMU context, can be linked to a specific case.</p>
+<p>Note that e.g. ERT and other components will, and should, have their own data models to
+cater for their needs. It is not the intention of this data model to cover all aspects
+of data in the FMU context. The scope is primarily data going <em>out</em> of FMU to be used elsewhere.</p>
+</section>
+<section id="a-denormalized-data-model">
+<h3>A denormalized data model<a class="headerlink" href="#a-denormalized-data-model" title="Permalink to this headline"></a></h3>
+<p>The data model used for FMU results is a denormalized data model, at least to a certain
+point. This means that the static data will be repeated many times. Example: Each exported data object contains
+basic information about the FMU case it belongs to, such as a unique ID for this case,
+its name, the user that made it, which model template was used, etc. This information
+if stored in <em>every</em> exported .yml file. This may seem counterintuitive, and differs
+from a relational database (where this information would typically be stored once, and
+referred to when needed).</p>
+<p>There are a few reasons for choosing a denormalized data model:</p>
+<p>First, the components for creating a relational database containing these data is not and would
+be extremely difficult to implement fast. Also, the nature of data in an FMU context is very distributed,
+with lots of files spread across many files and folders (currently).</p>
+<p>Second, a denormalized data model enables us to utilize search engine technologies for
+for indexing. This is not efficient for a normalized data model. The penalty for
+duplicating metadata across many individual files is returned in speed and ease-of-use.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The data model is only denormalized <em>to a certain point</em>. Most likely, it is better
+described as a hybrid. Example: The concept of a <em>case</em> is used in FMU context. In the
+outgoing metadata for FMU results, some information about the current case is included.
+However, <em>details</em> about the case is out of scope. For this, a consumer would have to
+refer to the owner of the <em>case</em> definition. In FMU contexts, this will be the workflow
+manager (ERT).</p>
+</div>
+</section>
+<section id="standardized-vs-anarchy">
+<h3>Standardized vs anarchy<a class="headerlink" href="#standardized-vs-anarchy" title="Permalink to this headline"></a></h3>
+<p>Creating a data model for FMU results brings with it some standard. In essence, this
+represents the next evolution of the existing FMU standard. We haven’t called it “FMU standard 2.0”
+because although this would ressonate with many people, many would find it revolting. But,
+sure, if you are so inclined you are allowed to think of it this way. The FMU standard 1.0
+is centric around folder structure and file names - a pre-requisite for standardizing for
+the good old days when files where files, folders were folders, and data could be consumed
+by double-clicking. Or, by traversing the mounted file system.</p>
+<p>With the transition to a cloud-native state comes numerous opportunities - but also great
+responsibilities. Some of them are visible in the data model, and the data model is in itself
+a testament to the most important of them: We need to get our data straight.</p>
+<p>There are many challenges. Aligning with everyone and everything is one. We probably don’t
+succeed with that in the first iteration(s). Materializing metadata effectively, and without
+hassle, during FMU runs (meaning that <em>everything</em> must be <em>fully automated</em> is another. This
+is what fmu-dataio solves. But, finding the balance between <em>retaining flexibility</em> and
+<em>enforcing a standard</em> is perhaps the most tricky of all.</p>
+<p>This data model has been designed with the great flexibility of FMU in mind. If you are
+a geologist on an asset using FMU for something important, you need to be able to export
+any data from <em>your</em> workflow and <em>use that data</em> without having to wait for someone else
+to rebuild something. For FMU, one glove certainly does not fit all, and this has been
+taken into account. While the data model and the associated validation will set some requirements
+that you need to follow, you are still free to do more or less what you want.</p>
+<p>We do, however, STRONGLY ENCOURAGE you to not invent too many private wheels. The risk
+is that your data cannot be used by others.</p>
+<p>The materialized metadata has a nested structure which can be represented by Python
+dictionaries, yaml or json formats. The root level only contains key attributes, where
+most are nested sub-dictionaries.</p>
+</section>
+<section id="relations-to-other-data-models">
+<h3>Relations to other data models<a class="headerlink" href="#relations-to-other-data-models" title="Permalink to this headline"></a></h3>
+<p>The data model for FMU results is designed with generalization in mind. While in practice
+this data model cover data produced by, or in direct relations to, an FMU workflow - in
+<em>theory</em> it relates more to <em>subsurface predictive modeling</em> generally, than FMU specifically.</p>
+<p>In Equinor, FMU is the primary system for creating, maintaining and using 3D predictive
+numerical models for the subsurface. Therefore, FMU is the main use case for this data model.</p>
+<p>There are plenty of other data models in play in the complex world of subsurface predictive modeling.
+Each software applies its own data model, and in FMU this encompasses multiple different systems.</p>
+<p>Similarly, there are other data models in the larger scope where FMU workflows represent
+one out of many providors/consumers of data. A significant motivation for defining this
+data model is to ensure consistency towards other systems and enable stable conditions for integration.</p>
+<p>fmu-dataio has three important roles in this context:</p>
+<ul class="simple">
+<li><p>Be a translating layer between individual softwares’ data models and the FMU results data model.</p></li>
+<li><p>Enable fully-automated materialization of metadata during FMU runs (hundreds of thousands of files being made)</p></li>
+<li><p>Abstract the FMU results data model through Python methods and functions, allowing them to be embedded into other systems - helping maintain a centralized definition of this data model.</p></li>
+</ul>
+</section>
+<section id="the-parent-child-principle">
+<h3>The parent/child principle<a class="headerlink" href="#the-parent-child-principle" title="Permalink to this headline"></a></h3>
+<p>In the FMU results data model, the traditional hierarchy of an FMU setup is not continued.
+An individual file produced by an FMU workflow and exported to disk can be seen in
+relations to a hiearchy looking something like this: case &gt; iteration &gt; realization &gt; file</p>
+<p>Many reading this will instinctively  disagree with this definition, and significant confusion
+arises from trying to have meaningful discussions around this. There is no
+unified definition of this hierarchy (despite many <em>claiming to have</em> such a definition).</p>
+<p>In the FMU results data model, this hiearchy is flattened down to two levels:
+The Parent (<em>case</em>) and children to that parent (<em>files</em>). From this, it follows that the
+most fundamental definition in this context is a <em>case</em>. To a large degree, this definition
+belongs to the ERT workflow manager in the FMU context. For now, however, the case definitions
+are extracted by-proxy from the file structure and from arguments passed to fmu-dataio.</p>
+<p>Significant confusion can <em>also</em> arise from discussing the definition of a case, and the
+validity of this hiearchy, of course. But consensus (albeit probably local minima) is that
+this serves the needs.</p>
+<p>Each file produced <em>in relations to</em> an FMU case (meaning <em>before</em>, <em>during</em> or <em>after</em>) is tagged
+with information about the case - signalling that <em>this entity</em> belongs to <em>this case</em>. It is not
+the intention of the FMU results data model to maintain <em>all</em> information about a case, and
+in the future it is expected that ERT will serve case information beyond the basics.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Dot-annotation</strong> - we like it and use it. This is what it means:</p>
+<p>The metadata structure is a dictionary-like structure, e.g.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;myfirstkey&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;mykey&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;myvalue&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;anotherkey&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;anothervalue&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Annotating tracks along a dictionary can be tricky. With dot-annotation, we can refer to <code class="docutils literal notranslate"><span class="pre">`mykey`</span></code> in the example above as <code class="docutils literal notranslate"><span class="pre">myfirstkey.mykey</span></code>. This will be a pointer to <code class="docutils literal notranslate"><span class="pre">myvalue</span></code> in this case. You will see dot annotation in the explanations of the various metadata blocks below: Now you know what it means!</p>
+</div>
+</section>
+<section id="weaknesses">
+<h3>Weaknesses<a class="headerlink" href="#weaknesses" title="Permalink to this headline"></a></h3>
+<p><strong>uniqueness</strong>
+The data model currently has challenges wrt ensuring uniqueness. Uniqueness is a challenge
+in this context, as a centralized data model cannot (and should not!) dictate in detail nor
+define in detail which data an FMU user should be able to export from local workflows.</p>
+<p><strong>understanding validation errors</strong>
+When validating against the current schema, understanding the reasons for non-validation
+can be tricky. The root cause of this is the use of conditional logic in the schemas -
+a functionality JSON Schema is not designed for. See <a class="reference external" href="datamodel.html#logical-rules">Logical rules</a>.</p>
+</section>
+<section id="logical-rules">
+<h3>Logical rules<a class="headerlink" href="#logical-rules" title="Permalink to this headline"></a></h3>
+<p>The schema contains some logical rules which are applied during validation. These are
+rules of type “if this, then that”. They are, however, not explicitly written (nor readable)
+as such directly. This type of logic is implemented in the schema by explicitly generating
+subschemas that A) are only valid for specific conditions, and B) contain requirements for
+that specific situation. In this manner, one can assure that if a specific condition is
+met, the associated requirements for that condition is used.</p>
+<p>Example:</p>
+<blockquote>
+<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;oneOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;$comment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Conditional schema A - &#39;if class == case make myproperty required&#39;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">      </span><span class="s2">&quot;myproperty&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;case&quot;</span><span class="p">]</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;myproperty&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;example&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sometext&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"></span>
+<span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;$comment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Conditional schema B - &#39;if class != case do NOT make myproperty required&#39;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;myproperty&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;example&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sometext&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">]</span><span class="w"></span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>For metadata describing a <code class="docutils literal notranslate"><span class="pre">case</span></code>, requirements are different compared to metadata describing data objects.</p>
+<p>For selected contents, a content-specific block under <strong>data</strong> is required. This is implemented for
+“fluid_contact”, “field_outline” and “seismic”.</p>
+</section>
+</section>
+<section id="the-metadata-structure">
+<h2>The metadata structure<a class="headerlink" href="#the-metadata-structure" title="Permalink to this headline"></a></h2>
+<section id="full-schema">
+<h3>Full schema<a class="headerlink" href="#full-schema" title="Permalink to this headline"></a></h3>
 <div class="toggle docutils container">
 <div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">&quot;$schema&quot;</span><span class="o">:</span> <span class="s2">&quot;http://json-schema.org/draft-07/schema#&quot;</span><span class="p">,</span>
@@ -1301,9 +1507,6 @@ uploaded to e.g. Sumo, validation will be done on the incoming data to ensure co
                         <span class="s2">&quot;workflow&quot;</span><span class="o">:</span> <span class="p">{</span>
                             <span class="s2">&quot;$ref&quot;</span><span class="o">:</span> <span class="s2">&quot;#/definitions/fmu/workflow&quot;</span>
                         <span class="p">},</span>
-                        <span class="s2">&quot;realization&quot;</span><span class="o">:</span> <span class="p">{</span>
-                            <span class="s2">&quot;$ref&quot;</span><span class="o">:</span> <span class="s2">&quot;#/definitions/fmu/realization&quot;</span>
-                        <span class="p">},</span>
                         <span class="s2">&quot;aggregation&quot;</span><span class="o">:</span> <span class="p">{</span>
                             <span class="s2">&quot;$ref&quot;</span><span class="o">:</span> <span class="s2">&quot;#/definitions/fmu/aggregation&quot;</span>
                         <span class="p">}</span>
@@ -1411,9 +1614,6 @@ uploaded to e.g. Sumo, validation will be done on the incoming data to ensure co
 </pre></div>
 </div>
 </div>
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
 <p>For the average user, there is no need to deep-dive into the schema itself. The purpose
 of fmu-dataio is to broker between the different other data models used in FMU, and the
 definitions of FMU results. E.g. RMS has its data model, Eclipse has its data model, ERT
@@ -1421,161 +1621,20 @@ has its data model, and so on.</p>
 <p>What you need to know is that for every data object exported out of FMU with the intention
 of using in other contexts a metadata instance pertaining to this definition will also be
 created.</p>
-<section id="about-the-data-model">
-<h2>About the data model<a class="headerlink" href="#about-the-data-model" title="Permalink to this headline"></a></h2>
-<section id="why-is-it-made">
-<h3>Why is it made?<a class="headerlink" href="#why-is-it-made" title="Permalink to this headline"></a></h3>
-<p>FMU is a mighty system developed by and for the subsurface community in Equinor, to
-make reservoir modeling more efficient, less error-prone and more repeatable with higher quality,
-mainly through automation of cross-disciplinary workflows.</p>
-<p>FMU is defined more and more by the data it produces, and direct and indirect dependencies on
-output from FMU is increasing. When FMU results started to be regularly transferred to cloud
-storage for direct consumption from 2017/2018 and outwards, the need for stable metadata on
-outgoing data became immiment. Local development on Johan Sverdrup was initiated to cater
-for the digital ecosystem evolving in and around that particular project, and the need for
-generalizing became apparent with the development of Sumo, Webviz and other initiatives.</p>
-<p>The purpose of the data model is to cater for the existing dependencies, as well as enable
-more direct usage of FMU results in different contexts.</p>
-</section>
-<section id="a-denormalized-data-model">
-<h3>A denormalized data model<a class="headerlink" href="#a-denormalized-data-model" title="Permalink to this headline"></a></h3>
-<p>The data model used for FMU results is a denormalized data model, at least to a certain
-point. This means that the static data will be repeated many times. Example: Each exported data object contains
-basic information about the FMU case it belongs to, such as a unique ID for this case,
-its name, the user that made it, which model template was used, etc. This information
-if stored in <em>every</em> exported .yml file. This may seem counterintuitive, and differs
-from a relational database (where this information would typically be stored once, and
-referred to when needed).</p>
-<p>There are a few reasons for choosing a denormalized data model:</p>
-<p>First, the components for creating a relational database containing these data is not and would
-be extremely difficult to implement fast. Also, the nature of data in an FMU context is very distributed,
-with lots of files spread across many files and folders (currently).</p>
-<p>Second, a denormalized data model enables us to utilize search engine technologies for
-for indexing. This is not efficient for a normalized data model. The penalty for
-duplicating metadata across many individual files is returned in speed and ease-of-use.</p>
-<p>Note: The data model is only denormalized <em>to a certain point</em>. Most likely, it is better
-described as a hybrid. Example: The concept of a <em>case</em> is used in FMU context. In the
-outgoing metadata for FMU results, some information about the current case is included.
-However, <em>details</em> about the case is out of scope. For this, a consumer would have to
-refer to the owner of the <em>case</em> definition. In FMU contexts, this will be the workflow
-manager (ERT).</p>
-</section>
-<section id="standardized-vs-anarchy">
-<h3>Standardized vs anarchy<a class="headerlink" href="#standardized-vs-anarchy" title="Permalink to this headline"></a></h3>
-<p>Creating a data model for FMU results brings with it some standard. In essence, this
-represents the next evolution of the existing FMU standard. We haven’t called it “FMU standard 2.0”
-because although this would ressonate with many people, many would find it revolting. But,
-sure, if you are so inclined you are allowed to think of it this way. The FMU standard 1.0
-is centric around folder structure and file names - a pre-requisite for standardizing for
-the good old days when files where files, folders were folders, and data could be consumed
-by double-clicking. Or, by traversing the mounted file system.</p>
-<p>With the transition to a cloud-native state comes numerous opportunities - but also great
-responsibilities. Some of them are visible in the data model, and the data model is in itself
-a testament to the most important of them: We need to get our data straight.</p>
-<p>There are many challenges. Aligning with everyone and everything is one. We probably don’t
-succeed with that in the first iteration(s). Materializing metadata effectively, and without
-hassle, during FMU runs (meaning that <em>everything</em> must be <em>fully automated</em> is another. This
-is what fmu-dataio solves. But, finding the balance between <em>retaining flexibility</em> and
-<em>enforcing a standard</em> is perhaps the most tricky of all.</p>
-<p>This data model has been designed with the great flexibility of FMU in mind. If you are
-a geologist on an asset using FMU for something important, you need to be able to export
-any data from <em>your</em> workflow and <em>use that data</em> without having to wait for someone else
-to rebuild something. For FMU, one glove certainly does not fit all, and this has been
-taken into account. While the data model and the associated validation will set some requirements
-that you need to follow, you are still free to do more or less what you want.</p>
-<p>We do, however, STRONGLY ENCOURAGE you to not invent too many private wheels. The risk
-is that your data cannot be used by others.</p>
-<p>The materialized metadata has a nested structure which can be represented by Python
-dictionaries, yaml or json formats. The root level only contains key attributes, where
-most are nested sub-dictionaries.</p>
-</section>
-<section id="relations-to-other-data-models">
-<h3>Relations to other data models<a class="headerlink" href="#relations-to-other-data-models" title="Permalink to this headline"></a></h3>
-<p>The data model for FMU results is designed with generalization in mind. While in practice
-this data model cover data produced by, or in direct relations to, an FMU workflow - in
-<em>theory</em> it relates more to <em>subsurface predictive modeling</em> generally, than FMU specifically.</p>
-<p>In Equinor, FMU is the primary system for creating, maintaining and using 3D predictive
-numerical models for the subsurface. Therefore, FMU is the main use case for this data model.</p>
-<p>There are plenty of other data models in play in the complex world of subsurface predictive modeling.
-Each software applies its own data model, and in FMU this encompasses multiple different systems.</p>
-<p>Similarly, there are other data models in the larger scope where FMU workflows represent
-one out of many providors/consumers of data. A significant motivation for defining this
-data model is to ensure consistency towards other systems and enable stable conditions for integration.</p>
-<p>fmu-dataio has three important roles in this context:</p>
-<ul class="simple">
-<li><p>Be a translating layer between individual softwares’ data models and the FMU results data model.</p></li>
-<li><p>Enable fully-automated materialization of metadata during FMU runs (hundreds of thousands of files being made)</p></li>
-<li><p>Abstract the FMU results data model through Python methods and functions, allowing them to be embedded into other systems - helping maintain a centralized definition of this data model.</p></li>
-</ul>
-</section>
-<section id="the-parent-child-principle">
-<h3>The parent/child principle<a class="headerlink" href="#the-parent-child-principle" title="Permalink to this headline"></a></h3>
-<p>In the FMU results data model, the traditional hierarchy of an FMU setup is not continued.
-An individual file produced by an FMU workflow and exported to disk can be seen in
-relations to a hiearchy looking something like this: case &gt; iteration &gt; realization &gt; file</p>
-<p>Many reading this will instinctively  disagree with this definition, and significant confusion
-arises from trying to have meaningful discussions around this. There is no
-unified definition of this hierarchy (despite many <em>claiming to have</em> such a definition).</p>
-<p>In the FMU results data model, this hiearchy is flattened down to two levels:
-The Parent (<em>case</em>) and children to that parent (<em>files</em>). From this, it follows that the
-most fundamental definition in this context is a <em>case</em>. To a large degree, this definition
-belongs to the ERT workflow manager in the FMU context. For now, however, the case definitions
-are extracted by-proxy from the file structure and from arguments passed to fmu-dataio.</p>
-<p>Significant confusion can <em>also</em> arise from discussing the definition of a case, and the
-validity of this hiearchy, of course. But consensus (albeit probably local minima) is that
-this serves the needs.</p>
-<p>Each file produced <em>in relations to</em> an FMU case (meaning <em>before</em>, <em>during</em> or <em>after</em>) is tagged
-with information about the case - signalling that <em>this entity</em> belongs to <em>this case</em>. It is not
-the intention of the FMU results data model to maintain <em>all</em> information about a case, and
-in the future it is expected that ERT will serve case information beyond the basics.</p>
-</section>
-<section id="uniqueness">
-<h3>Uniqueness<a class="headerlink" href="#uniqueness" title="Permalink to this headline"></a></h3>
-<p>A key requirement to the data model is that it needs to facilitate granularity down to
-absolute uniquness for each data object existing within an FMU case. Currently, this is
-not trivial in practice. (See also <code class="docutils literal notranslate"><span class="pre">fmu.workflow</span></code> and <code class="docutils literal notranslate"><span class="pre">file.relative_path</span></code>)</p>
-</section>
-<section id="assembling-metadata">
-<h3>Assembling metadata<a class="headerlink" href="#assembling-metadata" title="Permalink to this headline"></a></h3>
 <p>Outgoing metadata for an individual data object (file) in the FMU context will contain
 the relevant root attributes and blocks described further down this document. Not all
 data objects will contain all attributes and blocks - this depends on the data type, the
 context it is exported in and the data available.</p>
-<p>Examples:</p>
-<p>Data produced by pre- or post-processes will contain information about the <code class="docutils literal notranslate"><span class="pre">case</span></code> but
+<p>Example: Data produced by pre- or post-processes will contain information about the <code class="docutils literal notranslate"><span class="pre">case</span></code> but
 not about <code class="docutils literal notranslate"><span class="pre">realization</span></code> implicitly meaning that they belong to a specific
 case but not any specific realizations.</p>
-<blockquote>
-<div><p>The <code class="docutils literal notranslate"><span class="pre">case</span></code> object is a bit special: It represents the parent object, and records
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">case</span></code> object is a bit special: It represents the parent object, and records
 information about the case only. It follows the same patterns as for individual data objects
 but will not contain the <code class="docutils literal notranslate"><span class="pre">data</span></code> block which is mandatory for data objects.</p>
-</div></blockquote>
-</section>
-<section id="logical-rules">
-<h3>Logical rules<a class="headerlink" href="#logical-rules" title="Permalink to this headline"></a></h3>
-<p>The schema contains some logical rules which are applied during validation. These are
-rules of type “if this, then that”. Example: If <strong>data.content</strong> is “field_outline”,
-then <strong>data.field_outline</strong> shall be present.</p>
-</section>
-</section>
-<section id="the-metadata-structure">
-<h2>The metadata structure<a class="headerlink" href="#the-metadata-structure" title="Permalink to this headline"></a></h2>
-<blockquote>
-<div><p><strong>Dot-annotation</strong> - we like it and use it. This is what it means:</p>
-<p>The metadata structure is a dictionary-like structure, e.g.</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;myfirstkey&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;mykey&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;myvalue&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;anotherkey&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;anothervalue&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</pre></div>
 </div>
-<p>Annotating tracks along a dictionary can be tricky. Wit dot-annotation, we can refer
-to <code class="docutils literal notranslate"><span class="pre">`mykey`</span></code> in the example above as <code class="docutils literal notranslate"><span class="pre">myfirstkey.mykey</span></code>. This will be a pointer to
-<code class="docutils literal notranslate"><span class="pre">myvalue</span></code> in this case. You will see dot annotation in the explanations of the various metadata blocks below:
-Now you know what it means!</p>
-</div></blockquote>
+</section>
 <section id="root-attributes">
 <h3>Root attributes<a class="headerlink" href="#root-attributes" title="Permalink to this headline"></a></h3>
 <p>At the root level of the metadata, a few single-value attributes are used. These are
@@ -1607,45 +1666,47 @@ and not all block sub-attributes are applied in all contexts.</p>
 data model can be applied to data from <em>other</em> sources - in which the fmu-specific stuff
 may not make sense or be applicable. Within the fmu-block, there are more blocks:</p>
 <p><strong>fmu.model</strong>: The <code class="docutils literal notranslate"><span class="pre">fmu.model</span></code> block contains information about the model used.</p>
-<blockquote>
-<div><p>Synonyms for “model” in this context are “template”, “setup”, etc. The term “model”
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Synonyms for “model” in this context are “template”, “setup”, etc. The term “model”
 is ultra-generic but was chosen before e.g. “template” as the latter deviates from
 daily communications and is, if possible, even more generic than “model”.</p>
-</div></blockquote>
+</div>
 <p><strong>fmu.workflow</strong>: The <code class="docutils literal notranslate"><span class="pre">fmu.workflow</span></code> block refers to specific subworkflows within the large
 FMU workflow being ran. This has not (yet?) been standardized, mainly due to the lack
 of programmatic access to the workflows being run in important software within FMU.
 One sub-attribute has been defined and is used:
 <strong>fmu.workflow.reference</strong>: A string referring to which workflow this data object was exported by.</p>
-<p><em>A key usage of</em> <code class="docutils literal notranslate"><span class="pre">fmu.workflow.reference</span></code> <em>is related to ensuring uniqueness of data objects.</em></p>
-<blockquote>
-<div><p><strong>Example of uniqueness challenge</strong>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A key usage of <code class="docutils literal notranslate"><span class="pre">fmu.workflow.reference</span></code> is related to ensuring uniqueness of data objects.</p>
+</div>
+<p><strong>Example of uniqueness challenge</strong>
 During an hypothetical FMU workflow, a surface representing a specific horizon in
 depth is exported multiple times during the run for QC purposes. E.g. a representation
 of <em>Volantis Gp. Top</em> is first exported at the start of the workflow, then 2-3 times during
 depth conversion to record changes, then at the start of structural modeling, then 4-5
 times during structural modeling to record changes, then extracted from multiple grids.</p>
 <p>The end result is 10+ versions of <em>Volantis Gp. Top</em> which are identical except from
-which workflow they were produced.</p>
-</div></blockquote>
+which workflow they were produced by.</p>
 <p><strong>fmu.case</strong>: The <code class="docutils literal notranslate"><span class="pre">fmu.case</span></code> block contains information about the case from which this data
 object was exported. <code class="docutils literal notranslate"><span class="pre">fmu.case</span></code> has the following subattributes, and more may arrive:</p>
-<ul>
+<ul class="simple">
 <li><p><strong>fmu.case.name</strong>: [string] The name of the case</p></li>
 <li><p><strong>fmu.case.uuid</strong>: [uuid] The unique identifier of this case. Currently made by fmu.dataio. Future made by ERT?</p></li>
 <li><p><strong>fmu.case.user</strong>: A block holding information about the user.</p>
-<ul class="simple">
+<ul>
 <li><p><strong>fmu.case.user.id</strong>: [string] A user identity reference.</p></li>
 </ul>
 </li>
 <li><p><strong>fmu.case.description</strong>: [list of strings] (a free-text description of this case) (optional)</p></li>
-<li><p><strong>fmu.case.restart_from</strong>: [uuid] (experimental) The intention with this attribute is to flag when a case is a restart fromm another case. Implementation of this attribute in fmu-dataio is pending alignment with ERT.</p>
-<blockquote>
-<div><p>If an FMU data object is exported outside the case context, this block will not be present.</p>
-</div></blockquote>
-</li>
+<li><p><strong>fmu.case.restart_from</strong>: [uuid] (experimental) The intention with this attribute is to flag when a case is a restart fromm another case. Implementation of this attribute in fmu-dataio is pending alignment with ERT.</p></li>
 </ul>
-<p><strong>fmu.iteration</strong>: The <code class="docutils literal notranslate"><span class="pre">fmu.iteration</span></code> block contains information about the iteration this data object belongs to. The <a href="#id1"><span class="problematic" id="id2">``</span></a>fmu.iteration`
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If an FMU data object is exported outside the case context, this block will not be present.</p>
+</div>
+<p><strong>fmu.iteration</strong>: The <code class="docutils literal notranslate"><span class="pre">fmu.iteration</span></code> block contains information about the iteration this data object belongs to. The <code class="docutils literal notranslate"><span class="pre">fmu.iteration</span></code>
 has the following defined sub-attributes:</p>
 <ul class="simple">
 <li><p><strong>fmu.iteration.id</strong>: [int] The internal ID of the iteration, typically represented by an integer.</p></li>
@@ -1660,15 +1721,22 @@ has the following defined sub-attributes:</p>
 <li><p><strong>fmu.realization.parameters</strong>: These are the parameters used in this realization. It is a direct pass of <code class="docutils literal notranslate"><span class="pre">parameters.txt</span></code> and will contain key:value pairs representing the design parameters.</p></li>
 </ul>
 <p><strong>fmu.jobs</strong>: Directly pass “jobs.json”. Temporarily deactivated in fmu-dataio pending further alignment with ERT.</p>
-<blockquote>
-<div><p>The blocks within the <code class="docutils literal notranslate"><span class="pre">fmu</span></code> section signal by their presence which context a data object is exported under. Example: If an
-aggregated object contains <code class="docutils literal notranslate"><span class="pre">fmu.case</span></code> and <code class="docutils literal notranslate"><span class="pre">fmu.iteration`,</span> <span class="pre">but</span> <span class="pre">not</span> <span class="pre">``fmu.realization</span></code>, it can be assumed that this object belongs
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The blocks within the <code class="docutils literal notranslate"><span class="pre">fmu</span></code> section signal by their presence which context a data object is exported under. Example: If an
+aggregated object contains <code class="docutils literal notranslate"><span class="pre">fmu.case</span></code> and <code class="docutils literal notranslate"><span class="pre">fmu.iteration</span></code>, but not <code class="docutils literal notranslate"><span class="pre">fmu.realization</span></code>, it can be assumed that this object belongs
 to this <code class="docutils literal notranslate"><span class="pre">case</span></code> and <code class="docutils literal notranslate"><span class="pre">iteration</span></code> but not to any specific <code class="docutils literal notranslate"><span class="pre">realization</span></code>.</p>
-</div></blockquote>
+</div>
 </section>
 <section id="file">
 <h4>file<a class="headerlink" href="#file" title="Permalink to this headline"></a></h4>
-<p>The <code class="docutils literal notranslate"><span class="pre">file</span></code> block contains references to this data object as a file on a disk. A filename in this context can be actual, or abstract. Particularly the <code class="docutils literal notranslate"><span class="pre">relative_path</span></code> is, and will most likely remain, an important identifier for individual file objects within an FMU case - irrespective of the existance of an actual file system.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">file</span></code> block contains references to this data object as a file on a disk. A filename
+in this context can be actual, or abstract. Particularly the <code class="docutils literal notranslate"><span class="pre">relative_path</span></code> is, and will
+most likely remain, an important identifier for individual file objects within an FMU
+case - irrespective of the existance of an actual file system. For this reason, the
+<code class="docutils literal notranslate"><span class="pre">relative_path</span></code> - as well as the <code class="docutils literal notranslate"><span class="pre">checksum_md5</span></code> will be generated even if a file is
+not saved to disk. The <code class="docutils literal notranslate"><span class="pre">absolute_path</span></code> will only be generated in the case of actually
+creating a file on disk and is not required under this schema.</p>
 <ul class="simple">
 <li><p><strong>file.relative_path</strong>: [path] The path of a file relative to the case root.</p></li>
 <li><p><strong>file.absolute_path</strong>: [path] The absolute path of a file, e.g. /scratch/field/user/case/etc</p></li>
@@ -1678,24 +1746,26 @@ to this <code class="docutils literal notranslate"><span class="pre">case</span>
 <section id="data">
 <h4>data<a class="headerlink" href="#data" title="Permalink to this headline"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">data</span></code> block contains information about the data contains in this object.</p>
-<ul>
+<ul class="simple">
 <li><p><strong>data.content</strong>: [string] The content of these data. Examples are “depth”, “porosity”, etc.</p></li>
 <li><p><strong>data.name</strong>: [string] This is the identifying name of this data object. For surfaces, this is typically the horizon name or similar. Shall be compliant with the stratigraphic column if applicable.</p></li>
 <li><p><strong>data.stratigraphic</strong>: [bool] True if this is defined in the stratigraphic column.</p></li>
-<li><p><strong>data.offset</strong>: If a specific horizon is represented with an offset, e.g. “2 m below Top Volantis”.</p>
-<blockquote>
-<div><p>If data object represents an interval, the data.top and data.base attributes can be used.</p>
-</div></blockquote>
-</li>
-<li><p><strong>data.top</strong>:</p>
+<li><p><strong>data.offset</strong>: If a specific horizon is represented with an offset, e.g. “2 m below Top Volantis”.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If data object represents an interval, the data.top and data.base attributes can be used.</p>
+</div>
 <ul class="simple">
+<li><p><strong>data.top</strong>:</p>
+<ul>
 <li><p><strong>data.top.name</strong>: <em>As data.name</em></p></li>
 <li><p><strong>data.top.stratigraphic</strong>: <em>As data.stratigraphic</em></p></li>
 <li><p><strong>data.top.offset</strong>: <em>As data.offset</em></p></li>
 </ul>
 </li>
 <li><p><strong>data.base</strong>:</p>
-<ul class="simple">
+<ul>
 <li><p><strong>data.base.name</strong>: <em>As data.name</em></p></li>
 <li><p><strong>data.base.stratigraphic</strong>: <em>As data.stratigraphic</em></p></li>
 <li><p><strong>data.base.offset</strong>: <em>As data.offset</em></p></li>
@@ -1703,28 +1773,33 @@ to this <code class="docutils literal notranslate"><span class="pre">case</span>
 </li>
 <li><p><strong>data.stratigraphic_alias</strong>: [list] A list of strings representing stratigraphic aliases for this <em>data.name</em>. E.g. the top of the uppermost member of a formation will be alias to the top of the formation.</p></li>
 <li><p><strong>data.alias</strong>: [list] Other known-as names for <em>data.name</em>. Typically names used within specific software, e.g. RMS and others.</p></li>
+<li><p><strong>data.tagname</strong>: [string] An identifier for this/these data object(s). Similar to the second part of the generated filename in disk-oriented FMU data standard.</p></li>
 <li><p><strong>data.properties</strong>: A list of dictionary objects, where each object describes a property contained by this data object.</p>
 <ul>
 <li><p><strong>data.properties.&lt;item&gt;.name</strong>: [string] The name of this property.</p></li>
 <li><p><strong>data.properties.&lt;item&gt;.attribute</strong>: [string] The attribute.</p></li>
 <li><p><strong>data.properties.&lt;item&gt;.is_discrete</strong>: [bool] Flag if this property is is_discrete.</p></li>
-<li><p><strong>data.properties.&lt;item&gt;.calculation</strong>: [string] A reference to a calculation performed to derive this property.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">data.properties</span></code> concept is experimental. Use cases include surfaces containing multiple properties/attributes, grids with parameters, etc.</p>
-</li>
+<li><p><strong>data.properties.&lt;item&gt;.calculation</strong>: [string] A reference to a calculation performed to derive this property.</p></li>
 </ul>
 </li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">data.properties</span></code> concept is experimental. Use cases include surfaces containing multiple properties/attributes, grids with parameters, etc.</p>
+</div>
+<ul class="simple">
 <li><p><strong>data.format</strong>: [string] A reference to a known file format.</p></li>
 <li><p><strong>data.layout</strong>: [string] A reference to the layout of the data object. Examples: “regular”, “cornerpoint”, “structured”</p></li>
 <li><p><strong>data.unit</strong>: [string] A reference to a known unit. Examples. “m”</p></li>
 <li><p><strong>data.vertical_domain</strong>: [string] A reference to a known vertical domain. Examples: “depth”, “time”</p></li>
 <li><p><strong>data.depth_reference</strong>: [string] A reference to a known depth reference. Examples: “msl”, “seabed”</p></li>
 <li><p><strong>data.grid_model</strong>: A block containing information pertaining to grid model content.</p>
-<ul class="simple">
+<ul>
 <li><p><strong>data.grid_model.name</strong>: [string] A name reference to this data.</p></li>
 </ul>
 </li>
 <li><p><strong>data.spec</strong>: A block containing the specs for this object, if applicable.</p>
-<ul class="simple">
+<ul>
 <li><p><strong>data.spec.ncol</strong>: [int] Number of columns</p></li>
 <li><p><strong>data.spec.nrow</strong>: [int] Number of rows</p></li>
 <li><p><strong>data.spec.nlay</strong>: [int] Number of layers</p></li>
@@ -1738,7 +1813,7 @@ to this <code class="docutils literal notranslate"><span class="pre">case</span>
 </ul>
 </li>
 <li><p><strong>data.bbox</strong>: A block containing the bounding box for this data, if applicable</p>
-<ul class="simple">
+<ul>
 <li><p><strong>data.bbox.xmin</strong>: [float] Minimum X coordinate</p></li>
 <li><p><strong>data.bbox.xmax</strong>: [float] Maximum X coordinate</p></li>
 <li><p><strong>data.bbox.ymin</strong>: [float] Minimum Y coordinate</p></li>
@@ -1750,11 +1825,15 @@ to this <code class="docutils literal notranslate"><span class="pre">case</span>
 <li><p><strong>data.time</strong>: A block containing lists of objects describing timestamp information for this data object, if applicable.</p>
 <ul>
 <li><p><strong>data.time.value</strong>: [datetime] A datetime representation</p></li>
-<li><p><strong>data.time.label</strong>: [string] A label corresponding to the timestamp</p>
-<p>data.time items can be repeated to include many time stamps</p>
-</li>
+<li><p><strong>data.time.label</strong>: [string] A label corresponding to the timestamp</p></li>
 </ul>
 </li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>data.time</strong> items can be repeated to include many time stamps</p>
+</div>
+<ul class="simple">
 <li><p><strong>data.is_prediction</strong>: [bool] True if this is a prediction</p></li>
 <li><p><strong>data.is_observation</strong>: [bool] True if this is an observation</p></li>
 <li><p><strong>data.description</strong>: [list] A list of strings, freetext description of this data, if applicable.</p></li>
@@ -1787,7 +1866,7 @@ to this <code class="docutils literal notranslate"><span class="pre">case</span>
 <p>The <code class="docutils literal notranslate"><span class="pre">display</span></code> block contains information related to how this data object should/could be displayed.
 As a general rule, the consumer of data is responsible for figuring out how a specific data object shall
 be displayed. However, we use this block to communicate preferences from the data producers perspective.</p>
-<p>We also maintain this block due to legacy reasons. No logic should be placed on the <code class="docutils literal notranslate"><span class="pre">display</span></code> block.</p>
+<p>We also maintain this block due to legacy reasons. No data filtering logic should be placed on the <code class="docutils literal notranslate"><span class="pre">display</span></code> block.</p>
 <ul class="simple">
 <li><p><strong>display.name</strong>: A display-friendly version of <code class="docutils literal notranslate"><span class="pre">data.name</span></code>.</p></li>
 <li><p><strong>display.subtitle</strong>: A display-friendly subtitle.</p></li>
@@ -1869,21 +1948,22 @@ for legacy reasons this is kept until better options exists.</p>
 <h4>tracklog<a class="headerlink" href="#tracklog" title="Permalink to this headline"></a></h4>
 <p>The tracklog block contains a record of events recorded on these data. This is experimental for now.
 The tracklog is a list of <em>tracklog_events</em> with the following definition:</p>
-<ul>
+<ul class="simple">
 <li><p><strong>tracklog.&lt;tracklog_event&gt;</strong>: An event.
 * <strong>tracklog.&lt;tracklog_event&gt;.datetime</strong>: [datetime] Timestamp of the event
 * <strong>tracklog.&lt;tracklog_event&gt;.user</strong>: [string] Identification of user associated with the event
-* <strong>tracklog.&lt;tracklog_event&gt;.event</strong>: [string] String representing the event</p>
-<blockquote>
-<div><p>The “tracklog” concept is included but considered heavily experimental for now. The concept of
-data lineage goes far beyond this, and this should not be read as the full lineage of these data.</p>
-</div></blockquote>
-</li>
+* <strong>tracklog.&lt;tracklog_event&gt;.event</strong>: [string] String representing the event</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The “tracklog” concept is included but considered heavily experimental for now. The concept of
+data lineage goes far beyond this, and this should not be read as the full lineage of these data.</p>
+</div>
+</section>
 </section>
 </section>
 <section id="changes-and-revisions">
-<h3>Changes and revisions<a class="headerlink" href="#changes-and-revisions" title="Permalink to this headline"></a></h3>
+<h2>Changes and revisions<a class="headerlink" href="#changes-and-revisions" title="Permalink to this headline"></a></h2>
 <p>The only constant is change, as we know, and in the case of the FMU results data model - definitely so.
 The learning component here is huge, and there will be iterations. This poses a challenge, given that
 there are existing dependencies on top of this data model already, and more are arriving.</p>
@@ -1892,7 +1972,6 @@ there are existing dependencies on top of this data model already, and more are 
 <li><p><strong>Versioning</strong>. The current version of the FMU metadata is 0.8.0. This version is likely to remain for a while. (We have not yet figured out how to best deal with versioning. Have good ideas? Bring them!)</p></li>
 <li><p><strong>Contractual attributes</strong>. Within the FMU ecosystem, we need to retain the ability to do rapid changes to the data model. As we are in early days, unknowns will become knowns and unknown unknowns will become known unknowns. However, from the outside perspective some stability is required. Therefore, we have labelled some key attributes as <em>contractual</em>. They are listed at the top of the schema. This is not to say that they will never change - but they should not change erratically, and when we need to change them, this needs to be subject to alignment.</p></li>
 </ol>
-</section>
 <section id="contractual-attributes">
 <h3>Contractual attributes<a class="headerlink" href="#contractual-attributes" title="Permalink to this headline"></a></h3>
 <p>The following attributes are contractual:</p>
@@ -1925,16 +2004,13 @@ there are existing dependencies on top of this data model already, and more are 
 <li><p>fmu.realization.uuid</p></li>
 <li><p>fmu.aggregation.operation</p></li>
 <li><p>fmu.aggregation.realization_ids</p></li>
-<li><p>file</p></li>
+<li><p>file.relative_path</p></li>
+<li><p>file.checksum_md5</p></li>
 </ul>
 </section>
-<section id="required-vs-non-required">
-<h3>Required vs non-required<a class="headerlink" href="#required-vs-non-required" title="Permalink to this headline"></a></h3>
-<p>Not all attributes are required in all contexts. For details, please refer to the
-actual schema.</p>
 </section>
 <section id="metadata-example">
-<h3>Metadata example<a class="headerlink" href="#metadata-example" title="Permalink to this headline"></a></h3>
+<h2>Metadata example<a class="headerlink" href="#metadata-example" title="Permalink to this headline"></a></h2>
 <p>Expand below to see a full example of valid metadata for surface exported from FMU.</p>
 <div class="toggle docutils container">
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">$schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json</span><span class="w"></span>
@@ -2136,7 +2212,7 @@ actual schema.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</section>
+<p>You will find more examples in <a class="reference external" href="https://github.com/equinor/fmu-dataio/tree/main/schema/definitions/0.8.0">fmu-dataio github repository</a>.</p>
 </section>
 <section id="faq">
 <h2>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline"></a></h2>
@@ -2145,7 +2221,7 @@ key questions you may have along the way.</p>
 <p><strong>My existing FMU workflow does not produce any metadata. Now I am told that it has to. What do I do?</strong>
 First step: Start using fmu-dataio in your workflow. You will get a lot for free using it, amongst
 other things, metadata will start to appear from your workflow. To get started with fmu-dataio,
-see [SOME OTHER SECTION] of this documentation.</p>
+see <a class="reference external" href="overview.html">the overview section</a>.</p>
 <p><strong>This data model is not what I would have chosen. How can I change it?</strong>
 The FMU community (almost always) builds what the FMU community wants. The first step
 would be to define what you are unhappy with, preferably formulated as an issue in the
@@ -2173,7 +2249,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.10.3.dev7+g1370ec0).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.11.1.dev1+g2bb11f8).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
