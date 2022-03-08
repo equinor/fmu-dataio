@@ -183,7 +183,6 @@ in the future it is expected that ERT will serve case information beyond the bas
     Annotating tracks along a dictionary can be tricky. With dot-annotation, we can refer to ```mykey``` in the example above as ``myfirstkey.mykey``. This will be a pointer to ``myvalue`` in this case. You will see dot annotation in the explanations of the various metadata blocks below: Now you know what it means!
 
 
-
 Uniqueness
 ----------
 
@@ -251,13 +250,11 @@ Example:
             }
         ]
     
-    ::
 
 For metadata describing a ``case``, requirements are different compared to metadata describing data objects.
 
 For selected contents, a content-specific block under **data** is required. This is implemented for 
 "fluid_contact", "field_outline" and "seismic".
-
 
 
 The metadata structure
@@ -485,7 +482,7 @@ The ``display`` block contains information related to how this data object shoul
 As a general rule, the consumer of data is responsible for figuring out how a specific data object shall
 be displayed. However, we use this block to communicate preferences from the data producers perspective.
 
-We also maintain this block due to legacy reasons. No logic should be placed on the ``display`` block.
+We also maintain this block due to legacy reasons. No data filtering logic should be placed on the ``display`` block.
 
 * **display.name**: A display-friendly version of ``data.name``.
 * **display.subtitle**: A display-friendly subtitle.
