@@ -1,5 +1,6 @@
 """Test the surface_io module."""
 from collections import OrderedDict
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -23,6 +24,8 @@ CFG["access"] = {
 }
 CFG["model"] = {"revision": "0.99.0"}
 
+ROOTPWD = Path(".").absolute()
+
 
 def test_uuid_from_string():
     """Testing that uuid from string is repeatable"""
@@ -40,7 +43,7 @@ def test_uuid_from_string():
 def test_parse_parameters_txt():
     """Testing parsing of parameters.txt into a flat dictionary"""
 
-    ptext = "tests/data/drogon/ertrun1/realization-1/iter-0/parameters.txt"
+    ptext = ROOTPWD / "tests/data/drogon/ertrun1/realization-1/iter-0/parameters.txt"
 
     res = _utils.read_parameters_txt(ptext)
 
@@ -80,7 +83,10 @@ def test_nested_parameters(flat_dict, nested_dict):
 def test_parse_parameters_txt_justified():
     """Testing parsing of justified parameters.txt into nested dictionary"""
 
-    ptext = "tests/data/drogon/ertrun1/realization-0/iter-0/parameters_justified.txt"
+    ptext = (
+        ROOTPWD
+        / "tests/data/drogon/ertrun1/realization-0/iter-0/parameters_justified.txt"
+    )
 
     res = _utils.nested_parameters_dict(_utils.read_parameters_txt(ptext))
 
@@ -92,7 +98,9 @@ def test_parse_parameters_txt_justified():
 def test_parse_parameters_txt_genkw():
     """Testing parsing of parameters.txt from GEN_KW"""
 
-    ptext = "tests/data/drogon/ertrun1/realization-0/iter-0/parameters_genkw.txt"
+    ptext = (
+        ROOTPWD / "tests/data/drogon/ertrun1/realization-0/iter-0/parameters_genkw.txt"
+    )
 
     res = _utils.nested_parameters_dict(_utils.read_parameters_txt(ptext))
 

@@ -2,6 +2,7 @@
 import logging
 import shutil
 from collections import OrderedDict
+from pathlib import Path
 
 import pandas as pd
 import xtgeo
@@ -33,7 +34,8 @@ CFG2 = {}
 with open("tests/data/drogon/global_config2/global_variables.yml", "r") as stream:
     CFG2 = yaml.safe_load(stream)
 
-RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
+ROOTPWD = Path(".").absolute()
+RUN = ROOTPWD / "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
 
 # make a fake points
 POI = [
@@ -55,7 +57,7 @@ POI2 = {
     "A2": ["x1", "x2"],
 }
 
-CASEPATH = "tests/data/drogon/ertrun1"
+CASEPATH = ROOTPWD / "tests/data/drogon/ertrun1"
 FMUP1 = "share/results"
 
 

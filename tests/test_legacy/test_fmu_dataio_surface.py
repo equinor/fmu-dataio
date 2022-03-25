@@ -15,6 +15,7 @@ import fmu.dataio
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+ROOTPWD = Path(".").absolute()
 
 CFG = OrderedDict()
 CFG["model"] = {"name": "Test", "revision": "AUTO"}
@@ -36,8 +37,8 @@ CFG2 = {}
 with open("tests/data/drogon/global_config2/global_variables.yml", "r") as stream:
     CFG2 = yaml.safe_load(stream)
 
-RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
-CASEPATH = "tests/data/drogon/ertrun1"
+RUN = ROOTPWD / "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
+CASEPATH = ROOTPWD / "tests/data/drogon/ertrun1"
 FMUP1 = "share/results"
 
 

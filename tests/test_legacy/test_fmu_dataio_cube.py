@@ -3,6 +3,7 @@ import json
 import logging
 import shutil
 from collections import OrderedDict
+from pathlib import Path
 
 import xtgeo
 import yaml
@@ -35,8 +36,10 @@ CFG2 = {}
 with open("tests/data/drogon/global_config2/global_variables.yml", "r") as stream:
     CFG2 = yaml.safe_load(stream)
 
-RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
-CASEPATH = "tests/data/drogon/ertrun1"
+ROOTPWD = Path(".").absolute()
+
+RUN = ROOTPWD / "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
+CASEPATH = ROOTPWD / "tests/data/drogon/ertrun1"
 FMU1SHARE = "share/results"
 
 
