@@ -6,6 +6,7 @@ import re
 import shutil
 from collections import OrderedDict
 from copy import deepcopy
+from pathlib import Path
 
 import pytest
 import xtgeo
@@ -32,12 +33,15 @@ CFG["access"] = {
 }
 CFG["model"] = {"revision": "0.99.0"}
 
-RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
-RUNPATH = "tests/data/drogon/ertrun1/realization-0/iter-0"
+ROOTPWD = Path(".").absolute()
+
+RUN = ROOTPWD / "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
+RUNPATH = ROOTPWD / "tests/data/drogon/ertrun1/realization-0/iter-0"
 #                             case      real        iter
 
-GLOBAL_CONFIG = "tests/data/drogon/global_config2/global_variables.yml"
-GLOBAL_CONFIG_INVALID = "tests/data/drogon/global_config2/not_valid_yaml.yml"
+
+GLOBAL_CONFIG = ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml"
+GLOBAL_CONFIG_INVALID = ROOTPWD / "tests/data/drogon/global_config2/not_valid_yaml.yml"
 
 FMUP1 = "share/results"
 
@@ -198,7 +202,7 @@ def test_validate_config():
 
 def test_process_fmu_config_from_env():
     """Apply config from the env variabel FMU_GLOBAL_CONFIG"""
-    os.environ["FMU_GLOBAL_CONFIG"] = GLOBAL_CONFIG
+    os.environ["FMU_GLOBAL_CONFIG"] = str(GLOBAL_CONFIG)
 
     edata = fmu.dataio.ExportData(
         config=None, runfolder=RUN, verbosity="INFO", dryrun=True
@@ -222,7 +226,7 @@ def test_process_fmu_config_from_env_fail():
 
 def test_process_fmu_config_from_env_invalid_yaml():
     """Apply config from the env variabel FMU_GLOBAL_CONFIG but the file is not YAML."""
-    os.environ["FMU_GLOBAL_CONFIG"] = GLOBAL_CONFIG_INVALID
+    os.environ["FMU_GLOBAL_CONFIG"] = str(GLOBAL_CONFIG_INVALID)
 
     with pytest.raises(yaml.YAMLError):
         _ = fmu.dataio.ExportData(
@@ -422,7 +426,7 @@ def test_file_block(tmp_path):
     current = tmp_path / "scratch" / "fields" / "user"
     current.mkdir(parents=True, exist_ok=True)
 
-    shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
+    shutil.copytree(ROOTPWD / "tests/data/drogon/ertrun1", current / "mycase")
 
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
@@ -489,7 +493,7 @@ def test_fmu_block(tmp_path):
     current = tmp_path / "scratch" / "fields" / "user"
     current.mkdir(parents=True, exist_ok=True)
 
-    shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
+    shutil.copytree(ROOTPWD / "tests/data/drogon/ertrun1", current / "mycase")
 
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
@@ -551,7 +555,7 @@ def test_access_block(tmp_path):
     current = tmp_path / "scratch" / "fields" / "user"
     current.mkdir(parents=True, exist_ok=True)
 
-    shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
+    shutil.copytree(ROOTPWD / "tests/data/drogon/ertrun1", current / "mycase")
 
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 
@@ -639,7 +643,7 @@ def test_data_block(tmp_path):
     current = tmp_path / "scratch" / "fields" / "user"
     current.mkdir(parents=True, exist_ok=True)
 
-    shutil.copytree("tests/data/drogon/ertrun1", current / "mycase")
+    shutil.copytree(ROOTPWD / "tests/data/drogon/ertrun1", current / "mycase")
 
     fmu.dataio.ExportData.surface_fformat = "irap_binary"
 

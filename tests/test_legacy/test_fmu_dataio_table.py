@@ -3,6 +3,7 @@ import logging
 import shutil
 import sys
 from collections import OrderedDict
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -19,6 +20,7 @@ import fmu.dataio
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+ROOTPWD = Path(".").absolute()
 
 CFG = OrderedDict()
 CFG["template"] = {"name": "Test", "revision": "AUTO"}
@@ -40,8 +42,8 @@ CFG2 = {}
 with open("tests/data/drogon/global_config2/global_variables.yml", "r") as mstream:
     CFG2 = yaml.safe_load(mstream)
 
-RUN = "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
-CASEPATH = "tests/data/drogon/ertrun1"
+RUN = ROOTPWD / "tests/data/drogon/ertrun1/realization-0/iter-0/rms"
+CASEPATH = ROOTPWD / "tests/data/drogon/ertrun1"
 FMUP1 = "share/results"
 
 
