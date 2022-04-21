@@ -16,7 +16,14 @@ from fmu.dataionew._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataionew._filedata_provider import _FileDataProvider
 from fmu.dataionew._fmu_provider import _FmuProvider
 from fmu.dataionew._objectdata_provider import _ObjectDataProvider
-from fmu.dataionew._utils import C, G, S, drop_nones, export_file_compute_checksum_md5
+from fmu.dataionew._utils import (
+    C,
+    G,
+    S,
+    X,
+    drop_nones,
+    export_file_compute_checksum_md5,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -80,11 +87,15 @@ class _MetaData:
     meta_tracklog: list = field(default_factory=list, init=False)
     meta_fmu: dict = field(default_factory=dict, init=False)
 
+    # relevant when ERT* fmu_context; same as rootpath in the ExportData class!:
+    rootpath: str = field(default="", init=False)
+
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
 
-        # making input config more explisit for readibility
+        # making input config more explisit for readability
         self.settings = self.cfg[S]
+        self.xsettings = self.cfg[X]
         self.globalconfig = self.cfg[G]
         self.classvar = self.cfg[C]
 
@@ -130,6 +141,7 @@ class _MetaData:
         self.fmudata.detect_provider()
         logger.info("FMU provider is %s", self.fmudata.provider)
         self.meta_fmu = self.fmudata.metadata
+        self.rootpath = self.fmudata.rootpath
 
     def _populate_meta_file(self):
         """Populate the file block in the metadata.
@@ -138,12 +150,19 @@ class _MetaData:
 
         It requires that the _ObjectDataProvider is ran first -> self.objdata
 
-        - relative_path, seen from case_path
+        - relative_path, seen from rootpath
         - absolute_path, as above but full path
         - checksum_md5, if required (a bit special treatment of this)
         """
 
-        fdata = _FileDataProvider(self.cfg, self.objdata, self.verbosity)
+        fdata = _FileDataProvider(
+            self.cfg,
+            self.objdata,
+            self.rootpath,
+            self.fmudata.iter_name,
+            self.fmudata.real_name,
+            self.verbosity,
+        )
         fdata.derive_filedata()
 
         self.meta_file["relative_path"] = fdata.relative_path
@@ -152,7 +171,11 @@ class _MetaData:
         if self.compute_md5:
             logger.info("Compute MD5 sum for tmp file...")
             _, self.meta_file["checksum_md5"] = export_file_compute_checksum_md5(
-                self.obj, "tmp", self.objdata.extension, tmp=True
+                self.obj,
+                "tmp",
+                self.objdata.extension,
+                tmp=True,
+                flag=self.xsettings.get("fmtflag", ""),
             )
         else:
             logger.info("Do not compute MD5 sum at this stage!")
@@ -232,7 +255,7 @@ class _MetaData:
         # if not self._case and self._access_ssdl is not None:
         #     a_meta["ssdl"] = {**a_meta["ssdl"], **self._access_ssdl}
 
-    def generate_metadata(self, skip_null=True) -> dict:
+    def generate_export_metadata(self, skip_null=True) -> dict:
         """Main function to generate the full metadata"""
 
         # populate order matters, in particular objectdata provides input to class/file
@@ -241,8 +264,8 @@ class _MetaData:
         self._populate_meta_access()
         self._populate_meta_objectdata()
         self._populate_meta_class()
-        self._populate_meta_file()
         self._populate_meta_fmu()
+        self._populate_meta_file()
 
         # glue together metadata, order is as legacy code
         meta = self.meta_dollars.copy()
@@ -253,7 +276,7 @@ class _MetaData:
         meta["file"] = self.meta_file
 
         meta["data"] = self.meta_objectdata
-        meta["display"] = "display dummy"
+        meta["display"] = {"name": self.settings["name"]}  # solution so far; TBD
 
         meta["access"] = self.meta_access
         meta["masterdata"] = self.meta_masterdata

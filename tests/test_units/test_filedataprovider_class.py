@@ -6,32 +6,34 @@ import pytest
 
 from fmu.dataionew._filedata_provider import _FileDataProvider
 from fmu.dataionew._objectdata_provider import _ObjectDataProvider
-from fmu.dataionew._utils import C, S
+from fmu.dataionew._utils import C, S, X
 
 
-def get_cfg(tagname, parentname, time1, time2):
+def get_cfg(tagname, parentname):
     cfg = dict()
 
     cfg[S] = {
         "basepath": "casepath",
         "tagname": tagname,
         "parentname": parentname,
-        "time1": time1,
-        "time2": time2,
         "extension": ".ext",
         "efolder": "efolder",
         "forcefolder": "",
         "subfolder": "",
+        "fmu_context": "forward",
     }
     cfg[C] = {
         "createfolder": False,
         "verifyfolder": False,
     }
+    cfg[X] = {
+        "actual_context": False,
+    }
     return cfg
 
 
 @pytest.mark.parametrize(
-    "name, tagname, parentname, time1, time2, expected",
+    "name, tagname, parentname, time0, time1, expected",
     [
         (
             "name",
@@ -81,15 +83,17 @@ def test_get_filestem(
     name,
     tagname,
     parentname,
+    time0,
     time1,
-    time2,
     expected,
 ):
     """Testing the private _get_filestem method."""
     objdata = _ObjectDataProvider(regsurf, internalcfg1)
     objdata.name = name
+    objdata.time0 = time0
+    objdata.time1 = time1
 
-    cfg = get_cfg(tagname, parentname, time1, time2)
+    cfg = get_cfg(tagname, parentname)
 
     fdata = _FileDataProvider(
         cfg,
@@ -101,7 +105,7 @@ def test_get_filestem(
 
 
 @pytest.mark.parametrize(
-    "name, tagname, parentname, time1, time2, message",
+    "name, tagname, parentname, time0, time1, message",
     [
         (
             "",
@@ -127,15 +131,17 @@ def test_get_filestem_shall_fail(
     name,
     tagname,
     parentname,
+    time0,
     time1,
-    time2,
     message,
 ):
     """Testing the private _get_filestem method when it shall fail."""
     objdata = _ObjectDataProvider(regsurf, internalcfg1)
     objdata.name = name
+    objdata.time0 = time0
+    objdata.time1 = time1
 
-    cfg = get_cfg(tagname, parentname, time1, time2)
+    cfg = get_cfg(tagname, parentname)
 
     fdata = _FileDataProvider(cfg, objdata)
 
@@ -151,7 +157,7 @@ def test_get_paths_path_exists_already(regsurf, internalcfg1, tmp_path):
     newpath = tmp_path / "share" / "results" / "efolder"
     newpath.mkdir(parents=True, exist_ok=True)
 
-    cfg = get_cfg("tag", "parent", "t1", "t2")
+    cfg = get_cfg("tag", "parent")
     cfg[S]["basepath"] = Path(".")
 
     objdata = _ObjectDataProvider(regsurf, internalcfg1)
@@ -173,7 +179,7 @@ def test_get_paths_not_exists_so_create(regsurf, internalcfg1, tmp_path):
     objdata.name = "some"
     objdata.efolder = "efolder"
 
-    cfg = get_cfg("tag", "parent", "t1", "t2")
+    cfg = get_cfg("tag", "parent")
     cfg[C]["createfolder"] = True
     cfg[S]["basepath"] = Path(".")
 
@@ -192,8 +198,10 @@ def test_filedata_provider(regsurf, internalcfg1, tmp_path):
     objdata.name = "name"
     objdata.efolder = "efolder"
     objdata.extension = ".ext"
+    objdata.time0 = "t1"
+    objdata.time1 = "t2"
 
-    cfg = get_cfg("tag", "parent", "t1", "t2")
+    cfg = get_cfg("tag", "parent")
     cfg[C]["createfolder"] = True
     cfg[S]["basepath"] = Path(".")
 

@@ -61,11 +61,22 @@ data:
         xmin: 456012.5003497944
         xmax: 467540.52762886323
         ...
+
+    # --- NB two variants of time, here old:
     time:
-        - value: 2020-10-28T14:28:02
+        - value: 2029-10-28T11:21:12
           label: "some label"
         - value: 2020-10-28T14:28:02
           label: "some other label"
+
+    # --- Here new:
+    t0:
+        value: 2020-10-28T14:28:02
+        label: "some other label"
+    t1:
+        value: 2029-10-28T11:21:12
+        label: "some label"
+
     is_prediction: true # For separating pure QC output from actual predictions
     is_observation: true # Used for 4D data currently but also valid for other data?
     description:
@@ -74,26 +85,24 @@ data:
 """
 import logging
 from dataclasses import dataclass, field
+from datetime import datetime as dt
 from typing import Any
 
 import numpy as np
-
-# import pandas as pd
+import pandas as pd
 import xtgeo
 
 from ._definitions import _ValidFormats
-from ._utils import C, G, S
+from ._utils import C, G, S, X
 
 # from warnings import warn
 
-
-# try:
-#     import pyarrow as pa
-# except ImportError:
-#     HAS_PYARROW = False
-# else:
-#     HAS_PYARROW = True
-#     from pyarrow import feather
+try:
+    import pyarrow as pa
+except ImportError:
+    HAS_PYARROW = False
+else:
+    HAS_PYARROW = True
 
 logger = logging.getLogger(__name__)
 
@@ -129,11 +138,14 @@ class _ObjectDataProvider:
     layout: str = ""
     bbox: dict = field(default_factory=dict)
     specs: dict = field(default_factory=dict)
+    time0: str = ""
+    time1: str = ""
 
     def __post_init__(self):
 
         # more explicit:
         self.settings = self.cfg[S]
+        self.xsettings = self.cfg[X]
         self.globalconfig = self.cfg[G]
         self.classvar = self.cfg[C]
         logger.info("Ran __post_init__")
@@ -208,62 +220,91 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().surface
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_regularsurface()
-        # elif isinstance(self.obj, xtgeo.Polygons):
-        #     result["subtype"] = "Polygons"
-        #     result["classname"] = "polygons"
-        #     result["efolder"] = "polygons"
-        #     # TODO! selv.layout
-        #     result["extension"] = self._validate_get_ext(VALID_POLYGONS_FORMATS)
-        # elif isinstance(self.obj, xtgeo.Points):
-        #     result["subtype"] = "Points"
-        #     result["classname"] = "points"
-        #     # TODO! selv.layout
-        #     result["efolder"] = "points"
-        #     result["extension"] = self._validate_get_ext(VALID_POINTS_FORMATS)
-        # elif isinstance(self.obj, xtgeo.Cube):
-        #     result["subtype"] = "RegularCube"
-        #     result["classname"] = "cube"
-        #     # TODO! selv.layout
-        #     result["efolder"] = "cubes"
-        #     result["extension"] = self._validate_get_ext(VALID_CUBE_FORMATS)
-        # elif isinstance(self.obj, xtgeo.Grid):
-        #     result["subtype"] = "CPGrid"
-        #     result["classname"] = "cpgrid"
-        #     # TODO! selv.layout
-        #     result["efolder"] = "grids"
-        #     result["extension"] = self._validate_get_ext(VALID_GRID_FORMATS)
-        # elif isinstance(self.obj, xtgeo.GridProperty):
-        #     result["subtype"] = "CPGridProperty"
-        #     result["classname"] = "cpgrid_property"
-        #     # TODO! selv.layout
-        #     result["efolder"] = "grids"
-        #     result["extension"] = self._validate_get_ext(VALID_GRID_FORMATS)
-        # elif isinstance(self.obj, pd.DataFrame):
-        #     result["subtype"] = "DataFrame"
-        #     result["classname"] = "table"
-        #     # TODO! selv.layout
-        #     result["efolder"] = "tables"
-        #     result["extension"] = self._validate_get_ext(VALID_TABLE_FORMATS)
-        # elif HAS_PYARROW and isinstance(self.obj, pa.Table):
-        #     result["subtype"] = "ArrowTable"
-        #     result["classname"] = "table"
-        #     # TODO! selv.layout
-        #     result["efolder"] = "tables"
-        #     result["extension"] = self._validate_get_ext(VALID_TABLE_FORMATS)
-        # else:
-        #     raise NotImplementedError(
-        #         "This data type is not (yet) supported: ", type(self.obj)
-        #     )
+        elif isinstance(self.obj, xtgeo.Polygons):
+            result["subtype"] = "Polygons"
+            result["classname"] = "polygons"
+            result["layout"] = "unset"
+            result["efolder"] = "polygons"
+            result["fmt"] = self.classvar["polygons_fformat"]
+            result["extension"] = self._validate_get_ext(
+                result["fmt"], result["subtype"], _ValidFormats().polygons
+            )
+            result["spec"], result["bbox"] = self._derive_spec_bbox_polygons()
+        elif isinstance(self.obj, xtgeo.Points):
+            result["subtype"] = "Points"
+            result["classname"] = "points"
+            result["layout"] = "unset"
+            result["efolder"] = "points"
+            result["fmt"] = self.classvar["points_fformat"]
+            result["extension"] = self._validate_get_ext(
+                result["fmt"], result["subtype"], _ValidFormats().points
+            )
+            result["spec"], result["bbox"] = self._derive_spec_bbox_points()
+        elif isinstance(self.obj, xtgeo.Cube):
+            result["subtype"] = "RegularCube"
+            result["classname"] = "cube"
+            result["layout"] = "regular"
+            result["efolder"] = "cubes"
+            result["fmt"] = self.classvar["cube_fformat"]
+            result["extension"] = self._validate_get_ext(
+                result["fmt"], result["subtype"], _ValidFormats().cube
+            )
+            result["spec"], result["bbox"] = self._derive_spec_bbox_cube()
+        elif isinstance(self.obj, xtgeo.Grid):
+            result["subtype"] = "CPGrid"
+            result["classname"] = "cpgrid"
+            result["layout"] = "cornerpoint"
+            result["efolder"] = "grids"
+            result["fmt"] = self.classvar["grid_fformat"]
+            result["extension"] = self._validate_get_ext(
+                result["fmt"], result["subtype"], _ValidFormats().grid
+            )
+            result["spec"], result["bbox"] = self._derive_spec_bbox_cpgrid()
+        elif isinstance(self.obj, xtgeo.GridProperty):
+            result["subtype"] = "CPGridProperty"
+            result["classname"] = "cpgrid_property"
+            result["layout"] = "cornerpoint"
+            result["efolder"] = "grids"
+            result["fmt"] = self.classvar["grid_fformat"]
+            result["extension"] = self._validate_get_ext(
+                result["fmt"], result["subtype"], _ValidFormats().grid
+            )
+            result["spec"], result["bbox"] = self._derive_spec_bbox_cpgridproperty()
+        elif isinstance(self.obj, pd.DataFrame):
+            result["subtype"] = "DataFrame"
+            result["classname"] = "table"
+            result["layout"] = "table"
+            result["efolder"] = "tables"
+            result["fmt"] = self.classvar["table_fformat"]
+            result["extension"] = self._validate_get_ext(
+                result["fmt"], result["subtype"], _ValidFormats().table
+            )
+            result["spec"], result["bbox"] = self._derive_spec_bbox_dataframe()
+        elif HAS_PYARROW and isinstance(self.obj, pa.Table):
+            result["subtype"] = "ArrowTable"
+            result["classname"] = "table"
+            result["layout"] = "table"
+            result["efolder"] = "tables"
+            result["fmt"] = self.classvar["arrow_fformat"]
+            result["extension"] = self._validate_get_ext(
+                result["fmt"], result["subtype"], _ValidFormats().table
+            )
+            result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
+        else:
+            raise NotImplementedError(
+                "This data type is not (yet) supported: ", type(self.obj)
+            )
 
         return result
 
     def _derive_spec_bbox_regularsurface(self):
         """Process/collect the data.spec and data.bbox for RegularSurface"""
         logger.info("Derive bbox and specs for RegularSurface")
+        regsurf = self.obj
 
         specs = dict()
+        bbox = dict()
 
-        regsurf = self.obj
         xtgeo_specs = regsurf.metadata.required
         for spec, val in xtgeo_specs.items():
             if isinstance(val, (np.float32, np.float64)):
@@ -271,7 +312,6 @@ class _ObjectDataProvider:
             specs[spec] = val
         specs["undef"] = 1.0e30  # irap binary undef
 
-        bbox = dict()
         bbox["xmin"] = float(regsurf.xmin)
         bbox["xmax"] = float(regsurf.xmax)
         bbox["ymin"] = float(regsurf.ymin)
@@ -281,9 +321,203 @@ class _ObjectDataProvider:
 
         return specs, bbox
 
+    def _derive_spec_bbox_polygons(self):
+        """Process/collect the data.spec and data.bbox for Polygons"""
+        logger.info("Derive bbox and specs for Polygons")
+        poly = self.obj
+
+        specs = dict()
+        bbox = dict()
+        # number of polygons:
+        specs["npolys"] = np.unique(poly.dataframe[poly.pname].values).size
+        xmin, xmax, ymin, ymax, zmin, zmax = poly.get_boundary()
+
+        bbox["xmin"] = float(xmin)
+        bbox["xmax"] = float(xmax)
+        bbox["ymin"] = float(ymin)
+        bbox["ymax"] = float(ymax)
+        bbox["zmin"] = float(zmin)
+        bbox["zmax"] = float(zmax)
+        return specs, bbox
+
+    def _derive_spec_bbox_points(self):
+        """Process/collect the data.spec and data.bbox for Points"""
+        logger.info("Derive bbox and specs for Points")
+        pnts = self.obj
+
+        specs = dict()
+        bbox = dict()
+
+        if len(pnts.dataframe.columns) > 3:
+            attrnames = pnts.dataframe.columns[3:]
+            specs["attributes"] = list(attrnames)
+        specs["size"] = int(pnts.dataframe.size)
+
+        bbox["xmin"] = float(pnts.dataframe[pnts.xname].min())
+        bbox["xmax"] = float(pnts.dataframe[pnts.xname].max())
+        bbox["ymax"] = float(pnts.dataframe[pnts.yname].min())
+        bbox["ymin"] = float(pnts.dataframe[pnts.yname].max())
+        bbox["zmin"] = float(pnts.dataframe[pnts.zname].min())
+        bbox["zmax"] = float(pnts.dataframe[pnts.zname].max())
+
+        return specs, bbox
+
+    def _derive_spec_bbox_cube(self):
+        """Process/collect the data.spec and data.bbox Cube"""
+        logger.info("Derive bbox and specs for Cube")
+        cube = self.obj
+
+        specs = dict()
+        bbox = dict()
+
+        xtgeo_specs = cube.metadata.required
+        for spec, val in xtgeo_specs.items():
+            if isinstance(val, (np.float32, np.float64)):
+                val = float(val)
+            specs[spec] = val
+
+        # current xtgeo is missing xmin, xmax etc attributes for cube, so need
+        # to compute (simplify when xtgeo has this):
+        xmin = 1.0e23
+        ymin = xmin
+        xmax = -1 * xmin
+        ymax = -1 * ymin
+
+        for corner in ((1, 1), (1, cube.nrow), (cube.ncol, 1), (cube.ncol, cube.nrow)):
+            xco, yco = cube.get_xy_value_from_ij(*corner)
+            xmin = xco if xco < xmin else xmin
+            xmax = xco if xco > xmax else xmax
+            ymin = yco if yco < ymin else ymin
+            ymax = yco if yco > ymax else ymax
+
+        bbox["xmin"] = float(xmin)
+        bbox["xmax"] = float(xmax)
+        bbox["ymin"] = float(ymin)
+        bbox["ymax"] = float(ymax)
+        bbox["zmin"] = float(cube.zori)
+        bbox["zmax"] = float(cube.zori + cube.zinc * (cube.nlay - 1))
+
+        return specs, bbox
+
+    def _derive_spec_bbox_cpgrid(self):
+        """Process/collect the data.spec and data.bbox CornerPoint Grid geometry"""
+        logger.info("Derive bbox and specs for Gride (geometry)")
+        grid = self.obj
+
+        specs = dict()
+        bbox = dict()
+
+        xtgeo_specs = grid.metadata.required
+        for spec, val in xtgeo_specs.items():
+            if isinstance(val, (np.float32, np.float64)):
+                val = float(val)
+            specs[spec] = val
+
+        geox = grid.get_geometrics(cellcenter=False, allcells=True, return_dict=True)
+
+        bbox["xmin"] = round(float(geox["xmin"]), 4)
+        bbox["xmax"] = round(float(geox["xmax"]), 4)
+        bbox["ymin"] = round(float(geox["ymin"]), 4)
+        bbox["ymax"] = round(float(geox["ymax"]), 4)
+        bbox["zmin"] = round(float(geox["zmin"]), 4)
+        bbox["zmax"] = round(float(geox["zmax"]), 4)
+        return specs, bbox
+
+    def _derive_spec_bbox_cpgridproperty(self):
+        """Process/collect the data.spec and data.bbox GridProperty"""
+        logger.info("Derive bbox and specs for GridProperty")
+        gridprop = self.obj
+
+        specs = dict()
+        bbox = dict()
+
+        specs["ncol"] = gridprop.ncol
+        specs["nrow"] = gridprop.nrow
+        specs["nlay"] = gridprop.nlay
+        return specs, bbox
+
+    def _derive_spec_bbox_dataframe(self):
+        """Process/collect the data items for DataFrame."""
+        logger.info("Process data metadata for DataFrame (tables)")
+        dfr = self.obj
+
+        specs = dict()
+        bbox = dict()
+
+        specs["columns"] = list(dfr.columns)
+        specs["size"] = int(dfr.size)
+
+        return specs, bbox
+
+    def _derive_spec_bbox_arrowtable(self):
+        """Process/collect the data items for Arrow table."""
+        logger.info("Process data metadata for arrow (tables)")
+        table = self.obj
+
+        specs = dict()
+        bbox = dict()
+
+        specs["columns"] = list(table.column_names)
+        specs["size"] = table.num_columns * table.num_rows
+
+        return specs, bbox
+
+    def _derive_timedata(self):
+        """Format input timedata to metadata."""
+
+        tdata = self.settings.get("timedata", None)
+        if not tdata:
+            return {}
+
+        tresult = dict()
+        if self.classvar["legacy_time_format"]:
+            if len(tdata) >= 1:
+                elem = tdata[0]
+                tresult["time"] = list()
+                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                self.time0 = str(elem[0])
+                if len(elem) == 2:
+                    xfield["label"] = elem[1]
+                tresult["time"].append(xfield)
+            if len(tdata) == 2:
+                elem = tdata[1]
+                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                self.time1 = str(elem[0])
+                if len(elem) == 2:
+                    xfield["label"] = elem[1]
+                    self.time0 = str(elem[1])
+                tresult["time"].append(xfield)
+        else:
+            # new format
+            if len(tdata) == 1:
+                elem = tdata[0]
+                tresult["t0"] = dict()
+                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                self.time0 = str(elem[0])
+                if len(elem) == 2:
+                    xfield["label"] = elem[1]
+                tresult["t0"] = xfield
+            if len(tdata) == 2:
+                elem = tdata[1]
+                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                self.time1 = str(elem[0])
+                if len(elem) == 2:
+                    xfield["label"] = elem[1]
+                tresult["t0"] = xfield
+
+                elem = tdata[0]
+                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                self.time0 = str(elem[0])
+                if len(elem) == 2:
+                    xfield["label"] = elem[1]
+                tresult["t1"] = xfield
+
+        logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self.time1)
+        return tresult
+
     def derive_metadata(self):
         """Main function here, will populate the metadata block for 'data'."""
-        logger.info("Derive all metadata for data object")
+        logger.info("Derive all metadata for data object...")
         nameres = self._derive_name_stratigraphy()
         objres = self._derive_objectdata()
 
@@ -295,8 +529,8 @@ class _ObjectDataProvider:
         meta["alias"] = nameres.get("alias", None)
         meta["top"] = nameres.get("top", None)
         meta["base"] = nameres.get("base", None)
-        meta["content"] = self.settings.get("content", None)
-        meta["tagname"] = self.settings.get("tagname", None)
+        meta["content"] = self.xsettings.get("content", "depth")
+        meta["tagname"] = self.settings.get("tagname", "")
         meta["format"] = objres["fmt"]
         meta["layout"] = objres["layout"]
         meta["unit"] = self.settings.get("unit", None)
@@ -304,7 +538,18 @@ class _ObjectDataProvider:
         meta["depth_reference"] = self.settings.get("depth_reference", None)
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
-        meta["time"] = self.settings.get("time", None)
+
+        # timedata:
+        tresult = self._derive_timedata()
+        if tresult:
+            if self.classvar["legacy_time_format"]:
+                for key, val in tresult.items():
+                    meta[key] = val
+            else:
+                meta["time"] = dict()
+                for key, val in tresult.items():
+                    meta["time"][key] = val
+
         meta["is_prediction"] = self.settings.get("is_prediction", False)
         meta["is_observation"] = self.settings.get("is_observation", False)
         meta["description"] = self.settings.get("description", None)
@@ -322,3 +567,4 @@ class _ObjectDataProvider:
         self.classname = objres["classname"]
         self.extension = objres["extension"]
         self.fmt = objres["fmt"]
+        logger.info("Derive all metadata for data object... DONE")
