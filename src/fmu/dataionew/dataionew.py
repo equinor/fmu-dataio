@@ -9,7 +9,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, ClassVar, Union
+from typing import Any, ClassVar, List, Union
 from warnings import warn
 
 import yaml
@@ -45,6 +45,7 @@ INSTANCEVARS = {
     "is_prediction": bool,
     "name": str,
     "parentname": str,
+    "realization": int,
     "tagname": str,
     "time1": (int, str, datetime),
     "time2": (int, str, datetime),
@@ -197,10 +198,14 @@ class ExportData:
             if "TopValysar" is the model name and the actual name is "Valysar Top Fm."
             that latter name will be used.
 
-        parent: Optional. This key is required for datatype GridProperty, and refers to
+        parentname: Optional. This key is required for datatype GridProperty, and refers to
             the name of the grid geometry.
 
-        runpath: Optional and deprecated. The relative location of the current run
+        realization: Optional, default is -999 which means that realization shall be
+            detected automatically from the FMU run. Can be used to override in
+            rare cases. If so, numbers must be >= 0
+
+        runpath: TODO! Optional and deprecated. The relative location of the current run
             root. Optional and will in most cases be auto-detected, assuming that FMU
             folder conventions are followed. For an ERT run e.g.
             /scratch/xx/nn/case/realization-0/iter-0/. while in a revision at project
@@ -263,6 +268,7 @@ class ExportData:
     is_prediction: bool = True
     name: str = ""
     parentname: str = ""  # TODO: parent?
+    realization: int = -999
     subfolder: str = ""
     tagname: str = ""
     time1: str = ""
@@ -587,3 +593,115 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         utils.export_metadata_file(self.metafile, self.metadata)
         logger.info("METAFILE %s", self.metafile)
         return str(self.metafile)
+
+
+# ######################################################################################
+# AggregatedData
+#
+# The AggregatedData is used for making the aggregations from existing data that already
+# have valid metadata, i.e. made from ExportData.
+#
+# Hence this is actually quite different and much simpler than ExportData(), which
+# needed a lot of info as FmuProvider, FileProvider, ObjectData etc. Here all these
+# already known from the input.
+#
+# ######################################################################################
+
+
+@dataclass
+class AggregatedData:  # pylint: disable=too-few-public-methods
+    """Instantate AggregatedData object.
+
+    Args:
+        configs: A list of dictionarys, i.e. of valid metadata per input element
+        operation: A string that descibes the operation, e.g. "mean"
+        verbosity: Is logging/message level for this module. Input as
+            in standard python logging; e.g. "WARNING", "INFO".
+    """
+
+    configs: list = field(default_factory=list)
+    operation: str = "unknown"
+    verbosity: str = "CRITICAL"
+
+    metadata: dict = field(default_factory=dict, init=False)
+    metafile: Path = field(default_factory=Path, init=False)
+
+    def __post_init__(self):
+        logger.setLevel(level=self.verbosity)
+
+    @staticmethod
+    def _generate_aggr_uuid(uuids: list) -> str:
+        """Use existing UUIDs to generate a new UUID for the aggregation."""
+
+        stringinput = ""
+        for uuid in uuids:
+            stringinput += uuid
+
+        return utils.uuid_from_string(stringinput)
+
+    def _generate_aggrd_metadata(self, obj: Any, real_ids: List[int], uuids: List[str]):
+
+        agg_uuid = self._generate_aggr_uuid(uuids)
+
+        template = deepcopy(self.configs[0])
+
+        del template["fmu"]["iteration"]
+        del template["fmu"]["realization"]
+
+        template["fmu"]["aggregation"] = dict()
+        template["fmu"]["aggregation"]["operation"] = self.operation
+        template["fmu"]["aggregation"]["realization_ids"] = real_ids
+        template["fmu"]["aggregation"]["id"] = agg_uuid
+
+        # next, the new object will trigger update of:
+        # 'file', 'data' (some fields) and 'tracklog'. The trick is to create an
+        # ExportData() instance and just retrieve the metadata from that, and then
+        # blend the needed metadata from here into the template
+        fakeconfig = {
+            "access": self.configs[0]["access"],
+            "masterdata": self.configs[0]["masterdata"],
+            "model": self.configs[0]["fmu"]["model"],
+        }
+        etemp = ExportData(config=fakeconfig)
+        etempmeta = etemp.generate_metadata(obj, compute_md5=True)
+
+        template["tracklog"] = etempmeta["tracklog"]
+        template["file"] = etempmeta["file"]
+        template["data"]["bbox"] = etempmeta["data"]["bbox"]
+
+        self.metadata = template
+
+    def generate_metadata(self, obj: Any) -> dict:
+        """Generate metadata for the aggregated data.
+
+        This is a quite different and much simpler operation than the ExportData()
+        version, as here most metadata for each input element are already known.
+        """
+        logger.info("Generate metadata for %s", __class__)
+
+        # get input realization numbers:
+        real_ids = []
+        uuids = []
+        for conf in self.configs:
+            try:
+                rid = conf["fmu"]["realization"]["id"]
+                uuid = conf["fmu"]["realization"]["uuid"]
+            except Exception as error:
+                raise ValidationError(f"Seems that input config are not valid: {error}")
+            finally:
+                real_ids.append(rid)
+                uuids.append(uuid)
+
+        # first config file as template
+        self._generate_aggrd_metadata(obj, real_ids, uuids)
+
+        return deepcopy(self.metadata)
+
+    def export(self) -> str:
+        """Export case metadata to file.
+
+        Returns:
+            String: full path to exported item.
+        """
+
+        print("Not yet there!")

@@ -9,6 +9,7 @@ import os
 import pytest
 import xtgeo
 
+import fmu.dataionew._utils as utils
 import fmu.dataionew.dataionew as dataio
 
 logger = logging.getLogger(__name__)
@@ -29,11 +30,11 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     for i in range(10):
         use_regsurf = regsurf.copy()
         use_regsurf.values += float(i)
-        expfile = edata.export(use_regsurf, name="mymap_" + str(i))
+        expfile = edata.export(use_regsurf, name="mymap_" + str(i), realization=i)
         aggs.append(expfile)
 
     # next task is to do an aggradation, and now the metadata already exists
-    # which shall be re-used
+    # per input element which shall be re-used
     surfs = xtgeo.Surfaces()
     metas = []
     for mapfile in aggs:
@@ -46,17 +47,9 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     aggregated = surfs.statistics()
     logger.info("Aggr. mean is %s", aggregated["mean"].values.mean())  # shall be 1238.5
 
-    # the comes the dataio interface...
-    # Decisions:
-    # - own class or just a flag in ExportData?
-    # - How to treat existing metadata?
-    # - Should it be possible to override existing metadata?
-    # - Should it be possible with aggregations that do not have
-    #   have existing metdata files?
-
-    with pytest.raises(NotImplementedError):
-        aggdata = dataio.ExportData(
-            config=metas[0],  # be able to "sniff" that the config is template metadata?
-            aggregation=True,
-        )
-        aggdata.export(aggregated["mean"])
+    aggdata = dataio.AggregatedData(
+        configs=metas,
+        operation="mean",
+    )
+    newmeta = aggdata.generate_metadata(aggregated["mean"])
+    logger.info("New metadata:\n%s", utils.prettyprint_dict(newmeta))

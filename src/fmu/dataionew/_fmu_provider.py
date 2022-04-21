@@ -109,6 +109,12 @@ class _FmuProvider:
                 self.real_id = int(realfolder.replace("realization-", ""))
                 self.real_name = realfolder  # name of the realization folder
 
+                # override realization if input key 'realization' is >= 0; only in rare
+                # cases
+                if self.settings["realization"] >= 0:
+                    self.real_id = self.settings["realization"]
+                    self.real_name = "realization-" + str(self.real_id)
+
                 # also derive iteration_id from the folder
                 if "iter-" in str(iterfolder):
                     self.iter_id = int(iterfolder.replace("iter-", ""))
