@@ -30,6 +30,7 @@ class _FileDataProvider:
     # input
     cfg: dict
     objdata: Any
+    casepath: Path = field(default_factory=Path)
     verbosity: str = "CRITICAL"
 
     # storing results in these variables
@@ -44,7 +45,6 @@ class _FileDataProvider:
         self.settings = self.cfg[S]
         self.classvar = self.cfg[C]
 
-        self.basepath = self.settings["basepath"]
         self.name = self.objdata.name
         self.tagname = self.settings["tagname"]
         self.time1 = self.settings["time1"]
@@ -69,7 +69,7 @@ class _FileDataProvider:
         # resolve() will fix ".." e.g. change '/some/path/../other' to '/some/other'
         abspath = path.resolve()
 
-        relpath = path.relative_to(self.basepath)
+        relpath = path.relative_to(self.casepath)
         self.relative_path = str(relpath)
         self.absolute_path = str(abspath)
         logger.info("Derived filedata")
@@ -106,7 +106,7 @@ class _FileDataProvider:
     def _get_path(self):
         """Get the folder path and verify."""
 
-        outroot = self.basepath / "share" / "results"
+        outroot = self.casepath / "share" / "results"
         dest = outroot / self.efolder  # e.g. "maps"
 
         if self.forcefolder:

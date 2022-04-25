@@ -43,12 +43,6 @@ def test_update_check_settings_shall_fail(internalcfg2):
     "key, value, wtype, expected_msg",
     [
         (
-            "casepath",
-            "some",
-            DeprecationWarning,
-            r"The 'casepath' key is deprecated",
-        ),
-        (
             "context",
             "some",
             PendingDeprecationWarning,
@@ -85,7 +79,7 @@ def test_global_config_from_env(globalconfig_asfile):
 
 
 def test_establish_pwd_runpath(tmp_path, globalconfig2):
-    """Testing pwd and basepath from RMS"""
+    """Testing pwd and rootpath from RMS"""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
     os.chdir(rmspath)
@@ -94,5 +88,5 @@ def test_establish_pwd_runpath(tmp_path, globalconfig2):
     edata = ExportData(config=globalconfig2)
     # edata._establish_pwd_basepath()
 
-    print("\nXXXXX\n", edata.basepath.absolute())
+    print("\nXXXXX\n", edata.rootpath.absolute())
     ExportData._inside_rms = False  # reset

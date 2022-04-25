@@ -1,7 +1,7 @@
 """Test the dataio running from within RMS interactive as pretended context.
 
 In this case a user sits in RMS, which is in folder rms/model and runs
-interactive. Hence the basepath will be ../../
+interactive. Hence the rootpath will be ../../
 """
 import logging
 import os
@@ -32,7 +32,7 @@ def test_regsurf_generate_metadata(rmssetup, rmsglobalconfig, regsurf):
 
     edata.generate_metadata(regsurf)
     assert str(edata.pwd) == str(rmssetup)
-    assert str(edata.basepath.resolve()) == str(rmssetup.parent.parent.resolve())
+    assert str(edata.rootpath.resolve()) == str(rmssetup.parent.parent.resolve())
 
 
 @inside_rms
@@ -71,7 +71,7 @@ def test_regsurf_export_file(rmssetup, rmsglobalconfig, regsurf):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata.basepath / "share/results/maps/unknown.gri").resolve()
+        (edata.rootpath / "share/results/maps/unknown.gri").resolve()
     )
 
 
@@ -87,7 +87,7 @@ def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata.basepath / "share/results/maps/volantis_gp__top.gri").resolve()
+        (edata.rootpath / "share/results/maps/volantis_gp__top.gri").resolve()
     )
 
 

@@ -54,9 +54,9 @@ def fixture_fmurun_w_casemetadata(tmp_path_factory):
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / RUN2
     shutil.copytree(ROOTPWD / RUN2, newpath)
-    basepath = newpath / "realization-0/iter-0"
+    rootpath = newpath / "realization-0/iter-0"
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return basepath
+    return rootpath
 
 
 @pytest.fixture(name="rmsrun_fmu_w_casemetadata", scope="session", autouse=True)
@@ -241,7 +241,7 @@ def fixture_internalcfg2(globalconfig2):
         "unit": "m",
         "tagname": "mytag",
         "parentname": "",
-        "basepath": Path("."),
+        "rootpath": Path("."),
         "pwd": Path("."),
         "time1": "",
         "time2": "",

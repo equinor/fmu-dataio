@@ -9,7 +9,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, ClassVar, List, Union
+from typing import Any, ClassVar, List, Tuple, Union
 from warnings import warn
 
 import yaml
@@ -34,6 +34,7 @@ CLASSVARS = [
     "_inside_rms",
 ]
 
+# input:
 INSTANCEVARS = {
     "access_ssdl": dict,
     "casepath": (str, Path, None),
@@ -147,6 +148,40 @@ class ExportData:
     ``export()`` setting will win followed by ``generate_metadata() and finally
     ExportData()``.
 
+    A note on 'pwd' and 'casepath': The 'pwd' is the process working directory, which is
+    folder where the process (script) starts. The 'rootpath' is the folder from which
+    relative file names are relative to and is normally auto-detected. The user can
+    however force set the 'actual' rootpath by providing the input `casepath`. In case
+    of running a RMS project interactive on disk::
+
+        /project/foo/resmod/ff/2022.1.0/rms/model                   << pwd
+        /project/foo/resmod/ff/2022.1.0/                            << rootpath
+
+        A file:
+
+        /project/foo/resmod/ff/2022.1.0/share/results/maps/xx.gri   << example absolute
+                                        share/results/maps/xx.gri   << example relative
+
+    When running an ERT2 forward job using a normal ERT job (e.g. a script)::
+
+        /scratch/nn/case/realization-44/iter-2                      << pwd
+        /scratch/nn/case                                            << rootpath
+
+        A file:
+
+        /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  <<absolute
+                                               share/results/maps/xx.gri  << relative
+
+    When running an ERT2 forward job but here executed from RMS::
+
+        /scratch/nn/case/realization-44/iter-2/rms/model            << pwd
+        /scratch/nn/case                                            << rootpath
+
+        A file:
+
+        /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  << absolute
+                                               share/results/maps/xx.gri  << relative
+
 
     Args:
 
@@ -157,9 +192,11 @@ class ExportData:
         aggregation: Optional bool, default is False. If the input is known to be an
             aggregation (e.g. mean of many surfaces), set to True.
 
-        casepath: Absolute path to the case root. If not provided, it will be attempted
-            parsed from the file structure. This setting is current inactive and
-            deprecated
+        casepath: To override the automatic and actual ``rootpath``. Absolute path to
+            the case root. If not provided, the rootpath will be attempted parsed from
+            the file structure. This is the default.. If set, it is possible to force
+            set the ``casepath``; i.e. the folder which should base as a root for
+            relative files. Use with care!
 
         config: Required, a configuation dictionary. In the standard case this is read
             from FMU global variables (via fmuconfig). The dictionary must contain some
@@ -181,7 +218,7 @@ class ExportData:
 
         forcefolder: This setting shall only be used as exception, and will make it
             possible to output to a non-standard folder. A ``/`` in front will indicate
-            an absolute path; otherwise it will be relative to CASEPATH. Use with care.
+            an absolute path; otherwise it will be relative to ROOTPATH. Use with care.
 
         include_index: This applies to Pandas (table) data only, and if True then the
             index column will be exported.
@@ -198,12 +235,12 @@ class ExportData:
             if "TopValysar" is the model name and the actual name is "Valysar Top Fm."
             that latter name will be used.
 
-        parentname: Optional. This key is required for datatype GridProperty, and refers to
-            the name of the grid geometry.
+        parentname: Optional. This key is required for datatype GridProperty, and
+            refers to the name of the grid geometry.
 
         realization: Optional, default is -999 which means that realization shall be
-            detected automatically from the FMU run. Can be used to override in
-            rare cases. If so, numbers must be >= 0
+            detected automatically from the FMU run. Can be used to override in rare
+            cases. If so, numbers must be >= 0
 
         runpath: TODO! Optional and deprecated. The relative location of the current run
             root. Optional and will in most cases be auto-detected, assuming that FMU
@@ -218,8 +255,8 @@ class ExportData:
         tagname: This is a short tag description which be be a part of file name.
 
         timedata: If given, a list of lists with dates, .e.g.
-            [[20200101, "monitor"], [20180101, "base"]] or just [[2021010]].
-            TODO! Consider deprecate this input variant?
+            [[20200101, "monitor"], [20180101, "base"]] or just [[2021010]]. TODO!
+            Consider deprecate this input variant?
 
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO", "DEBUG". Default is
@@ -236,7 +273,7 @@ class ExportData:
     # - public (end user) interface
     # - collect the full settings from global config, user keys and class variables
     # - process and validate these settings
-    # - establish PWD and BASEPATH
+    # - establish PWD and casepath
     #
     # Then other classes will further do the detailed metadata processing, cf _MetaData
     # and subsequent classes called by _MetaData
@@ -282,7 +319,10 @@ class ExportData:
     metadata: dict = field(default_factory=dict, init=False)
     cfg: dict = field(default_factory=dict, init=False)
     pwd: Path = field(default_factory=Path, init=False)
-    basepath: Path = field(default_factory=Path, init=False)
+
+    # << NB! storing ACTUAL casepath:
+    rootpathpath: Path = field(default_factory=Path, init=False)
+    inside_rms: bool = field(default=False, init=False)
 
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
@@ -322,20 +362,13 @@ class ExportData:
         self._validate_content_key()
         self._update_globalconfig_from_settings()
         _check_global_config(self.cfg[G], strict=True)
-        self._establish_pwd_basepath()
+        self._establish_pwd_rootpath()
 
         self._show_deprecations()
         logger.info("Ran __post_init__")
 
     def _show_deprecations(self):
         """Warn on deprecated keys."""
-
-        if self.cfg[S]["casepath"] is not None:
-            warn(
-                "The 'casepath' key is deprecated and has no function. It may be "
-                "removed in fmu-dataio version 1",
-                DeprecationWarning,
-            )
 
         # not sure what to do with 'context'
         if self.cfg[S]["context"]:
@@ -388,41 +421,49 @@ class ExportData:
 
         self.cfg[G] = newglobals
 
-    def _establish_pwd_basepath(self):
-        """Establish state variables pwd and basepath.
+    def _establish_pwd_rootpath(self):
+        """Establish state variables pwd and the (initial) rootpath.
 
         The self.pwd stores the process working directory, i.e. the folder
         from which the process is ran
 
-        The self.basepath stores the folder from which is the base root for all
+        The self.rootpath stores the folder from which is the base root for all
         relative output files.
+
+        Hence rootpath can be updated later!
         """
-        logger.info("Establish pwd and basepath, inside RMS is %s)", self._inside_rms)
+        logger.info(
+            "Establish pwd and actual casepath, inside RMS is %s)", self._inside_rms
+        )
         self.pwd = Path().absolute()
 
-        # Context 1: Running RMS, we are in conventionally in basepath/rms/model
-        # Context 2: ERT FORWARD_JOB, running at basepath=RUNPATH level
+        # Context 1: Running RMS, we are in conventionally in casepath/rms/model
+        # Context 2: ERT FORWARD_JOB, running at casepath=RUNPATH level
         # Context 3: ERT WORKFLOW_JOB, running somewhere/anywhere else
 
-        self.basepath = self.pwd
-        if self.basepath and isinstance(self.basepath, (str, Path)):
-            self.basepath = Path(self.basepath).absolute()
-            logger.info("The basepath is hard set as %s", self.basepath)
+        self.rootpath = self.pwd
+        if self.casepath and isinstance(self.casepath, (str, Path)):
+            self.rootpath = Path(self.casepath).absolute()
+            logger.info("The casepath is hard set as %s", self.rootpath)
 
-        if self._inside_rms or (
-            "rms" in sys.executable and "komodo" not in sys.executable
-        ):
-            self.basepath = (self.pwd / "../../.").absolute().resolve()
-            logger.info("Run from inside RMS (or pretend)")
+        else:
+            if self._inside_rms or (
+                "rms" in sys.executable and "komodo" not in sys.executable
+            ):
+                self.rootpath = (self.pwd / "../../.").absolute().resolve()
+                logger.info("Run from inside RMS (or pretend)")
+                self.inside_rms = True
 
-        if "RUN_DATAIO_EXAMPLES" in os.environ:  # special; for repo doc examples!
-            self.basepath = Path("../../.").absolute().resolve()
+            if "RUN_DATAIO_EXAMPLES" in os.environ:  # special; for repo doc examples!
+                self.rootpath = Path("../../.").absolute().resolve()
 
         self.cfg[S]["pwd"] = self.pwd
-        self.cfg[S]["basepath"] = self.basepath
+        self.cfg[S]["rootpath"] = self.rootpath
+        self.cfg[S]["inside_rms"] = self.inside_rms
 
-        logger.info("pwd:      %s", str(self.pwd))
-        logger.info("basepath: %s", str(self.basepath))
+        logger.info("pwd:        %s", str(self.pwd))
+        logger.info("rootpath:   %s", str(self.rootpath))
+        logger.info("inside_rms: %s", str(self.inside_rms))
 
     # ==================================================================================
     # Public methods:
@@ -455,13 +496,16 @@ class ExportData:
         self._update_check_settings(kwargs)
         self._update_globalconfig_from_settings()
         _check_global_config(self.config)
-        self._establish_pwd_basepath()
+        self._establish_pwd_rootpath()
         self._validate_content_key()
 
         metaobj = _MetaData(
             obj, self.cfg, compute_md5=compute_md5, verbosity=self.verbosity
         )
         self.metadata = metaobj.generate_metadata()
+
+        self.rootpath = metaobj.rootpath
+
         logger.info("The metadata are now ready!")
 
         return deepcopy(self.metadata)
@@ -530,7 +574,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     metadata: dict = field(default_factory=dict, init=False)
     metafile: Path = field(default_factory=Path, init=False)
     pwd: Path = field(default_factory=Path, init=False)
-    basepath: Path = field(default_factory=Path, init=False)
+    rootpath: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self):
 
@@ -546,23 +590,23 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         self.cfg[G] = self.config  # global config variables
         self.cfg[S] = dict()  # the other settings (may be empty here)
 
-    def _establish_pwd_basepath(self):
-        """Establish state variables pwd and basepath.
+    def _establish_pwd_rootpath(self):
+        """Establish state variables pwd and casepath.
 
         See ExportData's method but this is much simpler (e.g. no RMS context)
         """
         self.pwd = Path().absolute()
 
-        self.basepath = self.pwd
+        self.rootpath = self.pwd.parent.parent
         self.cfg[S]["pwd"] = self.pwd
-        self.cfg[S]["basepath"] = self.basepath
+        self.cfg[S]["rootpath"] = self.rootpath
 
         logger.info("Set PWD (case): %s", str(self.pwd))
-        logger.info("Set BASEPATH (case): %s", str(self.basepath))
+        logger.info("Set rootpath (case): %s", str(self.rootpath))
 
     def _get_case_metadata(self) -> dict:
         """Get the current case medata"""
-        self._establish_pwd_basepath()
+        self._establish_pwd_rootpath()
 
         metaobj = _MetaData(
             None, self.cfg, initialize_case=True, verbosity=self.verbosity
@@ -570,7 +614,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         return metaobj._get_case_metadata()
 
     def generate_case_metadata(self, force: bool = False) -> dict:
-        self._establish_pwd_basepath()
+        self._establish_pwd_rootpath()
 
         metaobj = _MetaData(
             None, self.cfg, initialize_case=True, verbosity=self.verbosity
@@ -621,6 +665,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
     configs: list = field(default_factory=list)
     operation: str = "unknown"
+    name: str = ""
     verbosity: str = "CRITICAL"
 
     metadata: dict = field(default_factory=dict, init=False)
@@ -639,13 +684,67 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         return utils.uuid_from_string(stringinput)
 
+    def _construct_filename(self, template: dict) -> Tuple[Path, Path]:
+        """Construct the paths/filenames for aggregated data.
+
+        These filenames are constructed a bit different than in a forward job, since we
+        do not now which folder we 'are in' when doing aggregations. Could possibly also
+        be in a cloud setting.
+
+        Hence we use the first input realization as template, e.g.:
+
+        file:
+           relative_path: realization-33/iter-0/share/results/maps/x.gri
+           absolute_path: /scratch/f/case/realization-33/iter-0/share/results/maps/x.gri
+
+        And from thet we derive/compose the relative and absolute path for the
+        aggregated data:
+
+        file:
+           relative_path: share/results/maps/aggr.gri
+           absolute_path: /scratch/f/case/iter-0/share/results/maps/aggr.gri
+
+        The trick is to replace 'realization-*' with nothing and create a new file
+        name.
+        """
+
+        realiname = template["fmu"]["realization"]["name"]
+        relpath = template["file"]["relative_path"]
+        abspath = template["file"]["absolute_path"]
+
+        logger.info("First input realization relpath is: %s ", relpath)
+        logger.info("First input realization abspath is: %s ", abspath)
+
+        relpath = relpath.replace(realiname + "/", "")
+        abspath = abspath.replace(realiname + "/", "")
+
+        relpath = Path(relpath)
+        abspath = Path(abspath)
+        suffix = abspath.suffix
+        stem = abspath.stem
+
+        usename = stem + "--" + self.operation
+        if not self.name:
+            warn("Input name is not given, will assume <usename>", UserWarning)
+        else:
+            usename = self.name
+
+        relname = (relpath.parent / usename).with_suffix(suffix)
+        absname = (abspath.parent / usename).with_suffix(suffix)
+
+        logger.info("New relpath is: %s ", relname)
+        logger.info("New abspath is: %s ", absname)
+
+        return relname, absname
+
     def _generate_aggrd_metadata(self, obj: Any, real_ids: List[int], uuids: List[str]):
 
         agg_uuid = self._generate_aggr_uuid(uuids)
 
         template = deepcopy(self.configs[0])
 
-        del template["fmu"]["iteration"]
+        relpath, abspath = self._construct_filename(template)
+
         del template["fmu"]["realization"]
 
         template["fmu"]["aggregation"] = dict()
@@ -666,7 +765,10 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         etempmeta = etemp.generate_metadata(obj, compute_md5=True)
 
         template["tracklog"] = etempmeta["tracklog"]
-        template["file"] = etempmeta["file"]
+        template["file"] = etempmeta["file"]  # actually only use the checksum_md5
+        template["file"]["relative_path"] = relpath
+        template["file"]["absolute_path"] = abspath
+
         template["data"]["bbox"] = etempmeta["data"]["bbox"]
 
         self.metadata = template

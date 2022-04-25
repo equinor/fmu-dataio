@@ -18,14 +18,14 @@ from warnings import warn
 from . import _utils
 from ._utils import C, G, S
 
-# case metadata relative to basepath
-ERT2_RELATIVE_CASE_METADATA_FILE = "../../share/metadata/fmu_case.yml"
+# case metadata relative to rootpath
+ERT2_RELATIVE_CASE_METADATA_FILE = "share/metadata/fmu_case.yml"
 
 logger = logging.getLogger(__name__)
 
 
 def _get_folderlist(current: Path) -> list:
-    """Return a list of pure folder names incl. current basepath up to system root.
+    """Return a list of pure folder names incl. current casepath up to system root.
 
     For example: current is /scratch/xfield/nn/case/realization-33/iter-1
     shall return ['', 'scratch', 'xfield', 'nn', 'case', 'realization-33', 'iter-1']
@@ -45,7 +45,6 @@ class _FmuProvider:
     cfg: dict
     verbosity: str = "CRITICAL"
 
-    basepath: Path = field(default=Path, init=False)
     provider: str = field(default=None, init=False)
     is_fmurun: bool = field(default=False, init=False)
     iter_name: str = field(default=None, init=False)
@@ -60,6 +59,7 @@ class _FmuProvider:
     case_metafile: Path = field(default=None, init=False)
     case_metadata: dict = field(default_factory=dict, init=False)
     metadata: dict = field(default_factory=dict, init=False)
+    rootpath: Path = field(default=None, init=False)
 
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
@@ -67,7 +67,9 @@ class _FmuProvider:
         self.gconfig = self.cfg[G]
         self.settings = self.cfg[S]
         self.classvar = self.cfg[C]
-        self.basepath = Path(self.settings["basepath"]).absolute()
+
+        self.rootpath = Path(self.settings["rootpath"]).absolute()
+        self.rootpath_initial = self.rootpath
 
         logger.info("Initialize %s", __class__)
 
@@ -86,7 +88,7 @@ class _FmuProvider:
     def _detect_ert2provider(self) -> bool:
         """Detect if ERT2 is provider and set itername, casename, etc."""
 
-        folders = _get_folderlist(self.basepath)
+        folders = _get_folderlist(self.rootpath_initial)
         logger.info("Folders to evaluate: %s", folders)
 
         for num, folder in enumerate(folders):
@@ -97,7 +99,11 @@ class _FmuProvider:
                 casefolder = folders[num - 1]
                 userfolder = folders[num - 2]
 
-                casepath = Path("/".join(folders[0:num]))
+                case_path = Path("/".join(folders[0:num]))
+
+                # override:
+                if "casepath" in self.settings and self.settings["casepath"]:
+                    case_path = Path(self.settings["casepath"])
 
                 self.case_name = casefolder
                 self.user_name = userfolder
@@ -111,7 +117,7 @@ class _FmuProvider:
 
                 # override realization if input key 'realization' is >= 0; only in rare
                 # cases
-                if self.settings["realization"] >= 0:
+                if "realization" in self.settings and self.settings["realization"] >= 0:
                     self.real_id = self.settings["realization"]
                     self.real_name = "realization-" + str(self.real_id)
 
@@ -124,9 +130,9 @@ class _FmuProvider:
                 else:
                     raise ValueError("Could not derive iteration ID")
 
-                self.iter_path = pathlib.Path(casepath / realfolder / iterfolder)
-
-                self.real_path = pathlib.Path(casepath / realfolder)
+                self.iter_path = pathlib.Path(case_path / realfolder / iterfolder)
+                self.real_path = pathlib.Path(case_path / realfolder)
+                self.rootpath = case_path
 
                 return True
 
@@ -163,7 +169,7 @@ class _FmuProvider:
         self.case_metadata will be {} (empty) and the physical file will not be made.
         """
 
-        self.case_metafile = self.basepath / ERT2_RELATIVE_CASE_METADATA_FILE
+        self.case_metafile = self.rootpath / ERT2_RELATIVE_CASE_METADATA_FILE
         self.case_metafile = self.case_metafile.resolve()
         if self.case_metafile.exists():
             logger.info("Case metadata file exists at %s", str(self.case_metafile))

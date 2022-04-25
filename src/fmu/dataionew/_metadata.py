@@ -80,6 +80,9 @@ class _MetaData:
     meta_tracklog: list = field(default_factory=list, init=False)
     meta_fmu: dict = field(default_factory=dict, init=False)
 
+    # relevant when ERT* context; same as rootpath in the ExportData class!:
+    rootpath: str = field(default="", init=False)
+
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
 
@@ -130,6 +133,7 @@ class _MetaData:
         self.fmudata.detect_provider()
         logger.info("FMU provider is %s", self.fmudata.provider)
         self.meta_fmu = self.fmudata.metadata
+        self.rootpath = self.fmudata.rootpath
 
     def _populate_meta_file(self):
         """Populate the file block in the metadata.
@@ -138,12 +142,12 @@ class _MetaData:
 
         It requires that the _ObjectDataProvider is ran first -> self.objdata
 
-        - relative_path, seen from case_path
+        - relative_path, seen from rootpath
         - absolute_path, as above but full path
         - checksum_md5, if required (a bit special treatment of this)
         """
 
-        fdata = _FileDataProvider(self.cfg, self.objdata, self.verbosity)
+        fdata = _FileDataProvider(self.cfg, self.objdata, self.rootpath, self.verbosity)
         fdata.derive_filedata()
 
         self.meta_file["relative_path"] = fdata.relative_path
@@ -241,8 +245,8 @@ class _MetaData:
         self._populate_meta_access()
         self._populate_meta_objectdata()
         self._populate_meta_class()
-        self._populate_meta_file()
         self._populate_meta_fmu()
+        self._populate_meta_file()
 
         # glue together metadata, order is as legacy code
         meta = self.meta_dollars.copy()
