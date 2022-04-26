@@ -30,7 +30,9 @@ class _FileDataProvider:
     # input
     cfg: dict
     objdata: Any
-    casepath: Path = field(default_factory=Path)
+    rootpath: Path = field(default_factory=Path)
+    itername: str = ""
+    realname: str = ""
     verbosity: str = "CRITICAL"
 
     # storing results in these variables
@@ -69,7 +71,7 @@ class _FileDataProvider:
         # resolve() will fix ".." e.g. change '/some/path/../other' to '/some/other'
         abspath = path.resolve()
 
-        relpath = path.relative_to(self.casepath)
+        relpath = path.relative_to(self.rootpath)
         self.relative_path = str(relpath)
         self.absolute_path = str(abspath)
         logger.info("Derived filedata")
@@ -104,9 +106,22 @@ class _FileDataProvider:
         return stem
 
     def _get_path(self):
-        """Get the folder path and verify."""
+        """Construct and get the folder path and verify."""
 
-        outroot = self.casepath / "share" / "results"
+        outroot = self.rootpath
+        if self.realname:
+            outroot = outroot / self.realname
+
+        if self.itername:
+            outroot = outroot / self.itername
+
+        outroot = outroot / "share"
+
+        if self.settings.get("is_observation", None):
+            outroot = outroot / "observation"
+        else:
+            outroot = outroot / "results"
+
         dest = outroot / self.efolder  # e.g. "maps"
 
         if self.forcefolder:

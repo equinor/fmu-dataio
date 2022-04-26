@@ -134,6 +134,9 @@ class _FmuProvider:
                 self.real_path = pathlib.Path(case_path / realfolder)
                 self.rootpath = case_path
 
+                logger.info("Initial rootpath: %s", self.rootpath_initial)
+                logger.info("Updated rootpath: %s", self.rootpath)
+
                 return True
 
         return False

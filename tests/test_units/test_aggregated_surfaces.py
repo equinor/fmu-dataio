@@ -47,6 +47,8 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     aggregated = surfs.statistics()
     logger.info("Aggr. mean is %s", aggregated["mean"].values.mean())  # shall be 1238.5
 
-    aggdata = dataio.AggregatedData(configs=metas, operation="mean", verbosity="INFO")
+    aggdata = dataio.AggregatedData(
+        configs=metas, operation="mean", name="myaggrd", verbosity="INFO"
+    )
     newmeta = aggdata.generate_metadata(aggregated["mean"])
     logger.info("New metadata:\n%s", utils.prettyprint_dict(newmeta))

@@ -147,7 +147,14 @@ class _MetaData:
         - checksum_md5, if required (a bit special treatment of this)
         """
 
-        fdata = _FileDataProvider(self.cfg, self.objdata, self.rootpath, self.verbosity)
+        fdata = _FileDataProvider(
+            self.cfg,
+            self.objdata,
+            self.rootpath,
+            self.fmudata.iter_name,
+            self.fmudata.real_name,
+            self.verbosity,
+        )
         fdata.derive_filedata()
 
         self.meta_file["relative_path"] = fdata.relative_path

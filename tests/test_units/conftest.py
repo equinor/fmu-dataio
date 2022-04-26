@@ -194,7 +194,12 @@ def fixture_internalcfg1(globalconfig1) -> dict:
     internalcfg1 = {}
 
     internalcfg1[G] = globalconfig1
-    internalcfg1[S] = {"name": "TopWhatever", "content": "depth", "tagname": "mytag"}
+    internalcfg1[S] = {
+        "name": "TopWhatever",
+        "content": "depth",
+        "tagname": "mytag",
+        "is_observation": False,
+    }
     # class variables
     internalcfg1[C] = {
         "surface_fformat": "irap_binary",

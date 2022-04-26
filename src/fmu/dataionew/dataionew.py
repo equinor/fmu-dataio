@@ -34,7 +34,7 @@ CLASSVARS = [
     "_inside_rms",
 ]
 
-# input:
+# possible user inputs:
 INSTANCEVARS = {
     "access_ssdl": dict,
     "casepath": (str, Path, None),
@@ -71,7 +71,12 @@ class ValidationError(ValueError):
     ...
 
 
-def _check_global_config(globalconfig, strict=True):
+# ======================================================================================
+# Private functions
+# ======================================================================================
+
+
+def _check_global_config(globalconfig: dict, strict: bool = True):
     """A check/validation of static global_config.
 
     Currently not a full validation. For now, just check that some required
@@ -92,7 +97,7 @@ def _check_global_config(globalconfig, strict=True):
 
 
 # ======================================================================================
-# Public function to read/load assosiated metadata given a file
+# Public function to read/load assosiated metadata given a file (e.g. a map file)
 # ======================================================================================
 
 
@@ -321,7 +326,7 @@ class ExportData:
     pwd: Path = field(default_factory=Path, init=False)
 
     # << NB! storing ACTUAL casepath:
-    rootpathpath: Path = field(default_factory=Path, init=False)
+    rootpath: Path = field(default_factory=Path, init=False)
     inside_rms: bool = field(default=False, init=False)
 
     def __post_init__(self):
@@ -666,6 +671,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
     configs: list = field(default_factory=list)
     operation: str = "unknown"
     name: str = ""
+    tagname: str = ""
     verbosity: str = "CRITICAL"
 
     metadata: dict = field(default_factory=dict, init=False)
@@ -701,7 +707,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         aggregated data:
 
         file:
-           relative_path: share/results/maps/aggr.gri
+           relative_path: iter-0/share/results/maps/aggr.gri
            absolute_path: /scratch/f/case/iter-0/share/results/maps/aggr.gri
 
         The trick is to replace 'realization-*' with nothing and create a new file
@@ -729,6 +735,9 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         else:
             usename = self.name
 
+        if self.tagname:
+            usename = usename + "--" + self.tagname
+
         relname = (relpath.parent / usename).with_suffix(suffix)
         absname = (abspath.parent / usename).with_suffix(suffix)
 
@@ -752,10 +761,11 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         template["fmu"]["aggregation"]["realization_ids"] = real_ids
         template["fmu"]["aggregation"]["id"] = agg_uuid
 
-        # next, the new object will trigger update of:
-        # 'file', 'data' (some fields) and 'tracklog'. The trick is to create an
-        # ExportData() instance and just retrieve the metadata from that, and then
-        # blend the needed metadata from here into the template
+        # next, the new object will trigger update of: 'file', 'data' (some fields) and
+        # 'tracklog'. The trick is to create an ExportData() instance and just retrieve
+        # the metadata from that, and then blend the needed metadata from here into the
+        # template
+
         fakeconfig = {
             "access": self.configs[0]["access"],
             "masterdata": self.configs[0]["masterdata"],
@@ -768,6 +778,12 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         template["file"] = etempmeta["file"]  # actually only use the checksum_md5
         template["file"]["relative_path"] = relpath
         template["file"]["absolute_path"] = abspath
+
+        # data section
+        if self.name:
+            template["data"]["name"] = self.name
+        if self.tagname:
+            template["data"]["tagname"] = self.tagname
 
         template["data"]["bbox"] = etempmeta["data"]["bbox"]
 
