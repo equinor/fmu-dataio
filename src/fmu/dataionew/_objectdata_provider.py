@@ -61,11 +61,22 @@ data:
         xmin: 456012.5003497944
         xmax: 467540.52762886323
         ...
+
+    # --- NB two variants of time, here old:
     time:
-        - value: 2020-10-28T14:28:02
+        - value: 2029-10-28T11:21:12
           label: "some label"
         - value: 2020-10-28T14:28:02
           label: "some other label"
+
+    # --- Here new:
+    t0:
+        value: 2020-10-28T14:28:02
+        label: "some other label"
+    t1:
+        value: 2029-10-28T11:21:12
+        label: "some label"
+
     is_prediction: true # For separating pure QC output from actual predictions
     is_observation: true # Used for 4D data currently but also valid for other data?
     description:
@@ -74,6 +85,7 @@ data:
 """
 import logging
 from dataclasses import dataclass, field
+from datetime import datetime as dt
 from typing import Any
 
 import numpy as np
@@ -129,6 +141,8 @@ class _ObjectDataProvider:
     layout: str = ""
     bbox: dict = field(default_factory=dict)
     specs: dict = field(default_factory=dict)
+    time0: str = ""
+    time1: str = ""
 
     def __post_init__(self):
 
@@ -281,6 +295,57 @@ class _ObjectDataProvider:
 
         return specs, bbox
 
+    def _derive_timedata(self):
+        """Format input timedata to metadata."""
+
+        tdata = self.settings.get("timedata", None)
+        if not tdata:
+            return {}
+
+        tresult = dict()
+        if self.classvar["legacy_time_format"]:
+            if len(tdata) >= 1:
+                elem = tdata[0]
+                tresult["time"] = list()
+                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                self.time1 = str(elem[0])
+                if len(elem) == 2:
+                    xfield["label"] = elem[1]
+                tresult["time"].append(xfield)
+            if len(tdata) == 2:
+                elem = tdata[1]
+                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                self.time0 = str(elem[0])
+                if len(elem) == 2:
+                    xfield["label"] = elem[1]
+                tresult["time"].append(xfield)
+        else:
+            # new format
+            if len(tdata) == 1:
+                elem = tdata[0]
+                tresult["t0"] = dict()
+                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                self.time0 = str(elem[0])
+                if len(elem) == 2:
+                    xfield["label"] = elem[1]
+                tresult["t0"] = xfield
+            if len(tdata) == 2:
+                elem = tdata[1]
+                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                self.time1 = str(elem[0])
+                if len(elem) == 2:
+                    xfield["label"] = elem[1]
+                tresult["t0"] = xfield
+
+                elem = tdata[0]
+                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                if len(elem) == 2:
+                    xfield["label"] = elem[1]
+                tresult["t1"] = xfield
+
+        logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self)
+        return tresult
+
     def derive_metadata(self):
         """Main function here, will populate the metadata block for 'data'."""
         logger.info("Derive all metadata for data object")
@@ -304,7 +369,12 @@ class _ObjectDataProvider:
         meta["depth_reference"] = self.settings.get("depth_reference", None)
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
-        meta["time"] = self.settings.get("time", None)
+
+        tresult = self._derive_timedata()
+        if tresult:
+            for key, val in tresult.items():
+                meta[key] = val
+
         meta["is_prediction"] = self.settings.get("is_prediction", False)
         meta["is_observation"] = self.settings.get("is_observation", False)
         meta["description"] = self.settings.get("description", None)

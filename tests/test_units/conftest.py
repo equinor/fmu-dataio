@@ -237,6 +237,7 @@ def fixture_internalcfg2(globalconfig2):
         "surface_fformat": "irap_binary",
         "createfolder": False,
         "verifyfolder": False,
+        "legacy_time_format": False,
     }
 
     # settings per instance
@@ -248,8 +249,7 @@ def fixture_internalcfg2(globalconfig2):
         "parentname": "",
         "rootpath": Path("."),
         "pwd": Path("."),
-        "time1": "",
-        "time2": "",
+        "timedata": [[20330105, "moni"], [19990102, "base"]],
         "is_prediction": True,
         "is_observation": False,
         "forcefolder": None,

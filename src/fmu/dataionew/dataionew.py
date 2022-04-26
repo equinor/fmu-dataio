@@ -7,9 +7,8 @@ import os
 import sys
 from copy import deepcopy
 from dataclasses import dataclass, field
-from datetime import datetime
 from pathlib import Path
-from typing import Any, ClassVar, List, Tuple, Union
+from typing import Any, ClassVar, List, Optional, Tuple, Union
 from warnings import warn
 
 import yaml
@@ -25,6 +24,7 @@ CLASSVARS = [
     "createfolder",
     "cube_fformat",
     "grid_fformat",
+    "legacy_time_format",
     "meta_format",
     "points_fformat",
     "polygons_fformat",
@@ -48,8 +48,7 @@ INSTANCEVARS = {
     "parentname": str,
     "realization": int,
     "tagname": str,
-    "time1": (int, str, datetime),
-    "time2": (int, str, datetime),
+    "timedata": list,
     "subfolder": str,
     "unit": str,
     "verbosity": str,
@@ -67,8 +66,6 @@ logging.captureWarnings(True)
 
 class ValidationError(ValueError):
     """Raise error while validating."""
-
-    ...
 
 
 # ======================================================================================
@@ -115,10 +112,10 @@ def read_metadata(filename: Union[str, Path]) -> dict:
     """
     fname = Path(filename)
     metafile = str(fname.parent) + "/." + fname.stem + fname.suffix + ".yml"
-    metafile = Path(metafile)
-    if not metafile.exists():
+    metafilepath = Path(metafile)
+    if not metafilepath.exists():
         raise IOError(f"Cannot find requested metafile: {metafile}")
-    with open(metafile, "r") as stream:
+    with open(metafilepath, "r") as stream:
         metacfg = yaml.safe_load(stream)
 
     return metacfg
@@ -175,7 +172,7 @@ class ExportData:
         A file:
 
         /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  <<absolute
-                                               share/results/maps/xx.gri  << relative
+                         realization-44/iter-2/share/results/maps/xx.gri  << relative
 
     When running an ERT2 forward job but here executed from RMS::
 
@@ -185,7 +182,7 @@ class ExportData:
         A file:
 
         /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  << absolute
-                                               share/results/maps/xx.gri  << relative
+                         realization-44/iter-2/share/results/maps/xx.gri  << relative
 
 
     Args:
@@ -260,8 +257,8 @@ class ExportData:
         tagname: This is a short tag description which be be a part of file name.
 
         timedata: If given, a list of lists with dates, .e.g.
-            [[20200101, "monitor"], [20180101, "base"]] or just [[2021010]]. TODO!
-            Consider deprecate this input variant?
+            [[20200101, "monitor"], [20180101, "base"]] or just [[2021010]].
+            The output to metadata will from version 0.9 be different (API change)
 
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO", "DEBUG". Default is
@@ -271,14 +268,31 @@ class ExportData:
             {"depth": "msl"} which is default if missing.
 
         workflow: Short tag desciption of workflow (as description)
+
+
+    .. note:: Comment on time formats
+
+        The input time format is on the form::
+
+            timedata: [[20200101, "monitor"], [20180101, "base"]]
+
+        In the new version this will shown in metadata files as::
+
+            data:
+              t0:
+                value: 2018010T00:00:00
+                description: base
+              t1:
+                value: 202020101T00:00:00
+                description: monitor
     """
 
     # ----------------------------------------------------------------------------------
-    # This role for this class is to be
+    # This role for this class is to be:
     # - public (end user) interface
     # - collect the full settings from global config, user keys and class variables
     # - process and validate these settings
-    # - establish PWD and casepath
+    # - establish PWD and rootpath
     #
     # Then other classes will further do the detailed metadata processing, cf _MetaData
     # and subsequent classes called by _MetaData
@@ -296,6 +310,7 @@ class ExportData:
     createfolder: ClassVar[bool] = True
     verifyfolder: ClassVar[bool] = True
     meta_format: ClassVar[str] = "yaml"
+    legacy_time_format: ClassVar[bool] = False
     _inside_rms: ClassVar[bool] = False  # developer only! if True pretend inside RMS
 
     # input keys (alphabetic)
@@ -313,21 +328,19 @@ class ExportData:
     realization: int = -999
     subfolder: str = ""
     tagname: str = ""
-    time1: str = ""
-    time2: str = ""
+    timedata: Optional[List[list]] = None
     unit: str = ""
     verbosity: str = "CRITICAL"
     vertical_domain: dict = field(default_factory=dict)
     workflow: str = ""
 
     # storing resulting state variables for instance:
-    metadata: dict = field(default_factory=dict, init=False)
-    cfg: dict = field(default_factory=dict, init=False)
-    pwd: Path = field(default_factory=Path, init=False)
+    _metadata: dict = field(default_factory=dict, init=False)
+    _cfg: dict = field(default_factory=dict, init=False)
+    _pwd: Path = field(default_factory=Path, init=False)
 
     # << NB! storing ACTUAL casepath:
-    rootpath: Path = field(default_factory=Path, init=False)
-    inside_rms: bool = field(default=False, init=False)
+    _rootpath: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
@@ -342,31 +355,31 @@ class ExportData:
 
         _check_global_config(self.config, strict=False)
 
-        # collect all given settings in master dictionary: self.cfg
-        self.cfg[C] = dict()  # the class variables
-        self.cfg[G] = dict()  # global config variables
-        self.cfg[S] = dict()  # the other settings
+        # collect all given settings in master dictionary: self._cfg
+        self._cfg[C] = dict()  # the class variables
+        self._cfg[G] = dict()  # global config variables
+        self._cfg[S] = dict()  # the other settings
 
         # store Class variables
         for cvar in CLASSVARS:
-            self.cfg[C][cvar] = getattr(self, cvar)
+            self._cfg[C][cvar] = getattr(self, cvar)
 
         # store input key values except config (which are the static global_config)
         for ivar in INSTANCEVARS:
             if "config" in ivar:
-                self.cfg[G] = getattr(self, ivar)
+                self._cfg[G] = getattr(self, ivar)
             else:
-                self.cfg[S][ivar] = getattr(self, ivar)
+                self._cfg[S][ivar] = getattr(self, ivar)
 
         # special; global config which may be given as env variable pointing on a file
-        if not self.cfg[G] or GLOBAL_ENVNAME in os.environ:
-            self.cfg[G] = utils.global_config_from_env(GLOBAL_ENVNAME)
+        if not self._cfg[G] or GLOBAL_ENVNAME in os.environ:
+            self._cfg[G] = utils.global_config_from_env(GLOBAL_ENVNAME)
 
-        logger.info("Input access: %s", self.cfg[G]["access"])
+        logger.info("Input access: %s", self._cfg[G]["access"])
 
         self._validate_content_key()
         self._update_globalconfig_from_settings()
-        _check_global_config(self.cfg[G], strict=True)
+        _check_global_config(self._cfg[G], strict=True)
         self._establish_pwd_rootpath()
 
         self._show_deprecations()
@@ -376,7 +389,7 @@ class ExportData:
         """Warn on deprecated keys."""
 
         # not sure what to do with 'context'
-        if self.cfg[S]["context"]:
+        if self._cfg[S]["context"]:
             warn(
                 "The 'context' key has currently no function. It will be evaluated for "
                 "removal in fmu-dataio version 1",
@@ -385,7 +398,7 @@ class ExportData:
 
     def _validate_content_key(self):
         """Validate the given 'content' input."""
-        if self.cfg[S]["content"] not in ALLOWED_CONTENTS:
+        if self._cfg[S]["content"] not in ALLOWED_CONTENTS:
             msg = ""
             for key, value in ALLOWED_CONTENTS.items():
                 msg += f"{key}: {value}\n"
@@ -406,33 +419,33 @@ class ExportData:
                 logger.info("Value type %s", type(value))
                 if not isinstance(value, INSTANCEVARS[setting]):
                     raise ValidationError("Setting key is present but incorrect type")
-                self.cfg[S][setting] = value
+                self._cfg[S][setting] = value
         self._show_deprecations()
 
     def _update_globalconfig_from_settings(self):
         """A few user settings may update/append the global config directly."""
-        newglobals = deepcopy(self.cfg[G])
+        newglobals = deepcopy(self._cfg[G])
 
-        if "access_ssdl" in self.cfg[S] and self.cfg[S]["access_ssdl"]:
-            if "ssdl" not in self.cfg[G]["access"]:
+        if "access_ssdl" in self._cfg[S] and self._cfg[S]["access_ssdl"]:
+            if "ssdl" not in self._cfg[G]["access"]:
                 newglobals["access"]["ssdl"] = dict()
 
-            newglobals["access"]["ssdl"] = deepcopy(self.cfg[S]["access_ssdl"])
-            del self.cfg[S]["access_ssdl"]
+            newglobals["access"]["ssdl"] = deepcopy(self._cfg[S]["access_ssdl"])
+            del self._cfg[S]["access_ssdl"]
 
             logger.info(
                 "Updated global config's access.ssdl value: %s", newglobals["access"]
             )
 
-        self.cfg[G] = newglobals
+        self._cfg[G] = newglobals
 
     def _establish_pwd_rootpath(self):
         """Establish state variables pwd and the (initial) rootpath.
 
-        The self.pwd stores the process working directory, i.e. the folder
+        The self._pwd stores the process working directory, i.e. the folder
         from which the process is ran
 
-        The self.rootpath stores the folder from which is the base root for all
+        The self._rootpath stores the folder from which is the base root for all
         relative output files.
 
         Hence rootpath can be updated later!
@@ -440,35 +453,36 @@ class ExportData:
         logger.info(
             "Establish pwd and actual casepath, inside RMS is %s)", self._inside_rms
         )
-        self.pwd = Path().absolute()
+        self._pwd = Path().absolute()
 
         # Context 1: Running RMS, we are in conventionally in casepath/rms/model
         # Context 2: ERT FORWARD_JOB, running at casepath=RUNPATH level
         # Context 3: ERT WORKFLOW_JOB, running somewhere/anywhere else
 
-        self.rootpath = self.pwd
+        self._rootpath = self._pwd
+        inside_rms = False
         if self.casepath and isinstance(self.casepath, (str, Path)):
-            self.rootpath = Path(self.casepath).absolute()
-            logger.info("The casepath is hard set as %s", self.rootpath)
+            self._rootpath = Path(self.casepath).absolute()
+            logger.info("The casepath is hard set as %s", self._rootpath)
 
         else:
             if self._inside_rms or (
                 "rms" in sys.executable and "komodo" not in sys.executable
             ):
-                self.rootpath = (self.pwd / "../../.").absolute().resolve()
+                self._rootpath = (self._pwd / "../../.").absolute().resolve()
                 logger.info("Run from inside RMS (or pretend)")
-                self.inside_rms = True
+                inside_rms = True
 
             if "RUN_DATAIO_EXAMPLES" in os.environ:  # special; for repo doc examples!
-                self.rootpath = Path("../../.").absolute().resolve()
+                self._rootpath = Path("../../.").absolute().resolve()
 
-        self.cfg[S]["pwd"] = self.pwd
-        self.cfg[S]["rootpath"] = self.rootpath
-        self.cfg[S]["inside_rms"] = self.inside_rms
+        self._cfg[S]["pwd"] = self._pwd
+        self._cfg[S]["rootpath"] = self._rootpath
+        self._cfg[S]["inside_rms"] = inside_rms
 
-        logger.info("pwd:        %s", str(self.pwd))
-        logger.info("rootpath:   %s", str(self.rootpath))
-        logger.info("inside_rms: %s", str(self.inside_rms))
+        logger.info("pwd:        %s", str(self._pwd))
+        logger.info("rootpath:   %s", str(self._rootpath))
+        logger.info("inside_rms: %s", str(inside_rms))
 
     # ==================================================================================
     # Public methods:
@@ -505,15 +519,15 @@ class ExportData:
         self._validate_content_key()
 
         metaobj = _MetaData(
-            obj, self.cfg, compute_md5=compute_md5, verbosity=self.verbosity
+            obj, self._cfg, compute_md5=compute_md5, verbosity=self.verbosity
         )
-        self.metadata = metaobj.generate_metadata()
+        self._metadata = metaobj.generate_metadata()
 
-        self.rootpath = metaobj.rootpath
+        self._rootpath = metaobj.rootpath
 
         logger.info("The metadata are now ready!")
 
-        return deepcopy(self.metadata)
+        return deepcopy(self._metadata)
 
     def export(self, obj, **kwargs) -> str:
         """Export data objects of 'known' type to FMU storage solution with metadata.
@@ -542,7 +556,7 @@ class ExportData:
         logger.info("Actual file is:   %s", outfile)
         logger.info("Metadata file is: %s", metafile)
 
-        self.metadata = metadata
+        self._metadata = metadata
 
         return str(outfile)
 
@@ -575,11 +589,11 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     config: dict
     verbosity: str = "CRITICAL"
 
-    cfg: dict = field(default_factory=dict, init=False)
-    metadata: dict = field(default_factory=dict, init=False)
-    metafile: Path = field(default_factory=Path, init=False)
-    pwd: Path = field(default_factory=Path, init=False)
-    rootpath: Path = field(default_factory=Path, init=False)
+    _cfg: dict = field(default_factory=dict, init=False)
+    _metadata: dict = field(default_factory=dict, init=False)
+    _metafile: Path = field(default_factory=Path, init=False)
+    _pwd: Path = field(default_factory=Path, init=False)
+    _rootpath: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self):
 
@@ -590,31 +604,31 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
         _check_global_config(self.config)
 
-        # collect all given settings in dictionary self.cfg since _Metadata expects that
-        self.cfg[C] = dict()  # the class variables (may be empty here)
-        self.cfg[G] = self.config  # global config variables
-        self.cfg[S] = dict()  # the other settings (may be empty here)
+        # collect all given settings in dictionary self._cfg since _Metadata expects that
+        self._cfg[C] = dict()  # the class variables (may be empty here)
+        self._cfg[G] = self.config  # global config variables
+        self._cfg[S] = dict()  # the other settings (may be empty here)
 
     def _establish_pwd_rootpath(self):
         """Establish state variables pwd and casepath.
 
         See ExportData's method but this is much simpler (e.g. no RMS context)
         """
-        self.pwd = Path().absolute()
+        self._pwd = Path().absolute()
 
-        self.rootpath = self.pwd.parent.parent
-        self.cfg[S]["pwd"] = self.pwd
-        self.cfg[S]["rootpath"] = self.rootpath
+        self._rootpath = self._pwd.parent.parent
+        self._cfg[S]["pwd"] = self._pwd
+        self._cfg[S]["rootpath"] = self._rootpath
 
-        logger.info("Set PWD (case): %s", str(self.pwd))
-        logger.info("Set rootpath (case): %s", str(self.rootpath))
+        logger.info("Set PWD (case): %s", str(self._pwd))
+        logger.info("Set rootpath (case): %s", str(self._rootpath))
 
     def _get_case_metadata(self) -> dict:
         """Get the current case medata"""
         self._establish_pwd_rootpath()
 
         metaobj = _MetaData(
-            None, self.cfg, initialize_case=True, verbosity=self.verbosity
+            None, self._cfg, initialize_case=True, verbosity=self.verbosity
         )
         return metaobj._get_case_metadata()
 
@@ -622,14 +636,14 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         self._establish_pwd_rootpath()
 
         metaobj = _MetaData(
-            None, self.cfg, initialize_case=True, verbosity=self.verbosity
+            None, self._cfg, initialize_case=True, verbosity=self.verbosity
         )
 
-        self.metadata = metaobj.generate_case_metadata(force=force)
-        self.metafile = metaobj.fmudata.case_metafile
+        self._metadata = metaobj.generate_case_metadata(force=force)
+        self._metafile = metaobj.fmudata.case_metafile
 
         logger.info("The case metadata are now ready!")
-        return deepcopy(self.metadata)
+        return deepcopy(self._metadata)
 
     def export(self, force=False) -> str:
         """Export case metadata to file.
@@ -639,9 +653,9 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         """
 
         self.generate_case_metadata(force=force)
-        utils.export_metadata_file(self.metafile, self.metadata)
-        logger.info("METAFILE %s", self.metafile)
-        return str(self.metafile)
+        utils.export_metadata_file(self._metafile, self._metadata)
+        logger.info("METAFILE %s", self._metafile)
+        return str(self._metafile)
 
 
 # ######################################################################################
@@ -674,8 +688,8 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
     tagname: str = ""
     verbosity: str = "CRITICAL"
 
-    metadata: dict = field(default_factory=dict, init=False)
-    metafile: Path = field(default_factory=Path, init=False)
+    _metadata: dict = field(default_factory=dict, init=False)
+    _metafile: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
@@ -787,7 +801,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         template["data"]["bbox"] = etempmeta["data"]["bbox"]
 
-        self.metadata = template
+        self._metadata = template
 
     def generate_metadata(self, obj: Any) -> dict:
         """Generate metadata for the aggregated data.
@@ -795,7 +809,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         This is a quite different and much simpler operation than the ExportData()
         version, as here most metadata for each input element are already known.
         """
-        logger.info("Generate metadata for %s", __class__)
+        logger.info("Generate metadata for class")
 
         # get input realization numbers:
         real_ids = []
@@ -806,14 +820,14 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
                 uuid = conf["fmu"]["realization"]["uuid"]
             except Exception as error:
                 raise ValidationError(f"Seems that input config are not valid: {error}")
-            finally:
-                real_ids.append(rid)
-                uuids.append(uuid)
+
+            real_ids.append(rid)
+            uuids.append(uuid)
 
         # first config file as template
         self._generate_aggrd_metadata(obj, real_ids, uuids)
 
-        return deepcopy(self.metadata)
+        return deepcopy(self._metadata)
 
     def export(self) -> str:
         """Export case metadata to file.
@@ -823,3 +837,4 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         """
 
         print("Not yet there!")
+        return "dummy"

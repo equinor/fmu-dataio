@@ -49,8 +49,11 @@ class _FileDataProvider:
 
         self.name = self.objdata.name
         self.tagname = self.settings["tagname"]
-        self.time1 = self.settings["time1"]
-        self.time2 = self.settings["time2"]
+        self.time0 = self.objdata.time0
+        self.time1 = self.objdata.time1
+        print("\nXXXX TIME0", self.time0)
+        print("\nXXXX TIME1", self.time1)
+
         self.parentname = self.settings["parentname"]
         self.extension = self.objdata.extension
         self.efolder = self.objdata.efolder
@@ -81,8 +84,8 @@ class _FileDataProvider:
 
         if not self.name:
             raise ValueError("The 'name' entry is missing for constructing a file name")
-        if not self.time1 and self.time2:
-            raise ValueError("Not legal: 'time1' is missing while 'time2' is present")
+        if not self.time0 and self.time1:
+            raise ValueError("Not legal: 'time0' is missing while 'time1' is present")
 
         stem = self.name.lower()
         if self.tagname:
@@ -90,12 +93,12 @@ class _FileDataProvider:
         if self.parentname:
             stem = self.parentname.lower() + "--" + stem
 
-        if self.time1 and not self.time2:
-            stem += "--" + (str(self.time1)[0:10]).replace("-", "")
+        if self.time0 and not self.time1:
+            stem += "--" + (str(self.time0)[0:10]).replace("-", "")
 
-        elif self.time1 and self.time2:
-            monitor = (str(self.time1)[0:10]).replace("-", "")
-            base = (str(self.time2)[0:10]).replace("-", "")
+        elif self.time0 and self.time1:
+            monitor = (str(self.time0)[0:10]).replace("-", "")
+            base = (str(self.time1)[0:10]).replace("-", "")
             if monitor == base:
                 warn(
                     "The monitor date and base date are equal", UserWarning

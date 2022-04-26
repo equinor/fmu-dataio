@@ -13,6 +13,7 @@ print(sys.path)
 from datetime import date
 
 import fmu.dataio
+import fmu.dataionew.dataionew
 
 # -- General configuration ---------------------------------------------
 
@@ -31,7 +32,7 @@ extensions = [
 
 togglebutton_hint = "Expand"
 
-apidoc_module_dir = "../src/fmu/dataio"
+apidoc_module_dir = "../src/fmu/dataionew"
 apidoc_output_dir = "apiref"
 apidoc_excluded_paths = ["tests"]
 apidoc_separate_modules = True

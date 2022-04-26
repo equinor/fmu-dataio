@@ -21,11 +21,11 @@ def test_generate_metadata_simple(globalconfig1):
 
     edata = ExportData(config=globalconfig1)
 
-    assert edata.cfg[G]["model"]["name"] == "Test"
+    assert edata._cfg[G]["model"]["name"] == "Test"
 
-    assert edata.cfg[C]["meta_format"] == "yaml"
-    assert edata.cfg[C]["grid_fformat"] == "grdecl"
-    assert edata.cfg[S]["name"] == ""
+    assert edata._cfg[C]["meta_format"] == "yaml"
+    assert edata._cfg[C]["grid_fformat"] == "grdecl"
+    assert edata._cfg[S]["name"] == ""
 
 
 def test_update_check_settings_shall_fail(internalcfg2):
@@ -75,7 +75,7 @@ def test_global_config_from_env(globalconfig_asfile):
     """Testing getting global config from a file"""
     os.environ["FMU_GLOBAL_CONFIG"] = globalconfig_asfile
     edata = ExportData()  # the env variable will override this
-    assert "smda" in edata.cfg["GLOBVAR"]["masterdata"]
+    assert "smda" in edata._cfg["GLOBVAR"]["masterdata"]
 
 
 def test_establish_pwd_runpath(tmp_path, globalconfig2):
@@ -88,5 +88,5 @@ def test_establish_pwd_runpath(tmp_path, globalconfig2):
     edata = ExportData(config=globalconfig2)
     # edata._establish_pwd_basepath()
 
-    print("\nXXXXX\n", edata.rootpath.absolute())
+    print("\nXXXXX\n", edata._rootpath.absolute())
     ExportData._inside_rms = False  # reset

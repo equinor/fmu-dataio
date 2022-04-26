@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def test_inicase_barebone(globalconfig2):
 
     icase = InitializeCase(globalconfig2)
-    assert "Drogon" in str(icase.cfg[G])
+    assert "Drogon" in str(icase._cfg[G])
 
 
 def test_inicase_pwd_basepath(fmurun, globalconfig2):
@@ -27,10 +27,10 @@ def test_inicase_pwd_basepath(fmurun, globalconfig2):
     icase = InitializeCase(globalconfig2)
     icase._establish_pwd_rootpath()
 
-    logger.info("Rootpath is %s", icase.rootpath)
+    logger.info("Rootpath is %s", icase._rootpath)
 
-    assert icase.rootpath == fmurun.parent.parent
-    assert icase.pwd == fmurun
+    assert icase._rootpath == fmurun.parent.parent
+    assert icase._pwd == fmurun
 
 
 def test_inicase_generate_case_metadata(fmurun, globalconfig2):

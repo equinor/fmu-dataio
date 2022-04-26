@@ -31,8 +31,8 @@ def test_regsurf_generate_metadata(rmssetup, rmsglobalconfig, regsurf):
     logger.info("Inside RMS status now %s", dataio.ExportData._inside_rms)
 
     edata.generate_metadata(regsurf)
-    assert str(edata.pwd) == str(rmssetup)
-    assert str(edata.rootpath.resolve()) == str(rmssetup.parent.parent.resolve())
+    assert str(edata._pwd) == str(rmssetup)
+    assert str(edata._rootpath.resolve()) == str(rmssetup.parent.parent.resolve())
 
 
 @inside_rms
@@ -71,7 +71,7 @@ def test_regsurf_export_file(rmssetup, rmsglobalconfig, regsurf):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata.rootpath / "share/results/maps/unknown.gri").resolve()
+        (edata._rootpath / "share/results/maps/unknown.gri").resolve()
     )
 
 
@@ -87,8 +87,82 @@ def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata.rootpath / "share/results/maps/volantis_gp__top.gri").resolve()
+        (edata._rootpath / "share/results/maps/volantis_gp__top.gri").resolve()
     )
+
+
+@inside_rms
+def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
+    """Export the regular surface to file with correct metadata and name and timedata."""
+
+    logger.info("Active folder is %s", rmssetup)
+
+    edata = dataio.ExportData(
+        config=rmsglobalconfig,
+        verbosity="INFO",
+    )  # read from global config
+    meta1 = edata.generate_metadata(
+        regsurf,
+        name="TopVolantis",
+        timedata=[[20300101, "moni"], [20100203, "base"]],
+        verbosity="INFO",
+    )
+    assert meta1["data"]["t0"]["value"] == "2010-02-03T00:00:00"
+    assert meta1["data"]["t0"]["label"] == "base"
+    assert meta1["data"]["t1"]["value"] == "2030-01-01T00:00:00"
+    assert meta1["data"]["t1"]["label"] == "moni"
+
+    meta1 = edata.generate_metadata(
+        regsurf,
+        name="TopVolantis",
+        timedata=[[20300123, "one"]],
+        verbosity="INFO",
+    )
+
+    assert meta1["data"]["t0"]["value"] == "2030-01-23T00:00:00"
+    assert meta1["data"]["t0"]["label"] == "one"
+    assert meta1["data"].get("t1", None) is None
+
+    logger.info(prettyprint_dict(meta1))
+
+
+@inside_rms
+def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsurf):
+    """Export the regular surface to file with correct metadata timedata, legacy ver."""
+
+    logger.info("Active folder is %s", rmssetup)
+
+    dataio.ExportData.legacy_time_format = True
+    edata = dataio.ExportData(
+        config=rmsglobalconfig,
+        verbosity="INFO",
+    )  # read from global config
+    meta1 = edata.generate_metadata(
+        regsurf,
+        name="TopVolantis",
+        timedata=[[20300101, "moni"], [20100203, "base"]],
+        verbosity="INFO",
+    )
+    logger.info(prettyprint_dict(meta1))
+
+    assert meta1["data"]["time"][1]["value"] == "2010-02-03T00:00:00"
+    assert meta1["data"]["time"][1]["label"] == "base"
+    assert meta1["data"]["time"][0]["value"] == "2030-01-01T00:00:00"
+    assert meta1["data"]["time"][0]["label"] == "moni"
+
+    meta1 = edata.generate_metadata(
+        regsurf,
+        name="TopVolantis",
+        timedata=[[20300123, "one"]],
+        verbosity="INFO",
+    )
+
+    assert meta1["data"]["time"][0]["value"] == "2030-01-23T00:00:00"
+    assert meta1["data"]["time"][0]["label"] == "one"
+
+    assert len(meta1["data"]["time"]) == 1
+
+    dataio.ExportData.legacy_time_format = False
 
 
 @inside_rms
@@ -110,7 +184,7 @@ def test_regsurf_export_file_fmurun(
         unit="myunit",
     )  # read from global config
 
-    assert edata.cfg[S]["unit"] == "myunit"
+    assert edata._cfg[S]["unit"] == "myunit"
 
     # generating metadata without export is possible
     themeta = edata.generate_metadata(
@@ -128,5 +202,5 @@ def test_regsurf_export_file_fmurun(
     )
     logger.info("Output is %s", output)
 
-    assert edata.metadata["access"]["ssdl"]["access_level"] == "restricted"
-    assert edata.metadata["data"]["unit"] == "forthnite"
+    assert edata._metadata["access"]["ssdl"]["access_level"] == "restricted"
+    assert edata._metadata["data"]["unit"] == "forthnite"
