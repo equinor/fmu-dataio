@@ -88,5 +88,4 @@ def test_establish_pwd_runpath(tmp_path, globalconfig2):
     edata = ExportData(config=globalconfig2)
     # edata._establish_pwd_basepath()
 
-    print("\nXXXXX\n", edata._rootpath.absolute())
     ExportData._inside_rms = False  # reset

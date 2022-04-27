@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 C = "CLASSVAR"
 G = "GLOBVAR"
 S = "SETTING"
+X = "EXTRAS"  # additonal settings
 
 
 def inherit_docstring(inherit_from):

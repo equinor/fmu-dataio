@@ -51,8 +51,6 @@ class _FileDataProvider:
         self.tagname = self.settings["tagname"]
         self.time0 = self.objdata.time0
         self.time1 = self.objdata.time1
-        print("\nXXXX TIME0", self.time0)
-        print("\nXXXX TIME1", self.time1)
 
         self.parentname = self.settings["parentname"]
         self.extension = self.objdata.extension

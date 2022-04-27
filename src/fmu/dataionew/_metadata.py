@@ -16,7 +16,14 @@ from fmu.dataionew._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataionew._filedata_provider import _FileDataProvider
 from fmu.dataionew._fmu_provider import _FmuProvider
 from fmu.dataionew._objectdata_provider import _ObjectDataProvider
-from fmu.dataionew._utils import C, G, S, drop_nones, export_file_compute_checksum_md5
+from fmu.dataionew._utils import (
+    C,
+    G,
+    S,
+    X,
+    drop_nones,
+    export_file_compute_checksum_md5,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -86,8 +93,9 @@ class _MetaData:
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
 
-        # making input config more explisit for readibility
+        # making input config more explisit for readability
         self.settings = self.cfg[S]
+        self.xsettings = self.cfg[X]
         self.globalconfig = self.cfg[G]
         self.classvar = self.cfg[C]
 

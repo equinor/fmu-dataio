@@ -16,7 +16,7 @@ from pathlib import Path
 from warnings import warn
 
 from . import _utils
-from ._utils import C, G, S
+from ._utils import C, G, S, X
 
 # case metadata relative to rootpath
 ERT2_RELATIVE_CASE_METADATA_FILE = "share/metadata/fmu_case.yml"
@@ -66,9 +66,10 @@ class _FmuProvider:
 
         self.gconfig = self.cfg[G]
         self.settings = self.cfg[S]
+        self.xsettings = self.cfg[X]
         self.classvar = self.cfg[C]
 
-        self.rootpath = Path(self.settings["rootpath"]).absolute()
+        self.rootpath = Path(self.xsettings["rootpath"]).absolute()
         self.rootpath_initial = self.rootpath
 
         logger.info("Initialize %s", __class__)

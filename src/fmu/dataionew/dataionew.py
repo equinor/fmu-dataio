@@ -16,7 +16,7 @@ import yaml
 import fmu.dataionew._utils as utils
 from fmu.dataionew._definitions import ALLOWED_CONTENTS
 from fmu.dataionew._metadata import _MetaData
-from fmu.dataionew._utils import C, G, S
+from fmu.dataionew._utils import C, G, S, X
 
 CLASSVARS = [
     "arrow_fformat",
@@ -46,6 +46,7 @@ INSTANCEVARS = {
     "is_prediction": bool,
     "name": str,
     "parentname": str,
+    "pre_forward": bool,
     "realization": int,
     "runpath": str,
     "tagname": str,
@@ -242,6 +243,8 @@ class ExportData:
         parentname: Optional. This key is required for datatype GridProperty, and
             refers to the name of the grid geometry.
 
+        pre_forward: ...
+
         realization: Optional, default is -999 which means that realization shall be
             detected automatically from the FMU run. Can be used to override in rare
             cases. If so, numbers must be >= 0
@@ -333,6 +336,7 @@ class ExportData:
     is_prediction: bool = True
     name: str = ""
     parentname: str = ""  # TODO: parent?
+    pre_forward: bool = False
     realization: int = -999
     runpath: Union[str, Path, None] = None
     subfolder: str = ""
@@ -367,7 +371,8 @@ class ExportData:
         # collect all given settings in master dictionary: self._cfg
         self._cfg[C] = dict()  # the class variables
         self._cfg[G] = dict()  # global config variables
-        self._cfg[S] = dict()  # the other settings
+        self._cfg[S] = dict()  # the other input settings
+        self._cfg[X] = dict()  # extra settings, generated on the fly
 
         # store Class variables
         for cvar in CLASSVARS:
@@ -462,7 +467,8 @@ class ExportData:
         from which the process is ran
 
         The self._rootpath stores the folder from which is the base root for all
-        relative output files.
+        relative output files. This rootpath may be dependent on if this is a FMU run
+        or just an interactive run.
 
         Hence rootpath can be updated later!
         """
@@ -471,8 +477,8 @@ class ExportData:
         )
         self._pwd = Path().absolute()
 
-        # Context 1: Running RMS, we are in conventionally in casepath/rms/model
-        # Context 2: ERT FORWARD_JOB, running at casepath=RUNPATH level
+        # Context 1: Running RMS, we are in conventionally in rootpath/rms/model
+        # Context 2: ERT FORWARD_JOB, running at case = rootpath=RUNPATH/../../. level
         # Context 3: ERT WORKFLOW_JOB, running somewhere/anywhere else
 
         self._rootpath = self._pwd
@@ -492,11 +498,11 @@ class ExportData:
             if "RUN_DATAIO_EXAMPLES" in os.environ:  # special; for repo doc examples!
                 self._rootpath = Path("../../.").absolute().resolve()
 
-        self._cfg[S]["pwd"] = self._pwd
-        self._cfg[S]["rootpath"] = self._rootpath
-        self._cfg[S]["inside_rms"] = inside_rms
-
         # make some extra keys in settings:
+        self._cfg[X]["pwd"] = self._pwd
+        self._cfg[X]["rootpath"] = self._rootpath
+        self._cfg[X]["inside_rms"] = inside_rms
+
         logger.info("pwd:        %s", str(self._pwd))
         logger.info("rootpath:   %s", str(self._rootpath))
         logger.info("inside_rms: %s", str(inside_rms))
@@ -627,6 +633,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         self._cfg[C] = dict()  # the class variables (may be empty here)
         self._cfg[G] = self.config  # global config variables
         self._cfg[S] = dict()  # the other settings (may be empty here)
+        self._cfg[X] = dict()  # the other settings (may be empty here)
 
     def _establish_pwd_rootpath(self):
         """Establish state variables pwd and casepath.
@@ -636,8 +643,8 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         self._pwd = Path().absolute()
 
         self._rootpath = self._pwd.parent.parent
-        self._cfg[S]["pwd"] = self._pwd
-        self._cfg[S]["rootpath"] = self._rootpath
+        self._cfg[X]["pwd"] = self._pwd
+        self._cfg[X]["rootpath"] = self._rootpath
 
         logger.info("Set PWD (case): %s", str(self._pwd))
         logger.info("Set rootpath (case): %s", str(self._rootpath))
@@ -668,7 +675,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         """Export case metadata to file.
 
         Returns:
-            String: full path to exported item.
+            String: full path to exported metadata file.
         """
 
         self.generate_case_metadata(force=force)
@@ -779,7 +786,9 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         return relname, absname
 
-    def _generate_aggrd_metadata(self, obj: Any, real_ids: List[int], uuids: List[str]):
+    def _generate_aggrd_metadata(
+        self, obj: Any, real_ids: List[int], uuids: List[str], compute_md5: bool = True
+    ):
 
         agg_uuid = self._generate_aggr_uuid(uuids)
 
@@ -805,7 +814,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
             "model": self.configs[0]["fmu"]["model"],
         }
         etemp = ExportData(config=fakeconfig)
-        etempmeta = etemp.generate_metadata(obj, compute_md5=True)
+        etempmeta = etemp.generate_metadata(obj, compute_md5=compute_md5)
 
         template["tracklog"] = etempmeta["tracklog"]
         template["file"] = etempmeta["file"]  # actually only use the checksum_md5
@@ -822,7 +831,9 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         self._metadata = template
 
-    def generate_metadata(self, obj: Any) -> dict:
+    def generate_metadata(
+        self, obj: Any, uuid: str = None, compute_md5: bool = True
+    ) -> dict:
         """Generate metadata for the aggregated data.
 
         This is a quite different and much simpler operation than the ExportData()
@@ -844,16 +855,32 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
             uuids.append(uuid)
 
         # first config file as template
-        self._generate_aggrd_metadata(obj, real_ids, uuids)
+        self._generate_aggrd_metadata(obj, real_ids, uuids, compute_md5)
 
         return deepcopy(self._metadata)
 
-    def export(self) -> str:
-        """Export case metadata to file.
+    def export(self, obj, uuid: str = None) -> str:
+        """Export aggregated file with metadata to file.
 
         Returns:
             String: full path to exported item.
         """
+        metadata = self.generate_metadata(obj, uuid=uuid, compute_md5=False)
 
-        print("Not yet there!")
-        return "dummy"
+        outfile = Path(metadata["file"]["absolute_path"])
+        metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
+
+        logger.info("Export to file and compute MD5 sum")
+        outfile, md5 = utils.export_file_compute_checksum_md5(
+            obj, outfile, outfile.suffix
+        )
+
+        # inject md5 checksum in metadata
+        metadata["file"]["checksum_md5"] = md5
+
+        utils.export_metadata_file(metafile, metadata)
+        logger.info("Actual file is:   %s", outfile)
+        logger.info("Metadata file is: %s", metafile)
+
+        self._metadata = metadata
+        return str(outfile)

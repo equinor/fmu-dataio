@@ -192,6 +192,7 @@ def test_regsurf_export_file_fmurun(
         unit="furlongs",  # intentional override
     )
     assert themeta["data"]["unit"] == "furlongs"
+    logger.debug("Metadata: \n%s", prettyprint_dict(themeta))
 
     # doing actual export with a few ovverides
     output = edata.export(
