@@ -308,16 +308,17 @@ class _ObjectDataProvider:
                 elem = tdata[0]
                 tresult["time"] = list()
                 xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
-                self.time1 = str(elem[0])
+                self.time0 = str(elem[0])
                 if len(elem) == 2:
                     xfield["label"] = elem[1]
                 tresult["time"].append(xfield)
             if len(tdata) == 2:
                 elem = tdata[1]
                 xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
-                self.time0 = str(elem[0])
+                self.time1 = str(elem[0])
                 if len(elem) == 2:
                     xfield["label"] = elem[1]
+                    self.time0 = str(elem[1])
                 tresult["time"].append(xfield)
         else:
             # new format
@@ -339,6 +340,7 @@ class _ObjectDataProvider:
 
                 elem = tdata[0]
                 xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+                self.time0 = str(elem[0])
                 if len(elem) == 2:
                     xfield["label"] = elem[1]
                 tresult["t1"] = xfield

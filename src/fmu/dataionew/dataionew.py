@@ -47,6 +47,7 @@ INSTANCEVARS = {
     "name": str,
     "parentname": str,
     "realization": int,
+    "runpath": str,
     "tagname": str,
     "timedata": list,
     "subfolder": str,
@@ -141,8 +142,9 @@ class ExportData:
         )
 
         for name in ["TopOne", TopTwo", "TopThree"]:
-            poly = xtgeo.polygons_from_roxar(PRJ, hname, POL_FOLDER) out =
-            ed.export(poly, name=name)
+            poly = xtgeo.polygons_from_roxar(PRJ, hname, POL_FOLDER)
+
+            out = ed.export(poly, name=name)
 
     Almost all keyword settings like ``name``, ``tagname`` etc can be set in both the
     ExportData instance and directly in the ``generate_metadata`` or ``export()``
@@ -150,11 +152,11 @@ class ExportData:
     ``export()`` setting will win followed by ``generate_metadata() and finally
     ExportData()``.
 
-    A note on 'pwd' and 'casepath': The 'pwd' is the process working directory, which is
-    folder where the process (script) starts. The 'rootpath' is the folder from which
-    relative file names are relative to and is normally auto-detected. The user can
-    however force set the 'actual' rootpath by providing the input `casepath`. In case
-    of running a RMS project interactive on disk::
+    A note on 'pwd' and 'rootpath' and 'casepath': The 'pwd' is the process working
+    directory, which is folder where the process (script) starts. The 'rootpath' is the
+    folder from which relative file names are relative to and is normally auto-detected.
+    The user can however force set the 'actual' rootpath by providing the input
+    `casepath`. In case of running a RMS project interactive on disk::
 
         /project/foo/resmod/ff/2022.1.0/rms/model                   << pwd
         /project/foo/resmod/ff/2022.1.0/                            << rootpath
@@ -257,8 +259,8 @@ class ExportData:
         tagname: This is a short tag description which be be a part of file name.
 
         timedata: If given, a list of lists with dates, .e.g.
-            [[20200101, "monitor"], [20180101, "base"]] or just [[2021010]].
-            The output to metadata will from version 0.9 be different (API change)
+            [[20200101, "monitor"], [20180101, "base"]] or just [[2021010]]. The output
+            to metadata will from version 0.9 be different (API change)
 
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO", "DEBUG". Default is
@@ -272,11 +274,15 @@ class ExportData:
 
     .. note:: Comment on time formats
 
-        The input time format is on the form::
+        If two dates are present (i.e. the element represents a difference, the input
+        time format is on the form::
 
             timedata: [[20200101, "monitor"], [20180101, "base"]]
 
-        In the new version this will shown in metadata files as::
+        Hence the last data (monitor) usually comes first.
+
+        In the new version this will shown in metadata files as where the oldest
+        date is shown as t0::
 
             data:
               t0:
@@ -285,6 +291,8 @@ class ExportData:
               t1:
                 value: 202020101T00:00:00
                 description: monitor
+
+        The output files will be on the form: somename--t1_t0.ext
     """
 
     # ----------------------------------------------------------------------------------
@@ -326,6 +334,7 @@ class ExportData:
     name: str = ""
     parentname: str = ""  # TODO: parent?
     realization: int = -999
+    runpath: Union[str, Path, None] = None
     subfolder: str = ""
     tagname: str = ""
     timedata: Optional[List[list]] = None
@@ -396,6 +405,13 @@ class ExportData:
                 PendingDeprecationWarning,
             )
 
+        if self._cfg[S]["runpath"]:
+            warn(
+                "The 'runpath' key has currently no function. It will be evaluated for "
+                "removal in fmu-dataio version 1",
+                PendingDeprecationWarning,
+            )
+
     def _validate_content_key(self):
         """Validate the given 'content' input."""
         if self._cfg[S]["content"] not in ALLOWED_CONTENTS:
@@ -410,8 +426,8 @@ class ExportData:
 
     def _update_check_settings(self, newsettings: dict) -> None:
         """If settings "S" are updated, run a validation prior update self._settings."""
-
         logger.info("New settings %s", newsettings)
+
         for setting, value in newsettings.items():
             if setting not in INSTANCEVARS:
                 raise ValidationError(f"Proposed setting {setting} is not valid")
@@ -480,6 +496,7 @@ class ExportData:
         self._cfg[S]["rootpath"] = self._rootpath
         self._cfg[S]["inside_rms"] = inside_rms
 
+        # make some extra keys in settings:
         logger.info("pwd:        %s", str(self._pwd))
         logger.info("rootpath:   %s", str(self._rootpath))
         logger.info("inside_rms: %s", str(inside_rms))
@@ -512,6 +529,8 @@ class ExportData:
             **kwargs: For other arguments, see ExportData() input keys. If they
                 exist both places, the latter will override!
         """
+        logger.info("Generate metadata...")
+
         self._update_check_settings(kwargs)
         self._update_globalconfig_from_settings()
         _check_global_config(self.config)
@@ -604,7 +623,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
         _check_global_config(self.config)
 
-        # collect all given settings in dictionary self._cfg since _Metadata expects that
+        # collect all settings in dictionary self._cfg since _Metadata expects that
         self._cfg[C] = dict()  # the class variables (may be empty here)
         self._cfg[G] = self.config  # global config variables
         self._cfg[S] = dict()  # the other settings (may be empty here)
@@ -664,8 +683,8 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 # The AggregatedData is used for making the aggregations from existing data that already
 # have valid metadata, i.e. made from ExportData.
 #
-# Hence this is actually quite different and much simpler than ExportData(), which
-# needed a lot of info as FmuProvider, FileProvider, ObjectData etc. Here all these
+# Hence this is actually quite different and simpler than ExportData(), which
+# needed a lot of info as FmuProvider, FileProvider, ObjectData etc. Here most these
 # already known from the input.
 #
 # ######################################################################################
