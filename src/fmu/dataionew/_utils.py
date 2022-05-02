@@ -38,7 +38,7 @@ def drop_nones(dinput: dict) -> dict:
     # https://stackoverflow.com/a/65379092
     dd = {}
     for key, val in dinput.items():
-        if isinstance(val, dict):
+        if isinstance(val, dict) and val:
             dd[key] = drop_nones(val)
         elif isinstance(val, (list, set, tuple)):
             # note: Nones in lists are not dropped
@@ -46,7 +46,7 @@ def drop_nones(dinput: dict) -> dict:
             dd[key] = type(val)(
                 drop_nones(vv) if isinstance(vv, dict) else vv for vv in val
             )
-        elif val is not None:
+        elif val is not None and val:
             dd[key] = val
     return dd
 

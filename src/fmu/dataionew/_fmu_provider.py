@@ -66,8 +66,8 @@ class _FmuProvider:
 
         self.gconfig = self.cfg[G]
         self.settings = self.cfg[S]
-        self.xsettings = self.cfg[X]
         self.classvar = self.cfg[C]
+        self.xsettings = self.cfg[X]
 
         self.rootpath = Path(self.xsettings["rootpath"]).absolute()
         self.rootpath_initial = self.rootpath

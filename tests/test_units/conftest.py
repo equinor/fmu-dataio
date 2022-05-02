@@ -10,7 +10,7 @@ import pytest
 import xtgeo
 import yaml
 
-from fmu.dataionew._utils import C, G, S
+from fmu.dataionew._utils import C, G, S, X
 from fmu.dataionew.dataionew import ExportData
 
 logger = logging.getLogger(__name__)
@@ -207,6 +207,10 @@ def fixture_internalcfg1(globalconfig1) -> dict:
         "verifyfolder": False,
     }
 
+    internalcfg1[X] = {
+        "inside_rms": False,
+    }
+
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     # settings per instance
     return internalcfg1
@@ -247,14 +251,18 @@ def fixture_internalcfg2(globalconfig2):
         "unit": "m",
         "tagname": "mytag",
         "parentname": "",
-        "rootpath": Path("."),
-        "pwd": Path("."),
         "timedata": [[20330105, "moni"], [19990102, "base"]],
         "is_prediction": True,
         "is_observation": False,
         "forcefolder": None,
         "subfolder": "",
     }
+
+    internalcfg2[X] = {
+        "rootpath": Path("."),
+        "pwd": Path("."),
+    }
+
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return internalcfg2
 

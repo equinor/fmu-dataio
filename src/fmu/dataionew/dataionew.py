@@ -495,6 +495,10 @@ class ExportData:
             if "RUN_DATAIO_EXAMPLES" in os.environ:  # special; for repo doc examples!
                 self._rootpath = Path("../../.").absolute().resolve()
 
+            # special case; when doing testing in an virtual RMS python not running RMS
+            if "KOMODO_RELEASE" in os.environ and not self._inside_rms:
+                self._rootpath = self._pwd
+
         # make some extra keys in settings:
         self._cfg[X]["pwd"] = self._pwd
         self._cfg[X]["rootpath"] = self._rootpath

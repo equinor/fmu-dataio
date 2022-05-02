@@ -39,29 +39,29 @@ def test_update_check_settings_shall_fail(internalcfg2):
         ExportData._update_check_settings("dummy", newsettings)
 
 
-@pytest.mark.parametrize(
-    "key, value, wtype, expected_msg",
-    [
-        (
-            "context",
-            "some",
-            PendingDeprecationWarning,
-            r"The 'context' key has currently no function",
-        ),
-    ],
-)
-def test_deprecated_keys(internalcfg2, regsurf, key, value, wtype, expected_msg):
-    """Some keys shall raise a DeprecationWarning or similar."""
+# @pytest.mark.parametrize(
+#     "key, value, wtype, expected_msg",
+#     [
+#         (
+#             "context",
+#             "some",
+#             PendingDeprecationWarning,
+#             r"The 'context' key has currently no function",
+#         ),
+#     ],
+# )
+# def test_deprecated_keys(internalcfg2, regsurf, key, value, wtype, expected_msg):
+#     """Some keys shall raise a DeprecationWarning or similar."""
 
-    # under primary initialisation
-    kval = {key: value}
-    with pytest.warns(wtype, match=expected_msg):
-        _ = ExportData(config=internalcfg2[G], **kval)
+#     # under primary initialisation
+#     kval = {key: value}
+#     with pytest.warns(wtype, match=expected_msg):
+#         _ = ExportData(config=internalcfg2[G], **kval)
 
-    # under override
-    with pytest.warns(wtype, match=expected_msg):
-        edata = ExportData(config=internalcfg2[G])
-        edata.generate_metadata(regsurf, **kval)
+#     # under override
+#     with pytest.warns(wtype, match=expected_msg):
+#         edata = ExportData(config=internalcfg2[G])
+#         edata.generate_metadata(regsurf, **kval)
 
 
 def test_content_is_invalid(internalcfg2):

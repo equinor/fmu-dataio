@@ -2,12 +2,13 @@
 import os
 
 from fmu.dataionew._fmu_provider import _FmuProvider, _get_folderlist
-from fmu.dataionew._utils import C, G, S
+from fmu.dataionew._utils import C, G, S, X
 
 FOLDERTREE = "scratch/myfield/case/realization-13/iter-2"
 
 CFG = dict()
-CFG[S] = {"rootpath": ".", "casepath": ""}
+CFG[X] = {"rootpath": ".", "casepath": ""}
+CFG[S] = {}
 CFG[G] = {}
 CFG[C] = {}
 
@@ -37,6 +38,7 @@ def test_fmuprovider_ert2_provider(fmurun):
     os.chdir(fmurun)
 
     CFG[S] = {"rootpath": fmurun, "casepath": None}
+    CFG[X] = {"rootpath": fmurun, "casepath": None}
 
     myfmu = _FmuProvider(CFG)
     myfmu.detect_provider()
@@ -51,7 +53,7 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
     That will still provide a file path but the metadata will be {} i.e. empty
     """
     os.chdir(fmurun)
-    CFG[S] = {"rootpath": fmurun}
+    CFG[X] = {"rootpath": fmurun}
 
     myfmu = _FmuProvider(CFG)
     myfmu.detect_provider()
@@ -64,7 +66,7 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
 
 def test_fmuprovider_detect_case_has_metadata(fmurun_w_casemetadata):
     """Testing the case metadata file which is found here"""
-    CFG[S] = {"rootpath": fmurun_w_casemetadata}
+    CFG[X] = {"rootpath": fmurun_w_casemetadata}
     os.chdir(fmurun_w_casemetadata)
     myfmu = _FmuProvider(CFG)
     myfmu.detect_provider()

@@ -16,14 +16,7 @@ from fmu.dataionew._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataionew._filedata_provider import _FileDataProvider
 from fmu.dataionew._fmu_provider import _FmuProvider
 from fmu.dataionew._objectdata_provider import _ObjectDataProvider
-from fmu.dataionew._utils import (
-    C,
-    G,
-    S,
-    X,
-    drop_nones,
-    export_file_compute_checksum_md5,
-)
+from fmu.dataionew._utils import C, G, S, drop_nones, export_file_compute_checksum_md5
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +88,6 @@ class _MetaData:
 
         # making input config more explisit for readability
         self.settings = self.cfg[S]
-        self.xsettings = self.cfg[X]
         self.globalconfig = self.cfg[G]
         self.classvar = self.cfg[C]
 
@@ -272,7 +264,7 @@ class _MetaData:
         meta["file"] = self.meta_file
 
         meta["data"] = self.meta_objectdata
-        meta["display"] = "display dummy"
+        meta["display"] = {"name": self.settings["name"]}  # solution so far; TBD
 
         meta["access"] = self.meta_access
         meta["masterdata"] = self.meta_masterdata

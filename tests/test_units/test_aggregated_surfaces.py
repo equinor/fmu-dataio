@@ -23,6 +23,7 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,  # read from global config
+        verbosity="INFO",
     )
 
     aggs = []

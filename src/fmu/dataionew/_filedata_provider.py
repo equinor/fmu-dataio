@@ -47,7 +47,11 @@ class _FileDataProvider:
         self.settings = self.cfg[S]
         self.classvar = self.cfg[C]
 
-        self.name = self.objdata.name
+        if self.settings["name"]:
+            self.name = self.settings["name"]
+        else:
+            self.name = self.objdata.name
+
         self.tagname = self.settings["tagname"]
         self.time0 = self.objdata.time0
         self.time1 = self.objdata.time1
