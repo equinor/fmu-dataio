@@ -1,7 +1,10 @@
 """Test the dataio running with pre-realization objects, e.g. surfaces.
 
-These objects are normally made before ERT has ran forward jobs and are typically used
-to compare results.
+Thses outputs will ned an active 'stage' key in order to come into the right folder
+and classification
+
+These objects are normally made as hook workflows before ERT has ran any forward jobs
+and are typically used to compare results.
 """
 import logging
 import os
@@ -20,6 +23,7 @@ def test_regsurf_prerealization(fmurun_w_casemetadata, rmsglobalconfig, regsurf)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,  # read from global config
+        stage="case",
     )
 
-    metadata = edata.generate_metadata(regsurf, name="mymap", pre_realizations=True)
+    metadata = edata.generate_metadata(regsurf, name="mymap")

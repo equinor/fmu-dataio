@@ -48,7 +48,11 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     logger.info("Aggr. mean is %s", aggregated["mean"].values.mean())  # shall be 1238.5
 
     aggdata = dataio.AggregatedData(
-        configs=metas, operation="mean", name="myaggrd", verbosity="INFO"
+        configs=metas,
+        operation="mean",
+        name="myaggrd",
+        verbosity="INFO",
+        aggregation_id="1234",
     )
     newmeta = aggdata.generate_metadata(aggregated["mean"])
     logger.info("New metadata:\n%s", utils.prettyprint_dict(newmeta))
@@ -92,7 +96,11 @@ def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, reg
     logger.info("Aggr. mean is %s", aggregated["mean"].values.mean())  # shall be 1238.5
 
     aggdata = dataio.AggregatedData(
-        configs=metas, operation="mean", name="myaggrd", verbosity="INFO"
+        configs=metas,
+        operation="mean",
+        name="myaggrd",
+        verbosity="INFO",
+        aggregation_id="789politipoliti",
     )
     newmeta = aggdata.generate_metadata(aggregated["mean"])
     logger.info("New metadata:\n%s", utils.prettyprint_dict(newmeta))

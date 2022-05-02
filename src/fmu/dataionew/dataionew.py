@@ -46,11 +46,11 @@ INSTANCEVARS = {
     "is_prediction": bool,
     "name": str,
     "parentname": str,
-    "pre_forward": bool,
     "realization": int,
     "runpath": str,
     "tagname": str,
     "timedata": list,
+    "stage": str,
     "subfolder": str,
     "unit": str,
     "verbosity": str,
@@ -243,8 +243,6 @@ class ExportData:
         parentname: Optional. This key is required for datatype GridProperty, and
             refers to the name of the grid geometry.
 
-        pre_forward: ...
-
         realization: Optional, default is -999 which means that realization shall be
             detected automatically from the FMU run. Can be used to override in rare
             cases. If so, numbers must be >= 0
@@ -254,6 +252,9 @@ class ExportData:
             folder conventions are followed. For an ERT run e.g.
             /scratch/xx/nn/case/realization-0/iter-0/. while in a revision at project
             disc it will the revision root e.g. /project/xx/resmod/ff/21.1.0/.
+
+        stage: Default is 'realization', which means that file w/ metadata is output per
+            realization. If 'iteration', then ...
 
         subfolder: It is possible to set one level of subfolders for file output.
             The input should only accept a single folder name, i.e. no paths. If paths
@@ -336,9 +337,9 @@ class ExportData:
     is_prediction: bool = True
     name: str = ""
     parentname: str = ""  # TODO: parent?
-    pre_forward: bool = False
     realization: int = -999
     runpath: Union[str, Path, None] = None
+    stage: str = "realization"
     subfolder: str = ""
     tagname: str = ""
     timedata: Optional[List[list]] = None
@@ -372,7 +373,7 @@ class ExportData:
         self._cfg[C] = dict()  # the class variables
         self._cfg[G] = dict()  # global config variables
         self._cfg[S] = dict()  # the other input settings
-        self._cfg[X] = dict()  # extra settings, generated on the fly
+        self._cfg[X] = dict()  # extra settings, generated on the fly internally
 
         # store Class variables
         for cvar in CLASSVARS:
@@ -396,19 +397,15 @@ class ExportData:
         _check_global_config(self._cfg[G], strict=True)
         self._establish_pwd_rootpath()
 
-        self._show_deprecations()
+        self._show_deprecations_or_notimplemented()
         logger.info("Ran __post_init__")
 
-    def _show_deprecations(self):
-        """Warn on deprecated keys."""
+    def _show_deprecations_or_notimplemented(self):
+        """Warn on deprecated keys og on stuff not implemented yet."""
 
         # not sure what to do with 'context'
         if self._cfg[S]["context"]:
-            warn(
-                "The 'context' key has currently no function. It will be evaluated for "
-                "removal in fmu-dataio version 1",
-                PendingDeprecationWarning,
-            )
+            warn("The 'context' key is not impemented yet", UserWarning)
 
         if self._cfg[S]["runpath"]:
             warn(
@@ -441,7 +438,7 @@ class ExportData:
                 if not isinstance(value, INSTANCEVARS[setting]):
                     raise ValidationError("Setting key is present but incorrect type")
                 self._cfg[S][setting] = value
-        self._show_deprecations()
+        self._show_deprecations_or_notimplemented()
 
     def _update_globalconfig_from_settings(self):
         """A few user settings may update/append the global config directly."""
@@ -694,6 +691,9 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 # needed a lot of info as FmuProvider, FileProvider, ObjectData etc. Here most these
 # already known from the input.
 #
+# For aggregations, the id is normally given as an argument by the external process, and
+# by that, be able to give a group of aggregations the same id.
+#
 # ######################################################################################
 
 
@@ -706,12 +706,16 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         operation: A string that descibes the operation, e.g. "mean"
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO".
+        tagname: Additional name, as part of file name
+        aggregation_id: Give an explicit ID for the aggregation. If not provided, an
+            ID based on existing realization uuid will be made.
     """
 
     configs: list = field(default_factory=list)
     operation: str = "unknown"
     name: str = ""
     tagname: str = ""
+    aggregation_id: str = ""
     verbosity: str = "CRITICAL"
 
     _metadata: dict = field(default_factory=dict, init=False)
@@ -722,7 +726,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _generate_aggr_uuid(uuids: list) -> str:
-        """Use existing UUIDs to generate a new UUID for the aggregation."""
+        """Unless aggregation_id; use existing UUIDs to generate a new UUID."""
 
         stringinput = ""
         for uuid in uuids:
@@ -753,7 +757,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         The trick is to replace 'realization-*' with nothing and create a new file
         name.
         """
-
+        logger.info("Construct file name for the aggregation...")
         realiname = template["fmu"]["realization"]["name"]
         relpath = template["file"]["relative_path"]
         abspath = template["file"]["absolute_path"]
@@ -790,23 +794,25 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         self, obj: Any, real_ids: List[int], uuids: List[str], compute_md5: bool = True
     ):
 
-        agg_uuid = self._generate_aggr_uuid(uuids)
+        if not self.aggregation_id:
+            self.aggregation_id = self._generate_aggr_uuid(uuids)
 
         template = deepcopy(self.configs[0])
 
         relpath, abspath = self._construct_filename(template)
 
+        # fmu.realization shall not be used
         del template["fmu"]["realization"]
 
         template["fmu"]["aggregation"] = dict()
         template["fmu"]["aggregation"]["operation"] = self.operation
         template["fmu"]["aggregation"]["realization_ids"] = real_ids
-        template["fmu"]["aggregation"]["id"] = agg_uuid
+        template["fmu"]["aggregation"]["id"] = self.aggregation_id
 
         # next, the new object will trigger update of: 'file', 'data' (some fields) and
         # 'tracklog'. The trick is to create an ExportData() instance and just retrieve
         # the metadata from that, and then blend the needed metadata from here into the
-        # template
+        # template -> final metadata
 
         fakeconfig = {
             "access": self.configs[0]["access"],
@@ -831,13 +837,20 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         self._metadata = template
 
-    def generate_metadata(
-        self, obj: Any, uuid: str = None, compute_md5: bool = True
-    ) -> dict:
+    def generate_metadata(self, obj: Any, compute_md5: bool = True) -> dict:
         """Generate metadata for the aggregated data.
 
         This is a quite different and much simpler operation than the ExportData()
-        version, as here most metadata for each input element are already known.
+        version, as here most metadata for each input element are already known. Hence,
+        the metadata for the first element in the input list is used as template.
+
+        Args:
+
+            obj: The map, 3D grid, table, etc instance.
+
+            compute_md5: If True, an md5 sum for the file will be created. This involves
+                a temporary export of the data, and may be time consuming for large
+                data.
         """
         logger.info("Generate metadata for class")
 
@@ -859,13 +872,13 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         return deepcopy(self._metadata)
 
-    def export(self, obj, uuid: str = None) -> str:
+    def export(self, obj) -> str:
         """Export aggregated file with metadata to file.
 
         Returns:
             String: full path to exported item.
         """
-        metadata = self.generate_metadata(obj, uuid=uuid, compute_md5=False)
+        metadata = self.generate_metadata(obj, compute_md5=False)
 
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
@@ -875,7 +888,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
             obj, outfile, outfile.suffix
         )
 
-        # inject md5 checksum in metadata
+        # inject the computed md5 checksum in metadata
         metadata["file"]["checksum_md5"] = md5
 
         utils.export_metadata_file(metafile, metadata)

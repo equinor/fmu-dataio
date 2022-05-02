@@ -345,12 +345,12 @@ class _ObjectDataProvider:
                     xfield["label"] = elem[1]
                 tresult["t1"] = xfield
 
-        logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self)
+        logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self.time1)
         return tresult
 
     def derive_metadata(self):
         """Main function here, will populate the metadata block for 'data'."""
-        logger.info("Derive all metadata for data object")
+        logger.info("Derive all metadata for data object...")
         nameres = self._derive_name_stratigraphy()
         objres = self._derive_objectdata()
 
@@ -394,3 +394,4 @@ class _ObjectDataProvider:
         self.classname = objres["classname"]
         self.extension = objres["extension"]
         self.fmt = objres["fmt"]
+        logger.info("Derive all metadata for data object... DONE")
