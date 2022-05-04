@@ -87,7 +87,7 @@ def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/maps/volantis_gp__top.gri").resolve()
+        (edata._rootpath / "share/results/maps/topvolantis.gri").resolve()
     )
 
 

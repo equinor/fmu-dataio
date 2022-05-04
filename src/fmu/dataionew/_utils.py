@@ -46,8 +46,11 @@ def drop_nones(dinput: dict) -> dict:
             dd[key] = type(val)(
                 drop_nones(vv) if isinstance(vv, dict) else vv for vv in val
             )
-        elif val is not None and val:
-            dd[key] = val
+        elif val is not None:
+            if isinstance(val, dict) and not val:  # avoid empty {}
+                pass
+            else:
+                dd[key] = val
     return dd
 
 

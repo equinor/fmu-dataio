@@ -28,7 +28,7 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
 
     aggs = []
     # create "forward" files
-    for i in range(10):
+    for i in range(1):  # TODO! 10
         use_regsurf = regsurf.copy()
         use_regsurf.values += float(i)
         expfile = edata.export(use_regsurf, name="mymap_" + str(i), realization=i)
@@ -41,6 +41,7 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     for mapfile in aggs:
         surf = xtgeo.surface_from_file(mapfile)
         meta = dataio.read_metadata(mapfile)
+        print(utils.prettyprint_dict(meta))
 
         metas.append(meta)
         surfs.append([surf])

@@ -47,7 +47,7 @@ class _FileDataProvider:
         self.settings = self.cfg[S]
         self.classvar = self.cfg[C]
 
-        if self.settings["name"]:
+        if self.settings.get("name", None):
             self.name = self.settings["name"]
         else:
             self.name = self.objdata.name

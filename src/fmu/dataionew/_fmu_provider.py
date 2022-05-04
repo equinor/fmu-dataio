@@ -186,6 +186,7 @@ class _FmuProvider:
 
     def generate_ert2_metadata(self):
         """Construct the metadata FMU block for an ERT2 forward job."""
+        logger.info("Generate ERT2 metadata...")
 
         if not self.case_metadata:
             warn(
@@ -215,6 +216,8 @@ class _FmuProvider:
         real_uuid = _utils.uuid_from_string(
             case_uuid + str(iter_uuid) + str(self.real_id)
         )
+
+        logger.info("Generate ERT2 metadata continues, and real ID %s", self.real_id)
 
         mreal = meta["realization"] = dict()
         mreal["id"] = self.real_id
