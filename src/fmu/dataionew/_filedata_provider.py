@@ -64,6 +64,9 @@ class _FileDataProvider:
         self.verify_folder = self.classvar["verifyfolder"]
         self.forcefolder = self.settings["forcefolder"]
         self.subfolder = self.settings["subfolder"]
+
+        self.context = self.settings["context"]
+
         logger.info("Initialize %s", __class__)
 
     def derive_filedata(self):
@@ -114,11 +117,13 @@ class _FileDataProvider:
         """Construct and get the folder path and verify."""
 
         outroot = self.rootpath
-        if self.realname:
-            outroot = outroot / self.realname
 
-        if self.itername:
-            outroot = outroot / self.itername
+        if self.context == "forward":
+            if self.realname:
+                outroot = outroot / self.realname
+
+            if self.itername:
+                outroot = outroot / self.itername
 
         outroot = outroot / "share"
 

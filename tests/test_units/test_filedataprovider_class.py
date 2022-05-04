@@ -20,6 +20,7 @@ def get_cfg(tagname, parentname):
         "efolder": "efolder",
         "forcefolder": "",
         "subfolder": "",
+        "context": "forward",
     }
     cfg[C] = {
         "createfolder": False,

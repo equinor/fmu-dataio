@@ -256,6 +256,7 @@ def fixture_internalcfg2(globalconfig2):
         "is_observation": False,
         "forcefolder": None,
         "subfolder": "",
+        "context": "forward",
     }
 
     internalcfg2[X] = {

@@ -66,3 +66,11 @@ CONTENTS_REQUIRED = {
     "fluid_contact": {"contact": True},
     "field_outline": {"contact": False},
 }
+
+
+ALLOWED_CONTEXTS = {
+    "project": "Fallback to work on project disk",
+    "forward": "To realization-N/iter_M/share, but will also work on project disk",
+    "case": "To casename/share, but will also work on project disk",
+    "case_symlinks": "To casename/share, with symlinks on reliasations/iter level",
+}

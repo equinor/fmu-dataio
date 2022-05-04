@@ -50,7 +50,6 @@ INSTANCEVARS = {
     "runpath": str,
     "tagname": str,
     "timedata": list,
-    "stage": str,
     "subfolder": str,
     "unit": str,
     "verbosity": str,
@@ -61,6 +60,7 @@ INSTANCEVARS = {
 XTGEO_EXPORTS = ("surface", "polygons")
 PANDAS_EXPORTS = "tables"
 GLOBAL_ENVNAME = "FMU_GLOBAL_CONFIG"
+SETTINGS_ENVNAME = "FMU_DATAIO_CONFIG"  # input settings from a file!
 
 logger = logging.getLogger(__name__)
 logging.captureWarnings(True)
@@ -215,7 +215,9 @@ class ExportData:
             Example is "depth" or {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}.
             Content is checked agains a white-list for validation!
 
-        context: Deprecated? TODO?
+        context: In normal forward models, the context is 'forward' which is the default
+            and will put data ... Other context may be 'case' which will put data
+            relative to the case root. TODO! better docs
 
         description: A multiline description of the data.
 
@@ -252,9 +254,6 @@ class ExportData:
             folder conventions are followed. For an ERT run e.g.
             /scratch/xx/nn/case/realization-0/iter-0/. while in a revision at project
             disc it will the revision root e.g. /project/xx/resmod/ff/21.1.0/.
-
-        stage: Default is 'realization', which means that file w/ metadata is output per
-            realization. If 'iteration', then ...
 
         subfolder: It is possible to set one level of subfolders for file output.
             The input should only accept a single folder name, i.e. no paths. If paths
@@ -331,7 +330,7 @@ class ExportData:
     casepath: Union[str, Path, None] = None
     config: dict = field(default_factory=dict)
     content: Union[dict, str] = "depth"
-    context: Union[dict, str] = ""
+    context: Union[dict, str] = "forward"
     forcefolder: str = ""
     is_observation: bool = False
     is_prediction: bool = True
@@ -339,7 +338,6 @@ class ExportData:
     parentname: str = ""  # TODO: parent?
     realization: int = -999
     runpath: Union[str, Path, None] = None
-    stage: str = "realization"
     subfolder: str = ""
     tagname: str = ""
     timedata: Optional[List[list]] = None
@@ -379,6 +377,21 @@ class ExportData:
         for cvar in CLASSVARS:
             self._cfg[C][cvar] = getattr(self, cvar)
 
+        if SETTINGS_ENVNAME in os.environ:
+            external_config = utils.some_config_from_env(SETTINGS_ENVNAME)
+            for key, value in external_config.items():
+                if key not in INSTANCEVARS:
+                    raise ValidationError(f"Proposed setting {key} is not valid")
+
+                if isinstance(value, (str, float, int)):
+                    logger.info("Setting external key and value: %s: %s", key, value)
+                else:
+                    logger.info(
+                        "Setting external key and value: %s: %s", key, "dict/list..."
+                    )
+
+                setattr(self, key, value)
+
         # store input key values except config (which are the static global_config)
         for ivar in INSTANCEVARS:
             if "config" in ivar:
@@ -388,7 +401,7 @@ class ExportData:
 
         # special; global config which may be given as env variable pointing on a file
         if not self._cfg[G] or GLOBAL_ENVNAME in os.environ:
-            self._cfg[G] = utils.global_config_from_env(GLOBAL_ENVNAME)
+            self._cfg[G] = utils.some_config_from_env(GLOBAL_ENVNAME)
 
         logger.info("Input access: %s", self._cfg[G]["access"])
 
@@ -402,10 +415,6 @@ class ExportData:
 
     def _show_deprecations_or_notimplemented(self):
         """Warn on deprecated keys og on stuff not implemented yet."""
-
-        # not sure what to do with 'context'
-        if self._cfg[S]["context"]:
-            warn("The 'context' key is not impemented yet", UserWarning)
 
         if self._cfg[S]["runpath"]:
             warn(
@@ -626,7 +635,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.setLevel(level=self.verbosity)
 
         if not self.config or GLOBAL_ENVNAME in os.environ:
-            self.config = utils.global_config_from_env(GLOBAL_ENVNAME)
+            self.config = utils.some_config_from_env(GLOBAL_ENVNAME)
 
         _check_global_config(self.config)
 

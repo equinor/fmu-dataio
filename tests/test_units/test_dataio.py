@@ -3,6 +3,7 @@ import logging
 import os
 
 import pytest
+import yaml
 
 from fmu.dataionew._utils import C, G, S
 from fmu.dataionew.dataionew import ExportData, ValidationError
@@ -76,6 +77,48 @@ def test_global_config_from_env(globalconfig_asfile):
     os.environ["FMU_GLOBAL_CONFIG"] = globalconfig_asfile
     edata = ExportData()  # the env variable will override this
     assert "smda" in edata._cfg["GLOBVAR"]["masterdata"]
+
+    del os.environ["FMU_GLOBAL_CONFIG"]
+
+
+def test_settings_config_from_env(tmp_path, rmsglobalconfig, regsurf):
+    """Testing getting user settings config from a file."""
+
+    settings = dict()
+    settings["name"] = "MyFancyName"
+    settings["tagname"] = "MyFancyTag"
+    settings["workflow"] = "Some work flow"
+    settings["config"] = rmsglobalconfig
+
+    with open(tmp_path / "mysettings.yml", "w") as stream:
+        yaml.dump(settings, stream)
+
+    os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
+    edata = ExportData(verbosity="INFO")  # the env variable will override this
+    assert edata._cfg["SETTING"]["name"] == "MyFancyName"
+
+    meta = edata.generate_metadata(regsurf)
+    assert "myfancyname--myfancytag" in meta["file"]["relative_path"]
+
+    del os.environ["FMU_DATAIO_CONFIG"]
+
+
+def test_settings_config_from_env_invalid(tmp_path, rmsglobalconfig):
+    """Testing getting user settings config from a file but some invalid stuff."""
+
+    settings = dict()
+    settings["invalid"] = "MyFancyName"
+    settings["workflow"] = "Some work flow"
+    settings["config"] = rmsglobalconfig
+
+    with open(tmp_path / "mysettings.yml", "w") as stream:
+        yaml.dump(settings, stream)
+
+    os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
+    with pytest.raises(ValidationError):
+        edata = ExportData(verbosity="INFO")
+
+    del os.environ["FMU_DATAIO_CONFIG"]
 
 
 def test_establish_pwd_runpath(tmp_path, globalconfig2):

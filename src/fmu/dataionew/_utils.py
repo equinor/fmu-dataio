@@ -248,7 +248,7 @@ def prettyprint_dict(inp: dict) -> str:
     return str(json.dumps(inp, indent=2, default=str))
 
 
-def global_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
+def some_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
     """Get the config from environment variable.
 
     This function is only called if config SHALL be fetched from the environment
@@ -256,7 +256,7 @@ def global_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
     """
 
     config = None
-    logger.info("Geting global config from file via envinment %s", envvar)
+    logger.info("Getting config from file via environment %s", envvar)
     if envvar in os.environ:
         cfg_path = os.environ[envvar]
     else:
