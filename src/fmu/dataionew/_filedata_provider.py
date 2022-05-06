@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Optional
 from warnings import warn
 
-from fmu.dataionew._utils import C, S
+from fmu.dataionew._utils import C, S, X
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +45,7 @@ class _FileDataProvider:
 
         # set internal variables
         self.settings = self.cfg[S]
+        self.xsettings = self.cfg[X]
         self.classvar = self.cfg[C]
 
         if self.settings.get("name", None):
@@ -65,7 +66,7 @@ class _FileDataProvider:
         self.forcefolder = self.settings["forcefolder"]
         self.subfolder = self.settings["subfolder"]
 
-        self.context = self.settings["context"]
+        self.fmu_context = self.xsettings["actual_context"]  # may be None!
 
         logger.info("Initialize %s", __class__)
 
@@ -118,12 +119,15 @@ class _FileDataProvider:
 
         outroot = self.rootpath
 
-        if self.context == "forward":
+        if self.fmu_context == "forward":
             if self.realname:
                 outroot = outroot / self.realname
 
             if self.itername:
                 outroot = outroot / self.itername
+
+        if self.fmu_context == "case_symlink_realization":
+            raise NotImplementedError("Symlinking not there yet...")
 
         outroot = outroot / "share"
 

@@ -11,7 +11,7 @@ from fmu.dataionew._metadata import (
     ConfigurationError,
     _MetaData,
 )
-from fmu.dataionew._utils import C, G, S, prettyprint_dict
+from fmu.dataionew._utils import C, G, S, X, prettyprint_dict
 
 # pylint: disable=no-member
 
@@ -51,7 +51,7 @@ def test_populate_meta_objectdata(regsurf, internalcfg2):
 def test_metadata_populate_masterdata_is_empty():
     """Testing the masterdata part, first with no settings."""
 
-    mymeta = _MetaData("dummy", {S: None, G: None, C: None})
+    mymeta = _MetaData("dummy", {S: None, G: None, C: None, X: None})
 
     with pytest.warns(UserWarning):
         mymeta._populate_meta_masterdata()

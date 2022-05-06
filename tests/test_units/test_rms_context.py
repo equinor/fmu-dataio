@@ -6,6 +6,7 @@ interactive. Hence the rootpath will be ../../
 import logging
 import os
 
+import pandas as pd
 import pytest
 from conftest import inside_rms
 
@@ -205,3 +206,67 @@ def test_regsurf_export_file_fmurun(
 
     assert edata._metadata["access"]["ssdl"]["access_level"] == "restricted"
     assert edata._metadata["data"]["unit"] == "forthnite"
+
+
+# ======================================================================================
+# Polygons and Points
+# ======================================================================================
+
+
+@inside_rms
+def test_polys_export_file_set_name(rmssetup, rmsglobalconfig, polygons):
+    """Export the polygon to file with correct metadata and name."""
+
+    logger.info("Active folder is %s", rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(polygons, name="TopVolantis")
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/results/polygons/topvolantis.csv").resolve()
+    )
+
+
+@inside_rms
+def test_points_export_file_set_name(rmssetup, rmsglobalconfig, points):
+    """Export the points to file with correct metadata and name."""
+
+    logger.info("Active folder is %s", rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(points, name="TopVolantis")
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/results/points/topvolantis.csv").resolve()
+    )
+
+    thefile = pd.read_csv(edata._rootpath / "share/results/points/topvolantis.csv")
+    assert thefile.columns[0] == "X"
+
+
+@inside_rms
+def test_points_export_file_set_name_xtgeoheaders(rmssetup, rmsglobalconfig, points):
+    """Export the points to file with correct metadata and name but here xtgeo var."""
+
+    logger.info("Active folder is %s", rmssetup)
+    dataio.ExportData.points_fformat = "csv|xtgeo"
+
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, verbosity="INFO"
+    )  # read from global config
+
+    output = edata.export(points, name="TopVolantis")
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/results/points/topvolantis.csv").resolve()
+    )
+
+    thefile = pd.read_csv(edata._rootpath / "share/results/points/topvolantis.csv")
+    assert thefile.columns[0] == "X_UTME"
+
+    dataio.ExportData.points_fformat = "csv"

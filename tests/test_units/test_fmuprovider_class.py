@@ -37,7 +37,7 @@ def test_fmuprovider_ert2_provider(fmurun):
 
     os.chdir(fmurun)
 
-    CFG[S] = {"rootpath": fmurun, "casepath": None}
+    CFG[S] = {"rootpath": fmurun, "casepath": None, "fmu_context": "forward"}
     CFG[X] = {"rootpath": fmurun, "casepath": None}
 
     myfmu = _FmuProvider(CFG)

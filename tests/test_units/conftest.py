@@ -278,3 +278,32 @@ def fixture_regsurf():
     """Create an xtgeo surface."""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
+
+
+@pytest.fixture(name="polygons", scope="module", autouse=True)
+def fixture_polygons():
+    """Create an xtgeo polygons."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return xtgeo.Polygons(
+        [
+            [1, 22, 3, 0],
+            [6, 25, 4, 0],
+            [8, 27, 6, 0],
+            [1, 22, 3, 0],
+        ]
+    )
+
+
+@pytest.fixture(name="points", scope="module", autouse=True)
+def fixture_points():
+    """Create an xtgeo points instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return xtgeo.Points(
+        [
+            [1, 22, 3, "WELLA"],
+            [6, 25, 4, "WELLB"],
+            [8, 27, 6, "WELLB"],
+            [1, 22, 3, "WELLC"],
+        ],
+        attributes={"WellName": "str"},
+    )

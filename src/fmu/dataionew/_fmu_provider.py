@@ -70,6 +70,7 @@ class _FmuProvider:
         self.xsettings = self.cfg[X]
 
         self.rootpath = Path(self.xsettings["rootpath"]).absolute()
+
         self.rootpath_initial = self.rootpath
 
         logger.info("Initialize %s", __class__)
@@ -85,6 +86,7 @@ class _FmuProvider:
         else:
             logger.info("Detecting FMU provider as None")
             self.provider = None  # e.g. an interactive RMS run
+            self.xsettings["actual_context"] = None  # e.g. an interactive RMS run
 
     def _detect_ert2provider(self) -> bool:
         """Detect if ERT2 is provider and set itername, casename, etc."""
@@ -198,6 +200,8 @@ class _FmuProvider:
 
         meta["model"] = self.gconfig.get("model", None)
 
+        meta["context"] = {"stage": self.settings["fmu_context"]}
+
         if "workflow" in self.settings and self.settings["workflow"]:
             meta["workflow"] = {"reference": self.settings["workflow"]}
 
@@ -206,22 +210,25 @@ class _FmuProvider:
             meta["case"] = deepcopy(self.case_metadata["fmu"]["case"])
             case_uuid = meta["case"]["uuid"]
 
-        iter_uuid = _utils.uuid_from_string(case_uuid + str(self.iter_id))
-        meta["iteration"] = {
-            "id": self.iter_id,
-            "uuid": iter_uuid,
-            "name": self.iter_name,
-        }
+        if "realization" in self.settings["fmu_context"]:
+            iter_uuid = _utils.uuid_from_string(case_uuid + str(self.iter_id))
+            meta["iteration"] = {
+                "id": self.iter_id,
+                "uuid": iter_uuid,
+                "name": self.iter_name,
+            }
 
-        real_uuid = _utils.uuid_from_string(
-            case_uuid + str(iter_uuid) + str(self.real_id)
-        )
+            real_uuid = _utils.uuid_from_string(
+                case_uuid + str(iter_uuid) + str(self.real_id)
+            )
 
-        logger.info("Generate ERT2 metadata continues, and real ID %s", self.real_id)
+            logger.info(
+                "Generate ERT2 metadata continues, and real ID %s", self.real_id
+            )
 
-        mreal = meta["realization"] = dict()
-        mreal["id"] = self.real_id
-        mreal["uuid"] = real_uuid
-        mreal["name"] = self.real_name
-        mreal["parameters"] = self.ert2["params"]
-        mreal["jobs"] = self.ert2["jobs"]
+            mreal = meta["realization"] = dict()
+            mreal["id"] = self.real_id
+            mreal["uuid"] = real_uuid
+            mreal["name"] = self.real_name
+            mreal["parameters"] = self.ert2["params"]
+            mreal["jobs"] = self.ert2["jobs"]

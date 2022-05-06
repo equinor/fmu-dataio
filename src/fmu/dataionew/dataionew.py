@@ -4,7 +4,6 @@ The metadata spec is documented as a JSON schema, stored under schema/.
 """
 import logging
 import os
-import sys
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -14,10 +13,13 @@ from warnings import warn
 import yaml
 
 import fmu.dataionew._utils as utils
-from fmu.dataionew._definitions import ALLOWED_CONTENTS
+from fmu.dataionew._definitions import ALLOWED_CONTENTS, ALLOWED_FMU_CONTEXTS
 from fmu.dataionew._metadata import _MetaData
 from fmu.dataionew._utils import C, G, S, X
 
+INSIDE_RMS = utils.detect_inside_rms()
+
+# class variables
 CLASSVARS = [
     "arrow_fformat",
     "case_folder",
@@ -31,7 +33,7 @@ CLASSVARS = [
     "surface_fformat",
     "table_fformat",
     "verifyfolder",
-    "_inside_rms",
+    "_inside_rms",  # pretend inside RMS!
 ]
 
 # possible user inputs:
@@ -40,7 +42,7 @@ INSTANCEVARS = {
     "casepath": (str, Path, None),
     "config": dict,
     "content": (dict, str),
-    "context": (dict, str),
+    "fmu_context": str,
     "forcefolder": (str, Path),
     "is_observation": bool,
     "is_prediction": bool,
@@ -57,8 +59,6 @@ INSTANCEVARS = {
     "workflow": str,
 }
 
-XTGEO_EXPORTS = ("surface", "polygons")
-PANDAS_EXPORTS = "tables"
 GLOBAL_ENVNAME = "FMU_GLOBAL_CONFIG"
 SETTINGS_ENVNAME = "FMU_DATAIO_CONFIG"  # input settings from a file!
 
@@ -110,7 +110,7 @@ def read_metadata(filename: Union[str, Path]) -> dict:
         filename: The full path filename to the data-object.
 
     Returns:
-        A dictionary with metadata.
+        A dictionary with metadata read from the assoated metadata file.
     """
     fname = Path(filename)
     metafile = str(fname.parent) + "/." + fname.stem + fname.suffix + ".yml"
@@ -174,7 +174,7 @@ class ExportData:
 
         A file:
 
-        /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  <<absolute
+        /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  << absolute
                          realization-44/iter-2/share/results/maps/xx.gri  << relative
 
     When running an ERT2 forward job but here executed from RMS::
@@ -194,14 +194,11 @@ class ExportData:
              to the default ssdl settings read from the config. Example:
             ``{"access_level": "restricted", "rep_include": False}``
 
-        aggregation: Optional bool, default is False. If the input is known to be an
-            aggregation (e.g. mean of many surfaces), set to True.
-
         casepath: To override the automatic and actual ``rootpath``. Absolute path to
             the case root. If not provided, the rootpath will be attempted parsed from
-            the file structure. This is the default.. If set, it is possible to force
-            set the ``casepath``; i.e. the folder which should base as a root for
-            relative files. Use with care!
+            the file structure or by other means. If set, it is possible to force set
+            the ``casepath``; i.e. the folder which should base as a root for relative
+            files. Use with care!
 
         config: Required, a configuation dictionary. In the standard case this is read
             from FMU global variables (via fmuconfig). The dictionary must contain some
@@ -215,9 +212,11 @@ class ExportData:
             Example is "depth" or {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}.
             Content is checked agains a white-list for validation!
 
-        context: In normal forward models, the context is 'forward' which is the default
-            and will put data ... Other context may be 'case' which will put data
-            relative to the case root. TODO! better docs
+        fmu_context: In normal forward models, the fmu_context is ``realization`` which
+            is default and will put data per realization. Other contexts may be 'case'
+            which willput data relative to the case root. If a non-FMU run is detected
+            (e.g. you run from project), fmu-dataio will detect that and set actual
+            context to None as fall-back.
 
         description: A multiline description of the data.
 
@@ -284,18 +283,32 @@ class ExportData:
 
         Hence the last data (monitor) usually comes first.
 
-        In the new version this will shown in metadata files as where the oldest
-        date is shown as t0::
+        In the new version this will shown in metadata files as where the oldest date is
+        shown as t0::
 
             data:
               t0:
-                value: 2018010T00:00:00
-                description: base
+                value: 2018010T00:00:00 description: base
               t1:
-                value: 202020101T00:00:00
-                description: monitor
+                value: 202020101T00:00:00 description: monitor
 
         The output files will be on the form: somename--t1_t0.ext
+
+    .. note:: Using config from file
+
+        Optionally, the keys can be stored in a yaml file as argument, and you can let
+        the environment variable FMU_DATAIO_CONFIG point to that file. This can e.g.
+        make it possible for ERT jobs to point to external input configs. For example::
+
+            export FMU_DATAIO_CONFIG="/path/to/mysettings.yml"
+            export FMU_GLOBAL_CONFIG="/path/to/global_variables.yml"
+
+        In python:
+
+            eda = ExportData()
+            eda.export(obj)
+
+
     """
 
     # ----------------------------------------------------------------------------------
@@ -330,7 +343,7 @@ class ExportData:
     casepath: Union[str, Path, None] = None
     config: dict = field(default_factory=dict)
     content: Union[dict, str] = "depth"
-    context: Union[dict, str] = "forward"
+    fmu_context: str = "realization"
     forcefolder: str = ""
     is_observation: bool = False
     is_prediction: bool = True
@@ -405,7 +418,13 @@ class ExportData:
 
         logger.info("Input access: %s", self._cfg[G]["access"])
 
+        # treat special handling of "xtgeo" in format name:
+        self._cfg[X]["fmtflag"] = ""
+        if self.points_fformat == "csv|xtgeo" or self.polygons_fformat == "csv|xtgeo":
+            self._cfg[X]["fmtflag"] = "xtgeo"
+
         self._validate_content_key()
+        self._validate_fmucontext_key()
         self._update_globalconfig_from_settings()
         _check_global_config(self._cfg[G], strict=True)
         self._establish_pwd_rootpath()
@@ -434,6 +453,17 @@ class ExportData:
                 f"Allowed entries are: in list:\n{msg}"
             )
         # TODO! CONTENT_REQUIRED
+
+    def _validate_fmucontext_key(self):
+        """Validate the given 'fmu_context' input."""
+        if self._cfg[S]["fmu_context"] not in ALLOWED_FMU_CONTEXTS:
+            msg = ""
+            for key, value in ALLOWED_FMU_CONTEXTS.items():
+                msg += f"{key}: {value}\n"
+            raise ValidationError(
+                "It seems like 'fmu_context' value is illegal! "
+                f"Allowed entries are: in list:\n{msg}"
+            )
 
     def _update_check_settings(self, newsettings: dict) -> None:
         """If settings "S" are updated, run a validation prior update self._settings."""
@@ -479,43 +509,36 @@ class ExportData:
         Hence rootpath can be updated later!
         """
         logger.info(
-            "Establish pwd and actual casepath, inside RMS is %s)", self._inside_rms
+            "Establish pwd and actual casepath, inside RMS flag is %s (actual: %s))",
+            self._inside_rms,
+            INSIDE_RMS,
         )
         self._pwd = Path().absolute()
 
-        # Context 1: Running RMS, we are in conventionally in rootpath/rms/model
-        # Context 2: ERT FORWARD_JOB, running at case = rootpath=RUNPATH/../../. level
-        # Context 3: ERT WORKFLOW_JOB, running somewhere/anywhere else
+        # fmu_context 1: Running RMS, we are in conventionally in rootpath/rms/model
+        # fmu_context 2: ERT FORWARD_JOB, at case = rootpath=RUNPATH/../../. level
+        # fmu_context 3: ERT WORKFLOW_JOB, running somewhere/anywhere else
 
         self._rootpath = self._pwd
-        inside_rms = False
         if self.casepath and isinstance(self.casepath, (str, Path)):
             self._rootpath = Path(self.casepath).absolute()
             logger.info("The casepath is hard set as %s", self._rootpath)
 
         else:
-            if self._inside_rms or (
-                "rms" in sys.executable and "komodo" not in sys.executable
-            ):
+            in_rms = False
+            if self._inside_rms or INSIDE_RMS or "RUN_DATAIO_EXAMPLES" in os.environ:
+
                 self._rootpath = (self._pwd / "../../.").absolute().resolve()
                 logger.info("Run from inside RMS (or pretend)")
-                inside_rms = True
-
-            if "RUN_DATAIO_EXAMPLES" in os.environ:  # special; for repo doc examples!
-                self._rootpath = Path("../../.").absolute().resolve()
-
-            # special case; when doing testing in an virtual RMS python not running RMS
-            if "KOMODO_RELEASE" in os.environ and not self._inside_rms:
-                self._rootpath = self._pwd
-
+                in_rms = True
         # make some extra keys in settings:
         self._cfg[X]["pwd"] = self._pwd
         self._cfg[X]["rootpath"] = self._rootpath
-        self._cfg[X]["inside_rms"] = inside_rms
+        self._cfg[X]["inside_rms"] = in_rms
+        self._cfg[X]["actual_context"] = self.fmu_context  # may change later!
 
         logger.info("pwd:        %s", str(self._pwd))
         logger.info("rootpath:   %s", str(self._rootpath))
-        logger.info("inside_rms: %s", str(inside_rms))
 
     # ==================================================================================
     # Public methods:
@@ -580,8 +603,9 @@ class ExportData:
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
         logger.info("Export to file and compute MD5 sum")
+        logger.info("Special flag: %s", self._cfg[X]["fmtflag"])
         outfile, md5 = utils.export_file_compute_checksum_md5(
-            obj, outfile, outfile.suffix
+            obj, outfile, outfile.suffix, flag=self._cfg[X]["fmtflag"]
         )
 
         # inject md5 checksum in metadata

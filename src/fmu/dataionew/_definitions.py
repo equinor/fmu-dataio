@@ -67,10 +67,10 @@ CONTENTS_REQUIRED = {
     "field_outline": {"contact": False},
 }
 
-
-ALLOWED_CONTEXTS = {
-    "project": "Fallback to work on project disk",
-    "forward": "To realization-N/iter_M/share, but will also work on project disk",
+# this setting sets the FMU context for the output. If detected an a non-fmu run,
+# the code will internally set actual_context=None
+ALLOWED_FMU_CONTEXTS = {
+    "realization": "To realization-N/iter_M/share",
     "case": "To casename/share, but will also work on project disk",
-    "case_symlinks": "To casename/share, with symlinks on reliasations/iter level",
+    "case_symlink_realization": "To case/share, with symlinks on realizations level",
 }

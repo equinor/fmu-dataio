@@ -222,18 +222,26 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().surface
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_regularsurface()
-        # elif isinstance(self.obj, xtgeo.Polygons):
-        #     result["subtype"] = "Polygons"
-        #     result["classname"] = "polygons"
-        #     result["efolder"] = "polygons"
-        #     # TODO! selv.layout
-        #     result["extension"] = self._validate_get_ext(VALID_POLYGONS_FORMATS)
-        # elif isinstance(self.obj, xtgeo.Points):
-        #     result["subtype"] = "Points"
-        #     result["classname"] = "points"
-        #     # TODO! selv.layout
-        #     result["efolder"] = "points"
-        #     result["extension"] = self._validate_get_ext(VALID_POINTS_FORMATS)
+        elif isinstance(self.obj, xtgeo.Polygons):
+            result["subtype"] = "Polygons"
+            result["classname"] = "polygons"
+            result["layout"] = "unset"
+            result["efolder"] = "polygons"
+            result["fmt"] = self.classvar["polygons_fformat"]
+            result["extension"] = self._validate_get_ext(
+                result["fmt"], result["subtype"], _ValidFormats().polygons
+            )
+            result["spec"], result["bbox"] = self._derive_spec_bbox_polygons()
+        elif isinstance(self.obj, xtgeo.Points):
+            result["subtype"] = "Points"
+            result["classname"] = "points"
+            result["layout"] = "unset"
+            result["efolder"] = "points"
+            result["fmt"] = self.classvar["points_fformat"]
+            result["extension"] = self._validate_get_ext(
+                result["fmt"], result["subtype"], _ValidFormats().points
+            )
+            result["spec"], result["bbox"] = self._derive_spec_bbox_points()
         # elif isinstance(self.obj, xtgeo.Cube):
         #     result["subtype"] = "RegularCube"
         #     result["classname"] = "cube"
@@ -274,10 +282,11 @@ class _ObjectDataProvider:
     def _derive_spec_bbox_regularsurface(self):
         """Process/collect the data.spec and data.bbox for RegularSurface"""
         logger.info("Derive bbox and specs for RegularSurface")
+        regsurf = self.obj
 
         specs = dict()
+        bbox = dict()
 
-        regsurf = self.obj
         xtgeo_specs = regsurf.metadata.required
         for spec, val in xtgeo_specs.items():
             if isinstance(val, (np.float32, np.float64)):
@@ -285,13 +294,53 @@ class _ObjectDataProvider:
             specs[spec] = val
         specs["undef"] = 1.0e30  # irap binary undef
 
-        bbox = dict()
         bbox["xmin"] = float(regsurf.xmin)
         bbox["xmax"] = float(regsurf.xmax)
         bbox["ymin"] = float(regsurf.ymin)
         bbox["ymax"] = float(regsurf.ymax)
         bbox["zmin"] = float(regsurf.values.min())
         bbox["zmax"] = float(regsurf.values.max())
+
+        return specs, bbox
+
+    def _derive_spec_bbox_polygons(self):
+        """Process/collect the data.spec and data.bbox for Polygons"""
+        logger.info("Derive bbox and specs for Polygons")
+        poly = self.obj
+
+        specs = dict()
+        bbox = dict()
+        # number of polygons:
+        specs["npolys"] = np.unique(poly.dataframe[poly.pname].values).size
+        xmin, xmax, ymin, ymax, zmin, zmax = poly.get_boundary()
+
+        bbox["xmin"] = float(xmin)
+        bbox["xmax"] = float(xmax)
+        bbox["ymin"] = float(ymin)
+        bbox["ymax"] = float(ymax)
+        bbox["zmin"] = float(zmin)
+        bbox["zmax"] = float(zmax)
+        return specs, bbox
+
+    def _derive_spec_bbox_points(self):
+        """Process/collect the data.spec and data.bbox for Points"""
+        logger.info("Derive bbox and specs for Points")
+        pnts = self.obj
+
+        specs = dict()
+        bbox = dict()
+
+        if len(pnts.dataframe.columns) > 3:
+            attrnames = pnts.dataframe.columns[3:]
+            specs["attributes"] = list(attrnames)
+        specs["size"] = int(pnts.dataframe.size)
+
+        bbox["xmin"] = float(pnts.dataframe[pnts.xname].min())
+        bbox["xmax"] = float(pnts.dataframe[pnts.xname].max())
+        bbox["ymax"] = float(pnts.dataframe[pnts.yname].min())
+        bbox["ymin"] = float(pnts.dataframe[pnts.yname].max())
+        bbox["zmin"] = float(pnts.dataframe[pnts.zname].min())
+        bbox["zmax"] = float(pnts.dataframe[pnts.zname].max())
 
         return specs, bbox
 

@@ -6,7 +6,7 @@ import pytest
 
 from fmu.dataionew._filedata_provider import _FileDataProvider
 from fmu.dataionew._objectdata_provider import _ObjectDataProvider
-from fmu.dataionew._utils import C, S
+from fmu.dataionew._utils import C, S, X
 
 
 def get_cfg(tagname, parentname):
@@ -20,11 +20,14 @@ def get_cfg(tagname, parentname):
         "efolder": "efolder",
         "forcefolder": "",
         "subfolder": "",
-        "context": "forward",
+        "fmu_context": "forward",
     }
     cfg[C] = {
         "createfolder": False,
         "verifyfolder": False,
+    }
+    cfg[X] = {
+        "actual_context": False,
     }
     return cfg
 

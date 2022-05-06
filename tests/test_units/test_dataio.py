@@ -82,7 +82,7 @@ def test_global_config_from_env(globalconfig_asfile):
 
 
 def test_settings_config_from_env(tmp_path, rmsglobalconfig, regsurf):
-    """Testing getting user settings config from a file."""
+    """Testing getting user settings config from a file via env variable."""
 
     settings = dict()
     settings["name"] = "MyFancyName"
@@ -101,6 +101,34 @@ def test_settings_config_from_env(tmp_path, rmsglobalconfig, regsurf):
     assert "myfancyname--myfancytag" in meta["file"]["relative_path"]
 
     del os.environ["FMU_DATAIO_CONFIG"]
+
+
+def test_settings_and_global_config_from_env(tmp_path, rmsglobalconfig, regsurf):
+    """Testing getting user settings config ands global from a env -> file."""
+
+    settings = dict()
+    settings["name"] = "MyFancyName"
+    settings["tagname"] = "MyFancyTag"
+    settings["workflow"] = "Some work flow"
+    settings["config"] = rmsglobalconfig
+
+    with open(tmp_path / "mysettings.yml", "w") as stream:
+        yaml.dump(settings, stream)
+
+    with open(tmp_path / "global_variables.yml", "w") as stream:
+        yaml.dump(rmsglobalconfig, stream)
+
+    os.environ["FMU_GLOBAL_CONFIG"] = str(tmp_path / "global_variables.yml")
+    os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
+
+    edata = ExportData(verbosity="INFO")  # the env variable will override this
+    assert edata._cfg["SETTING"]["name"] == "MyFancyName"
+
+    meta = edata.generate_metadata(regsurf)
+    assert "myfancyname--myfancytag" in meta["file"]["relative_path"]
+
+    del os.environ["FMU_DATAIO_CONFIG"]
+    del os.environ["FMU_GLOBAL_CONFIG"]
 
 
 def test_settings_config_from_env_invalid(tmp_path, rmsglobalconfig):

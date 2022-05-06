@@ -16,7 +16,14 @@ from fmu.dataionew._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataionew._filedata_provider import _FileDataProvider
 from fmu.dataionew._fmu_provider import _FmuProvider
 from fmu.dataionew._objectdata_provider import _ObjectDataProvider
-from fmu.dataionew._utils import C, G, S, drop_nones, export_file_compute_checksum_md5
+from fmu.dataionew._utils import (
+    C,
+    G,
+    S,
+    X,
+    drop_nones,
+    export_file_compute_checksum_md5,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +87,7 @@ class _MetaData:
     meta_tracklog: list = field(default_factory=list, init=False)
     meta_fmu: dict = field(default_factory=dict, init=False)
 
-    # relevant when ERT* context; same as rootpath in the ExportData class!:
+    # relevant when ERT* fmu_context; same as rootpath in the ExportData class!:
     rootpath: str = field(default="", init=False)
 
     def __post_init__(self):
@@ -88,6 +95,7 @@ class _MetaData:
 
         # making input config more explisit for readability
         self.settings = self.cfg[S]
+        self.xsettings = self.cfg[X]
         self.globalconfig = self.cfg[G]
         self.classvar = self.cfg[C]
 
@@ -163,7 +171,11 @@ class _MetaData:
         if self.compute_md5:
             logger.info("Compute MD5 sum for tmp file...")
             _, self.meta_file["checksum_md5"] = export_file_compute_checksum_md5(
-                self.obj, "tmp", self.objdata.extension, tmp=True
+                self.obj,
+                "tmp",
+                self.objdata.extension,
+                tmp=True,
+                flag=self.xsettings.get("fmtflag", ""),
             )
         else:
             logger.info("Do not compute MD5 sum at this stage!")

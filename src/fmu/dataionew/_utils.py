@@ -33,6 +33,31 @@ def inherit_docstring(inherit_from):
     return decorator_set_docstring
 
 
+def detect_inside_rms() -> bool:
+    """Detect if 'truly' inside RMS GUI, where predefined variable project exist.
+
+    However this will be overriden by an environment variable for unit testing
+    when using the Roxar API python, so that unit test outside of RMS behaves
+    properly
+    """
+    inside_rms = False
+    try:
+        import roxar
+
+        inside_rms = True
+        logger.info("Roxar version is %s", roxar.__version__)
+    except ModuleNotFoundError:
+        pass
+
+    # a special solution for testing mostly
+    if os.environ.get("INSIDE_RMS", 1) == "0":
+        inside_rms = False
+
+    logger.info("Running truly in RMS GUI status: %s", inside_rms)
+    print(f"\nRunning truly in RMS GUI status: {inside_rms}\n")
+    return inside_rms
+
+
 def drop_nones(dinput: dict) -> dict:
     """Recursively drop Nones in dict dinput and return a new dict."""
     # https://stackoverflow.com/a/65379092
@@ -78,10 +103,19 @@ def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -
     logger.info("Yaml file on: %s", yfile)
 
 
-def export_file(obj, filename, extension):
+def export_file(obj, filename, extension, flag=None):
     """Export a valid object to file"""
     if extension == ".gri":
         obj.to_file(filename, fformat="irap_binary")
+    elif extension == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
+        if "xtgeo" not in flag:
+            obj.xname = "X"
+            obj.yname = "Y"
+            obj.zname = "Z"
+            if isinstance(obj, xtgeo.Polygons):
+                # obj.pname = "ID"  not working
+                obj.dataframe.rename(columns={obj.pname: "ID"}, inplace=True)
+        obj.dataframe.to_csv(filename, index=False)
     return str(filename)
 
 
@@ -93,7 +127,7 @@ def md5sum(fname):
     return hash_md5.hexdigest()
 
 
-def export_file_compute_checksum_md5(obj, filename, extension, tmp=False):
+def export_file_compute_checksum_md5(obj, filename, extension, flag=None, tmp=False):
     """Export and compute checksum, with possibility to use a tmp file."""
 
     usefile = filename
@@ -101,7 +135,7 @@ def export_file_compute_checksum_md5(obj, filename, extension, tmp=False):
         tmpdir = tempfile.TemporaryDirectory()
         usefile = Path(tmpdir.name) / "tmpfile"
 
-    export_file(obj, usefile, extension)
+    export_file(obj, usefile, extension, flag=flag)
     checksum = md5sum(usefile)
     if tmp:
         tmpdir.cleanup()

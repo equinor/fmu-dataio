@@ -9,7 +9,10 @@ and are typically used to compare results.
 import logging
 import os
 
+import pytest
+
 import fmu.dataionew.dataionew as dataio
+from fmu.dataionew import _utils as utils
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +25,13 @@ def test_regsurf_case_observation(fmurun_w_casemetadata, rmsglobalconfig, regsur
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,  # read from global config
-        context="case",
+        fmu_context="case",
         name="mymap",
         is_observation=True,
     )
 
     metadata = edata.generate_metadata(regsurf)
+    logger.debug("\n%s", utils.prettyprint_dict(metadata))
     assert (
         "ertrun1/share/observation/maps/mymap.gri" in metadata["file"]["absolute_path"]
     )
@@ -46,15 +50,18 @@ def test_regsurf_case_observation_w_symlinks(
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,  # read from global config
-        context={"case": "symlink"},
+        fmu_context="case_symlink_realization",
         name="mymap",
         is_observation=True,
     )
 
-    metadata = edata.generate_metadata(regsurf)
-    assert (
-        "ertrun1/share/observation/maps/mymap.gri" in metadata["file"]["absolute_path"]
-    )
+    with pytest.raises(NotImplementedError):
+        metadata = edata.generate_metadata(regsurf)
+        logger.debug("\n%s", utils.prettyprint_dict(metadata))
+        assert (
+            "ertrun1/share/observation/maps/mymap.gri"
+            in metadata["file"]["absolute_path"]
+        )
 
-    exp = edata.export(regsurf)
-    assert "ertrun1/share/observation/maps/mymap.gri" in exp
+        exp = edata.export(regsurf)
+        assert "ertrun1/share/observation/maps/mymap.gri" in exp
