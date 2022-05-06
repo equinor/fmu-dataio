@@ -259,14 +259,14 @@ def test_points_export_file_set_name_xtgeoheaders(rmssetup, rmsglobalconfig, poi
         config=rmsglobalconfig, verbosity="INFO"
     )  # read from global config
 
-    output = edata.export(points, name="TopVolantis")
+    output = edata.export(points, name="TopVolantiz")
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/points/topvolantis.csv").resolve()
+        (edata._rootpath / "share/results/points/topvolantiz.csv").resolve()
     )
 
-    thefile = pd.read_csv(edata._rootpath / "share/results/points/topvolantis.csv")
+    thefile = pd.read_csv(edata._rootpath / "share/results/points/topvolantiz.csv")
     assert thefile.columns[0] == "X_UTME"
 
     dataio.ExportData.points_fformat = "csv"

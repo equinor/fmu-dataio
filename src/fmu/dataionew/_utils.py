@@ -108,14 +108,15 @@ def export_file(obj, filename, extension, flag=None):
     if extension == ".gri":
         obj.to_file(filename, fformat="irap_binary")
     elif extension == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
+        out = obj.copy()  # to not modify incoming instance!
         if "xtgeo" not in flag:
-            obj.xname = "X"
-            obj.yname = "Y"
-            obj.zname = "Z"
-            if isinstance(obj, xtgeo.Polygons):
-                # obj.pname = "ID"  not working
-                obj.dataframe.rename(columns={obj.pname: "ID"}, inplace=True)
-        obj.dataframe.to_csv(filename, index=False)
+            out.xname = "X"
+            out.yname = "Y"
+            out.zname = "Z"
+            if isinstance(out, xtgeo.Polygons):
+                # out.pname = "ID"  not working
+                out.dataframe.rename(columns={out.pname: "ID"}, inplace=True)
+        out.dataframe.to_csv(filename, index=False)
     return str(filename)
 
 

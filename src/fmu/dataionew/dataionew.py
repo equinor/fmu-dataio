@@ -423,6 +423,8 @@ class ExportData:
         if self.points_fformat == "csv|xtgeo" or self.polygons_fformat == "csv|xtgeo":
             self._cfg[X]["fmtflag"] = "xtgeo"
 
+        logger.info("FFORMAT flag: <%s>", self._cfg[X]["fmtflag"])
+
         self._validate_content_key()
         self._validate_fmucontext_key()
         self._update_globalconfig_from_settings()
