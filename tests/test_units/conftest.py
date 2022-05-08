@@ -6,9 +6,18 @@ import shutil
 from functools import wraps
 from pathlib import Path
 
+import pandas as pd
 import pytest
 import xtgeo
 import yaml
+
+try:
+    import pyarrow as pa
+except ImportError:
+    HAS_PYARROW = False
+else:
+    HAS_PYARROW = True
+    from pyarrow import feather
 
 from fmu.dataionew._utils import C, G, S, X
 from fmu.dataionew.dataionew import ExportData
@@ -307,3 +316,39 @@ def fixture_points():
         ],
         attributes={"WellName": "str"},
     )
+
+
+@pytest.fixture(name="cube", scope="module", autouse=True)
+def fixture_cube():
+    """Create an xtgeo cube instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return xtgeo.Cube(ncol=3, nrow=4, nlay=5, xinc=12, yinc=12, zinc=4, rotation=30)
+
+
+@pytest.fixture(name="grid", scope="module", autouse=True)
+def fixture_grid():
+    """Create an xtgeo grid instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return xtgeo.create_box_grid((3, 4, 5))
+
+
+@pytest.fixture(name="gridproperty", scope="module", autouse=True)
+def fixture_gridproperty():
+    """Create an xtgeo gridproperty instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return xtgeo.GridProperty(ncol=3, nrow=7, nlay=3, values=123.0)
+
+
+@pytest.fixture(name="dataframe", scope="module", autouse=True)
+def fixture_dataframe():
+    """Create an pandas dataframe instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
+
+
+@pytest.fixture(name="arrowtable", scope="module", autouse=True)
+def fixture_arrowtable():
+    """Create an arrow table instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    dfr = pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
+    return pa.Table.from_pandas(dfr)

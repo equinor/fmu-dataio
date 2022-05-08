@@ -270,3 +270,104 @@ def test_points_export_file_set_name_xtgeoheaders(rmssetup, rmsglobalconfig, poi
     assert thefile.columns[0] == "X_UTME"
 
     dataio.ExportData.points_fformat = "csv"
+
+
+# ======================================================================================
+# Cube
+# ======================================================================================
+
+
+@inside_rms
+def test_cube_export_file_set_name(rmssetup, rmsglobalconfig, cube):
+    """Export the cube to file with correct metadata and name."""
+
+    logger.info("Active folder is %s", rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(cube, name="MyCube")
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/results/cubes/mycube.segy").resolve()
+    )
+
+
+# ======================================================================================
+# Grid and GridProperty
+# ======================================================================================
+
+
+@inside_rms
+def test_grid_export_file_set_name(rmssetup, rmsglobalconfig, grid):
+    """Export the grid to file with correct metadata and name."""
+
+    logger.info("Active folder is %s", rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(grid, name="MyGrid")
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/results/grids/mygrid.roff").resolve()
+    )
+
+
+@inside_rms
+def test_gridproperty_export_file_set_name(rmssetup, rmsglobalconfig, gridproperty):
+    """Export the gridprop to file with correct metadata and name."""
+
+    logger.info("Active folder is %s", rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(gridproperty, name="MyGridProperty")
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/results/grids/mygridproperty.roff").resolve()
+    )
+
+
+# ======================================================================================
+# Dataframe and PyArrow
+# ======================================================================================
+
+
+@inside_rms
+def test_dataframe_export_file_set_name(rmssetup, rmsglobalconfig, dataframe):
+    """Export the dataframe to file with correct metadata and name."""
+
+    logger.info("Active folder is %s", rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(dataframe, name="MyDataframe")
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/results/tables/mydataframe.csv").resolve()
+    )
+
+    metaout = dataio.read_metadata(output)
+    assert metaout["data"]["spec"]["columns"] == ["COL1", "COL2"]
+
+
+@inside_rms
+def test_pyarrow_export_file_set_name(rmssetup, rmsglobalconfig, arrowtable):
+    """Export the arrow to file with correct metadata and name."""
+
+    logger.info("Active folder is %s", rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(arrowtable, name="MyArrowtable")
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/results/tables/myarrowtable.arrow").resolve()
+    )
+
+    metaout = dataio.read_metadata(output)
+    assert metaout["data"]["spec"]["columns"] == ["COL1", "COL2"]

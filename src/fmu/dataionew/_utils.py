@@ -8,6 +8,16 @@ import uuid
 from pathlib import Path
 from typing import Dict, List, Union
 
+import pandas as pd
+
+try:
+    import pyarrow as pa
+except ImportError:
+    HAS_PYARROW = False
+else:
+    HAS_PYARROW = True
+    from pyarrow import feather
+
 import xtgeo
 import yaml
 
@@ -105,7 +115,7 @@ def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -
 
 def export_file(obj, filename, extension, flag=None):
     """Export a valid object to file"""
-    if extension == ".gri":
+    if extension == ".gri" and isinstance(obj, xtgeo.RegularSurface):
         obj.to_file(filename, fformat="irap_binary")
     elif extension == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
         out = obj.copy()  # to not modify incoming instance!
@@ -117,6 +127,25 @@ def export_file(obj, filename, extension, flag=None):
                 # out.pname = "ID"  not working
                 out.dataframe.rename(columns={out.pname: "ID"}, inplace=True)
         out.dataframe.to_csv(filename, index=False)
+    elif extension == ".segy" and isinstance(obj, xtgeo.Cube):
+        obj.to_file(filename, fformat="segy")
+    elif extension == ".roff" and isinstance(obj, (xtgeo.Grid, xtgeo.GridProperty)):
+        obj.to_file(filename, fformat="roff")
+    elif extension == ".csv" and isinstance(obj, pd.DataFrame):
+        includeindex = True if flag == "include_index" else False
+        obj.to_csv(filename, index=includeindex)
+    elif extension == ".arrow" and HAS_PYARROW and isinstance(obj, pa.Table):
+        # comment taken from equinor/webviz_subsurface/smry2arrow.py
+
+        # Writing here is done through the feather import, but could also be done using
+        # pa.RecordBatchFileWriter.write_table() with a few pa.ipc.IpcWriteOptions(). It
+        # is convenient to use feather since it has ready configured defaults and the
+        # actual file format is the same
+        # (https://arrow.apache.org/docs/python/feather.html)
+        feather.write_feather(obj, dest=filename)
+    else:
+        raise TypeError(f"Exporting {extension} for {type(obj)} is not supported")
+
     return str(filename)
 
 
