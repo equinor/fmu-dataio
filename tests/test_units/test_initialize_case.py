@@ -6,8 +6,6 @@ interactive. Hence the basepath will be ../../
 import logging
 import os
 
-import pytest
-
 from fmu.dataionew.dataionew import G, InitializeCase
 
 logger = logging.getLogger(__name__)
