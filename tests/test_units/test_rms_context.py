@@ -1,7 +1,7 @@
 """Test the dataio running from within RMS interactive as pretended context.
 
 In this case a user sits in RMS, which is in folder rms/model and runs
-interactive. Hence the rootpath will be ../../
+interactive or from ERT. Hence the rootpath will be ../../
 """
 import logging
 import os
@@ -23,6 +23,7 @@ logger.info("Inside RMS status %s", dataio.ExportData._inside_rms)
 def test_regsurf_generate_metadata(rmssetup, rmsglobalconfig, regsurf):
     """Test generating metadata for a surface pretend inside RMS"""
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     logger.debug(prettyprint_dict(rmsglobalconfig["access"]))
 
@@ -39,8 +40,8 @@ def test_regsurf_generate_metadata(rmssetup, rmsglobalconfig, regsurf):
 @inside_rms
 def test_regsurf_generate_metadata_change_content(rmssetup, rmsglobalconfig, regsurf):
     """As above but change a key in the generate_metadata"""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
@@ -63,8 +64,8 @@ def test_regsurf_generate_metadata_change_content_invalid(rmsglobalconfig, regsu
 @inside_rms
 def test_regsurf_export_file(rmssetup, rmsglobalconfig, regsurf):
     """Export the regular surface to file with correct metadata."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
@@ -79,8 +80,8 @@ def test_regsurf_export_file(rmssetup, rmsglobalconfig, regsurf):
 @inside_rms
 def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
     """Export the regular surface to file with correct metadata and name."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
@@ -95,8 +96,8 @@ def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
 @inside_rms
 def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
     """Export the regular surface to file with correct metadata and name and timedata."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -108,10 +109,10 @@ def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
         timedata=[[20300101, "moni"], [20100203, "base"]],
         verbosity="INFO",
     )
-    assert meta1["data"]["t0"]["value"] == "2010-02-03T00:00:00"
-    assert meta1["data"]["t0"]["label"] == "base"
-    assert meta1["data"]["t1"]["value"] == "2030-01-01T00:00:00"
-    assert meta1["data"]["t1"]["label"] == "moni"
+    assert meta1["data"]["time"]["t0"]["value"] == "2010-02-03T00:00:00"
+    assert meta1["data"]["time"]["t0"]["label"] == "base"
+    assert meta1["data"]["time"]["t1"]["value"] == "2030-01-01T00:00:00"
+    assert meta1["data"]["time"]["t1"]["label"] == "moni"
 
     meta1 = edata.generate_metadata(
         regsurf,
@@ -120,9 +121,9 @@ def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
         verbosity="INFO",
     )
 
-    assert meta1["data"]["t0"]["value"] == "2030-01-23T00:00:00"
-    assert meta1["data"]["t0"]["label"] == "one"
-    assert meta1["data"].get("t1", None) is None
+    assert meta1["data"]["time"]["t0"]["value"] == "2030-01-23T00:00:00"
+    assert meta1["data"]["time"]["t0"]["label"] == "one"
+    assert meta1["data"]["time"].get("t1", None) is None
 
     logger.info(prettyprint_dict(meta1))
 
@@ -130,8 +131,8 @@ def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
 @inside_rms
 def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsurf):
     """Export the regular surface to file with correct metadata timedata, legacy ver."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     dataio.ExportData.legacy_time_format = True
     edata = dataio.ExportData(
@@ -170,7 +171,7 @@ def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsur
 def test_regsurf_export_file_fmurun(
     rmsrun_fmu_w_casemetadata, rmsglobalconfig, regsurf
 ):
-    """Being in RMS and in an active FMU run with case metadata present.
+    """Being in RMS and in an active FMU ERT2 run with case metadata present.
 
     Export the regular surface to file with correct metadata and name.
     """
@@ -216,8 +217,8 @@ def test_regsurf_export_file_fmurun(
 @inside_rms
 def test_polys_export_file_set_name(rmssetup, rmsglobalconfig, polygons):
     """Export the polygon to file with correct metadata and name."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
@@ -232,8 +233,8 @@ def test_polys_export_file_set_name(rmssetup, rmsglobalconfig, polygons):
 @inside_rms
 def test_points_export_file_set_name(rmssetup, rmsglobalconfig, points):
     """Export the points to file with correct metadata and name."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
@@ -251,8 +252,9 @@ def test_points_export_file_set_name(rmssetup, rmsglobalconfig, points):
 @inside_rms
 def test_points_export_file_set_name_xtgeoheaders(rmssetup, rmsglobalconfig, points):
     """Export the points to file with correct metadata and name but here xtgeo var."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
     dataio.ExportData.points_fformat = "csv|xtgeo"
 
     edata = dataio.ExportData(
@@ -280,8 +282,8 @@ def test_points_export_file_set_name_xtgeoheaders(rmssetup, rmsglobalconfig, poi
 @inside_rms
 def test_cube_export_file_set_name(rmssetup, rmsglobalconfig, cube):
     """Export the cube to file with correct metadata and name."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
@@ -301,8 +303,8 @@ def test_cube_export_file_set_name(rmssetup, rmsglobalconfig, cube):
 @inside_rms
 def test_grid_export_file_set_name(rmssetup, rmsglobalconfig, grid):
     """Export the grid to file with correct metadata and name."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
@@ -317,8 +319,8 @@ def test_grid_export_file_set_name(rmssetup, rmsglobalconfig, grid):
 @inside_rms
 def test_gridproperty_export_file_set_name(rmssetup, rmsglobalconfig, gridproperty):
     """Export the gridprop to file with correct metadata and name."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
@@ -338,8 +340,8 @@ def test_gridproperty_export_file_set_name(rmssetup, rmsglobalconfig, gridproper
 @inside_rms
 def test_dataframe_export_file_set_name(rmssetup, rmsglobalconfig, dataframe):
     """Export the dataframe to file with correct metadata and name."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
@@ -357,17 +359,18 @@ def test_dataframe_export_file_set_name(rmssetup, rmsglobalconfig, dataframe):
 @inside_rms
 def test_pyarrow_export_file_set_name(rmssetup, rmsglobalconfig, arrowtable):
     """Export the arrow to file with correct metadata and name."""
-
     logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
-    output = edata.export(arrowtable, name="MyArrowtable")
-    logger.info("Output is %s", output)
+    if arrowtable:  # is None if PyArrow package is not present
+        output = edata.export(arrowtable, name="MyArrowtable")
+        logger.info("Output is %s", output)
 
-    assert str(output) == str(
-        (edata._rootpath / "share/results/tables/myarrowtable.arrow").resolve()
-    )
+        assert str(output) == str(
+            (edata._rootpath / "share/results/tables/myarrowtable.arrow").resolve()
+        )
 
-    metaout = dataio.read_metadata(output)
-    assert metaout["data"]["spec"]["columns"] == ["COL1", "COL2"]
+        metaout = dataio.read_metadata(output)
+        assert metaout["data"]["spec"]["columns"] == ["COL1", "COL2"]

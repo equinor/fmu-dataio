@@ -119,7 +119,8 @@ class _FileDataProvider:
 
         outroot = self.rootpath
 
-        if self.fmu_context == "forward":
+        logger.info("FMU context is %s", self.fmu_context)
+        if self.fmu_context == "realization":
             if self.realname:
                 outroot = outroot / self.realname
 

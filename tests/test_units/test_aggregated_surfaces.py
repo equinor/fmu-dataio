@@ -1,12 +1,7 @@
-"""Test the dataio running with aggregated surface.
-
-CURRENTLY IN DEVELOPMENT!
-
-"""
+"""Test the dataio running with aggregated surface."""
 import logging
 import os
 
-import pytest
 import xtgeo
 
 import fmu.dataionew._utils as utils
@@ -56,7 +51,7 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
         verbosity="INFO",
         aggregation_id="1234",
     )
-    newmeta = aggdata.generate_metadata(aggregated["mean"])
+    newmeta = aggdata.generate_aggregation_metadata(aggregated["mean"])
     logger.info("New metadata:\n%s", utils.prettyprint_dict(newmeta))
 
 
@@ -104,5 +99,5 @@ def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, reg
         verbosity="INFO",
         aggregation_id="789politipoliti",
     )
-    newmeta = aggdata.generate_metadata(aggregated["mean"])
+    newmeta = aggdata.generate_aggregation_metadata(aggregated["mean"])
     logger.info("New metadata:\n%s", utils.prettyprint_dict(newmeta))

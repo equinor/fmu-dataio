@@ -120,7 +120,9 @@ def test_generate_full_metadata(regsurf, internalcfg2):
 
     mymeta = _MetaData(regsurf, internalcfg2)
 
-    metadata_result = mymeta.generate_metadata(skip_null=False)  # want to have None
+    metadata_result = mymeta.generate_export_metadata(
+        skip_null=False
+    )  # want to have None
 
     logger.debug("\n%s", prettyprint_dict(metadata_result))
 

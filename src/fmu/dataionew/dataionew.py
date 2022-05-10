@@ -10,10 +10,15 @@ from pathlib import Path
 from typing import Any, ClassVar, List, Optional, Tuple, Union
 from warnings import warn
 
+import pandas as pd
 import yaml
 
 import fmu.dataionew._utils as utils
-from fmu.dataionew._definitions import ALLOWED_CONTENTS, ALLOWED_FMU_CONTEXTS
+from fmu.dataionew._definitions import (
+    ALLOWED_CONTENTS,
+    ALLOWED_FMU_CONTEXTS,
+    CONTENTS_REQUIRED,
+)
 from fmu.dataionew._metadata import _MetaData
 from fmu.dataionew._utils import C, G, S, X
 
@@ -32,8 +37,9 @@ CLASSVARS = [
     "polygons_fformat",
     "surface_fformat",
     "table_fformat",
+    "table_include_index",
     "verifyfolder",
-    "_inside_rms",  # pretend inside RMS!
+    "_inside_rms",  # pretend inside RMS! developer only
 ]
 
 # possible user inputs:
@@ -95,6 +101,85 @@ def _check_global_config(globalconfig: dict, strict: bool = True):
             raise ValidationError(f"Required key '{required_key}' not found in config.")
 
 
+# the two next content key related function may require refactoring/simplification
+def _check_content(proposed: Union[str, dict]) -> Any:
+    """Check content and return a validated version."""
+    logger.info("Evaluate content")
+
+    content = proposed
+    logger.debug("content is %s of type %s", str(content), type(content))
+    usecontent = "unset"
+    useextra = None
+    if content is None:
+        warn(
+            "The <content> is not provided which defaults to 'depth'. "
+            "It is strongly recommended that content is given explicitly!",
+            UserWarning,
+        )
+        usecontent = "depth"
+
+    elif isinstance(content, str):
+        if content in CONTENTS_REQUIRED:
+            raise ValidationError(f"content {content} requires additional input")
+        usecontent = content
+
+    elif isinstance(content, dict):
+        usecontent = (list(content.keys()))[0]
+        useextra = content[usecontent]
+
+    else:
+        raise ValidationError("The 'content' must be string or dict")
+
+    if usecontent not in ALLOWED_CONTENTS.keys():
+        raise ValidationError(
+            f"Invalid content: <{usecontent}>! "
+            f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
+        )
+
+    logger.debug("outgoing content is set to %s", usecontent)
+    if useextra:
+        _content_validate(usecontent, useextra)
+        return {usecontent: useextra}
+    else:
+        logger.debug("content has no extra information")
+        return usecontent
+
+
+def _content_validate(name, fields):
+    logger.debug("starting staticmethod _data_process_content_validate")
+    valid = ALLOWED_CONTENTS.get(name, None)
+    if valid is None:
+        raise ValidationError(f"Cannot validate content for <{name}>")
+
+    logger.info("name: %s", name)
+
+    for key, dtype in fields.items():
+        if key in valid.keys():
+            wanted_type = valid[key]
+            if not isinstance(dtype, wanted_type):
+                raise ValidationError(
+                    f"Invalid type for <{key}> with value <{dtype}>, not of "
+                    f"type <{wanted_type}>"
+                )
+        else:
+            raise ValidationError(f"Key <{key}> is not valid for <{name}>")
+
+    required = CONTENTS_REQUIRED.get(name, None)
+    if isinstance(required, dict):
+        rlist = list(required.items())
+        logger.info("rlist is %s", rlist)
+        logger.info("fields is %s", fields)
+        rkey, status = rlist.pop()
+        logger.info("rkey not in fields.keys(): %s", str(rkey not in fields.keys()))
+        logger.info("rkey: %s", rkey)
+        logger.info("fields.keys(): %s", str(fields.keys()))
+        if rkey not in fields.keys() and status is True:
+            raise ValidationError(
+                f"The subkey <{rkey}> is required for content <{name}> ",
+                "but is not found",
+            )
+
+
 # ======================================================================================
 # Public function to read/load assosiated metadata given a file (e.g. a map file)
 # ======================================================================================
@@ -110,7 +195,7 @@ def read_metadata(filename: Union[str, Path]) -> dict:
         filename: The full path filename to the data-object.
 
     Returns:
-        A dictionary with metadata read from the assoated metadata file.
+        A dictionary with metadata read from the assiated metadata file.
     """
     fname = Path(filename)
     metafile = str(fname.parent) + "/." + fname.stem + fname.suffix + ".yml"
@@ -196,11 +281,10 @@ class ExportData:
 
         casepath: To override the automatic and actual ``rootpath``. Absolute path to
             the case root. If not provided, the rootpath will be attempted parsed from
-            the file structure or by other means. If set, it is possible to force set
-            the ``casepath``; i.e. the folder which should base as a root for relative
-            files. Use with care!
+            the file structure or by other means. Use with care!
 
-        config: Required, a configuation dictionary. In the standard case this is read
+        config: Required, either as key (here) or through an environment variable.
+            A dictionary with static settings. In the standard case this is read
             from FMU global variables (via fmuconfig). The dictionary must contain some
             predefined main level keys to work with fmu-dataio. If the key is missing or
             key value is None, then it will look for the environment variable
@@ -213,7 +297,7 @@ class ExportData:
             Content is checked agains a white-list for validation!
 
         fmu_context: In normal forward models, the fmu_context is ``realization`` which
-            is default and will put data per realization. Other contexts may be 'case'
+            is default and will put data per realization. Other contexts may be ``case``
             which willput data relative to the case root. If a non-FMU run is detected
             (e.g. you run from project), fmu-dataio will detect that and set actual
             context to None as fall-back.
@@ -224,10 +308,12 @@ class ExportData:
 
         forcefolder: This setting shall only be used as exception, and will make it
             possible to output to a non-standard folder. A ``/`` in front will indicate
-            an absolute path; otherwise it will be relative to ROOTPATH. Use with care.
+            an absolute path; otherwise it will be relative to casepath/rootpath.
+            Use with care.
 
         include_index: This applies to Pandas (table) data only, and if True then the
-            index column will be exported.
+            index column will be exported. Deprecated, use class variable
+            ``table_include_index`` instead
 
         is_prediction: True (default) if model prediction data
 
@@ -323,18 +409,19 @@ class ExportData:
     # ----------------------------------------------------------------------------------
 
     # class variables
-    surface_fformat: ClassVar[str] = "irap_binary"
-    table_fformat: ClassVar[str] = "csv"
     arrow_fformat: ClassVar[str] = "arrow"
-    polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
-    points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
-    grid_fformat: ClassVar[str] = "roff"
-    cube_fformat: ClassVar[str] = "segy"
     case_folder: ClassVar[str] = "share/metadata"
     createfolder: ClassVar[bool] = True
-    verifyfolder: ClassVar[bool] = True
-    meta_format: ClassVar[str] = "yaml"
+    cube_fformat: ClassVar[str] = "segy"
+    grid_fformat: ClassVar[str] = "roff"
     legacy_time_format: ClassVar[bool] = False
+    meta_format: ClassVar[str] = "yaml"
+    polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
+    points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
+    surface_fformat: ClassVar[str] = "irap_binary"
+    table_fformat: ClassVar[str] = "csv"
+    table_include_index: ClassVar[bool] = False
+    verifyfolder: ClassVar[bool] = True
     _inside_rms: ClassVar[bool] = False  # developer only! if True pretend inside RMS
 
     # input keys (alphabetic)
@@ -359,7 +446,7 @@ class ExportData:
     vertical_domain: dict = field(default_factory=dict)
     workflow: str = ""
 
-    # storing resulting state variables for instance:
+    # storing resulting state variables for instance, non-public:
     _metadata: dict = field(default_factory=dict, init=False)
     _cfg: dict = field(default_factory=dict, init=False)
     _pwd: Path = field(default_factory=Path, init=False)
@@ -375,9 +462,6 @@ class ExportData:
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
 
-        if self.aggregation:
-            raise NotImplementedError("Aggregation not yet implemented")
-
         _check_global_config(self.config, strict=False)
 
         # collect all given settings in master dictionary: self._cfg
@@ -390,6 +474,7 @@ class ExportData:
         for cvar in CLASSVARS:
             self._cfg[C][cvar] = getattr(self, cvar)
 
+        # if input is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
             external_config = utils.some_config_from_env(SETTINGS_ENVNAME)
             for key, value in external_config.items():
@@ -412,18 +497,14 @@ class ExportData:
             else:
                 self._cfg[S][ivar] = getattr(self, ivar)
 
-        # special; global config which may be given as env variable pointing on a file
+        # global config which may be given as env variable -> a file; will override
         if not self._cfg[G] or GLOBAL_ENVNAME in os.environ:
             self._cfg[G] = utils.some_config_from_env(GLOBAL_ENVNAME)
-
-        logger.info("Input access: %s", self._cfg[G]["access"])
 
         # treat special handling of "xtgeo" in format name:
         self._cfg[X]["fmtflag"] = ""
         if self.points_fformat == "csv|xtgeo" or self.polygons_fformat == "csv|xtgeo":
             self._cfg[X]["fmtflag"] = "xtgeo"
-
-        logger.info("FFORMAT flag: <%s>", self._cfg[X]["fmtflag"])
 
         self._validate_content_key()
         self._validate_fmucontext_key()
@@ -446,15 +527,10 @@ class ExportData:
 
     def _validate_content_key(self):
         """Validate the given 'content' input."""
-        if self._cfg[S]["content"] not in ALLOWED_CONTENTS:
-            msg = ""
-            for key, value in ALLOWED_CONTENTS.items():
-                msg += f"{key}: {value}\n"
-            raise ValidationError(
-                "It seems like 'content' value is illegal! "
-                f"Allowed entries are: in list:\n{msg}"
-            )
-        # TODO! CONTENT_REQUIRED
+
+        updated_content = _check_content(self._cfg[S]["content"])
+        # keep the updated content as extra setting
+        self._cfg[X]["content"] = updated_content
 
     def _validate_fmucontext_key(self):
         """Validate the given 'fmu_context' input."""
@@ -480,6 +556,8 @@ class ExportData:
                     raise ValidationError("Setting key is present but incorrect type")
                 self._cfg[S][setting] = value
         self._show_deprecations_or_notimplemented()
+        self._validate_content_key()
+        self._validate_fmucontext_key()
 
     def _update_globalconfig_from_settings(self):
         """A few user settings may update/append the global config directly."""
@@ -508,7 +586,7 @@ class ExportData:
         relative output files. This rootpath may be dependent on if this is a FMU run
         or just an interactive run.
 
-        Hence rootpath can be updated later!
+        Hence this 'initial' rootpath can be updated later!
         """
         logger.info(
             "Establish pwd and actual casepath, inside RMS flag is %s (actual: %s))",
@@ -547,28 +625,27 @@ class ExportData:
     # ==================================================================================
 
     def generate_metadata(self, obj: Any, compute_md5: bool = True, **kwargs) -> dict:
-        """Generate the complete (except MD5 sum) metadata for a provided object.
+        """Generate and return the complete metadata for a provided object.
 
         An object may be a map, 3D grid, cube, table, etc which is of a known and
         supported type.
 
         Examples of such known types are XTGeo objects (e.g. a RegularSurface),
-        a Pandas Dataframe, etc.
-
-        This function will also collect the data spesific class metadata. For "classic"
-        files, the metadata will be stored i a YAML file with same name stem as the
-        data, but with a . in front and "yml" and suffix, e.g.::
-
-            top_volantis--depth.gri
-            .top_volantis--depth.gri.yml
-
-        For formats supporting embedded metadata, other solutions may be used.
+        a Pandas Dataframe, a PyArrow table, etc.
 
         Args:
             obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
             compute_md5: If True, compute a MD5 checksum for the exported file.
             **kwargs: For other arguments, see ExportData() input keys. If they
-                exist both places, the latter will override!
+                exist both places, this function will override!
+
+        Returns:
+            A dictionary with all metadata.
+
+        Note:
+            If the ``compute_md5`` key is False, the ``file.checksum_md5`` will be
+            empty. If true, the MD5 checksum will be generated based on export to
+            a temporary file, which may be time-consuming if the file is large.
         """
         logger.info("Generate metadata...")
 
@@ -581,7 +658,7 @@ class ExportData:
         metaobj = _MetaData(
             obj, self._cfg, compute_md5=compute_md5, verbosity=self.verbosity
         )
-        self._metadata = metaobj.generate_metadata()
+        self._metadata = metaobj.generate_export_metadata()
 
         self._rootpath = metaobj.rootpath
 
@@ -592,22 +669,36 @@ class ExportData:
     def export(self, obj, **kwargs) -> str:
         """Export data objects of 'known' type to FMU storage solution with metadata.
 
+        This function will also collect the data spesific class metadata. For "classic"
+        files, the metadata will be stored i a YAML file with same name stem as the
+        data, but with a . in front and "yml" and suffix, e.g.::
+
+            top_volantis--depth.gri
+            .top_volantis--depth.gri.yml
+
         Args:
-            See arguments for ``generate_metadata``
+            obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
+            **kwargs: For other arguments, see ExportData() input keys. If they
+                exist both places, this function will override!
 
         Returns:
             String: full path to exported item.
         """
 
-        metadata = self.generate_metadata(obj, compute_md5=False, **kwargs)
+        self.generate_metadata(obj, compute_md5=False, **kwargs)
+        metadata = self._metadata
 
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
+        if isinstance(obj, pd.DataFrame):
+            useflag = self.table_include_index
+        else:
+            useflag = self._cfg[X]["fmtflag"]
+
         logger.info("Export to file and compute MD5 sum")
-        logger.info("Special flag: %s", self._cfg[X]["fmtflag"])
         outfile, md5 = utils.export_file_compute_checksum_md5(
-            obj, outfile, outfile.suffix, flag=self._cfg[X]["fmtflag"]
+            obj, outfile, outfile.suffix, flag=useflag
         )
 
         # inject md5 checksum in metadata
@@ -876,7 +967,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         self._metadata = template
 
-    def generate_metadata(self, obj: Any, compute_md5: bool = True) -> dict:
+    def generate_aggregation_metadata(self, obj: Any, compute_md5: bool = True) -> dict:
         """Generate metadata for the aggregated data.
 
         This is a quite different and much simpler operation than the ExportData()
@@ -917,7 +1008,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         Returns:
             String: full path to exported item.
         """
-        metadata = self.generate_metadata(obj, compute_md5=False)
+        metadata = self.generate_aggregation_metadata(obj, compute_md5=False)
 
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")

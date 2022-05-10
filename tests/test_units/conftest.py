@@ -17,7 +17,6 @@ except ImportError:
     HAS_PYARROW = False
 else:
     HAS_PYARROW = True
-    from pyarrow import feather
 
 from fmu.dataionew._utils import C, G, S, X
 from fmu.dataionew.dataionew import ExportData
@@ -349,6 +348,9 @@ def fixture_dataframe():
 @pytest.fixture(name="arrowtable", scope="module", autouse=True)
 def fixture_arrowtable():
     """Create an arrow table instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    dfr = pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
-    return pa.Table.from_pandas(dfr)
+    if HAS_PYARROW:
+        logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+        dfr = pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
+        return pa.Table.from_pandas(dfr)
+    else:
+        return None

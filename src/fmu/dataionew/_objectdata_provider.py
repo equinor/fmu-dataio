@@ -93,7 +93,7 @@ import pandas as pd
 import xtgeo
 
 from ._definitions import _ValidFormats
-from ._utils import C, G, S
+from ._utils import C, G, S, X
 
 # from warnings import warn
 
@@ -145,6 +145,7 @@ class _ObjectDataProvider:
 
         # more explicit:
         self.settings = self.cfg[S]
+        self.xsettings = self.cfg[X]
         self.globalconfig = self.cfg[G]
         self.classvar = self.cfg[C]
         logger.info("Ran __post_init__")
@@ -528,8 +529,8 @@ class _ObjectDataProvider:
         meta["alias"] = nameres.get("alias", None)
         meta["top"] = nameres.get("top", None)
         meta["base"] = nameres.get("base", None)
-        meta["content"] = self.settings.get("content", None)
-        meta["tagname"] = self.settings.get("tagname", None)
+        meta["content"] = self.xsettings.get("content", "depth")
+        meta["tagname"] = self.settings.get("tagname", "")
         meta["format"] = objres["fmt"]
         meta["layout"] = objres["layout"]
         meta["unit"] = self.settings.get("unit", None)
@@ -538,10 +539,16 @@ class _ObjectDataProvider:
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
 
+        # timedata:
         tresult = self._derive_timedata()
         if tresult:
-            for key, val in tresult.items():
-                meta[key] = val
+            if self.classvar["legacy_time_format"]:
+                for key, val in tresult.items():
+                    meta[key] = val
+            else:
+                meta["time"] = dict()
+                for key, val in tresult.items():
+                    meta["time"][key] = val
 
         meta["is_prediction"] = self.settings.get("is_prediction", False)
         meta["is_observation"] = self.settings.get("is_observation", False)

@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 def test_generate_metadata_simple(globalconfig1):
     """Test generating metadata"""
 
+    default_fformat = ExportData.grid_fformat
     ExportData.grid_fformat = "grdecl"
 
     logger.info("Config in: \n%s", globalconfig1)
@@ -27,6 +28,8 @@ def test_generate_metadata_simple(globalconfig1):
     assert edata._cfg[C]["meta_format"] == "yaml"
     assert edata._cfg[C]["grid_fformat"] == "grdecl"
     assert edata._cfg[S]["name"] == ""
+
+    ExportData.grid_fformat = default_fformat  # reset
 
 
 def test_update_check_settings_shall_fail(internalcfg2):
@@ -68,7 +71,7 @@ def test_update_check_settings_shall_fail(internalcfg2):
 def test_content_is_invalid(internalcfg2):
 
     kval = {"content": "not_legal"}
-    with pytest.raises(ValidationError, match=r"seems like 'content' value is illegal"):
+    with pytest.raises(ValidationError, match=r"Invalid content"):
         ExportData(config=internalcfg2[G], **kval)
 
 
