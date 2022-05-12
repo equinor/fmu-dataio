@@ -734,11 +734,17 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             some predefined main level keys. If config is None or the env variable
             FMU_GLOBAL_CONFIG pointing to a file is provided, then it will attempt to
             parse that file instead.
+
+        casepath: To override the automatic and actual ``rootpath``. Absolute path to
+            the case root. If not provided, the rootpath will be attempted parsed from
+            the file structure or by other means.
+
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO".
     """
 
     config: dict
+    casepath: Union[str, Path, None] = None
     verbosity: str = "CRITICAL"
 
     _cfg: dict = field(default_factory=dict, init=False)
@@ -769,7 +775,11 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         """
         self._pwd = Path().absolute()
 
-        self._rootpath = self._pwd.parent.parent
+        if self.casepath:
+            self._rootpath = self.casepath
+        else:
+            self._rootpath = self._pwd.parent.parent
+
         self._cfg[X]["pwd"] = self._pwd
         self._cfg[X]["rootpath"] = self._rootpath
 
