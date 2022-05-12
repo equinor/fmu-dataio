@@ -95,7 +95,7 @@ def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
 
 @inside_rms
 def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
-    """Export the regular surface to file with correct metadata and name and timedata."""
+    """Export a regular surface to file with correct metadata and name and timedata."""
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 

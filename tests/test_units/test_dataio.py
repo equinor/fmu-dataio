@@ -147,7 +147,7 @@ def test_settings_config_from_env_invalid(tmp_path, rmsglobalconfig):
 
     os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
     with pytest.raises(ValidationError):
-        edata = ExportData(verbosity="INFO")
+        _ = ExportData(verbosity="INFO")
 
     del os.environ["FMU_DATAIO_CONFIG"]
 
@@ -159,7 +159,7 @@ def test_establish_pwd_runpath(tmp_path, globalconfig2):
     os.chdir(rmspath)
 
     ExportData._inside_rms = True
-    edata = ExportData(config=globalconfig2)
+    _ = ExportData(config=globalconfig2)
     # edata._establish_pwd_basepath()
 
     ExportData._inside_rms = False  # reset
