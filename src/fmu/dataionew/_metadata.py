@@ -255,7 +255,7 @@ class _MetaData:
         # if not self._case and self._access_ssdl is not None:
         #     a_meta["ssdl"] = {**a_meta["ssdl"], **self._access_ssdl}
 
-    def generate_export_metadata(self, skip_null=True) -> dict:
+    def generate_export_metadata(self, skip_null=True) -> dict:  # TODO! -> skip_null?
         """Main function to generate the full metadata"""
 
         # populate order matters, in particular objectdata provides input to class/file

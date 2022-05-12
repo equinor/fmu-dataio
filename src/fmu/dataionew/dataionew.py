@@ -20,7 +20,7 @@ from fmu.dataionew._definitions import (
     CONTENTS_REQUIRED,
 )
 from fmu.dataionew._metadata import _MetaData
-from fmu.dataionew._utils import C, G, S, X
+from fmu.dataionew._utils import C, G, S, X, drop_nones
 
 INSIDE_RMS = utils.detect_inside_rms()
 
@@ -981,6 +981,8 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
             compute_md5: If True, an md5 sum for the file will be created. This involves
                 a temporary export of the data, and may be time consuming for large
                 data.
+
+            skip_null: If True (default), None values in putput will be skipped
         """
         logger.info("Generate metadata for class")
 
@@ -999,6 +1001,8 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         # first config file as template
         self._generate_aggrd_metadata(obj, real_ids, uuids, compute_md5)
+        if skip_null:
+            self._metadata = drop_nones(self._metadata)
 
         return deepcopy(self._metadata)
 
