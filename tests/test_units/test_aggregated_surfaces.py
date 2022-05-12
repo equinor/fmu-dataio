@@ -52,7 +52,33 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
         aggregation_id="1234",
     )
     newmeta = aggdata.generate_aggregation_metadata(aggregated["mean"])
-    logger.info("New metadata:\n%s", utils.prettyprint_dict(newmeta))
+    logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
+    assert newmeta["fmu"]["aggregation"]["id"] == "1234"
+
+    # let aggregation input True generate hash
+    aggdata = dataio.AggregatedData(
+        configs=metas,
+        operation="mean",
+        name="myaggrd2",
+        verbosity="INFO",
+        aggregation_id=True,
+    )
+    newmeta = aggdata.generate_aggregation_metadata(aggregated["mean"])
+    logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
+    assert newmeta["fmu"]["aggregation"]["id"] != "1234"
+    assert newmeta["fmu"]["aggregation"]["id"] is not True
+
+    # let aggregation input None generate a missing key
+    aggdata = dataio.AggregatedData(
+        configs=metas,
+        operation="mean",
+        name="myaggrd2",
+        verbosity="INFO",
+        aggregation_id=None,
+    )
+    newmeta = aggdata.generate_aggregation_metadata(aggregated["mean"])
+    logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
+    assert "id" not in newmeta["fmu"]["aggregation"]
 
 
 def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, regsurf):

@@ -847,15 +847,16 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO".
         tagname: Additional name, as part of file name
-        aggregation_id: Give an explicit ID for the aggregation. If not provided, an
-            ID based on existing realization uuid will be made.
+        aggregation_id: Give an explicit ID for the aggregation. If set to True, an
+            automatic ID based on existing realization uuid will be made.
+            Default is None which means it will be missing (null) in the metadata.
     """
 
     configs: list = field(default_factory=list)
     operation: str = "unknown"
     name: str = ""
     tagname: str = ""
-    aggregation_id: str = ""
+    aggregation_id: Optional[Union[str, bool]] = None
     verbosity: str = "CRITICAL"
 
     _metadata: dict = field(default_factory=dict, init=False)
@@ -934,7 +935,9 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         self, obj: Any, real_ids: List[int], uuids: List[str], compute_md5: bool = True
     ):
 
-        if not self.aggregation_id:
+        if self.aggregation_id is None:
+            self.aggregation_id = None
+        elif self.aggregation_id is True:
             self.aggregation_id = self._generate_aggr_uuid(uuids)
 
         template = deepcopy(self.configs[0])
@@ -977,7 +980,12 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         self._metadata = template
 
-    def generate_aggregation_metadata(self, obj: Any, compute_md5: bool = True) -> dict:
+    def generate_aggregation_metadata(
+        self,
+        obj: Any,
+        compute_md5: bool = True,
+        skip_null: bool = True,
+    ) -> dict:
         """Generate metadata for the aggregated data.
 
         This is a quite different and much simpler operation than the ExportData()
