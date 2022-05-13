@@ -10,7 +10,7 @@ import pytest
 import xtgeo
 import yaml
 
-import fmu.dataio
+import fmu.dataio_legacy.dataio as fmudataio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -49,9 +49,9 @@ def test_surface_io(tmp_path):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
     )
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
+    exp = fmudataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
     exp.export(srf)
 
     assert (tmp_path / FMUP1 / "maps" / "test.gri").is_file() is True
@@ -94,9 +94,9 @@ def test_surface_io_with_timedata(tmp_path, dates, expected):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
     )
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         content="depth", timedata=dates, runpath=tmp_path, config=CFG
     )
     out = Path(exp.export(srf)).stem
@@ -136,9 +136,9 @@ def test_surface_io_with_timedata_shall_fail(tmp_path, dates, errmessage):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
     )
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         content="depth", timedata=dates, runpath=tmp_path, config=CFG
     )
     with pytest.raises(ValueError) as err:
@@ -152,9 +152,9 @@ def test_surface_io_export_subfolder(tmp_path):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
     )
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
+    exp = fmudataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
     with pytest.warns(UserWarning):
         exp.export(srf, subfolder="mysubfolder")
 
@@ -170,9 +170,9 @@ def test_surface_io_export_subfolder_w_path_warn(tmp_path):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test"
     )
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
+    exp = fmudataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
     # with pytest.warns(UserWarning):
     exp.export(srf, subfolder="../mysubfolder")
 
@@ -183,9 +183,9 @@ def test_surface_io_export_forcefolder_absolute(tmp_path):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test234"
     )
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
+    exp = fmudataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
     with pytest.warns(UserWarning):
         exp.export(srf, forcefolder=str(tmp_path))
 
@@ -198,9 +198,9 @@ def test_surface_io_export_forcefolder_relative(tmp_path):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test235"
     )
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
+    exp = fmudataio.ExportData(content="depth", runpath=tmp_path, config=CFG)
     with pytest.warns(UserWarning):
         exp.export(srf, forcefolder="share/results/myfolder")
 
@@ -213,9 +213,9 @@ def test_surface_io_export_forcefolder_illegal_folder_create(tmp_path):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test235"
     )
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         content="depth", runpath=tmp_path, config=CFG, verbosity="INFO"
     )
 
@@ -230,9 +230,9 @@ def test_surface_io_export_forcefolder_illegal_folder_store(tmp_path):
     srf = xtgeo.RegularSurface(
         ncol=20, nrow=30, xinc=20, yinc=20, values=np.ma.ones((20, 30)), name="test235"
     )
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         content="depth", runpath=tmp_path, config=CFG, verbosity="INFO"
     )
 
@@ -254,9 +254,9 @@ def test_surface_io_larger_case(tmp_path):
         values=np.ma.ones((20, 30)),
         name="TopVolantis",
     )
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         unit="m",
@@ -286,13 +286,13 @@ def test_surface_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
     out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         unit="m",
@@ -350,14 +350,14 @@ def test_surface_io_larger_case_ertrun_missing_casemetadata(tmp_path):
     shutil.copytree(CASEPATH, current / "mycase")
     shutil.rmtree(current / "mycase" / "share" / "metadata")
 
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
     out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
 
     with pytest.warns(FutureWarning, match="Cannot find the case metadata"):
-        exp = fmu.dataio.ExportData(
+        exp = fmudataio.ExportData(
             config=CFG2,
             content="depth",
             unit="m",

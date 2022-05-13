@@ -5,11 +5,10 @@ import shutil
 from collections import OrderedDict
 from pathlib import Path
 
+import fmu.dataio_legacy.dataio as fmudataio
 import pytest
 import xtgeo
 import yaml
-
-import fmu.dataio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -47,9 +46,9 @@ def test_grid_io(tmp_path):
 
     grd = xtgeo.create_box_grid(dimension=(2, 3, 4))
     grd.name = "test"
-    fmu.dataio.ExportData.grid_fformat = "roff"
+    fmudataio.ExportData.grid_fformat = "roff"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         content="depth",
         runpath=tmp_path,
         config=CFG,
@@ -65,11 +64,9 @@ def test_gridproperty_io(tmp_path):
 
     gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
     gpr.name = "testgp"
-    fmu.dataio.ExportData.grid_fformat = "roff"
+    fmudataio.ExportData.grid_fformat = "roff"
 
-    exp = fmu.dataio.ExportData(
-        parent={"name": "Geogrid"}, runpath=tmp_path, config=CFG
-    )
+    exp = fmudataio.ExportData(parent={"name": "Geogrid"}, runpath=tmp_path, config=CFG)
     exp.export(gpr)
 
     assert (tmp_path / FMUP1 / "grids" / ".geogrid--testgp.roff.yml").is_file() is True
@@ -82,9 +79,9 @@ def test_grid_io_larger_case(tmp_path):
     grd = xtgeo.create_box_grid(dimension=(2, 3, 4))
     grd.name = "Volantis"
 
-    fmu.dataio.ExportData.grid_fformat = "roff"
+    fmudataio.ExportData.grid_fformat = "roff"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         unit="m",
@@ -111,9 +108,9 @@ def test_gridprop_io_larger_case(tmp_path):
     grdp = xtgeo.GridProperty(ncol=2, nrow=7, nlay=13)
     grdp.name = "poro"
 
-    fmu.dataio.ExportData.grid_fformat = "roff"
+    fmudataio.ExportData.grid_fformat = "roff"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=CFG2,
         content={"property": {"attribute": "porosity"}},
         unit="fraction",
@@ -145,14 +142,14 @@ def test_grid_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.surface_fformat = "roff"
+    fmudataio.ExportData.surface_fformat = "roff"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
     out = (
         current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "grids"
     )
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         unit="m",
@@ -207,7 +204,7 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.surface_fformat = "roff"
+    fmudataio.ExportData.surface_fformat = "roff"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
@@ -215,7 +212,7 @@ def test_gridprop_io_larger_case_ertrun(tmp_path):
         current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "grids"
     )
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=CFG2,
         content={"property": {"attribute": "porosity"}},
         unit="fraction",

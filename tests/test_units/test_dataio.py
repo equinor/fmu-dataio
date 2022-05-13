@@ -5,8 +5,8 @@ import os
 import pytest
 import yaml
 
-from fmu.dataionew._utils import C, G, S
-from fmu.dataionew.dataionew import ExportData, ValidationError
+from fmu.dataio._utils import C, G, S
+from fmu.dataio.dataio import ExportData, ValidationError
 
 # pylint: disable=no-member
 

@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Optional
 from warnings import warn
 
-from fmu.dataionew._utils import C, S, X
+from fmu.dataio._utils import C, S, X
 
 logger = logging.getLogger(__name__)
 

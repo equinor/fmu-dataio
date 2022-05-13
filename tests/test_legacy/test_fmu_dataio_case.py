@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 import yaml
 
-import fmu.dataio
+import fmu.dataio_legacy.dataio as fmudataio
 
 CFG = OrderedDict()
 CFG["model"] = {"name": "Test", "revision": "21.0.0"}
@@ -31,7 +31,7 @@ logger.setLevel(logging.INFO)
 def test_process_fmu_case():
     """The produce(!) the fmu case data."""
 
-    case = fmu.dataio.InitializeCase(runfolder=RUN, config=CFG)
+    case = fmudataio.InitializeCase(runfolder=RUN, config=CFG)
 
     c_meta = case._establish_fmu_case_metadata(
         casename="testcase",
@@ -47,7 +47,7 @@ def test_process_fmu_case():
 def test_fmu_case_meta_to_file(tmp_path):
     """The produce(!) the fmu case data on disk."""
 
-    case = fmu.dataio.InitializeCase(
+    case = fmudataio.InitializeCase(
         verbosity="DEBUG",
         config=CFG,
         runfolder=pathlib.Path(RUN),
@@ -69,14 +69,14 @@ def test_persisted_case_uuid(tmp_path):
 
     Wanted behavior:
 
-        When initializing a case for the first time, fmu.dataio
+        When initializing a case for the first time, fmudataio
         should produce the case metadata.
-        When initializing that case again, fmu.dataio should persist
+        When initializing that case again, fmudataio should persist
         the fmu.case.uuid, so that subsequent data objects uploaded
         in two separate runs will inherit the same uuid.
     """
 
-    case = fmu.dataio.InitializeCase(verbosity="DEBUG", config=CFG, runfolder=RUN)
+    case = fmudataio.InitializeCase(verbosity="DEBUG", config=CFG, runfolder=RUN)
     case.export(
         casename="testcase",
         rootfolder=str(tmp_path),

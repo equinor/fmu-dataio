@@ -13,9 +13,8 @@ try:
 except ImportError:
     pass
 
+import fmu.dataio_legacy.dataio as fmudataio
 import yaml
-
-import fmu.dataio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -52,9 +51,9 @@ def test_table_io_pandas(tmp_path):
 
     # make a small DataFrame
     df = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
-    fmu.dataio.ExportData.table_fformat = "csv"
+    fmudataio.ExportData.table_fformat = "csv"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="test",
         verbosity="INFO",
         content="volumes",
@@ -84,7 +83,7 @@ def test_table_io_arrow(tmp_path):
     df = pd.DataFrame({"STOIIP": [123, 345, 654], "PORO": [0.2, 0.4, 0.3]})
     table = pa.Table.from_pandas(df)
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="test",
         verbosity="INFO",
         content="timeseries",
@@ -114,7 +113,7 @@ def test_tables_io_larger_case_ertrun(tmp_path):
     current.mkdir(parents=True, exist_ok=True)
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.table_fformat = "csv"
+    fmudataio.ExportData.table_fformat = "csv"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
@@ -122,7 +121,7 @@ def test_tables_io_larger_case_ertrun(tmp_path):
         current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "tables"
     )
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="sometable",
         config=CFG2,
         content="volumetrics",

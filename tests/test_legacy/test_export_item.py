@@ -6,8 +6,8 @@ import pytest
 import xtgeo
 import yaml
 
-import fmu.dataio
-import fmu.dataio._export_item as ei
+import fmu.dataio_legacy._export_item as ei
+import fmu.dataio_legacy.dataio as fmudataio
 
 # pylint: disable=no-member
 
@@ -30,7 +30,7 @@ with open("tests/data/drogon/global_config2/global_variables.yml", "r") as strea
 def test_data_process_name():
     """Test the _data_process_name function."""
     # test case 1
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content="depth",
@@ -45,7 +45,7 @@ def test_data_process_name():
     assert dataio.metadata4data["name"] == "Valysar Fm."
 
     # test case 2, name is given via object
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         tagname="WhatEver",
@@ -58,7 +58,7 @@ def test_data_process_name():
     assert dataio.metadata4data["name"] == "Valysar Fm."
 
     # test case 3, name is given via object but not present in stratigraphy
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         tagname="WhatEver",
@@ -95,7 +95,7 @@ def test_data_process_context():
     }
 
     # test rel1
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         context=rel1,
         config=CFG2,
@@ -112,7 +112,7 @@ def test_data_process_context():
     assert dataio.metadata4data["base"]["stratigraphic"] is True
 
     # test rel2
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         context=rel2,
         config=CFG2,
@@ -128,7 +128,7 @@ def test_data_process_context():
     assert "Cannot find Volon FM. Top" in str(verr)
 
     # test rel3
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         context=rel3,
         config=CFG2,
@@ -147,7 +147,7 @@ def test_data_process_context():
 def test_data_process_timedata():
     """Test the _data_process_timedata function."""
     # test case 1
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content="depth",
@@ -172,7 +172,7 @@ def test_data_process_description():
     )
 
     # give string, expect array
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="TheName",
         config=CFG2,
         content="depth",
@@ -193,7 +193,7 @@ def test_data_process_description():
     assert dataio.metadata4data["description"] == ["StringExportItem"]
 
     # give array, expect array
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="TheName",
         config=CFG2,
         content="depth",
@@ -214,7 +214,7 @@ def test_data_process_description():
     assert dataio.metadata4data["description"] == ["ArrayExportItem"]
 
     # give multiarray, expect array
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="TheName",
         config=CFG2,
         content="depth",
@@ -229,7 +229,7 @@ def test_data_process_description():
     ]
 
     # give nothing, expect nothing
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="TheName",
         config=CFG2,
         content="depth",
@@ -243,7 +243,7 @@ def test_data_process_description():
 def test_data_process_content():
     """Test the _data_process_content function."""
     # test case 1
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content="depth",
@@ -258,7 +258,7 @@ def test_data_process_content():
     assert dataio.metadata4data["content"] == "depth"
 
     # test case 2
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content={
@@ -282,7 +282,7 @@ def test_data_process_content():
 def test_data_process_content_shall_fail():
     """Test the _data_process_content function for invalid entries."""
     # test case 1
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content="something_invalid",
@@ -298,7 +298,7 @@ def test_data_process_content_shall_fail():
     assert "Invalid content" in str(errmsg)
 
     # test case 2, valid key but invalid value
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content={"seismic": {"attribute": 100}},
@@ -314,7 +314,7 @@ def test_data_process_content_shall_fail():
     assert "Invalid type" in str(errmsg)
 
     # test case 3, valid content key but invalid attribute key
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content={"seismic": {"invalid_attribute": "some"}},
@@ -334,7 +334,7 @@ def test_data_process_content_validate():
     """Test the content validation"""
 
     # fluid contact, valid without "truncated"
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content={"fluid_contact": {"contact": "owc"}},
@@ -346,7 +346,7 @@ def test_data_process_content_validate():
     assert "fluid_contact" in dataio.metadata4data
 
     # fluid contact, valid with "truncated"
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content={"fluid_contact": {"contact": "owc", "truncated": True}},
@@ -358,7 +358,7 @@ def test_data_process_content_validate():
     assert "fluid_contact" in dataio.metadata4data
 
     # fluid contact, not valid, shall fail
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="SomeName",
         config=CFG2,
         content="fluid_contact",
@@ -373,7 +373,7 @@ def test_data_process_content_fluid_contact():
     """Test the field fluid_contact."""
 
     # test case 1
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content={"fluid_contact": {"contact": "owc"}},
@@ -385,7 +385,7 @@ def test_data_process_content_fluid_contact():
     exportitem._data_process_content()
 
     # test case 2
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content={"fluid_contact": {"wrong": "owc"}},
@@ -399,7 +399,7 @@ def test_data_process_content_fluid_contact():
     assert "is not valid for" in str(errmsg)
 
     # test case 3
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content={"field_outline": {"wrong": "owc"}},
@@ -412,7 +412,7 @@ def test_data_process_content_fluid_contact():
 def test_data_process_tagname():
     """Test the data.tagname entry."""
 
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content="depth",
@@ -426,7 +426,7 @@ def test_data_process_tagname():
     assert dataio.metadata4data["tagname"] == "what_ever"
 
     # allow tagname not given, shall then not be in metadata
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content="depth",
@@ -439,7 +439,7 @@ def test_data_process_tagname():
     assert "tagname" not in dataio.metadata4data
 
     # give warning when tagname is not proper, then correct it
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="Valysar",
         config=CFG2,
         content="depth",
@@ -474,7 +474,7 @@ def test_display_name():
     """
 
     # display_name as argument to ExportData.export() only
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="MyName", config=CFG2, content="depth", verbosity="DEBUG"
     )
 
@@ -487,7 +487,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] == "ExportName"
 
     # display_name as argument to ExportData() AND ExportData.export(), use latter
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="MyName",
         display_name="MyIgnoredDisplayName",
         config=CFG2,
@@ -504,7 +504,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] == "ExportName"
 
     # display_name as argument to ExportData(), not to ExportData.export()
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="MyName", config=CFG2, content="depth", verbosity="DEBUG"
     )
 
@@ -517,7 +517,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] == "MyName"
 
     # no display_name, no name. Use object name. (surface)
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         verbosity="DEBUG",
@@ -532,7 +532,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] == "ObjectName"
 
     # no display_name, no name. Use object name. (grid)
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         verbosity="DEBUG",
@@ -547,7 +547,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] == "ObjectName"
 
     # no display, no name. Use object name. (polygons)
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         verbosity="DEBUG",
@@ -562,7 +562,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] == "ObjectName"
 
     # no display, no name. Use object name. (points)
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         verbosity="DEBUG",
@@ -582,7 +582,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] == "ObjectName"
 
     # no name, no display_name, no object-name: Return None
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         verbosity="DEBUG",
@@ -595,7 +595,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] is None
 
     # display_name always used when given
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         name="MyName",
         display_name="MyDisplayName",
         config=CFG2,
@@ -611,7 +611,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] == "MyDisplayName"
 
     # display_name always used when given even when it is "unknown"
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         display_name="unknown",
         config=CFG2,
         content="depth",
@@ -626,7 +626,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] == "unknown"
 
     # when 'unknown' received from surface object, return None
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         verbosity="DEBUG",
@@ -641,7 +641,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] is None
 
     # when 'poly' received from polygons object, return None
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         verbosity="DEBUG",
@@ -655,7 +655,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] is None
 
     # when 'points' received from points object, return None
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         verbosity="DEBUG",
@@ -673,7 +673,7 @@ def test_display_name():
     assert dataio.metadata4display["name"] is None
 
     # when nothing received from grid object, return None
-    dataio = fmu.dataio.ExportData(
+    dataio = fmudataio.ExportData(
         config=CFG2,
         content="depth",
         verbosity="DEBUG",

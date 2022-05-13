@@ -4,11 +4,10 @@ import shutil
 from collections import OrderedDict
 from pathlib import Path
 
+import fmu.dataio_legacy.dataio as fmudataio
 import pandas as pd
 import xtgeo
 import yaml
-
-import fmu.dataio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -65,9 +64,9 @@ def test_points_io(tmp_path):
     """Minimal test points io, uses tmp_path."""
 
     pox = xtgeo.Points(POI)
-    fmu.dataio.ExportData.points_fformat = "csv"
+    fmudataio.ExportData.points_fformat = "csv"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="test", content="depth", runpath=tmp_path, config=CFG
     )
     exp.export(pox)
@@ -82,9 +81,9 @@ def test_points_io_xtgeo_csv(tmp_path):
     """Minimal test points io, uses csv with xtgeo column names"""
 
     pox = xtgeo.Points(POI)
-    fmu.dataio.ExportData.points_fformat = "csv|xtgeo"
+    fmudataio.ExportData.points_fformat = "csv|xtgeo"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="test98",
         content="depth",
         runpath=tmp_path,
@@ -109,8 +108,8 @@ def test_points_io_with_attrs(tmp_path):
     pox = xtgeo.Points()
     pox.dataframe = dfr
 
-    fmu.dataio.ExportData.points_fformat = "csv"
-    exp = fmu.dataio.ExportData(
+    fmudataio.ExportData.points_fformat = "csv"
+    exp = fmudataio.ExportData(
         name="test2", content="depth", runpath=tmp_path, config=CFG
     )
     exp.export(pox)
@@ -128,7 +127,7 @@ def test_points_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.points_fformat = "irap_ascii"
+    fmudataio.ExportData.points_fformat = "irap_ascii"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
@@ -136,7 +135,7 @@ def test_points_io_larger_case_ertrun(tmp_path):
         current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "points"
     )
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="TopVolantis",
         config=CFG2,
         content="depth",

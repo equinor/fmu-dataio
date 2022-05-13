@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 import xtgeo
 
-import fmu.dataio._utils as _utils
+import fmu.dataio_legacy._utils as _utils
 
 CFG = OrderedDict()
 CFG["model"] = {"name": "Test", "revision": "21.0.0"}

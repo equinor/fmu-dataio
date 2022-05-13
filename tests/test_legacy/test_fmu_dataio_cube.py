@@ -5,10 +5,9 @@ import shutil
 from collections import OrderedDict
 from pathlib import Path
 
+import fmu.dataio_legacy.dataio as fmudataio
 import xtgeo
 import yaml
-
-import fmu.dataio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -47,9 +46,9 @@ def test_cube_io(tmp_path):
     """Minimal test cube geometry io, uses tmp_path."""
 
     cube = xtgeo.Cube(ncol=5, nrow=8, nlay=3, xinc=25, yinc=25, zinc=2, values=0.0)
-    fmu.dataio.ExportData.cube_fformat = "segy"
+    fmudataio.ExportData.cube_fformat = "segy"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         content="depth", name="testcube", runpath=tmp_path, config=CFG
     )
 
@@ -66,7 +65,7 @@ def test_cube_io_larger_case(tmp_path):
         ncol=33, nrow=44, nlay=22, xinc=12.0, yinc=12.0, zinc=3.0, values=0.0
     )
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=CFG2,
         content="time",
         name="Volantis",
@@ -94,9 +93,9 @@ def test_cubeprop_io_larger_case(tmp_path):
         ncol=2, nrow=7, nlay=13, xinc=12.0, yinc=12.0, zinc=3.0, values=0.0
     )
 
-    fmu.dataio.ExportData.cube_fformat = "segy"
+    fmudataio.ExportData.cube_fformat = "segy"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="poro",
         config=CFG2,
         content={"property": {"attribute": "porosity"}},
@@ -140,7 +139,7 @@ def test_cube_io_larger_case_ertrun(tmp_path):
     )
 
     # alternative 1, set inside_rms True (developer setting for testing)
-    exp1 = fmu.dataio.ExportData(
+    exp1 = fmudataio.ExportData(
         config=CFG2,
         name="Volantis",
         content="depth",

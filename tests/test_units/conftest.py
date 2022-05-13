@@ -18,8 +18,8 @@ except ImportError:
 else:
     HAS_PYARROW = True
 
-from fmu.dataionew._utils import C, G, S, X
-from fmu.dataionew.dataionew import ExportData
+from fmu.dataio._utils import C, G, S, X
+from fmu.dataio.dataio import ExportData
 
 logger = logging.getLogger(__name__)
 

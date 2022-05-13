@@ -4,8 +4,8 @@ import os
 
 import xtgeo
 
-import fmu.dataionew._utils as utils
-import fmu.dataionew.dataionew as dataio
+import fmu.dataio._utils as utils
+import fmu.dataio.dataio as dataio
 
 logger = logging.getLogger(__name__)
 

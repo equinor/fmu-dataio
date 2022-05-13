@@ -2,34 +2,16 @@
 import hashlib
 import json
 import logging
-import os
-import tempfile
 import uuid
 from pathlib import Path
 from typing import Dict, List, Union
 
-import pandas as pd
-
-try:
-    import pyarrow as pa
-except ImportError:
-    HAS_PYARROW = False
-else:
-    HAS_PYARROW = True
-    from pyarrow import feather
-
 import xtgeo
-import yaml
 
 from . import _design_kw
 from . import _oyaml as oyaml
 
 logger = logging.getLogger(__name__)
-
-C = "CLASSVAR"
-G = "GLOBVAR"
-S = "SETTING"
-X = "EXTRAS"  # additonal settings
 
 
 def inherit_docstring(inherit_from):
@@ -43,37 +25,12 @@ def inherit_docstring(inherit_from):
     return decorator_set_docstring
 
 
-def detect_inside_rms() -> bool:
-    """Detect if 'truly' inside RMS GUI, where predefined variable project exist.
-
-    However this will be overriden by an environment variable for unit testing
-    when using the Roxar API python, so that unit test outside of RMS behaves
-    properly
-    """
-    inside_rms = False
-    try:
-        import roxar
-
-        inside_rms = True
-        logger.info("Roxar version is %s", roxar.__version__)
-    except ModuleNotFoundError:
-        pass
-
-    # a special solution for testing mostly
-    if os.environ.get("INSIDE_RMS", 1) == "0":
-        inside_rms = False
-
-    logger.info("Running truly in RMS GUI status: %s", inside_rms)
-    print(f"\nRunning truly in RMS GUI status: {inside_rms}\n")
-    return inside_rms
-
-
 def drop_nones(dinput: dict) -> dict:
     """Recursively drop Nones in dict dinput and return a new dict."""
     # https://stackoverflow.com/a/65379092
     dd = {}
     for key, val in dinput.items():
-        if isinstance(val, dict) and val:
+        if isinstance(val, dict):
             dd[key] = drop_nones(val)
         elif isinstance(val, (list, set, tuple)):
             # note: Nones in lists are not dropped
@@ -82,10 +39,7 @@ def drop_nones(dinput: dict) -> dict:
                 drop_nones(vv) if isinstance(vv, dict) else vv for vv in val
             )
         elif val is not None:
-            if isinstance(val, dict) and not val:  # avoid empty {}
-                pass
-            else:
-                dd[key] = val
+            dd[key] = val
     return dd
 
 
@@ -113,64 +67,12 @@ def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -
     logger.info("Yaml file on: %s", yfile)
 
 
-def export_file(obj, filename, extension, flag=None):
-    """Export a valid object to file"""
-    if extension == ".gri" and isinstance(obj, xtgeo.RegularSurface):
-        obj.to_file(filename, fformat="irap_binary")
-    elif extension == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
-        out = obj.copy()  # to not modify incoming instance!
-        if "xtgeo" not in flag:
-            out.xname = "X"
-            out.yname = "Y"
-            out.zname = "Z"
-            if isinstance(out, xtgeo.Polygons):
-                # out.pname = "ID"  not working
-                out.dataframe.rename(columns={out.pname: "ID"}, inplace=True)
-        out.dataframe.to_csv(filename, index=False)
-    elif extension == ".segy" and isinstance(obj, xtgeo.Cube):
-        obj.to_file(filename, fformat="segy")
-    elif extension == ".roff" and isinstance(obj, (xtgeo.Grid, xtgeo.GridProperty)):
-        obj.to_file(filename, fformat="roff")
-    elif extension == ".csv" and isinstance(obj, pd.DataFrame):
-        includeindex = True if flag == "include_index" else False
-        obj.to_csv(filename, index=includeindex)
-    elif extension == ".arrow" and HAS_PYARROW and isinstance(obj, pa.Table):
-        # comment taken from equinor/webviz_subsurface/smry2arrow.py
-
-        # Writing here is done through the feather import, but could also be done using
-        # pa.RecordBatchFileWriter.write_table() with a few pa.ipc.IpcWriteOptions(). It
-        # is convenient to use feather since it has ready configured defaults and the
-        # actual file format is the same
-        # (https://arrow.apache.org/docs/python/feather.html)
-        feather.write_feather(obj, dest=filename)
-    else:
-        raise TypeError(f"Exporting {extension} for {type(obj)} is not supported")
-
-    return str(filename)
-
-
 def md5sum(fname):
     hash_md5 = hashlib.md5()
     with open(fname, "rb") as fil:
         for chunk in iter(lambda: fil.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
-
-
-def export_file_compute_checksum_md5(obj, filename, extension, flag=None, tmp=False):
-    """Export and compute checksum, with possibility to use a tmp file."""
-
-    usefile = filename
-    if tmp:
-        tmpdir = tempfile.TemporaryDirectory()
-        usefile = Path(tmpdir.name) / "tmpfile"
-
-    export_file(obj, usefile, extension, flag=flag)
-    checksum = md5sum(usefile)
-    if tmp:
-        tmpdir.cleanup()
-        usefile = None
-    return usefile, checksum
 
 
 def size(fname):
@@ -305,47 +207,3 @@ def get_object_name(obj):
         return
 
     return name
-
-
-def prettyprint_dict(inp: dict) -> str:
-    """Prettyprint a dict into as string variable (for python logging e.g)"""
-    return str(json.dumps(inp, indent=2, default=str))
-
-
-def some_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
-    """Get the config from environment variable.
-
-    This function is only called if config SHALL be fetched from the environment
-    variable: Raise if the environment variable is not found.
-    """
-
-    config = None
-    logger.info("Getting config from file via environment %s", envvar)
-    if envvar in os.environ:
-        cfg_path = os.environ[envvar]
-    else:
-        raise ValueError(
-            (
-                "No config was received. "
-                "The config must be given explicitly as an input argument, or "
-                "the environment variable %s must point to a valid yaml file.",
-                envvar,
-            )
-        )
-
-    with open(cfg_path, "r", encoding="utf8") as stream:
-        try:
-            config = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
-            raise
-
-    return config
-
-
-def load_yaml(yfil: Union[str, Path]) -> dict:
-    """Loading a YAML file"""
-    cfg = None
-    with open(yfil, "r", encoding="UTF8") as stream:
-        cfg = yaml.safe_load(stream)
-    return cfg

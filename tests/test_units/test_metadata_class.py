@@ -4,14 +4,14 @@ from copy import deepcopy
 
 import pytest
 
-from fmu.dataionew._metadata import (
+from fmu.dataio._metadata import (
     SCHEMA,
     SOURCE,
     VERSION,
     ConfigurationError,
     _MetaData,
 )
-from fmu.dataionew._utils import C, G, S, X, prettyprint_dict
+from fmu.dataio._utils import C, G, S, X, prettyprint_dict
 
 # pylint: disable=no-member
 

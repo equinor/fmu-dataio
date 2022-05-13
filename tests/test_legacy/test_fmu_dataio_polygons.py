@@ -8,7 +8,7 @@ import pandas as pd
 import xtgeo
 import yaml
 
-import fmu.dataio
+import fmu.dataio_legacy.dataio as fmudataio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -54,9 +54,9 @@ def test_polygons_io(tmp_path):
     """Minimal test polygons io, uses tmp_path."""
 
     srf = xtgeo.Polygons(POLY)
-    fmu.dataio.ExportData.polygons_fformat = "csv"
+    fmudataio.ExportData.polygons_fformat = "csv"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="test", content="depth", runpath=tmp_path, config=CFG
     )
     exp.export(srf)
@@ -71,9 +71,9 @@ def test_polygons_io_xtgeo_csv(tmp_path):
     """Minimal test polygons io, uses csv with xtgeo column names"""
 
     srf = xtgeo.Polygons(POLY)
-    fmu.dataio.ExportData.polygons_fformat = "csv|xtgeo"
+    fmudataio.ExportData.polygons_fformat = "csv|xtgeo"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="test99", content="depth", runpath=tmp_path, config=CFG
     )
     exp.export(srf)
@@ -92,7 +92,7 @@ def test_polygons_io_larger_case_ertrun(tmp_path):
 
     shutil.copytree(CASEPATH, current / "mycase")
 
-    fmu.dataio.ExportData.polygons_fformat = "irap_ascii"
+    fmudataio.ExportData.polygons_fformat = "irap_ascii"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
@@ -106,7 +106,7 @@ def test_polygons_io_larger_case_ertrun(tmp_path):
         / "polygons"
     )
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="TopVolantis",
         config=CFG2,
         content="depth",

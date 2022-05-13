@@ -8,11 +8,10 @@ from collections import OrderedDict
 from copy import deepcopy
 from pathlib import Path
 
+import fmu.dataio_legacy.dataio as fmudataio
 import pytest
 import xtgeo
 import yaml
-
-import fmu.dataio
 
 # pylint: disable=protected-access, no-member
 
@@ -53,7 +52,7 @@ logger.setLevel(logging.INFO)
 def test_instantate_class_no_keys():
     """Test function _get_meta_master."""
     # it should be possible to parse without any key options except config
-    case = fmu.dataio.ExportData(config=CFG)
+    case = fmudataio.ExportData(config=CFG)
     for attr, value in case.__dict__.items():
         print(attr, value)
 
@@ -63,7 +62,7 @@ def test_instantate_class_no_keys():
 
 def test_get_meta_dollars():
     """The private routine that provides special <names> (earlier with $ in front)."""
-    case = fmu.dataio.ExportData(config=CFG)
+    case = fmudataio.ExportData(config=CFG)
     logger.info(case.metadata4dollars)
     assert "$schema" in case.metadata4dollars
     assert "fmu" in case.metadata4dollars["source"]
@@ -71,7 +70,7 @@ def test_get_meta_dollars():
 
 def test_get_meta_masterdata():
     """The private routine that provides masterdata."""
-    case = fmu.dataio.ExportData(config=CFG)
+    case = fmudataio.ExportData(config=CFG)
     case._get_meta_masterdata()
     assert case.metadata4masterdata["smda"]["country"][0]["identifier"] == "Norway"
 
@@ -80,7 +79,7 @@ def test_get_meta_access():
     """The private routine that provides access."""
 
     # access_ssdl is not given, ssdl is kept as-is from config
-    case = fmu.dataio.ExportData(config=CFG)
+    case = fmudataio.ExportData(config=CFG)
     case._get_meta_access()
     assert case.metadata4access["asset"] == "Drogon"
     assert case.metadata4access["ssdl"] == {
@@ -89,7 +88,7 @@ def test_get_meta_access():
     }
 
     # both access_ssdl tags in config are given and overwritten
-    case = fmu.dataio.ExportData(
+    case = fmudataio.ExportData(
         access_ssdl={"access_level": "asset", "some_access_tag": False}, config=CFG
     )
     case._get_meta_access()
@@ -100,7 +99,7 @@ def test_get_meta_access():
     }
 
     # only ssdl.access_level is given to overwrite from config
-    case = fmu.dataio.ExportData(config=CFG, access_ssdl={"access_level": "asset"})
+    case = fmudataio.ExportData(config=CFG, access_ssdl={"access_level": "asset"})
     case._get_meta_access()
     assert case.metadata4access["asset"] == "Drogon"
     assert case.metadata4access["ssdl"] == {
@@ -109,7 +108,7 @@ def test_get_meta_access():
     }
 
     # only ssdl.some_access_tag is given to overwrite from config
-    case = fmu.dataio.ExportData(config=CFG, access_ssdl={"some_access_tag": False})
+    case = fmudataio.ExportData(config=CFG, access_ssdl={"some_access_tag": False})
     case._get_meta_access()
     assert case.metadata4access["asset"] == "Drogon"
     assert case.metadata4access["ssdl"] == {
@@ -118,7 +117,7 @@ def test_get_meta_access():
     }
 
     # asset is not present in config, shall raise
-    case = fmu.dataio.ExportData(config=CFG, access_ssdl={"some_access_tag": False})
+    case = fmudataio.ExportData(config=CFG, access_ssdl={"some_access_tag": False})
     _tmp_cfg = deepcopy(CFG)
     del _tmp_cfg["access"]["asset"]
     case._config = _tmp_cfg
@@ -127,7 +126,7 @@ def test_get_meta_access():
 
     # access_ssdl is not given as a dict
     with pytest.raises(TypeError):
-        case = fmu.dataio.ExportData(access_ssdl="somestring", config=CFG)
+        case = fmudataio.ExportData(access_ssdl="somestring", config=CFG)
 
 
 def test_get_meta_tracklog():
@@ -138,7 +137,7 @@ def test_get_meta_tracklog():
 def test_process_fmu_workflow():
     """The (second order) routine that processes fmu.workflow"""
 
-    case = fmu.dataio.ExportData(config=CFG)
+    case = fmudataio.ExportData(config=CFG)
 
     # If string is given, it shall be put into the reference sublevel
     case._workflow = "my workflow 1"
@@ -163,14 +162,14 @@ def test_process_fmu_workflow():
 
 def test_process_fmu_model():
     """The (second order) private routine that provides fmu:model"""
-    case = fmu.dataio.ExportData(config=CFG)
+    case = fmudataio.ExportData(config=CFG)
     fmumodel = case._process_meta_fmu_model()
     assert fmumodel["revision"] == "0.99.0"
 
 
 def test_get_folderlist():
     """Test the get_folderlist() helper function"""
-    case = fmu.dataio.ExportData(
+    case = fmudataio.ExportData(
         verbosity="INFO", dryrun=True, runfolder=RUN, config=CFG
     )
 
@@ -178,7 +177,7 @@ def test_get_folderlist():
     assert folderlist[-1] == "rms"
     assert folderlist[-2] == "iter-0"
 
-    case2 = fmu.dataio.ExportData(
+    case2 = fmudataio.ExportData(
         verbosity="INFO", dryrun=True, runfolder=RUNPATH, config=CFG
     )
     folderlist = case2._get_folderlist()
@@ -189,7 +188,7 @@ def test_get_folderlist():
 def test_process_config():
     """Test raise when no config provided"""
     with pytest.raises(ValueError):
-        fmu.dataio.ExportData(config=None)
+        fmudataio.ExportData(config=None)
 
 
 def test_validate_config():
@@ -197,14 +196,14 @@ def test_validate_config():
     _tmp_cfg = deepcopy(CFG)
     del _tmp_cfg["model"]
     with pytest.raises(ValueError):
-        fmu.dataio.ExportData(config=_tmp_cfg)
+        fmudataio.ExportData(config=_tmp_cfg)
 
 
 def test_process_fmu_config_from_env():
     """Apply config from the env variabel FMU_GLOBAL_CONFIG"""
     os.environ["FMU_GLOBAL_CONFIG"] = str(GLOBAL_CONFIG)
 
-    edata = fmu.dataio.ExportData(
+    edata = fmudataio.ExportData(
         config=None, runfolder=RUN, verbosity="INFO", dryrun=True
     )
     assert (
@@ -218,7 +217,7 @@ def test_process_fmu_config_from_env_fail():
     os.environ["FMU_GLOBAL_CONFIG"] = "non_existing_file"
 
     with pytest.raises(FileNotFoundError):
-        _ = fmu.dataio.ExportData(
+        _ = fmudataio.ExportData(
             config=None, runfolder=RUN, verbosity="INFO", dryrun=True
         )
     del os.environ["FMU_GLOBAL_CONFIG"]
@@ -229,7 +228,7 @@ def test_process_fmu_config_from_env_invalid_yaml():
     os.environ["FMU_GLOBAL_CONFIG"] = str(GLOBAL_CONFIG_INVALID)
 
     with pytest.raises(yaml.YAMLError):
-        _ = fmu.dataio.ExportData(
+        _ = fmudataio.ExportData(
             config=None, runfolder=RUN, verbosity="INFO", dryrun=True
         )
 
@@ -238,7 +237,7 @@ def test_process_fmu_config_from_env_invalid_yaml():
 
 def test_parse_scratch_folder_structure():
     """The private routine that parses the folder structure and derives information"""
-    case = fmu.dataio.ExportData(
+    case = fmudataio.ExportData(
         runfolder=RUN, verbosity="INFO", dryrun=True, config=CFG
     )
     case._parse_scratch_folder_structure()
@@ -255,7 +254,7 @@ def test_parse_scratch_folder_structure():
 
 def test_get_ert_information():
     """Test the private routine for getting ert information"""
-    case = fmu.dataio.ExportData(
+    case = fmudataio.ExportData(
         runfolder=RUN, verbosity="INFO", dryrun=True, config=CFG
     )
 
@@ -268,7 +267,7 @@ def test_get_ert_information():
 
 def test_process_fmu_case():
     """Test the private routine that provides case"""
-    case = fmu.dataio.ExportData(
+    case = fmudataio.ExportData(
         runfolder=RUN, verbosity="INFO", dryrun=True, config=CFG
     )
 
@@ -281,7 +280,7 @@ def test_process_fmu_case():
 
 def test_process_fmu_realization():
     """The (second order) private routine that provides realization"""
-    case = fmu.dataio.ExportData(
+    case = fmudataio.ExportData(
         runfolder=RUN, verbosity="INFO", dryrun=True, config=CFG
     )
 
@@ -303,7 +302,7 @@ def test_process_fmu_realization_from_runpath():
 
     Now running directly from RUNPATH.
     """
-    case = fmu.dataio.ExportData(
+    case = fmudataio.ExportData(
         runfolder=RUNPATH, verbosity="INFO", dryrun=True, config=CFG
     )
 
@@ -322,7 +321,7 @@ def test_process_fmu_realization_from_runpath():
 
 def test_process_fmu_iteration():
     """The (second order) private routine that provides iteration"""
-    case = fmu.dataio.ExportData(
+    case = fmudataio.ExportData(
         runfolder=RUN, verbosity="INFO", dryrun=True, config=CFG
     )
     case._parse_scratch_folder_structure()
@@ -341,10 +340,10 @@ def test_raise_userwarning_missing_content(tmp_path):
 
     gpr = xtgeo.GridProperty(ncol=10, nrow=11, nlay=12)
     gpr.name = "testgp"
-    fmu.dataio.ExportData.grid_fformat = "roff"
+    fmudataio.ExportData.grid_fformat = "roff"
 
     with pytest.warns(UserWarning, match="is not provided which defaults"):
-        exp = fmu.dataio.ExportData(parent="unset", runpath=tmp_path, config=CFG)
+        exp = fmudataio.ExportData(parent="unset", runpath=tmp_path, config=CFG)
         exp.export(gpr)
 
     assert (tmp_path / FMUP1 / "grids" / ".unset--testgp.roff.yml").is_file() is True
@@ -358,7 +357,7 @@ def test_exported_filenames(tmp_path):
     )
 
     # test case 1, vanilla
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="myname",
         content="depth",
         runpath=tmp_path,
@@ -370,7 +369,7 @@ def test_exported_filenames(tmp_path):
     assert (tmp_path / FMUP1 / "maps" / ".myname.gri.yml").is_file() is True
 
     # test case 2, dots in name
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="myname.with.dots",
         content="depth",
         verbosity="DEBUG",
@@ -404,7 +403,7 @@ def test_exported_filenames(tmp_path):
     assert (tmp_path / FMUP1 / "tables" / ".myname_with_dots.csv.yml").is_file() is True
 
     # ...for a grid property...
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         name="myname",
         content="depth",
         parent="unset",
@@ -428,13 +427,13 @@ def test_file_block(tmp_path):
 
     shutil.copytree(ROOTPWD / "tests/data/drogon/ertrun1", current / "mycase")
 
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
     out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=CFG,
         content="depth",
         unit="m",
@@ -495,13 +494,13 @@ def test_fmu_block(tmp_path):
 
     shutil.copytree(ROOTPWD / "tests/data/drogon/ertrun1", current / "mycase")
 
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
     out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=CFG,
         content="depth",
         unit="m",
@@ -557,13 +556,13 @@ def test_access_block(tmp_path):
 
     shutil.copytree(ROOTPWD / "tests/data/drogon/ertrun1", current / "mycase")
 
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
     out = current / "mycase" / "realization-0" / "iter-0" / "share" / "results" / "maps"
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=CFG,
         content="depth",
         unit="m",
@@ -611,7 +610,7 @@ def test_access_block(tmp_path):
     }
 
     # if explicitly given, defaults shall be overrided for those fields given
-    fmu.dataio.ExportData(
+    fmudataio.ExportData(
         config=CFG,
         content="depth",
         unit="m",
@@ -645,7 +644,7 @@ def test_data_block(tmp_path):
 
     shutil.copytree(ROOTPWD / "tests/data/drogon/ertrun1", current / "mycase")
 
-    fmu.dataio.ExportData.surface_fformat = "irap_binary"
+    fmudataio.ExportData.surface_fformat = "irap_binary"
 
     runfolder = current / "mycase" / "realization-0" / "iter-0" / "rms" / "model"
     runfolder.mkdir(parents=True, exist_ok=True)
@@ -654,7 +653,7 @@ def test_data_block(tmp_path):
     with open(GLOBAL_CONFIG, "r") as stream:
         _config = yaml.safe_load(stream)
 
-    exp = fmu.dataio.ExportData(
+    exp = fmudataio.ExportData(
         config=_config,
         content="depth",
         unit="m",
