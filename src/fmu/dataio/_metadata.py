@@ -12,11 +12,11 @@ from dataclasses import dataclass, field
 from typing import Any
 from warnings import warn
 
-from fmu.dataionew._definitions import SCHEMA, SOURCE, VERSION
-from fmu.dataionew._filedata_provider import _FileDataProvider
-from fmu.dataionew._fmu_provider import _FmuProvider
-from fmu.dataionew._objectdata_provider import _ObjectDataProvider
-from fmu.dataionew._utils import (
+from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
+from fmu.dataio._filedata_provider import _FileDataProvider
+from fmu.dataio._fmu_provider import _FmuProvider
+from fmu.dataio._objectdata_provider import _ObjectDataProvider
+from fmu.dataio._utils import (
     C,
     G,
     S,

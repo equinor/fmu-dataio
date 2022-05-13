@@ -10,16 +10,17 @@ from pathlib import Path
 from typing import Any, ClassVar, List, Optional, Tuple, Union
 from warnings import warn
 
-import fmu.dataionew._utils as utils
 import pandas as pd
 import yaml
-from fmu.dataionew._definitions import (
+
+import fmu.dataio._utils as utils
+from fmu.dataio._definitions import (
     ALLOWED_CONTENTS,
     ALLOWED_FMU_CONTEXTS,
     CONTENTS_REQUIRED,
 )
-from fmu.dataionew._metadata import _MetaData
-from fmu.dataionew._utils import C, G, S, X, drop_nones
+from fmu.dataio._metadata import _MetaData
+from fmu.dataio._utils import C, G, S, X, drop_nones
 
 INSIDE_RMS = utils.detect_inside_rms()
 

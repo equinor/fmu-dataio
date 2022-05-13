@@ -1,8 +1,8 @@
 """Test the _ObjectData class from the _objectdata.py module"""
 import pytest
 
-from fmu.dataionew._definitions import _ValidFormats
-from fmu.dataionew._objectdata_provider import ConfigurationError, _ObjectDataProvider
+from fmu.dataio._definitions import _ValidFormats
+from fmu.dataio._objectdata_provider import ConfigurationError, _ObjectDataProvider
 
 # --------------------------------------------------------------------------------------
 # RegularSurface

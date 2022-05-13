@@ -7,8 +7,8 @@ import os
 
 import pandas as pd
 
-import fmu.dataionew.dataionew as dataio
-from fmu.dataionew._utils import S, prettyprint_dict
+import fmu.dataio.dataio as dataio
+from fmu.dataio._utils import S, prettyprint_dict
 
 logger = logging.getLogger(__name__)
 
