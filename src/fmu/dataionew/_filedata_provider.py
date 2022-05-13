@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Optional
 from warnings import warn
 
-from fmu.dataionew._utils import C, S
+from fmu.dataionew._utils import C, S, X
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,9 @@ class _FileDataProvider:
     # input
     cfg: dict
     objdata: Any
+    rootpath: Path = field(default_factory=Path)
+    itername: str = ""
+    realname: str = ""
     verbosity: str = "CRITICAL"
 
     # storing results in these variables
@@ -42,13 +45,18 @@ class _FileDataProvider:
 
         # set internal variables
         self.settings = self.cfg[S]
+        self.xsettings = self.cfg[X]
         self.classvar = self.cfg[C]
 
-        self.basepath = self.settings["basepath"]
-        self.name = self.objdata.name
+        if self.settings.get("name", None):
+            self.name = self.settings["name"]
+        else:
+            self.name = self.objdata.name
+
         self.tagname = self.settings["tagname"]
-        self.time1 = self.settings["time1"]
-        self.time2 = self.settings["time2"]
+        self.time0 = self.objdata.time0
+        self.time1 = self.objdata.time1
+
         self.parentname = self.settings["parentname"]
         self.extension = self.objdata.extension
         self.efolder = self.objdata.efolder
@@ -57,6 +65,9 @@ class _FileDataProvider:
         self.verify_folder = self.classvar["verifyfolder"]
         self.forcefolder = self.settings["forcefolder"]
         self.subfolder = self.settings["subfolder"]
+
+        self.fmu_context = self.xsettings["actual_context"]  # may be None!
+
         logger.info("Initialize %s", __class__)
 
     def derive_filedata(self):
@@ -69,7 +80,7 @@ class _FileDataProvider:
         # resolve() will fix ".." e.g. change '/some/path/../other' to '/some/other'
         abspath = path.resolve()
 
-        relpath = path.relative_to(self.basepath)
+        relpath = path.relative_to(self.rootpath)
         self.relative_path = str(relpath)
         self.absolute_path = str(abspath)
         logger.info("Derived filedata")
@@ -79,8 +90,8 @@ class _FileDataProvider:
 
         if not self.name:
             raise ValueError("The 'name' entry is missing for constructing a file name")
-        if not self.time1 and self.time2:
-            raise ValueError("Not legal: 'time1' is missing while 'time2' is present")
+        if not self.time0 and self.time1:
+            raise ValueError("Not legal: 'time0' is missing while 'time1' is present")
 
         stem = self.name.lower()
         if self.tagname:
@@ -88,12 +99,12 @@ class _FileDataProvider:
         if self.parentname:
             stem = self.parentname.lower() + "--" + stem
 
-        if self.time1 and not self.time2:
-            stem += "--" + (str(self.time1)[0:10]).replace("-", "")
+        if self.time0 and not self.time1:
+            stem += "--" + (str(self.time0)[0:10]).replace("-", "")
 
-        elif self.time1 and self.time2:
-            monitor = (str(self.time1)[0:10]).replace("-", "")
-            base = (str(self.time2)[0:10]).replace("-", "")
+        elif self.time0 and self.time1:
+            monitor = (str(self.time0)[0:10]).replace("-", "")
+            base = (str(self.time1)[0:10]).replace("-", "")
             if monitor == base:
                 warn(
                     "The monitor date and base date are equal", UserWarning
@@ -104,9 +115,28 @@ class _FileDataProvider:
         return stem
 
     def _get_path(self):
-        """Get the folder path and verify."""
+        """Construct and get the folder path and verify."""
 
-        outroot = self.basepath / "share" / "results"
+        outroot = self.rootpath
+
+        logger.info("FMU context is %s", self.fmu_context)
+        if self.fmu_context == "realization":
+            if self.realname:
+                outroot = outroot / self.realname
+
+            if self.itername:
+                outroot = outroot / self.itername
+
+        if self.fmu_context == "case_symlink_realization":
+            raise NotImplementedError("Symlinking not there yet...")
+
+        outroot = outroot / "share"
+
+        if self.settings.get("is_observation", None):
+            outroot = outroot / "observation"
+        else:
+            outroot = outroot / "results"
+
         dest = outroot / self.efolder  # e.g. "maps"
 
         if self.forcefolder:

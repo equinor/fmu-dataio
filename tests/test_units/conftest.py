@@ -6,11 +6,19 @@ import shutil
 from functools import wraps
 from pathlib import Path
 
+import pandas as pd
 import pytest
 import xtgeo
 import yaml
 
-from fmu.dataionew._utils import C, G, S
+try:
+    import pyarrow as pa
+except ImportError:
+    HAS_PYARROW = False
+else:
+    HAS_PYARROW = True
+
+from fmu.dataionew._utils import C, G, S, X
 from fmu.dataionew.dataionew import ExportData
 
 logger = logging.getLogger(__name__)
@@ -54,9 +62,9 @@ def fixture_fmurun_w_casemetadata(tmp_path_factory):
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / RUN2
     shutil.copytree(ROOTPWD / RUN2, newpath)
-    basepath = newpath / "realization-0/iter-0"
+    rootpath = newpath / "realization-0/iter-0"
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return basepath
+    return rootpath
 
 
 @pytest.fixture(name="rmsrun_fmu_w_casemetadata", scope="session", autouse=True)
@@ -194,12 +202,21 @@ def fixture_internalcfg1(globalconfig1) -> dict:
     internalcfg1 = {}
 
     internalcfg1[G] = globalconfig1
-    internalcfg1[S] = {"name": "TopWhatever", "content": "depth", "tagname": "mytag"}
+    internalcfg1[S] = {
+        "name": "TopWhatever",
+        "content": "depth",
+        "tagname": "mytag",
+        "is_observation": False,
+    }
     # class variables
     internalcfg1[C] = {
         "surface_fformat": "irap_binary",
         "createfolder": False,
         "verifyfolder": False,
+    }
+
+    internalcfg1[X] = {
+        "inside_rms": False,
     }
 
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
@@ -232,6 +249,7 @@ def fixture_internalcfg2(globalconfig2):
         "surface_fformat": "irap_binary",
         "createfolder": False,
         "verifyfolder": False,
+        "legacy_time_format": False,
     }
 
     # settings per instance
@@ -241,15 +259,19 @@ def fixture_internalcfg2(globalconfig2):
         "unit": "m",
         "tagname": "mytag",
         "parentname": "",
-        "basepath": Path("."),
-        "pwd": Path("."),
-        "time1": "",
-        "time2": "",
+        "timedata": [[20330105, "moni"], [19990102, "base"]],
         "is_prediction": True,
         "is_observation": False,
         "forcefolder": None,
         "subfolder": "",
+        "context": "forward",
     }
+
+    internalcfg2[X] = {
+        "rootpath": Path("."),
+        "pwd": Path("."),
+    }
+
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return internalcfg2
 
@@ -264,3 +286,71 @@ def fixture_regsurf():
     """Create an xtgeo surface."""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
+
+
+@pytest.fixture(name="polygons", scope="module", autouse=True)
+def fixture_polygons():
+    """Create an xtgeo polygons."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return xtgeo.Polygons(
+        [
+            [1, 22, 3, 0],
+            [6, 25, 4, 0],
+            [8, 27, 6, 0],
+            [1, 22, 3, 0],
+        ]
+    )
+
+
+@pytest.fixture(name="points", scope="module", autouse=True)
+def fixture_points():
+    """Create an xtgeo points instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return xtgeo.Points(
+        [
+            [1, 22, 3, "WELLA"],
+            [6, 25, 4, "WELLB"],
+            [8, 27, 6, "WELLB"],
+            [1, 22, 3, "WELLC"],
+        ],
+        attributes={"WellName": "str"},
+    )
+
+
+@pytest.fixture(name="cube", scope="module", autouse=True)
+def fixture_cube():
+    """Create an xtgeo cube instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return xtgeo.Cube(ncol=3, nrow=4, nlay=5, xinc=12, yinc=12, zinc=4, rotation=30)
+
+
+@pytest.fixture(name="grid", scope="module", autouse=True)
+def fixture_grid():
+    """Create an xtgeo grid instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return xtgeo.create_box_grid((3, 4, 5))
+
+
+@pytest.fixture(name="gridproperty", scope="module", autouse=True)
+def fixture_gridproperty():
+    """Create an xtgeo gridproperty instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return xtgeo.GridProperty(ncol=3, nrow=7, nlay=3, values=123.0)
+
+
+@pytest.fixture(name="dataframe", scope="module", autouse=True)
+def fixture_dataframe():
+    """Create an pandas dataframe instance."""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
+
+
+@pytest.fixture(name="arrowtable", scope="module", autouse=True)
+def fixture_arrowtable():
+    """Create an arrow table instance."""
+    if HAS_PYARROW:
+        logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+        dfr = pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
+        return pa.Table.from_pandas(dfr)
+    else:
+        return None

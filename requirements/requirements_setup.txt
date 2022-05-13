@@ -4,4 +4,5 @@ pytest-runner
 black
 pylint
 flake8
-
+types-PyYAML
+mypy

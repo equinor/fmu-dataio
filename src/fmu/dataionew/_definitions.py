@@ -34,7 +34,6 @@ class _ValidFormats:
         }
 
 
-# dataclass?
 ALLOWED_CONTENTS = {
     "depth": None,
     "time": None,
@@ -60,9 +59,17 @@ ALLOWED_CONTENTS = {
     "timeseries": None,
 }
 
-# this setting will set if subkeys is required or not. If not found in list then
+# This setting will set if subkeys is required or not. If not found in list then
 # assume False.
 CONTENTS_REQUIRED = {
     "fluid_contact": {"contact": True},
     "field_outline": {"contact": False},
+}
+
+# This setting sets the FMU context for the output. If detected as a non-fmu run,
+# the code will internally set actual_context=None
+ALLOWED_FMU_CONTEXTS = {
+    "realization": "To realization-N/iter_M/share",
+    "case": "To casename/share, but will also work on project disk",
+    "case_symlink_realization": "To case/share, with symlinks on realizations level",
 }
