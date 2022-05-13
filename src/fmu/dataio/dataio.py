@@ -10,10 +10,9 @@ from pathlib import Path
 from typing import Any, ClassVar, List, Optional, Tuple, Union
 from warnings import warn
 
+import fmu.dataionew._utils as utils
 import pandas as pd
 import yaml
-
-import fmu.dataionew._utils as utils
 from fmu.dataionew._definitions import (
     ALLOWED_CONTENTS,
     ALLOWED_FMU_CONTEXTS,
