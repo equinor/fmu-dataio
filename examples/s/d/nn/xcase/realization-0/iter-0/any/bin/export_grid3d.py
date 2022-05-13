@@ -1,9 +1,11 @@
 """Export 3D griddata with properties."""
 
 import pathlib
+
 import xtgeo
-import fmu.dataio as dataio
 from fmu.config import utilities as ut
+
+import fmu.dataio as dataio
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
@@ -48,7 +50,7 @@ def export_geogrid_parameters():
         prop = xtgeo.gridproperty_from_file(filename)
         ed = dataio.ExportData(
             name=propname,
-            parent={"name": GNAME},
+            # parent={"name": GNAME},
             config=CFG,
             content="depth",
             unit="m",

@@ -35,6 +35,8 @@ NAMETRANSLATE = {
 
 INPUT_FOLDER = Path("../output/maps/grid_averages")
 
+dataio.ExportData._inside_rms = True
+
 
 def main():
     """Exporting maps from clipboard"""
@@ -66,7 +68,6 @@ def main():
             tagname="average_" + attribute,
             verbosity="INFO",
             workflow="rms property model",
-            inside_rms=False,  # if actually ran inside RMS, this is True!
         )
         fname = ed.export(surf)
         print(f"File name is {fname}")
