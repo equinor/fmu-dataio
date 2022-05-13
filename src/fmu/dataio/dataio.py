@@ -13,16 +13,23 @@ from warnings import warn
 import pandas as pd
 import yaml
 
-import fmu.dataio._utils as utils
-from fmu.dataio._definitions import (
-    ALLOWED_CONTENTS,
-    ALLOWED_FMU_CONTEXTS,
-    CONTENTS_REQUIRED,
+from ._definitions import ALLOWED_CONTENTS, ALLOWED_FMU_CONTEXTS, CONTENTS_REQUIRED
+from ._metadata import _MetaData
+from ._utils import (
+    C,
+    G,
+    S,
+    X,
+    detect_inside_rms,
+    drop_nones,
+    export_file_compute_checksum_md5,
+    export_metadata_file,
+    prettyprint_dict,
+    some_config_from_env,
+    uuid_from_string,
 )
-from fmu.dataio._metadata import _MetaData
-from fmu.dataio._utils import C, G, S, X, drop_nones
 
-INSIDE_RMS = utils.detect_inside_rms()
+INSIDE_RMS = detect_inside_rms()
 
 # class variables
 CLASSVARS = [
@@ -457,7 +464,7 @@ class ExportData:
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
         logger.info("Running __post_init__ ...")
-        logger.debug("Global config is %s", utils.prettyprint_dict(self.config))
+        logger.debug("Global config is %s", prettyprint_dict(self.config))
 
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
@@ -476,7 +483,7 @@ class ExportData:
 
         # if input is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
-            external_config = utils.some_config_from_env(SETTINGS_ENVNAME)
+            external_config = some_config_from_env(SETTINGS_ENVNAME)
             for key, value in external_config.items():
                 if key not in INSTANCEVARS:
                     raise ValidationError(f"Proposed setting {key} is not valid")
@@ -499,7 +506,7 @@ class ExportData:
 
         # global config which may be given as env variable -> a file; will override
         if not self._cfg[G] or GLOBAL_ENVNAME in os.environ:
-            self._cfg[G] = utils.some_config_from_env(GLOBAL_ENVNAME)
+            self._cfg[G] = some_config_from_env(GLOBAL_ENVNAME)
 
         # treat special handling of "xtgeo" in format name:
         self._cfg[X]["fmtflag"] = ""
@@ -697,14 +704,14 @@ class ExportData:
             useflag = self._cfg[X]["fmtflag"]
 
         logger.info("Export to file and compute MD5 sum")
-        outfile, md5 = utils.export_file_compute_checksum_md5(
+        outfile, md5 = export_file_compute_checksum_md5(
             obj, outfile, outfile.suffix, flag=useflag
         )
 
         # inject md5 checksum in metadata
         metadata["file"]["checksum_md5"] = md5
 
-        utils.export_metadata_file(metafile, metadata)
+        export_metadata_file(metafile, metadata)
         logger.info("Actual file is:   %s", outfile)
         logger.info("Metadata file is: %s", metafile)
 
@@ -758,7 +765,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.setLevel(level=self.verbosity)
 
         if not self.config or GLOBAL_ENVNAME in os.environ:
-            self.config = utils.some_config_from_env(GLOBAL_ENVNAME)
+            self.config = some_config_from_env(GLOBAL_ENVNAME)
 
         _check_global_config(self.config)
 
@@ -816,7 +823,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         """
 
         self.generate_case_metadata(force=force)
-        utils.export_metadata_file(self._metafile, self._metadata)
+        export_metadata_file(self._metafile, self._metadata)
         logger.info("METAFILE %s", self._metafile)
         return str(self._metafile)
 
@@ -873,7 +880,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         for uuid in uuids:
             stringinput += uuid
 
-        return utils.uuid_from_string(stringinput)
+        return uuid_from_string(stringinput)
 
     def _construct_filename(self, template: dict) -> Tuple[Path, Path]:
         """Construct the paths/filenames for aggregated data.
@@ -1036,14 +1043,12 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
         logger.info("Export to file and compute MD5 sum")
-        outfile, md5 = utils.export_file_compute_checksum_md5(
-            obj, outfile, outfile.suffix
-        )
+        outfile, md5 = export_file_compute_checksum_md5(obj, outfile, outfile.suffix)
 
         # inject the computed md5 checksum in metadata
         metadata["file"]["checksum_md5"] = md5
 
-        utils.export_metadata_file(metafile, metadata)
+        export_metadata_file(metafile, metadata)
         logger.info("Actual file is:   %s", outfile)
         logger.info("Metadata file is: %s", metafile)
 
