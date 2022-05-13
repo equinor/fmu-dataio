@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dataionew.dataionew &mdash; fmu.dataio 0.11.1.dev6+gd228b00 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script>let toggleHintShow = 'Expand';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #C0C0C0" >
+            <a href="../../index.html" class="icon icon-home"> fmu.dataio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apiref/modules.html">API reference for fmu.dataio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datamodel.html">The FMU results data model</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #C0C0C0" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fmu.dataio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>dataionew.dataionew</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dataionew.dataionew</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module for DataIO class.</span>
+
+<span class="sd">The metadata spec is documented as a JSON schema, stored under schema/.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">import</span> <span class="nn">fmu.dataionew._utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">fmu.dataionew._definitions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ALLOWED_CONTENTS</span><span class="p">,</span>
+    <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="p">,</span>
+    <span class="n">CONTENTS_REQUIRED</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">fmu.dataionew._metadata</span> <span class="kn">import</span> <span class="n">_MetaData</span>
+<span class="kn">from</span> <span class="nn">fmu.dataionew._utils</span> <span class="kn">import</span> <span class="n">C</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">drop_nones</span>
+
+<span class="n">INSIDE_RMS</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">detect_inside_rms</span><span class="p">()</span>
+
+<span class="c1"># class variables</span>
+<span class="n">CLASSVARS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;arrow_fformat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;case_folder&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;createfolder&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cube_fformat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;grid_fformat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;legacy_time_format&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;meta_format&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;points_fformat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;polygons_fformat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;surface_fformat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;table_fformat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;table_include_index&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;verifyfolder&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_inside_rms&quot;</span><span class="p">,</span>  <span class="c1"># pretend inside RMS! developer only</span>
+<span class="p">]</span>
+
+<span class="c1"># possible user inputs:</span>
+<span class="n">INSTANCEVARS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;access_ssdl&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="s2">&quot;casepath&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+    <span class="s2">&quot;fmu_context&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;forcefolder&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">),</span>
+    <span class="s2">&quot;is_observation&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="s2">&quot;is_prediction&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;parentname&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;realization&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="s2">&quot;runpath&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;tagname&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;timedata&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="s2">&quot;subfolder&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;verbosity&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;vertical_domain&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="s2">&quot;workflow&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">GLOBAL_ENVNAME</span> <span class="o">=</span> <span class="s2">&quot;FMU_GLOBAL_CONFIG&quot;</span>
+<span class="n">SETTINGS_ENVNAME</span> <span class="o">=</span> <span class="s2">&quot;FMU_DATAIO_CONFIG&quot;</span>  <span class="c1"># input settings from a file!</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">captureWarnings</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ValidationError"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.ValidationError">[docs]</a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raise error while validating.&quot;&quot;&quot;</span></div>
+
+
+<span class="c1"># ======================================================================================</span>
+<span class="c1"># Private functions</span>
+<span class="c1"># ======================================================================================</span>
+
+
+<span class="k">def</span> <span class="nf">_check_global_config</span><span class="p">(</span><span class="n">globalconfig</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A check/validation of static global_config.</span>
+
+<span class="sd">    Currently not a full validation. For now, just check that some required</span>
+<span class="sd">    keys are present in the config and raise if not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">globalconfig</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">strict</span><span class="p">:</span>
+        <span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Empty global config, expect input from environment_variable instead&quot;</span><span class="p">,</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">config_required_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">,</span> <span class="s2">&quot;masterdata&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">required_key</span> <span class="ow">in</span> <span class="n">config_required_keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">required_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">globalconfig</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Required key &#39;</span><span class="si">{</span><span class="n">required_key</span><span class="si">}</span><span class="s2">&#39; not found in config.&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># the two next content key related function may require refactoring/simplification</span>
+<span class="k">def</span> <span class="nf">_check_content</span><span class="p">(</span><span class="n">proposed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Check content and return a validated version.&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Evaluate content&quot;</span><span class="p">)</span>
+
+    <span class="n">content</span> <span class="o">=</span> <span class="n">proposed</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content is </span><span class="si">%s</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
+    <span class="n">usecontent</span> <span class="o">=</span> <span class="s2">&quot;unset&quot;</span>
+    <span class="n">useextra</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The &lt;content&gt; is not provided which defaults to &#39;depth&#39;. &quot;</span>
+            <span class="s2">&quot;It is strongly recommended that content is given explicitly!&quot;</span><span class="p">,</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">usecontent</span> <span class="o">=</span> <span class="s2">&quot;depth&quot;</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">CONTENTS_REQUIRED</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;content </span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2"> requires additional input&quot;</span><span class="p">)</span>
+        <span class="n">usecontent</span> <span class="o">=</span> <span class="n">content</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">usecontent</span> <span class="o">=</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">keys</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">useextra</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">usecontent</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;The &#39;content&#39; must be string or dict&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">usecontent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALLOWED_CONTENTS</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid content: &lt;</span><span class="si">{</span><span class="n">usecontent</span><span class="si">}</span><span class="s2">&gt;! &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Valid content: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ALLOWED_CONTENTS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;outgoing content is set to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">usecontent</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">useextra</span><span class="p">:</span>
+        <span class="n">_content_validate</span><span class="p">(</span><span class="n">usecontent</span><span class="p">,</span> <span class="n">useextra</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">usecontent</span><span class="p">:</span> <span class="n">useextra</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content has no extra information&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">usecontent</span>
+
+
+<span class="k">def</span> <span class="nf">_content_validate</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;starting staticmethod _data_process_content_validate&quot;</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">ALLOWED_CONTENTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">valid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot validate content for &lt;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">valid</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">wanted_type</span> <span class="o">=</span> <span class="n">valid</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">wanted_type</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Invalid type for &lt;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&gt; with value &lt;</span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&gt;, not of &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;type &lt;</span><span class="si">{</span><span class="n">wanted_type</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key &lt;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&gt; is not valid for &lt;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">)</span>
+
+    <span class="n">required</span> <span class="o">=</span> <span class="n">CONTENTS_REQUIRED</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">required</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">rlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">required</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rlist is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rlist</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;fields is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
+        <span class="n">rkey</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">rlist</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rkey not in fields.keys(): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">rkey</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rkey: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rkey</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;fields.keys(): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">rkey</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The subkey &lt;</span><span class="si">{</span><span class="n">rkey</span><span class="si">}</span><span class="s2">&gt; is required for content &lt;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">,</span>
+                <span class="s2">&quot;but is not found&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+
+<span class="c1"># ======================================================================================</span>
+<span class="c1"># Public function to read/load assosiated metadata given a file (e.g. a map file)</span>
+<span class="c1"># ======================================================================================</span>
+
+
+<div class="viewcode-block" id="read_metadata"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.read_metadata">[docs]</a><span class="k">def</span> <span class="nf">read_metadata</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Read the metadata as a dictionary given a filename.</span>
+
+<span class="sd">    If the filename is e.g. /some/path/mymap.gri, the assosiated metafile</span>
+<span class="sd">    will be /some/path/.mymap.gri.yml (or json?)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename: The full path filename to the data-object.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary with metadata read from the assiated metadata file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">metafile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/.&quot;</span> <span class="o">+</span> <span class="n">fname</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="n">fname</span><span class="o">.</span><span class="n">suffix</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span>
+    <span class="n">metafilepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">metafile</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">metafilepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot find requested metafile: </span><span class="si">{</span><span class="n">metafile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">metafilepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="n">metacfg</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">metacfg</span></div>
+
+
+<span class="c1"># ======================================================================================</span>
+<span class="c1"># ExportData, public class</span>
+<span class="c1"># ======================================================================================</span>
+
+
+<div class="viewcode-block" id="ExportData"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.ExportData">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ExportData</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Class for exporting data with rich metadata in FMU.</span>
+
+<span class="sd">    This class sets up the general metadata content to be applied in export. The idea is</span>
+<span class="sd">    that one ExportData instance can be re-used for several similar export() jobs. For</span>
+<span class="sd">    example::</span>
+
+<span class="sd">        edata = dataio.ExportData(</span>
+<span class="sd">            config=CFG, content=&quot;depth&quot;, unit=&quot;m&quot;, vertical_domain={&quot;depth&quot;: &quot;msl&quot;},</span>
+<span class="sd">            timedata=None, is_prediction=True, is_observation=False,</span>
+<span class="sd">            tagname=&quot;faultlines&quot;, workflow=&quot;rms structural model&quot;,</span>
+<span class="sd">        )</span>
+
+<span class="sd">        for name in [&quot;TopOne&quot;, TopTwo&quot;, &quot;TopThree&quot;]:</span>
+<span class="sd">            poly = xtgeo.polygons_from_roxar(PRJ, hname, POL_FOLDER)</span>
+
+<span class="sd">            out = ed.export(poly, name=name)</span>
+
+<span class="sd">    Almost all keyword settings like ``name``, ``tagname`` etc can be set in both the</span>
+<span class="sd">    ExportData instance and directly in the ``generate_metadata`` or ``export()``</span>
+<span class="sd">    function, to provide flexibility for different use cases. If both are set, the</span>
+<span class="sd">    ``export()`` setting will win followed by ``generate_metadata() and finally</span>
+<span class="sd">    ExportData()``.</span>
+
+<span class="sd">    A note on &#39;pwd&#39; and &#39;rootpath&#39; and &#39;casepath&#39;: The &#39;pwd&#39; is the process working</span>
+<span class="sd">    directory, which is folder where the process (script) starts. The &#39;rootpath&#39; is the</span>
+<span class="sd">    folder from which relative file names are relative to and is normally auto-detected.</span>
+<span class="sd">    The user can however force set the &#39;actual&#39; rootpath by providing the input</span>
+<span class="sd">    `casepath`. In case of running a RMS project interactive on disk::</span>
+
+<span class="sd">        /project/foo/resmod/ff/2022.1.0/rms/model                   &lt;&lt; pwd</span>
+<span class="sd">        /project/foo/resmod/ff/2022.1.0/                            &lt;&lt; rootpath</span>
+
+<span class="sd">        A file:</span>
+
+<span class="sd">        /project/foo/resmod/ff/2022.1.0/share/results/maps/xx.gri   &lt;&lt; example absolute</span>
+<span class="sd">                                        share/results/maps/xx.gri   &lt;&lt; example relative</span>
+
+<span class="sd">    When running an ERT2 forward job using a normal ERT job (e.g. a script)::</span>
+
+<span class="sd">        /scratch/nn/case/realization-44/iter-2                      &lt;&lt; pwd</span>
+<span class="sd">        /scratch/nn/case                                            &lt;&lt; rootpath</span>
+
+<span class="sd">        A file:</span>
+
+<span class="sd">        /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  &lt;&lt; absolute</span>
+<span class="sd">                         realization-44/iter-2/share/results/maps/xx.gri  &lt;&lt; relative</span>
+
+<span class="sd">    When running an ERT2 forward job but here executed from RMS::</span>
+
+<span class="sd">        /scratch/nn/case/realization-44/iter-2/rms/model            &lt;&lt; pwd</span>
+<span class="sd">        /scratch/nn/case                                            &lt;&lt; rootpath</span>
+
+<span class="sd">        A file:</span>
+
+<span class="sd">        /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  &lt;&lt; absolute</span>
+<span class="sd">                         realization-44/iter-2/share/results/maps/xx.gri  &lt;&lt; relative</span>
+
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        access_ssdl: Optional. A dictionary that will overwrite or append</span>
+<span class="sd">             to the default ssdl settings read from the config. Example:</span>
+<span class="sd">            ``{&quot;access_level&quot;: &quot;restricted&quot;, &quot;rep_include&quot;: False}``</span>
+
+<span class="sd">        casepath: To override the automatic and actual ``rootpath``. Absolute path to</span>
+<span class="sd">            the case root. If not provided, the rootpath will be attempted parsed from</span>
+<span class="sd">            the file structure or by other means. Use with care!</span>
+
+<span class="sd">        config: Required, either as key (here) or through an environment variable.</span>
+<span class="sd">            A dictionary with static settings. In the standard case this is read</span>
+<span class="sd">            from FMU global variables (via fmuconfig). The dictionary must contain some</span>
+<span class="sd">            predefined main level keys to work with fmu-dataio. If the key is missing or</span>
+<span class="sd">            key value is None, then it will look for the environment variable</span>
+<span class="sd">            FMU_GLOBAL_CONFIG to detect the file. If no success in finding the file, a</span>
+<span class="sd">            UserWarning is made. If both a valid config is provided and</span>
+<span class="sd">            FMU_GLOBAL_CONFIG is provided in addition, the latter will be used.</span>
+
+<span class="sd">        content: Optional, default is &quot;depth&quot;. Is a string or a dictionary with one key.</span>
+<span class="sd">            Example is &quot;depth&quot; or {&quot;fluid_contact&quot;: {&quot;xxx&quot;: &quot;yyy&quot;, &quot;zzz&quot;: &quot;uuu&quot;}}.</span>
+<span class="sd">            Content is checked agains a white-list for validation!</span>
+
+<span class="sd">        fmu_context: In normal forward models, the fmu_context is ``realization`` which</span>
+<span class="sd">            is default and will put data per realization. Other contexts may be ``case``</span>
+<span class="sd">            which willput data relative to the case root. If a non-FMU run is detected</span>
+<span class="sd">            (e.g. you run from project), fmu-dataio will detect that and set actual</span>
+<span class="sd">            context to None as fall-back.</span>
+
+<span class="sd">        description: A multiline description of the data.</span>
+
+<span class="sd">        display_name: Optional, set name for clients to use when visualizing.</span>
+
+<span class="sd">        forcefolder: This setting shall only be used as exception, and will make it</span>
+<span class="sd">            possible to output to a non-standard folder. A ``/`` in front will indicate</span>
+<span class="sd">            an absolute path; otherwise it will be relative to casepath/rootpath.</span>
+<span class="sd">            Use with care.</span>
+
+<span class="sd">        include_index: This applies to Pandas (table) data only, and if True then the</span>
+<span class="sd">            index column will be exported. Deprecated, use class variable</span>
+<span class="sd">            ``table_include_index`` instead</span>
+
+<span class="sd">        is_prediction: True (default) if model prediction data</span>
+
+<span class="sd">        is_observation: Default is False. If True, then disk storage will be on the</span>
+<span class="sd">            &quot;share/observations&quot; folder, otherwise on share/result</span>
+
+<span class="sd">        name: Optional but recommended. The name of the object. If not set it is tried</span>
+<span class="sd">            to be inferred from the xtgeo/pandas/... object. The name is then checked</span>
+<span class="sd">            towards the stratigraphy list, and name is replaced with official</span>
+<span class="sd">            stratigraphic name if found in static metadata `stratigraphy`. For example,</span>
+<span class="sd">            if &quot;TopValysar&quot; is the model name and the actual name is &quot;Valysar Top Fm.&quot;</span>
+<span class="sd">            that latter name will be used.</span>
+
+<span class="sd">        parentname: Optional. This key is required for datatype GridProperty, and</span>
+<span class="sd">            refers to the name of the grid geometry.</span>
+
+<span class="sd">        realization: Optional, default is -999 which means that realization shall be</span>
+<span class="sd">            detected automatically from the FMU run. Can be used to override in rare</span>
+<span class="sd">            cases. If so, numbers must be &gt;= 0</span>
+
+<span class="sd">        runpath: TODO! Optional and deprecated. The relative location of the current run</span>
+<span class="sd">            root. Optional and will in most cases be auto-detected, assuming that FMU</span>
+<span class="sd">            folder conventions are followed. For an ERT run e.g.</span>
+<span class="sd">            /scratch/xx/nn/case/realization-0/iter-0/. while in a revision at project</span>
+<span class="sd">            disc it will the revision root e.g. /project/xx/resmod/ff/21.1.0/.</span>
+
+<span class="sd">        subfolder: It is possible to set one level of subfolders for file output.</span>
+<span class="sd">            The input should only accept a single folder name, i.e. no paths. If paths</span>
+<span class="sd">            are present, a deprecation warning will be raised.</span>
+
+<span class="sd">        tagname: This is a short tag description which be be a part of file name.</span>
+
+<span class="sd">        timedata: If given, a list of lists with dates, .e.g.</span>
+<span class="sd">            [[20200101, &quot;monitor&quot;], [20180101, &quot;base&quot;]] or just [[2021010]]. The output</span>
+<span class="sd">            to metadata will from version 0.9 be different (API change)</span>
+
+<span class="sd">        verbosity: Is logging/message level for this module. Input as</span>
+<span class="sd">            in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;, &quot;DEBUG&quot;. Default is</span>
+<span class="sd">            &quot;CRITICAL&quot;.</span>
+
+<span class="sd">        vertical_domain: This is dictionary with a key and a reference e.g.</span>
+<span class="sd">            {&quot;depth&quot;: &quot;msl&quot;} which is default if missing.</span>
+
+<span class="sd">        workflow: Short tag desciption of workflow (as description)</span>
+
+
+<span class="sd">    .. note:: Comment on time formats</span>
+
+<span class="sd">        If two dates are present (i.e. the element represents a difference, the input</span>
+<span class="sd">        time format is on the form::</span>
+
+<span class="sd">            timedata: [[20200101, &quot;monitor&quot;], [20180101, &quot;base&quot;]]</span>
+
+<span class="sd">        Hence the last data (monitor) usually comes first.</span>
+
+<span class="sd">        In the new version this will shown in metadata files as where the oldest date is</span>
+<span class="sd">        shown as t0::</span>
+
+<span class="sd">            data:</span>
+<span class="sd">              t0:</span>
+<span class="sd">                value: 2018010T00:00:00 description: base</span>
+<span class="sd">              t1:</span>
+<span class="sd">                value: 202020101T00:00:00 description: monitor</span>
+
+<span class="sd">        The output files will be on the form: somename--t1_t0.ext</span>
+
+<span class="sd">    .. note:: Using config from file</span>
+
+<span class="sd">        Optionally, the keys can be stored in a yaml file as argument, and you can let</span>
+<span class="sd">        the environment variable FMU_DATAIO_CONFIG point to that file. This can e.g.</span>
+<span class="sd">        make it possible for ERT jobs to point to external input configs. For example::</span>
+
+<span class="sd">            export FMU_DATAIO_CONFIG=&quot;/path/to/mysettings.yml&quot;</span>
+<span class="sd">            export FMU_GLOBAL_CONFIG=&quot;/path/to/global_variables.yml&quot;</span>
+
+<span class="sd">        In python:</span>
+
+<span class="sd">            eda = ExportData()</span>
+<span class="sd">            eda.export(obj)</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># ----------------------------------------------------------------------------------</span>
+    <span class="c1"># This role for this class is to be:</span>
+    <span class="c1"># - public (end user) interface</span>
+    <span class="c1"># - collect the full settings from global config, user keys and class variables</span>
+    <span class="c1"># - process and validate these settings</span>
+    <span class="c1"># - establish PWD and rootpath</span>
+    <span class="c1">#</span>
+    <span class="c1"># Then other classes will further do the detailed metadata processing, cf _MetaData</span>
+    <span class="c1"># and subsequent classes called by _MetaData</span>
+    <span class="c1"># ----------------------------------------------------------------------------------</span>
+
+    <span class="c1"># class variables</span>
+    <span class="n">arrow_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;arrow&quot;</span>
+    <span class="n">case_folder</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;share/metadata&quot;</span>
+    <span class="n">createfolder</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">cube_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;segy&quot;</span>
+    <span class="n">grid_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;roff&quot;</span>
+    <span class="n">legacy_time_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">meta_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yaml&quot;</span>
+    <span class="n">polygons_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span>  <span class="c1"># or use &quot;csv|xtgeo&quot;</span>
+    <span class="n">points_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span>  <span class="c1"># or use &quot;csv|xtgeo&quot;</span>
+    <span class="n">surface_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;irap_binary&quot;</span>
+    <span class="n">table_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span>
+    <span class="n">table_include_index</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">verifyfolder</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">_inside_rms</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># developer only! if True pretend inside RMS</span>
+
+    <span class="c1"># input keys (alphabetic)</span>
+    <span class="n">access_ssdl</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">aggregation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">casepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">content</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;depth&quot;</span>
+    <span class="n">fmu_context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;realization&quot;</span>
+    <span class="n">forcefolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">is_observation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">is_prediction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">parentname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># TODO: parent?</span>
+    <span class="n">realization</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span>
+    <span class="n">runpath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">subfolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">tagname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">timedata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CRITICAL&quot;</span>
+    <span class="n">vertical_domain</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">workflow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># storing resulting state variables for instance, non-public:</span>
+    <span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_cfg</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_pwd</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># &lt;&lt; NB! storing ACTUAL casepath:</span>
+    <span class="n">_rootpath</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running __post_init__ ...&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Global config is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">utils</span><span class="o">.</span><span class="n">prettyprint_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+
+        <span class="c1"># set defaults for mutable keys</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_domain</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">}</span>
+
+        <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># collect all given settings in master dictionary: self._cfg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">C</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the class variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># global config variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the other input settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># extra settings, generated on the fly internally</span>
+
+        <span class="c1"># store Class variables</span>
+        <span class="k">for</span> <span class="n">cvar</span> <span class="ow">in</span> <span class="n">CLASSVARS</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">C</span><span class="p">][</span><span class="n">cvar</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cvar</span><span class="p">)</span>
+
+        <span class="c1"># if input is provided as an ENV variable pointing to a YAML file; will override</span>
+        <span class="k">if</span> <span class="n">SETTINGS_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="n">external_config</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">some_config_from_env</span><span class="p">(</span><span class="n">SETTINGS_ENVNAME</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">external_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">INSTANCEVARS</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Proposed setting </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is not valid&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Setting external key and value: </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Setting external key and value: </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;dict/list...&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># store input key values except config (which are the static global_config)</span>
+        <span class="k">for</span> <span class="n">ivar</span> <span class="ow">in</span> <span class="n">INSTANCEVARS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;config&quot;</span> <span class="ow">in</span> <span class="n">ivar</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ivar</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="n">ivar</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ivar</span><span class="p">)</span>
+
+        <span class="c1"># global config which may be given as env variable -&gt; a file; will override</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="ow">or</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
+
+        <span class="c1"># treat special handling of &quot;xtgeo&quot; in format name:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;fmtflag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">points_fformat</span> <span class="o">==</span> <span class="s2">&quot;csv|xtgeo&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygons_fformat</span> <span class="o">==</span> <span class="s2">&quot;csv|xtgeo&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;fmtflag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;xtgeo&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_fmucontext_key</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_globalconfig_from_settings</span><span class="p">()</span>
+        <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_show_deprecations_or_notimplemented</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ran __post_init__&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_show_deprecations_or_notimplemented</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Warn on deprecated keys og on stuff not implemented yet.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;runpath&quot;</span><span class="p">]:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The &#39;runpath&#39; key has currently no function. It will be evaluated for &quot;</span>
+                <span class="s2">&quot;removal in fmu-dataio version 1&quot;</span><span class="p">,</span>
+                <span class="ne">PendingDeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_content_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validate the given &#39;content&#39; input.&quot;&quot;&quot;</span>
+
+        <span class="n">updated_content</span> <span class="o">=</span> <span class="n">_check_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;content&quot;</span><span class="p">])</span>
+        <span class="c1"># keep the updated content as extra setting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;content&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated_content</span>
+
+    <span class="k">def</span> <span class="nf">_validate_fmucontext_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validate the given &#39;fmu_context&#39; input.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;fmu_context&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                <span class="s2">&quot;It seems like &#39;fmu_context&#39; value is illegal! &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Allowed entries are: in list:</span><span class="se">\n</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_check_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;If settings &quot;S&quot; are updated, run a validation prior update self._settings.&quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New settings </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">setting</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">INSTANCEVARS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Proposed setting </span><span class="si">{</span><span class="n">setting</span><span class="si">}</span><span class="s2"> is not valid&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Value type </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">INSTANCEVARS</span><span class="p">[</span><span class="n">setting</span><span class="p">]):</span>
+                    <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Setting key is present but incorrect type&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="n">setting</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_show_deprecations_or_notimplemented</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_fmucontext_key</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_update_globalconfig_from_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A few user settings may update/append the global config directly.&quot;&quot;&quot;</span>
+        <span class="n">newglobals</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="s2">&quot;access_ssdl&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;access_ssdl&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s2">&quot;ssdl&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">][</span><span class="s2">&quot;access&quot;</span><span class="p">]:</span>
+                <span class="n">newglobals</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">][</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+            <span class="n">newglobals</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">][</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;access_ssdl&quot;</span><span class="p">])</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;access_ssdl&quot;</span><span class="p">]</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Updated global config&#39;s access.ssdl value: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newglobals</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="n">newglobals</span>
+
+    <span class="k">def</span> <span class="nf">_establish_pwd_rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Establish state variables pwd and the (initial) rootpath.</span>
+
+<span class="sd">        The self._pwd stores the process working directory, i.e. the folder</span>
+<span class="sd">        from which the process is ran</span>
+
+<span class="sd">        The self._rootpath stores the folder from which is the base root for all</span>
+<span class="sd">        relative output files. This rootpath may be dependent on if this is a FMU run</span>
+<span class="sd">        or just an interactive run.</span>
+
+<span class="sd">        Hence this &#39;initial&#39; rootpath can be updated later!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Establish pwd and actual casepath, inside RMS flag is </span><span class="si">%s</span><span class="s2"> (actual: </span><span class="si">%s</span><span class="s2">))&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inside_rms</span><span class="p">,</span>
+            <span class="n">INSIDE_RMS</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+
+        <span class="c1"># fmu_context 1: Running RMS, we are in conventionally in rootpath/rms/model</span>
+        <span class="c1"># fmu_context 2: ERT FORWARD_JOB, at case = rootpath=RUNPATH/../../. level</span>
+        <span class="c1"># fmu_context 3: ERT WORKFLOW_JOB, running somewhere/anywhere else</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The casepath is hard set as </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">in_rms</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="ow">or</span> <span class="n">INSIDE_RMS</span> <span class="ow">or</span> <span class="s2">&quot;RUN_DATAIO_EXAMPLES&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">/</span> <span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Run from inside RMS (or pretend)&quot;</span><span class="p">)</span>
+                <span class="n">in_rms</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># make some extra keys in settings:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;pwd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;rootpath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;inside_rms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">in_rms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;actual_context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span>  <span class="c1"># may change later!</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;pwd:        </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rootpath:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
+
+    <span class="c1"># ==================================================================================</span>
+    <span class="c1"># Public methods:</span>
+    <span class="c1"># ==================================================================================</span>
+
+<div class="viewcode-block" id="ExportData.generate_metadata"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.ExportData.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Generate and return the complete metadata for a provided object.</span>
+
+<span class="sd">        An object may be a map, 3D grid, cube, table, etc which is of a known and</span>
+<span class="sd">        supported type.</span>
+
+<span class="sd">        Examples of such known types are XTGeo objects (e.g. a RegularSurface),</span>
+<span class="sd">        a Pandas Dataframe, a PyArrow table, etc.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj: XTGeo instance, a Pandas Dataframe instance or other supported object.</span>
+<span class="sd">            compute_md5: If True, compute a MD5 checksum for the exported file.</span>
+<span class="sd">            **kwargs: For other arguments, see ExportData() input keys. If they</span>
+<span class="sd">                exist both places, this function will override!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dictionary with all metadata.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            If the ``compute_md5`` key is False, the ``file.checksum_md5`` will be</span>
+<span class="sd">            empty. If true, the MD5 checksum will be generated based on export to</span>
+<span class="sd">            a temporary file, which may be time-consuming if the file is large.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generate metadata...&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_check_settings</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_globalconfig_from_settings</span><span class="p">()</span>
+        <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
+
+        <span class="n">metaobj</span> <span class="o">=</span> <span class="n">_MetaData</span><span class="p">(</span>
+            <span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metaobj</span><span class="o">.</span><span class="n">generate_export_metadata</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">metaobj</span><span class="o">.</span><span class="n">rootpath</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The metadata are now ready!&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ExportData.export"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.ExportData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Export data objects of &#39;known&#39; type to FMU storage solution with metadata.</span>
+
+<span class="sd">        This function will also collect the data spesific class metadata. For &quot;classic&quot;</span>
+<span class="sd">        files, the metadata will be stored i a YAML file with same name stem as the</span>
+<span class="sd">        data, but with a . in front and &quot;yml&quot; and suffix, e.g.::</span>
+
+<span class="sd">            top_volantis--depth.gri</span>
+<span class="sd">            .top_volantis--depth.gri.yml</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj: XTGeo instance, a Pandas Dataframe instance or other supported object.</span>
+<span class="sd">            **kwargs: For other arguments, see ExportData() input keys. If they</span>
+<span class="sd">                exist both places, this function will override!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String: full path to exported item.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
+
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">])</span>
+        <span class="n">metafile</span> <span class="o">=</span> <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">useflag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_include_index</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">useflag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;fmtflag&quot;</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum&quot;</span><span class="p">)</span>
+        <span class="n">outfile</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
+            <span class="n">obj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">useflag</span>
+        <span class="p">)</span>
+
+        <span class="c1"># inject md5 checksum in metadata</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">md5</span>
+
+        <span class="n">utils</span><span class="o">.</span><span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Actual file is:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata file is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># ######################################################################################</span>
+<span class="c1"># InitializeCase.</span>
+<span class="c1">#</span>
+<span class="c1"># The InitializeCase is used for making the case matadata prior to any other actions,</span>
+<span class="c1"># e.g. forward jobs. However, case metadata file may already exist, and in that case</span>
+<span class="c1"># this class should only emit a message or warning</span>
+<span class="c1"># ######################################################################################</span>
+
+
+<div class="viewcode-block" id="InitializeCase"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.InitializeCase">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">InitializeCase</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
+    <span class="sd">&quot;&quot;&quot;Instantate InitializeCase object.</span>
+
+<span class="sd">    In ERT this is typically ran as an hook workflow in advance.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: A configuration dictionary. In the standard case this is read</span>
+<span class="sd">            from FMU global variables (via fmuconfig). The dictionary must contain</span>
+<span class="sd">            some predefined main level keys. If config is None or the env variable</span>
+<span class="sd">            FMU_GLOBAL_CONFIG pointing to a file is provided, then it will attempt to</span>
+<span class="sd">            parse that file instead.</span>
+
+<span class="sd">        casepath: To override the automatic and actual ``rootpath``. Absolute path to</span>
+<span class="sd">            the case root. If not provided, the rootpath will be attempted parsed from</span>
+<span class="sd">            the file structure or by other means.</span>
+
+<span class="sd">        verbosity: Is logging/message level for this module. Input as</span>
+<span class="sd">            in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">casepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CRITICAL&quot;</span>
+
+    <span class="n">_cfg</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_metafile</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_pwd</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_rootpath</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">or</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
+
+        <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="c1"># collect all settings in dictionary self._cfg since _Metadata expects that</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">C</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the class variables (may be empty here)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>  <span class="c1"># global config variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the other settings (may be empty here)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the other settings (may be empty here)</span>
+
+    <span class="k">def</span> <span class="nf">_establish_pwd_rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Establish state variables pwd and casepath.</span>
+
+<span class="sd">        See ExportData&#39;s method but this is much simpler (e.g. no RMS context)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;pwd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;rootpath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set PWD (case): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set rootpath (case): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_get_case_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the current case medata&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
+
+        <span class="n">metaobj</span> <span class="o">=</span> <span class="n">_MetaData</span><span class="p">(</span>
+            <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">,</span> <span class="n">initialize_case</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">metaobj</span><span class="o">.</span><span class="n">_get_case_metadata</span><span class="p">()</span>
+
+<div class="viewcode-block" id="InitializeCase.generate_case_metadata"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.InitializeCase.generate_case_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_case_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
+
+        <span class="n">metaobj</span> <span class="o">=</span> <span class="n">_MetaData</span><span class="p">(</span>
+            <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">,</span> <span class="n">initialize_case</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metaobj</span><span class="o">.</span><span class="n">generate_case_metadata</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span> <span class="o">=</span> <span class="n">metaobj</span><span class="o">.</span><span class="n">fmudata</span><span class="o">.</span><span class="n">case_metafile</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The case metadata are now ready!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InitializeCase.export"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.InitializeCase.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Export case metadata to file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String: full path to exported metadata file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_case_metadata</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">export_metadata_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;METAFILE </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># ######################################################################################</span>
+<span class="c1"># AggregatedData</span>
+<span class="c1">#</span>
+<span class="c1"># The AggregatedData is used for making the aggregations from existing data that already</span>
+<span class="c1"># have valid metadata, i.e. made from ExportData.</span>
+<span class="c1">#</span>
+<span class="c1"># Hence this is actually quite different and simpler than ExportData(), which</span>
+<span class="c1"># needed a lot of info as FmuProvider, FileProvider, ObjectData etc. Here most these</span>
+<span class="c1"># already known from the input.</span>
+<span class="c1">#</span>
+<span class="c1"># For aggregations, the id is normally given as an argument by the external process, and</span>
+<span class="c1"># by that, be able to give a group of aggregations the same id.</span>
+<span class="c1">#</span>
+<span class="c1"># ######################################################################################</span>
+
+
+<div class="viewcode-block" id="AggregatedData"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.AggregatedData">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AggregatedData</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
+    <span class="sd">&quot;&quot;&quot;Instantate AggregatedData object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        configs: A list of dictionarys, i.e. of valid metadata per input element</span>
+<span class="sd">        operation: A string that descibes the operation, e.g. &quot;mean&quot;</span>
+<span class="sd">        verbosity: Is logging/message level for this module. Input as</span>
+<span class="sd">            in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;.</span>
+<span class="sd">        tagname: Additional name, as part of file name</span>
+<span class="sd">        aggregation_id: Give an explicit ID for the aggregation. If set to True, an</span>
+<span class="sd">            automatic ID based on existing realization uuid will be made.</span>
+<span class="sd">            Default is None which means it will be missing (null) in the metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">configs</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">tagname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">aggregation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CRITICAL&quot;</span>
+
+    <span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_metafile</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_generate_aggr_uuid</span><span class="p">(</span><span class="n">uuids</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Unless aggregation_id; use existing UUIDs to generate a new UUID.&quot;&quot;&quot;</span>
+
+        <span class="n">stringinput</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="n">uuids</span><span class="p">:</span>
+            <span class="n">stringinput</span> <span class="o">+=</span> <span class="n">uuid</span>
+
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">uuid_from_string</span><span class="p">(</span><span class="n">stringinput</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_construct_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Construct the paths/filenames for aggregated data.</span>
+
+<span class="sd">        These filenames are constructed a bit different than in a forward job, since we</span>
+<span class="sd">        do not now which folder we &#39;are in&#39; when doing aggregations. Could possibly also</span>
+<span class="sd">        be in a cloud setting.</span>
+
+<span class="sd">        Hence we use the first input realization as template, e.g.:</span>
+
+<span class="sd">        file:</span>
+<span class="sd">           relative_path: realization-33/iter-0/share/results/maps/x.gri</span>
+<span class="sd">           absolute_path: /scratch/f/case/realization-33/iter-0/share/results/maps/x.gri</span>
+
+<span class="sd">        And from thet we derive/compose the relative and absolute path for the</span>
+<span class="sd">        aggregated data:</span>
+
+<span class="sd">        file:</span>
+<span class="sd">           relative_path: iter-0/share/results/maps/aggr.gri</span>
+<span class="sd">           absolute_path: /scratch/f/case/iter-0/share/results/maps/aggr.gri</span>
+
+<span class="sd">        The trick is to replace &#39;realization-*&#39; with nothing and create a new file</span>
+<span class="sd">        name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Construct file name for the aggregation...&quot;</span><span class="p">)</span>
+        <span class="n">realiname</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;realization&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">relpath</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;relative_path&quot;</span><span class="p">]</span>
+        <span class="n">abspath</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;First input realization relpath is: </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">relpath</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;First input realization abspath is: </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">abspath</span><span class="p">)</span>
+
+        <span class="n">relpath</span> <span class="o">=</span> <span class="n">relpath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">realiname</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">abspath</span> <span class="o">=</span> <span class="n">abspath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">realiname</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">relpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
+        <span class="n">abspath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">abspath</span><span class="p">)</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="n">abspath</span><span class="o">.</span><span class="n">suffix</span>
+        <span class="n">stem</span> <span class="o">=</span> <span class="n">abspath</span><span class="o">.</span><span class="n">stem</span>
+
+        <span class="n">usename</span> <span class="o">=</span> <span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;--&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Input name is not given, will assume &lt;usename&gt;&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">usename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span><span class="p">:</span>
+            <span class="n">usename</span> <span class="o">=</span> <span class="n">usename</span> <span class="o">+</span> <span class="s2">&quot;--&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span>
+
+        <span class="n">relname</span> <span class="o">=</span> <span class="p">(</span><span class="n">relpath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">usename</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span>
+        <span class="n">absname</span> <span class="o">=</span> <span class="p">(</span><span class="n">abspath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">usename</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New relpath is: </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">relname</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New abspath is: </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">absname</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">relname</span><span class="p">,</span> <span class="n">absname</span>
+
+    <span class="k">def</span> <span class="nf">_generate_aggrd_metadata</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">real_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">uuids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_aggr_uuid</span><span class="p">(</span><span class="n">uuids</span><span class="p">)</span>
+
+        <span class="n">template</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">relpath</span><span class="p">,</span> <span class="n">abspath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_filename</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+
+        <span class="c1"># fmu.realization shall not be used</span>
+        <span class="k">del</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;realization&quot;</span><span class="p">]</span>
+
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">][</span><span class="s2">&quot;operation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">][</span><span class="s2">&quot;realization_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">real_ids</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span>
+
+        <span class="c1"># next, the new object will trigger update of: &#39;file&#39;, &#39;data&#39; (some fields) and</span>
+        <span class="c1"># &#39;tracklog&#39;. The trick is to create an ExportData() instance and just retrieve</span>
+        <span class="c1"># the metadata from that, and then blend the needed metadata from here into the</span>
+        <span class="c1"># template -&gt; final metadata</span>
+
+        <span class="n">fakeconfig</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;access&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;access&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;masterdata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;masterdata&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="n">etemp</span> <span class="o">=</span> <span class="n">ExportData</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">fakeconfig</span><span class="p">)</span>
+        <span class="n">etempmeta</span> <span class="o">=</span> <span class="n">etemp</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span><span class="p">)</span>
+
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;tracklog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etempmeta</span><span class="p">[</span><span class="s2">&quot;tracklog&quot;</span><span class="p">]</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etempmeta</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span>  <span class="c1"># actually only use the checksum_md5</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;relative_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">relpath</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">abspath</span>
+
+        <span class="c1"># data section</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">template</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span><span class="p">:</span>
+            <span class="n">template</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;tagname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span>
+
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;bbox&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etempmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;bbox&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">template</span>
+
+<div class="viewcode-block" id="AggregatedData.generate_aggregation_metadata"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.AggregatedData.generate_aggregation_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_aggregation_metadata</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">skip_null</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Generate metadata for the aggregated data.</span>
+
+<span class="sd">        This is a quite different and much simpler operation than the ExportData()</span>
+<span class="sd">        version, as here most metadata for each input element are already known. Hence,</span>
+<span class="sd">        the metadata for the first element in the input list is used as template.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            obj: The map, 3D grid, table, etc instance.</span>
+
+<span class="sd">            compute_md5: If True, an md5 sum for the file will be created. This involves</span>
+<span class="sd">                a temporary export of the data, and may be time consuming for large</span>
+<span class="sd">                data.</span>
+
+<span class="sd">            skip_null: If True (default), None values in putput will be skipped</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generate metadata for class&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get input realization numbers:</span>
+        <span class="n">real_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">uuids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">conf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rid</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;realization&quot;</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+                <span class="n">uuid</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;realization&quot;</span><span class="p">][</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Seems that input config are not valid: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">real_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rid</span><span class="p">)</span>
+            <span class="n">uuids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
+
+        <span class="c1"># first config file as template</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_aggrd_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">real_ids</span><span class="p">,</span> <span class="n">uuids</span><span class="p">,</span> <span class="n">compute_md5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">skip_null</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">drop_nones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AggregatedData.export"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.AggregatedData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Export aggregated file with metadata to file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String: full path to exported item.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_aggregation_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">])</span>
+        <span class="n">metafile</span> <span class="o">=</span> <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum&quot;</span><span class="p">)</span>
+        <span class="n">outfile</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
+            <span class="n">obj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span>
+        <span class="p">)</span>
+
+        <span class="c1"># inject the computed md5 checksum in metadata</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">md5</span>
+
+        <span class="n">utils</span><span class="o">.</span><span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Actual file is:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata file is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.11.1.dev6+gd228b00).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

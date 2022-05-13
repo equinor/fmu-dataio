@@ -1,0 +1,15 @@
+dataionew package
+=================
+
+.. automodule:: dataionew
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   dataionew.dataionew

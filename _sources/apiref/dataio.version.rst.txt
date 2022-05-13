@@ -1,7 +1,0 @@
-dataio.version module
-=====================
-
-.. automodule:: dataio.version
-   :members:
-   :undoc-members:
-   :show-inheritance:
