@@ -41,7 +41,6 @@ import yaml
 
 from . import _utils
 from ._export_item import _ExportItem
-from .version import version
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -1053,7 +1052,7 @@ class ExportData:
     @deprecation.deprecated(
         deprecated_in="0.5",
         removed_in="1.0",
-        current_version=version,
+        current_version="UNSET_VERSION",
         details="Method to_file() is deprecated. Use export() instead",
     )
     def to_file(self, *args, **kwargs):
@@ -1282,7 +1281,7 @@ class InitializeCase(ExportData):  # pylint: disable=too-few-public-methods
     @deprecation.deprecated(
         deprecated_in="0.5",
         removed_in="1.0",
-        current_version=version,
+        current_version="UNSET_VERSION",
         details="Method to_file() is deprecated. Use export() instead",
     )
     def to_file(self, *args, **kwargs):
