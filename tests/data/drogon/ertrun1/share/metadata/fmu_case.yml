@@ -31,8 +31,8 @@ masterdata:
       - identifier: Norway
         uuid: ad214d85-8a1d-19da-e053-c918a4889309
     discovery:
-      - short_identifier: Drogon
-        uuid: 00000000-0000-0000-0000-000000000000
+      - short_identifier: DROGON
+        uuid: ad214d85-8a1d-19da-e053-c918a4889309
     field:
       - identifier: DROGON
         uuid: 00000000-0000-0000-0000-000000000000

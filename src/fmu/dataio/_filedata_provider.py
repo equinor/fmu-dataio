@@ -10,8 +10,6 @@ from pathlib import Path
 from typing import Any, Optional
 from warnings import warn
 
-from fmu.dataio._utils import C, S, X
-
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +26,7 @@ class _FileDataProvider:
     """
 
     # input
-    cfg: dict
+    dataio: Any
     objdata: Any
     rootpath: Path = field(default_factory=Path)
     itername: str = ""
@@ -43,30 +41,25 @@ class _FileDataProvider:
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
 
-        # set internal variables
-        self.settings = self.cfg[S]
-        self.xsettings = self.cfg[X]
-        self.classvar = self.cfg[C]
-
-        if self.settings.get("name", None):
-            self.name = self.settings["name"]
+        if self.dataio.name:
+            self.name = self.dataio.name
         else:
             self.name = self.objdata.name
 
-        self.tagname = self.settings["tagname"]
+        self.tagname = self.dataio.tagname
         self.time0 = self.objdata.time0
         self.time1 = self.objdata.time1
 
-        self.parentname = self.settings["parentname"]
+        self.parentname = self.dataio.parent
         self.extension = self.objdata.extension
         self.efolder = self.objdata.efolder
 
-        self.create_folder = self.classvar["createfolder"]
-        self.verify_folder = self.classvar["verifyfolder"]
-        self.forcefolder = self.settings["forcefolder"]
-        self.subfolder = self.settings["subfolder"]
+        self.create_folder = self.dataio.createfolder
+        self.verify_folder = self.dataio.verifyfolder
+        self.forcefolder = self.dataio.forcefolder
+        self.subfolder = self.dataio.subfolder
 
-        self.fmu_context = self.xsettings["actual_context"]  # may be None!
+        self.fmu_context = self.dataio._usecontext  # may be None!
 
         logger.info("Initialize %s", __class__)
 
@@ -132,7 +125,7 @@ class _FileDataProvider:
 
         outroot = outroot / "share"
 
-        if self.settings.get("is_observation", None):
+        if self.dataio.is_observation:
             outroot = outroot / "observation"
         else:
             outroot = outroot / "results"

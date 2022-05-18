@@ -10,6 +10,9 @@ import pandas as pd
 import pytest
 import xtgeo
 import yaml
+from termcolor import cprint
+
+import fmu.dataio as dio
 
 try:
     import pyarrow as pa
@@ -18,7 +21,6 @@ except ImportError:
 else:
     HAS_PYARROW = True
 
-from fmu.dataio._utils import C, G, S, X
 from fmu.dataio.dataio import ExportData
 
 logger = logging.getLogger(__name__)
@@ -26,6 +28,18 @@ logger = logging.getLogger(__name__)
 ROOTPWD = Path(".").absolute()
 RUN1 = "tests/data/drogon/ertrun1/realization-0/iter-0"
 RUN2 = "tests/data/drogon/ertrun1"
+
+
+def pytest_configure():
+    if "RMSVER" in os.environ and "INSIDE_RMS" not in os.environ:
+        cprint(80 * "=", "red", attrs=["blink"])
+        cprint(
+            "You run a RMS python somehow; need to set INSIDE_RMS=0 for pytest:",
+            "red",
+            attrs=["blink"],
+        )
+        cprint("INSIDE_RMS=0 pytest", "red", attrs=["blink"])
+        cprint(80 * "=", "red", attrs=["blink"])
 
 
 def inside_rms(func):
@@ -195,33 +209,26 @@ def fixture_globalconfig_asfile() -> str:
     return str(globalconfigfile)
 
 
-@pytest.fixture(name="internalcfg1", scope="module")
-def fixture_internalcfg1(globalconfig1) -> dict:
-    """Combined globalconfig1 and other settings; for internal testing"""
-    logger.info("Establish internalcfg1")
-    internalcfg1 = {}
+@pytest.fixture(name="edataobj1", scope="module")
+def fixture_edataobj1(globalconfig1):
+    """Combined globalconfig and settings to instance, for internal testing"""
+    logger.info("Establish edataobj1")
 
-    internalcfg1[G] = globalconfig1
-    internalcfg1[S] = {
-        "name": "TopWhatever",
-        "content": "depth",
-        "tagname": "mytag",
-        "is_observation": False,
-    }
-    # class variables
-    internalcfg1[C] = {
-        "surface_fformat": "irap_binary",
-        "createfolder": False,
-        "verifyfolder": False,
-    }
+    eobj = dio.ExportData(
+        config=globalconfig1,
+        name="TopWhatever",
+        content="depth",
+        tagname="mytag",
+        is_observation=False,
+    )
+    eobj.surface_fformat = "irap_binary"
+    eobj.createfolder = False
+    eobj.verifyfolder = False
 
-    internalcfg1[X] = {
-        "inside_rms": False,
-    }
-
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    # settings per instance
-    return internalcfg1
+    logger.info(
+        "Ran %s returning %s", inspect.currentframe().f_code.co_name, type(eobj)
+    )
+    return eobj
 
 
 @pytest.fixture(name="globalconfig2", scope="module")
@@ -237,43 +244,33 @@ def fixture_globalconfig2() -> dict:
     return globvar
 
 
-@pytest.fixture(name="internalcfg2", scope="module")
-def fixture_internalcfg2(globalconfig2):
+@pytest.fixture(name="edataobj2", scope="function")
+def fixture_edataobj2(globalconfig2):
     """Combined globalconfig2 and other settings; NB for internal unit testing"""
-    internalcfg2 = {}
+    eobj = dio.ExportData(
+        config=globalconfig2,
+        name="TopVolantis",
+        unit="m",
+        tagname="mytag",
+        parent="",
+        timedata=[[20330105, "moni"], [19990102, "base"]],
+        is_prediction=True,
+        is_observation=False,
+        forcefolder=None,
+        subfolder="",
+        fmu_context="realization",
+    )
 
-    internalcfg2[G] = globalconfig2
+    eobj.surface_fformat = "irap_binary"
+    eobj.createfolder = False
+    eobj.verifyfolder = False
+    eobj.legacy_time_format = False
 
-    # class variables
-    internalcfg2[C] = {
-        "surface_fformat": "irap_binary",
-        "createfolder": False,
-        "verifyfolder": False,
-        "legacy_time_format": False,
-    }
-
-    # settings per instance
-    internalcfg2[S] = {
-        "content": "depth",
-        "name": "TopVolantis",
-        "unit": "m",
-        "tagname": "mytag",
-        "parentname": "",
-        "timedata": [[20330105, "moni"], [19990102, "base"]],
-        "is_prediction": True,
-        "is_observation": False,
-        "forcefolder": None,
-        "subfolder": "",
-        "context": "forward",
-    }
-
-    internalcfg2[X] = {
-        "rootpath": Path("."),
-        "pwd": Path("."),
-    }
+    eobj._rootpath = Path(".")
+    eobj._pwd = Path(".")
 
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return internalcfg2
+    return eobj
 
 
 # ======================================================================================

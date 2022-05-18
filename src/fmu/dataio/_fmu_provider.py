@@ -13,10 +13,10 @@ import re
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 from warnings import warn
 
 from . import _utils
-from ._utils import C, G, S, X
 
 # case metadata relative to rootpath
 ERT2_RELATIVE_CASE_METADATA_FILE = "share/metadata/fmu_case.yml"
@@ -42,7 +42,7 @@ def _get_folderlist(current: Path) -> list:
 class _FmuProvider:
     """Class for detecting the run environment (e.g. an ERT2) and provide metadata."""
 
-    cfg: dict
+    dataio: Any
     verbosity: str = "CRITICAL"
 
     provider: str = field(default=None, init=False)
@@ -64,12 +64,7 @@ class _FmuProvider:
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
 
-        self.gconfig = self.cfg[G]
-        self.settings = self.cfg[S]
-        self.classvar = self.cfg[C]
-        self.xsettings = self.cfg[X]
-
-        self.rootpath = Path(self.xsettings["rootpath"]).absolute()
+        self.rootpath = Path(self.dataio._rootpath.absolute())
 
         self.rootpath_initial = self.rootpath
 
@@ -86,7 +81,7 @@ class _FmuProvider:
         else:
             logger.info("Detecting FMU provider as None")
             self.provider = None  # e.g. an interactive RMS run
-            self.xsettings["actual_context"] = None  # e.g. an interactive RMS run
+            self.dataio._usecontext = None  # e.g. an interactive RMS run
 
     def _detect_ert2provider(self) -> bool:
         """Detect if ERT2 is provider and set itername, casename, etc."""
@@ -105,8 +100,8 @@ class _FmuProvider:
                 case_path = Path("/".join(folders[0:num]))
 
                 # override:
-                if "casepath" in self.settings and self.settings["casepath"]:
-                    case_path = Path(self.settings["casepath"])
+                if self.dataio.casepath:
+                    case_path = Path(self.dataio.casepath)
 
                 self.case_name = casefolder
                 self.user_name = userfolder
@@ -120,8 +115,8 @@ class _FmuProvider:
 
                 # override realization if input key 'realization' is >= 0; only in rare
                 # cases
-                if "realization" in self.settings and self.settings["realization"] >= 0:
-                    self.real_id = self.settings["realization"]
+                if self.dataio.realization and self.dataio.realization >= 0:
+                    self.real_id = self.dataio.realization
                     self.real_name = "realization-" + str(self.real_id)
 
                 # also derive iteration_id from the folder
@@ -198,19 +193,19 @@ class _FmuProvider:
 
         meta = self.metadata  # shortform
 
-        meta["model"] = self.gconfig.get("model", None)
+        meta["model"] = self.dataio.config.get("model", None)
 
-        meta["context"] = {"stage": self.settings["fmu_context"]}
+        meta["context"] = {"stage": self.dataio._usecontext}
 
-        if "workflow" in self.settings and self.settings["workflow"]:
-            meta["workflow"] = {"reference": self.settings["workflow"]}
+        if self.dataio.workflow:
+            meta["workflow"] = {"reference": self.dataio.workflow}
 
         case_uuid = "not_present"  # TODO! not allow missing case metadata?
         if self.case_metadata and "fmu" in self.case_metadata:
             meta["case"] = deepcopy(self.case_metadata["fmu"]["case"])
             case_uuid = meta["case"]["uuid"]
 
-        if "realization" in self.settings["fmu_context"]:
+        if "realization" in self.dataio._usecontext:
             iter_uuid = _utils.uuid_from_string(case_uuid + str(self.iter_id))
             meta["iteration"] = {
                 "id": self.iter_id,

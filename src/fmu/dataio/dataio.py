@@ -16,10 +16,6 @@ import yaml
 from ._definitions import ALLOWED_CONTENTS, ALLOWED_FMU_CONTEXTS, CONTENTS_REQUIRED
 from ._metadata import _MetaData
 from ._utils import (
-    C,
-    G,
-    S,
-    X,
     detect_inside_rms,
     drop_nones,
     export_file_compute_checksum_md5,
@@ -55,12 +51,14 @@ INSTANCEVARS = {
     "casepath": (str, Path, None),
     "config": dict,
     "content": (dict, str),
+    "depth_reference": str,
+    "description": str,
     "fmu_context": str,
     "forcefolder": (str, Path),
     "is_observation": bool,
     "is_prediction": bool,
     "name": str,
-    "parentname": str,
+    "parent": str,
     "realization": int,
     "runpath": str,
     "tagname": str,
@@ -334,7 +332,7 @@ class ExportData:
             if "TopValysar" is the model name and the actual name is "Valysar Top Fm."
             that latter name will be used.
 
-        parentname: Optional. This key is required for datatype GridProperty, and
+        parent: Optional. This key is required for datatype GridProperty, and
             refers to the name of the grid geometry.
 
         realization: Optional, default is -999 which means that realization shall be
@@ -437,12 +435,14 @@ class ExportData:
     casepath: Union[str, Path, None] = None
     config: dict = field(default_factory=dict)
     content: Union[dict, str] = "depth"
+    depth_reference: str = "msl"
+    description: str = ""
     fmu_context: str = "realization"
     forcefolder: str = ""
     is_observation: bool = False
     is_prediction: bool = True
     name: str = ""
-    parentname: str = ""  # TODO: parent?
+    parent: str = ""
     realization: int = -999
     runpath: Union[str, Path, None] = None
     subfolder: str = ""
@@ -453,9 +453,13 @@ class ExportData:
     vertical_domain: dict = field(default_factory=dict)
     workflow: str = ""
 
+    # some keys that are modified version of input, prepended with _use
+    _usecontent: dict = field(default_factory=dict, init=False)
+    _usecontext: str = field(default="", init=False)
+    _usefmtflag: str = field(default="", init=False)
+
     # storing resulting state variables for instance, non-public:
     _metadata: dict = field(default_factory=dict, init=False)
-    _cfg: dict = field(default_factory=dict, init=False)
     _pwd: Path = field(default_factory=Path, init=False)
 
     # << NB! storing ACTUAL casepath:
@@ -470,16 +474,6 @@ class ExportData:
         self.vertical_domain = {"depth": "msl"}
 
         _check_global_config(self.config, strict=False)
-
-        # collect all given settings in master dictionary: self._cfg
-        self._cfg[C] = dict()  # the class variables
-        self._cfg[G] = dict()  # global config variables
-        self._cfg[S] = dict()  # the other input settings
-        self._cfg[X] = dict()  # extra settings, generated on the fly internally
-
-        # store Class variables
-        for cvar in CLASSVARS:
-            self._cfg[C][cvar] = getattr(self, cvar)
 
         # if input is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
@@ -497,26 +491,14 @@ class ExportData:
 
                 setattr(self, key, value)
 
-        # store input key values except config (which are the static global_config)
-        for ivar in INSTANCEVARS:
-            if "config" in ivar:
-                self._cfg[G] = getattr(self, ivar)
-            else:
-                self._cfg[S][ivar] = getattr(self, ivar)
-
         # global config which may be given as env variable -> a file; will override
-        if not self._cfg[G] or GLOBAL_ENVNAME in os.environ:
-            self._cfg[G] = some_config_from_env(GLOBAL_ENVNAME)
-
-        # treat special handling of "xtgeo" in format name:
-        self._cfg[X]["fmtflag"] = ""
-        if self.points_fformat == "csv|xtgeo" or self.polygons_fformat == "csv|xtgeo":
-            self._cfg[X]["fmtflag"] = "xtgeo"
+        if not self.config or GLOBAL_ENVNAME in os.environ:
+            self.config = some_config_from_env(GLOBAL_ENVNAME)
 
         self._validate_content_key()
         self._validate_fmucontext_key()
         self._update_globalconfig_from_settings()
-        _check_global_config(self._cfg[G], strict=True)
+        _check_global_config(self.config, strict=True)
         self._establish_pwd_rootpath()
 
         self._show_deprecations_or_notimplemented()
@@ -525,23 +507,23 @@ class ExportData:
     def _show_deprecations_or_notimplemented(self):
         """Warn on deprecated keys og on stuff not implemented yet."""
 
-        if self._cfg[S]["runpath"]:
+        if self.runpath:
             warn(
                 "The 'runpath' key has currently no function. It will be evaluated for "
-                "removal in fmu-dataio version 1",
+                "removal in fmu-dataio version 1. Use 'casepath' instead!",
                 PendingDeprecationWarning,
             )
 
     def _validate_content_key(self):
         """Validate the given 'content' input."""
 
-        updated_content = _check_content(self._cfg[S]["content"])
+        updated_content = _check_content(self.content)
         # keep the updated content as extra setting
-        self._cfg[X]["content"] = updated_content
+        self._usecontent = updated_content
 
     def _validate_fmucontext_key(self):
         """Validate the given 'fmu_context' input."""
-        if self._cfg[S]["fmu_context"] not in ALLOWED_FMU_CONTEXTS:
+        if self.fmu_context not in ALLOWED_FMU_CONTEXTS:
             msg = ""
             for key, value in ALLOWED_FMU_CONTEXTS.items():
                 msg += f"{key}: {value}\n"
@@ -549,6 +531,12 @@ class ExportData:
                 "It seems like 'fmu_context' value is illegal! "
                 f"Allowed entries are: in list:\n{msg}"
             )
+
+    def _update_fmt_flag(self) -> None:
+        # treat special handling of "xtgeo" in format name:
+        if self.points_fformat == "csv|xtgeo" or self.polygons_fformat == "csv|xtgeo":
+            self._usefmtflag = "xtgeo"
+        logger.info("Using flag format: <%s>", self._usefmtflag)
 
     def _update_check_settings(self, newsettings: dict) -> None:
         """If settings "S" are updated, run a validation prior update self._settings."""
@@ -561,27 +549,27 @@ class ExportData:
                 logger.info("Value type %s", type(value))
                 if not isinstance(value, INSTANCEVARS[setting]):
                     raise ValidationError("Setting key is present but incorrect type")
-                self._cfg[S][setting] = value
+                setattr(self, setting, value)
+
         self._show_deprecations_or_notimplemented()
         self._validate_content_key()
         self._validate_fmucontext_key()
 
     def _update_globalconfig_from_settings(self):
         """A few user settings may update/append the global config directly."""
-        newglobals = deepcopy(self._cfg[G])
+        newglobals = deepcopy(self.config)
 
-        if "access_ssdl" in self._cfg[S] and self._cfg[S]["access_ssdl"]:
-            if "ssdl" not in self._cfg[G]["access"]:
+        if self.access_ssdl:
+            if "ssdl" not in self.config["access"]:
                 newglobals["access"]["ssdl"] = dict()
 
-            newglobals["access"]["ssdl"] = deepcopy(self._cfg[S]["access_ssdl"])
-            del self._cfg[S]["access_ssdl"]
+            newglobals["access"]["ssdl"] = deepcopy(self.access_ssdl)
 
             logger.info(
                 "Updated global config's access.ssdl value: %s", newglobals["access"]
             )
 
-        self._cfg[G] = newglobals
+        self.config = newglobals
 
     def _establish_pwd_rootpath(self):
         """Establish state variables pwd and the (initial) rootpath.
@@ -612,17 +600,13 @@ class ExportData:
             logger.info("The casepath is hard set as %s", self._rootpath)
 
         else:
-            in_rms = False
             if self._inside_rms or INSIDE_RMS or "RUN_DATAIO_EXAMPLES" in os.environ:
 
                 self._rootpath = (self._pwd / "../../.").absolute().resolve()
                 logger.info("Run from inside RMS (or pretend)")
-                in_rms = True
+                self._inside_rms = True
         # make some extra keys in settings:
-        self._cfg[X]["pwd"] = self._pwd
-        self._cfg[X]["rootpath"] = self._rootpath
-        self._cfg[X]["inside_rms"] = in_rms
-        self._cfg[X]["actual_context"] = self.fmu_context  # may change later!
+        self._usecontext = self.fmu_context  # may change later!
 
         logger.info("pwd:        %s", str(self._pwd))
         logger.info("rootpath:   %s", str(self._rootpath))
@@ -661,9 +645,10 @@ class ExportData:
         _check_global_config(self.config)
         self._establish_pwd_rootpath()
         self._validate_content_key()
+        self._update_fmt_flag()
 
         metaobj = _MetaData(
-            obj, self._cfg, compute_md5=compute_md5, verbosity=self.verbosity
+            obj, self, compute_md5=compute_md5, verbosity=self.verbosity
         )
         self._metadata = metaobj.generate_export_metadata()
 
@@ -701,9 +686,9 @@ class ExportData:
         if isinstance(obj, pd.DataFrame):
             useflag = self.table_include_index
         else:
-            useflag = self._cfg[X]["fmtflag"]
+            useflag = self._usefmtflag
 
-        logger.info("Export to file and compute MD5 sum")
+        logger.info("Export to file and compute MD5 sum, using flag: <%s>", useflag)
         outfile, md5 = export_file_compute_checksum_md5(
             obj, outfile, outfile.suffix, flag=useflag
         )
@@ -754,7 +739,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     casepath: Union[str, Path, None] = None
     verbosity: str = "CRITICAL"
 
-    _cfg: dict = field(default_factory=dict, init=False)
     _metadata: dict = field(default_factory=dict, init=False)
     _metafile: Path = field(default_factory=Path, init=False)
     _pwd: Path = field(default_factory=Path, init=False)
@@ -768,12 +752,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             self.config = some_config_from_env(GLOBAL_ENVNAME)
 
         _check_global_config(self.config)
-
-        # collect all settings in dictionary self._cfg since _Metadata expects that
-        self._cfg[C] = dict()  # the class variables (may be empty here)
-        self._cfg[G] = self.config  # global config variables
-        self._cfg[S] = dict()  # the other settings (may be empty here)
-        self._cfg[X] = dict()  # the other settings (may be empty here)
+        self._edata = ExportData(config=self.config)  # dummy
 
     def _establish_pwd_rootpath(self):
         """Establish state variables pwd and casepath.
@@ -787,9 +766,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         else:
             self._rootpath = self._pwd.parent.parent
 
-        self._cfg[X]["pwd"] = self._pwd
-        self._cfg[X]["rootpath"] = self._rootpath
-
         logger.info("Set PWD (case): %s", str(self._pwd))
         logger.info("Set rootpath (case): %s", str(self._rootpath))
 
@@ -798,7 +774,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         self._establish_pwd_rootpath()
 
         metaobj = _MetaData(
-            None, self._cfg, initialize_case=True, verbosity=self.verbosity
+            None, self._edata, initialize_case=True, verbosity=self.verbosity
         )
         return metaobj._get_case_metadata()
 
@@ -806,7 +782,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         self._establish_pwd_rootpath()
 
         metaobj = _MetaData(
-            None, self._cfg, initialize_case=True, verbosity=self.verbosity
+            None, self._edata, initialize_case=True, verbosity=self.verbosity
         )
 
         self._metadata = metaobj.generate_case_metadata(force=force)
