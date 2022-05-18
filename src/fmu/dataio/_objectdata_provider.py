@@ -93,7 +93,6 @@ import pandas as pd
 import xtgeo
 
 from ._definitions import _ValidFormats
-from ._utils import C, G, S, X
 
 # from warnings import warn
 
@@ -115,15 +114,15 @@ class ConfigurationError(ValueError):
 class _ObjectDataProvider:
     """Class for providing metadata for data objects in fmu-dataio, e.g. a surface.
 
-    The metadata for the data are constructed by:
+    The metadata for the 'data' are constructed by:
 
     * Investigating (parsing) the object (e.g. a XTGeo RegularSurface) itself
-    * Combine the object info with settings from settings and globalconfig and classvar
+    * Combine the object info with user settings, globalconfig and class variables
     """
 
     # input fields, cannot be defaulted
     obj: Any
-    cfg: dict
+    dataio: Any
 
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
@@ -143,11 +142,6 @@ class _ObjectDataProvider:
 
     def __post_init__(self):
 
-        # more explicit:
-        self.settings = self.cfg[S]
-        self.xsettings = self.cfg[X]
-        self.globalconfig = self.cfg[G]
-        self.classvar = self.cfg[C]
         logger.info("Ran __post_init__")
 
     def _derive_name_stratigraphy(self) -> dict:
@@ -163,7 +157,7 @@ class _ObjectDataProvider:
         logger.info("Evaluate data:name attribute and stratigraphy")
         result = dict()  # shorter form
 
-        name = self.settings.get("name", "")
+        name = self.dataio.name
 
         if not name:
             try:
@@ -172,7 +166,7 @@ class _ObjectDataProvider:
                 name = ""
 
         # next check if usename has a "truename" and/or aliases from the config
-        strat = self.globalconfig.get("stratigraphy", None)  # shortform
+        strat = self.dataio.config.get("stratigraphy", None)  # shortform
 
         if strat is None or name not in strat:
             logger.info("None of name not in strat")
@@ -215,7 +209,7 @@ class _ObjectDataProvider:
             result["classname"] = "surface"
             result["layout"] = "regular"
             result["efolder"] = "maps"
-            result["fmt"] = self.classvar["surface_fformat"]
+            result["fmt"] = self.dataio.surface_fformat
             result["extension"] = self._validate_get_ext(
                 result["fmt"], result["subtype"], _ValidFormats().surface
             )
@@ -225,7 +219,7 @@ class _ObjectDataProvider:
             result["classname"] = "polygons"
             result["layout"] = "unset"
             result["efolder"] = "polygons"
-            result["fmt"] = self.classvar["polygons_fformat"]
+            result["fmt"] = self.dataio.polygons_fformat
             result["extension"] = self._validate_get_ext(
                 result["fmt"], result["subtype"], _ValidFormats().polygons
             )
@@ -235,7 +229,7 @@ class _ObjectDataProvider:
             result["classname"] = "points"
             result["layout"] = "unset"
             result["efolder"] = "points"
-            result["fmt"] = self.classvar["points_fformat"]
+            result["fmt"] = self.dataio.points_fformat
             result["extension"] = self._validate_get_ext(
                 result["fmt"], result["subtype"], _ValidFormats().points
             )
@@ -245,7 +239,7 @@ class _ObjectDataProvider:
             result["classname"] = "cube"
             result["layout"] = "regular"
             result["efolder"] = "cubes"
-            result["fmt"] = self.classvar["cube_fformat"]
+            result["fmt"] = self.dataio.cube_fformat
             result["extension"] = self._validate_get_ext(
                 result["fmt"], result["subtype"], _ValidFormats().cube
             )
@@ -255,7 +249,7 @@ class _ObjectDataProvider:
             result["classname"] = "cpgrid"
             result["layout"] = "cornerpoint"
             result["efolder"] = "grids"
-            result["fmt"] = self.classvar["grid_fformat"]
+            result["fmt"] = self.dataio.grid_fformat
             result["extension"] = self._validate_get_ext(
                 result["fmt"], result["subtype"], _ValidFormats().grid
             )
@@ -265,7 +259,7 @@ class _ObjectDataProvider:
             result["classname"] = "cpgrid_property"
             result["layout"] = "cornerpoint"
             result["efolder"] = "grids"
-            result["fmt"] = self.classvar["grid_fformat"]
+            result["fmt"] = self.dataio.grid_fformat
             result["extension"] = self._validate_get_ext(
                 result["fmt"], result["subtype"], _ValidFormats().grid
             )
@@ -275,7 +269,7 @@ class _ObjectDataProvider:
             result["classname"] = "table"
             result["layout"] = "table"
             result["efolder"] = "tables"
-            result["fmt"] = self.classvar["table_fformat"]
+            result["fmt"] = self.dataio.table_fformat
             result["extension"] = self._validate_get_ext(
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
@@ -285,7 +279,7 @@ class _ObjectDataProvider:
             result["classname"] = "table"
             result["layout"] = "table"
             result["efolder"] = "tables"
-            result["fmt"] = self.classvar["arrow_fformat"]
+            result["fmt"] = self.dataio.arrow_fformat
             result["extension"] = self._validate_get_ext(
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
@@ -465,12 +459,12 @@ class _ObjectDataProvider:
     def _derive_timedata(self):
         """Format input timedata to metadata."""
 
-        tdata = self.settings.get("timedata", None)
+        tdata = self.dataio.timedata
         if not tdata:
             return {}
 
         tresult = dict()
-        if self.classvar["legacy_time_format"]:
+        if self.dataio.legacy_time_format:
             if len(tdata) >= 1:
                 elem = tdata[0]
                 tresult["time"] = list()
@@ -529,20 +523,20 @@ class _ObjectDataProvider:
         meta["alias"] = nameres.get("alias", None)
         meta["top"] = nameres.get("top", None)
         meta["base"] = nameres.get("base", None)
-        meta["content"] = self.xsettings.get("content", "depth")
-        meta["tagname"] = self.settings.get("tagname", "")
+        meta["content"] = self.dataio._usecontent
+        meta["tagname"] = self.dataio.tagname
         meta["format"] = objres["fmt"]
         meta["layout"] = objres["layout"]
-        meta["unit"] = self.settings.get("unit", None)
-        meta["vertical_domain"] = self.settings.get("vertical_domain", None)
-        meta["depth_reference"] = self.settings.get("depth_reference", None)
+        meta["unit"] = self.dataio.unit
+        meta["vertical_domain"] = self.dataio.vertical_domain
+        meta["depth_reference"] = self.dataio.depth_reference
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
 
         # timedata:
         tresult = self._derive_timedata()
         if tresult:
-            if self.classvar["legacy_time_format"]:
+            if self.dataio.legacy_time_format:
                 for key, val in tresult.items():
                     meta[key] = val
             else:
@@ -550,9 +544,9 @@ class _ObjectDataProvider:
                 for key, val in tresult.items():
                     meta["time"][key] = val
 
-        meta["is_prediction"] = self.settings.get("is_prediction", False)
-        meta["is_observation"] = self.settings.get("is_observation", False)
-        meta["description"] = self.settings.get("description", None)
+        meta["is_prediction"] = self.dataio.is_prediction
+        meta["is_observation"] = self.dataio.is_observation
+        meta["description"] = self.dataio.description
 
         # the next is to give addition state variables identical values, and for
         # consistency these are derived after all eventual validation and directly from

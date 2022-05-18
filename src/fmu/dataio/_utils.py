@@ -26,11 +26,6 @@ from . import _oyaml as oyaml
 
 logger = logging.getLogger(__name__)
 
-C = "CLASSVAR"
-G = "GLOBVAR"
-S = "SETTING"
-X = "EXTRAS"  # additonal settings
-
 
 def inherit_docstring(inherit_from):
     """Local decorator to inherit a docstring"""
@@ -127,6 +122,8 @@ def export_file(obj, filename, extension, flag=None):
                 # out.pname = "ID"  not working
                 out.dataframe.rename(columns={out.pname: "ID"}, inplace=True)
         out.dataframe.to_csv(filename, index=False)
+    elif extension == ".pol" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
+        obj.to_file(filename)
     elif extension == ".segy" and isinstance(obj, xtgeo.Cube):
         obj.to_file(filename, fformat="segy")
     elif extension == ".roff" and isinstance(obj, (xtgeo.Grid, xtgeo.GridProperty)):

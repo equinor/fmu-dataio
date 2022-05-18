@@ -16,14 +16,7 @@ from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataio._filedata_provider import _FileDataProvider
 from fmu.dataio._fmu_provider import _FmuProvider
 from fmu.dataio._objectdata_provider import _ObjectDataProvider
-from fmu.dataio._utils import (
-    C,
-    G,
-    S,
-    X,
-    drop_nones,
-    export_file_compute_checksum_md5,
-)
+from fmu.dataio._utils import drop_nones, export_file_compute_checksum_md5
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +63,7 @@ class _MetaData:
 
     # input variables
     obj: Any
-    cfg: dict
+    dataio: Any
     initialize_case: bool = False
     verbosity: str = "CRITICAL"
     compute_md5: bool = True
@@ -92,13 +85,6 @@ class _MetaData:
 
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
-
-        # making input config more explisit for readability
-        self.settings = self.cfg[S]
-        self.xsettings = self.cfg[X]
-        self.globalconfig = self.cfg[G]
-        self.classvar = self.cfg[C]
-
         logger.info("Initialize _MetaData instance.")
 
     def _populate_meta_objectdata(self):
@@ -112,7 +98,7 @@ class _MetaData:
         if self.initialize_case:
             return
 
-        self.objdata = _ObjectDataProvider(self.obj, self.cfg)
+        self.objdata = _ObjectDataProvider(self.obj, self.dataio)
         self.objdata.derive_metadata()
         self.meta_objectdata = self.objdata.metadata
 
@@ -124,7 +110,7 @@ class _MetaData:
 
         The _FmuDataProvider is ran first -> self.fmudata
         """
-        self.fmudata = _FmuProvider(self.cfg, verbosity=self.verbosity)
+        self.fmudata = _FmuProvider(self.dataio, verbosity=self.verbosity)
         self.fmudata.detect_provider()
         logger.info("FMU provider is %s", self.fmudata.provider)
         return self.fmudata.case_metadata
@@ -137,7 +123,7 @@ class _MetaData:
 
         The _FmuDataProvider is ran first -> self.fmudata
         """
-        self.fmudata = _FmuProvider(self.cfg, verbosity=self.verbosity)
+        self.fmudata = _FmuProvider(self.dataio, verbosity=self.verbosity)
         self.fmudata.detect_provider()
         logger.info("FMU provider is %s", self.fmudata.provider)
         self.meta_fmu = self.fmudata.metadata
@@ -156,7 +142,7 @@ class _MetaData:
         """
 
         fdata = _FileDataProvider(
-            self.cfg,
+            self.dataio,
             self.objdata,
             self.rootpath,
             self.fmudata.iter_name,
@@ -175,7 +161,7 @@ class _MetaData:
                 "tmp",
                 self.objdata.extension,
                 tmp=True,
-                flag=self.xsettings.get("fmtflag", ""),
+                flag=self.dataio._usefmtflag,
             )
         else:
             logger.info("Do not compute MD5 sum at this stage!")
@@ -200,12 +186,12 @@ class _MetaData:
         Having the `masterdata` as hardcoded first level in the config is intentional.
         If that section is missing, or config is None, return with a user warning.
         """
-        if not self.globalconfig or "masterdata" not in self.globalconfig.keys():
+        if not self.dataio.config or "masterdata" not in self.dataio.config.keys():
             warn("No masterdata section present", UserWarning)
             self.meta_masterdata = None
             return
 
-        self.meta_masterdata = self.globalconfig["masterdata"]
+        self.meta_masterdata = self.dataio.config["masterdata"]
 
         # TODO! validation
 
@@ -222,14 +208,14 @@ class _MetaData:
         its contents shall take presedence.
 
         """
-        if not self.globalconfig:
+        if not self.dataio.config:
             warn("The config is empty or missing", UserWarning)
             return
 
-        if self.globalconfig and "access" not in self.globalconfig:
+        if self.dataio.config and "access" not in self.dataio.config:
             raise ConfigurationError("The config misses the 'access' section")
 
-        a_cfg = self.globalconfig["access"]
+        a_cfg = self.dataio.config["access"]
 
         if "asset" not in a_cfg:
             # asset shall be present if config is used
@@ -276,7 +262,7 @@ class _MetaData:
         meta["file"] = self.meta_file
 
         meta["data"] = self.meta_objectdata
-        meta["display"] = {"name": self.settings["name"]}  # solution so far; TBD
+        meta["display"] = {"name": self.dataio.name}  # solution so far; TBD
 
         meta["access"] = self.meta_access
         meta["masterdata"] = self.meta_masterdata
@@ -310,7 +296,7 @@ class _MetaData:
         meta["access"]["asset"] = self.meta_access["asset"]
 
         meta["fmu"] = dict()
-        meta["fmu"]["model"] = self.cfg[G]["model"]
+        meta["fmu"]["model"] = self.dataio.config["model"]
 
         mcase = meta["fmu"]["case"] = dict()
         mcase["name"] = self.fmudata.case_name

@@ -1,16 +1,10 @@
 """Test the _MetaData class from the _metadata.py module"""
 import os
 
+import fmu.dataio as dio
 from fmu.dataio._fmu_provider import _FmuProvider, _get_folderlist
-from fmu.dataio._utils import C, G, S, X
 
 FOLDERTREE = "scratch/myfield/case/realization-13/iter-2"
-
-CFG = dict()
-CFG[X] = {"rootpath": ".", "casepath": ""}
-CFG[S] = {}
-CFG[G] = {}
-CFG[C] = {}
 
 
 def test_get_folderlist(fmurun):
@@ -21,41 +15,42 @@ def test_get_folderlist(fmurun):
     assert mylist[-3] == "ertrun1"
 
 
-def test_fmuprovider_no_provider(testroot):
+def test_fmuprovider_no_provider(testroot, globalconfig1):
     """Testing the FmuProvider basics where no ERT context is found from folder tree."""
 
     os.chdir(testroot)
-    myfmu = _FmuProvider(CFG)
+    ex = dio.ExportData(fmu_context="realization", config=globalconfig1)
+    myfmu = _FmuProvider(ex)
     myfmu.detect_provider()
 
     assert myfmu.is_fmurun is False
     assert myfmu.case_name is None
 
 
-def test_fmuprovider_ert2_provider(fmurun):
+def test_fmuprovider_ert2_provider(fmurun, globalconfig1):
     """Testing the FmuProvider for an ERT2 case"""
 
     os.chdir(fmurun)
 
-    CFG[S] = {"rootpath": fmurun, "casepath": None, "fmu_context": "forward"}
-    CFG[X] = {"rootpath": fmurun, "casepath": None}
+    ex = dio.ExportData(fmu_context="realization", config=globalconfig1)
+    ex._rootpath = fmurun
 
-    myfmu = _FmuProvider(CFG)
+    myfmu = _FmuProvider(ex)
     myfmu.detect_provider()
     assert myfmu.case_name == "ertrun1"
     assert myfmu.real_name == "realization-0"
     assert myfmu.real_id == 0
 
 
-def test_fmuprovider_detect_no_case_metadata(fmurun):
+def test_fmuprovider_detect_no_case_metadata(fmurun, edataobj1):
     """Testing the case metadata file which is not found here.
 
     That will still provide a file path but the metadata will be {} i.e. empty
     """
     os.chdir(fmurun)
-    CFG[X] = {"rootpath": fmurun}
+    edataobj1._runpath = fmurun
 
-    myfmu = _FmuProvider(CFG)
+    myfmu = _FmuProvider(edataobj1)
     myfmu.detect_provider()
     assert myfmu.case_name == "ertrun1"
     assert myfmu.real_name == "realization-0"
@@ -64,11 +59,11 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
     assert not myfmu.case_metadata
 
 
-def test_fmuprovider_detect_case_has_metadata(fmurun_w_casemetadata):
+def test_fmuprovider_detect_case_has_metadata(fmurun_w_casemetadata, edataobj1):
     """Testing the case metadata file which is found here"""
-    CFG[X] = {"rootpath": fmurun_w_casemetadata}
+    edataobj1._rootpath = fmurun_w_casemetadata
     os.chdir(fmurun_w_casemetadata)
-    myfmu = _FmuProvider(CFG)
+    myfmu = _FmuProvider(edataobj1)
     myfmu.detect_provider()
     assert myfmu.case_name == "ertrun1"
     assert myfmu.real_name == "realization-0"

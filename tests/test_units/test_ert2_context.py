@@ -8,7 +8,7 @@ import os
 import pandas as pd
 
 import fmu.dataio.dataio as dataio
-from fmu.dataio._utils import S, prettyprint_dict
+from fmu.dataio._utils import prettyprint_dict
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ def test_regsurf_export_file_fmurun(fmurun_w_casemetadata, rmsglobalconfig, regs
         unit="myunit",
     )  # read from global config
 
-    assert edata._cfg[S]["unit"] == "myunit"
+    assert edata.unit == "myunit"
 
     # generating metadata without export is possible
     themeta = edata.generate_metadata(
@@ -163,11 +163,11 @@ def test_points_export_file_set_name_xtgeoheaders(
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     os.chdir(fmurun_w_casemetadata)
 
-    dataio.ExportData.points_fformat = "csv|xtgeo"
-
+    dataio.ExportData.points_fformat = "csv"
     edata = dataio.ExportData(
         config=rmsglobalconfig, verbosity="INFO"
     )  # read from global config
+    edata.points_fformat = "csv|xtgeo"  # override
 
     output = edata.export(points, name="TopVolantiz")
     logger.info("Output is %s", output)

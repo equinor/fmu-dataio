@@ -11,7 +11,7 @@ import pytest
 from conftest import inside_rms
 
 import fmu.dataio.dataio as dataio
-from fmu.dataio._utils import S, prettyprint_dict
+from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
 
 logger = logging.getLogger(__name__)
@@ -186,7 +186,7 @@ def test_regsurf_export_file_fmurun(
         unit="myunit",
     )  # read from global config
 
-    assert edata._cfg[S]["unit"] == "myunit"
+    assert edata.unit == "myunit"
 
     # generating metadata without export is possible
     themeta = edata.generate_metadata(

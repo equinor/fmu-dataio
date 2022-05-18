@@ -5,7 +5,6 @@ import os
 import pytest
 import yaml
 
-from fmu.dataio._utils import C, G, S
 from fmu.dataio.dataio import ExportData, ValidationError
 
 # pylint: disable=no-member
@@ -23,63 +22,63 @@ def test_generate_metadata_simple(globalconfig1):
 
     edata = ExportData(config=globalconfig1)
 
-    assert edata._cfg[G]["model"]["name"] == "Test"
+    assert edata.config["model"]["name"] == "Test"
 
-    assert edata._cfg[C]["meta_format"] == "yaml"
-    assert edata._cfg[C]["grid_fformat"] == "grdecl"
-    assert edata._cfg[S]["name"] == ""
+    assert edata.meta_format == "yaml"
+    assert edata.grid_fformat == "grdecl"
+    assert edata.name == ""
 
     ExportData.grid_fformat = default_fformat  # reset
 
 
-def test_update_check_settings_shall_fail(internalcfg2):
+def test_update_check_settings_shall_fail(edataobj2):
 
     # pylint: disable=unexpected-keyword-arg
     with pytest.raises(TypeError):
-        _ = ExportData(config=internalcfg2[G], stupid="str")
+        _ = ExportData(config=edataobj2["globalconfig"], stupid="str")
 
     newsettings = {"invalidkey": "some"}
     with pytest.raises(ValueError):
         ExportData._update_check_settings("dummy", newsettings)
 
 
-# @pytest.mark.parametrize(
-#     "key, value, wtype, expected_msg",
-#     [
-#         (
-#             "context",
-#             "some",
-#             PendingDeprecationWarning,
-#             r"The 'context' key has currently no function",
-#         ),
-#     ],
-# )
-# def test_deprecated_keys(internalcfg2, regsurf, key, value, wtype, expected_msg):
-#     """Some keys shall raise a DeprecationWarning or similar."""
+@pytest.mark.parametrize(
+    "key, value, wtype, expected_msg",
+    [
+        (
+            "runpath",
+            "some",
+            PendingDeprecationWarning,
+            r"The 'runpath' key has currently no function",
+        ),
+    ],
+)
+def test_deprecated_keys(globalconfig1, regsurf, key, value, wtype, expected_msg):
+    """Some keys shall raise a DeprecationWarning or similar."""
 
-#     # under primary initialisation
-#     kval = {key: value}
-#     with pytest.warns(wtype, match=expected_msg):
-#         _ = ExportData(config=internalcfg2[G], **kval)
+    # under primary initialisation
+    kval = {key: value}
+    with pytest.warns(wtype, match=expected_msg):
+        _ = ExportData(config=globalconfig1, **kval)
 
-#     # under override
-#     with pytest.warns(wtype, match=expected_msg):
-#         edata = ExportData(config=internalcfg2[G])
-#         edata.generate_metadata(regsurf, **kval)
+    # under override
+    with pytest.warns(wtype, match=expected_msg):
+        edata = ExportData(config=globalconfig1)
+        edata.generate_metadata(regsurf, **kval)
 
 
-def test_content_is_invalid(internalcfg2):
+def test_content_is_invalid(globalconfig1):
 
     kval = {"content": "not_legal"}
     with pytest.raises(ValidationError, match=r"Invalid content"):
-        ExportData(config=internalcfg2[G], **kval)
+        ExportData(config=globalconfig1, **kval)
 
 
 def test_global_config_from_env(globalconfig_asfile):
     """Testing getting global config from a file"""
     os.environ["FMU_GLOBAL_CONFIG"] = globalconfig_asfile
     edata = ExportData()  # the env variable will override this
-    assert "smda" in edata._cfg["GLOBVAR"]["masterdata"]
+    assert "smda" in edata.config["masterdata"]
 
     del os.environ["FMU_GLOBAL_CONFIG"]
 
@@ -98,7 +97,7 @@ def test_settings_config_from_env(tmp_path, rmsglobalconfig, regsurf):
 
     os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
     edata = ExportData(verbosity="INFO")  # the env variable will override this
-    assert edata._cfg["SETTING"]["name"] == "MyFancyName"
+    assert edata.name == "MyFancyName"
 
     meta = edata.generate_metadata(regsurf)
     assert "myfancyname--myfancytag" in meta["file"]["relative_path"]
@@ -125,7 +124,7 @@ def test_settings_and_global_config_from_env(tmp_path, rmsglobalconfig, regsurf)
     os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
 
     edata = ExportData(verbosity="INFO")  # the env variable will override this
-    assert edata._cfg["SETTING"]["name"] == "MyFancyName"
+    assert edata.name == "MyFancyName"
 
     meta = edata.generate_metadata(regsurf)
     assert "myfancyname--myfancytag" in meta["file"]["relative_path"]
@@ -159,7 +158,9 @@ def test_establish_pwd_runpath(tmp_path, globalconfig2):
     os.chdir(rmspath)
 
     ExportData._inside_rms = True
-    _ = ExportData(config=globalconfig2)
-    # edata._establish_pwd_basepath()
+    edata = ExportData(config=globalconfig2)
+    edata._establish_pwd_rootpath()
+
+    assert edata._rootpath == rmspath.parent.parent
 
     ExportData._inside_rms = False  # reset
