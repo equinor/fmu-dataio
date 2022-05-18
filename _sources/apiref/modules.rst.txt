@@ -4,4 +4,4 @@ API reference for fmu.dataio
 .. toctree::
    :maxdepth: 4
 
-   dataionew
+   dataio

@@ -1,7 +1,0 @@
-dataionew.dataionew module
-==========================
-
-.. automodule:: dataionew.dataionew
-   :members:
-   :undoc-members:
-   :show-inheritance:

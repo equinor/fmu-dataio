@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataionew.dataionew &mdash; fmu.dataio 0.11.1.dev6+gd228b00 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.11.1.dev7+g9d56382 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -62,7 +62,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>dataionew.dataionew</li>
+      <li>dataio.dataio</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -71,7 +71,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for dataionew.dataionew</h1><div class="highlight"><pre>
+  <h1>Source code for dataio.dataio</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Module for DataIO class.</span>
 
 <span class="sd">The metadata spec is documented as a JSON schema, stored under schema/.</span>
@@ -87,16 +87,23 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
-<span class="kn">import</span> <span class="nn">fmu.dataionew._utils</span> <span class="k">as</span> <span class="nn">utils</span>
-<span class="kn">from</span> <span class="nn">fmu.dataionew._definitions</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ALLOWED_CONTENTS</span><span class="p">,</span>
-    <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="p">,</span>
-    <span class="n">CONTENTS_REQUIRED</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="n">ALLOWED_CONTENTS</span><span class="p">,</span> <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="p">,</span> <span class="n">CONTENTS_REQUIRED</span>
+<span class="kn">from</span> <span class="nn">._metadata</span> <span class="kn">import</span> <span class="n">_MetaData</span>
+<span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">C</span><span class="p">,</span>
+    <span class="n">G</span><span class="p">,</span>
+    <span class="n">S</span><span class="p">,</span>
+    <span class="n">X</span><span class="p">,</span>
+    <span class="n">detect_inside_rms</span><span class="p">,</span>
+    <span class="n">drop_nones</span><span class="p">,</span>
+    <span class="n">export_file_compute_checksum_md5</span><span class="p">,</span>
+    <span class="n">export_metadata_file</span><span class="p">,</span>
+    <span class="n">prettyprint_dict</span><span class="p">,</span>
+    <span class="n">some_config_from_env</span><span class="p">,</span>
+    <span class="n">uuid_from_string</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">fmu.dataionew._metadata</span> <span class="kn">import</span> <span class="n">_MetaData</span>
-<span class="kn">from</span> <span class="nn">fmu.dataionew._utils</span> <span class="kn">import</span> <span class="n">C</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">drop_nones</span>
 
-<span class="n">INSIDE_RMS</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">detect_inside_rms</span><span class="p">()</span>
+<span class="n">INSIDE_RMS</span> <span class="o">=</span> <span class="n">detect_inside_rms</span><span class="p">()</span>
 
 <span class="c1"># class variables</span>
 <span class="n">CLASSVARS</span> <span class="o">=</span> <span class="p">[</span>
@@ -146,7 +153,7 @@
 <span class="n">logging</span><span class="o">.</span><span class="n">captureWarnings</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ValidationError"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.ValidationError">[docs]</a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<div class="viewcode-block" id="ValidationError"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ValidationError">[docs]</a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Raise error while validating.&quot;&quot;&quot;</span></div>
 
 
@@ -259,7 +266,7 @@
 <span class="c1"># ======================================================================================</span>
 
 
-<div class="viewcode-block" id="read_metadata"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.read_metadata">[docs]</a><span class="k">def</span> <span class="nf">read_metadata</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="read_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.read_metadata">[docs]</a><span class="k">def</span> <span class="nf">read_metadata</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Read the metadata as a dictionary given a filename.</span>
 
 <span class="sd">    If the filename is e.g. /some/path/mymap.gri, the assosiated metafile</span>
@@ -287,7 +294,7 @@
 <span class="c1"># ======================================================================================</span>
 
 
-<div class="viewcode-block" id="ExportData"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.ExportData">[docs]</a><span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ExportData"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ExportData">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ExportData</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Class for exporting data with rich metadata in FMU.</span>
 
@@ -531,7 +538,7 @@
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running __post_init__ ...&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Global config is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">utils</span><span class="o">.</span><span class="n">prettyprint_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Global config is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">prettyprint_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
 
         <span class="c1"># set defaults for mutable keys</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vertical_domain</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">}</span>
@@ -550,7 +557,7 @@
 
         <span class="c1"># if input is provided as an ENV variable pointing to a YAML file; will override</span>
         <span class="k">if</span> <span class="n">SETTINGS_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="n">external_config</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">some_config_from_env</span><span class="p">(</span><span class="n">SETTINGS_ENVNAME</span><span class="p">)</span>
+            <span class="n">external_config</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">SETTINGS_ENVNAME</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">external_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">INSTANCEVARS</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Proposed setting </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is not valid&quot;</span><span class="p">)</span>
@@ -573,7 +580,7 @@
 
         <span class="c1"># global config which may be given as env variable -&gt; a file; will override</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="ow">or</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
 
         <span class="c1"># treat special handling of &quot;xtgeo&quot; in format name:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;fmtflag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -698,7 +705,7 @@
     <span class="c1"># Public methods:</span>
     <span class="c1"># ==================================================================================</span>
 
-<div class="viewcode-block" id="ExportData.generate_metadata"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.ExportData.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="ExportData.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ExportData.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Generate and return the complete metadata for a provided object.</span>
 
 <span class="sd">        An object may be a map, 3D grid, cube, table, etc which is of a known and</span>
@@ -740,7 +747,7 @@
 
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExportData.export"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.ExportData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="ExportData.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ExportData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Export data objects of &#39;known&#39; type to FMU storage solution with metadata.</span>
 
 <span class="sd">        This function will also collect the data spesific class metadata. For &quot;classic&quot;</span>
@@ -771,14 +778,14 @@
             <span class="n">useflag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;fmtflag&quot;</span><span class="p">]</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum&quot;</span><span class="p">)</span>
-        <span class="n">outfile</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
+        <span class="n">outfile</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
             <span class="n">obj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">useflag</span>
         <span class="p">)</span>
 
         <span class="c1"># inject md5 checksum in metadata</span>
         <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">md5</span>
 
-        <span class="n">utils</span><span class="o">.</span><span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+        <span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Actual file is:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata file is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
 
@@ -796,7 +803,7 @@
 <span class="c1"># ######################################################################################</span>
 
 
-<div class="viewcode-block" id="InitializeCase"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.InitializeCase">[docs]</a><span class="nd">@dataclass</span>
+<div class="viewcode-block" id="InitializeCase"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">InitializeCase</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
     <span class="sd">&quot;&quot;&quot;Instantate InitializeCase object.</span>
 
@@ -832,7 +839,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">or</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
 
         <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
@@ -869,7 +876,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">metaobj</span><span class="o">.</span><span class="n">_get_case_metadata</span><span class="p">()</span>
 
-<div class="viewcode-block" id="InitializeCase.generate_case_metadata"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.InitializeCase.generate_case_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_case_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="InitializeCase.generate_case_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.generate_case_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_case_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
 
         <span class="n">metaobj</span> <span class="o">=</span> <span class="n">_MetaData</span><span class="p">(</span>
@@ -882,7 +889,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The case metadata are now ready!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="InitializeCase.export"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.InitializeCase.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="InitializeCase.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Export case metadata to file.</span>
 
 <span class="sd">        Returns:</span>
@@ -890,7 +897,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_case_metadata</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">export_metadata_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span>
+        <span class="n">export_metadata_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;METAFILE </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span></div></div>
 
@@ -911,7 +918,7 @@
 <span class="c1"># ######################################################################################</span>
 
 
-<div class="viewcode-block" id="AggregatedData"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.AggregatedData">[docs]</a><span class="nd">@dataclass</span>
+<div class="viewcode-block" id="AggregatedData"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">AggregatedData</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
     <span class="sd">&quot;&quot;&quot;Instantate AggregatedData object.</span>
 
@@ -947,7 +954,7 @@
         <span class="k">for</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="n">uuids</span><span class="p">:</span>
             <span class="n">stringinput</span> <span class="o">+=</span> <span class="n">uuid</span>
 
-        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">uuid_from_string</span><span class="p">(</span><span class="n">stringinput</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">uuid_from_string</span><span class="p">(</span><span class="n">stringinput</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_construct_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Construct the paths/filenames for aggregated data.</span>
@@ -1054,7 +1061,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">template</span>
 
-<div class="viewcode-block" id="AggregatedData.generate_aggregation_metadata"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.AggregatedData.generate_aggregation_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_aggregation_metadata</span><span class="p">(</span>
+<div class="viewcode-block" id="AggregatedData.generate_aggregation_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.generate_aggregation_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_aggregation_metadata</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
         <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1098,7 +1105,7 @@
 
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AggregatedData.export"><a class="viewcode-back" href="../../apiref/dataionew.dataionew.html#dataionew.dataionew.AggregatedData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="AggregatedData.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Export aggregated file with metadata to file.</span>
 
 <span class="sd">        Returns:</span>
@@ -1110,14 +1117,12 @@
         <span class="n">metafile</span> <span class="o">=</span> <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum&quot;</span><span class="p">)</span>
-        <span class="n">outfile</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
-            <span class="n">obj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span>
-        <span class="p">)</span>
+        <span class="n">outfile</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">export_file_compute_checksum_md5</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
 
         <span class="c1"># inject the computed md5 checksum in metadata</span>
         <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">md5</span>
 
-        <span class="n">utils</span><span class="o">.</span><span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+        <span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Actual file is:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata file is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
 
@@ -1132,7 +1137,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.11.1.dev6+gd228b00).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.11.1.dev7+g9d56382).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
