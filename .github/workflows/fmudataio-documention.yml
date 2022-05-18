@@ -30,7 +30,7 @@ jobs:
         run: |
           pip install pip -U && pip install wheel -U
           pip install .[docs]
-          pip install xtgeo==2.15rc3
+          pip install xtgeo
           pip install git+https://github.com/equinor/fmu-config
           sh examples/run_examples.sh
           python setup.py build_sphinx

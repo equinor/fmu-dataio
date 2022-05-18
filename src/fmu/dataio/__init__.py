@@ -1,6 +1,7 @@
 """Top-level package for fmu-dataio"""
 # noqa
 
+from fmu.dataio.dataio import AggregatedData  # noqa  # type: ignore
 from fmu.dataio.dataio import ExportData  # noqa  # type: ignore
 from fmu.dataio.dataio import InitializeCase  # noqa  # type: ignore
 

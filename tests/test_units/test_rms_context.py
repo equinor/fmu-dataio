@@ -10,9 +10,9 @@ import pandas as pd
 import pytest
 from conftest import inside_rms
 
-import fmu.dataionew.dataionew as dataio
-from fmu.dataionew._utils import S, prettyprint_dict
-from fmu.dataionew.dataionew import ValidationError
+import fmu.dataio.dataio as dataio
+from fmu.dataio._utils import S, prettyprint_dict
+from fmu.dataio.dataio import ValidationError
 
 logger = logging.getLogger(__name__)
 

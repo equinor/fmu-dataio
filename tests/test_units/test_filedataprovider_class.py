@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from fmu.dataionew._filedata_provider import _FileDataProvider
-from fmu.dataionew._objectdata_provider import _ObjectDataProvider
-from fmu.dataionew._utils import C, S, X
+from fmu.dataio._filedata_provider import _FileDataProvider
+from fmu.dataio._objectdata_provider import _ObjectDataProvider
+from fmu.dataio._utils import C, S, X
 
 
 def get_cfg(tagname, parentname):

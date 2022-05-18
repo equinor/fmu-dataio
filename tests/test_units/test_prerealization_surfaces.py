@@ -11,8 +11,8 @@ import os
 
 import pytest
 
-import fmu.dataionew.dataionew as dataio
-from fmu.dataionew import _utils as utils
+import fmu.dataio.dataio as dataio
+from fmu.dataio import _utils as utils
 
 logger = logging.getLogger(__name__)
 
