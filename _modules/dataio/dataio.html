@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.11.1.dev7+g9d56382 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.0.0a2.dev4+gee1a2d5 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -90,10 +90,6 @@
 <span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="n">ALLOWED_CONTENTS</span><span class="p">,</span> <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="p">,</span> <span class="n">CONTENTS_REQUIRED</span>
 <span class="kn">from</span> <span class="nn">._metadata</span> <span class="kn">import</span> <span class="n">_MetaData</span>
 <span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">C</span><span class="p">,</span>
-    <span class="n">G</span><span class="p">,</span>
-    <span class="n">S</span><span class="p">,</span>
-    <span class="n">X</span><span class="p">,</span>
     <span class="n">detect_inside_rms</span><span class="p">,</span>
     <span class="n">drop_nones</span><span class="p">,</span>
     <span class="n">export_file_compute_checksum_md5</span><span class="p">,</span>
@@ -129,12 +125,14 @@
     <span class="s2">&quot;casepath&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+    <span class="s2">&quot;depth_reference&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="s2">&quot;fmu_context&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="s2">&quot;forcefolder&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">),</span>
     <span class="s2">&quot;is_observation&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="s2">&quot;is_prediction&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="s2">&quot;parentname&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="s2">&quot;realization&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="s2">&quot;runpath&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="s2">&quot;tagname&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -408,7 +406,7 @@
 <span class="sd">            if &quot;TopValysar&quot; is the model name and the actual name is &quot;Valysar Top Fm.&quot;</span>
 <span class="sd">            that latter name will be used.</span>
 
-<span class="sd">        parentname: Optional. This key is required for datatype GridProperty, and</span>
+<span class="sd">        parent: Optional. This key is required for datatype GridProperty, and</span>
 <span class="sd">            refers to the name of the grid geometry.</span>
 
 <span class="sd">        realization: Optional, default is -999 which means that realization shall be</span>
@@ -511,12 +509,14 @@
     <span class="n">casepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">content</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;depth&quot;</span>
+    <span class="n">depth_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;msl&quot;</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">fmu_context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;realization&quot;</span>
     <span class="n">forcefolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">is_observation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">is_prediction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">parentname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># TODO: parent?</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">realization</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span>
     <span class="n">runpath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">subfolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -527,9 +527,13 @@
     <span class="n">vertical_domain</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">workflow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
+    <span class="c1"># some keys that are modified version of input, prepended with _use</span>
+    <span class="n">_usecontent</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_usecontext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_usefmtflag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="c1"># storing resulting state variables for instance, non-public:</span>
     <span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">_cfg</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">_pwd</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># &lt;&lt; NB! storing ACTUAL casepath:</span>
@@ -544,16 +548,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vertical_domain</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">}</span>
 
         <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-        <span class="c1"># collect all given settings in master dictionary: self._cfg</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">C</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the class variables</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># global config variables</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the other input settings</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># extra settings, generated on the fly internally</span>
-
-        <span class="c1"># store Class variables</span>
-        <span class="k">for</span> <span class="n">cvar</span> <span class="ow">in</span> <span class="n">CLASSVARS</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">C</span><span class="p">][</span><span class="n">cvar</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cvar</span><span class="p">)</span>
 
         <span class="c1"># if input is provided as an ENV variable pointing to a YAML file; will override</span>
         <span class="k">if</span> <span class="n">SETTINGS_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
@@ -571,26 +565,14 @@
 
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-        <span class="c1"># store input key values except config (which are the static global_config)</span>
-        <span class="k">for</span> <span class="n">ivar</span> <span class="ow">in</span> <span class="n">INSTANCEVARS</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;config&quot;</span> <span class="ow">in</span> <span class="n">ivar</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ivar</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="n">ivar</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ivar</span><span class="p">)</span>
-
         <span class="c1"># global config which may be given as env variable -&gt; a file; will override</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="ow">or</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
-
-        <span class="c1"># treat special handling of &quot;xtgeo&quot; in format name:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;fmtflag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">points_fformat</span> <span class="o">==</span> <span class="s2">&quot;csv|xtgeo&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygons_fformat</span> <span class="o">==</span> <span class="s2">&quot;csv|xtgeo&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;fmtflag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;xtgeo&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">or</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_fmucontext_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_globalconfig_from_settings</span><span class="p">()</span>
-        <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_show_deprecations_or_notimplemented</span><span class="p">()</span>
@@ -599,23 +581,23 @@
     <span class="k">def</span> <span class="nf">_show_deprecations_or_notimplemented</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Warn on deprecated keys og on stuff not implemented yet.&quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;runpath&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runpath</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;The &#39;runpath&#39; key has currently no function. It will be evaluated for &quot;</span>
-                <span class="s2">&quot;removal in fmu-dataio version 1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;removal in fmu-dataio version 1. Use &#39;casepath&#39; instead!&quot;</span><span class="p">,</span>
                 <span class="ne">PendingDeprecationWarning</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_validate_content_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Validate the given &#39;content&#39; input.&quot;&quot;&quot;</span>
 
-        <span class="n">updated_content</span> <span class="o">=</span> <span class="n">_check_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;content&quot;</span><span class="p">])</span>
+        <span class="n">updated_content</span> <span class="o">=</span> <span class="n">_check_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="c1"># keep the updated content as extra setting</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;content&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated_content</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_usecontent</span> <span class="o">=</span> <span class="n">updated_content</span>
 
     <span class="k">def</span> <span class="nf">_validate_fmucontext_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Validate the given &#39;fmu_context&#39; input.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;fmu_context&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -623,6 +605,12 @@
                 <span class="s2">&quot;It seems like &#39;fmu_context&#39; value is illegal! &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;Allowed entries are: in list:</span><span class="se">\n</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_fmt_flag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># treat special handling of &quot;xtgeo&quot; in format name:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">points_fformat</span> <span class="o">==</span> <span class="s2">&quot;csv|xtgeo&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygons_fformat</span> <span class="o">==</span> <span class="s2">&quot;csv|xtgeo&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span> <span class="o">=</span> <span class="s2">&quot;xtgeo&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using flag format: &lt;</span><span class="si">%s</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_check_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;If settings &quot;S&quot; are updated, run a validation prior update self._settings.&quot;&quot;&quot;</span>
@@ -635,27 +623,27 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Value type </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">INSTANCEVARS</span><span class="p">[</span><span class="n">setting</span><span class="p">]):</span>
                     <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Setting key is present but incorrect type&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="n">setting</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_show_deprecations_or_notimplemented</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_fmucontext_key</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_update_globalconfig_from_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;A few user settings may update/append the global config directly.&quot;&quot;&quot;</span>
-        <span class="n">newglobals</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">])</span>
+        <span class="n">newglobals</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;access_ssdl&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;access_ssdl&quot;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="s2">&quot;ssdl&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">][</span><span class="s2">&quot;access&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_ssdl</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;ssdl&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">]:</span>
                 <span class="n">newglobals</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">][</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
-            <span class="n">newglobals</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">][</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;access_ssdl&quot;</span><span class="p">])</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">][</span><span class="s2">&quot;access_ssdl&quot;</span><span class="p">]</span>
+            <span class="n">newglobals</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">][</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">access_ssdl</span><span class="p">)</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Updated global config&#39;s access.ssdl value: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newglobals</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">]</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="n">newglobals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">newglobals</span>
 
     <span class="k">def</span> <span class="nf">_establish_pwd_rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Establish state variables pwd and the (initial) rootpath.</span>
@@ -686,17 +674,13 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The casepath is hard set as </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">in_rms</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="ow">or</span> <span class="n">INSIDE_RMS</span> <span class="ow">or</span> <span class="s2">&quot;RUN_DATAIO_EXAMPLES&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">/</span> <span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Run from inside RMS (or pretend)&quot;</span><span class="p">)</span>
-                <span class="n">in_rms</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="c1"># make some extra keys in settings:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;pwd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;rootpath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;inside_rms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">in_rms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;actual_context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span>  <span class="c1"># may change later!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_usecontext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span>  <span class="c1"># may change later!</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;pwd:        </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rootpath:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
@@ -735,9 +719,10 @@
         <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_fmt_flag</span><span class="p">()</span>
 
         <span class="n">metaobj</span> <span class="o">=</span> <span class="n">_MetaData</span><span class="p">(</span>
-            <span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
+            <span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metaobj</span><span class="o">.</span><span class="n">generate_export_metadata</span><span class="p">()</span>
 
@@ -775,9 +760,9 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">useflag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_include_index</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">useflag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;fmtflag&quot;</span><span class="p">]</span>
+            <span class="n">useflag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum, using flag: &lt;</span><span class="si">%s</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="n">useflag</span><span class="p">)</span>
         <span class="n">outfile</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
             <span class="n">obj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">useflag</span>
         <span class="p">)</span>
@@ -828,7 +813,6 @@
     <span class="n">casepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CRITICAL&quot;</span>
 
-    <span class="n">_cfg</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">_metafile</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">_pwd</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -842,12 +826,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
 
         <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="c1"># collect all settings in dictionary self._cfg since _Metadata expects that</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">C</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the class variables (may be empty here)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">G</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>  <span class="c1"># global config variables</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">S</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the other settings (may be empty here)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the other settings (may be empty here)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edata</span> <span class="o">=</span> <span class="n">ExportData</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>  <span class="c1"># dummy</span>
 
     <span class="k">def</span> <span class="nf">_establish_pwd_rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Establish state variables pwd and casepath.</span>
@@ -861,9 +840,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;pwd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">[</span><span class="n">X</span><span class="p">][</span><span class="s2">&quot;rootpath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span>
-
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set PWD (case): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set rootpath (case): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
 
@@ -872,7 +848,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
 
         <span class="n">metaobj</span> <span class="o">=</span> <span class="n">_MetaData</span><span class="p">(</span>
-            <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">,</span> <span class="n">initialize_case</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
+            <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edata</span><span class="p">,</span> <span class="n">initialize_case</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">metaobj</span><span class="o">.</span><span class="n">_get_case_metadata</span><span class="p">()</span>
 
@@ -880,7 +856,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
 
         <span class="n">metaobj</span> <span class="o">=</span> <span class="n">_MetaData</span><span class="p">(</span>
-            <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">,</span> <span class="n">initialize_case</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
+            <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edata</span><span class="p">,</span> <span class="n">initialize_case</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metaobj</span><span class="o">.</span><span class="n">generate_case_metadata</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
@@ -1137,7 +1113,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 0.11.1.dev7+g9d56382).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0a2.dev4+gee1a2d5).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
