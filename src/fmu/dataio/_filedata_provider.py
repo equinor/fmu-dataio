@@ -133,7 +133,8 @@ class _FileDataProvider:
         dest = outroot / self.efolder  # e.g. "maps"
 
         if self.forcefolder:
-            dest = self.forcefolder
+            dest = Path(self.forcefolder)
+            dest = dest.absolute()
 
         if self.subfolder:
             dest = dest / self.subfolder
