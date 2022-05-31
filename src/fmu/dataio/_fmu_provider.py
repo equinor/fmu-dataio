@@ -13,7 +13,7 @@ import re
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 from warnings import warn
 
 from . import _utils
@@ -45,21 +45,21 @@ class _FmuProvider:
     dataio: Any
     verbosity: str = "CRITICAL"
 
-    provider: str = field(default=None, init=False)
-    is_fmurun: bool = field(default=False, init=False)
-    iter_name: str = field(default=None, init=False)
-    iter_id: int = field(default=None, init=False)
-    iter_path: Path = field(default=None, init=False)
-    real_name: str = field(default=None, init=False)
+    provider: Optional[str] = field(default=None, init=False)
+    is_fmurun: Optional[bool] = field(default=False, init=False)
+    iter_name: Optional[str] = field(default=None, init=False)
+    iter_id: Optional[int] = field(default=None, init=False)
+    iter_path: Optional[Path] = field(default=None, init=False)
+    real_name: Optional[str] = field(default=None, init=False)
     real_id: int = field(default=0, init=False)
-    real_path: Path = field(default=None, init=False)
-    case_name: str = field(default=None, init=False)
-    user_name: str = field(default=None, init=False)
+    real_path: Optional[Path] = field(default=None, init=False)
+    case_name: Optional[str] = field(default=None, init=False)
+    user_name: Optional[str] = field(default=None, init=False)
     ert2: dict = field(default_factory=dict, init=False)
-    case_metafile: Path = field(default=None, init=False)
+    case_metafile: Optional[Path] = field(default=None, init=False)
     case_metadata: dict = field(default_factory=dict, init=False)
     metadata: dict = field(default_factory=dict, init=False)
-    rootpath: Path = field(default=None, init=False)
+    rootpath: Optional[Path] = field(default=None, init=False)
 
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)

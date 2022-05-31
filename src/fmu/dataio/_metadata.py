@@ -7,9 +7,8 @@ This contains the _MetaData class which collects and holds all relevant metadata
 import datetime
 import getpass
 import logging
-import uuid
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 from warnings import warn
 
 from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
@@ -21,7 +20,14 @@ from fmu.dataio._utils import drop_nones, export_file_compute_checksum_md5
 logger = logging.getLogger(__name__)
 
 
-def default_meta_dollars():
+class ConfigurationError(ValueError):
+    pass
+
+
+# Generic, being resused several places:
+
+
+def default_meta_dollars() -> dict:
     dollars = dict()
     dollars["$schema"] = SCHEMA
     dollars["version"] = VERSION
@@ -29,8 +35,62 @@ def default_meta_dollars():
     return dollars
 
 
-class ConfigurationError(ValueError):
-    pass
+def generate_meta_tracklog() -> list:
+    """Create the tracklog metadata, which here assumes 'created' only."""
+    meta = list()
+
+    dtime = datetime.datetime.now().isoformat()
+    user = getpass.getuser()
+    meta.append({"datetime": dtime, "user": {"id": user}, "event": "created"})
+    return meta
+
+
+def generate_meta_masterdata(config: dict) -> Optional[dict]:
+    """Populate metadata from masterdata section in config."""
+    if not config or "masterdata" not in config.keys():
+        warn("No masterdata section present", UserWarning)
+        return None
+
+    return config["masterdata"]
+
+
+def generate_meta_access(config: dict) -> Optional[dict]:
+    """Populate metadata overall from access section in config + allowed keys.
+
+    Access should be possible to change per object, based on user input.
+    This is done through the access_ssdl input argument.
+
+    The "asset" field shall come from the config. This is static information.
+
+    The "ssdl" field can come from the config, or be explicitly given through
+    the "access_ssdl" input argument. If the access_ssdl input argument is present,
+    its contents shall take presedence.
+
+    """
+    if not config:
+        warn("The config is empty or missing", UserWarning)
+        return None
+
+    if config and "access" not in config:
+        raise ConfigurationError("The config misses the 'access' section")
+
+    a_cfg = config["access"]
+
+    if "asset" not in a_cfg:
+        # asset shall be present if config is used
+        raise ConfigurationError("The 'access.asset' field not found in the config")
+
+    # initialize and populate with defaults from config
+    a_meta = dict()  # shortform
+
+    # if there is a config, the 'asset' tag shall be present
+    a_meta["asset"] = a_cfg["asset"]
+
+    # ssdl
+    if "ssdl" in a_cfg and a_cfg["ssdl"]:
+        a_meta["ssdl"] = a_cfg["ssdl"]
+
+    return a_meta
 
 
 @dataclass
@@ -64,7 +124,6 @@ class _MetaData:
     # input variables
     obj: Any
     dataio: Any
-    initialize_case: bool = False
     verbosity: str = "CRITICAL"
     compute_md5: bool = True
 
@@ -95,8 +154,6 @@ class _MetaData:
 
         Hence this must be ran early or first.
         """
-        if self.initialize_case:
-            return
 
         self.objdata = _ObjectDataProvider(self.obj, self.dataio)
         self.objdata.derive_metadata()
@@ -173,27 +230,11 @@ class _MetaData:
 
     def _populate_meta_tracklog(self):
         """Create the tracklog metadata, which here assumes 'created' only."""
-        meta = list()
-
-        dtime = datetime.datetime.now().isoformat()
-        user = getpass.getuser()
-        meta.append({"datetime": dtime, "user": {"id": user}, "event": "created"})
-        self.meta_tracklog = meta
+        self.meta_tracklog = generate_meta_tracklog()
 
     def _populate_meta_masterdata(self):
-        """Populate metadata from masterdata section in config.
-
-        Having the `masterdata` as hardcoded first level in the config is intentional.
-        If that section is missing, or config is None, return with a user warning.
-        """
-        if not self.dataio.config or "masterdata" not in self.dataio.config.keys():
-            warn("No masterdata section present", UserWarning)
-            self.meta_masterdata = None
-            return
-
-        self.meta_masterdata = self.dataio.config["masterdata"]
-
-        # TODO! validation
+        """Populate metadata from masterdata section in config."""
+        self.meta_masterdata = generate_meta_masterdata(self.dataio.config)
 
     def _populate_meta_access(self):
         """Populate metadata overall from access section in config + allowed keys.
@@ -208,38 +249,8 @@ class _MetaData:
         its contents shall take presedence.
 
         """
-        if not self.dataio.config:
-            warn("The config is empty or missing", UserWarning)
-            return
-
-        if self.dataio.config and "access" not in self.dataio.config:
-            raise ConfigurationError("The config misses the 'access' section")
-
-        a_cfg = self.dataio.config["access"]
-
-        if "asset" not in a_cfg:
-            # asset shall be present if config is used
-            raise ConfigurationError("The 'access.asset' field not found in the config")
-
-        # initialize and populate with defaults from config
-        a_meta = self.meta_access = dict()  # shortform
-
-        # if there is a config, the 'asset' tag shall be present
-        a_meta["asset"] = a_cfg["asset"]
-
-        # ssdl
-        if "ssdl" in a_cfg and a_cfg["ssdl"]:
-            a_meta["ssdl"] = a_cfg["ssdl"]
-
-        # if isinstance(access_ssdl, dict):
-        #     a_meta["ssdl"] = access_ssdl
-
-        # TODO! validate
-
-        # TODO!?  case??
-        # # if input argument, expand or overwrite ssdl tag contents from config
-        # if not self._case and self._access_ssdl is not None:
-        #     a_meta["ssdl"] = {**a_meta["ssdl"], **self._access_ssdl}
+        if self.dataio:
+            self.meta_access = generate_meta_access(self.dataio.config)
 
     def generate_export_metadata(self, skip_null=True) -> dict:  # TODO! -> skip_null?
         """Main function to generate the full metadata"""
@@ -266,46 +277,6 @@ class _MetaData:
 
         meta["access"] = self.meta_access
         meta["masterdata"] = self.meta_masterdata
-
-        if skip_null:
-            meta = drop_nones(meta)
-
-        return meta
-
-    def generate_case_metadata(
-        self, skip_null=True, force=False, restart_from=None, description=None
-    ) -> dict:
-        """Main function to generate the metadata for case, cf InitializeCase"""
-
-        logger.info("Generate case metadata")
-        self._populate_meta_masterdata()
-        self._populate_meta_fmu()
-        self._populate_meta_access()
-
-        if self.fmudata.case_metadata and not force:
-            raise ValueError(
-                "Case metadata already exists. Use force=True to re-generate"
-            )
-        meta = self.meta_dollars.copy()
-        meta["class"] = "case"
-
-        meta["masterdata"] = self.meta_masterdata
-
-        # only asset, not ssdl
-        meta["access"] = dict()
-        meta["access"]["asset"] = self.meta_access["asset"]
-
-        meta["fmu"] = dict()
-        meta["fmu"]["model"] = self.dataio.config["model"]
-
-        mcase = meta["fmu"]["case"] = dict()
-        mcase["name"] = self.fmudata.case_name
-        mcase["uuid"] = str(uuid.uuid4())
-
-        mcase["user"] = {"id": self.fmudata.user_name}
-
-        mcase["description"] = description
-        mcase["restart_from"] = restart_from
 
         if skip_null:
             meta = drop_nones(meta)

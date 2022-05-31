@@ -89,15 +89,16 @@ from datetime import datetime as dt
 from typing import Any
 
 import numpy as np
-import pandas as pd
-import xtgeo
+import pandas as pd  # type: ignore
+import xtgeo  # type: ignore
 
 from ._definitions import _ValidFormats
+from ._utils import generate_description
 
 # from warnings import warn
 
 try:
-    import pyarrow as pa
+    import pyarrow as pa  # type: ignore
 except ImportError:
     HAS_PYARROW = False
 else:
@@ -177,7 +178,7 @@ class _ObjectDataProvider:
             result["name"] = strat[name].get("name", name)
             result["alias"] = strat[name].get("alias", list())
             if result["name"] != "name":
-                result["alias"].append(name)
+                result["alias"].append(name)  # type: ignore
             result["stratigraphic"] = strat[name].get("stratigraphic", False)
             result["stratigraphic_alias"] = strat[name].get("stratigraphic_alias", None)
             result["offset"] = strat[name].get("offset", None)
@@ -463,48 +464,65 @@ class _ObjectDataProvider:
         if not tdata:
             return {}
 
-        tresult = dict()
         if self.dataio.legacy_time_format:
-            if len(tdata) >= 1:
-                elem = tdata[0]
-                tresult["time"] = list()
-                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
-                self.time0 = str(elem[0])
-                if len(elem) == 2:
-                    xfield["label"] = elem[1]
-                tresult["time"].append(xfield)
-            if len(tdata) == 2:
-                elem = tdata[1]
-                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
-                self.time1 = str(elem[0])
-                if len(elem) == 2:
-                    xfield["label"] = elem[1]
-                    self.time0 = str(elem[1])
-                tresult["time"].append(xfield)
+            return self._derive_timedata_legacy()
         else:
-            # new format
-            if len(tdata) == 1:
-                elem = tdata[0]
-                tresult["t0"] = dict()
-                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
-                self.time0 = str(elem[0])
-                if len(elem) == 2:
-                    xfield["label"] = elem[1]
-                tresult["t0"] = xfield
-            if len(tdata) == 2:
-                elem = tdata[1]
-                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
-                self.time1 = str(elem[0])
-                if len(elem) == 2:
-                    xfield["label"] = elem[1]
-                tresult["t0"] = xfield
+            return self._derive_timedata_newformat()
 
-                elem = tdata[0]
-                xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
-                self.time0 = str(elem[0])
-                if len(elem) == 2:
-                    xfield["label"] = elem[1]
-                tresult["t1"] = xfield
+    def _derive_timedata_legacy(self):
+        """Format input timedata to metadata. legacy version."""
+
+        tdata = self.dataio.timedata
+
+        tresult = dict()
+        if len(tdata) >= 1:
+            elem = tdata[0]
+            tresult["time"] = list()
+            xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+            self.time0 = str(elem[0])
+            if len(elem) == 2:
+                xfield["label"] = elem[1]
+            tresult["time"].append(xfield)
+        if len(tdata) == 2:
+            elem = tdata[1]
+            xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+            self.time1 = str(elem[0])
+            if len(elem) == 2:
+                xfield["label"] = elem[1]
+                self.time0 = str(elem[1])
+            tresult["time"].append(xfield)
+
+        logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self.time1)
+        return tresult
+
+    def _derive_timedata_newformat(self):
+        """Format input timedata to metadata, new format."""
+
+        tdata = self.dataio.timedata
+        tresult = dict()
+
+        if len(tdata) == 1:
+            elem = tdata[0]
+            tresult["t0"] = dict()
+            xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+            self.time0 = str(elem[0])
+            if len(elem) == 2:
+                xfield["label"] = elem[1]
+            tresult["t0"] = xfield
+        if len(tdata) == 2:
+            elem = tdata[1]
+            xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+            self.time1 = str(elem[0])
+            if len(elem) == 2:
+                xfield["label"] = elem[1]
+            tresult["t0"] = xfield
+
+            elem = tdata[0]
+            xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
+            self.time0 = str(elem[0])
+            if len(elem) == 2:
+                xfield["label"] = elem[1]
+            tresult["t1"] = xfield
 
         logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self.time1)
         return tresult
@@ -528,8 +546,8 @@ class _ObjectDataProvider:
         meta["format"] = objres["fmt"]
         meta["layout"] = objres["layout"]
         meta["unit"] = self.dataio.unit
-        meta["vertical_domain"] = self.dataio.vertical_domain
-        meta["depth_reference"] = self.dataio.depth_reference
+        meta["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
+        meta["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
 
@@ -546,7 +564,7 @@ class _ObjectDataProvider:
 
         meta["is_prediction"] = self.dataio.is_prediction
         meta["is_observation"] = self.dataio.is_observation
-        meta["description"] = self.dataio.description
+        meta["description"] = generate_description(self.dataio.description)
 
         # the next is to give addition state variables identical values, and for
         # consistency these are derived after all eventual validation and directly from
