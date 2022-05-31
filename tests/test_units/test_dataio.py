@@ -31,15 +31,16 @@ def test_generate_metadata_simple(globalconfig1):
     ExportData.grid_fformat = default_fformat  # reset
 
 
-def test_update_check_settings_shall_fail(edataobj2):
+def test_update_check_settings_shall_fail(globalconfig1):
 
     # pylint: disable=unexpected-keyword-arg
     with pytest.raises(TypeError):
-        _ = ExportData(config=edataobj2["globalconfig"], stupid="str")
+        _ = ExportData(config=globalconfig1, stupid="str")
 
     newsettings = {"invalidkey": "some"}
-    with pytest.raises(ValueError):
-        ExportData._update_check_settings("dummy", newsettings)
+    some = ExportData(config=globalconfig1)
+    with pytest.raises(KeyError):
+        some._update_check_settings(newsettings)
 
 
 @pytest.mark.parametrize(

@@ -5,20 +5,21 @@ import logging
 import os
 import tempfile
 import uuid
+from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
-import pandas as pd
+import pandas as pd  # type: ignore
 
 try:
-    import pyarrow as pa
+    import pyarrow as pa  # type: ignore
 except ImportError:
     HAS_PYARROW = False
 else:
     HAS_PYARROW = True
     from pyarrow import feather
 
-import xtgeo
+import xtgeo  # type: ignore
 import yaml
 
 from . import _design_kw
@@ -47,7 +48,7 @@ def detect_inside_rms() -> bool:
     """
     inside_rms = False
     try:
-        import roxar
+        import roxar  # type: ignore
 
         inside_rms = True
         logger.info("Roxar version is %s", roxar.__version__)
@@ -73,9 +74,10 @@ def drop_nones(dinput: dict) -> dict:
         elif isinstance(val, (list, set, tuple)):
             # note: Nones in lists are not dropped
             # simply add "if vv is not None" at the end if required
+
             dd[key] = type(val)(
                 drop_nones(vv) if isinstance(vv, dict) else vv for vv in val
-            )
+            )  # type: ignore
         elif val is not None:
             if isinstance(val, dict) and not val:  # avoid empty {}
                 pass
@@ -346,3 +348,42 @@ def load_yaml(yfil: Union[str, Path]) -> dict:
     with open(yfil, "r", encoding="UTF8") as stream:
         cfg = yaml.safe_load(stream)
     return cfg
+
+
+def filter_validate_metadata(metadata_in: dict) -> dict:
+    """Validate metadatadict at topmost_level and strip away any alien keys."""
+
+    valids = [
+        "$schema",
+        "version",
+        "source",
+        "tracklog",
+        "class",
+        "fmu",
+        "file",
+        "data",
+        "display",
+        "access",
+        "masterdata",
+    ]
+
+    metadata = deepcopy(metadata_in)
+
+    for key in metadata_in.keys():
+        if key not in valids:
+            del metadata[key]
+
+    return metadata
+
+
+def generate_description(desc: Optional[Union[str, list]] = None) -> Union[list, None]:
+    """Parse desciption input (generic)."""
+    if not desc:
+        return None
+
+    if isinstance(desc, str):
+        return [desc]
+    elif isinstance(desc, list):
+        return desc
+    else:
+        raise ValueError("Description of wrong type, must be list of strings or string")

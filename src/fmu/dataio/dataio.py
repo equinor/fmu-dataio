@@ -2,24 +2,28 @@
 
 The metadata spec is documented as a JSON schema, stored under schema/.
 """
+
 import logging
 import os
+import uuid
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, ClassVar, List, Optional, Tuple, Union
 from warnings import warn
 
-import pandas as pd
+import pandas as pd  # type: ignore
 import yaml
 
+from . import _metadata
 from ._definitions import ALLOWED_CONTENTS, ALLOWED_FMU_CONTEXTS, CONTENTS_REQUIRED
-from ._metadata import _MetaData
 from ._utils import (
     detect_inside_rms,
     drop_nones,
     export_file_compute_checksum_md5,
     export_metadata_file,
+    filter_validate_metadata,
+    generate_description,
     prettyprint_dict,
     some_config_from_env,
     uuid_from_string,
@@ -27,48 +31,6 @@ from ._utils import (
 
 INSIDE_RMS = detect_inside_rms()
 
-# class variables
-CLASSVARS = [
-    "arrow_fformat",
-    "case_folder",
-    "createfolder",
-    "cube_fformat",
-    "grid_fformat",
-    "legacy_time_format",
-    "meta_format",
-    "points_fformat",
-    "polygons_fformat",
-    "surface_fformat",
-    "table_fformat",
-    "table_include_index",
-    "verifyfolder",
-    "_inside_rms",  # pretend inside RMS! developer only
-]
-
-# possible user inputs:
-INSTANCEVARS = {
-    "access_ssdl": dict,
-    "casepath": (str, Path, None),
-    "config": dict,
-    "content": (dict, str),
-    "depth_reference": str,
-    "description": str,
-    "fmu_context": str,
-    "forcefolder": (str, Path),
-    "is_observation": bool,
-    "is_prediction": bool,
-    "name": str,
-    "parent": str,
-    "realization": int,
-    "runpath": str,
-    "tagname": str,
-    "timedata": list,
-    "subfolder": str,
-    "unit": str,
-    "verbosity": str,
-    "vertical_domain": dict,
-    "workflow": str,
-}
 
 GLOBAL_ENVNAME = "FMU_GLOBAL_CONFIG"
 SETTINGS_ENVNAME = "FMU_DATAIO_CONFIG"  # input settings from a file!
@@ -77,13 +39,43 @@ logger = logging.getLogger(__name__)
 logging.captureWarnings(True)
 
 
-class ValidationError(ValueError):
+class ValidationError(ValueError, KeyError):
     """Raise error while validating."""
 
 
 # ======================================================================================
 # Private functions
 # ======================================================================================
+
+
+def _validate_variable(key, value, legals) -> bool:
+    """Use data from __annotions__ to validate that overriden var. is of legal type."""
+
+    if key not in legals:
+        logger.warning("Unsupported key, raise an error")
+        raise ValidationError(f"The input key '{key}' is not supported")
+
+    if isinstance(legals[key], str):
+        valid_type = eval(legals[key])  # pylint: disable=eval-used
+    else:
+        valid_type = legals[key]
+
+    try:
+        validcheck = valid_type.__args__
+    except AttributeError:
+        validcheck = valid_type
+
+    if "typing." not in str(validcheck):
+        if not isinstance(value, validcheck):
+            logger.warning("Wrong type of value, raise an error")
+            raise ValidationError(
+                f"The value of '{key}' is of wrong type: {type(value)}. "
+                f"Allowed types are {validcheck}"
+            )
+    else:
+        logger.info("Skip type checking of complex types; '%s: %s'", key, validcheck)
+
+    return True
 
 
 def _check_global_config(globalconfig: dict, strict: bool = True):
@@ -307,7 +299,8 @@ class ExportData:
             (e.g. you run from project), fmu-dataio will detect that and set actual
             context to None as fall-back.
 
-        description: A multiline description of the data.
+        description: A multiline description of the data either as a string or a list
+            of strings.
 
         display_name: Optional, set name for clients to use when visualizing.
 
@@ -436,7 +429,7 @@ class ExportData:
     config: dict = field(default_factory=dict)
     content: Union[dict, str] = "depth"
     depth_reference: str = "msl"
-    description: str = ""
+    description: Union[str, list] = ""
     fmu_context: str = "realization"
     forcefolder: str = ""
     is_observation: bool = False
@@ -467,7 +460,7 @@ class ExportData:
 
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
-        logger.info("Running __post_init__ ...")
+        logger.info("Running __post_init__ ExportData")
         logger.debug("Global config is %s", prettyprint_dict(self.config))
 
         # set defaults for mutable keys
@@ -478,18 +471,18 @@ class ExportData:
         # if input is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
             external_config = some_config_from_env(SETTINGS_ENVNAME)
+
+            # derive legal input from dataclass signature
+            annots = getattr(self, "__annotations__", None)
+            legals = {
+                key: val for key, val in annots.items() if not key.startswith("_")
+            }
+
             for key, value in external_config.items():
-                if key not in INSTANCEVARS:
-                    raise ValidationError(f"Proposed setting {key} is not valid")
-
-                if isinstance(value, (str, float, int)):
-                    logger.info("Setting external key and value: %s: %s", key, value)
-                else:
-                    logger.info(
-                        "Setting external key and value: %s: %s", key, "dict/list..."
-                    )
-
-                setattr(self, key, value)
+                if _validate_variable(key, value, legals):
+                    setattr(self, key, value)
+                    if key == "verbosity":
+                        logger.setLevel(level=self.verbosity)
 
         # global config which may be given as env variable -> a file; will override
         if not self.config or GLOBAL_ENVNAME in os.environ:
@@ -539,17 +532,19 @@ class ExportData:
         logger.info("Using flag format: <%s>", self._usefmtflag)
 
     def _update_check_settings(self, newsettings: dict) -> None:
-        """If settings "S" are updated, run a validation prior update self._settings."""
-        logger.info("New settings %s", newsettings)
+        """Update instance settings (properties) from other routines."""
+        logger.info("Try new settings %s", newsettings)
+
+        # derive legal input from dataclass signature
+        annots = getattr(self, "__annotations__", {})
+        legals = {key: val for key, val in annots.items() if not key.startswith("_")}
 
         for setting, value in newsettings.items():
-            if setting not in INSTANCEVARS:
-                raise ValidationError(f"Proposed setting {setting} is not valid")
-            else:
-                logger.info("Value type %s", type(value))
-                if not isinstance(value, INSTANCEVARS[setting]):
-                    raise ValidationError("Setting key is present but incorrect type")
+            if _validate_variable(setting, value, legals):
                 setattr(self, setting, value)
+                if setting == "verbosity":
+                    logger.setLevel(level=self.verbosity)
+                logger.info("New setting OK for %s", setting)
 
         self._show_deprecations_or_notimplemented()
         self._validate_content_key()
@@ -647,12 +642,12 @@ class ExportData:
         self._validate_content_key()
         self._update_fmt_flag()
 
-        metaobj = _MetaData(
+        metaobj = _metadata._MetaData(
             obj, self, compute_md5=compute_md5, verbosity=self.verbosity
         )
         self._metadata = metaobj.generate_export_metadata()
 
-        self._rootpath = metaobj.rootpath
+        self._rootpath = Path(metaobj.rootpath)
 
         logger.info("The metadata are now ready!")
 
@@ -683,6 +678,7 @@ class ExportData:
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
+        useflag: Union[bool, str]
         if isinstance(obj, pd.DataFrame):
             useflag = self.table_include_index
         else:
@@ -726,82 +722,176 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             some predefined main level keys. If config is None or the env variable
             FMU_GLOBAL_CONFIG pointing to a file is provided, then it will attempt to
             parse that file instead.
-
-        casepath: To override the automatic and actual ``rootpath``. Absolute path to
-            the case root. If not provided, the rootpath will be attempted parsed from
-            the file structure or by other means.
-
+        rootfolder: To override the automatic and actual ``rootpath``. Absolute path to
+            the case root. If not provided (which is not recommended), the rootpath
+            will be attempted parsed from the file structure or by other means.
+        casename: Name of case (experiment)
+        caseuser: Username provided
+        restart_from: ID of eventual restart
+        description: Description text as string or list of strings.
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO".
     """
 
     config: dict
-    casepath: Union[str, Path, None] = None
+    rootfolder: Union[str, Path, None] = None
+    casename: Optional[str] = None
+    caseuser: Optional[str] = None
+    restart_from: Optional[str] = None
+    description: Union[str, list, None] = None
     verbosity: str = "CRITICAL"
 
     _metadata: dict = field(default_factory=dict, init=False)
     _metafile: Path = field(default_factory=Path, init=False)
     _pwd: Path = field(default_factory=Path, init=False)
-    _rootpath: Path = field(default_factory=Path, init=False)
+    _casepath: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self):
-
         logger.setLevel(level=self.verbosity)
 
         if not self.config or GLOBAL_ENVNAME in os.environ:
             self.config = some_config_from_env(GLOBAL_ENVNAME)
 
         _check_global_config(self.config)
-        self._edata = ExportData(config=self.config)  # dummy
+        logger.info("Ran __post_init__ for InitializeCase")
 
-    def _establish_pwd_rootpath(self):
+    def _update_settings(self, newsettings: dict) -> None:
+        """Update instance settings (properties) from other routines."""
+        logger.info("Try new settings %s", newsettings)
+
+        # derive legal input from dataclass signature
+        annots = getattr(self, "__annotations__", {})
+        legals = {key: val for key, val in annots.items() if not key.startswith("_")}
+
+        for setting, value in newsettings.items():
+            if _validate_variable(setting, value, legals):
+                setattr(self, setting, value)
+                if setting == "verbosity":
+                    logger.setLevel(level=self.verbosity)
+                logger.info("New setting OK for %s", setting)
+
+    def _establish_pwd_casepath(self):
         """Establish state variables pwd and casepath.
 
         See ExportData's method but this is much simpler (e.g. no RMS context)
         """
         self._pwd = Path().absolute()
 
-        if self.casepath:
-            self._rootpath = self.casepath
+        if self.rootfolder and self.casename:
+            self._casepath = self.rootfolder / self.casename
         else:
-            self._rootpath = self._pwd.parent.parent
+            logger.info("Emit UserWarning")
+            warn(
+                "The rootfolder is defaulted, but it is strongly recommended to give "
+                "an explicit rootfolder",
+                UserWarning,
+            )
+            self._casepath = self._pwd.parent.parent
 
         logger.info("Set PWD (case): %s", str(self._pwd))
-        logger.info("Set rootpath (case): %s", str(self._rootpath))
+        logger.info("Set rootpath (case): %s", str(self._casepath))
 
-    def _get_case_metadata(self) -> dict:
-        """Get the current case medata"""
-        self._establish_pwd_rootpath()
+    def _check_already_metadata_or_create_folder(self, force=False) -> bool:
+        metadata_path = self._casepath / "share/metadata"
+        self._metafile = metadata_path / "fmu_case.yml"
+        logger.info("The requested metafile is %s", self._metafile)
 
-        metaobj = _MetaData(
-            None, self._edata, initialize_case=True, verbosity=self.verbosity
-        )
-        return metaobj._get_case_metadata()
+        if force:
+            logger.info("Forcing a new metafile")
 
-    def generate_case_metadata(self, force: bool = False) -> dict:
-        self._establish_pwd_rootpath()
+        if not self._metafile.is_file() or force:
+            metadata_path.mkdir(parents=True, exist_ok=True)
+            return True
 
-        metaobj = _MetaData(
-            None, self._edata, initialize_case=True, verbosity=self.verbosity
-        )
+        return False
 
-        self._metadata = metaobj.generate_case_metadata(force=force)
-        self._metafile = metaobj.fmudata.case_metafile
+    def generate_case_metadata(
+        self, force: bool = False, skip_null=True, **kwargs
+    ) -> Union[dict, None]:
+        """Generate case metadata.
 
+        Args:
+            force: Overwrite existing case metadata if True. Default is False. If force
+                is False and case metadata already exists, a warning will issued and
+                None will be returned.
+            skip_null: Fields with None/missing values will be skipped if True (default)
+            **kwargs: See InitializeCase() arguments; initial will be overrided by
+                settings here.
+
+        Returns:
+            A dictionary with case metadata or None
+        """
+        self._update_settings(kwargs)
+
+        self._establish_pwd_casepath()
+        status = self._check_already_metadata_or_create_folder(force=force)
+
+        if status is False:
+            logger.warning("The metadatafile already exists!")
+            warn(
+                "The metadata file already exist! Keep this file instead! "
+                "To make a new case metadata file, delete the old case or use the "
+                "'force' option",
+                UserWarning,
+            )
+            return None
+
+        meta = _metadata.default_meta_dollars()
+        meta["class"] = "case"
+
+        meta["masterdata"] = _metadata.generate_meta_masterdata(self.config)
+
+        # only asset, not ssdl
+        access = _metadata.generate_meta_access(self.config)
+        meta["access"] = dict()
+        meta["access"]["asset"] = access["asset"]
+
+        meta["fmu"] = dict()
+        meta["fmu"]["model"] = self.config["model"]
+
+        mcase = meta["fmu"]["case"] = dict()
+        mcase["name"] = self.casename
+        mcase["uuid"] = str(uuid.uuid4())
+
+        mcase["user"] = {"id": self.caseuser}  # type: ignore
+
+        mcase["description"] = generate_description(self.description)  # type: ignore
+        mcase["restart_from"] = self.restart_from
+
+        meta["tracklog"] = _metadata.generate_meta_tracklog()
+
+        if skip_null:
+            meta = drop_nones(meta)
+
+        self._metadata = meta
         logger.info("The case metadata are now ready!")
         return deepcopy(self._metadata)
 
-    def export(self, force=False) -> str:
+    def export(self, force: bool = False, skip_null=True, **kwargs) -> Union[str, None]:
         """Export case metadata to file.
 
-        Returns:
-            String: full path to exported metadata file.
-        """
+        Args:
+            force: Overwrite existing case metadata if True. Default is False. If force
+                is False and case metadata already exists, a warning will issued and
+                None will be returned.
+            skip_null: Fields with None/missing values will be skipped if True (default)
+            **kwargs: See InitializeCase() arguments; initial will be overrided by
+                settings here.
 
-        self.generate_case_metadata(force=force)
-        export_metadata_file(self._metafile, self._metadata)
-        logger.info("METAFILE %s", self._metafile)
-        return str(self._metafile)
+        Returns:
+            Full path of metadata file or None
+        """
+        if self.generate_case_metadata(force=force, skip_null=skip_null, **kwargs):
+            export_metadata_file(self._metafile, self._metadata)
+            logger.info("METAFILE %s", self._metafile)
+            return str(self._metafile)
+        else:
+            warn(
+                "The metadatafile exists already. use 'force' or delete the "
+                "current case folder if a new metadata are requested.",
+                UserWarning,
+            )
+            return None
 
 
 # ######################################################################################
@@ -853,8 +943,8 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         """Unless aggregation_id; use existing UUIDs to generate a new UUID."""
 
         stringinput = ""
-        for uuid in uuids:
-            stringinput += uuid
+        for xuuid in uuids:
+            stringinput += xuuid
 
         return uuid_from_string(stringinput)
 
@@ -923,7 +1013,8 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         elif self.aggregation_id is True:
             self.aggregation_id = self._generate_aggr_uuid(uuids)
 
-        template = deepcopy(self.configs[0])
+        # use first as template but filter away invalid entries first:
+        template = filter_validate_metadata(self.configs[0])
 
         relpath, abspath = self._construct_filename(template)
 
@@ -951,7 +1042,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         template["tracklog"] = etempmeta["tracklog"]
         template["file"] = etempmeta["file"]  # actually only use the checksum_md5
         template["file"]["relative_path"] = relpath
-        template["file"]["absolute_path"] = abspath
+        template["file"]["absolute_path"] = None
 
         # data section
         if self.name:
@@ -993,12 +1084,12 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         for conf in self.configs:
             try:
                 rid = conf["fmu"]["realization"]["id"]
-                uuid = conf["fmu"]["realization"]["uuid"]
+                xuuid = conf["fmu"]["realization"]["uuid"]
             except Exception as error:
                 raise ValidationError(f"Seems that input config are not valid: {error}")
 
             real_ids.append(rid)
-            uuids.append(uuid)
+            uuids.append(xuuid)
 
         # first config file as template
         self._generate_aggrd_metadata(obj, real_ids, uuids, compute_md5)
