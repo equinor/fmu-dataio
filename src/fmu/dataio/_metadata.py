@@ -8,7 +8,7 @@ import datetime
 import getpass
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union
+from typing import Any, Optional
 from warnings import warn
 
 from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
