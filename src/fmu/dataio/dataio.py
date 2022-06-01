@@ -891,14 +891,13 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         if self.generate_case_metadata(force=force, skip_null=skip_null, **kwargs):
             export_metadata_file(self._metafile, self._metadata)
             logger.info("METAFILE %s", self._metafile)
-            return str(self._metafile)
         else:
             warn(
                 "The metadatafile exists already. use 'force' or delete the "
                 "current case folder if a new metadata are requested.",
                 UserWarning,
             )
-            return None
+        return str(self._metafile)
 
 
 # ######################################################################################
