@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 1.0.0rc2.dev3+gb6b58c4 documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 1.0.0rc3.dev1+g7feb3e6 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -121,7 +121,7 @@ will be /some/path/.mymap.gri.yml (or json?)</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.dataio.</span></span><span class="sig-name descname"><span class="pre">ExportData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_ssdl=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">casepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content='depth'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_reference='msl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmu_context='realization'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_folder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_observation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_prediction=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realization=-999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runpath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagname=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timedata=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity='CRITICAL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_domain=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow=''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.dataio.</span></span><span class="sig-name descname"><span class="pre">ExportData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_ssdl=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">casepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content='depth'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_reference='msl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmu_context='realization'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcefolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_observation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_prediction=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realization=-999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runpath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagname=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timedata=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity='CRITICAL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_domain=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow=''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for exporting data with rich metadata in FMU.</p>
 <p>This class sets up the general metadata content to be applied in export. The idea is
@@ -209,7 +209,7 @@ context to None as fall-back.</p></li>
 <li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – A multiline description of the data either as a string or a list
 of strings.</p></li>
 <li><p><strong>display_name</strong> – Optional, set name for clients to use when visualizing.</p></li>
-<li><p><strong>force_folder</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – This setting shall only be used as exception, and will make it
+<li><p><strong>forcefolder</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – This setting shall only be used as exception, and will make it
 possible to output to a non-standard folder. A <code class="docutils literal notranslate"><span class="pre">/</span></code> in front will indicate
 an absolute path; otherwise it will be relative to casepath/rootpath.
 Use with care.</p></li>
@@ -398,8 +398,8 @@ eda.export(obj)</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataio.dataio.ExportData.force_folder">
-<span class="sig-name descname"><span class="pre">force_folder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.force_folder" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="dataio.dataio.ExportData.forcefolder">
+<span class="sig-name descname"><span class="pre">forcefolder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.forcefolder" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -742,7 +742,7 @@ data.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc2.dev3+gb6b58c4).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc3.dev1+g7feb3e6).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
