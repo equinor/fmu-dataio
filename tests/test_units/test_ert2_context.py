@@ -29,6 +29,27 @@ def test_regsurf_generate_metadata(fmurun_w_casemetadata, rmsglobalconfig, regsu
         fmurun_w_casemetadata.parent.parent.resolve()
     )
     assert meta["file"]["relative_path"].startswith("realization-0/iter-0/share")
+    assert "jobs" not in meta["fmu"]["realization"]
+
+
+def test_regsurf_generate_metadata_incl_jobs(
+    fmurun_w_casemetadata, rmsglobalconfig, regsurf
+):
+    """As above but now with jobs.json stuff included via class variable flag."""
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    os.chdir(fmurun_w_casemetadata)
+
+    dataio.ExportData.include_ert2jobs = True
+
+    edata = dataio.ExportData(
+        config=rmsglobalconfig,
+        verbosity="INFO",
+    )
+
+    meta = edata.generate_metadata(regsurf)
+    assert meta["fmu"]["realization"]["jobs"]["umask"] == "0002"
+
+    dataio.ExportData.include_ert2jobs = False
 
 
 def test_regsurf_metadata_with_timedata(
