@@ -56,7 +56,7 @@ class _FileDataProvider:
 
         self.create_folder = self.dataio.createfolder
         self.verify_folder = self.dataio.verifyfolder
-        self.forcefolder = self.dataio.forcefolder
+        self.force_folder = self.dataio.force_folder
         self.subfolder = self.dataio.subfolder
 
         self.fmu_context = self.dataio._usecontext  # may be None!
@@ -132,8 +132,8 @@ class _FileDataProvider:
 
         dest = outroot / self.efolder  # e.g. "maps"
 
-        if self.forcefolder:
-            dest = Path(self.forcefolder)
+        if self.force_folder:
+            dest = Path(self.force_folder)
             dest = dest.absolute()
 
         if self.subfolder:
