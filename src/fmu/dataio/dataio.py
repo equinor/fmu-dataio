@@ -304,7 +304,7 @@ class ExportData:
 
         display_name: Optional, set name for clients to use when visualizing.
 
-        forcefolder: This setting shall only be used as exception, and will make it
+        force_folder: This setting shall only be used as exception, and will make it
             possible to output to a non-standard folder. A ``/`` in front will indicate
             an absolute path; otherwise it will be relative to casepath/rootpath.
             Use with care.
@@ -431,7 +431,7 @@ class ExportData:
     depth_reference: str = "msl"
     description: Union[str, list] = ""
     fmu_context: str = "realization"
-    forcefolder: str = ""
+    force_folder: str = ""
     is_observation: bool = False
     is_prediction: bool = True
     name: str = ""

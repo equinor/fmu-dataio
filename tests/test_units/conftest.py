@@ -256,7 +256,7 @@ def fixture_edataobj2(globalconfig2):
         timedata=[[20330105, "moni"], [19990102, "base"]],
         is_prediction=True,
         is_observation=False,
-        forcefolder=None,
+        force_folder=None,
         subfolder="",
         fmu_context="realization",
     )
