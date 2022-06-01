@@ -50,7 +50,7 @@ def test_inicase_pwd_basepath_explicit(fmurun, globalconfig2):
 
     logger.info("Casepath is %s", icase._casepath)
 
-    assert icase._casepath == myroot / "mycase"
+    assert icase._casepath == myroot
     assert icase._pwd == fmurun
 
 
@@ -136,7 +136,7 @@ def test_inicase_generate_case_metadata_exists_but_force(
 
     icase = InitializeCase(globalconfig2, verbosity="INFO")
     icase.export(
-        rootfolder=casemetafolder.parent,
+        rootfolder=casemetafolder,
         force=True,
         casename="ertrun1",
         caseuser="guffen",

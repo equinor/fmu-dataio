@@ -724,8 +724,9 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             FMU_GLOBAL_CONFIG pointing to a file is provided, then it will attempt to
             parse that file instead.
         rootfolder: To override the automatic and actual ``rootpath``. Absolute path to
-            the case root. If not provided (which is not recommended), the rootpath
-            will be attempted parsed from the file structure or by other means.
+            the case root, including case name. If not provided (which is not
+            recommended), the rootpath will be attempted parsed from the file structure
+            or by other means.
         casename: Name of case (experiment)
         caseuser: Username provided
         restart_from: ID of eventual restart
@@ -778,8 +779,8 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         """
         self._pwd = Path().absolute()
 
-        if self.rootfolder and self.casename:
-            self._casepath = self.rootfolder / self.casename
+        if self.rootfolder:
+            self._casepath = Path(self.rootfolder)
         else:
             logger.info("Emit UserWarning")
             warn(
@@ -793,6 +794,11 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.info("Set rootpath (case): %s", str(self._casepath))
 
     def _check_already_metadata_or_create_folder(self, force=False) -> bool:
+
+        if not self._casepath.exists():
+            self._casepath.mkdir(parents=True, exist_ok=True)
+            logger.info("Created rootpath (case) %s", self._casepath)
+
         metadata_path = self._casepath / "share/metadata"
         self._metafile = metadata_path / "fmu_case.yml"
         logger.info("The requested metafile is %s", self._metafile)
