@@ -1062,7 +1062,10 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         self._metadata = template
 
     def generate_aggregation_metadata(
-        self, obj: Any, compute_md5: bool = True, skip_null: bool = True,
+        self,
+        obj: Any,
+        compute_md5: bool = True,
+        skip_null: bool = True,
     ) -> dict:
         """Generate metadata for the aggregated data.
 
