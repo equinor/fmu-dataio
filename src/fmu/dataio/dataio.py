@@ -412,6 +412,7 @@ class ExportData:
     createfolder: ClassVar[bool] = True
     cube_fformat: ClassVar[str] = "segy"
     grid_fformat: ClassVar[str] = "roff"
+    include_ert2jobs: ClassVar[bool] = False  # if True, include jobs.json from ERT2
     legacy_time_format: ClassVar[bool] = False
     meta_format: ClassVar[str] = "yaml"
     polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"

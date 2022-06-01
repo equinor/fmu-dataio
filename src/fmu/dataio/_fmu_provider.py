@@ -153,13 +153,17 @@ class _FmuProvider:
             logger.debug("parameters.txt parsed.")
         logger.debug("parameters.txt was not found")
 
-        # store jobs.json
-        jobs_file = self.iter_path / "jobs.json"
-        if jobs_file.is_file():
-            with open(jobs_file, "r") as stream:
-                self.ert2["jobs"] = json.load(stream)
-            logger.debug("jobs.json parsed.")
-        logger.debug("jobs.json was not found")
+        # store jobs.json if required!
+        if self.dataio.include_ert2jobs:
+            jobs_file = self.iter_path / "jobs.json"
+            if jobs_file.is_file():
+                with open(jobs_file, "r") as stream:
+                    self.ert2["jobs"] = json.load(stream)
+                logger.debug("jobs.json parsed.")
+            logger.debug("jobs.json was not found")
+        else:
+            self.ert2["jobs"] = None
+            logger.info("Storing jobs.json is disabled")
 
         logger.debug("ERT files has been parsed.")
 
