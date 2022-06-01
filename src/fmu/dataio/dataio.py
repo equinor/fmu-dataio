@@ -874,7 +874,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.info("The case metadata are now ready!")
         return deepcopy(self._metadata)
 
-    def export(self, force: bool = False, skip_null=True, **kwargs) -> Union[str, None]:
+    def export(self, force: bool = False, skip_null=True, **kwargs) -> str:
         """Export case metadata to file.
 
         Args:
@@ -891,14 +891,14 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         if self.generate_case_metadata(force=force, skip_null=skip_null, **kwargs):
             export_metadata_file(self._metafile, self._metadata)
             logger.info("METAFILE %s", self._metafile)
-            return str(self._metafile)
         else:
             warn(
                 "The metadatafile exists already. use 'force' or delete the "
                 "current case folder if a new metadata are requested.",
                 UserWarning,
             )
-            return None
+
+        return str(self._metafile)
 
 
 # ######################################################################################
@@ -1062,10 +1062,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         self._metadata = template
 
     def generate_aggregation_metadata(
-        self,
-        obj: Any,
-        compute_md5: bool = True,
-        skip_null: bool = True,
+        self, obj: Any, compute_md5: bool = True, skip_null: bool = True,
     ) -> dict:
         """Generate metadata for the aggregated data.
 
