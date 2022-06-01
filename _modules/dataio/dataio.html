@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.0.0rc3.dev1+g7feb3e6 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.0.0rc3.dev2+gaadc4a7 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -966,14 +966,13 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_case_metadata</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">skip_null</span><span class="o">=</span><span class="n">skip_null</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
             <span class="n">export_metadata_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;METAFILE </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;The metadatafile exists already. use &#39;force&#39; or delete the &quot;</span>
                 <span class="s2">&quot;current case folder if a new metadata are requested.&quot;</span><span class="p">,</span>
                 <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span></div></div>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span></div></div>
 
 
 <span class="c1"># ######################################################################################</span>
@@ -1212,7 +1211,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc3.dev1+g7feb3e6).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc3.dev2+gaadc4a7).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
