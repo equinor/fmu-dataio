@@ -60,7 +60,6 @@ def detect_inside_rms() -> bool:
         inside_rms = False
 
     logger.info("Running truly in RMS GUI status: %s", inside_rms)
-    print(f"\nRunning truly in RMS GUI status: {inside_rms}\n")
     return inside_rms
 
 
