@@ -382,7 +382,7 @@ class ExportData:
 
         Optionally, the keys can be stored in a yaml file as argument, and you can let
         the environment variable FMU_DATAIO_CONFIG point to that file. This can e.g.
-        make it possible for ERT jobs to point to external input configs. For example::
+        make it possible for ERT jobs to point to external input config's. For example::
 
             export FMU_DATAIO_CONFIG="/path/to/mysettings.yml"
             export FMU_GLOBAL_CONFIG="/path/to/global_variables.yml"
@@ -812,7 +812,11 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
         return False
 
-    def generate_case_metadata(
+    # ==================================================================================
+    # Public methods:
+    # ==================================================================================
+
+    def generate_metadata(
         self, force: bool = False, skip_null=True, **kwargs
     ) -> Union[dict, None]:
         """Generate case metadata.
@@ -874,6 +878,9 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.info("The case metadata are now ready!")
         return deepcopy(self._metadata)
 
+    # alias
+    generate_case_metadata = generate_metadata
+
     def export(self, force: bool = False, skip_null=True, **kwargs) -> Union[str, None]:
         """Export case metadata to file.
 
@@ -917,25 +924,32 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
 
 @dataclass
-class AggregatedData:  # pylint: disable=too-few-public-methods
+class AggregatedData:
     """Instantate AggregatedData object.
 
     Args:
-        configs: A list of dictionarys, i.e. of valid metadata per input element
-        operation: A string that descibes the operation, e.g. "mean"
-        verbosity: Is logging/message level for this module. Input as
-            in standard python logging; e.g. "WARNING", "INFO".
-        tagname: Additional name, as part of file name
         aggregation_id: Give an explicit ID for the aggregation. If set to True, an
             automatic ID based on existing realization uuid will be made.
             Default is None which means it will be missing (null) in the metadata.
+        casepath: The root folder to the case, default is None. If None, the casepath
+            is derived from the first input metadata paths (cf. ``source_metadata``) if
+            possible. If given explicitly, the physical casepath folder must exist in
+            advance, otherwise a ValueError will be raised.
+        source_metadata: A list of individual metadata dictionarys, coming from the
+            valid metadata per input element that forms the aggregation.
+        operation: A string that describes the operation, e.g. "mean". This is
+            mandatory and there is no default.
+        verbosity: Is logging/message level for this module. Input as
+            in standard python logging; e.g. "WARNING", "INFO".
+        tagname: Additional name, as part of file name
     """
 
-    configs: list = field(default_factory=list)
-    operation: str = "unknown"
-    name: str = ""
-    tagname: str = ""
     aggregation_id: Optional[Union[str, bool]] = None
+    casepath: Union[str, Path, None] = None
+    source_metadata: list = field(default_factory=list)
+    name: str = ""
+    operation: str = ""
+    tagname: str = ""
     verbosity: str = "CRITICAL"
 
     _metadata: dict = field(default_factory=dict, init=False)
@@ -953,6 +967,21 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
             stringinput += xuuid
 
         return uuid_from_string(stringinput)
+
+    def _update_settings(self, newsettings: dict) -> None:
+        """Update instance settings (properties) from other routines."""
+        logger.info("Try new settings %s", newsettings)
+
+        # derive legal input from dataclass signature
+        annots = getattr(self, "__annotations__", {})
+        legals = {key: val for key, val in annots.items() if not key.startswith("_")}
+
+        for setting, value in newsettings.items():
+            if _validate_variable(setting, value, legals):
+                setattr(self, setting, value)
+                if setting == "verbosity":
+                    logger.setLevel(level=self.verbosity)
+                logger.info("New setting OK for %s", setting)
 
     def _construct_filename(self, template: dict) -> Tuple[Path, Path]:
         """Construct the paths/filenames for aggregated data.
@@ -976,22 +1005,65 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         The trick is to replace 'realization-*' with nothing and create a new file
         name.
+
+        -----
+        However, there are also the scenario that absolute_path are missing (e.g. all
+        input realizations are directly made in cloud setting), and we need to
+        account for that:
+
+        infile:
+           relative_path: realization-33/iter-0/share/results/maps/x.gri
+           absolute_path: none
+
+        file:
+           relative_path: iter-0/share/results/maps/aggr.gri
+           absolute_path: none
+
+        -----
+        Finally, a user given casepath (casepath is not None) should replace the current
+        root part in the files. Like this:
+
+        infile:
+           relative_path: realization-33/iter-0/share/results/maps/x.gri
+           absolute_path: /scratch/f/case/realization-33/iter-0/share/results/maps/x.gri
+
+        casepath = /scratch/f/othercase
+
+        result:
+           relative_path: iter-0/share/results/maps/aggr.gri
+           absolute_path: /scratch/f/othercase/iter-0/share/results/maps/aggrd.gri
+
         """
         logger.info("Construct file name for the aggregation...")
         realiname = template["fmu"]["realization"]["name"]
         relpath = template["file"]["relative_path"]
-        abspath = template["file"]["absolute_path"]
+
+        if template["file"].get("absolute_path", None):
+            abspath = template["file"]["absolute_path"]
+        else:
+            abspath = None
 
         logger.info("First input realization relpath is: %s ", relpath)
         logger.info("First input realization abspath is: %s ", abspath)
 
-        relpath = relpath.replace(realiname + "/", "")
-        abspath = abspath.replace(realiname + "/", "")
+        if self.casepath:
+            casepath = Path(self.casepath)
+            if not casepath.exists():
+                raise ValueError(
+                    f"The given casepath {casepath} does not exist. "
+                    "It must exist in advance!"
+                )
+            else:
+                abspath = str(casepath / relpath)
 
+        relpath = relpath.replace(realiname + "/", "")
         relpath = Path(relpath)
-        abspath = Path(abspath)
-        suffix = abspath.suffix
-        stem = abspath.stem
+        if abspath:
+            abspath = abspath.replace(realiname + "/", "")
+            abspath = Path(abspath)
+
+        suffix = relpath.suffix
+        stem = relpath.stem
 
         usename = stem + "--" + self.operation
         if not self.name:
@@ -1003,7 +1075,10 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
             usename = usename + "--" + self.tagname
 
         relname = (relpath.parent / usename).with_suffix(suffix)
-        absname = (abspath.parent / usename).with_suffix(suffix)
+
+        absname = None
+        if abspath:
+            absname = (abspath.parent / usename).with_suffix(suffix)
 
         logger.info("New relpath is: %s ", relname)
         logger.info("New abspath is: %s ", absname)
@@ -1019,8 +1094,11 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         elif self.aggregation_id is True:
             self.aggregation_id = self._generate_aggr_uuid(uuids)
 
+        if not self.operation:
+            raise ValueError("The 'operation' key has no value")
+
         # use first as template but filter away invalid entries first:
-        template = filter_validate_metadata(self.configs[0])
+        template = filter_validate_metadata(self.source_metadata[0])
 
         relpath, abspath = self._construct_filename(template)
 
@@ -1038,9 +1116,9 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         # template -> final metadata
 
         fakeconfig = {
-            "access": self.configs[0]["access"],
-            "masterdata": self.configs[0]["masterdata"],
-            "model": self.configs[0]["fmu"]["model"],
+            "access": self.source_metadata[0]["access"],
+            "masterdata": self.source_metadata[0]["masterdata"],
+            "model": self.source_metadata[0]["fmu"]["model"],
         }
         etemp = ExportData(config=fakeconfig)
         etempmeta = etemp.generate_metadata(obj, compute_md5=compute_md5)
@@ -1048,7 +1126,7 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
         template["tracklog"] = etempmeta["tracklog"]
         template["file"] = etempmeta["file"]  # actually only use the checksum_md5
         template["file"]["relative_path"] = relpath
-        template["file"]["absolute_path"] = None
+        template["file"]["absolute_path"] = abspath
 
         # data section
         if self.name:
@@ -1060,11 +1138,16 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         self._metadata = template
 
-    def generate_aggregation_metadata(
+    # ==================================================================================
+    # Public methods:
+    # ==================================================================================
+
+    def generate_metadata(
         self,
         obj: Any,
         compute_md5: bool = True,
         skip_null: bool = True,
+        **kwargs,
     ) -> dict:
         """Generate metadata for the aggregated data.
 
@@ -1081,13 +1164,16 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
                 data.
 
             skip_null: If True (default), None values in putput will be skipped
+            **kwargs: See AggregatedData() arguments; initial will be overridden by
+                settings here.
         """
         logger.info("Generate metadata for class")
+        self._update_settings(kwargs)
 
         # get input realization numbers:
         real_ids = []
         uuids = []
-        for conf in self.configs:
+        for conf in self.source_metadata:
             try:
                 rid = conf["fmu"]["realization"]["id"]
                 xuuid = conf["fmu"]["realization"]["uuid"]
@@ -1104,15 +1190,33 @@ class AggregatedData:  # pylint: disable=too-few-public-methods
 
         return deepcopy(self._metadata)
 
-    def export(self, obj) -> str:
+    # alias method
+    generate_aggregation_metadata = generate_metadata
+
+    def export(self, obj, **kwargs) -> str:
         """Export aggregated file with metadata to file.
 
+        Args:
+            obj: Aggregated object to export, e.g. a XTGeo RegularSurface
+            **kwargs: See AggregatedData() arguments; initial will be overridden by
+                settings here.
         Returns:
             String: full path to exported item.
         """
-        metadata = self.generate_aggregation_metadata(obj, compute_md5=False)
+        self._update_settings(kwargs)
 
-        outfile = Path(metadata["file"]["absolute_path"])
+        metadata = self.generate_metadata(obj, compute_md5=False)
+
+        abspath = metadata["file"].get("absolute_path", None)
+
+        if not abspath:
+            raise IOError(
+                "The absolute_path is None, hence no export is possible. "
+                "Use the ``casepath`` key to provide a valid absolute path."
+            )
+
+        outfile = Path(abspath)
+        outfile.parent.mkdir(parents=True, exist_ok=True)
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
         logger.info("Export to file and compute MD5 sum")
