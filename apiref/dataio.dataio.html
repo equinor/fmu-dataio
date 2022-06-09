@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 1.0.0rc3.dev2+gaadc4a7 documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 1.0.0rc4.dev1+gd95d418 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -276,7 +276,7 @@ shown as t0:</p>
 <p>Using config from file</p>
 <p>Optionally, the keys can be stored in a yaml file as argument, and you can let
 the environment variable FMU_DATAIO_CONFIG point to that file. This can e.g.
-make it possible for ERT jobs to point to external input configs. For example:</p>
+make it possible for ERT jobs to point to external input config’s. For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">FMU_DATAIO_CONFIG</span><span class="o">=</span><span class="s2">&quot;/path/to/mysettings.yml&quot;</span>
 <span class="n">export</span> <span class="n">FMU_GLOBAL_CONFIG</span><span class="o">=</span><span class="s2">&quot;/path/to/global_variables.yml&quot;</span>
 </pre></div>
@@ -592,8 +592,32 @@ in standard python logging; e.g. “WARNING”, “INFO”.</p></li>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dataio.dataio.InitializeCase.generate_metadata">
+<span class="sig-name descname"><span class="pre">generate_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_null</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#InitializeCase.generate_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.InitializeCase.generate_metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Generate case metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>force</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Overwrite existing case metadata if True. Default is False. If force
+is False and case metadata already exists, a warning will issued and
+None will be returned.</p></li>
+<li><p><strong>skip_null</strong> – Fields with None/missing values will be skipped if True (default)</p></li>
+<li><p><strong>**kwargs</strong> – See InitializeCase() arguments; initial will be overrided by
+settings here.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary with case metadata or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dataio.dataio.InitializeCase.generate_case_metadata">
-<span class="sig-name descname"><span class="pre">generate_case_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_null</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#InitializeCase.generate_case_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.InitializeCase.generate_case_metadata" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_case_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_null</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataio.dataio.InitializeCase.generate_case_metadata" title="Permalink to this definition"></a></dt>
 <dd><p>Generate case metadata.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -643,31 +667,42 @@ settings here.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="dataio.dataio.AggregatedData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.dataio.</span></span><span class="sig-name descname"><span class="pre">AggregatedData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation='unknown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagname=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_id=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity='CRITICAL'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#AggregatedData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.AggregatedData" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.dataio.</span></span><span class="sig-name descname"><span class="pre">AggregatedData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aggregation_id=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">casepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_metadata=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagname=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity='CRITICAL'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#AggregatedData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.AggregatedData" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Instantate AggregatedData object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>configs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – A list of dictionarys, i.e. of valid metadata per input element</p></li>
-<li><p><strong>operation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – A string that descibes the operation, e.g. “mean”</p></li>
-<li><p><strong>verbosity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Is logging/message level for this module. Input as
-in standard python logging; e.g. “WARNING”, “INFO”.</p></li>
-<li><p><strong>tagname</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Additional name, as part of file name</p></li>
 <li><p><strong>aggregation_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Give an explicit ID for the aggregation. If set to True, an
 automatic ID based on existing realization uuid will be made.
 Default is None which means it will be missing (null) in the metadata.</p></li>
+<li><p><strong>casepath</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – The root folder to the case, default is None. If None, the casepath
+is derived from the first input metadata paths (cf. <code class="docutils literal notranslate"><span class="pre">source_metadata</span></code>) if
+possible. If given explicitly, the physical casepath folder must exist in
+advance, otherwise a ValueError will be raised.</p></li>
+<li><p><strong>source_metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – A list of individual metadata dictionarys, coming from the
+valid metadata per input element that forms the aggregation.</p></li>
+<li><p><strong>operation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – A string that describes the operation, e.g. “mean”. This is
+mandatory and there is no default.</p></li>
+<li><p><strong>verbosity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Is logging/message level for this module. Input as
+in standard python logging; e.g. “WARNING”, “INFO”.</p></li>
+<li><p><strong>tagname</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Additional name, as part of file name</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.configs">
-<span class="sig-name descname"><span class="pre">configs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.configs" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.aggregation_id">
+<span class="sig-name descname"><span class="pre">aggregation_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.aggregation_id" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.operation">
-<span class="sig-name descname"><span class="pre">operation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'unknown'</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.operation" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.casepath">
+<span class="sig-name descname"><span class="pre">casepath</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.casepath" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.source_metadata">
+<span class="sig-name descname"><span class="pre">source_metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.source_metadata" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -676,13 +711,13 @@ Default is None which means it will be missing (null) in the metadata.</p></li>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.tagname">
-<span class="sig-name descname"><span class="pre">tagname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.tagname" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.operation">
+<span class="sig-name descname"><span class="pre">operation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.operation" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.aggregation_id">
-<span class="sig-name descname"><span class="pre">aggregation_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.aggregation_id" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.tagname">
+<span class="sig-name descname"><span class="pre">tagname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.tagname" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -691,8 +726,8 @@ Default is None which means it will be missing (null) in the metadata.</p></li>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.generate_aggregation_metadata">
-<span class="sig-name descname"><span class="pre">generate_aggregation_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_null</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#AggregatedData.generate_aggregation_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.AggregatedData.generate_aggregation_metadata" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.generate_metadata">
+<span class="sig-name descname"><span class="pre">generate_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_null</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#AggregatedData.generate_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.AggregatedData.generate_metadata" title="Permalink to this definition"></a></dt>
 <dd><p>Generate metadata for the aggregated data.</p>
 <p>This is a quite different and much simpler operation than the ExportData()
 version, as here most metadata for each input element are already known. Hence,
@@ -705,6 +740,33 @@ the metadata for the first element in the input list is used as template.</p>
 a temporary export of the data, and may be time consuming for large
 data.</p></li>
 <li><p><strong>skip_null</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True (default), None values in putput will be skipped</p></li>
+<li><p><strong>**kwargs</strong> – See AggregatedData() arguments; initial will be overridden by
+settings here.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataio.dataio.AggregatedData.generate_aggregation_metadata">
+<span class="sig-name descname"><span class="pre">generate_aggregation_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_null</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataio.dataio.AggregatedData.generate_aggregation_metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Generate metadata for the aggregated data.</p>
+<p>This is a quite different and much simpler operation than the ExportData()
+version, as here most metadata for each input element are already known. Hence,
+the metadata for the first element in the input list is used as template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The map, 3D grid, table, etc instance.</p></li>
+<li><p><strong>compute_md5</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, an md5 sum for the file will be created. This involves
+a temporary export of the data, and may be time consuming for large
+data.</p></li>
+<li><p><strong>skip_null</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True (default), None values in putput will be skipped</p></li>
+<li><p><strong>**kwargs</strong> – See AggregatedData() arguments; initial will be overridden by
+settings here.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -715,14 +777,21 @@ data.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dataio.dataio.AggregatedData.export">
-<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#AggregatedData.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.AggregatedData.export" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#AggregatedData.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.AggregatedData.export" title="Permalink to this definition"></a></dt>
 <dd><p>Export aggregated file with metadata to file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>full path to exported item.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> – Aggregated object to export, e.g. a XTGeo RegularSurface</p></li>
+<li><p><strong>**kwargs</strong> – See AggregatedData() arguments; initial will be overridden by
+settings here.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>String</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>full path to exported item.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>String</p>
 </dd>
 </dl>
 </dd></dl>
@@ -742,7 +811,7 @@ data.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc3.dev2+gaadc4a7).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc4.dev1+gd95d418).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

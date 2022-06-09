@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.0.0rc3.dev2+gaadc4a7 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.0.0rc4.dev1+gd95d418 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -457,7 +457,7 @@
 
 <span class="sd">        Optionally, the keys can be stored in a yaml file as argument, and you can let</span>
 <span class="sd">        the environment variable FMU_DATAIO_CONFIG point to that file. This can e.g.</span>
-<span class="sd">        make it possible for ERT jobs to point to external input configs. For example::</span>
+<span class="sd">        make it possible for ERT jobs to point to external input config&#39;s. For example::</span>
 
 <span class="sd">            export FMU_DATAIO_CONFIG=&quot;/path/to/mysettings.yml&quot;</span>
 <span class="sd">            export FMU_GLOBAL_CONFIG=&quot;/path/to/global_variables.yml&quot;</span>
@@ -887,7 +887,11 @@
 
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="InitializeCase.generate_case_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.generate_case_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_case_metadata</span><span class="p">(</span>
+    <span class="c1"># ==================================================================================</span>
+    <span class="c1"># Public methods:</span>
+    <span class="c1"># ==================================================================================</span>
+
+<div class="viewcode-block" id="InitializeCase.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">skip_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Generate case metadata.</span>
@@ -949,6 +953,9 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The case metadata are now ready!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
 
+    <span class="c1"># alias</span>
+    <span class="n">generate_case_metadata</span> <span class="o">=</span> <span class="n">generate_metadata</span>
+
 <div class="viewcode-block" id="InitializeCase.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">skip_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Export case metadata to file.</span>
 
@@ -992,25 +999,32 @@
 
 
 <div class="viewcode-block" id="AggregatedData"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">AggregatedData</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
+<span class="k">class</span> <span class="nc">AggregatedData</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Instantate AggregatedData object.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        configs: A list of dictionarys, i.e. of valid metadata per input element</span>
-<span class="sd">        operation: A string that descibes the operation, e.g. &quot;mean&quot;</span>
-<span class="sd">        verbosity: Is logging/message level for this module. Input as</span>
-<span class="sd">            in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;.</span>
-<span class="sd">        tagname: Additional name, as part of file name</span>
 <span class="sd">        aggregation_id: Give an explicit ID for the aggregation. If set to True, an</span>
 <span class="sd">            automatic ID based on existing realization uuid will be made.</span>
 <span class="sd">            Default is None which means it will be missing (null) in the metadata.</span>
+<span class="sd">        casepath: The root folder to the case, default is None. If None, the casepath</span>
+<span class="sd">            is derived from the first input metadata paths (cf. ``source_metadata``) if</span>
+<span class="sd">            possible. If given explicitly, the physical casepath folder must exist in</span>
+<span class="sd">            advance, otherwise a ValueError will be raised.</span>
+<span class="sd">        source_metadata: A list of individual metadata dictionarys, coming from the</span>
+<span class="sd">            valid metadata per input element that forms the aggregation.</span>
+<span class="sd">        operation: A string that describes the operation, e.g. &quot;mean&quot;. This is</span>
+<span class="sd">            mandatory and there is no default.</span>
+<span class="sd">        verbosity: Is logging/message level for this module. Input as</span>
+<span class="sd">            in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;.</span>
+<span class="sd">        tagname: Additional name, as part of file name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">configs</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
-    <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">tagname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">aggregation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">casepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">source_metadata</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">tagname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CRITICAL&quot;</span>
 
     <span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1028,6 +1042,21 @@
             <span class="n">stringinput</span> <span class="o">+=</span> <span class="n">xuuid</span>
 
         <span class="k">return</span> <span class="n">uuid_from_string</span><span class="p">(</span><span class="n">stringinput</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update instance settings (properties) from other routines.&quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Try new settings </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">)</span>
+
+        <span class="c1"># derive legal input from dataclass signature</span>
+        <span class="n">annots</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__annotations__&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">legals</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">annots</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)}</span>
+
+        <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">_validate_variable</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">setting</span> <span class="o">==</span> <span class="s2">&quot;verbosity&quot;</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New setting OK for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_construct_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Construct the paths/filenames for aggregated data.</span>
@@ -1051,22 +1080,65 @@
 
 <span class="sd">        The trick is to replace &#39;realization-*&#39; with nothing and create a new file</span>
 <span class="sd">        name.</span>
+
+<span class="sd">        -----</span>
+<span class="sd">        However, there are also the scenario that absolute_path are missing (e.g. all</span>
+<span class="sd">        input realizations are directly made in cloud setting), and we need to</span>
+<span class="sd">        account for that:</span>
+
+<span class="sd">        infile:</span>
+<span class="sd">           relative_path: realization-33/iter-0/share/results/maps/x.gri</span>
+<span class="sd">           absolute_path: none</span>
+
+<span class="sd">        file:</span>
+<span class="sd">           relative_path: iter-0/share/results/maps/aggr.gri</span>
+<span class="sd">           absolute_path: none</span>
+
+<span class="sd">        -----</span>
+<span class="sd">        Finally, a user given casepath (casepath is not None) should replace the current</span>
+<span class="sd">        root part in the files. Like this:</span>
+
+<span class="sd">        infile:</span>
+<span class="sd">           relative_path: realization-33/iter-0/share/results/maps/x.gri</span>
+<span class="sd">           absolute_path: /scratch/f/case/realization-33/iter-0/share/results/maps/x.gri</span>
+
+<span class="sd">        casepath = /scratch/f/othercase</span>
+
+<span class="sd">        result:</span>
+<span class="sd">           relative_path: iter-0/share/results/maps/aggr.gri</span>
+<span class="sd">           absolute_path: /scratch/f/othercase/iter-0/share/results/maps/aggrd.gri</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Construct file name for the aggregation...&quot;</span><span class="p">)</span>
         <span class="n">realiname</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;realization&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
         <span class="n">relpath</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;relative_path&quot;</span><span class="p">]</span>
-        <span class="n">abspath</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">abspath</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">abspath</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;First input realization relpath is: </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">relpath</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;First input realization abspath is: </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">abspath</span><span class="p">)</span>
 
-        <span class="n">relpath</span> <span class="o">=</span> <span class="n">relpath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">realiname</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">abspath</span> <span class="o">=</span> <span class="n">abspath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">realiname</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">:</span>
+            <span class="n">casepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">casepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The given casepath </span><span class="si">{</span><span class="n">casepath</span><span class="si">}</span><span class="s2"> does not exist. &quot;</span>
+                    <span class="s2">&quot;It must exist in advance!&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">abspath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">casepath</span> <span class="o">/</span> <span class="n">relpath</span><span class="p">)</span>
 
+        <span class="n">relpath</span> <span class="o">=</span> <span class="n">relpath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">realiname</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">relpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
-        <span class="n">abspath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">abspath</span><span class="p">)</span>
-        <span class="n">suffix</span> <span class="o">=</span> <span class="n">abspath</span><span class="o">.</span><span class="n">suffix</span>
-        <span class="n">stem</span> <span class="o">=</span> <span class="n">abspath</span><span class="o">.</span><span class="n">stem</span>
+        <span class="k">if</span> <span class="n">abspath</span><span class="p">:</span>
+            <span class="n">abspath</span> <span class="o">=</span> <span class="n">abspath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">realiname</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">abspath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">abspath</span><span class="p">)</span>
+
+        <span class="n">suffix</span> <span class="o">=</span> <span class="n">relpath</span><span class="o">.</span><span class="n">suffix</span>
+        <span class="n">stem</span> <span class="o">=</span> <span class="n">relpath</span><span class="o">.</span><span class="n">stem</span>
 
         <span class="n">usename</span> <span class="o">=</span> <span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;--&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
@@ -1078,7 +1150,10 @@
             <span class="n">usename</span> <span class="o">=</span> <span class="n">usename</span> <span class="o">+</span> <span class="s2">&quot;--&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span>
 
         <span class="n">relname</span> <span class="o">=</span> <span class="p">(</span><span class="n">relpath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">usename</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span>
-        <span class="n">absname</span> <span class="o">=</span> <span class="p">(</span><span class="n">abspath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">usename</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span>
+
+        <span class="n">absname</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">abspath</span><span class="p">:</span>
+            <span class="n">absname</span> <span class="o">=</span> <span class="p">(</span><span class="n">abspath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">usename</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New relpath is: </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">relname</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New abspath is: </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">absname</span><span class="p">)</span>
@@ -1094,8 +1169,11 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_aggr_uuid</span><span class="p">(</span><span class="n">uuids</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;operation&#39; key has no value&quot;</span><span class="p">)</span>
+
         <span class="c1"># use first as template but filter away invalid entries first:</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="n">filter_validate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">filter_validate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="n">relpath</span><span class="p">,</span> <span class="n">abspath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_filename</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
 
@@ -1113,9 +1191,9 @@
         <span class="c1"># template -&gt; final metadata</span>
 
         <span class="n">fakeconfig</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;access&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;access&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;masterdata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;masterdata&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;access&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;access&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;masterdata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;masterdata&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
         <span class="p">}</span>
         <span class="n">etemp</span> <span class="o">=</span> <span class="n">ExportData</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">fakeconfig</span><span class="p">)</span>
         <span class="n">etempmeta</span> <span class="o">=</span> <span class="n">etemp</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span><span class="p">)</span>
@@ -1123,7 +1201,7 @@
         <span class="n">template</span><span class="p">[</span><span class="s2">&quot;tracklog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etempmeta</span><span class="p">[</span><span class="s2">&quot;tracklog&quot;</span><span class="p">]</span>
         <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etempmeta</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span>  <span class="c1"># actually only use the checksum_md5</span>
         <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;relative_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">relpath</span>
-        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">abspath</span>
 
         <span class="c1"># data section</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
@@ -1135,11 +1213,16 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">template</span>
 
-<div class="viewcode-block" id="AggregatedData.generate_aggregation_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.generate_aggregation_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_aggregation_metadata</span><span class="p">(</span>
+    <span class="c1"># ==================================================================================</span>
+    <span class="c1"># Public methods:</span>
+    <span class="c1"># ==================================================================================</span>
+
+<div class="viewcode-block" id="AggregatedData.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
         <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">skip_null</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Generate metadata for the aggregated data.</span>
 
@@ -1156,13 +1239,16 @@
 <span class="sd">                data.</span>
 
 <span class="sd">            skip_null: If True (default), None values in putput will be skipped</span>
+<span class="sd">            **kwargs: See AggregatedData() arguments; initial will be overridden by</span>
+<span class="sd">                settings here.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generate metadata for class&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_settings</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># get input realization numbers:</span>
         <span class="n">real_ids</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">uuids</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">conf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">conf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_metadata</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">rid</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;realization&quot;</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
                 <span class="n">xuuid</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;realization&quot;</span><span class="p">][</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span>
@@ -1179,15 +1265,33 @@
 
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AggregatedData.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># alias method</span>
+    <span class="n">generate_aggregation_metadata</span> <span class="o">=</span> <span class="n">generate_metadata</span>
+
+<div class="viewcode-block" id="AggregatedData.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Export aggregated file with metadata to file.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            obj: Aggregated object to export, e.g. a XTGeo RegularSurface</span>
+<span class="sd">            **kwargs: See AggregatedData() arguments; initial will be overridden by</span>
+<span class="sd">                settings here.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            String: full path to exported item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_aggregation_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_settings</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="n">outfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">])</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">abspath</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">abspath</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="s2">&quot;The absolute_path is None, hence no export is possible. &quot;</span>
+                <span class="s2">&quot;Use the ``casepath`` key to provide a valid absolute path.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">abspath</span><span class="p">)</span>
+        <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">metafile</span> <span class="o">=</span> <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum&quot;</span><span class="p">)</span>
@@ -1211,7 +1315,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc3.dev2+gaadc4a7).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc4.dev1+gd95d418).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
