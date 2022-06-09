@@ -103,3 +103,25 @@ Python script
       :language: yaml
 
 |
+
+Using fmu-dataio for post-processed data
+----------------------------------------
+
+Example below show how fmu-dataio can be used in a post-processing context, here in a
+surface aggregation example.
+
+When using ensemble-based methods for probabilistic modelling, the result is represented
+by the distribution of the realizations, not by the individual realizations themselves.
+In such a context, easy access to statisticsal representations of the ensemble is important.
+For surfaces, this typically includes point-wise mean, std, min/max, p10/p90 and others.
+
+Aggregations in an FMU context is usually done by standalone Python scripts, but cloud
+services are also in the making (Sumo). The example below show how fmu-dataio can be used
+to simplify an existing aggregation service, as well as make de-centralized methods more
+robust by centralizing the definitions and handling of metadata.
+
+Python script
+-------------
+
+.. literalinclude:: ./examples/s/d/nn/_project/aggregate_surfaces.py
+   :language: python
