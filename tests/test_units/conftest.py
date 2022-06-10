@@ -21,7 +21,7 @@ except ImportError:
 else:
     HAS_PYARROW = True
 
-from fmu.dataio.dataio import ExportData
+from fmu.dataio.dataio import ExportData, read_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -351,3 +351,43 @@ def fixture_arrowtable():
         return pa.Table.from_pandas(dfr)
     else:
         return None
+
+
+@pytest.fixture(name="aggr_surfs_mean", scope="module", autouse=True)
+def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
+    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
+    origfolder = os.getcwd()
+    os.chdir(fmurun_w_casemetadata)
+
+    edata = dio.ExportData(
+        config=rmsglobalconfig,  # read from global config
+        verbosity="INFO",
+    )
+
+    aggs = []
+    # create "forward" files
+    for i in range(10):  # TODO! 10
+        use_regsurf = regsurf.copy()
+        use_regsurf.values += float(i)
+        expfile = edata.export(use_regsurf, name="mymap_" + str(i), realization=i)
+        aggs.append(expfile)
+
+    # next task is to do an aggradation, and now the metadata already exists
+    # per input element which shall be re-used
+    surfs = xtgeo.Surfaces()
+    metas = []
+    for mapfile in aggs:
+        surf = xtgeo.surface_from_file(mapfile)
+        meta = read_metadata(mapfile)
+
+        metas.append(meta)
+        surfs.append([surf])
+
+    aggregated = surfs.statistics()
+    logger.info("Aggr. mean is %s", aggregated["mean"].values.mean())  # shall be 1238.5
+
+    os.chdir(origfolder)
+
+    return (aggregated["mean"], metas)
