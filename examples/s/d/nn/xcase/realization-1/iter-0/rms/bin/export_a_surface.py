@@ -20,7 +20,11 @@ FILES = {
 
 
 def main():
-    """Exporting maps from clipboard"""
+    """Emulate map export during FMU runs.
+
+    In the FMU workflow, individual jobs will be responsible for dumping data to the
+    disk. In this example, we are emulating this to obtain the same effect.
+    """
 
     print("Export a porosity average map")
     surf = xtgeo.surface_from_file(FILES["poro"])
