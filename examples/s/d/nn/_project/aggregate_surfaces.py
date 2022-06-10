@@ -179,12 +179,10 @@ def _get_source_surfaces_from_disk(
     for real in realization_ids:
         surfacepath = casepath / f"realization-{real}" / iter_name / relative_path
         surface = xtgeo.surface_from_file(surfacepath)
-
-        metadatapath = _metadata_filename(surfacepath)
-        metadata = _parse_yaml(metadatapath)
+        metadata = fmu.dataio.read_metadata(surfacepath)
 
         # this example is minimalistic and super non-robust. In reality, there will
-        # be realizations missing etc which needs to be handled.
+        # be realizations missing which needs to be handled etc.
 
         collected_data.append((surface, metadata))
 
