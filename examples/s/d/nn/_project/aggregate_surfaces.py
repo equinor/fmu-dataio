@@ -68,6 +68,8 @@ def main():
 
     for operation in operations:
 
+        print(f"Running aggregation: {operation}")
+
         # Call the aggregation machine and create an aggregated surface
         # Note that this is not part of fmu-dataio - it is merely a mock-up
         # aggregation service for the sake of this example.
@@ -76,42 +78,16 @@ def main():
         # ==============================================================================
         # Example 1: We want fmu-dataio to export the file + metadata to disk
         saved_filename = exp.export(aggregated_surface, operation=operation)
-        print(f"file saved to {saved_filename}")
+        print(f"Example 1: File saved to {saved_filename}")
 
         # ==============================================================================
         # Example 2: We only want the metadata (e.g. we are in a cloud service)
         metadata = exp.generate_metadata(aggregated_surface, operation=operation)
+        print(f"Example 2: Metadata generated")
 
         # At this point, we have the surface, the operation and the metadata
         # These can be collected into e.g. a list or a dictionary for further usage,
-        # or we can upload to Sumo (not implemented in this example).
-
-        # For now, we collect them in the 'aggregations' list for sake of the example.
-        aggregations.append(
-            {
-                "surface": aggregated_surface,
-                "operation": operation,
-                "metadata": metadata,
-            }
-        )
-
-    # Now, 'aggregations' is a list of dictionaries where each dict contains one
-    # aggregation represented by the actual surface, the operation conducted and the
-    # associated metadata. We can now pass this along to where it needs to be.
-
-    # If multiple aggregations are performed in the same go, the list can be put into
-    # a dictionary using the aggregation_id as the key. More aggregation sets can then
-    # be appended, i.e.:
-
-    all_aggregations = {aggregation_id: aggregations}
-
-    # For sake of the example, printing some info from the results:
-    example = all_aggregations[aggregation_id][0]
-
-    print("\nExample results:")
-    print(f'The operation: {example["operation"]}')
-    print(f'The resulting surface: \n {example["surface"]}')
-    print(f'The metadata generated: \n {example["metadata"]}')
+        # or we can upload to Sumo as part of the loop.
 
 
 # ======================================================================================
