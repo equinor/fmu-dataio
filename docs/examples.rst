@@ -121,7 +121,9 @@ to simplify an existing aggregation service, as well as make de-centralized meth
 robust by centralizing the definitions and handling of metadata.
 
 Python script
--------------
+~~~~~~~~~~~~~
 
-.. literalinclude:: ./examples/s/d/nn/_project/aggregate_surfaces.py
+.. literalinclude:: ../examples/s/d/nn/_project/aggregate_surfaces.py
    :language: python
+
+|
