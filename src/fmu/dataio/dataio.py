@@ -1125,8 +1125,8 @@ class AggregatedData:
 
         template["tracklog"] = etempmeta["tracklog"]
         template["file"] = etempmeta["file"]  # actually only use the checksum_md5
-        template["file"]["relative_path"] = relpath
-        template["file"]["absolute_path"] = abspath
+        template["file"]["relative_path"] = str(relpath)
+        template["file"]["absolute_path"] = str(abspath)
 
         # data section
         if self.name:
