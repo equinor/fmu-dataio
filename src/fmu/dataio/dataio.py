@@ -1036,10 +1036,10 @@ class AggregatedData:
         """
         logger.info("Construct file name for the aggregation...")
         realiname = template["fmu"]["realization"]["name"]
-        relpath = str(template["file"]["relative_path"])
+        relpath = template["file"]["relative_path"]
 
         if template["file"].get("absolute_path", None):
-            abspath = str(template["file"]["absolute_path"])
+            abspath = template["file"]["absolute_path"]
         else:
             abspath = None
 
@@ -1126,7 +1126,7 @@ class AggregatedData:
         template["tracklog"] = etempmeta["tracklog"]
         template["file"] = etempmeta["file"]  # actually only use the checksum_md5
         template["file"]["relative_path"] = str(relpath)
-        template["file"]["absolute_path"] = str(abspath)
+        template["file"]["absolute_path"] = str(abspath) if abspath else None
 
         # data section
         if self.name:
