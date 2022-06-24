@@ -33,11 +33,11 @@ def test_regsurf_case_observation(fmurun_w_casemetadata, rmsglobalconfig, regsur
     metadata = edata.generate_metadata(regsurf)
     logger.debug("\n%s", utils.prettyprint_dict(metadata))
     assert (
-        "ertrun1/share/observation/maps/mymap.gri" in metadata["file"]["absolute_path"]
+        "ertrun1/share/observations/maps/mymap.gri" in metadata["file"]["absolute_path"]
     )
 
     exp = edata.export(regsurf)
-    assert "ertrun1/share/observation/maps/mymap.gri" in exp
+    assert "ertrun1/share/observations/maps/mymap.gri" in exp
 
 
 def test_regsurf_case_observation_w_symlinks(
@@ -59,9 +59,9 @@ def test_regsurf_case_observation_w_symlinks(
         metadata = edata.generate_metadata(regsurf)
         logger.debug("\n%s", utils.prettyprint_dict(metadata))
         assert (
-            "ertrun1/share/observation/maps/mymap.gri"
+            "ertrun1/share/observations/maps/mymap.gri"
             in metadata["file"]["absolute_path"]
         )
 
         exp = edata.export(regsurf)
-        assert "ertrun1/share/observation/maps/mymap.gri" in exp
+        assert "ertrun1/share/observations/maps/mymap.gri" in exp
