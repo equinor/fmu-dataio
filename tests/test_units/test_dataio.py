@@ -165,3 +165,24 @@ def test_establish_pwd_runpath(tmp_path, globalconfig2):
     assert edata._rootpath == rmspath.parent.parent
 
     ExportData._inside_rms = False  # reset
+
+
+def test_forcefolder(tmp_path, globalconfig2, regsurf):
+    """Testing the forcefolder mechanism."""
+    rmspath = tmp_path / "rms" / "model"
+    rmspath.mkdir(parents=True, exist_ok=True)
+    os.chdir(rmspath)
+
+    ExportData._inside_rms = True
+    edata = ExportData(config=globalconfig2, forcefolder="share/observations/whatever")
+    meta = edata.generate_metadata(regsurf)
+    assert meta["file"]["relative_path"].startswith("share/observations/whatever/")
+    ExportData._inside_rms = False  # reset
+
+    edata = ExportData(config=globalconfig2, forcefolder="/tmp/what")
+    meta = edata.generate_metadata(regsurf, name="x")
+    assert (
+        meta["file"]["relative_path"]
+        == meta["file"]["absolute_path"]
+        == "/tmp/what/x.gri"
+    )

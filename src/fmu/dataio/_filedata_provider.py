@@ -57,6 +57,7 @@ class _FileDataProvider:
         self.create_folder = self.dataio.createfolder
         self.verify_folder = self.dataio.verifyfolder
         self.forcefolder = self.dataio.forcefolder
+        self.forcefolder_is_absolute = False
         self.subfolder = self.dataio.subfolder
 
         self.fmu_context = self.dataio._usecontext  # may be None!
@@ -73,9 +74,26 @@ class _FileDataProvider:
         # resolve() will fix ".." e.g. change '/some/path/../other' to '/some/other'
         abspath = path.resolve()
 
-        relpath = path.relative_to(self.rootpath)
+        if self.forcefolder_is_absolute:
+            # may become meaningsless as forcefolder can be something else, but will try
+            try:
+                relpath = path.relative_to(self.rootpath)
+            except ValueError as verr:
+                if "does not start with" in str(verr):
+                    relpath = abspath
+                    logger.info(
+                        "Relative path equal to absolute path due to forcefolder "
+                        "with absolute path deviating for rootpath %s",
+                        self.rootpath,
+                    )
+                else:
+                    raise
+        else:
+            relpath = path.relative_to(self.rootpath)
+
         self.relative_path = str(relpath)
         self.absolute_path = str(abspath)
+
         logger.info("Derived filedata")
 
     def _get_filestem(self):
@@ -133,8 +151,13 @@ class _FileDataProvider:
         dest = outroot / self.efolder  # e.g. "maps"
 
         if self.forcefolder:
-            dest = Path(self.forcefolder)
-            dest = dest.absolute()
+            # absolute if starts with "/", otherwise relative to outroot
+            if str(self.forcefolder).startswith("/"):
+                dest = Path(self.forcefolder)
+                dest = dest.absolute()
+                self.forcefolder_is_absolute = True
+            else:
+                dest = self.rootpath / self.forcefolder
 
         if self.subfolder:
             dest = dest / self.subfolder
