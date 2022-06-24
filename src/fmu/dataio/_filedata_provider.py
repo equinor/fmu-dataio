@@ -126,7 +126,7 @@ class _FileDataProvider:
         outroot = outroot / "share"
 
         if self.dataio.is_observation:
-            outroot = outroot / "observation"
+            outroot = outroot / "observations"
         else:
             outroot = outroot / "results"
 
