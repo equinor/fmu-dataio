@@ -167,6 +167,7 @@ def test_establish_pwd_runpath(tmp_path, globalconfig2):
     ExportData._inside_rms = False  # reset
 
 
+@pytest.mark.skipif(platform.system() == "Windows", reason="Windows tests have no /tmp")
 def test_forcefolder(tmp_path, globalconfig2, regsurf):
     """Testing the forcefolder mechanism."""
     rmspath = tmp_path / "rms" / "model"
@@ -174,9 +175,9 @@ def test_forcefolder(tmp_path, globalconfig2, regsurf):
     os.chdir(rmspath)
 
     ExportData._inside_rms = True
-    edata = ExportData(config=globalconfig2, forcefolder="share/observations/whatever")
+    edata = ExportData(config=globalconfig2, forcefolder="whatever")
     meta = edata.generate_metadata(regsurf)
-    assert meta["file"]["relative_path"].startswith("share/observations/whatever/")
+    assert meta["file"]["relative_path"].startswith("share/results/whatever/")
     ExportData._inside_rms = False  # reset
 
     edata = ExportData(config=globalconfig2, forcefolder="/tmp/what")

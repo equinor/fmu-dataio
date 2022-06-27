@@ -54,8 +54,6 @@ class _FileDataProvider:
         self.extension = self.objdata.extension
         self.efolder = self.objdata.efolder
 
-        self.create_folder = self.dataio.createfolder
-        self.verify_folder = self.dataio.verifyfolder
         self.forcefolder = self.dataio.forcefolder
         self.forcefolder_is_absolute = False
         self.subfolder = self.dataio.subfolder
@@ -150,23 +148,28 @@ class _FileDataProvider:
 
         dest = outroot / self.efolder  # e.g. "maps"
 
-        if self.forcefolder:
-            # absolute if starts with "/", otherwise relative to outroot
-            if str(self.forcefolder).startswith("/"):
-                dest = Path(self.forcefolder)
-                dest = dest.absolute()
-                self.forcefolder_is_absolute = True
+        if self.dataio.forcefolder and self.dataio.forcefolder.startswith("/"):
+            if not self.dataio.allow_forcefolder_absolute:
+                raise ValueError(
+                    "The forcefolder includes an absolute path, i.e. "
+                    "starting with '/'. This is strongly discouraged and is only "
+                    "allowed if classvariable allow_forcefolder_absolute is set to True"
+                )
             else:
-                dest = self.rootpath / self.forcefolder
+                warn(message)
+            # absolute if starts with "/", otherwise relative to outroot
+            dest = Path(self.dataio.forcefolder)
+            dest = dest.absolute()
+            self.forcefolder_is_absolute = True
 
-        if self.subfolder:
-            dest = dest / self.subfolder
+        if self.dataio.subfolder:
+            dest = dest / self.dataio.subfolder
 
-        if self.create_folder:
+        if self.dataio.createfolder:
             dest.mkdir(parents=True, exist_ok=True)
 
         # check that destination actually exists if verify_folder is True
-        if self.verify_folder and not dest.exists():
+        if self.dataio.verifyfolder and not dest.exists():
             raise IOError(f"Folder {str(dest)} is not present.")
 
         return dest
