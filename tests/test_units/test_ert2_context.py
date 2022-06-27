@@ -4,7 +4,7 @@ In this case a user sits in ERT. Hence the rootpath will be ./
 """
 import logging
 import os
-import platform
+import sys
 
 import pandas as pd
 import pytest
@@ -300,7 +300,7 @@ def test_cube_export_file_is_observation_forcefolder(
     )
 
 
-@pytest.mark.skipif(platform.system() == "Windows", reason="Windows tests have no /tmp")
+@pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
 def test_cube_export_file_is_observation_forcefolder_abs(
     fmurun_w_casemetadata, rmsglobalconfig, cube
 ):
@@ -309,7 +309,7 @@ def test_cube_export_file_is_observation_forcefolder_abs(
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     os.chdir(fmurun_w_casemetadata)
 
-    edata.allow_forcefolder_absolute = True
+    dataio.ExportData.allow_forcefolder_absolute = True
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
     output = edata.export(
@@ -322,6 +322,7 @@ def test_cube_export_file_is_observation_forcefolder_abs(
     logger.info("Output is %s", output)
 
     assert str(output) == "/tmp/seismic/mycube.segy"
+    dataio.ExportData.allow_forcefolder_absolute = False
 
 
 # ======================================================================================

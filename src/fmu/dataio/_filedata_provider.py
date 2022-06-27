@@ -156,7 +156,8 @@ class _FileDataProvider:
                     "allowed if classvariable allow_forcefolder_absolute is set to True"
                 )
             else:
-                warn(message)
+                warn("Using absolute paths in forcefolder is not recommended!")
+
             # absolute if starts with "/", otherwise relative to outroot
             dest = Path(self.dataio.forcefolder)
             dest = dest.absolute()
