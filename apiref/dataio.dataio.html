@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 1.0.0rc7.dev1+g27354c5 documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 1.0.0rc8.dev1+g264ae9b documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -203,7 +203,7 @@ Example is “depth” or {“fluid_contact”: {“xxx”: “yyy”, “zzz”
 Content is checked agains a white-list for validation!</p></li>
 <li><p><strong>fmu_context</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – In normal forward models, the fmu_context is <code class="docutils literal notranslate"><span class="pre">realization</span></code> which
 is default and will put data per realization. Other contexts may be <code class="docutils literal notranslate"><span class="pre">case</span></code>
-which willput data relative to the case root. If a non-FMU run is detected
+which will put data relative to the case root. If a non-FMU run is detected
 (e.g. you run from project), fmu-dataio will detect that and set actual
 context to None as fall-back.</p></li>
 <li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – A multiline description of the data either as a string or a list
@@ -211,8 +211,12 @@ of strings.</p></li>
 <li><p><strong>display_name</strong> – Optional, set name for clients to use when visualizing.</p></li>
 <li><p><strong>forcefolder</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – This setting shall only be used as exception, and will make it
 possible to output to a non-standard folder. A <code class="docutils literal notranslate"><span class="pre">/</span></code> in front will indicate
-an absolute path; otherwise it will be relative to casepath/rootpath.
-Use with care.</p></li>
+an absolute path*; otherwise it will be relative to casepath or rootpath,
+as dependent on the both fmu_context and the is_observations
+boolean value. A typical use-case is forcefolder=”seismic” which will
+replace the “cubes” standard folder for Cube output with “seismics”.
+Use with care and avoid if possible! (*) For absolute paths, the class
+variable allow_forcefolder_absolute must set to True.</p></li>
 <li><p><strong>include_index</strong> – This applies to Pandas (table) data only, and if True then the
 index column will be exported. Deprecated, use class variable
 <code class="docutils literal notranslate"><span class="pre">table_include_index</span></code> instead</p></li>
@@ -287,6 +291,11 @@ make it possible for ERT jobs to point to external input config’s. For example
 eda.export(obj)</p>
 </div></blockquote>
 </div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataio.dataio.ExportData.allow_forcefolder_absolute">
+<span class="sig-name descname"><span class="pre">allow_forcefolder_absolute</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.allow_forcefolder_absolute" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.arrow_fformat">
 <span class="sig-name descname"><span class="pre">arrow_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'arrow'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.arrow_fformat" title="Permalink to this definition"></a></dt>
@@ -752,25 +761,11 @@ settings here.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dataio.dataio.AggregatedData.generate_aggregation_metadata">
-<span class="sig-name descname"><span class="pre">generate_aggregation_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_null</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataio.dataio.AggregatedData.generate_aggregation_metadata" title="Permalink to this definition"></a></dt>
-<dd><p>Generate metadata for the aggregated data.</p>
-<p>This is a quite different and much simpler operation than the ExportData()
-version, as here most metadata for each input element are already known. Hence,
-the metadata for the first element in the input list is used as template.</p>
+<span class="sig-name descname"><span class="pre">generate_aggregation_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_null</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#AggregatedData.generate_aggregation_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.AggregatedData.generate_aggregation_metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Alias method name, see <code class="docutils literal notranslate"><span class="pre">generate_metadata</span></code></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The map, 3D grid, table, etc instance.</p></li>
-<li><p><strong>compute_md5</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, an md5 sum for the file will be created. This involves
-a temporary export of the data, and may be time consuming for large
-data.</p></li>
-<li><p><strong>skip_null</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True (default), None values in putput will be skipped</p></li>
-<li><p><strong>**kwargs</strong> – See AggregatedData() arguments; initial will be overridden by
-settings here.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -811,7 +806,7 @@ settings here.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc7.dev1+g27354c5).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc8.dev1+g264ae9b).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
