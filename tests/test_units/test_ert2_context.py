@@ -258,7 +258,11 @@ def test_cube_export_file_is_observation(fmurun_w_casemetadata, rmsglobalconfig,
 def test_cube_export_file_is_case_observation(
     fmurun_w_casemetadata, rmsglobalconfig, cube
 ):
+<<<<<<< HEAD
     """Export the cube..., with is_observation flag and fmu_context is case."""
+=======
+    """Export the cube..., with is_observation flag and conext is case."""
+>>>>>>> 1ed256549f54ba7b5f2f0b62f54e028a487ff382
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     os.chdir(fmurun_w_casemetadata)
@@ -304,10 +308,14 @@ def test_cube_export_file_is_observation_forcefolder(
 def test_cube_export_file_is_observation_forcefolder_abs(
     fmurun_w_casemetadata, rmsglobalconfig, cube
 ):
+<<<<<<< HEAD
     """Export the cube to file..., with is_observation flag and absolute forcefolder.
 
     Using an absolute path requires class property allow_forcefolder_absolute = True
     """
+=======
+    """Export the cube to file..., with is_observation flag and absolute forcefolder."""
+>>>>>>> 1ed256549f54ba7b5f2f0b62f54e028a487ff382
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     os.chdir(fmurun_w_casemetadata)

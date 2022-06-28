@@ -204,4 +204,7 @@ def test_forcefolder_absolute_shall_raise(tmp_path, globalconfig2, regsurf):
         == "/tmp/what/y.gri"
     )
     ExportData.allow_forcefolder_absolute = False  # reset
+<<<<<<< HEAD
     ExportData._inside_rms = False
+=======
+>>>>>>> 1ed256549f54ba7b5f2f0b62f54e028a487ff382
