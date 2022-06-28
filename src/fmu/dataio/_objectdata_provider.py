@@ -87,6 +87,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 from typing import Any
+from warnings import warn
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -94,8 +95,6 @@ import xtgeo  # type: ignore
 
 from ._definitions import _ValidFormats
 from ._utils import generate_description
-
-# from warnings import warn
 
 try:
     import pyarrow as pa  # type: ignore
@@ -289,6 +288,17 @@ class _ObjectDataProvider:
             raise NotImplementedError(
                 "This data type is not (yet) supported: ", type(self.obj)
             )
+
+        # override efolder with forcefolder as exception!
+        if self.dataio.forcefolder and not self.dataio.forcefolder.startswith("/"):
+            ewas = result["efolder"]
+            result["efolder"] = self.dataio.forcefolder
+            msg = (
+                f"The standard folder name is overrided from {ewas} to "
+                f"{self.dataio.forcefolder}"
+            )
+            logger.info(msg)
+            warn(msg, UserWarning)
 
         return result
 

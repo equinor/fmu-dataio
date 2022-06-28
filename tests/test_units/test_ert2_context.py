@@ -4,8 +4,10 @@ In this case a user sits in ERT. Hence the rootpath will be ./
 """
 import logging
 import os
+import sys
 
 import pandas as pd
+import pytest
 
 import fmu.dataio.dataio as dataio
 from fmu.dataio._utils import prettyprint_dict
@@ -210,6 +212,7 @@ def test_points_export_file_set_name_xtgeoheaders(
 
 # ======================================================================================
 # Cube
+# Also use this part to test various fmu_contexts and forcefolder
 # ======================================================================================
 
 
@@ -229,6 +232,108 @@ def test_cube_export_file_set_name(fmurun_w_casemetadata, rmsglobalconfig, cube)
             edata._rootpath / "realization-0/iter-0/share/results/cubes/mycube.segy"
         ).resolve()
     )
+
+
+def test_cube_export_file_is_observation(fmurun_w_casemetadata, rmsglobalconfig, cube):
+    """Export the cube to file with correct metadata..., with is_observation flag."""
+
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    os.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(
+        cube, name="MyCube", is_observation=True, fmu_context="realization"
+    )
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (
+            edata._rootpath
+            / "realization-0/iter-0/share/observations/cubes/mycube.segy"
+        ).resolve()
+    )
+
+
+def test_cube_export_file_is_case_observation(
+    fmurun_w_casemetadata, rmsglobalconfig, cube
+):
+<<<<<<< HEAD
+    """Export the cube..., with is_observation flag and fmu_context is case."""
+=======
+    """Export the cube..., with is_observation flag and conext is case."""
+>>>>>>> 1ed256549f54ba7b5f2f0b62f54e028a487ff382
+
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    os.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(cube, name="MyCube", is_observation=True, fmu_context="case")
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
+    )
+
+
+def test_cube_export_file_is_observation_forcefolder(
+    fmurun_w_casemetadata, rmsglobalconfig, cube
+):
+    """Export the cube to file..., with is_observation flag and forcefolder."""
+
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    os.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(
+        cube,
+        name="MyCube",
+        is_observation=True,
+        fmu_context="realization",
+        forcefolder="seismic",
+    )
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (
+            edata._rootpath
+            / "realization-0/iter-0/share/observations/seismic/mycube.segy"
+        ).resolve()
+    )
+
+
+@pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
+def test_cube_export_file_is_observation_forcefolder_abs(
+    fmurun_w_casemetadata, rmsglobalconfig, cube
+):
+<<<<<<< HEAD
+    """Export the cube to file..., with is_observation flag and absolute forcefolder.
+
+    Using an absolute path requires class property allow_forcefolder_absolute = True
+    """
+=======
+    """Export the cube to file..., with is_observation flag and absolute forcefolder."""
+>>>>>>> 1ed256549f54ba7b5f2f0b62f54e028a487ff382
+
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    os.chdir(fmurun_w_casemetadata)
+
+    dataio.ExportData.allow_forcefolder_absolute = True
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(
+        cube,
+        name="MyCube",
+        is_observation=True,
+        fmu_context="realization",
+        forcefolder="/tmp/seismic",
+    )
+    logger.info("Output is %s", output)
+
+    assert str(output) == "/tmp/seismic/mycube.segy"
+    dataio.ExportData.allow_forcefolder_absolute = False
 
 
 # ======================================================================================

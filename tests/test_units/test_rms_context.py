@@ -276,6 +276,7 @@ def test_points_export_file_set_name_xtgeoheaders(rmssetup, rmsglobalconfig, poi
 
 # ======================================================================================
 # Cube
+# This is also used to test various configurations of "forcefolder" and "fmu_context"
 # ======================================================================================
 
 
@@ -292,6 +293,139 @@ def test_cube_export_file_set_name(rmssetup, rmsglobalconfig, cube):
 
     assert str(output) == str(
         (edata._rootpath / "share/results/cubes/mycube.segy").resolve()
+    )
+
+
+@inside_rms
+def test_cube_export_file_set_name_as_observation(rmssetup, rmsglobalconfig, cube):
+    """Export the cube to file with correct metadata and name, is_observation."""
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    output = edata.export(cube, name="MyCube", is_observation=True)
+    logger.info("Output is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
+    )
+
+
+@inside_rms
+def test_cube_export_file_set_name_as_observation_forcefolder(
+    rmssetup, rmsglobalconfig, cube
+):
+    """Export the cube to file with correct metadata and name, is_observation.
+
+    In addition, use forcefolder to apply "seismic" instead of cube
+    """
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    # use forcefolder to apply share/observations/seismic
+    output = edata.export(
+        cube,
+        name="MyCube",
+        fmu_context="realization",
+        is_observation=True,
+        forcefolder="seismic",
+    )
+    logger.info("Output after force is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/observations/seismic/mycube.segy").resolve()
+    )
+
+
+@inside_rms
+def test_cube_export_as_observation_forcefolder_w_custom_subfolder(
+    rmssetup, rmsglobalconfig, cube
+):
+    """Export the cube to file with correct metadata and name, is_observation.
+
+    In addition, use forcefolder with subfolders to apply "seismic" instead of cube
+    """
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    # use forcefolder to apply share/observations/seismic
+    output = edata.export(
+        cube,
+        name="MyCube",
+        is_observation=True,
+        forcefolder="seismic/xxx",
+    )
+    logger.info("Output after force is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/observations/seismic/xxx/mycube.segy").resolve()
+    )
+
+
+@inside_rms
+def test_cube_export_as_observation_forcefolder_w_true_subfolder(
+    rmssetup, rmsglobalconfig, cube
+):
+    """Export the cube to file with correct metadata and name, is_observation.
+
+    In addition, use forcefolder with subfolders to apply "seismic" instead of cube
+    """
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    # use forcefolder to apply share/observations/seismic
+    output = edata.export(
+        cube,
+        name="MyCube",
+        is_observation=True,
+        forcefolder="seismic/xxx",
+        subfolder="mysubfolder",
+    )
+    logger.info("Output after force is %s", output)
+
+    assert str(output) == str(
+        (
+            edata._rootpath / "share/observations/seismic/xxx/mysubfolder/mycube.segy"
+        ).resolve()
+    )
+
+
+@inside_rms
+def test_cube_export_as_observation_forcefolder_w_subfolder_case(
+    rmssetup, rmsglobalconfig, cube
+):
+    """Export the cube to file with correct metadata and name, is_observation.
+
+    In addition, use forcefolder with subfolders to apply "seismic" instead of cube
+    and the fmu_context here is case, not realization.
+
+    When inside RMS interactive, the case may be unresolved and hence the folder
+    shall be as is.
+    """
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    # use forcefolder to apply share/observations/seismic
+    output = edata.export(
+        cube,
+        name="MyCube",
+        is_observation=True,
+        fmu_context="case",
+        forcefolder="seismic/xxx",
+    )
+    logger.info("Output after force is %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/observations/seismic/xxx/mycube.segy").resolve()
     )
 
 

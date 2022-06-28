@@ -1,6 +1,7 @@
 """Test the dataio ExportData etc from the dataio.py module"""
 import logging
 import os
+import sys
 
 import pytest
 import yaml
@@ -167,6 +168,7 @@ def test_establish_pwd_runpath(tmp_path, globalconfig2):
     ExportData._inside_rms = False  # reset
 
 
+@pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
 def test_forcefolder(tmp_path, globalconfig2, regsurf):
     """Testing the forcefolder mechanism."""
     rmspath = tmp_path / "rms" / "model"
@@ -174,15 +176,35 @@ def test_forcefolder(tmp_path, globalconfig2, regsurf):
     os.chdir(rmspath)
 
     ExportData._inside_rms = True
-    edata = ExportData(config=globalconfig2, forcefolder="share/observations/whatever")
+    edata = ExportData(config=globalconfig2, forcefolder="whatever")
     meta = edata.generate_metadata(regsurf)
-    assert meta["file"]["relative_path"].startswith("share/observations/whatever/")
+    assert meta["file"]["relative_path"].startswith("share/results/whatever/")
     ExportData._inside_rms = False  # reset
 
+
+@pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
+def test_forcefolder_absolute_shall_raise(tmp_path, globalconfig2, regsurf):
+    """Testing the forcefolder mechanism, absoluteptah shall raise ValueError."""
+    rmspath = tmp_path / "rms" / "model"
+    rmspath.mkdir(parents=True, exist_ok=True)
+    os.chdir(rmspath)
+
+    ExportData._inside_rms = True
+    ExportData.allow_forcefolder_absolute = False
     edata = ExportData(config=globalconfig2, forcefolder="/tmp/what")
-    meta = edata.generate_metadata(regsurf, name="x")
+    with pytest.raises(ValueError):
+        meta = edata.generate_metadata(regsurf, name="x")
+
+    ExportData.allow_forcefolder_absolute = True
+    edata = ExportData(config=globalconfig2, forcefolder="/tmp/what")
+    meta = edata.generate_metadata(regsurf, name="y")
     assert (
         meta["file"]["relative_path"]
         == meta["file"]["absolute_path"]
-        == "/tmp/what/x.gri"
+        == "/tmp/what/y.gri"
     )
+    ExportData.allow_forcefolder_absolute = False  # reset
+<<<<<<< HEAD
+    ExportData._inside_rms = False
+=======
+>>>>>>> 1ed256549f54ba7b5f2f0b62f54e028a487ff382
