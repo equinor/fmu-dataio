@@ -271,7 +271,6 @@ class ExportData:
 
 
     Args:
-
         access_ssdl: Optional. A dictionary that will overwrite or append
              to the default ssdl settings read from the config. Example:
             ``{"access_level": "restricted", "rep_include": False}``
@@ -295,7 +294,7 @@ class ExportData:
 
         fmu_context: In normal forward models, the fmu_context is ``realization`` which
             is default and will put data per realization. Other contexts may be ``case``
-            which willput data relative to the case root. If a non-FMU run is detected
+            which will put data relative to the case root. If a non-FMU run is detected
             (e.g. you run from project), fmu-dataio will detect that and set actual
             context to None as fall-back.
 
@@ -306,8 +305,12 @@ class ExportData:
 
         forcefolder: This setting shall only be used as exception, and will make it
             possible to output to a non-standard folder. A ``/`` in front will indicate
-            an absolute path; otherwise it will be relative to casepath/rootpath.
-            Use with care.
+            an absolute path*; otherwise it will be relative to casepath or rootpath,
+            as dependent on the both fmu_context and the is_observations
+            boolean value. A typical use-case is forcefolder="seismic" which will
+            replace the "cubes" standard folder for Cube output with "seismics".
+            Use with care and void if possible! (*) For absolute paths, the class
+            variable allow_forcefolder_absolute must set to True.
 
         include_index: This applies to Pandas (table) data only, and if True then the
             index column will be exported. Deprecated, use class variable
@@ -407,6 +410,7 @@ class ExportData:
     # ----------------------------------------------------------------------------------
 
     # class variables
+    allow_forcefolder_absolute: ClassVar[bool] = False
     arrow_fformat: ClassVar[str] = "arrow"
     case_folder: ClassVar[str] = "share/metadata"
     createfolder: ClassVar[bool] = True
@@ -1191,7 +1195,17 @@ class AggregatedData:
         return deepcopy(self._metadata)
 
     # alias method
-    generate_aggregation_metadata = generate_metadata
+    def generate_aggregation_metadata(
+        self,
+        obj: Any,
+        compute_md5: bool = True,
+        skip_null: bool = True,
+        **kwargs,
+    ) -> dict:
+        """Alias method name, see ``generate_metadata``"""
+        return self.generate_metadata(
+            obj, compute_md5=compute_md5, skip_null=skip_null, **kwargs
+        )
 
     def export(self, obj, **kwargs) -> str:
         """Export aggregated file with metadata to file.
