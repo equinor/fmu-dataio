@@ -341,12 +341,13 @@ def test_cube_export_file_set_name_as_observation_forcefolder(
 
 
 @inside_rms
-def test_cube_export_as_observation_forcefolder_w_custom_subfolder(
+def test_cube_export_as_observation_forcefolder_w_added_folder(
     rmssetup, rmsglobalconfig, cube
 ):
     """Export the cube to file with correct metadata and name, is_observation.
 
-    In addition, use forcefolder with subfolders to apply "seismic" instead of cube
+    In addition, use forcefolder with extra folder "xxx" (alternative to 'subfolder'
+    key).
     """
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
@@ -373,7 +374,7 @@ def test_cube_export_as_observation_forcefolder_w_true_subfolder(
 ):
     """Export the cube to file with correct metadata and name, is_observation.
 
-    In addition, use forcefolder with subfolders to apply "seismic" instead of cube
+    In addition, use forcefolder and subfolders in combination.
     """
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)

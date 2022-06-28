@@ -309,7 +309,7 @@ class ExportData:
             as dependent on the both fmu_context and the is_observations
             boolean value. A typical use-case is forcefolder="seismic" which will
             replace the "cubes" standard folder for Cube output with "seismics".
-            Use with care and void if possible! (*) For absolute paths, the class
+            Use with care and avoid if possible! (*) For absolute paths, the class
             variable allow_forcefolder_absolute must set to True.
 
         include_index: This applies to Pandas (table) data only, and if True then the
