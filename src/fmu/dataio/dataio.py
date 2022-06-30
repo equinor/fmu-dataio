@@ -967,7 +967,7 @@ class AggregatedData:
         """Unless aggregation_id; use existing UUIDs to generate a new UUID."""
 
         stringinput = ""
-        for xuuid in uuids:
+        for xuuid in sorted(uuids):
             stringinput += xuuid
 
         return uuid_from_string(stringinput)
