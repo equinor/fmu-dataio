@@ -932,8 +932,8 @@ class AggregatedData:
     """Instantate AggregatedData object.
 
     Args:
-        aggregation_id: Give an explicit ID for the aggregation. If set to True, an
-            automatic ID based on existing realization uuid will be made.
+        aggregation_id: Give an explicit ID for the aggregation. If None, or not
+            provided, an automatic ID based on existing realization uuid will be made.
             Default is None which means it will be missing (null) in the metadata.
         casepath: The root folder to the case, default is None. If None, the casepath
             is derived from the first input metadata paths (cf. ``source_metadata``) if
@@ -948,7 +948,7 @@ class AggregatedData:
         tagname: Additional name, as part of file name
     """
 
-    aggregation_id: Optional[Union[str, bool]] = None
+    aggregation_id: Optional[str] = None
     casepath: Union[str, Path, None] = None
     source_metadata: list = field(default_factory=list)
     name: str = ""
@@ -1093,10 +1093,17 @@ class AggregatedData:
         self, obj: Any, real_ids: List[int], uuids: List[str], compute_md5: bool = True
     ):
 
+        logger.info(
+            "self.aggregation is %s (%s)",
+            self.aggregation_id,
+            type(self.aggregation_id),
+        )
+
         if self.aggregation_id is None:
-            self.aggregation_id = None
-        elif self.aggregation_id is True:
             self.aggregation_id = self._generate_aggr_uuid(uuids)
+        else:
+            if not isinstance(self.aggregation_id, str):
+                raise ValueError("aggregation_id must be a string")
 
         if not self.operation:
             raise ValueError("The 'operation' key has no value")
