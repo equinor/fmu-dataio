@@ -330,6 +330,29 @@ def test_regsurf_aggregated_aggregation_id_sorting(
     assert agg_uuid_1 != agg_uuid_2
 
 
+def test_regsurf_aggregated_aggregation_id_format(
+    fmurun_w_casemetadata, aggr_surfs_mean
+):
+    """Test that aggregation_id is a string."""
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+
+    os.chdir(fmurun_w_casemetadata)
+
+    aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
+    logger.info("Aggr. mean is %s", aggr_mean.values.mean())  # shall be 1238.5
+
+    # let missing aggregation_id argument generate the id
+    aggdata = dataio.AggregatedData(
+        source_metadata=metas,
+        operation="mean",
+        name="myaggrd2",
+        verbosity="INFO",
+    )
+    agg_uuid = aggdata._generate_aggr_uuid(["a", "b", "c"])
+
+    assert isinstance(agg_uuid, str), str(type(agg_uuid))
+
+
 def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     """Test surfaces, where input is diffdata."""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
