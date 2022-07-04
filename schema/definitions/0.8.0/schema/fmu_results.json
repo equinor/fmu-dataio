@@ -1146,21 +1146,31 @@
                     "$comment": "This is the fmu block as it appears in data objects",
                     "required": [
                         "model",
-                        "case",
-                        "iteration",
-                        "workflow"
+                        "case"
                     ],
-                    "$comment": "Data objects can be either realization or aggregation - never both.",
-                    "oneOf": [
+                    "$comment": "Data objects can not be both realization and aggregation, but can be none.",
+                    "anyOf": [
                         {
-                            "required": [
-                                "realization"
+                            "oneOf": [
+                                {
+                                    "required": [
+                                        "realization"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "aggregation"
+                                    ]
+                                }
                             ]
                         },
                         {
-                            "required": [
-                                "aggregation"
-                            ]
+                            "not": {
+                                "required": [
+                                    "realization",
+                                    "aggregation"
+                                ]
+                            }
                         }
                     ],
                     "properties": {
