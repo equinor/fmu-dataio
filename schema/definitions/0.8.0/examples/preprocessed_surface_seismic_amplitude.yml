@@ -123,10 +123,10 @@ data: # The data block describes the actual data (e.g. surface). Only present in
     zmin: 1244.039
     zmax: 2302.683
   time:
-    - value: 2020-10-28T14:28:02
-      label: "some label"
-    - value: 2020-10-28T14:28:02
-      label: "some other label"
+    - value: 2022-06-01T00:00:00
+      label: "My monitor label"
+    - value: 2020-10-28T00:00:00
+      label: "My base label"
   is_prediction: false # A mechanism for separating pure QC output from actual predictions
   is_observation: true # Used for 4D data currently but also valid for other data?
   description:
