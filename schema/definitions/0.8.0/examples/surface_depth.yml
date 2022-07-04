@@ -1,3 +1,5 @@
+# Example metadata for a depth surface.
+
 $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
 version: "0.8.0" # including for REP and others to build logic on.
 source: fmu  # always included, and always this value if FMU made it. For quick identification for external consumers.

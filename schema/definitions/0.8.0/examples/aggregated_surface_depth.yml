@@ -1,3 +1,10 @@
+# Example metadata for an aggregated surface.
+
+# An aggregated surface is a statistical representation of a distribution of surfaces.
+# E.g. 200 realizations produce a surface representing the same horizon. This is now a
+# distribution representing this surface with n=200. An aggregated surface is a
+# statistical representation of this distribution, e.g. "mean", "min", "max", "p10", etc.
+
 $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
 version: "0.8.0"
 source: fmu

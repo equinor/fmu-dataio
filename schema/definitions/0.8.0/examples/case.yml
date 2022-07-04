@@ -1,3 +1,5 @@
+# Example metadata for an FMU case. In the parent/child system, this is a parent object.
+
 $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
 version: "0.8.0"
 source: fmu

@@ -1,3 +1,5 @@
+# Example metadata for a polygon(s)
+
 $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
 version: "0.8.0"
 source: fmu
