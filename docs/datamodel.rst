@@ -45,12 +45,14 @@ direct runs of model templates, data produced by pre-processing workflows, data 
 in individual realizations or hooked workflows, and data produced by post-processing workflows.
 
 .. note::
-  An example of a pre-processing workflow is a set of jobs modifying selected input data
-  for later use in the FMU workflows and/or for comparison with other results in a QC context.
+  **Pre-processing** is an activity that happens before a case runs. An example of a 
+  pre-processing workflow is a set of jobs modifying selected input data for later use
+  in the FMU workflows and/or for comparison with other results in a QC context.
 
 .. note::
-  An example of a post-processing workflow is a script that aggregates results across many
-  realizations and/or iterations of an FMU case.
+  **Post-processing** is an activity that happens after a case has ran. An example of a 
+  post-processing workflow is a script that aggregates results across many realizations
+  and/or iterations of an FMU case.
 
 This data model covers data that, in the FMU context, can be linked to a specific case.
 
