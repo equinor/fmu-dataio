@@ -127,6 +127,72 @@ def test_schema_080_logic_case():
         jsonschema.validate(instance=_example, schema=schema)
 
 
+def test_schema_080_fmu_block():
+    """Test schema logic on the fmu block."""
+
+    # parse the schema and one example
+    schema = _parse_json(
+        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
+    example = _parse_yaml(
+        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/examples/surface_depth.yml"))
+    )
+
+    # assert validation with no changes
+    jsonschema.validate(instance=example, schema=schema)
+
+    # fmu.case shall be present
+    _example = deepcopy(example)
+    del _example["fmu"]["case"]
+
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_example, schema=schema)
+
+    # fmu.model shall be present
+    _example = deepcopy(example)
+    del _example["fmu"]["model"]
+
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_example, schema=schema)
+
+    # realization and aggregation never present at the same time
+    _example = deepcopy(example)
+    assert "realization" in _example["fmu"]  # verify assumptions
+    assert "aggregation" not in _example["fmu"]
+
+    # add aggregation, shall fail
+    example_with_aggregation = _parse_yaml(
+        str(
+            PurePath(
+                ROOTPWD,
+                "schema/definitions/0.8.0/examples/aggregated_surface_depth.yml",
+            )
+        )
+    )
+    # verify assumptions
+    jsonschema.validate(instance=example_with_aggregation, schema=schema)
+    assert "aggregation" in example_with_aggregation["fmu"]
+    _example["fmu"]["aggregation"] = deepcopy(
+        example_with_aggregation["fmu"]["aggregation"]
+    )
+
+    # now contains both realization and aggregation, shall fail
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_example, schema=schema)
+
+    # remove 'realization'
+    del _example["fmu"]["realization"]
+
+    # now contains only aggregation, shall validate
+    jsonschema.validate(instance=_example, schema=schema)
+
+    # remove 'aggregation'
+    del _example["fmu"]["aggregation"]
+
+    # now contains neither aggregation nor realization, shall validate
+    jsonschema.validate(instance=_example, schema=schema)
+
+
 def test_schema_080_logic_field_outline():
     """Test content-specific rule
 
