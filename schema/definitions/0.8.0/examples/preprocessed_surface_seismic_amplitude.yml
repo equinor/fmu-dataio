@@ -69,21 +69,21 @@ data: # The data block describes the actual data (e.g. surface). Only present in
     acquisition_start_date: 2021-04-21
     acquisition_end_date: 2021-04-30
     acquisition_reference_date: 2021-04-25
-    offset: 0-15  # near/mid/far/0-15/15-25/etc <-- Probably not to be indexed
+    offset: 0-15  # near/mid/far/0-15/15-25/etc
 
   # if stratigraphic, name must match the strat column. This is the official name of this surface.
-  name: volantis_top-volantis_base
+  name: volantis
   stratigraphic: false  # if true, this is a stratigraphic surface found in the strat column
   offset: 0.0  # to be used if a specific horizon is represented with an offset.
 
   top: # not required, but allowed
     name: volantis_gp_top
     stratigraphic: true
-    offset: 2.0
+    offset: 0.0
   base:
-    name: volantis_gp_top
+    name: volantis_gp_base
     stratigraphic: true
-    offset: 8.3
+    offset: 0.0
 
   stratigraphic_alias: # other stratigraphic entities this corresponds to in the strat column, e.g. Top Viking vs Top Draupne.
     - SomeName Fm. 1 Top
