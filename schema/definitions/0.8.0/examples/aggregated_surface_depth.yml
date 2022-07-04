@@ -1,6 +1,6 @@
 $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
-version: "0.8.0" # including for REP and others to build logic on.
-source: fmu  # always included, and always this value if FMU made it. For quick identification for external consumers.
+version: "0.8.0"
+source: fmu
 
 tracklog:
   - datetime: 2020-10-28T14:28:02
@@ -12,12 +12,9 @@ tracklog:
       id: peesv
     event: updated
 
-class: surface
+class: surface # class is the main identifier of the data type.
 
-# fmu:
-# The fmu block in data objects have more sub-elements compared to ensemble objects.
-
-fmu:
+fmu: # the fmu-block contains information directly related to the FMU context
   model:
     name: ff
     revision: 21.0.0.dev
@@ -28,33 +25,9 @@ fmu:
   workflow:
     reference: rms/structural_model
 
-
-  aggregation: # similar to "realization" for aggregated data
-    operation: mean  # Avoiding "type"
-    realization_ids:  # Avoiding just "realization" to avoid confusion with the "realization" definition above
-      - 0
-      - 1
-      - 2
-      - 3
-      - 64
-      - 125
-      - 399
-    parameters:    # if aggregation is based on one or more parameter, put the parameter(s) here
-      SENSNAME: faultseal
-      SENSCASE: low
-      RMS_SEED: 1006
-      KVKH_CHANNEL: 0.6
-      KVKH_CREVASSE: 0.3
-      KVKH_LS: 0.7
-      KVKH_US: 0.6
-      FAULT_SEAL_SCALING: 0.1
-      FWL_CENTRAL: 1677
-
-    id: 15ce3b84-766f-4c93-9050-b154861f9100  # Identifier for identifying common aggregation source
-
   case:
     name: MyCaseName
-    uuid: 8bb56d60-8758-481a-89a4-6bac8561d38e # (pseudo-)random valid uuid4
+    uuid: 8bb56d60-8758-481a-89a4-6bac8561d38e
     user:
       id: jriv # $USER from ERT
     description:
@@ -67,12 +40,40 @@ fmu:
     uuid: 4b939310-34b1-4179-802c-49460bc0f799 # hash of case.uuid + iteration.id
     name: "iter-0" # /"pred"
 
+  aggregation:
+    operation: mean
+    realization_ids: # a list of realization IDs used for this aggregation
+      - 0
+      - 1
+      - 2
+      - 3
+      - 64
+      - 125
+      - 399
+    parameters:    # if aggregation is based on one or more parameter, put the parameter(s) here
+      SENSNAME: faultseal
+      SENSCASE: low
+      RMS_SEED: 1006
+      INIT_FILES:
+        PERM_FLUVCHAN_E1_NORM: 0.748433
+        PERM_FLUVCHAN_E21_NORM: 0.782068
+      KVKH_CHANNEL: 0.6
+      KVKH_US: 0.6
+      FAULT_SEAL_SCALING: 0.1
+      FWL_CENTRAL: 1677
+
+    # the aggregation ID is an identifier for a specific distribution
+    # E.g. "min" and "max" for the same set of input realizations.
+    id: 15ce3b84-766f-4c93-9050-b154861f9100
+
 file:
   relative_path: iter-0/share/results/maps/volantis_gp_base--amplitude--mean.gri # case-relative
   absolute_path: /some/absolute/path/iter-0/share/results/maps/volantis_gp_base--amplitude--mean.gri
   checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
+
+  content: depth   # white-listed and standardized
 
   # if stratigraphic, name must match the strat column. This is the official name of this surface.
   name: volantis_top-volantis_base
@@ -88,16 +89,11 @@ data: # The data block describes the actual data (e.g. surface). Only present in
     stratigraphic: true
     offset: 8.3
 
-  stratigraphic_alias: # other stratigraphic entities this corresponds to in the strat column, e.g. Top Viking vs Top Draupne. Ref issue.
+  stratigraphic_alias: # other stratigraphic entities this corresponds to in the strat column, e.g. Top Viking vs Top Draupne.
     - SomeName Fm. 1 Top
   alias: # other known-as names, such as name used inside RMS etc
     - somename_fm_1_top
     - top_somename
-
-  # content is flexible more than standardized for now.
-  content: depth
-
-  # no content-specific attribute for "depth" but can come in the future
 
   properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
     - name: PropertyName
@@ -176,14 +172,14 @@ masterdata:
         uuid: ad214d85-8a1d-19da-e053-c918a4889309
     discovery:
       - short_identifier: DROGON
-        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+        uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
     field:
       - identifier: DROGON
-        uuid: 00000000-0000-0000-0000-000000000000
-    coordinate_system:  # changing from "coordinates" to clarify this is not content
+        uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
+    coordinate_system:
       identifier: ST_WGS84_UTM37N_P32637
       uuid: ad214d85-dac7-19da-e053-c918a4889309
     stratigraphic_column:
       identifier: DROGON_2020
-      uuid: 12345678-1234-1234-1234-123456789012
+      uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
 

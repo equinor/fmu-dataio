@@ -46,7 +46,7 @@ fmu:
     uuid: 4b939310-34b1-4179-802c-49460bc0f799 # hash of case.uuid + iteration.id
     name: "iter-0" # /"pred"
 
-  realization: # could be expanded in the future?
+  realization:
     id: 33
     uuid: 29a15b21-ce13-471b-9a4a-0f791552aa51 # hash of case.uuid + iteration.uuid + realization.id
     name: "realization-33"
@@ -54,9 +54,10 @@ fmu:
       SENSNAME: faultseal
       SENSCASE: low
       RMS_SEED: 1006
+      INIT_FILES:
+        PERM_FLUVCHAN_E1_NORM: 0.748433
+        PERM_FLUVCHAN_E21_NORM: 0.782068
       KVKH_CHANNEL: 0.6
-      KVKH_CREVASSE: 0.3
-      KVKH_LS: 0.7
       KVKH_US: 0.6
       FAULT_SEAL_SCALING: 0.1
       FWL_CENTRAL: 1677
@@ -78,6 +79,13 @@ file:
   checksum_md5: kjhsdfvsdlfk23knerknvk23 # checksum of the file, not the data.
 
 data: # The data block describes the actual data (e.g. surface).Only present in data objects
+
+  content: fluid_contact   # white-listed and standardized
+
+  fluid_contact: # When content == fluid_contact, include this
+    contact: owc # / fwl / goc / fgl /etc
+    truncated: true # is the contact surface truncated to the stratigraphy?
+
   # if stratigraphic, name must match the strat column. This is the official name of this surface.
   name: volantis_top-volantis_base
   stratigraphic: false # if true, this is a stratigraphic surface found in the strat column
@@ -98,12 +106,6 @@ data: # The data block describes the actual data (e.g. surface).Only present in 
     - somename_fm_1_top
     - top_somename
 
-  # content is flexible more than standardized for now.
-  content: fluid_contact
-
-  fluid_contact: # When content == fluid_contact, include this
-    contact: owc # / fwl / goc / fgl /etc - trying to avoid "type"
-    truncated: true # is the contact surface truncated to the stratigraphy?
   properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
     - name: PropertyName
       attribute: owc
@@ -181,13 +183,13 @@ masterdata:
         uuid: ad214d85-8a1d-19da-e053-c918a4889309
     discovery:
       - short_identifier: DROGON
-        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+        uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
     field:
       - identifier: DROGON
-        uuid: 00000000-0000-0000-0000-000000000000
-    coordinate_system: # changing from "coordinates" to clarify this is not content
+        uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
+    coordinate_system:
       identifier: ST_WGS84_UTM37N_P32637
       uuid: ad214d85-dac7-19da-e053-c918a4889309
     stratigraphic_column:
       identifier: DROGON_2020
-      uuid: 12345678-1234-1234-1234-123456789012
+      uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
