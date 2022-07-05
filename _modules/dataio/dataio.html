@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.0.0rc8.dev1+g264ae9b documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.0.0rc9.dev1+gc6655e4 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -1007,9 +1007,8 @@
     <span class="sd">&quot;&quot;&quot;Instantate AggregatedData object.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        aggregation_id: Give an explicit ID for the aggregation. If set to True, an</span>
-<span class="sd">            automatic ID based on existing realization uuid will be made.</span>
-<span class="sd">            Default is None which means it will be missing (null) in the metadata.</span>
+<span class="sd">        aggregation_id: Give an explicit ID for the aggregation. If None, an ID will be</span>
+<span class="sd">        made based on existing realization uuids.</span>
 <span class="sd">        casepath: The root folder to the case, default is None. If None, the casepath</span>
 <span class="sd">            is derived from the first input metadata paths (cf. ``source_metadata``) if</span>
 <span class="sd">            possible. If given explicitly, the physical casepath folder must exist in</span>
@@ -1023,7 +1022,7 @@
 <span class="sd">        tagname: Additional name, as part of file name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">aggregation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">aggregation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">casepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">source_metadata</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -1042,7 +1041,7 @@
         <span class="sd">&quot;&quot;&quot;Unless aggregation_id; use existing UUIDs to generate a new UUID.&quot;&quot;&quot;</span>
 
         <span class="n">stringinput</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">xuuid</span> <span class="ow">in</span> <span class="n">uuids</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">xuuid</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">uuids</span><span class="p">):</span>
             <span class="n">stringinput</span> <span class="o">+=</span> <span class="n">xuuid</span>
 
         <span class="k">return</span> <span class="n">uuid_from_string</span><span class="p">(</span><span class="n">stringinput</span><span class="p">)</span>
@@ -1168,10 +1167,17 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">real_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">uuids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">):</span>
 
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;self.aggregation is </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span><span class="p">),</span>
+        <span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_aggr_uuid</span><span class="p">(</span><span class="n">uuids</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;aggregation_id must be a string&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;operation&#39; key has no value&quot;</span><span class="p">)</span>
@@ -1329,7 +1335,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc8.dev1+g264ae9b).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc9.dev1+gc6655e4).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

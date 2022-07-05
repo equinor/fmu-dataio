@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 1.0.0rc8.dev1+g264ae9b documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 1.0.0rc9.dev1+gc6655e4 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -682,9 +682,8 @@ settings here.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>aggregation_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Give an explicit ID for the aggregation. If set to True, an
-automatic ID based on existing realization uuid will be made.
-Default is None which means it will be missing (null) in the metadata.</p></li>
+<li><p><strong>aggregation_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Give an explicit ID for the aggregation. If None, an ID will be</p></li>
+<li><p><strong>uuids.</strong> (<em>made based on existing realization</em>) – </p></li>
 <li><p><strong>casepath</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – The root folder to the case, default is None. If None, the casepath
 is derived from the first input metadata paths (cf. <code class="docutils literal notranslate"><span class="pre">source_metadata</span></code>) if
 possible. If given explicitly, the physical casepath folder must exist in
@@ -701,7 +700,7 @@ in standard python logging; e.g. “WARNING”, “INFO”.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.AggregatedData.aggregation_id">
-<span class="sig-name descname"><span class="pre">aggregation_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.aggregation_id" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">aggregation_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.AggregatedData.aggregation_id" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -806,7 +805,7 @@ settings here.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc8.dev1+g264ae9b).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc9.dev1+gc6655e4).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
