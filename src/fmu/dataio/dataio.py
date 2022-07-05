@@ -932,9 +932,8 @@ class AggregatedData:
     """Instantate AggregatedData object.
 
     Args:
-        aggregation_id: Give an explicit ID for the aggregation. If None, or not
-            provided, an automatic ID based on existing realization uuid will be made.
-            Default is None which means it will be missing (null) in the metadata.
+        aggregation_id: Give an explicit ID for the aggregation. If None, an ID will be
+        made based on existing realization uuids.
         casepath: The root folder to the case, default is None. If None, the casepath
             is derived from the first input metadata paths (cf. ``source_metadata``) if
             possible. If given explicitly, the physical casepath folder must exist in
