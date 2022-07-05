@@ -178,7 +178,7 @@ def size(fname):
 
 def uuid_from_string(string):
     """Produce valid and repeteable UUID4 as a hash of given string"""
-    return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())
+    return str(uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest()))
 
 
 def read_parameters_txt(pfile: Union[Path, str]) -> Dict[str, Union[str, float, int]]:

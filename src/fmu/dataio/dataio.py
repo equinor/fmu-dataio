@@ -969,7 +969,7 @@ class AggregatedData:
         for xuuid in sorted(uuids):
             stringinput += xuuid
 
-        return str(uuid_from_string(stringinput))
+        return uuid_from_string(stringinput)
 
     def _update_settings(self, newsettings: dict) -> None:
         """Update instance settings (properties) from other routines."""
