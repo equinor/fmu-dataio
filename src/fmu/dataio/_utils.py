@@ -94,7 +94,7 @@ def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -
         xdata = drop_nones(metadata)
 
         if savefmt == "yaml":
-            yamlblock = oyaml.safe_dump(xdata)
+            yamlblock = oyaml.safe_dump(xdata, allow_unicode=True)
             with open(yfile, "w") as stream:
                 stream.write(yamlblock)
         else:
