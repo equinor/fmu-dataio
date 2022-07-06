@@ -10,6 +10,7 @@ import pandas as pd
 import pytest
 import xtgeo
 import yaml
+from fmu.config import utilities as ut
 from termcolor import cprint
 
 import fmu.dataio as dio
@@ -128,6 +129,28 @@ def fixture_rmsglobalconfig(rmssetup):
     logger.info("Ran setup for %s", "rmsglobalconfig")
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return global_cfg
+
+
+@pytest.fixture(name="globalvars_norw_letters", scope="module", autouse=True)
+def fixture_globalvars_norw_letters(tmp_path_factory):
+    """Read a global config with norwegian special letters w/ fmu.config utilities."""
+
+    tmppath = tmp_path_factory.mktemp("revisionxx")
+    rmspath = tmppath / "rms/model"
+    rmspath.mkdir(parents=True, exist_ok=True)
+
+    gname = "global_variables_norw_letters.yml"
+
+    # copy a global config with nowr letters here
+    shutil.copy(
+        ROOTPWD / "tests/data/drogon/global_config2" / gname,
+        rmspath,
+    )
+
+    os.chdir(rmspath)
+    cfg = ut.yaml_load(rmspath / gname)
+
+    return (rmspath, cfg, gname)
 
 
 @pytest.fixture(name="casesetup", scope="module", autouse=True)

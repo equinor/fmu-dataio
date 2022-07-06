@@ -697,7 +697,7 @@ class ExportData:
         # inject md5 checksum in metadata
         metadata["file"]["checksum_md5"] = md5
 
-        export_metadata_file(metafile, metadata)
+        export_metadata_file(metafile, metadata, savefmt=self.meta_format)
         logger.info("Actual file is:   %s", outfile)
         logger.info("Metadata file is: %s", metafile)
 
@@ -739,6 +739,10 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             in standard python logging; e.g. "WARNING", "INFO".
     """
 
+    # class variables
+    meta_format: ClassVar[str] = "yaml"
+
+    # instance
     config: dict
     rootfolder: Union[str, Path, None] = None
     casename: Optional[str] = None
@@ -900,7 +904,9 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             Full path of metadata file or None
         """
         if self.generate_case_metadata(force=force, skip_null=skip_null, **kwargs):
-            export_metadata_file(self._metafile, self._metadata)
+            export_metadata_file(
+                self._metafile, self._metadata, savefmt=self.meta_format
+            )
             logger.info("METAFILE %s", self._metafile)
         else:
             warn(
@@ -947,6 +953,10 @@ class AggregatedData:
         tagname: Additional name, as part of file name
     """
 
+    # class variable(s)
+    meta_format: ClassVar[str] = "yaml"
+
+    # instance
     aggregation_id: Optional[str] = None
     casepath: Union[str, Path, None] = None
     source_metadata: list = field(default_factory=list)
@@ -1245,7 +1255,7 @@ class AggregatedData:
         # inject the computed md5 checksum in metadata
         metadata["file"]["checksum_md5"] = md5
 
-        export_metadata_file(metafile, metadata)
+        export_metadata_file(metafile, metadata, savefmt=self.meta_format)
         logger.info("Actual file is:   %s", outfile)
         logger.info("Metadata file is: %s", metafile)
 

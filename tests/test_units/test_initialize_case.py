@@ -21,6 +21,41 @@ def test_inicase_barebone(globalconfig2):
     assert "Drogon" in str(icase.config)
 
 
+def test_inicase_barebone_with_export(globalconfig2, fmurun):
+
+    icase = InitializeCase(config=globalconfig2, verbosity="INFO")
+    assert "Drogon" in str(icase.config)
+
+    globalconfig2["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"
+
+    caseroot = fmurun.parent.parent
+
+    icase.export(
+        rootfolder=caseroot,
+        force=True,
+        casename="MyCaseName_with_Æ",
+        caseuser="MyUser",
+        description="Some description",
+    )
+
+    casemetafile = caseroot / "share/metadata/fmu_case.yml"
+
+    # check that special characters made it through
+    with open(casemetafile, "r") as stream:
+        metadata = yaml.safe_load(stream)
+
+    assert metadata["fmu"]["case"]["name"] == "MyCaseName_with_Æ"
+    assert metadata["masterdata"]["smda"]["field"][0]["identifier"] == "æøå"
+
+    # Check that special characters are encoded properly in stored metadatafile.
+    # yaml.safe_load() seems to sort this out, but we want files on disk to be readable.
+    # Therefore check by reading the raw file content.
+    with open(casemetafile, "r") as stream:
+        metadata_string = stream.read()
+
+    assert "æøå" in metadata_string
+
+
 def test_inicase_pwd_basepath(fmurun, globalconfig2):
 
     logger.info("Active folder is %s", fmurun)
