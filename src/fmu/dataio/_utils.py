@@ -94,12 +94,12 @@ def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -
         xdata = drop_nones(metadata)
 
         if savefmt == "yaml":
-            yamlblock = oyaml.safe_dump(xdata)
-            with open(yfile, "w") as stream:
+            yamlblock = oyaml.safe_dump(xdata, allow_unicode=True)
+            with open(yfile, "w", encoding="utf8") as stream:
                 stream.write(yamlblock)
         else:
             jfile = str(yfile).replace(".yml", ".json")
-            jsonblock = json.dumps(xdata, default=str, indent=2)
+            jsonblock = json.dumps(xdata, default=str, indent=2, ensure_ascii=False)
             with open(jfile, "w") as stream:
                 stream.write(jsonblock)
 
@@ -308,7 +308,7 @@ def get_object_name(obj):
 
 def prettyprint_dict(inp: dict) -> str:
     """Prettyprint a dict into as string variable (for python logging e.g)"""
-    return str(json.dumps(inp, indent=2, default=str))
+    return str(json.dumps(inp, indent=2, default=str, ensure_ascii=False))
 
 
 def some_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
