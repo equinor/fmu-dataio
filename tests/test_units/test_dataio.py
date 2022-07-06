@@ -1,4 +1,4 @@
-"""Test the dataio ExportData etc from the dataio.py module"""
+"""Test the dataio ExportData etc from the dataio.py module."""
 import logging
 import os
 import pathlib
