@@ -130,14 +130,27 @@ pip install git+ssh://git@github.com/equinor/fmu-dataio@0.1.1
 
 Local development and testing:
 
+Make your own fork of fmu-dataio and then clone it localy on unix.
+Create a virtual environement:
 ```console
-Make your own fork of fmu-dataio and then clone it locally on unix.
-Create a virtual environement: python -m venv my_venv
-Activate the venv: source my_venv/bin/activate
-Upgrade pip: pip install --upgrade pip
-Install fmu-dataio from the source (in your local repository folder fmu-dataio): pip install -e .
+python -m venv my_venv
+```
+Activate the venv: 
+```console
+source my_venv/bin/activate
+```
+Upgrade pip and install fmu-dataio from the source:
+```console
+pip install --upgrade pip
+pip install -e .
+```
+Install requirements for running tests:
+```console
 pip install -e .[tests,docs]
-Then run the command: pytest
+```
+Then run the command: 
+```console
+pytest
 ```
 
 ## License
