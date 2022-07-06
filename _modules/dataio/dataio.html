@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.0.0rc9.dev2+g4a8fe86 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.0.0rc9.dev3+g679030b documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -772,7 +772,7 @@
         <span class="c1"># inject md5 checksum in metadata</span>
         <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">md5</span>
 
-        <span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+        <span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">savefmt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_format</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Actual file is:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata file is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
 
@@ -814,6 +814,10 @@
 <span class="sd">            in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c1"># class variables</span>
+    <span class="n">meta_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yaml&quot;</span>
+
+    <span class="c1"># instance</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span>
     <span class="n">rootfolder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">casename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -975,7 +979,9 @@
 <span class="sd">            Full path of metadata file or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_case_metadata</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">skip_null</span><span class="o">=</span><span class="n">skip_null</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="n">export_metadata_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span>
+            <span class="n">export_metadata_file</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">,</span> <span class="n">savefmt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_format</span>
+            <span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;METAFILE </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
@@ -1022,6 +1028,10 @@
 <span class="sd">        tagname: Additional name, as part of file name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c1"># class variable(s)</span>
+    <span class="n">meta_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yaml&quot;</span>
+
+    <span class="c1"># instance</span>
     <span class="n">aggregation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">casepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">source_metadata</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
@@ -1320,7 +1330,7 @@
         <span class="c1"># inject the computed md5 checksum in metadata</span>
         <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">md5</span>
 
-        <span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+        <span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">savefmt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_format</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Actual file is:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata file is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
 
@@ -1335,7 +1345,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc9.dev2+g4a8fe86).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc9.dev3+g679030b).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
