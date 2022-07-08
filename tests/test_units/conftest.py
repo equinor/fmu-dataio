@@ -296,6 +296,35 @@ def fixture_edataobj2(globalconfig2):
     return eobj
 
 
+# TODO: Consider less generic names for these "edataobj" since they are specific
+# on data type/format.
+
+
+@pytest.fixture(name="edataobj3", scope="function")
+def fixture_edataobj3(globalconfig2):
+    """Combined globalconfig2 and other settings for a table;
+    NB for internal unit testing"""
+    eobj = dio.ExportData(
+        config=globalconfig2,
+        name="MySmry",
+        tagname="mytag",
+        is_prediction=True,
+        is_observation=False,
+        fmu_context="realization",
+    )
+
+    eobj.surface_fformat = "arrow"
+    eobj.createfolder = False
+    eobj.verifyfolder = False
+    eobj.legacy_time_format = False
+
+    eobj._rootpath = Path(".")
+    eobj._pwd = Path(".")
+
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return eobj
+
+
 # ======================================================================================
 # Various objects
 # ======================================================================================
@@ -368,12 +397,9 @@ def fixture_dataframe():
 @pytest.fixture(name="arrowtable", scope="module", autouse=True)
 def fixture_arrowtable():
     """Create an arrow table instance."""
-    if HAS_PYARROW:
-        logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-        dfr = pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
-        return pa.Table.from_pandas(dfr)
-    else:
-        return None
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    dfr = pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
+    return pa.Table.from_pandas(dfr)
 
 
 @pytest.fixture(name="aggr_surfs_mean", scope="module", autouse=True)

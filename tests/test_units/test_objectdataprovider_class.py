@@ -83,3 +83,44 @@ def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):
     assert res["content"] == "depth"
 
     assert res["alias"]
+
+
+# --------------------------------------------------------------------------------------
+# ArrowTable
+# --------------------------------------------------------------------------------------
+
+
+def test_objectdata_arrowtable_validate_extension(arrowtable, edataobj3):
+    """Test a valid extension for ArrowTable object."""
+
+    ext = _ObjectDataProvider(arrowtable, edataobj3)._validate_get_ext(
+        "arrow", "ArrowTable", _ValidFormats().table
+    )
+
+    assert ext == ".arrow"
+
+
+def test_objectdata_arrowtable_validate_extension_shall_fail(arrowtable, edataobj3):
+    """Test an invalid extension for ArrowTable object."""
+
+    with pytest.raises(ConfigurationError):
+        _ = _ObjectDataProvider(arrowtable, edataobj3)._validate_get_ext(
+            "some_invalid", "ArrowTable", _ValidFormats().surface
+        )
+
+
+def test_objectdata_arrowtable_derive_objectdata(arrowtable, edataobj3):
+    """Derive other properties."""
+    res = _ObjectDataProvider(arrowtable, edataobj3)._derive_objectdata()
+    assert res["subtype"] == "ArrowTable"
+    assert res["classname"] == "table"
+    assert res["extension"] == ".arrow"
+
+
+def test_objectdata_arrowtable_derive_metadata(arrowtable, edataobj1):
+    """Derive all metadata for the 'data' block in fmu-dataio."""
+
+    myobj = _ObjectDataProvider(arrowtable, edataobj1)
+    myobj.derive_metadata()
+    res = myobj.metadata
+    assert res["content"] == "depth"
