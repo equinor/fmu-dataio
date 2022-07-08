@@ -117,10 +117,22 @@ def test_objectdata_arrowtable_derive_objectdata(arrowtable, edataobj3):
     assert res["extension"] == ".arrow"
 
 
-def test_objectdata_arrowtable_derive_metadata(arrowtable, edataobj1):
+def test_objectdata_arrowtable_derive_metadata(arrowtable, edataobj3):
     """Derive all metadata for the 'data' block in fmu-dataio."""
 
-    myobj = _ObjectDataProvider(arrowtable, edataobj1)
+    myobj = _ObjectDataProvider(arrowtable, edataobj3)
     myobj.derive_metadata()
     res = myobj.metadata
-    assert res["content"] == "depth"
+
+    assert res["content"] == "timeseries"  # set in fixture
+
+
+def test_objectdata_arrowtable_derive_spec_bbox(arrowtable, edataobj3):
+    """Derive spec and bbox for ArrowTable."""
+
+    myobj = _ObjectDataProvider(arrowtable, edataobj3)
+    myobj.derive_metadata()
+    res = myobj.metadata
+    assert "columns" in res["spec"]
+
+    assert res["spec"]["columns"] == ["COL1", "COL2"]

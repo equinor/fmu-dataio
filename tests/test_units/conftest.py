@@ -305,6 +305,7 @@ def fixture_edataobj3(globalconfig2):
     """Combined globalconfig2 and other settings for a table;
     NB for internal unit testing"""
     eobj = dio.ExportData(
+        content="timeseries",
         config=globalconfig2,
         name="MySmry",
         tagname="mytag",
