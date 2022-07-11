@@ -4,6 +4,13 @@ import pytest
 from fmu.dataio._definitions import _ValidFormats
 from fmu.dataio._objectdata_provider import ConfigurationError, _ObjectDataProvider
 
+try:
+    import pyarrow as pa  # type: ignore
+except ImportError:
+    HAS_PYARROW = False
+else:
+    HAS_PYARROW = True
+
 # --------------------------------------------------------------------------------------
 # RegularSurface
 # --------------------------------------------------------------------------------------
@@ -89,6 +96,10 @@ def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):
 # ArrowTable
 # --------------------------------------------------------------------------------------
 
+# Tests for ArrowTable assume pyarrow is installed. This is, however, not always the
+# case. If pyarrow is not installed (we are in older Python environment), skip most of
+# the ArrowTable tests.
+
 
 def test_objectdata_arrowtable_validate_extension(arrowtable, edataobj3):
     """Test a valid extension for ArrowTable object."""
@@ -111,14 +122,25 @@ def test_objectdata_arrowtable_validate_extension_shall_fail(arrowtable, edataob
 
 def test_objectdata_arrowtable_derive_objectdata(arrowtable, edataobj3):
     """Derive other properties."""
-    res = _ObjectDataProvider(arrowtable, edataobj3)._derive_objectdata()
-    assert res["subtype"] == "ArrowTable"
-    assert res["classname"] == "table"
-    assert res["extension"] == ".arrow"
+
+    objdata = _ObjectDataProvider(arrowtable, edataobj3)
+    if HAS_PYARROW:
+        res = objdata._derive_objectdata()
+        assert res["subtype"] == "ArrowTable"
+        assert res["classname"] == "table"
+        assert res["extension"] == ".arrow"
+    else:
+        with pytest.raises(NotImplementedError):
+            # shall fail if pyarrow is not available
+            res = objdata._derive_objectdata()
 
 
 def test_objectdata_arrowtable_derive_metadata(arrowtable, edataobj3):
     """Derive all metadata for the 'data' block in fmu-dataio."""
+
+    # skip if pyarrow not installed
+    if not HAS_PYARROW:
+        return
 
     myobj = _ObjectDataProvider(arrowtable, edataobj3)
     myobj.derive_metadata()
@@ -130,6 +152,10 @@ def test_objectdata_arrowtable_derive_metadata(arrowtable, edataobj3):
 def test_objectdata_arrowtable_derive_spec_bbox(arrowtable, edataobj3):
     """Derive spec and bbox for ArrowTable."""
 
+    # skip if pyarrow not installed
+    if not HAS_PYARROW:
+        return
+
     myobj = _ObjectDataProvider(arrowtable, edataobj3)
     myobj.derive_metadata()
     res = myobj.metadata
@@ -140,6 +166,10 @@ def test_objectdata_arrowtable_derive_spec_bbox(arrowtable, edataobj3):
 
 def test_objectdata_arrowtable_derive_properties(arrowtable_unsmry, edataobj3):
     """Derive data.properties for ArrowTable"""
+
+    # skip if pyarrow not installed
+    if not HAS_PYARROW:
+        return
 
     # use a real-looking UNSRMY file for the tests
 
