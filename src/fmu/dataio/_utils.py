@@ -387,3 +387,24 @@ def generate_description(desc: Optional[Union[str, list]] = None) -> Union[list,
         return desc
     else:
         raise ValueError("Description of wrong type, must be list of strings or string")
+
+
+def pyarrow_field_to_dict(field, fieldname):
+    """Convert pyarrow field object to dictionary."""
+
+    # TODO: What about when we don't have PYARROW?
+
+    if field.metadata is not None:
+        bytesdict = dict(field.metadata)
+    else:
+        bytesdict = None
+
+    if bytesdict is None:
+        outdict = dict()
+    else:
+        # incoming dictionary is binary, so we asciify it
+        outdict = {key.decode(): value.decode() for key, value in bytesdict.items()}
+
+    outdict["name"] = fieldname
+
+    return outdict

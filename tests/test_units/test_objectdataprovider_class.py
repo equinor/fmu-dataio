@@ -136,3 +136,39 @@ def test_objectdata_arrowtable_derive_spec_bbox(arrowtable, edataobj3):
     assert "columns" in res["spec"]
 
     assert res["spec"]["columns"] == ["COL1", "COL2"]
+
+
+def test_objectdata_arrowtable_derive_properties(arrowtable_unsmry, edataobj3):
+    """Derive data.properties for ArrowTable"""
+
+    # use a real-looking UNSRMY file for the tests
+
+    myobj = _ObjectDataProvider(arrowtable_unsmry, edataobj3)
+    myobj.derive_metadata()
+    res = myobj.metadata
+
+    # check assumptions
+    assert "FOPR" in res["spec"]["columns"]  # "FOPR" is there
+    _field = arrowtable_unsmry.field("FOPR")
+    assert _field.metadata  # metadata exists
+    assert dict(_field.metadata)  # can be dictified
+
+    # check output
+    assert "properties" in res.keys(), res.keys()  # "properties" is there
+    assert isinstance(res["properties"], list)  # it is a list
+    assert len(res["properties"]) > 1, len(res["properties"])  # ...with 1+ items
+
+    # first item of UNSMRY is "DATE" which has no metadata from source
+    _DATE = res["properties"][0]
+    assert _DATE, res["properties"]  # ...where first item is not None
+
+    assert "name" in _DATE
+    assert _DATE["name"] == "DATE"
+
+    # second item is 'YEARS'
+    _YEARS = res["properties"][1]  # short-form
+    assert "name" in _YEARS
+    assert _YEARS["name"] == "YEARS", _YEARS
+
+    assert "unit" in _YEARS
+    assert _YEARS["unit"] == "YEARS"

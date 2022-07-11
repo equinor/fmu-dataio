@@ -94,7 +94,7 @@ import pandas as pd  # type: ignore
 import xtgeo  # type: ignore
 
 from ._definitions import _ValidFormats
-from ._utils import generate_description
+from ._utils import generate_description, pyarrow_field_to_dict
 
 try:
     import pyarrow as pa  # type: ignore
@@ -204,6 +204,8 @@ class _ObjectDataProvider:
         logger.info("Evaluate data settings for object")
         result = dict()
 
+        logger.info("Object instance is %s", type(self.obj))
+
         if isinstance(self.obj, xtgeo.RegularSurface):
             result["subtype"] = "RegularSurface"
             result["classname"] = "surface"
@@ -214,6 +216,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().surface
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_regularsurface()
+            result["properties"] = None
         elif isinstance(self.obj, xtgeo.Polygons):
             result["subtype"] = "Polygons"
             result["classname"] = "polygons"
@@ -224,6 +227,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().polygons
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_polygons()
+            result["properties"] = None
         elif isinstance(self.obj, xtgeo.Points):
             result["subtype"] = "Points"
             result["classname"] = "points"
@@ -234,6 +238,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().points
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_points()
+            result["properties"] = None
         elif isinstance(self.obj, xtgeo.Cube):
             result["subtype"] = "RegularCube"
             result["classname"] = "cube"
@@ -244,6 +249,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().cube
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_cube()
+            result["properties"] = None
         elif isinstance(self.obj, xtgeo.Grid):
             result["subtype"] = "CPGrid"
             result["classname"] = "cpgrid"
@@ -254,6 +260,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().grid
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_cpgrid()
+            result["properties"] = None
         elif isinstance(self.obj, xtgeo.GridProperty):
             result["subtype"] = "CPGridProperty"
             result["classname"] = "cpgrid_property"
@@ -264,6 +271,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().grid
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_cpgridproperty()
+            result["properties"] = None
         elif isinstance(self.obj, pd.DataFrame):
             result["subtype"] = "DataFrame"
             result["classname"] = "table"
@@ -274,6 +282,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_dataframe()
+            result["properties"] = None
         elif HAS_PYARROW and isinstance(self.obj, pa.Table):
             result["subtype"] = "ArrowTable"
             result["classname"] = "table"
@@ -284,6 +293,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
+            result["properties"] = self._derive_properties_arrowtable()
         else:
             raise NotImplementedError(
                 "This data type is not (yet) supported: ", type(self.obj)
@@ -467,6 +477,21 @@ class _ObjectDataProvider:
 
         return specs, bbox
 
+    def _derive_properties_arrowtable(self):
+        """Copy content from pyarrow schema into data.properties."""
+        logger.info("Process data.properties for arrow (tables)")
+
+        table = self.obj
+
+        _columns = list(table.column_names)  # equivalent to table.schema.names?
+
+        properties = [
+            pyarrow_field_to_dict(table.schema.field(column), column)
+            for column in _columns
+        ]
+
+        return properties
+
     def _derive_timedata(self):
         """Format input timedata to metadata."""
 
@@ -552,6 +577,7 @@ class _ObjectDataProvider:
         meta["top"] = nameres.get("top", None)
         meta["base"] = nameres.get("base", None)
         meta["content"] = self.dataio._usecontent
+        meta["properties"] = objres["properties"]
         meta["tagname"] = self.dataio.tagname
         meta["format"] = objres["fmt"]
         meta["layout"] = objres["layout"]
