@@ -14,7 +14,7 @@ tracklog:
       id: peesv
     event: updated
 
-class: surface # class is the main identifier of the data type.
+class: table # class is the main identifier of the data type.
 
 fmu: # the fmu-block contains information directly related to the FMU context
   model:
@@ -25,7 +25,7 @@ fmu: # the fmu-block contains information directly related to the FMU context
       - optional
 
   workflow:
-    reference: rms/structural_model
+    reference: rms/volumetrics
 
   case:
     name: MyCaseName
@@ -59,8 +59,8 @@ fmu: # the fmu-block contains information directly related to the FMU context
       FWL_CENTRAL: 1677
 
 file:
-  relative_path: realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri # case-relative
-  absolute_path: /some/absolute/path/realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri
+  relative_path: realization-33/iter-0/share/results/tables/inplace_mygrid.csv # case-relative
+  absolute_path: /some/absolute/path/realization-33/iter-0/share/results/inplace_mygrid.csv
   checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
   size_bytes: 5010144
 
