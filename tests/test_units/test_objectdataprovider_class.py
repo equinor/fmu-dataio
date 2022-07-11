@@ -5,7 +5,7 @@ from fmu.dataio._definitions import _ValidFormats
 from fmu.dataio._objectdata_provider import ConfigurationError, _ObjectDataProvider
 
 try:
-    import pyarrow as pa  # type: ignore
+    import pyarrow as pa  # type: ignore # pylint: disable=unused-import
 except ImportError:
     HAS_PYARROW = False
 else:
