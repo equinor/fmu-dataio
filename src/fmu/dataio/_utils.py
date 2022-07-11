@@ -389,6 +389,27 @@ def generate_description(desc: Optional[Union[str, list]] = None) -> Union[list,
         raise ValueError("Description of wrong type, must be list of strings or string")
 
 
+def str2bool(val):
+    """Convert string to bool or None if applicable, else return input."""
+
+    # Do not use distutils.utils.str2bool as we want to be more explicit.
+    # E.g. we don't necessarily want to convert 'off' or 0 to bool.
+
+    if not isinstance(val, str):
+        return val
+
+    if val.lower() == "false":
+        return False
+
+    if val.lower() == "true":
+        return True
+
+    if val.lower() == "none":
+        return None
+
+    return val
+
+
 def pyarrow_field_to_dict(field, fieldname):
     """Convert pyarrow field object to dictionary."""
 
@@ -403,7 +424,9 @@ def pyarrow_field_to_dict(field, fieldname):
         outdict = dict()
     else:
         # incoming dictionary is binary, so we asciify it
-        outdict = {key.decode(): value.decode() for key, value in bytesdict.items()}
+        outdict = {
+            key.decode(): str2bool(value.decode()) for key, value in bytesdict.items()
+        }
 
     outdict["name"] = fieldname
 

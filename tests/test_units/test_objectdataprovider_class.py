@@ -202,3 +202,20 @@ def test_objectdata_arrowtable_derive_properties(arrowtable_unsmry, edataobj3):
 
     assert "unit" in _YEARS
     assert _YEARS["unit"] == "YEARS"
+
+    # third item is FOPR. This has more content to test for.
+    _FOPR = res["properties"][2]  # short-form
+    assert "name" in _FOPR
+    assert _FOPR["name"] == "FOPR", _FOPR
+
+    assert "unit" in _FOPR
+    assert _FOPR["unit"] == "SM3/DAY"
+
+    assert "is_total" in _FOPR
+    assert _FOPR["is_total"] is False
+
+    assert "is_rate" in _FOPR
+    assert _FOPR["is_rate"] is True
+
+    assert "wgname" in _FOPR
+    assert _FOPR["wgname"] is None
