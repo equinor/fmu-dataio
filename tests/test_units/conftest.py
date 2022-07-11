@@ -399,17 +399,23 @@ def fixture_dataframe():
 @pytest.fixture(name="arrowtable", scope="module", autouse=True)
 def fixture_arrowtable():
     """Create an arrow table instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    dfr = pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
-    return pa.Table.from_pandas(dfr)
+    if HAS_PYARROW:
+        logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+        dfr = pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
+        return pa.Table.from_pandas(dfr)
+    else:
+        return None
 
 
 @pytest.fixture(name="arrowtable_unsmry", scope="module", autouse=True)
 def fixture_arrowtable_unsmry():
     """Load a real unsmry arrowtable from testdata"""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    arw = feather.read_table(ROOTPWD / RUN1 / "DROGON-0.arrow")
-    return arw
+    if HAS_PYARROW:
+        logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+        arw = feather.read_table(ROOTPWD / RUN1 / "DROGON-0.arrow")
+        return arw
+    else:
+        return None
 
 
 @pytest.fixture(name="aggr_surfs_mean", scope="module", autouse=True)
