@@ -1187,88 +1187,52 @@
                     "$ref": "#/definitions/file"
                 },
                 "data": {
-                    "$comment": "Require fluid_contact when content is fluid_contact",
+                    "$comment": "Conditionals",
                     "allOf": [
                         {
-                            "oneOf": [
-                                {
-                                    "required": [
-                                        "fluid_contact"
-                                    ],
-                                    "properties": {
-                                        "content": {
-                                            "enum": [
-                                                "fluid_contact"
-                                            ]
-                                        }
-                                    }
-                                },
-                                {
-                                    "properties": {
-                                        "content": {
-                                            "not": {
-                                                "enum": [
-                                                    "fluid_contact"
-                                                ]
-                                            }
-                                        }
+                            "$comment": "When content == field_outline, require data.field_outline",
+                            "if": {
+                                "properties": {
+                                    "content": {
+                                        "const": "field_outline"
                                     }
                                 }
-                            ]
+                            },
+                            "then": {
+                                "required": [
+                                    "field_outline"
+                                ]
+                            }
                         },
                         {
-                            "oneOf": [
-                                {
-                                    "required": [
-                                        "field_outline"
-                                    ],
-                                    "properties": {
-                                        "content": {
-                                            "enum": [
-                                                "field_outline"
-                                            ]
-                                        }
-                                    }
-                                },
-                                {
-                                    "properties": {
-                                        "content": {
-                                            "not": {
-                                                "enum": [
-                                                    "field_outline"
-                                                ]
-                                            }
-                                        }
+                            "$comment": "When content == fluid_contact, require data.fluid_contact",
+                            "if": {
+                                "properties": {
+                                    "content": {
+                                        "const": "fluid_contact"
                                     }
                                 }
-                            ]
+                            },
+                            "then": {
+                                "required": [
+                                    "fluid_contact"
+                                ]
+                            }
                         },
                         {
-                            "oneOf": [
-                                {
-                                    "required": [
-                                        "seismic"
-                                    ],
-                                    "properties": {
-                                        "content": {
-                                            "enum": [
-                                                "seismic"
-                                            ]
-                                        }
-                                    }
-                                },
-                                {
-                                    "properties": {
-                                        "content": {
-                                            "not": {
-                                                "enum": [
-                                                    "seismic"
-                                                ]
-                                            }
-                                        }
+                            "$comment": "When content == seismic, require data.seismic",
+                            "if": {
+                                "properties": {
+                                    "content": {
+                                        "const": "seismic"
                                     }
                                 }
-                            ]
+                            },
+                            "then": {
+                                "required": [
+                                    "seismic"
+                                ]
+                            }
                         }
                     ]
                 },
