@@ -372,12 +372,6 @@
                                 25.0
                             ]
                         },
-                        "yori": {
-                            "type": "number",
-                            "examples": [
-                                461499.9997558594
-                            ]
-                        },
                         "yflip": {
                             "type": "integer",
                             "$comment": "A boolean represented by an integer (?)",
