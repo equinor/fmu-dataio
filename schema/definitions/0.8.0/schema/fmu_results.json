@@ -102,7 +102,11 @@
         "class": {
             "title": "Metadata class",
             "type": "string",
-            "example": "surface",
+            "examples": [
+                "surface",
+                "table",
+                "points"
+            ],
             "enum": [
                 "case",
                 "surface",
@@ -170,7 +174,7 @@
             "properties": {
                 "name": {
                     "type": "string",
-                    "description": "Name of the surface. If stratigraphic, match the entry in the stratigraphic column",
+                    "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
                     "examples": [
                         "VIKING GP. Top"
                     ]
@@ -178,7 +182,7 @@
                 "stratigraphic": {
                     "$comment": "Determines of validation against strat column should happen or not",
                     "type": "boolean",
-                    "description": "True of surface represents an entity in the stratigraphic column",
+                    "description": "True if data object represents an entity in the stratigraphic column",
                     "examples": [
                         true
                     ]
@@ -246,6 +250,7 @@
                 },
                 "properties": {
                     "$comment": "This is not the JSON Schema properties, this is FMU properties",
+                    "description": "data.properties is an array of property objects, representing the properties present in the data object.",
                     "type": "array",
                     "items": {
                         "type": "object",
@@ -499,7 +504,7 @@
                         },
                         "truncated": {
                             "type": "boolean",
-                            "$comment": "Is this contact surface truncated to the stratigraphy?",
+                            "$comment": "Is this contact truncated to the stratigraphy?",
                             "examples": [
                                 true
                             ]
