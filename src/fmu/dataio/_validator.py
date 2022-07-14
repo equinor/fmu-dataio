@@ -8,7 +8,7 @@ import logging
 import urllib
 
 from pathlib import Path
-from typing import Optional, Union, List
+from typing import Union
 
 from fmu.dataio import read_metadata
 
@@ -89,7 +89,7 @@ class _Validator:
 
         # pre-flight validation to check basics
         preflight_valid, preflight_reason = self._preflight_validation(instance)
-        if preflight_valid == False:
+        if preflight_valid is False:
             return self._create_results(preflight_valid, preflight_reason)
 
         if schema_reference is not None:
@@ -205,7 +205,7 @@ class _Validator:
             logger.info("Validation failed, returning results.")
             return self._create_results(False, err.message)
         except jsonschema.exceptions.SchemaError as err:
-            raise
+            raise err
 
     def _create_results(self, valid: bool, reason: str = None):
         """Correctly format the validation results."""
