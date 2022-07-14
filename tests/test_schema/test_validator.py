@@ -3,7 +3,6 @@
 import pytest
 
 import logging
-import requests
 
 from pathlib import PurePath, Path
 
