@@ -30,13 +30,13 @@ def test_is_metadata_file():
     """Test the _is_metadata_file private method."""
     vdr = _Validator()
     imf = vdr._is_metadata_file  # short-form
-    assert imf("/absolute/path/to/file.gri") == False
-    assert imf("/absolute/path/to/.file.gri.yml") == True
-    assert imf("/absolute/path/to/.file.gri.yaml") == True
-    assert imf("relative/path/to/file.gri") == False
-    assert imf("relative/path/to/.file.gri.yml") == True
-    assert imf(".file.gri.yml") == True
-    assert imf("file.gri") == False
+    assert imf("/absolute/path/to/file.gri") is False
+    assert imf("/absolute/path/to/.file.gri.yml") is True
+    assert imf("/absolute/path/to/.file.gri.yaml") is True
+    assert imf("relative/path/to/file.gri") is False
+    assert imf("relative/path/to/.file.gri.yml") is True
+    assert imf(".file.gri.yml") is True
+    assert imf("file.gri") is False
 
 
 def test_create_results():
@@ -57,12 +57,12 @@ def test_preflight_validation():
     # no $schema
     instance = {"some": "metadata"}
     valid, reason = vdr._preflight_validation(instance)
-    assert valid == False
+    assert valid is False
 
     # with $schema
     instance = {"some": "metadata", "$schema": "some_url"}
     valid, reason = vdr._preflight_validation(instance)
-    assert valid == True
+    assert valid is True
 
 
 def test_parse_schema():
@@ -131,7 +131,7 @@ def test_validate():
     # now validate with our code
     vdr = _Validator(global_schema=schema)
     res = vdr._validate(instance, schema)
-    assert res["valid"] == False
+    assert res["valid"] is False
     assert "reason" in res
     assert "123.0 is not of type 'string'" in res["reason"]
 
