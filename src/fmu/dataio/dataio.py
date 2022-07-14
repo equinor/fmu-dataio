@@ -206,28 +206,6 @@ def read_metadata(filename: Union[str, Path]) -> dict:
 
 
 # ======================================================================================
-# Public function to validate metadata given a file
-# ======================================================================================
-
-
-def validate_metadata(filename: Union[str, Path]) -> dict:
-    """Validate the metadata associated with the filename given.
-
-    Args:
-        filename: The full path filename to the data-object.
-
-    Returns:
-        Validation result as a dictionary.
-    """
-
-    from ._validator import _Validator  # lazy-load this
-
-    validator = _Validator()
-
-    return validator.validate(filename)
-
-
-# ======================================================================================
 # ExportData, public class
 # ======================================================================================
 
