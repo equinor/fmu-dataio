@@ -1,14 +1,14 @@
 """Module for DataIO _Validator
 
-This contains validation functionality for FMU metadata.
+Contains the _Validator class.
 
 """
 
 import logging
-import requests
+import urllib
 
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from fmu.dataio import read_metadata
 
@@ -28,22 +28,24 @@ class _Validator:
 
     """
 
-    def __init__(self, schema: Union[dict, str, Path] = None):
+    def __init__(
+        self, global_schema: Union[dict, str, Path] = None, verbosity: str = "CRITICAL"
+    ):
         """Initialize the _Validator.
 
         Args:
-            schema (dict | str | Path) (optional): A reference to a valid JSON schema or
-            a valid JSON schema. Default: None, which will prompt usage of the schema
-            referenced in the metadata.
-
+            global_schema (dict | str | Path) (optional): A reference to a valid JSON
+            schema or a valid JSON schema. If provided, all validation will be done
+            using this schema. If not provided, schema must be given directly to the
+            validate method or parsed from reference in the metadata instance (default).
         """
+        self.verbosity = verbosity
+        logger.setLevel(level=self.verbosity)
+        logger.info("Verbosity is %s ", self.verbosity)
 
-        if schema is not None:
-            self.schema = self._parse_schema(schema)
-        else:
-            self.schema = schema
+        self._cached_schema = {"reference": None, "schema": None}
 
-        self._schema_reference = None
+        self._global_schema = self._parse_schema(global_schema)
 
         logger.info("_Validator is initialized.")
 
@@ -51,57 +53,132 @@ class _Validator:
     # Main methods
     # ==================================================================================
 
-    def validate(self, filename):
+    def validate(
+        self,
+        filename: Union[str, Path],
+        schema_reference: Union[str, Path, dict] = None,
+    ):
         """Validate the metadata associated with the filename.
 
+        If a global_schema is given to the class, this schema will be used. If this is
+        not given, we use the schema given to this method. If this is not given, we use
+        the schema referenced in the metadata instance.
+
+        However, we want to avoid parsing the same schema many times, e.g. in the case
+        of validating 1000 files referencing the same schema. So we cache it, and only
+        parse again if the reference changes.
+
         Args:
-            metadata (dict or filename): The metadata to be validated, given as either a
-            dictionary or a filename to either data file or associated metadata file.
+            filename (str | Path): Filename of file to be evaluated.
+            schema_reference (str | Path | dict) (optional): Schema to use for this
+            specific file. If not provided, global schema from class or schema
+            referenced in the metadata will be used.
 
         Returns:
             dict: The validation results.
         """
 
-        instance = read_metadata(filename)
+        logger.setLevel(level=self.verbosity)
+        logger.info("Validating file: %s", filename)
 
-        if self.schema is None:
-            logger.info("Schema is not given, getting from metadata.")
-            logger.info("Schema reference is %s", self.schema_reference)
-            if self.schema_reference != instance["$schema"]:
-                logger.info("Schema reference is different from existing, parsing.")
-                self.schema_reference = instance["$schema"]
-                logger.info("Schema reference now set to %s", self.schema_reference)
-                self.schema = self._parse_schema_from_url(self._schema_reference)
-            else:
-                logger.info("Schema reference is same as existing, re-using.")
-                self.schema_reference = self._get_schema_reference(instance)
+        if self._is_metadata_file(filename):
+            with open(filename, "r") as stream:
+                instance = yaml.safe_load(stream)
+        else:
+            instance = read_metadata(filename)
 
-        return self._validate(instance, self.schema)
+        # pre-flight validation to check basics
+        preflight_valid, preflight_reason = self._preflight_validation(instance)
+        if preflight_valid == False:
+            return self._create_results(preflight_valid, preflight_reason)
+
+        if schema_reference is not None:
+            logger.info("Local schema has been given, parsing it.")
+            use_schema = self._parse_schema(schema_reference)
+            if self._global_schema is not None:
+                logger.info("Both global and local schema has been given. Using local.")
+        elif self._global_schema is not None:
+            logger.info("We have a global schema, and will use that.")
+            use_schema = self._global_schema
+        else:
+            logger.info("No global schema, no local schema.")
+            use_schema = self._parse_schema(instance["$schema"])
+
+        return self._validate(instance, use_schema)
 
     # ==================================================================================
     # Private methods
     # ==================================================================================
 
-    def _parse_schema(self, schema_ref):
+    def _is_metadata_file(self, filename):
+        """Check if given filename is a metadata file.
+
+        We want to detect if a reference is given to a metadata file directly, or to
+        a data file.
+
+        """
+        fname = Path(filename)
+        if fname.stem.startswith(".") and str(fname).endswith((".yml", ".yaml")):
+            return True
+        return False
+
+    def _preflight_validation(self, instance):
+        """Do preflight validation of a metadata instance.
+
+        Confirm that elements required for the actual validation is present and
+        correctly formatted.
+        """
+
+        if "$schema" not in instance:
+            reason = "$schema is a required property."
+            return False, reason
+
+        return True, None
+
+    def _parse_schema(self, schema_ref: Union[str, Path, dict]):
         """Parse the schema from a reference.
 
+        If schema is cached, return it.
         Detect if schema_reference is a dict, a url or a path, and parse it.
+
+        Args:
+            schema_ref (str | Path | dict): Reference to a valid JSON schema
 
         Returns:
             dict: The parsed schema.
         """
 
+        if schema_ref is None:
+            logger.info("_parse_schema was called with no schema_ref")
+            return None
+
         if isinstance(schema_ref, dict):
             logger.info("Schema given as a dict, use directly.")
+            _schema = schema_ref
+            self._cached_schema = {"reference": None, "schema": _schema}
             return schema_ref
+
+        logger.info("Parse schema from reference: %s", schema_ref)
+
+        if schema_ref == self._cached_schema["reference"]:
+            logger.info("Returning cached schema.")
+            return self._cached_schema["schema"]
+
         if isinstance(schema_ref, str) and schema_ref.startswith("http"):
-            logger.info("schema_reference is a URL")
-            return self._parse_schema_from_url(schema_url=schema_ref)
+            logger.info("Schema_reference is a URL")
+            _schema = self._parse_schema_from_url(schema_url=schema_ref)
         else:
-            return self._parse_schema_from_file(schema_path=schema_ref)
+            logger.info("Final fallback: Schema must be a file path")
+            _schema = self._parse_schema_from_file(schema_path=schema_ref)
+
+        # write to cache before returning
+        self._cached_schema = {"reference": schema_ref, "schema": _schema}
+        return _schema
 
     def _parse_schema_from_file(self, schema_path):
         """Parse schema from file, return dict."""
+
+        logger.info("Fetching schema from %s", schema_path)
 
         with open(schema_path, "r", encoding="utf-8") as stream:
             schema = json.load(stream)
@@ -109,3 +186,27 @@ class _Validator:
 
     def _parse_schema_from_url(self, schema_url):
         """Parse schema from a url, return dict."""
+
+        logger.info("Fetching schema from %s", schema_url)
+
+        with urllib.request.urlopen(schema_url) as response:
+            schema = json.load(response)
+
+        return schema
+
+    def _validate(self, instance, schema):
+        """Validate the instance on the schema."""
+
+        try:
+            jsonschema.validate(instance=instance, schema=schema)
+            logger.info("Validation succeeded, returning results.")
+            return self._create_results(True)
+        except jsonschema.exceptions.ValidationError as err:
+            logger.info("Validation failed, returning results.")
+            return self._create_results(False, err.message)
+        except jsonschema.exceptions.SchemaError as err:
+            raise
+
+    def _create_results(self, valid: bool, reason: str = None):
+        """Correctly format the validation results."""
+        return {"valid": valid, "reason": reason}
