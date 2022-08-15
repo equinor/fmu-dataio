@@ -102,7 +102,11 @@
         "class": {
             "title": "Metadata class",
             "type": "string",
-            "example": "surface",
+            "examples": [
+                "surface",
+                "table",
+                "points"
+            ],
             "enum": [
                 "case",
                 "surface",
@@ -170,7 +174,7 @@
             "properties": {
                 "name": {
                     "type": "string",
-                    "description": "Name of the surface. If stratigraphic, match the entry in the stratigraphic column",
+                    "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
                     "examples": [
                         "VIKING GP. Top"
                     ]
@@ -178,7 +182,7 @@
                 "stratigraphic": {
                     "$comment": "Determines of validation against strat column should happen or not",
                     "type": "boolean",
-                    "description": "True of surface represents an entity in the stratigraphic column",
+                    "description": "True if data object represents an entity in the stratigraphic column",
                     "examples": [
                         true
                     ]
@@ -246,6 +250,7 @@
                 },
                 "properties": {
                     "$comment": "This is not the JSON Schema properties, this is FMU properties",
+                    "description": "data.properties is an array of property objects, representing the properties present in the data object.",
                     "type": "array",
                     "items": {
                         "type": "object",
@@ -370,12 +375,6 @@
                             "type": "number",
                             "examples": [
                                 25.0
-                            ]
-                        },
-                        "yori": {
-                            "type": "number",
-                            "examples": [
-                                461499.9997558594
                             ]
                         },
                         "yflip": {
@@ -505,7 +504,7 @@
                         },
                         "truncated": {
                             "type": "boolean",
-                            "$comment": "Is this contact surface truncated to the stratigraphy?",
+                            "$comment": "Is this contact truncated to the stratigraphy?",
                             "examples": [
                                 true
                             ]
@@ -1188,88 +1187,52 @@
                     "$ref": "#/definitions/file"
                 },
                 "data": {
-                    "$comment": "Require fluid_contact when content is fluid_contact",
+                    "$comment": "Conditionals",
                     "allOf": [
                         {
-                            "oneOf": [
-                                {
-                                    "required": [
-                                        "fluid_contact"
-                                    ],
-                                    "properties": {
-                                        "content": {
-                                            "enum": [
-                                                "fluid_contact"
-                                            ]
-                                        }
-                                    }
-                                },
-                                {
-                                    "properties": {
-                                        "content": {
-                                            "not": {
-                                                "enum": [
-                                                    "fluid_contact"
-                                                ]
-                                            }
-                                        }
+                            "$comment": "When content == field_outline, require data.field_outline",
+                            "if": {
+                                "properties": {
+                                    "content": {
+                                        "const": "field_outline"
                                     }
                                 }
-                            ]
+                            },
+                            "then": {
+                                "required": [
+                                    "field_outline"
+                                ]
+                            }
                         },
                         {
-                            "oneOf": [
-                                {
-                                    "required": [
-                                        "field_outline"
-                                    ],
-                                    "properties": {
-                                        "content": {
-                                            "enum": [
-                                                "field_outline"
-                                            ]
-                                        }
-                                    }
-                                },
-                                {
-                                    "properties": {
-                                        "content": {
-                                            "not": {
-                                                "enum": [
-                                                    "field_outline"
-                                                ]
-                                            }
-                                        }
+                            "$comment": "When content == fluid_contact, require data.fluid_contact",
+                            "if": {
+                                "properties": {
+                                    "content": {
+                                        "const": "fluid_contact"
                                     }
                                 }
-                            ]
+                            },
+                            "then": {
+                                "required": [
+                                    "fluid_contact"
+                                ]
+                            }
                         },
                         {
-                            "oneOf": [
-                                {
-                                    "required": [
-                                        "seismic"
-                                    ],
-                                    "properties": {
-                                        "content": {
-                                            "enum": [
-                                                "seismic"
-                                            ]
-                                        }
-                                    }
-                                },
-                                {
-                                    "properties": {
-                                        "content": {
-                                            "not": {
-                                                "enum": [
-                                                    "seismic"
-                                                ]
-                                            }
-                                        }
+                            "$comment": "When content == seismic, require data.seismic",
+                            "if": {
+                                "properties": {
+                                    "content": {
+                                        "const": "seismic"
                                     }
                                 }
-                            ]
+                            },
+                            "then": {
+                                "required": [
+                                    "seismic"
+                                ]
+                            }
                         }
                     ]
                 },
