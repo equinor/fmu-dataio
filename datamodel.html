@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 1.0.0rc10.dev1+gb3f9e9e documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 1.0.0rc11.dev1+g318d7bd documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -431,7 +431,11 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">        </span><span class="s2">&quot;class&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">            </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Metadata class&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;example&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;surface&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                </span><span class="s2">&quot;surface&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="s2">&quot;table&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="s2">&quot;points&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="p">],</span><span class="w"></span>
 <span class="w">            </span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">                </span><span class="s2">&quot;case&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                </span><span class="s2">&quot;surface&quot;</span><span class="p">,</span><span class="w"></span>
@@ -499,7 +503,7 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">            </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Name of the surface. If stratigraphic, match the entry in the stratigraphic column&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Name of the data object. If stratigraphic, match the entry in the stratigraphic column&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">                        </span><span class="s2">&quot;VIKING GP. Top&quot;</span><span class="w"></span>
 <span class="w">                    </span><span class="p">]</span><span class="w"></span>
@@ -507,7 +511,7 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                </span><span class="s2">&quot;stratigraphic&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Determines of validation against strat column should happen or not&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;True of surface represents an entity in the stratigraphic column&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;True if data object represents an entity in the stratigraphic column&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">                        </span><span class="kc">true</span><span class="w"></span>
 <span class="w">                    </span><span class="p">]</span><span class="w"></span>
@@ -575,6 +579,7 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                </span><span class="p">},</span><span class="w"></span>
 <span class="w">                </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;This is not the JSON Schema properties, this is FMU properties&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;data.properties is an array of property objects, representing the properties present in the data object.&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;items&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span><span class="w"></span>
@@ -699,12 +704,6 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                            </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">                                </span><span class="mf">25.0</span><span class="w"></span>
-<span class="w">                            </span><span class="p">]</span><span class="w"></span>
-<span class="w">                        </span><span class="p">},</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;yori&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                            </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                </span><span class="mf">461499.9997558594</span><span class="w"></span>
 <span class="w">                            </span><span class="p">]</span><span class="w"></span>
 <span class="w">                        </span><span class="p">},</span><span class="w"></span>
 <span class="w">                        </span><span class="s2">&quot;yflip&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -834,7 +833,7 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                        </span><span class="p">},</span><span class="w"></span>
 <span class="w">                        </span><span class="s2">&quot;truncated&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                            </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Is this contact surface truncated to the stratigraphy?&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Is this contact truncated to the stratigraphy?&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                            </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">                                </span><span class="kc">true</span><span class="w"></span>
 <span class="w">                            </span><span class="p">]</span><span class="w"></span>
@@ -1517,88 +1516,52 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                    </span><span class="s2">&quot;$ref&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#/definitions/file&quot;</span><span class="w"></span>
 <span class="w">                </span><span class="p">},</span><span class="w"></span>
 <span class="w">                </span><span class="s2">&quot;data&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Require fluid_contact when content is fluid_contact&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Conditionals&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;allOf&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">                        </span><span class="p">{</span><span class="w"></span>
-<span class="w">                            </span><span class="s2">&quot;oneOf&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                    </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                        </span><span class="s2">&quot;fluid_contact&quot;</span><span class="w"></span>
-<span class="w">                                    </span><span class="p">],</span><span class="w"></span>
-<span class="w">                                    </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                        </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                            </span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                                </span><span class="s2">&quot;fluid_contact&quot;</span><span class="w"></span>
-<span class="w">                                            </span><span class="p">]</span><span class="w"></span>
-<span class="w">                                        </span><span class="p">}</span><span class="w"></span>
-<span class="w">                                    </span><span class="p">}</span><span class="w"></span>
-<span class="w">                                </span><span class="p">},</span><span class="w"></span>
-<span class="w">                                </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                    </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                        </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                            </span><span class="s2">&quot;not&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                                </span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                                    </span><span class="s2">&quot;fluid_contact&quot;</span><span class="w"></span>
-<span class="w">                                                </span><span class="p">]</span><span class="w"></span>
-<span class="w">                                            </span><span class="p">}</span><span class="w"></span>
-<span class="w">                                        </span><span class="p">}</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;When content == field_outline, require data.field_outline&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;if&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                    </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                        </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;field_outline&quot;</span><span class="w"></span>
 <span class="w">                                    </span><span class="p">}</span><span class="w"></span>
 <span class="w">                                </span><span class="p">}</span><span class="w"></span>
-<span class="w">                            </span><span class="p">]</span><span class="w"></span>
+<span class="w">                            </span><span class="p">},</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;then&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                                    </span><span class="s2">&quot;field_outline&quot;</span><span class="w"></span>
+<span class="w">                                </span><span class="p">]</span><span class="w"></span>
+<span class="w">                            </span><span class="p">}</span><span class="w"></span>
 <span class="w">                        </span><span class="p">},</span><span class="w"></span>
 <span class="w">                        </span><span class="p">{</span><span class="w"></span>
-<span class="w">                            </span><span class="s2">&quot;oneOf&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                    </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                        </span><span class="s2">&quot;field_outline&quot;</span><span class="w"></span>
-<span class="w">                                    </span><span class="p">],</span><span class="w"></span>
-<span class="w">                                    </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                        </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                            </span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                                </span><span class="s2">&quot;field_outline&quot;</span><span class="w"></span>
-<span class="w">                                            </span><span class="p">]</span><span class="w"></span>
-<span class="w">                                        </span><span class="p">}</span><span class="w"></span>
-<span class="w">                                    </span><span class="p">}</span><span class="w"></span>
-<span class="w">                                </span><span class="p">},</span><span class="w"></span>
-<span class="w">                                </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                    </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                        </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                            </span><span class="s2">&quot;not&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                                </span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                                    </span><span class="s2">&quot;field_outline&quot;</span><span class="w"></span>
-<span class="w">                                                </span><span class="p">]</span><span class="w"></span>
-<span class="w">                                            </span><span class="p">}</span><span class="w"></span>
-<span class="w">                                        </span><span class="p">}</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;When content == fluid_contact, require data.fluid_contact&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;if&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                    </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                        </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;fluid_contact&quot;</span><span class="w"></span>
 <span class="w">                                    </span><span class="p">}</span><span class="w"></span>
 <span class="w">                                </span><span class="p">}</span><span class="w"></span>
-<span class="w">                            </span><span class="p">]</span><span class="w"></span>
+<span class="w">                            </span><span class="p">},</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;then&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                                    </span><span class="s2">&quot;fluid_contact&quot;</span><span class="w"></span>
+<span class="w">                                </span><span class="p">]</span><span class="w"></span>
+<span class="w">                            </span><span class="p">}</span><span class="w"></span>
 <span class="w">                        </span><span class="p">},</span><span class="w"></span>
 <span class="w">                        </span><span class="p">{</span><span class="w"></span>
-<span class="w">                            </span><span class="s2">&quot;oneOf&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                    </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                        </span><span class="s2">&quot;seismic&quot;</span><span class="w"></span>
-<span class="w">                                    </span><span class="p">],</span><span class="w"></span>
-<span class="w">                                    </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                        </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                            </span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                                </span><span class="s2">&quot;seismic&quot;</span><span class="w"></span>
-<span class="w">                                            </span><span class="p">]</span><span class="w"></span>
-<span class="w">                                        </span><span class="p">}</span><span class="w"></span>
-<span class="w">                                    </span><span class="p">}</span><span class="w"></span>
-<span class="w">                                </span><span class="p">},</span><span class="w"></span>
-<span class="w">                                </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                    </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                        </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                            </span><span class="s2">&quot;not&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                                                </span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                                                    </span><span class="s2">&quot;seismic&quot;</span><span class="w"></span>
-<span class="w">                                                </span><span class="p">]</span><span class="w"></span>
-<span class="w">                                            </span><span class="p">}</span><span class="w"></span>
-<span class="w">                                        </span><span class="p">}</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;When content == seismic, require data.seismic&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;if&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                    </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                        </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;seismic&quot;</span><span class="w"></span>
 <span class="w">                                    </span><span class="p">}</span><span class="w"></span>
 <span class="w">                                </span><span class="p">}</span><span class="w"></span>
-<span class="w">                            </span><span class="p">]</span><span class="w"></span>
+<span class="w">                            </span><span class="p">},</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;then&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                                    </span><span class="s2">&quot;seismic&quot;</span><span class="w"></span>
+<span class="w">                                </span><span class="p">]</span><span class="w"></span>
+<span class="w">                            </span><span class="p">}</span><span class="w"></span>
 <span class="w">                        </span><span class="p">}</span><span class="w"></span>
 <span class="w">                    </span><span class="p">]</span><span class="w"></span>
 <span class="w">                </span><span class="p">},</span><span class="w"></span>
@@ -2250,7 +2213,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc10.dev1+gb3f9e9e).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc11.dev1+g318d7bd).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
