@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 1.0.0rc11.dev1+g318d7bd documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 1.0.0rc11.dev2+g3a152ae documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -361,7 +361,8 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">        </span><span class="s2">&quot;fmu.aggregation.operation&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">        </span><span class="s2">&quot;fmu.aggregation.realization_ids&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">        </span><span class="s2">&quot;file.relative_path&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="s2">&quot;file.checksum_md5&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;file.checksum_md5&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;file.size_bytes&quot;</span><span class="w"></span>
 <span class="w">    </span><span class="p">],</span><span class="w"></span>
 <span class="w">    </span><span class="s2">&quot;definitions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">        </span><span class="s2">&quot;generic&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -1382,6 +1383,13 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                    </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">                        </span><span class="s2">&quot;kjhsdfvsdlfk23knerknvk23&quot;</span><span class="w"></span>
 <span class="w">                    </span><span class="p">]</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="s2">&quot;size_bytes&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Size of file object in bytes&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                        </span><span class="mf">123</span><span class="w"></span>
+<span class="w">                    </span><span class="p">]</span><span class="w"></span>
 <span class="w">                </span><span class="p">}</span><span class="w"></span>
 <span class="w">            </span><span class="p">}</span><span class="w"></span>
 <span class="w">        </span><span class="p">}</span><span class="w"></span>
@@ -2052,7 +2060,8 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">  </span><span class="nt">relative_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri</span><span class="w"> </span><span class="c1"># case-relative</span><span class="w"></span>
 <span class="w">  </span><span class="nt">absolute_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/some/absolute/path//realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri</span><span class="w"></span>
 <span class="w">  </span><span class="nt">checksum_md5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kjhsdfvsdlfk23knerknvk23</span><span class="w">  </span><span class="c1"># checksum of the file, not the data.</span><span class="w"></span>
-
+<span class="w">  </span><span class="nt">size_bytes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">132321</span><span class="w"></span>
+<span class="w">  </span>
 <span class="nt">data</span><span class="p">:</span><span class="w"> </span><span class="c1"># The data block describes the actual data (e.g. surface). Only present in data objects</span><span class="w"></span>
 
 <span class="w">  </span><span class="c1"># if stratigraphic, name must match the strat column. This is the official name of this surface.</span><span class="w"></span>
@@ -2213,7 +2222,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc11.dev1+g318d7bd).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc11.dev2+g3a152ae).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
