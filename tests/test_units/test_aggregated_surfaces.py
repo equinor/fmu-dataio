@@ -212,7 +212,7 @@ def test_regsurf_aggr_export_abspath_none(fmurun_w_casemetadata, aggr_surfs_mean
         _ = aggdata.export(aggr_mean)
 
 
-def test_regsurf_aggregated_aggrd_id(fmurun_w_casemetadata, aggr_surfs_mean):
+def test_regsurf_aggregated_aggregation_id(fmurun_w_casemetadata, aggr_surfs_mean):
     """Test generating aggragated metadata, tests on aggrd id"""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
 
@@ -221,20 +221,18 @@ def test_regsurf_aggregated_aggrd_id(fmurun_w_casemetadata, aggr_surfs_mean):
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())  # shall be 1238.5
 
-    # let aggregation input True generate hash
+    # let missing aggregation_id argument generate the id
     aggdata = dataio.AggregatedData(
         source_metadata=metas,
         operation="mean",
         name="myaggrd2",
         verbosity="INFO",
-        aggregation_id=True,
     )
     newmeta = aggdata.generate_metadata(aggr_mean)
     logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
-    assert newmeta["fmu"]["aggregation"]["id"] != "1234"
-    assert newmeta["fmu"]["aggregation"]["id"] is not True
+    assert newmeta["fmu"]["aggregation"]["id"] != "1234"  # shall be uuid
 
-    # let aggregation input None generate a missing key
+    # let aggregation input None generate the id
     aggdata = dataio.AggregatedData(
         source_metadata=metas,
         operation="mean",
@@ -244,7 +242,72 @@ def test_regsurf_aggregated_aggrd_id(fmurun_w_casemetadata, aggr_surfs_mean):
     )
     newmeta = aggdata.generate_metadata(aggr_mean)
     logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
-    assert "id" not in newmeta["fmu"]["aggregation"]
+    assert "id" in newmeta["fmu"]["aggregation"]
+    assert newmeta["fmu"]["aggregation"]["id"] != "1234"  # shall be uuid
+
+    # let aggregation_id argument be used as aggregation_id
+    aggdata = dataio.AggregatedData(
+        source_metadata=metas,
+        operation="mean",
+        name="myaggrd2",
+        verbosity="INFO",
+        aggregation_id="1234",
+    )
+    newmeta = aggdata.generate_metadata(aggr_mean)
+    logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
+    assert newmeta["fmu"]["aggregation"]["id"] == "1234"
+
+    # Raise when given aggregation_id is not a string 1
+    with pytest.raises(ValueError):
+        aggdata = dataio.AggregatedData(
+            source_metadata=metas,
+            operation="mean",
+            name="myaggrd2",
+            verbosity="INFO",
+            aggregation_id=True,
+        )
+        newmeta = aggdata.generate_metadata(aggr_mean)
+
+    # Raise when given aggregation_id is not a string 2
+    with pytest.raises(ValueError):
+        aggdata = dataio.AggregatedData(
+            source_metadata=metas,
+            operation="mean",
+            name="myaggrd2",
+            verbosity="INFO",
+        )
+        newmeta = aggdata.generate_metadata(aggr_mean, aggregation_id=True)
+
+
+def test_generate_aggr_uuid(fmurun_w_casemetadata, aggr_surfs_mean):
+    """Test the _generate_aggr_uuid private method."""
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+
+    os.chdir(fmurun_w_casemetadata)
+
+    aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
+    logger.info("Aggr. mean is %s", aggr_mean.values.mean())  # shall be 1238.5
+
+    # let missing aggregation_id argument generate the id
+    aggdata = dataio.AggregatedData(
+        source_metadata=metas,
+        operation="mean",
+        name="myaggrd2",
+        verbosity="INFO",
+    )
+
+    # Sorting shall be ignored
+    agg_uuid_1 = aggdata._generate_aggr_uuid(["a", "b", "c"])
+    agg_uuid_2 = aggdata._generate_aggr_uuid(["c", "a", "b"])
+    assert agg_uuid_1 == agg_uuid_2
+
+    # Different input shall give different result
+    agg_uuid_1 = aggdata._generate_aggr_uuid(["a", "b", "c"])
+    agg_uuid_2 = aggdata._generate_aggr_uuid(["c", "a", "b", "e"])
+    assert agg_uuid_1 != agg_uuid_2
+
+    # Returned value shall be a string
+    assert isinstance(agg_uuid_1, str), str(type(agg_uuid_1))
 
 
 def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, regsurf):

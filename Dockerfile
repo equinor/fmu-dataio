@@ -1,4 +1,4 @@
-FROM nginxinc/nginx-unprivileged:latest
+FROM nginxinc/nginx-unprivileged:alpine
 
 ARG uriprefix
 ENV URIPREFIX=${uriprefix}
@@ -6,8 +6,9 @@ ENV URIPREFIX=${uriprefix}
 WORKDIR /app
 USER 0
 
-RUN apt update
-RUN apt install -y jq
+RUN apk update
+RUN apk upgrade
+RUN apk add jq
 
 COPY schema/definitions definitions/
 RUN chown -R 101:101 .

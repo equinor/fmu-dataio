@@ -72,6 +72,12 @@ class _FileDataProvider:
         # resolve() will fix ".." e.g. change '/some/path/../other' to '/some/other'
         abspath = path.resolve()
 
+        try:
+            str(abspath).encode("ascii")
+        except UnicodeEncodeError:
+            print(f"!! Path has non-ascii elements which is not supported: {abspath}")
+            raise
+
         if self.forcefolder_is_absolute:
             # may become meaningsless as forcefolder can be something else, but will try
             try:
@@ -121,6 +127,12 @@ class _FileDataProvider:
             stem += "--" + monitor + "_" + base
 
         stem = stem.replace(".", "_").replace(" ", "_")
+
+        # treat norwegian special letters
+        stem = stem.replace("æ", "ae")
+        stem = stem.replace("ø", "oe")
+        stem = stem.replace("å", "aa")
+
         return stem
 
     def _get_path(self):

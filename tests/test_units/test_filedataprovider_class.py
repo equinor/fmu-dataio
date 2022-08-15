@@ -192,3 +192,25 @@ def test_filedata_provider(regsurf, edataobj1, tmp_path):
     assert fdata.relative_path == "share/results/efolder/parent--name--tag--t1_t2.ext"
     absdata = str(tmp_path / "share/results/efolder/parent--name--tag--t1_t2.ext")
     assert fdata.absolute_path == absdata
+
+
+def test_filedata_has_nonascii_letters(regsurf, edataobj1, tmp_path):
+    """Testing the derive_filedata function."""
+
+    os.chdir(tmp_path)
+
+    cfg = edataobj1
+    cfg.createfolder = True
+    cfg._rootpath = Path(".")
+    cfg.name = "mynõme"
+
+    objdata = _ObjectDataProvider(regsurf, edataobj1)
+    objdata.name = "anynõme"
+    objdata.efolder = "efolder"
+    objdata.extension = ".ext"
+    objdata.time0 = "t1"
+    objdata.time1 = "t2"
+
+    fdata = _FileDataProvider(cfg, objdata)
+    with pytest.raises(UnicodeEncodeError, match=r"codec can't encode character"):
+        fdata.derive_filedata()

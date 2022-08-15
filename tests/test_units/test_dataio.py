@@ -1,11 +1,13 @@
-"""Test the dataio ExportData etc from the dataio.py module"""
+"""Test the dataio ExportData etc from the dataio.py module."""
 import logging
 import os
+import pathlib
 import sys
 
 import pytest
 import yaml
 
+from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ExportData, ValidationError
 
 # pylint: disable=no-member
@@ -151,6 +153,58 @@ def test_settings_config_from_env_invalid(tmp_path, rmsglobalconfig):
         _ = ExportData(verbosity="INFO")
 
     del os.environ["FMU_DATAIO_CONFIG"]
+
+
+def test_norwegian_letters_globalconfig(globalvars_norw_letters, regsurf):
+    """Testing using norwegian letters in global config.
+
+    Note that fmu.config utilities yaml_load() is applied to read cfg (cf conftest.py)
+    """
+
+    path, cfg, cfg_asfile = globalvars_norw_letters
+    os.chdir(path)
+
+    edata = ExportData(config=cfg, name="TopBlåbær")
+    meta = edata.generate_metadata(regsurf)
+    logger.debug("\n %s", prettyprint_dict(meta))
+    assert meta["data"]["name"] == "TopBlåbær"
+    assert meta["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
+
+    # export to file and reread as raw
+    result = pathlib.Path(edata.export(regsurf))
+    metafile = result.parent / ("." + str(result.stem) + ".gri.yml")
+    with open(metafile, "r", encoding="utf-8") as stream:
+        stuff = stream.read()
+    assert "DRÅGØN" in stuff
+
+    # read file as global config
+
+    os.environ["FMU_GLOBAL_CONFIG"] = cfg_asfile
+    edata2 = ExportData()  # the env variable will override this
+    meta2 = edata2.generate_metadata(regsurf, name="TopBlåbær")
+    logger.debug("\n %s", prettyprint_dict(meta2))
+    assert meta2["data"]["name"] == "TopBlåbær"
+    assert meta2["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
+
+    del os.environ["FMU_GLOBAL_CONFIG"]
+
+
+def test_norwegian_letters_globalconfig_as_json(globalvars_norw_letters, regsurf):
+    """Testing using norwegian letters in global config, with json output."""
+
+    path, cfg, _ = globalvars_norw_letters
+    os.chdir(path)
+
+    ExportData.meta_format = "json"
+    edata = ExportData(config=cfg, name="TopBlåbær")
+
+    result = pathlib.Path(edata.export(regsurf))
+    metafile = result.parent / ("." + str(result.stem) + ".gri.json")
+    with open(metafile, "r", encoding="utf-8") as stream:
+        stuff = stream.read()
+    assert "DRÅGØN" in stuff
+
+    ExportData.meta_format = "yaml"  # reset
 
 
 def test_establish_pwd_runpath(tmp_path, globalconfig2):
