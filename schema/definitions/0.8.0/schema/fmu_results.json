@@ -32,7 +32,8 @@
         "fmu.aggregation.operation",
         "fmu.aggregation.realization_ids",
         "file.relative_path",
-        "file.checksum_md5"
+        "file.checksum_md5",
+        "file.size_bytes"
     ],
     "definitions": {
         "generic": {
@@ -1031,7 +1032,8 @@
             "type": "object",
             "required": [
                 "relative_path",
-                "checksum_md5"
+                "checksum_md5",
+                "size_bytes"
             ],
             "properties": {
                 "relative_path": {
@@ -1053,6 +1055,13 @@
                     "type": "string",
                     "examples": [
                         "kjhsdfvsdlfk23knerknvk23"
+                    ]
+                },
+                "size_bytes": {
+                    "description": "Size of file object in bytes",
+                    "type": "integer",
+                    "examples": [
+                        123
                     ]
                 }
             }
