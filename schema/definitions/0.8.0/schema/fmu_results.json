@@ -1032,8 +1032,7 @@
             "type": "object",
             "required": [
                 "relative_path",
-                "checksum_md5",
-                "size_bytes"
+                "checksum_md5"
             ],
             "properties": {
                 "relative_path": {
