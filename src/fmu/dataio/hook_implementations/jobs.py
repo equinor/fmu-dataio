@@ -1,7 +1,7 @@
 try:
-    import ert_shared
+    from ert_shared.plugins.plugin_manager import hook_implementation, plugin_response  # type: ignore
 except ModuleNotFoundError:
-    import ert.shared as ert_shared
+    from ert.shared.plugins.plugin_manager import hook_implementation, plugin_response # type: ignore
 
 
 @ert_shared.plugins.plugin_manager.hook_implementation
