@@ -13,7 +13,13 @@ import argparse
 import logging
 from pathlib import Path
 
-from ert.shared.plugins.plugin_manager import hook_implementation  # type: ignore
+try:
+    import ert_shared
+except ModuleNotFoundError:
+    import ert.shared as ert_shared
+
+from ert_shared.plugins.plugin_manager import hook_implementation  # type: ignore
+
 from res.job_queue import ErtScript  # type: ignore
 
 from fmu.dataio import InitializeCase
