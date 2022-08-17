@@ -16,7 +16,7 @@ from pathlib import Path
 try:
     import ert_shared
 except ModuleNotFoundError:
-    import ert.shared as ert_shared
+    import ert.shared as ert_shared  # noqa
 
 from ert_shared.plugins.plugin_manager import hook_implementation  # type: ignore
 
