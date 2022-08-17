@@ -1,7 +1,7 @@
 try:
     from ert_shared.plugins.plugin_manager import hook_implementation, plugin_response  # type: ignore
 except ModuleNotFoundError:
-    from ert.shared.plugins.plugin_manager import hook_implementation, plugin_response # type: ignore
+    from ert.shared.plugins.plugin_manager import hook_implementation, plugin_response  # type: ignore
 
 
 @hook_implementation
