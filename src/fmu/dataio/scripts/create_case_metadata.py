@@ -18,7 +18,10 @@ try:
 except ModuleNotFoundError:
     from ert.shared.plugins.plugin_manager import hook_implementation
 
-from res.job_queue import ErtScript  # type: ignore
+try:
+    from ert import ErtScript  # type: ignore
+except ImportError:
+    from res.job_queue import ErtScript  # type: ignore
 
 from fmu.dataio import InitializeCase
 
