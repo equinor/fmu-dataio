@@ -3,9 +3,6 @@ Examples
 
 In the following is a list of examples you can study and copy.
 
-First is a snippet of the ``global_variables.yml`` file which holds the static
-metadata. In real cases this file will be much longer.
-
 Then there are several examples for various datatypes. In general there is a python
 script, and next is an example from a metadata file that is produced by
 the script.
@@ -17,8 +14,9 @@ can comment it out in your code.
 The global variables used here
 ------------------------------
 
-Here are the relevant sections in the global variables (output) file (press plus to
-expand):
+This is a snippet (relevant sections only - in real life, this is much longer) of the
+``global_variables.yml`` file which holds the static metadata described in the 
+`previous section <./preparations.html>`__. In real cases this file will be much longer.
 
 .. toggle::
 
