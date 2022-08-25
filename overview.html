@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overview &mdash; fmu.dataio 1.0.0rc11.dev3+ga41e333 documentation</title>
+  <title>Overview &mdash; fmu.dataio 1.0.1.dev1+ga9c8df9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -47,9 +47,9 @@
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#static-and-object-specific-metadata">Static and object-specific metadata</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#prepare-fmu-config">Prepare fmu-config</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#getting-started">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apiref/modules.html">API reference for fmu.dataio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="datamodel.html">The FMU results data model</a></li>
@@ -81,19 +81,21 @@
              
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">fmu-dataio</span></code> library works as an engine to transfer data (results) from
-an FMU run to files with metadata, ready for uploading in SUMO</p>
+<p><code class="docutils literal notranslate"><span class="pre">fmu-dataio</span></code> is a library for exporting data out of FMU workflows. In addition to making
+data export on the current (filename-based) standard easier, it also exports rich metadata
+making it possible to utilize cloud storage (Sumo). Further, centralizing export methods
+like this makes workflows simpler and less prone to break when changes are made.</p>
 <p>The library works both inside RMS and outside RMS.</p>
 <section id="static-and-object-specific-metadata">
 <h2>Static and object-specific metadata<a class="headerlink" href="#static-and-object-specific-metadata" title="Permalink to this heading"></a></h2>
-<p>Metadata are in general “additional data about the data”. For instance a pure surface
+<p>Metadata are in general “data about the data”. For instance a pure surface
 export file (e.g. irap binary) will have information about data itself (like
 values in the map, and bounding box) but the file have no idea of which FMU run it
-belongs to, or which field it comes from.</p>
+belongs to, or which field it comes from or what horizon is represents.</p>
 <p>Some metadata contents are <em>static for the model</em>, meaning that they will be
 the same for all runs of a specific model setup. Examples are masterdata relations
 (<strong>field</strong>, <strong>country</strong>, etc).</p>
-<p>Some metadata contents are <em>static to the FMU case</em>, meaning that they will be the same
+<p>Some metadata contents are <em>static to the case</em>, meaning that they will be the same
 for all data belonging to a specific case. Example: Metadata about the case itself.</p>
 <p>Other metadata are object-specific, i.e. they will vary per item which is exported. For
 instance, content metadata are object-specific as some surfaces are in depth domain, some in
@@ -118,10 +120,11 @@ from a relational database (where this information would typically be stored onc
 refered to when needed).</p>
 <p>The FMU results data model is further documented <a class="reference external" href="./datamodel.html">here</a></p>
 </section>
-<section id="prepare-fmu-config">
-<h2>Prepare fmu-config<a class="headerlink" href="#prepare-fmu-config" title="Permalink to this heading"></a></h2>
-<p>Text to comes</p>
 </section>
+<section id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
+<p>To get started, your FMU workflow must be retrofitted with a few improvements further
+described <a class="reference external" href="./preparations.html">here</a></p>
 </section>
 
 
@@ -135,7 +138,7 @@ refered to when needed).</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.0rc11.dev3+ga41e333).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.1.dev1+ga9c8df9).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

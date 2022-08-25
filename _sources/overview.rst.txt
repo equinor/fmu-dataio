@@ -1,24 +1,26 @@
 Overview
 ========
 
-The ``fmu-dataio`` library works as an engine to transfer data (results) from
-an FMU run to files with metadata, ready for uploading in SUMO
+``fmu-dataio`` is a library for exporting data out of FMU workflows. In addition to making
+data export on the current (filename-based) standard easier, it also exports rich metadata
+making it possible to utilize cloud storage (Sumo). Further, centralizing export methods
+like this makes workflows simpler and less prone to break when changes are made.
 
 The library works both inside RMS and outside RMS.
 
 Static and object-specific metadata
 -----------------------------------
 
-Metadata are in general "additional data about the data". For instance a pure surface
+Metadata are in general "data about the data". For instance a pure surface
 export file (e.g. irap binary) will have information about data itself (like
 values in the map, and bounding box) but the file have no idea of which FMU run it
-belongs to, or which field it comes from.
+belongs to, or which field it comes from or what horizon is represents.
 
 Some metadata contents are *static for the model*, meaning that they will be
 the same for all runs of a specific model setup. Examples are masterdata relations
 (**field**, **country**, etc).
 
-Some metadata contents are *static to the FMU case*, meaning that they will be the same
+Some metadata contents are *static to the case*, meaning that they will be the same
 for all data belonging to a specific case. Example: Metadata about the case itself.
 
 Other metadata are object-specific, i.e. they will vary per item which is exported. For
@@ -45,8 +47,8 @@ refered to when needed).
 
 The FMU results data model is further documented `here <./datamodel.html>`__
 
+Getting started
+===============
 
-Prepare fmu-config
-------------------
-
-Text to comes
+To get started, your FMU workflow must be retrofitted with a few improvements further
+described `here <./preparations.html>`__
