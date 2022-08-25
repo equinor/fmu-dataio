@@ -1,11 +1,9 @@
 Examples
 ========
 
-In the following is a list of examples you can study and copy.
-
-Then there are several examples for various datatypes. In general there is a python
-script, and next is an example from a metadata file that is produced by
-the script.
+This is a collection of examples showing how fmu-dataio can be used in different contexts, 
+and for different data types. The examples typically shows a Python script, together with a
+corresponding metadata file that would be produced when running the script.
 
 If working inside RMS we often retrieve RMS data from the project itself. In the
 examples the syntax for that is commented out, but it is still shown so you
@@ -14,8 +12,7 @@ can comment it out in your code.
 The global variables used here
 ------------------------------
 
-This is a snippet (relevant sections only - in real life, this is much longer) of the
-``global_variables.yml`` file which holds the static metadata described in the 
+This is a snippet of the ``global_variables.yml`` file which holds the static metadata described in the 
 `previous section <./preparations.html>`__. In real cases this file will be much longer.
 
 .. toggle::
