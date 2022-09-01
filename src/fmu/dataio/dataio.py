@@ -312,6 +312,8 @@ class ExportData:
             Use with care and avoid if possible! (*) For absolute paths, the class
             variable allow_forcefolder_absolute must set to True.
 
+        grid_model: Currently allowed but planned for deprecation
+
         include_index: This applies to Pandas (table) data only, and if True then the
             index column will be exported. Deprecated, use class variable
             ``table_include_index`` instead
@@ -437,6 +439,7 @@ class ExportData:
     description: Union[str, list] = ""
     fmu_context: str = "realization"
     forcefolder: str = ""
+    grid_model: Optional[str] = None
     is_observation: bool = False
     is_prediction: bool = True
     name: str = ""
@@ -503,12 +506,19 @@ class ExportData:
         logger.info("Ran __post_init__")
 
     def _show_deprecations_or_notimplemented(self):
-        """Warn on deprecated keys og on stuff not implemented yet."""
+        """Warn on deprecated keys or on stuff not implemented yet."""
 
         if self.runpath:
             warn(
                 "The 'runpath' key has currently no function. It will be evaluated for "
-                "removal in fmu-dataio version 1. Use 'casepath' instead!",
+                "removal in fmu-dataio version 2. Use 'casepath' instead!",
+                PendingDeprecationWarning,
+            )
+
+        if self.grid_model:
+            warn(
+                "The 'grid_model' key has currently no function. It will be evaluated "
+                "for removal in fmu-dataio version 2.",
                 PendingDeprecationWarning,
             )
 
