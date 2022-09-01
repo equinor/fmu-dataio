@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.0.1.dev1+ga9c8df9 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.0.1.dev2+gc13e9ca documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -388,6 +388,8 @@
 <span class="sd">            Use with care and avoid if possible! (*) For absolute paths, the class</span>
 <span class="sd">            variable allow_forcefolder_absolute must set to True.</span>
 
+<span class="sd">        grid_model: Currently allowed but planned for deprecation</span>
+
 <span class="sd">        include_index: This applies to Pandas (table) data only, and if True then the</span>
 <span class="sd">            index column will be exported. Deprecated, use class variable</span>
 <span class="sd">            ``table_include_index`` instead</span>
@@ -513,6 +515,7 @@
     <span class="n">description</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">fmu_context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;realization&quot;</span>
     <span class="n">forcefolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">grid_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">is_observation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">is_prediction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -579,12 +582,19 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ran __post_init__&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_show_deprecations_or_notimplemented</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Warn on deprecated keys og on stuff not implemented yet.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Warn on deprecated keys or on stuff not implemented yet.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runpath</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;The &#39;runpath&#39; key has currently no function. It will be evaluated for &quot;</span>
-                <span class="s2">&quot;removal in fmu-dataio version 1. Use &#39;casepath&#39; instead!&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;removal in fmu-dataio version 2. Use &#39;casepath&#39; instead!&quot;</span><span class="p">,</span>
+                <span class="ne">PendingDeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_model</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The &#39;grid_model&#39; key has currently no function. It will be evaluated &quot;</span>
+                <span class="s2">&quot;for removal in fmu-dataio version 2.&quot;</span><span class="p">,</span>
                 <span class="ne">PendingDeprecationWarning</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -1346,7 +1356,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.1.dev1+ga9c8df9).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.1.dev2+gc13e9ca).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
