@@ -55,6 +55,12 @@ def test_update_check_settings_shall_fail(globalconfig1):
             PendingDeprecationWarning,
             r"The 'runpath' key has currently no function",
         ),
+        (
+            "grid_model",
+            "some",
+            PendingDeprecationWarning,
+            r"The 'grid_model' key has currently no function",
+        ),
     ],
 )
 def test_deprecated_keys(globalconfig1, regsurf, key, value, wtype, expected_msg):
