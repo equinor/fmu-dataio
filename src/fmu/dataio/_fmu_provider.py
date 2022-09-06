@@ -82,6 +82,8 @@ class _FmuProvider:
             logger.info("Detecting FMU provider as None")
             self.provider = None  # e.g. an interactive RMS run
             self.dataio._usecontext = None  # e.g. an interactive RMS run
+            if self.dataio.fmu_context == "preprocessed":
+                self.dataio._usecontext = self.dataio.fmu_context
 
     def _detect_ert2provider(self) -> bool:
         """Detect if ERT2 is provider and set itername, casename, etc."""

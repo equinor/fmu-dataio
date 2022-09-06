@@ -72,4 +72,5 @@ ALLOWED_FMU_CONTEXTS = {
     "realization": "To realization-N/iter_M/share",
     "case": "To casename/share, but will also work on project disk",
     "case_symlink_realization": "To case/share, with symlinks on realizations level",
+    "preprocessed": "To share/preprocessed; from interactive runs but re-used later",
 }

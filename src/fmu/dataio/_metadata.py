@@ -8,6 +8,7 @@ import datetime
 import getpass
 import logging
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Optional
 from warnings import warn
 
@@ -15,7 +16,12 @@ from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataio._filedata_provider import _FileDataProvider
 from fmu.dataio._fmu_provider import _FmuProvider
 from fmu.dataio._objectdata_provider import _ObjectDataProvider
-from fmu.dataio._utils import drop_nones, export_file_compute_checksum_md5
+from fmu.dataio._utils import (
+    drop_nones,
+    export_file_compute_checksum_md5,
+    glue_metadata_preprocessed,
+    read_metadata,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -142,9 +148,19 @@ class _MetaData:
     # relevant when ERT* fmu_context; same as rootpath in the ExportData class!:
     rootpath: str = field(default="", init=False)
 
+    # if re-using existing metadata
+    meta_existing: dict = field(default_factory=dict, init=False)
+
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
         logger.info("Initialize _MetaData instance.")
+
+        # one special case is that obj is a file path, and dataio.reuse_metadata_rule is
+        # active. In this case we read the existing metadata here and reuse parts
+        # according to rule described in string self.reuse_metadata_rule!
+        if isinstance(self.obj, (str, Path)) and self.dataio.reuse_metadata_rule:
+            logger.info("Partially reuse existing metadata from %s", self.obj)
+            self.meta_existing = read_metadata(self.obj)
 
     def _populate_meta_objectdata(self):
         """Analyze the actual object together with input settings.
@@ -154,8 +170,7 @@ class _MetaData:
 
         Hence this must be ran early or first.
         """
-
-        self.objdata = _ObjectDataProvider(self.obj, self.dataio)
+        self.objdata = _ObjectDataProvider(self.obj, self.dataio, self.meta_existing)
         self.objdata.derive_metadata()
         self.meta_objectdata = self.objdata.metadata
 
@@ -252,6 +267,20 @@ class _MetaData:
         if self.dataio:
             self.meta_access = generate_meta_access(self.dataio.config)
 
+    def _reuse_existing_metadata(self, meta):
+        """Perform a merge procedure if the key `reuse_metadata_rule` is active."""
+        if self.dataio and self.dataio.reuse_metadata_rule:
+            oldmeta = self.meta_existing
+            newmeta = meta.copy()
+            if self.dataio.reuse_metadata_rule == "preprocessed":
+                return glue_metadata_preprocessed(oldmeta, newmeta)
+            else:
+                raise ValueError(
+                    f"The reuse_metadata_rule {self.dataio.reuse_metadata_rule} is not "
+                    "supported."
+                )
+        return meta
+
     def generate_export_metadata(self, skip_null=True) -> dict:  # TODO! -> skip_null?
         """Main function to generate the full metadata"""
 
@@ -264,7 +293,8 @@ class _MetaData:
         self._populate_meta_fmu()
         self._populate_meta_file()
 
-        # glue together metadata, order is as legacy code
+        # glue together metadata, order is as legacy code (but will be screwed if reuse
+        # of existing metadata...)
         meta = self.meta_dollars.copy()
         meta["tracklog"] = self.meta_tracklog
         meta["class"] = self.meta_class
@@ -280,5 +310,7 @@ class _MetaData:
 
         if skip_null:
             meta = drop_nones(meta)
+
+        meta = self._reuse_existing_metadata(meta)
 
         return meta

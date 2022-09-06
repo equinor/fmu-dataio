@@ -86,7 +86,8 @@ data:
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime as dt
-from typing import Any
+from pathlib import Path
+from typing import Any, Optional
 from warnings import warn
 
 import numpy as np
@@ -94,7 +95,7 @@ import pandas as pd  # type: ignore
 import xtgeo  # type: ignore
 
 from ._definitions import _ValidFormats
-from ._utils import generate_description
+from ._utils import generate_description, parse_timedata
 
 try:
     import pyarrow as pa  # type: ignore
@@ -118,27 +119,29 @@ class _ObjectDataProvider:
 
     * Investigating (parsing) the object (e.g. a XTGeo RegularSurface) itself
     * Combine the object info with user settings, globalconfig and class variables
+    * OR
+    * investigate current metadata if that is provided
     """
 
-    # input fields, cannot be defaulted
+    # input fields
     obj: Any
     dataio: Any
+    meta_existing: Optional[dict] = None
 
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
     # as instance properties in addition (for simplicity in other classes/functions)
-    metadata: dict = field(default_factory=dict)
-
-    name: str = ""
-    classname: str = ""
-    efolder: str = ""
-    fmt: str = ""
-    extension: str = ""
-    layout: str = ""
-    bbox: dict = field(default_factory=dict)
-    specs: dict = field(default_factory=dict)
-    time0: str = ""
-    time1: str = ""
+    metadata: dict = field(default_factory=dict, init=False)
+    name: str = field(default="", init=False)
+    classname: str = field(default="", init=False)
+    efolder: str = field(default="", init=False)
+    fmt: str = field(default="", init=False)
+    extension: str = field(default="", init=False)
+    layout: str = field(default="", init=False)
+    bbox: dict = field(default_factory=dict, init=False)
+    specs: dict = field(default_factory=dict, init=False)
+    time0: str = field(default="", init=False)
+    time1: str = field(default="", init=False)
 
     def __post_init__(self):
 
@@ -562,9 +565,31 @@ class _ObjectDataProvider:
         logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self.time1)
         return tresult
 
+    def _derive_from_existing(self):
+        """Derive from existing metadata."""
+
+        # do not change any items in 'data' block, as it may ruin e.g. stratigrapical
+        # setting (i.e. changing data.name is not allowed)
+        self.metadata = self.meta_existing["data"]
+        self.name = self.meta_existing["data"]["name"]
+
+        # derive the additional attributes needed later e.g. in Filedata provider:
+        relpath = Path(self.meta_existing["file"]["relative_path"])
+        self.efolder = relpath.parent.name
+        self.classname = self.meta_existing["class"]
+        self.extension = relpath.suffix
+        self.fmt = self.meta_existing["data"]["format"]
+
+        self.time0, self.time1 = parse_timedata(self.meta_existing["data"])
+
     def derive_metadata(self):
         """Main function here, will populate the metadata block for 'data'."""
         logger.info("Derive all metadata for data object...")
+
+        if self.meta_existing:
+            self._derive_from_existing()
+            return
+
         nameres = self._derive_name_stratigraphy()
         objres = self._derive_objectdata()
 
