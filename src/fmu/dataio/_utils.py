@@ -3,13 +3,16 @@ import hashlib
 import json
 import logging
 import os
+import shutil
 import tempfile
 import uuid
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 import pandas as pd  # type: ignore
+import yaml
 
 try:
     import pyarrow as pa  # type: ignore
@@ -20,7 +23,6 @@ else:
     from pyarrow import feather
 
 import xtgeo  # type: ignore
-import yaml
 
 from . import _design_kw
 from . import _oyaml as oyaml
@@ -112,7 +114,11 @@ def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -
 
 def export_file(obj, filename, extension, flag=None):
     """Export a valid object to file"""
-    if extension == ".gri" and isinstance(obj, xtgeo.RegularSurface):
+
+    if isinstance(obj, Path):
+        # special case when processing data which already has metadata
+        shutil.copy(obj, filename)
+    elif extension == ".gri" and isinstance(obj, xtgeo.RegularSurface):
         obj.to_file(filename, fformat="irap_binary")
     elif extension == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
         out = obj.copy()  # to not modify incoming instance!
@@ -387,6 +393,47 @@ def generate_description(desc: Optional[Union[str, list]] = None) -> Union[list,
         return desc
     else:
         raise ValueError("Description of wrong type, must be list of strings or string")
+
+
+def read_metadata(filename: Union[str, Path]) -> dict:
+    """Read the metadata as a dictionary given a filename.
+
+    If the filename is e.g. /some/path/mymap.gri, the assosiated metafile
+    will be /some/path/.mymap.gri.yml (or json?)
+
+    Args:
+        filename: The full path filename to the data-object.
+
+    Returns:
+        A dictionary with metadata read from the assiated metadata file.
+    """
+    fname = Path(filename)
+    metafile = str(fname.parent) + "/." + fname.stem + fname.suffix + ".yml"
+    metafilepath = Path(metafile)
+    if not metafilepath.exists():
+        raise IOError(f"Cannot find requested metafile: {metafile}")
+    with open(metafilepath, "r") as stream:
+        metacfg = yaml.safe_load(stream)
+
+    return metacfg
+
+
+def glue_metadata_preprocessed(oldmeta, newmeta):
+    """Glue (combine) to metadata dicts according to rule 'preprocessed'."""
+
+    meta = oldmeta.copy()
+    meta["fmu"] = newmeta["fmu"]
+    meta["file"] = newmeta["file"]
+    meta["access"] = newmeta["access"]
+
+    newmeta["tracklog"][-1]["event"] = "merged"
+    meta["tracklog"].extend(newmeta["tracklog"])
+
+    # the only field in 'data' that are allowed to update is name:
+    meta["data"]["name"] = newmeta["data"]["name"]
+
+    return meta
+
 
 def parse_timedata(datablock: dict, isoformat=True):
     """The time section under datablock has variants to parse.
