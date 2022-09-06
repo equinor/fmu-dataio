@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.0.1.dev2+gc13e9ca documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.0.2.dev2+gd969279 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -89,7 +89,6 @@
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  <span class="c1"># type: ignore</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_metadata</span>
 <span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="n">ALLOWED_CONTENTS</span><span class="p">,</span> <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="p">,</span> <span class="n">CONTENTS_REQUIRED</span>
@@ -101,9 +100,9 @@
     <span class="n">filter_validate_metadata</span><span class="p">,</span>
     <span class="n">generate_description</span><span class="p">,</span>
     <span class="n">prettyprint_dict</span><span class="p">,</span>
-    <span class="n">some_config_from_env</span><span class="p">,</span>
-    <span class="n">uuid_from_string</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="n">read_metadata</span> <span class="k">as</span> <span class="n">_utils_read_metadata</span>
+<span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="n">some_config_from_env</span><span class="p">,</span> <span class="n">uuid_from_string</span>
 
 <span class="n">INSIDE_RMS</span> <span class="o">=</span> <span class="n">detect_inside_rms</span><span class="p">()</span>
 
@@ -270,15 +269,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A dictionary with metadata read from the assiated metadata file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-    <span class="n">metafile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/.&quot;</span> <span class="o">+</span> <span class="n">fname</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="n">fname</span><span class="o">.</span><span class="n">suffix</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span>
-    <span class="n">metafilepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">metafile</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">metafilepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot find requested metafile: </span><span class="si">{</span><span class="n">metafile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">metafilepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
-        <span class="n">metacfg</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">metacfg</span></div>
+    <span class="k">return</span> <span class="n">_utils_read_metadata</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
 
 
 <span class="c1"># ======================================================================================</span>
@@ -356,8 +347,8 @@
 <span class="sd">            the file structure or by other means. Use with care!</span>
 
 <span class="sd">        config: Required, either as key (here) or through an environment variable.</span>
-<span class="sd">            A dictionary with static settings. In the standard case this is read</span>
-<span class="sd">            from FMU global variables (via fmuconfig). The dictionary must contain some</span>
+<span class="sd">            A dictionary with static settings. In the standard case this is read from</span>
+<span class="sd">            FMU global variables (via fmuconfig). The dictionary must contain some</span>
 <span class="sd">            predefined main level keys to work with fmu-dataio. If the key is missing or</span>
 <span class="sd">            key value is None, then it will look for the environment variable</span>
 <span class="sd">            FMU_GLOBAL_CONFIG to detect the file. If no success in finding the file, a</span>
@@ -370,9 +361,12 @@
 
 <span class="sd">        fmu_context: In normal forward models, the fmu_context is ``realization`` which</span>
 <span class="sd">            is default and will put data per realization. Other contexts may be ``case``</span>
-<span class="sd">            which will put data relative to the case root. If a non-FMU run is detected</span>
-<span class="sd">            (e.g. you run from project), fmu-dataio will detect that and set actual</span>
-<span class="sd">            context to None as fall-back.</span>
+<span class="sd">            which will put data relative to the case root. Another important context is</span>
+<span class="sd">            &quot;preprocessed&quot; which will output to a dedicated &quot;preprocessed&quot; folder</span>
+<span class="sd">            instead, and metadata will be partially re-used in an ERT model run. If a</span>
+<span class="sd">            non-FMU run is detected (e.g. you run from project), fmu-dataio will detect</span>
+<span class="sd">            that and set actual context to None as fall-back (unless preprocessed is</span>
+<span class="sd">            specified). If value is &quot;preprosessed&quot;, see also ``resuse_metadata`` key.</span>
 
 <span class="sd">        description: A multiline description of the data either as a string or a list</span>
 <span class="sd">            of strings.</span>
@@ -381,12 +375,14 @@
 
 <span class="sd">        forcefolder: This setting shall only be used as exception, and will make it</span>
 <span class="sd">            possible to output to a non-standard folder. A ``/`` in front will indicate</span>
-<span class="sd">            an absolute path*; otherwise it will be relative to casepath or rootpath,</span>
-<span class="sd">            as dependent on the both fmu_context and the is_observations</span>
-<span class="sd">            boolean value. A typical use-case is forcefolder=&quot;seismic&quot; which will</span>
-<span class="sd">            replace the &quot;cubes&quot; standard folder for Cube output with &quot;seismics&quot;.</span>
-<span class="sd">            Use with care and avoid if possible! (*) For absolute paths, the class</span>
-<span class="sd">            variable allow_forcefolder_absolute must set to True.</span>
+<span class="sd">            an absolute path*; otherwise it will be relative to casepath or rootpath, as</span>
+<span class="sd">            dependent on the both fmu_context and the is_observations boolean value. A</span>
+<span class="sd">            typical use-case is forcefolder=&quot;seismic&quot; which will replace the &quot;cubes&quot;</span>
+<span class="sd">            standard folder for Cube output with &quot;seismics&quot;. Use with care and avoid if</span>
+<span class="sd">            possible! (*) For absolute paths, the class variable</span>
+<span class="sd">            allow_forcefolder_absolute must set to True.</span>
+
+<span class="sd">        grid_model: Currently allowed but planned for deprecation</span>
 
 <span class="sd">        grid_model: Currently allowed but planned for deprecation</span>
 
@@ -397,7 +393,9 @@
 <span class="sd">        is_prediction: True (default) if model prediction data</span>
 
 <span class="sd">        is_observation: Default is False. If True, then disk storage will be on the</span>
-<span class="sd">            &quot;share/observations&quot; folder, otherwise on share/result</span>
+<span class="sd">            &quot;share/observations&quot; folder, otherwise on share/result. An exception arise</span>
+<span class="sd">            if fmu_context is &quot;preprocessed&quot;, then the folder will be set to</span>
+<span class="sd">            &quot;share/processed&quot; irrespective the value of is_observation.</span>
 
 <span class="sd">        name: Optional but recommended. The name of the object. If not set it is tried</span>
 <span class="sd">            to be inferred from the xtgeo/pandas/... object. The name is then checked</span>
@@ -412,6 +410,11 @@
 <span class="sd">        realization: Optional, default is -999 which means that realization shall be</span>
 <span class="sd">            detected automatically from the FMU run. Can be used to override in rare</span>
 <span class="sd">            cases. If so, numbers must be &gt;= 0</span>
+
+<span class="sd">        reuse_metadata_rule: This input is None or a string describing rule for reusing</span>
+<span class="sd">            metadata. Default is None, but if the input is a file string or object with</span>
+<span class="sd">            already valid metdata, then it is assumed to be &quot;preprocessed&quot;, which</span>
+<span class="sd">            merges the metadata after predefined rules.</span>
 
 <span class="sd">        runpath: TODO! Optional and deprecated. The relative location of the current run</span>
 <span class="sd">            root. Optional and will in most cases be auto-detected, assuming that FMU</span>
@@ -453,9 +456,11 @@
 
 <span class="sd">            data:</span>
 <span class="sd">              t0:</span>
-<span class="sd">                value: 2018010T00:00:00 description: base</span>
+<span class="sd">                value: 2018010T00:00:00</span>
+<span class="sd">                description: base</span>
 <span class="sd">              t1:</span>
-<span class="sd">                value: 202020101T00:00:00 description: monitor</span>
+<span class="sd">                value: 202020101T00:00:00</span>
+<span class="sd">                description: monitor</span>
 
 <span class="sd">        The output files will be on the form: somename--t1_t0.ext</span>
 
@@ -493,6 +498,7 @@
     <span class="n">case_folder</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;share/metadata&quot;</span>
     <span class="n">createfolder</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">cube_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;segy&quot;</span>
+    <span class="n">filename_timedata_reverse</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># reverse order output file name</span>
     <span class="n">grid_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;roff&quot;</span>
     <span class="n">include_ert2jobs</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># if True, include jobs.json from ERT2</span>
     <span class="n">legacy_time_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
@@ -521,6 +527,7 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">parent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">realization</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span>
+    <span class="n">reuse_metadata_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">runpath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">subfolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">tagname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -697,6 +704,19 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;pwd:        </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rootpath:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
 
+    <span class="k">def</span> <span class="nf">_check_obj_if_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;When obj is file-like, it must be checked + assume preprocessed.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The file </span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse_metadata_rule</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reuse_metadata_rule</span> <span class="o">=</span> <span class="s2">&quot;preprocessed&quot;</span>
+
+        <span class="k">return</span> <span class="n">obj</span>
+
     <span class="c1"># ==================================================================================</span>
     <span class="c1"># Public methods:</span>
     <span class="c1"># ==================================================================================</span>
@@ -709,6 +729,9 @@
 
 <span class="sd">        Examples of such known types are XTGeo objects (e.g. a RegularSurface),</span>
 <span class="sd">        a Pandas Dataframe, a PyArrow table, etc.</span>
+
+<span class="sd">        If the key ``reuse_metadata_rule`` is applied with legal value, the object may</span>
+<span class="sd">        also be a reference to a file with existing metadata which then will be re-used.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            obj: XTGeo instance, a Pandas Dataframe instance or other supported object.</span>
@@ -729,6 +752,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_check_settings</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_globalconfig_from_settings</span><span class="p">()</span>
         <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_obj_if_file</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_fmt_flag</span><span class="p">()</span>
@@ -762,7 +786,6 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            String: full path to exported item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
 
@@ -775,6 +798,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">useflag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span>
 
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_obj_if_file</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum, using flag: &lt;</span><span class="si">%s</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="n">useflag</span><span class="p">)</span>
         <span class="n">outfile</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
             <span class="n">obj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">useflag</span>
@@ -1356,7 +1380,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.1.dev2+gc13e9ca).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.2.dev2+gd969279).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
