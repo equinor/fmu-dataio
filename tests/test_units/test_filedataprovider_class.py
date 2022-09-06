@@ -15,16 +15,16 @@ from fmu.dataio._objectdata_provider import _ObjectDataProvider
             "name",
             "tag",
             "parent",
-            "2022-01-02",
             "2020-01-01",
+            "2022-01-02",
             "parent--name--tag--20220102_20200101",
         ),
         (
             "name",
             "",
             "",
-            "2022-01-02",
             "2020-01-01",
+            "2022-01-02",
             "name--20220102_20200101",
         ),
         (
@@ -47,8 +47,8 @@ from fmu.dataio._objectdata_provider import _ObjectDataProvider
             "name",
             "",
             "",
-            20220102,
             20210101,
+            20220102,
             "name--20220102_20210101",
         ),
     ],
@@ -66,6 +66,7 @@ def test_get_filestem(
     """Testing the private _get_filestem method."""
     objdata = _ObjectDataProvider(regsurf, edataobj1)
     objdata.name = name
+    # time0 is always the oldest
     objdata.time0 = time0
     objdata.time1 = time1
 
@@ -89,8 +90,8 @@ def test_get_filestem(
             "",
             "tag",
             "parent",
-            "2022-01-02",
             "2020-01-01",
+            "2022-01-02",
             "'name' entry is missing",
         ),
         (
@@ -189,8 +190,8 @@ def test_filedata_provider(regsurf, edataobj1, tmp_path):
     fdata.derive_filedata()
 
     print(fdata.relative_path)
-    assert fdata.relative_path == "share/results/efolder/parent--name--tag--t1_t2.ext"
-    absdata = str(tmp_path / "share/results/efolder/parent--name--tag--t1_t2.ext")
+    assert fdata.relative_path == "share/results/efolder/parent--name--tag--t2_t1.ext"
+    absdata = str(tmp_path / "share/results/efolder/parent--name--tag--t2_t1.ext")
     assert fdata.absolute_path == absdata
 
 

@@ -118,12 +118,15 @@ class _FileDataProvider:
             stem += "--" + (str(self.time0)[0:10]).replace("-", "")
 
         elif self.time0 and self.time1:
-            monitor = (str(self.time0)[0:10]).replace("-", "")
-            base = (str(self.time1)[0:10]).replace("-", "")
+            monitor = (str(self.time1)[0:10]).replace("-", "")
+            base = (str(self.time0)[0:10]).replace("-", "")
             if monitor == base:
                 warn(
                     "The monitor date and base date are equal", UserWarning
                 )  # TODO: consider add clocktimes in such cases?
+            if self.dataio.filename_timedata_reverse:  # class variable
+                stem += "--" + base + "_" + monitor
+            else:
             stem += "--" + monitor + "_" + base
 
         stem = stem.replace(".", "_").replace(" ", "_")

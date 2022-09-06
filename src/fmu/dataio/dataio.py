@@ -377,9 +377,11 @@ class ExportData:
 
             data:
               t0:
-                value: 2018010T00:00:00 description: base
+                value: 2018010T00:00:00
+                description: base
               t1:
-                value: 202020101T00:00:00 description: monitor
+                value: 202020101T00:00:00
+                description: monitor
 
         The output files will be on the form: somename--t1_t0.ext
 

@@ -387,3 +387,66 @@ def generate_description(desc: Optional[Union[str, list]] = None) -> Union[list,
         return desc
     else:
         raise ValueError("Description of wrong type, must be list of strings or string")
+
+def parse_timedata(datablock: dict, isoformat=True):
+    """The time section under datablock has variants to parse.
+
+    Formats::
+
+        "time": {
+            "t0": {
+               "value": "2022-08-02T00:00:00",
+               "label": "base"
+            }
+        }
+        # with or without t1
+
+        # or legacy format:
+        "time": [
+        {
+            "value": "2030-01-01T00:00:00",
+            "label": "moni"
+        },
+        {
+            "value": "2010-02-03T00:00:00",
+            "label": "base"
+        }
+        ],
+
+    In addition, need to parse the dates on isoformat string format to YYYMMDD
+
+    Args:
+        datablock: The data block section from a metadata record
+
+    Returns
+        (t0, t1) where t0 is e.g. "20220907" as string objects and/or None if not
+        isoformat, while t0 is on form "2030-01-23T00:00:00" if isoformat is True
+
+
+    """
+    date0 = None
+    date1 = None
+    if "time" not in datablock:
+        return (None, None)
+
+    if isinstance(datablock["time"], list):
+        date0 = datablock["time"][0]["value"]
+
+        if len(datablock["time"] == 2):
+            date1 = datablock["time"][1]["value"]
+
+    elif isinstance(datablock["time"], dict):
+        date0 = datablock["time"]["t0"].get("value")
+        if "t1" in datablock["time"]:
+            date1 = datablock["time"]["t1"].get("value")
+
+    if not isoformat:
+        if date0:
+            tdate0 = datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S")
+            date0 = tdate0.datetime.strftime("%Y%m%d")
+
+        if date1:
+            tdate1 = datetime.strptime(date1, "%Y-%m-%dT%H:%M:%S")
+            date1 = tdate1.datetime.strftime("%Y%m%d")
+
+    return (date0, date1)

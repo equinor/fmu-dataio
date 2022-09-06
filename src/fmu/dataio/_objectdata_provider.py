@@ -481,11 +481,11 @@ class _ObjectDataProvider:
 
     def _derive_timedata_legacy(self):
         """Format input timedata to metadata. legacy version."""
-
         tdata = self.dataio.timedata
 
         tresult = dict()
-        if len(tdata) >= 1:
+        tresult["time"] = list()
+        if len(tdata) == 1:
             elem = tdata[0]
             tresult["time"] = list()
             xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
@@ -494,20 +494,39 @@ class _ObjectDataProvider:
                 xfield["label"] = elem[1]
             tresult["time"].append(xfield)
         if len(tdata) == 2:
-            elem = tdata[1]
-            xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
-            self.time1 = str(elem[0])
-            if len(elem) == 2:
-                xfield["label"] = elem[1]
-                self.time0 = str(elem[1])
-            tresult["time"].append(xfield)
+
+            elem1 = tdata[0]
+            xfield1 = {"value": dt.strptime(str(elem1[0]), "%Y%m%d").isoformat()}
+            if len(elem1) == 2:
+                xfield1["label"] = elem1[1]
+
+            elem2 = tdata[1]
+            xfield2 = {"value": dt.strptime(str(elem2[0]), "%Y%m%d").isoformat()}
+            if len(elem2) == 2:
+                xfield2["label"] = elem2[1]
+
+            if xfield1["value"] < xfield2["value"]:
+                tresult["time"].append(xfield1)
+                tresult["time"].append(xfield2)
+            else:
+                tresult["time"].append(xfield2)
+                tresult["time"].append(xfield1)
+
+            self.time0 = tresult["time"][0]["value"]
+            self.time1 = tresult["time"][1]["value"]
 
         logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self.time1)
         return tresult
 
     def _derive_timedata_newformat(self):
-        """Format input timedata to metadata, new format."""
+        """Format input timedata to metadata, new format.
 
+        When using two dates, input convention is [[newestdate, "monitor"], [oldestdate,
+        "base"]] but it is possible to turn around. But in the metadata the output t0
+        shall always be older than t1 so need to check, and by general rule the file
+        will be some--time1_time0 where time1 is the newest (unless a class variable is
+        set for those who wants it turned around).
+        """
         tdata = self.dataio.timedata
         tresult = dict()
 
@@ -520,19 +539,25 @@ class _ObjectDataProvider:
                 xfield["label"] = elem[1]
             tresult["t0"] = xfield
         if len(tdata) == 2:
-            elem = tdata[1]
-            xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
-            self.time1 = str(elem[0])
-            if len(elem) == 2:
-                xfield["label"] = elem[1]
-            tresult["t0"] = xfield
+            elem1 = tdata[0]
+            xfield1 = {"value": dt.strptime(str(elem1[0]), "%Y%m%d").isoformat()}
+            if len(elem1) == 2:
+                xfield1["label"] = elem1[1]
 
-            elem = tdata[0]
-            xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
-            self.time0 = str(elem[0])
-            if len(elem) == 2:
-                xfield["label"] = elem[1]
-            tresult["t1"] = xfield
+            elem2 = tdata[1]
+            xfield2 = {"value": dt.strptime(str(elem2[0]), "%Y%m%d").isoformat()}
+            if len(elem2) == 2:
+                xfield2["label"] = elem2[1]
+
+            if xfield1["value"] < xfield2["value"]:
+                tresult["t0"] = xfield1
+                tresult["t1"] = xfield2
+            else:
+                tresult["t0"] = xfield2
+                tresult["t1"] = xfield1
+
+            self.time0 = tresult["t0"]["value"]
+            self.time1 = tresult["t1"]["value"]
 
         logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self.time1)
         return tresult
