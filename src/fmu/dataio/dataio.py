@@ -13,7 +13,6 @@ from typing import Any, ClassVar, List, Optional, Tuple, Union
 from warnings import warn
 
 import pandas as pd  # type: ignore
-import yaml
 
 from . import _metadata
 from ._definitions import ALLOWED_CONTENTS, ALLOWED_FMU_CONTEXTS, CONTENTS_REQUIRED
@@ -25,9 +24,9 @@ from ._utils import (
     filter_validate_metadata,
     generate_description,
     prettyprint_dict,
-    some_config_from_env,
-    uuid_from_string,
 )
+from ._utils import read_metadata as _utils_read_metadata
+from ._utils import some_config_from_env, uuid_from_string
 
 INSIDE_RMS = detect_inside_rms()
 
@@ -194,15 +193,7 @@ def read_metadata(filename: Union[str, Path]) -> dict:
     Returns:
         A dictionary with metadata read from the assiated metadata file.
     """
-    fname = Path(filename)
-    metafile = str(fname.parent) + "/." + fname.stem + fname.suffix + ".yml"
-    metafilepath = Path(metafile)
-    if not metafilepath.exists():
-        raise IOError(f"Cannot find requested metafile: {metafile}")
-    with open(metafilepath, "r") as stream:
-        metacfg = yaml.safe_load(stream)
-
-    return metacfg
+    return _utils_read_metadata(filename)
 
 
 # ======================================================================================
@@ -280,8 +271,8 @@ class ExportData:
             the file structure or by other means. Use with care!
 
         config: Required, either as key (here) or through an environment variable.
-            A dictionary with static settings. In the standard case this is read
-            from FMU global variables (via fmuconfig). The dictionary must contain some
+            A dictionary with static settings. In the standard case this is read from
+            FMU global variables (via fmuconfig). The dictionary must contain some
             predefined main level keys to work with fmu-dataio. If the key is missing or
             key value is None, then it will look for the environment variable
             FMU_GLOBAL_CONFIG to detect the file. If no success in finding the file, a
@@ -294,9 +285,12 @@ class ExportData:
 
         fmu_context: In normal forward models, the fmu_context is ``realization`` which
             is default and will put data per realization. Other contexts may be ``case``
-            which will put data relative to the case root. If a non-FMU run is detected
-            (e.g. you run from project), fmu-dataio will detect that and set actual
-            context to None as fall-back.
+            which will put data relative to the case root. Another important context is
+            "preprocessed" which will output to a dedicated "preprocessed" folder
+            instead, and metadata will be partially re-used in an ERT model run. If a
+            non-FMU run is detected (e.g. you run from project), fmu-dataio will detect
+            that and set actual context to None as fall-back (unless preprocessed is
+            specified). If value is "preprosessed", see also ``resuse_metadata`` key.
 
         description: A multiline description of the data either as a string or a list
             of strings.
@@ -305,12 +299,14 @@ class ExportData:
 
         forcefolder: This setting shall only be used as exception, and will make it
             possible to output to a non-standard folder. A ``/`` in front will indicate
-            an absolute path*; otherwise it will be relative to casepath or rootpath,
-            as dependent on the both fmu_context and the is_observations
-            boolean value. A typical use-case is forcefolder="seismic" which will
-            replace the "cubes" standard folder for Cube output with "seismics".
-            Use with care and avoid if possible! (*) For absolute paths, the class
-            variable allow_forcefolder_absolute must set to True.
+            an absolute path*; otherwise it will be relative to casepath or rootpath, as
+            dependent on the both fmu_context and the is_observations boolean value. A
+            typical use-case is forcefolder="seismic" which will replace the "cubes"
+            standard folder for Cube output with "seismics". Use with care and avoid if
+            possible! (*) For absolute paths, the class variable
+            allow_forcefolder_absolute must set to True.
+
+        grid_model: Currently allowed but planned for deprecation
 
         grid_model: Currently allowed but planned for deprecation
 
@@ -321,7 +317,9 @@ class ExportData:
         is_prediction: True (default) if model prediction data
 
         is_observation: Default is False. If True, then disk storage will be on the
-            "share/observations" folder, otherwise on share/result
+            "share/observations" folder, otherwise on share/result. An exception arise
+            if fmu_context is "preprocessed", then the folder will be set to
+            "share/processed" irrespective the value of is_observation.
 
         name: Optional but recommended. The name of the object. If not set it is tried
             to be inferred from the xtgeo/pandas/... object. The name is then checked
@@ -336,6 +334,11 @@ class ExportData:
         realization: Optional, default is -999 which means that realization shall be
             detected automatically from the FMU run. Can be used to override in rare
             cases. If so, numbers must be >= 0
+
+        reuse_metadata_rule: This input is None or a string describing rule for reusing
+            metadata. Default is None, but if the input is a file string or object with
+            already valid metdata, then it is assumed to be "preprocessed", which
+            merges the metadata after predefined rules.
 
         runpath: TODO! Optional and deprecated. The relative location of the current run
             root. Optional and will in most cases be auto-detected, assuming that FMU
@@ -377,9 +380,11 @@ class ExportData:
 
             data:
               t0:
-                value: 2018010T00:00:00 description: base
+                value: 2018010T00:00:00
+                description: base
               t1:
-                value: 202020101T00:00:00 description: monitor
+                value: 202020101T00:00:00
+                description: monitor
 
         The output files will be on the form: somename--t1_t0.ext
 
@@ -417,6 +422,7 @@ class ExportData:
     case_folder: ClassVar[str] = "share/metadata"
     createfolder: ClassVar[bool] = True
     cube_fformat: ClassVar[str] = "segy"
+    filename_timedata_reverse: ClassVar[bool] = False  # reverse order output file name
     grid_fformat: ClassVar[str] = "roff"
     include_ert2jobs: ClassVar[bool] = False  # if True, include jobs.json from ERT2
     legacy_time_format: ClassVar[bool] = False
@@ -445,6 +451,7 @@ class ExportData:
     name: str = ""
     parent: str = ""
     realization: int = -999
+    reuse_metadata_rule: Optional[str] = None
     runpath: Union[str, Path, None] = None
     subfolder: str = ""
     tagname: str = ""
@@ -621,6 +628,19 @@ class ExportData:
         logger.info("pwd:        %s", str(self._pwd))
         logger.info("rootpath:   %s", str(self._rootpath))
 
+    def _check_obj_if_file(self, obj: Any) -> Any:
+        """When obj is file-like, it must be checked + assume preprocessed."""
+
+        if isinstance(obj, (str, Path)):
+            if isinstance(obj, str):
+                obj = Path(obj)
+            if not obj.exists():
+                raise ValidationError(f"The file {obj} does not exist.")
+            if not self.reuse_metadata_rule:
+                self.reuse_metadata_rule = "preprocessed"
+
+        return obj
+
     # ==================================================================================
     # Public methods:
     # ==================================================================================
@@ -633,6 +653,9 @@ class ExportData:
 
         Examples of such known types are XTGeo objects (e.g. a RegularSurface),
         a Pandas Dataframe, a PyArrow table, etc.
+
+        If the key ``reuse_metadata_rule`` is applied with legal value, the object may
+        also be a reference to a file with existing metadata which then will be re-used.
 
         Args:
             obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
@@ -653,6 +676,7 @@ class ExportData:
         self._update_check_settings(kwargs)
         self._update_globalconfig_from_settings()
         _check_global_config(self.config)
+        obj = self._check_obj_if_file(obj)
         self._establish_pwd_rootpath()
         self._validate_content_key()
         self._update_fmt_flag()
@@ -686,7 +710,6 @@ class ExportData:
         Returns:
             String: full path to exported item.
         """
-
         self.generate_metadata(obj, compute_md5=False, **kwargs)
         metadata = self._metadata
 
@@ -699,6 +722,7 @@ class ExportData:
         else:
             useflag = self._usefmtflag
 
+        obj = self._check_obj_if_file(obj)
         logger.info("Export to file and compute MD5 sum, using flag: <%s>", useflag)
         outfile, md5 = export_file_compute_checksum_md5(
             obj, outfile, outfile.suffix, flag=useflag

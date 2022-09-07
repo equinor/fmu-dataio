@@ -118,13 +118,16 @@ class _FileDataProvider:
             stem += "--" + (str(self.time0)[0:10]).replace("-", "")
 
         elif self.time0 and self.time1:
-            monitor = (str(self.time0)[0:10]).replace("-", "")
-            base = (str(self.time1)[0:10]).replace("-", "")
+            monitor = (str(self.time1)[0:10]).replace("-", "")
+            base = (str(self.time0)[0:10]).replace("-", "")
             if monitor == base:
                 warn(
                     "The monitor date and base date are equal", UserWarning
                 )  # TODO: consider add clocktimes in such cases?
-            stem += "--" + monitor + "_" + base
+            if self.dataio.filename_timedata_reverse:  # class variable
+                stem += "--" + base + "_" + monitor
+            else:
+                stem += "--" + monitor + "_" + base
 
         stem = stem.replace(".", "_").replace(" ", "_")
 
@@ -153,10 +156,13 @@ class _FileDataProvider:
 
         outroot = outroot / "share"
 
-        if self.dataio.is_observation:
-            outroot = outroot / "observations"
+        if self.fmu_context == "preprocessed":
+            outroot = outroot / "preprocessed"
         else:
-            outroot = outroot / "results"
+            if self.dataio.is_observation:
+                outroot = outroot / "observations"
+            else:
+                outroot = outroot / "results"
 
         dest = outroot / self.efolder  # e.g. "maps"
 
@@ -181,7 +187,7 @@ class _FileDataProvider:
         if self.dataio.createfolder:
             dest.mkdir(parents=True, exist_ok=True)
 
-        # check that destination actually exists if verify_folder is True
+        # check that destination actually exists if verifyfolder is True
         if self.dataio.verifyfolder and not dest.exists():
             raise IOError(f"Folder {str(dest)} is not present.")
 

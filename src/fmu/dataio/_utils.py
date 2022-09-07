@@ -3,13 +3,16 @@ import hashlib
 import json
 import logging
 import os
+import shutil
 import tempfile
 import uuid
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 import pandas as pd  # type: ignore
+import yaml
 
 try:
     import pyarrow as pa  # type: ignore
@@ -20,7 +23,6 @@ else:
     from pyarrow import feather
 
 import xtgeo  # type: ignore
-import yaml
 
 from . import _design_kw
 from . import _oyaml as oyaml
@@ -112,7 +114,11 @@ def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -
 
 def export_file(obj, filename, extension, flag=None):
     """Export a valid object to file"""
-    if extension == ".gri" and isinstance(obj, xtgeo.RegularSurface):
+
+    if isinstance(obj, Path):
+        # special case when processing data which already has metadata
+        shutil.copy(obj, filename)
+    elif extension == ".gri" and isinstance(obj, xtgeo.RegularSurface):
         obj.to_file(filename, fformat="irap_binary")
     elif extension == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
         out = obj.copy()  # to not modify incoming instance!
@@ -387,3 +393,107 @@ def generate_description(desc: Optional[Union[str, list]] = None) -> Union[list,
         return desc
     else:
         raise ValueError("Description of wrong type, must be list of strings or string")
+
+
+def read_metadata(filename: Union[str, Path]) -> dict:
+    """Read the metadata as a dictionary given a filename.
+
+    If the filename is e.g. /some/path/mymap.gri, the assosiated metafile
+    will be /some/path/.mymap.gri.yml (or json?)
+
+    Args:
+        filename: The full path filename to the data-object.
+
+    Returns:
+        A dictionary with metadata read from the assiated metadata file.
+    """
+    fname = Path(filename)
+    metafile = str(fname.parent) + "/." + fname.stem + fname.suffix + ".yml"
+    metafilepath = Path(metafile)
+    if not metafilepath.exists():
+        raise IOError(f"Cannot find requested metafile: {metafile}")
+    with open(metafilepath, "r") as stream:
+        metacfg = yaml.safe_load(stream)
+
+    return metacfg
+
+
+def glue_metadata_preprocessed(oldmeta, newmeta):
+    """Glue (combine) to metadata dicts according to rule 'preprocessed'."""
+
+    meta = oldmeta.copy()
+    meta["fmu"] = newmeta["fmu"]
+    meta["file"] = newmeta["file"]
+    meta["access"] = newmeta["access"]
+
+    newmeta["tracklog"][-1]["event"] = "merged"
+    meta["tracklog"].extend(newmeta["tracklog"])
+
+    # the only field in 'data' that are allowed to update is name:
+    meta["data"]["name"] = newmeta["data"]["name"]
+
+    return meta
+
+
+def parse_timedata(datablock: dict, isoformat=True):
+    """The time section under datablock has variants to parse.
+
+    Formats::
+
+        "time": {
+            "t0": {
+               "value": "2022-08-02T00:00:00",
+               "label": "base"
+            }
+        }
+        # with or without t1
+
+        # or legacy format:
+        "time": [
+        {
+            "value": "2030-01-01T00:00:00",
+            "label": "moni"
+        },
+        {
+            "value": "2010-02-03T00:00:00",
+            "label": "base"
+        }
+        ],
+
+    In addition, need to parse the dates on isoformat string format to YYYMMDD
+
+    Args:
+        datablock: The data block section from a metadata record
+
+    Returns
+        (t0, t1) where t0 is e.g. "20220907" as string objects and/or None if not
+        isoformat, while t0 is on form "2030-01-23T00:00:00" if isoformat is True
+
+
+    """
+    date0 = None
+    date1 = None
+    if "time" not in datablock:
+        return (None, None)
+
+    if isinstance(datablock["time"], list):
+        date0 = datablock["time"][0]["value"]
+
+        if len(datablock["time"] == 2):
+            date1 = datablock["time"][1]["value"]
+
+    elif isinstance(datablock["time"], dict):
+        date0 = datablock["time"]["t0"].get("value")
+        if "t1" in datablock["time"]:
+            date1 = datablock["time"]["t1"].get("value")
+
+    if not isoformat:
+        if date0:
+            tdate0 = datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S")
+            date0 = tdate0.datetime.strftime("%Y%m%d")
+
+        if date1:
+            tdate1 = datetime.strptime(date1, "%Y-%m-%dT%H:%M:%S")
+            date1 = tdate1.datetime.strftime("%Y%m%d")
+
+    return (date0, date1)
