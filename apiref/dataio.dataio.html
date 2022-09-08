@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 1.0.2.dev2+gd969279 documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 1.1.0a2.dev1+g3561860 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -541,7 +541,7 @@ a temporary file, which may be time-consuming if the file is large.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.export">
-<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData.export" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_symlink</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData.export" title="Permalink to this definition"></a></dt>
 <dd><p>Export data objects of ‘known’ type to FMU storage solution with metadata.</p>
 <p>This function will also collect the data spesific class metadata. For “classic”
 files, the metadata will be stored i a YAML file with same name stem as the
@@ -554,6 +554,9 @@ data, but with a . in front and “yml” and suffix, e.g.:</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – XTGeo instance, a Pandas Dataframe instance or other supported object.</p></li>
+<li><p><strong>return_symlink</strong> – If fmu_context is ‘case_symlink_realization’ then the link
+adress will be returned if this is True; otherwise the physical file
+path will be returned.</p></li>
 <li><p><strong>**kwargs</strong> – For other arguments, see ExportData() input keys. If they
 exist both places, this function will override!</p></li>
 </ul>
@@ -846,7 +849,7 @@ settings here.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.0.2.dev2+gd969279).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.1.0a2.dev1+g3561860).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
