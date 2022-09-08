@@ -5,6 +5,7 @@ as this is convinient to populate later, on demand)
 """
 
 import logging
+from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
@@ -35,7 +36,9 @@ class _FileDataProvider:
 
     # storing results in these variables
     relative_path: Optional[str] = field(default="", init=False)
+    relative_path_symlink: Optional[str] = field(default="", init=False)
     absolute_path: Optional[str] = field(default="", init=False)
+    absolute_path_symlink: Optional[str] = field(default="", init=False)
     checksum_md5: Optional[str] = field(default="", init=False)
 
     def __post_init__(self):
@@ -63,10 +66,23 @@ class _FileDataProvider:
         logger.info("Initialize %s", __class__)
 
     def derive_filedata(self):
-        stem = self._get_filestem()
-        relpath = self._get_path()
+        relpath, symrelpath = self._get_path()
+        relative, absolute = self._derive_filedata_generic(relpath)
+        self.relative_path = relative
+        self.absolute_path = absolute
 
-        path = Path(relpath) / stem.lower()
+        if symrelpath:
+            relative, absolute = self._derive_filedata_generic(symrelpath)
+            self.relative_path_symlink = relative
+            self.absolute_path_symlink = absolute
+
+        logger.info("Derived filedata")
+
+    def _derive_filedata_generic(self, inrelpath):
+        """This works with both normal data and symlinks."""
+        stem = self._get_filestem()
+
+        path = Path(inrelpath) / stem.lower()
         path = path.with_suffix(path.suffix + self.extension)
 
         # resolve() will fix ".." e.g. change '/some/path/../other' to '/some/other'
@@ -95,10 +111,8 @@ class _FileDataProvider:
         else:
             relpath = path.relative_to(self.rootpath)
 
-        self.relative_path = str(relpath)
-        self.absolute_path = str(abspath)
-
         logger.info("Derived filedata")
+        return str(relpath), str(abspath)
 
     def _get_filestem(self):
         """Construct the file"""
@@ -139,26 +153,39 @@ class _FileDataProvider:
         return stem
 
     def _get_path(self):
-        """Construct and get the folder path and verify."""
+        """Construct and get the folder path(s)."""
+        dest = None
+        linkdest = None
 
-        outroot = self.rootpath
+        dest = self._get_path_generic(mode=self.fmu_context, allow_forcefolder=True)
 
-        logger.info("FMU context is %s", self.fmu_context)
-        if self.fmu_context == "realization":
+        if self.fmu_context == "case_symlink_realization":
+            linkdest = self._get_path_generic(
+                mode="realization", allow_forcefolder=False, info=self.fmu_context
+            )
+
+        return dest, linkdest
+
+    def _get_path_generic(self, mode="realization", allow_forcefolder=True, info=""):
+        """Generically construct and get the folder path and verify."""
+        dest = None
+
+        outroot = deepcopy(self.rootpath)
+
+        logger.info("FMU context is %s", mode)
+        if mode == "realization":
             if self.realname:
-                outroot = outroot / self.realname
+                outroot = outroot / self.realname  # TODO: if missing self.realname?
 
             if self.itername:
                 outroot = outroot / self.itername
 
-        if self.fmu_context == "case_symlink_realization":
-            raise NotImplementedError("Symlinking not there yet...")
-
         outroot = outroot / "share"
 
-        if self.fmu_context == "preprocessed":
+        if mode == "preprocessed":
             outroot = outroot / "preprocessed"
-        else:
+
+        if mode != "preprocessed":
             if self.dataio.is_observation:
                 outroot = outroot / "observations"
             else:
@@ -180,6 +207,11 @@ class _FileDataProvider:
             dest = Path(self.dataio.forcefolder)
             dest = dest.absolute()
             self.forcefolder_is_absolute = True
+
+            if not allow_forcefolder:
+                raise RuntimeError(
+                    f"You cannot use forcefolder in combination with fmucontext={info}"
+                )
 
         if self.dataio.subfolder:
             dest = dest / self.dataio.subfolder

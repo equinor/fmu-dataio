@@ -146,8 +146,9 @@ def test_get_paths_path_exists_already(regsurf, edataobj1, tmp_path):
 
     fdata = _FileDataProvider(edataobj1, objdata)
 
-    path = fdata._get_path()
+    path, linkpath = fdata._get_path()
     assert str(path) == "share/results/efolder"
+    assert linkpath is None
 
 
 def test_get_paths_not_exists_so_create(regsurf, edataobj1, tmp_path):
@@ -165,7 +166,7 @@ def test_get_paths_not_exists_so_create(regsurf, edataobj1, tmp_path):
 
     fdata = _FileDataProvider(cfg, objdata)
 
-    path = fdata._get_path()
+    path, _ = fdata._get_path()
     assert str(path) == "share/results/efolder"
 
 

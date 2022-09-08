@@ -211,6 +211,10 @@ class _MetaData:
         - relative_path, seen from rootpath
         - absolute_path, as above but full path
         - checksum_md5, if required (a bit special treatment of this)
+
+        In additional _optional_ symlink adresses
+        - relative_path_symlink, seen from rootpath
+        - absolute_path_symlink, as above but full path
         """
 
         fdata = _FileDataProvider(
@@ -225,6 +229,9 @@ class _MetaData:
 
         self.meta_file["relative_path"] = fdata.relative_path
         self.meta_file["absolute_path"] = fdata.absolute_path
+        if fdata.absolute_path_symlink:
+            self.meta_file["relative_path_symlink"] = fdata.relative_path_symlink
+            self.meta_file["absolute_path_symlink"] = fdata.absolute_path_symlink
 
         if self.compute_md5:
             logger.info("Compute MD5 sum for tmp file...")

@@ -11,8 +11,8 @@ and are typically used to compare results.
 """
 import logging
 import os
+from pathlib import Path
 
-import pytest
 from conftest import inside_rms
 
 import fmu.dataio.dataio as dataio
@@ -50,7 +50,7 @@ def test_regsurf_case_observation(fmurun_w_casemetadata, rmsglobalconfig, regsur
 def test_regsurf_case_observation_w_symlinks(
     fmurun_w_casemetadata, rmsglobalconfig, regsurf
 ):
-    """Generating case level surface, with symlinks on realization folders."""
+    """Generating case level surface, with symlinks in realization folders."""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
 
     os.chdir(fmurun_w_casemetadata)
@@ -61,17 +61,16 @@ def test_regsurf_case_observation_w_symlinks(
         name="mymap",
         is_observation=True,
     )
+    metadata = edata.generate_metadata(regsurf)
+    logger.info("\n%s", utils.prettyprint_dict(metadata))
+    assert (
+        "realization-0/iter-0/share/observations/maps/mymap.gri"
+        in metadata["file"]["relative_path_symlink"]
+    )
 
-    with pytest.raises(NotImplementedError):
-        metadata = edata.generate_metadata(regsurf)
-        logger.debug("\n%s", utils.prettyprint_dict(metadata))
-        assert (
-            "ertrun1/share/observations/maps/mymap.gri"
-            in metadata["file"]["absolute_path"]
-        )
-
-        exp = edata.export(regsurf)
-        assert "ertrun1/share/observations/maps/mymap.gri" in exp
+    exp = edata.export(regsurf, return_symlink=True)
+    myfile = Path(exp)
+    assert myfile.is_symlink() is True
 
 
 def test_regsurf_preprocessed_observation(

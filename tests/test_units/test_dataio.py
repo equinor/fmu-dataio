@@ -238,6 +238,8 @@ def test_forcefolder(tmp_path, globalconfig2, regsurf):
     ExportData._inside_rms = True
     edata = ExportData(config=globalconfig2, forcefolder="whatever")
     meta = edata.generate_metadata(regsurf)
+    logger.info("RMS PATH %s", rmspath)
+    logger.info("\n %s", prettyprint_dict(meta))
     assert meta["file"]["relative_path"].startswith("share/results/whatever/")
     ExportData._inside_rms = False  # reset
 
