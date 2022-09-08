@@ -17,6 +17,7 @@ import pandas as pd  # type: ignore
 from . import _metadata
 from ._definitions import ALLOWED_CONTENTS, ALLOWED_FMU_CONTEXTS, CONTENTS_REQUIRED
 from ._utils import (
+    create_symlink,
     detect_inside_rms,
     drop_nones,
     export_file_compute_checksum_md5,
@@ -504,12 +505,14 @@ class ExportData:
             self.config = some_config_from_env(GLOBAL_ENVNAME)
 
         self._validate_content_key()
+        logger.info("Validate FMU context which is %s", self.fmu_context)
         self._validate_fmucontext_key()
         self._update_globalconfig_from_settings()
         _check_global_config(self.config, strict=True)
         self._establish_pwd_rootpath()
 
         self._show_deprecations_or_notimplemented()
+        logger.info("FMU context is %s", self.fmu_context)
         logger.info("Ran __post_init__")
 
     def _show_deprecations_or_notimplemented(self):
@@ -571,6 +574,7 @@ class ExportData:
         self._show_deprecations_or_notimplemented()
         self._validate_content_key()
         self._validate_fmucontext_key()
+        logger.info("Validate FMU context which is now %s", self.fmu_context)
 
     def _update_globalconfig_from_settings(self):
         """A few user settings may update/append the global config directly."""
@@ -672,6 +676,7 @@ class ExportData:
             a temporary file, which may be time-consuming if the file is large.
         """
         logger.info("Generate metadata...")
+        logger.info("KW args %s", kwargs)
 
         self._update_check_settings(kwargs)
         self._update_globalconfig_from_settings()
@@ -692,7 +697,7 @@ class ExportData:
 
         return deepcopy(self._metadata)
 
-    def export(self, obj, **kwargs) -> str:
+    def export(self, obj, return_symlink=False, **kwargs) -> str:
         """Export data objects of 'known' type to FMU storage solution with metadata.
 
         This function will also collect the data spesific class metadata. For "classic"
@@ -704,6 +709,9 @@ class ExportData:
 
         Args:
             obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
+            return_symlink: If fmu_context is 'case_symlink_realization' then the link
+                adress will be returned if this is True; otherwise the physical file
+                path will be returned.
             **kwargs: For other arguments, see ExportData() input keys. If they
                 exist both places, this function will override!
 
@@ -727,7 +735,6 @@ class ExportData:
         outfile, md5 = export_file_compute_checksum_md5(
             obj, outfile, outfile.suffix, flag=useflag
         )
-
         # inject md5 checksum in metadata
         metadata["file"]["checksum_md5"] = md5
 
@@ -735,9 +742,21 @@ class ExportData:
         logger.info("Actual file is:   %s", outfile)
         logger.info("Metadata file is: %s", metafile)
 
+        # generate symlink if requested
+        outfile_target = None
+        if metadata["file"].get("absolute_path_symlink"):
+            outfile_target = Path(metadata["file"]["absolute_path_symlink"])
+            outfile_source = Path(metadata["file"]["absolute_path"])
+            create_symlink(outfile_source, outfile_target)
+            metafile_target = outfile_target.parent / ("." + str(outfile.name) + ".yml")
+            create_symlink(metafile, metafile_target)
+
         self._metadata = metadata
 
-        return str(outfile)
+        if return_symlink and outfile_target:
+            return str(outfile_target)
+        else:
+            return str(outfile)
 
 
 # ######################################################################################

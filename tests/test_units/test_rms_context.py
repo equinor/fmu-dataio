@@ -344,6 +344,57 @@ def test_cube_export_file_set_name_as_observation_forcefolder(
 
 
 @inside_rms
+def test_cube_export_as_case(rmssetup, rmsglobalconfig, cube):
+    """Export the cube to file with correct metadata and name, is_observation.
+
+    In addition, try fmu_conext=case
+    """
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    # use forcefolder to apply share/observations/seismic
+    with pytest.warns(UserWarning, match=r"this is detected as a non FMU run"):
+        output = edata.export(
+            cube,
+            name="MyCube",
+            fmu_context="case",
+            is_observation=True,
+        )
+        logger.info("Output %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
+    )
+
+
+@inside_rms
+def test_cube_export_as_case_symlink_realization(rmssetup, rmsglobalconfig, cube):
+    """Export the cube to file with correct metadata and name, is_observation.
+
+    In addition, try fmu_conext=case
+    """
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    with pytest.warns(UserWarning, match=r"this is detected as a non FMU run"):
+        output = edata.export(
+            cube,
+            name="MyCube",
+            fmu_context="case_symlink_realization",
+            is_observation=True,
+        )
+        logger.info("Output %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
+    )
+
+
+@inside_rms
 def test_cube_export_as_observation_forcefolder_w_added_folder(
     rmssetup, rmsglobalconfig, cube
 ):

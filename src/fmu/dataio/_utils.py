@@ -178,6 +178,24 @@ def export_file_compute_checksum_md5(obj, filename, extension, flag=None, tmp=Fa
     return usefile, checksum
 
 
+def create_symlink(source, target):
+    """Create a symlinked file with some checks."""
+
+    thesource = Path(source)
+    if not thesource.exists():
+        raise IOError(f"Cannot symlink: Source file {thesource} does not exist.")
+
+    thetarget = Path(target)
+
+    if thetarget.exists() and not thetarget.is_symlink():
+        raise IOError(f"Target file {thetarget} exists already as a normal file.")
+
+    os.symlink(source, target)
+
+    if not (thetarget.exists() and thetarget.is_symlink()):
+        raise IOError(f"Target file {thesource} does not exist or is not a symlink.")
+
+
 def size(fname):
     return Path(fname).stat().st_size
 

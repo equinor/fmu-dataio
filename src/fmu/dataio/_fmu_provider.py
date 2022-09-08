@@ -71,7 +71,7 @@ class _FmuProvider:
         logger.info("Initialize %s", __class__)
 
     def detect_provider(self):
-        """First order method to detect provider."""
+        """First order method to detect provider, ans also check fmu_context."""
         if self._detect_ert2provider():
             logger.info("Detecting FMU provider as ERT2")
             self.provider = "ERT2"
@@ -84,6 +84,13 @@ class _FmuProvider:
             self.dataio._usecontext = None  # e.g. an interactive RMS run
             if self.dataio.fmu_context == "preprocessed":
                 self.dataio._usecontext = self.dataio.fmu_context
+            if self.dataio.fmu_context != self.dataio._usecontext:
+                warn(
+                    f"Requested fmu_context is <{self.dataio.fmu_context}> but since "
+                    "this is detected as a non FMU run, the actual context "
+                    f"is set to <{self.dataio._usecontext}>",
+                    UserWarning,
+                )
 
     def _detect_ert2provider(self) -> bool:
         """Detect if ERT2 is provider and set itername, casename, etc."""
