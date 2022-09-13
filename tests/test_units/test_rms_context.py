@@ -125,7 +125,7 @@ def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
     assert meta1["data"]["time"]["t0"]["label"] == "one"
     assert meta1["data"]["time"].get("t1", None) is None
 
-    logger.info(prettyprint_dict(meta1))
+    logger.debug(prettyprint_dict(meta1))
 
 
 @inside_rms
@@ -145,12 +145,13 @@ def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsur
         timedata=[[20300101, "moni"], [20100203, "base"]],
         verbosity="INFO",
     )
-    logger.info(prettyprint_dict(meta1))
+    logger.debug(prettyprint_dict(meta1))
+    assert "topvolantis--20300101_20100203" in meta1["file"]["relative_path"]
 
-    assert meta1["data"]["time"][1]["value"] == "2010-02-03T00:00:00"
-    assert meta1["data"]["time"][1]["label"] == "base"
-    assert meta1["data"]["time"][0]["value"] == "2030-01-01T00:00:00"
-    assert meta1["data"]["time"][0]["label"] == "moni"
+    assert meta1["data"]["time"][0]["value"] == "2010-02-03T00:00:00"
+    assert meta1["data"]["time"][0]["label"] == "base"
+    assert meta1["data"]["time"][1]["value"] == "2030-01-01T00:00:00"
+    assert meta1["data"]["time"][1]["label"] == "moni"
 
     meta1 = edata.generate_metadata(
         regsurf,
@@ -158,6 +159,8 @@ def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsur
         timedata=[[20300123, "one"]],
         verbosity="INFO",
     )
+
+    logger.debug(prettyprint_dict(meta1))
 
     assert meta1["data"]["time"][0]["value"] == "2030-01-23T00:00:00"
     assert meta1["data"]["time"][0]["label"] == "one"
@@ -337,6 +340,57 @@ def test_cube_export_file_set_name_as_observation_forcefolder(
 
     assert str(output) == str(
         (edata._rootpath / "share/observations/seismic/mycube.segy").resolve()
+    )
+
+
+@inside_rms
+def test_cube_export_as_case(rmssetup, rmsglobalconfig, cube):
+    """Export the cube to file with correct metadata and name, is_observation.
+
+    In addition, try fmu_conext=case
+    """
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    # use forcefolder to apply share/observations/seismic
+    with pytest.warns(UserWarning, match=r"this is detected as a non FMU run"):
+        output = edata.export(
+            cube,
+            name="MyCube",
+            fmu_context="case",
+            is_observation=True,
+        )
+        logger.info("Output %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
+    )
+
+
+@inside_rms
+def test_cube_export_as_case_symlink_realization(rmssetup, rmsglobalconfig, cube):
+    """Export the cube to file with correct metadata and name, is_observation.
+
+    In addition, try fmu_conext=case
+    """
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+
+    with pytest.warns(UserWarning, match=r"this is detected as a non FMU run"):
+        output = edata.export(
+            cube,
+            name="MyCube",
+            fmu_context="case_symlink_realization",
+            is_observation=True,
+        )
+        logger.info("Output %s", output)
+
+    assert str(output) == str(
+        (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
     )
 
 
