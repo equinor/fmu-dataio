@@ -114,3 +114,9 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, edataobj1):
     myfmu = _FmuProvider(edataobj1)
     with pytest.raises(ValueError):
         myfmu.detect_provider()
+
+    # workflow input is other types - shall fail
+    edataobj1.workflow = 123.4
+    myfmu = _FmuProvider(edataobj1)
+    with pytest.raises(TypeError):
+        myfmu.detect_provider()

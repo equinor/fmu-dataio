@@ -227,6 +227,9 @@ class _FmuProvider:
 
                 meta["workflow"] = {"reference": self.dataio.workflow["reference"]}
 
+            else:
+                raise TypeError("'workflow' should be string.")
+
         case_uuid = "not_present"  # TODO! not allow missing case metadata?
         if self.case_metadata and "fmu" in self.case_metadata:
             meta["case"] = deepcopy(self.case_metadata["fmu"]["case"])
