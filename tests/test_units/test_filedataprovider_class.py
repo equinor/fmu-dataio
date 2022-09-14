@@ -51,6 +51,38 @@ from fmu.dataio._objectdata_provider import _ObjectDataProvider
             20220102,
             "name--20220102_20210101",
         ),
+        (
+            "name with spaces",
+            "",
+            "",
+            "",
+            "",
+            "name_with_spaces",
+        ),
+        (
+            "name with double  space",
+            "",
+            "",
+            "",
+            "",
+            "name_with_double_space",
+        ),
+        (
+            "name. some fm",
+            "",
+            "",
+            "",
+            "",
+            "name_some_fm",
+        ),
+        (
+            "name with many       ..   . spaces",
+            "",
+            "",
+            "",
+            "",
+            "name_with_many_spaces",
+        ),
     ],
 )
 def test_get_filestem(

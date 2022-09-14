@@ -143,7 +143,12 @@ class _FileDataProvider:
             else:
                 stem += "--" + monitor + "_" + base
 
+        # remove unwanted characters
         stem = stem.replace(".", "_").replace(" ", "_")
+
+        # avoid multiple double underscores
+        while "__" in stem:
+            stem = stem.replace("__", "_")
 
         # treat norwegian special letters
         stem = stem.replace("æ", "ae")
