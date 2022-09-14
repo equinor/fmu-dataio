@@ -211,7 +211,24 @@ class _FmuProvider:
         meta["context"] = {"stage": self.dataio._usecontext}
 
         if self.dataio.workflow:
-            meta["workflow"] = {"reference": self.dataio.workflow}
+            if isinstance(self.dataio.workflow, str):
+                meta["workflow"] = {"reference": self.dataio.workflow}
+            elif isinstance(self.dataio.workflow, dict):
+                if "reference" not in self.dataio.workflow:
+                    raise ValueError(
+                        "When workflow is given as a dict, the 'reference' "
+                        "key must be included and be a string"
+                    )
+                warn(
+                    "The 'workflow' argument should be given as a string. "
+                    "Support for dictionary input is scheduled for deprecation.",
+                    PendingDeprecationWarning,
+                )
+
+                meta["workflow"] = {"reference": self.dataio.workflow["reference"]}
+
+            else:
+                raise TypeError("'workflow' should be string.")
 
         case_uuid = "not_present"  # TODO! not allow missing case metadata?
         if self.case_metadata and "fmu" in self.case_metadata:

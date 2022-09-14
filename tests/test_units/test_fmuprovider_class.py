@@ -1,6 +1,8 @@
 """Test the _MetaData class from the _metadata.py module"""
 import os
 
+import pytest
+
 import fmu.dataio as dio
 from fmu.dataio._fmu_provider import _FmuProvider, _get_folderlist
 
@@ -73,3 +75,48 @@ def test_fmuprovider_detect_case_has_metadata(fmurun_w_casemetadata, edataobj1):
         myfmu.case_metadata["fmu"]["case"]["uuid"]
         == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
     )
+
+
+def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, edataobj1):
+    """Testing the handling of workflow reference input.
+
+    Metadata definitions of fmu.workflow is that it is a dictionary with 'reference'
+    as a mandatory key. In early versions, the 'workflow' argument was to be given as
+    a dictionary and directly inserted. However, during development, this has changed
+    to a string which is inserted into the 'workflow' element in the outgoing metadata.
+    Some users still have legacy workflows that give this as a dictionary, so we will
+    continue to allow it, but with a warning.
+
+    This test is asserting that when 'workflow' is given in various shapes and forms,
+    it shall always produce valid metadata.
+
+    """
+    edataobj1._rootpath = fmurun_w_casemetadata
+    os.chdir(fmurun_w_casemetadata)
+
+    # workflow input is a string
+    edataobj1.workflow = "my workflow"
+    myfmu = _FmuProvider(edataobj1)
+    myfmu.detect_provider()
+    assert "workflow" in myfmu.metadata
+    assert myfmu.metadata["workflow"] == {"reference": "my workflow"}
+
+    # workflow input is a correct dict
+    edataobj1.workflow = {"reference": "my workflow"}
+    myfmu = _FmuProvider(edataobj1)
+    with pytest.warns(PendingDeprecationWarning, match="The 'workflow' argument"):
+        myfmu.detect_provider()
+    assert "workflow" in myfmu.metadata
+    assert myfmu.metadata["workflow"] == {"reference": "my workflow"}
+
+    # workflow input is non-correct dict
+    edataobj1.workflow = {"something": "something"}
+    myfmu = _FmuProvider(edataobj1)
+    with pytest.raises(ValueError):
+        myfmu.detect_provider()
+
+    # workflow input is other types - shall fail
+    edataobj1.workflow = 123.4
+    myfmu = _FmuProvider(edataobj1)
+    with pytest.raises(TypeError):
+        myfmu.detect_provider()

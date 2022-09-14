@@ -309,8 +309,6 @@ class ExportData:
 
         grid_model: Currently allowed but planned for deprecation
 
-        grid_model: Currently allowed but planned for deprecation
-
         include_index: This applies to Pandas (table) data only, and if True then the
             index column will be exported. Deprecated, use class variable
             ``table_include_index`` instead
