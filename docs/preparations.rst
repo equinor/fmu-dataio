@@ -188,7 +188,7 @@ Case metadata are made by a hooked ERT workflow running ``PRE_SIMULATION``.
 To make this, first create the workflow file in ``ert/bin/workflows/xhook_create_case_metadata``.
 
 .. note::
-    The "xhoox" prefix is convention, but not mandatory. As all workflows will be included in the
+    The "xhook" prefix is convention, but not mandatory. As all workflows will be included in the
     ERT GUI dropdown, the "hook" prefix signals that the workflow is not intended to be run manually. Further, 
     the "x" makes it go to the bottom of the (alphabetically) sorted dropdown. If you have many workflows,
     this makes things a little bit more tidy.
