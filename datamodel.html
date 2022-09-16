@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 1.1.0a3.dev4+g50a6d9f documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 1.1.0a3.dev5+gebf4b72 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -1987,7 +1987,9 @@ there are existing dependencies on top of this data model already, and more are 
 <h2>Metadata example<a class="headerlink" href="#metadata-example" title="Permalink to this heading"></a></h2>
 <p>Expand below to see a full example of valid metadata for surface exported from FMU.</p>
 <div class="toggle docutils container">
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">$schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example metadata for a depth surface.</span><span class="w"></span>
+
+<span class="nt">$schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json</span><span class="w"></span>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.8.0&quot;</span><span class="w"> </span><span class="c1"># including for REP and others to build logic on.</span><span class="w"></span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span><span class="w">  </span><span class="c1"># always included, and always this value if FMU made it. For quick identification for external consumers.</span><span class="w"></span>
 
@@ -2001,12 +2003,9 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">peesv</span><span class="w"></span>
 <span class="w">    </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">updated</span><span class="w"></span>
 
-<span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">surface</span><span class="w"></span>
+<span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">surface</span><span class="w"> </span><span class="c1"># class is the main identifier of the data type.</span><span class="w"></span>
 
-<span class="c1"># fmu:</span><span class="w"></span>
-<span class="c1"># The fmu block in data objects have more sub-elements compared to ensemble objects.</span><span class="w"></span>
-
-<span class="nt">fmu</span><span class="p">:</span><span class="w"></span>
+<span class="nt">fmu</span><span class="p">:</span><span class="w"> </span><span class="c1"># the fmu-block contains information directly related to the FMU context</span><span class="w"></span>
 <span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ff</span><span class="w"></span>
 <span class="w">    </span><span class="nt">revision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">21.0.0.dev</span><span class="w"></span>
@@ -2014,12 +2013,12 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">detailed description</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">optional</span><span class="w"></span>
 
-<span class="w">  </span><span class="nt">workflow</span><span class="p">:</span><span class="w"> </span><span class="c1"># not sure, but a reference to the workflow / job that made this. Making it expandable.</span><span class="w"></span>
+<span class="w">  </span><span class="nt">workflow</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rms/structural_model</span><span class="w"></span>
 
 <span class="w">  </span><span class="nt">case</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyCaseName</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8bb56d60-8758-481a-89a4-6bac8561d38e</span><span class="w"> </span><span class="c1"># (pseudo-)random valid uuid4</span><span class="w"></span>
+<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8bb56d60-8758-481a-89a4-6bac8561d38e</span><span class="w"></span>
 <span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jriv</span><span class="w"> </span><span class="c1"># $USER from ERT</span><span class="w"></span>
 <span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"></span>
@@ -2032,39 +2031,31 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4b939310-34b1-4179-802c-49460bc0f799</span><span class="w"> </span><span class="c1"># hash of case.uuid + iteration.id</span><span class="w"></span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;iter-0&quot;</span><span class="w"> </span><span class="c1"># /&quot;pred&quot;</span><span class="w"></span>
 
-<span class="w">  </span><span class="nt">realization</span><span class="p">:</span><span class="w">  </span><span class="c1"># could be expanded in the future?</span><span class="w"></span>
+<span class="w">  </span><span class="nt">realization</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">29a15b21-ce13-471b-9a4a-0f791552aa51</span><span class="w"> </span><span class="c1"># hash of case.uuid + iteration.uuid + realization.id</span><span class="w"></span>
+<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">29a15b21-ce13-471b-9a4a-0f791552aa51</span><span class="w"></span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;realization-33&quot;</span><span class="w"></span>
 <span class="w">    </span><span class="nt">parameters</span><span class="p">:</span><span class="w"> </span><span class="c1"># directly pass parameters.txt. This is potentially a lot of content, only a stub is included here.</span><span class="w"></span>
 <span class="w">      </span><span class="nt">SENSNAME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">faultseal</span><span class="w"></span>
 <span class="w">      </span><span class="nt">SENSCASE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">low</span><span class="w"></span>
 <span class="w">      </span><span class="nt">RMS_SEED</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1006</span><span class="w"></span>
+<span class="w">      </span><span class="nt">INIT_FILES</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">PERM_FLUVCHAN_E1_NORM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.748433</span><span class="w"></span>
+<span class="w">        </span><span class="nt">PERM_FLUVCHAN_E21_NORM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.782068</span><span class="w"></span>
 <span class="w">      </span><span class="nt">KVKH_CHANNEL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.6</span><span class="w"></span>
-<span class="w">      </span><span class="nt">KVKH_CREVASSE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.3</span><span class="w"></span>
-<span class="w">      </span><span class="nt">KVKH_LS</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.7</span><span class="w"></span>
 <span class="w">      </span><span class="nt">KVKH_US</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.6</span><span class="w"></span>
 <span class="w">      </span><span class="nt">FAULT_SEAL_SCALING</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w"></span>
 <span class="w">      </span><span class="nt">FWL_CENTRAL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1677</span><span class="w"></span>
-<span class="w">    </span><span class="nt">jobs</span><span class="p">:</span><span class="w"> </span><span class="c1"># directly pass jobs.json. This is a lot of content, only a stub is included here.</span><span class="w"></span>
-<span class="w">      </span><span class="nt">umask</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0002&#39;</span><span class="w"></span>
-<span class="w">      </span><span class="nt">DATA_ROOT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/some/path/20.4.0_20201106/ert/model</span><span class="w"></span>
-<span class="w">      </span><span class="nt">anything</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">something</span><span class="w"></span>
-<span class="w">      </span><span class="nt">something</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">anything</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">something</span><span class="w"></span>
-<span class="w">      </span><span class="nt">global_update_path</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"></span>
-<span class="w">      </span><span class="nt">jobList</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MAKE_DIRECTORY</span><span class="w"></span>
-<span class="w">        </span><span class="nt">min_arg</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="w">        </span><span class="nt">anything</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">something</span><span class="w"></span>
 
 <span class="nt">file</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">relative_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri</span><span class="w"> </span><span class="c1"># case-relative</span><span class="w"></span>
-<span class="w">  </span><span class="nt">absolute_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/some/absolute/path//realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri</span><span class="w"></span>
+<span class="w">  </span><span class="nt">absolute_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/some/absolute/path/realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri</span><span class="w"></span>
 <span class="w">  </span><span class="nt">checksum_md5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kjhsdfvsdlfk23knerknvk23</span><span class="w">  </span><span class="c1"># checksum of the file, not the data.</span><span class="w"></span>
 <span class="w">  </span><span class="nt">size_bytes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">132321</span><span class="w"></span>
-<span class="w">  </span>
+
 <span class="nt">data</span><span class="p">:</span><span class="w"> </span><span class="c1"># The data block describes the actual data (e.g. surface). Only present in data objects</span><span class="w"></span>
+
+<span class="w">  </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">depth</span><span class="w">   </span><span class="c1"># white-listed and standardized</span><span class="w"></span>
 
 <span class="w">  </span><span class="c1"># if stratigraphic, name must match the strat column. This is the official name of this surface.</span><span class="w"></span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">volantis_top-volantis_base</span><span class="w"></span>
@@ -2086,9 +2077,6 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">somename_fm_1_top</span><span class="w"></span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">top_somename</span><span class="w"></span>
 
-<span class="w">  </span><span class="c1"># content is white-listed and standardized</span><span class="w"></span>
-<span class="w">  </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">depth</span><span class="w"></span>
-
 <span class="w">  </span><span class="c1"># tagname is flexible. The tag is intended primarily for providing uniqueness. The tagname will also be part of the outgoing file name on disk.</span><span class="w"></span>
 <span class="w">  </span><span class="nt">tagname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ds_extract_geogrid</span><span class="w"></span>
 
@@ -2104,7 +2092,7 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">  </span><span class="nt">layout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">regular</span><span class="w"> </span><span class="c1"># / cornerpoint / structured / etc</span><span class="w"></span>
 <span class="w">  </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">m</span><span class="w"></span>
 <span class="w">  </span><span class="nt">vertical_domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">depth</span><span class="w"> </span><span class="c1"># / time / null</span><span class="w"></span>
-<span class="w">  </span><span class="nt">depth_reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">msl</span><span class="w"> </span><span class="c1"># / seabed / etc # mandatory when vertical_domain is depth?</span><span class="w"></span>
+<span class="w">  </span><span class="nt">depth_reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">msl</span><span class="w"> </span><span class="c1"># / seabed / etc</span><span class="w"></span>
 <span class="w">  </span><span class="nt">grid_model</span><span class="p">:</span><span class="w"> </span><span class="c1"># Making this an object to allow for expanding in the future</span><span class="w"></span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyGrid</span><span class="w"> </span><span class="c1"># important for data identification, also important for other data types</span><span class="w"></span>
 <span class="w">  </span><span class="nt">spec</span><span class="p">:</span><span class="w"> </span><span class="c1"># class/layout dependent, optional? Can spec be expanded to work for all data types?</span><span class="w"></span>
@@ -2171,16 +2159,16 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">        </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span><span class="w"></span>
 <span class="w">    </span><span class="nt">discovery</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">short_identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span><span class="w"></span>
-<span class="w">        </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span><span class="w"></span>
+<span class="w">        </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span><span class="w"> </span><span class="c1"># mock uuid for Drogon</span><span class="w"></span>
 <span class="w">    </span><span class="nt">field</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span><span class="w"></span>
-<span class="w">        </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span><span class="w"></span>
-<span class="w">    </span><span class="nt">coordinate_system</span><span class="p">:</span><span class="w">  </span><span class="c1"># changing from &quot;coordinates&quot; to clarify this is not content</span><span class="w"></span>
+<span class="w">        </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span><span class="w"> </span><span class="c1"># mock uuid for Drogon</span><span class="w"></span>
+<span class="w">    </span><span class="nt">coordinate_system</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span><span class="w"></span>
 <span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span><span class="w"></span>
 <span class="w">    </span><span class="nt">stratigraphic_column</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON_2020</span><span class="w"></span>
-<span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345678-1234-1234-1234-123456789012</span><span class="w"></span>
+<span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span><span class="w"> </span><span class="c1"># mock uuid for Drogon</span><span class="w"></span>
 </pre></div>
 </div>
 </div>
@@ -2224,7 +2212,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.1.0a3.dev4+g50a6d9f).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.1.0a3.dev5+gebf4b72).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
