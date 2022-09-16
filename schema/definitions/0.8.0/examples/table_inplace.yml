@@ -1,4 +1,4 @@
-# Example metadata for a polygon(s)
+# Example metadata for an inplace volume table.
 
 $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
 version: "0.8.0"
@@ -14,10 +14,7 @@ tracklog:
       id: peesv
     event: updated
 
-class: polygons # class is the main identifier of the data type.
-
-# fmu:
-# The fmu block in data objects have more sub-elements compared to ensemble objects.
+class: table # class is the main identifier of the data type.
 
 fmu: # the fmu-block contains information directly related to the FMU context
   model:
@@ -28,7 +25,7 @@ fmu: # the fmu-block contains information directly related to the FMU context
       - optional
 
   workflow:
-    reference: rms/structural_model
+    reference: rms/volumetrics
 
   case:
     name: MyCaseName
@@ -42,12 +39,12 @@ fmu: # the fmu-block contains information directly related to the FMU context
 
   iteration:
     id: 0 # always an int, will be 0 for e.g. "pred"
-    uuid: 4b939310-34b1-4179-802c-49460bc0f799
+    uuid: 4b939310-34b1-4179-802c-49460bc0f799 # hash of case.uuid + iteration.id
     name: "iter-0" # /"pred"
 
   realization:
     id: 33
-    uuid: 29a15b21-ce13-471b-9a4a-0f791552aa51 # hash of case.uuid + iteration.uuid + realization.id
+    uuid: 29a15b21-ce13-471b-9a4a-0f791552aa51
     name: "realization-33"
     parameters: # directly pass parameters.txt. This is potentially a lot of content, only a stub is included here.
       SENSNAME: faultseal
@@ -62,69 +59,67 @@ fmu: # the fmu-block contains information directly related to the FMU context
       FWL_CENTRAL: 1677
 
 file:
-  relative_path: realization-33/iter-0/share/results/polygons/field_outline--goc.gri # case-relative
-  absolute_path: /some/absolute/path//realization-33/iter-0/share/results/polygons/field_outline--goc.gri
+  relative_path: realization-33/iter-0/share/results/tables/inplace_mygrid.csv # case-relative
+  absolute_path: /some/absolute/path/realization-33/iter-0/share/results/inplace_mygrid.csv
   checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
-  size_bytes: 132321
+  size_bytes: 5010144
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
 
-  content: field_outline  # white-listed and standardized
+  content: inplace_volumes   # white-listed and standardized
 
   # if stratigraphic, name must match the strat column. This is the official name of this surface.
-  name: field_outline--goc
-  stratigraphic: false  # if true, this is a stratigraphic surface found in the strat column
+  name: inplace_mygrid
+  stratigraphic: false
 
-  # content-specific tag: When content == "field_outline", expect the 'field_outline' tag
-  field_outline:
-    contact: goc
-
-  properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
-    - name: PropertyName
-      attribute: goc
-      is_discrete: false # to be used for discrete values in surfaces.
-      calculation: null # max/min/rms/var/maxpos/sum/etc
+  properties: 
+    - name: BULK_OIL
+      unit: m3
+      is_discrete: false
+    - name: NET_OIL
+      unit: m3
+      is_discrete: false
+    - name: PORE_OIL
+      unit: m3
+      is_discrete: false
+    - name: HCPV_OIL
+      unit: m3
+      is_discrete: false
+    - name: STOIIP_OIL
+      unit: sm3
+      is_discrete: false
+    - name: ZONE
+      is_discrete: true
+    - name: REGION
+      is_discrete: true
+    - name: FACIES
+      is_discrete: true
+    - name: LICENSE
+      is_discrete: true
 
   format: csv
-  unit: m
   vertical_domain: depth # / time / null
-  depth_reference: msl # / seabed / etc # mandatory when vertical_domain is depth?
-  spec:
-    npolys: 6
-  bbox:
-    xmin: 456012.5003497944
-    xmax: 467540.52762886323
-    ymin: 5926499.999511719
-    ymax: 5939492.128326312
-    zmin: 1244.039
-    zmax: 2302.683
-  time:
-    - value: 2020-10-28T14:28:02
-      label: "some label"
-    - value: 2020-10-28T14:28:02
-      label: "some other label"
+  depth_reference: msl # / seabed / etc
+  grid_model: # Making this an object to allow for expanding in the future
+    name: MyGrid # important for data identification, also important for other data types
+  spec: # class/layout dependent, optional? Can spec be expanded to work for all data types?
+    ncol: 281
+    nrow: 441
+    undef: -999.25  # Allow both number and string
   is_prediction: true # A mechanism for separating pure QC output from actual predictions
-  is_observation: false # Used for 4D data currently but also valid for other data?
+  is_observation: false
   description:
-    - Field outline calculated as intersection between top reservoir and the GOC
-    - Made in a FMU workflow
+    - Inplace volumes calculated on MyGrid
 
 display:
-  name: Field outline
-  subtitle: (GOC)
-  line:
-    show: true
-    color: red
-    style: solid
-  fill:
-    show: false
+  name: Inplace, MyGrid
 
 access:
   asset:
     name: Drogon
   ssdl:
-    access_level: internal
-    rep_include: true
+    access_level: asset
+    rep_include: false
 
 masterdata:
   smda:
