@@ -72,8 +72,7 @@ class _FmuProvider:
 
     def detect_provider(self):
         """First order method to detect provider, ans also check fmu_context."""
-        if self._detect_ert2provider():
-            logger.info("Detecting FMU provider as ERT2")
+        if self._detect_ert2provider() or self._detect_ert2provider_case_only():
             self.provider = "ERT2"
             self.get_ert2_information()
             self.get_ert2_case_metadata()
@@ -93,7 +92,11 @@ class _FmuProvider:
                 )
 
     def _detect_ert2provider(self) -> bool:
-        """Detect if ERT2 is provider and set itername, casename, etc."""
+        """Detect if ERT2 is provider and set itername, casename, etc.
+
+        This is the pattern in a forward model, where realization etc exists.
+        """
+        logger.info("Try to detect ERT2 provider")
 
         folders = _get_folderlist(self.rootpath_initial)
         logger.info("Folders to evaluate: %s", folders)
@@ -144,8 +147,41 @@ class _FmuProvider:
                 logger.info("Initial rootpath: %s", self.rootpath_initial)
                 logger.info("Updated rootpath: %s", self.rootpath)
 
+                logger.info("Detecting FMU provider as ERT2")
                 return True
 
+        return False
+
+    def _detect_ert2provider_case_only(self) -> bool:
+        """Detect ERT2 as provider when fmu_context is case'ish and casepath is given.
+
+        This is typically found in ERT prehook work flows where case is establed by
+        fmu.dataio.InitialiseCase() but no iter and realization folders exist. So
+        only case-metadata are revelant here.
+        """
+        logger.info("Try to detect ERT2 provider (case context)")
+
+        if (
+            self.dataio.fmu_context
+            and "case" in self.dataio.fmu_context
+            and self.dataio.casepath
+        ):
+            self.rootpath = Path(self.dataio.casepath)
+
+            folders = _get_folderlist(self.rootpath)
+            logger.info("Folders to evaluate (case): %s", folders)
+
+            self.iter_path = None
+            self.real_path = None
+            self.case_name = folders[-1]
+            self.user_name = folders[-2]
+
+            logger.info("Initial rootpath: %s", self.rootpath_initial)
+            logger.info("Updated rootpath: %s", self.rootpath)
+            logger.info("case_name, user_name: %s %s", self.case_name, self.user_name)
+
+            logger.info("Detecting FMU provider as ERT2 (case only)")
+            return True
         return False
 
     def get_ert2_information(self):
