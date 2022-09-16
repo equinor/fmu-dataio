@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.1.0a3.dev3+g889853d documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.1.0a3.dev4+g50a6d9f documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -346,7 +346,8 @@
 
 <span class="sd">        casepath: To override the automatic and actual ``rootpath``. Absolute path to</span>
 <span class="sd">            the case root. If not provided, the rootpath will be attempted parsed from</span>
-<span class="sd">            the file structure or by other means. Use with care!</span>
+<span class="sd">            the file structure or by other means. See also fmu_context, where &quot;case&quot;</span>
+<span class="sd">            may need an explicit casepath!</span>
 
 <span class="sd">        config: Required, either as key (here) or through an environment variable.</span>
 <span class="sd">            A dictionary with static settings. In the standard case this is read from</span>
@@ -363,12 +364,13 @@
 
 <span class="sd">        fmu_context: In normal forward models, the fmu_context is ``realization`` which</span>
 <span class="sd">            is default and will put data per realization. Other contexts may be ``case``</span>
-<span class="sd">            which will put data relative to the case root. Another important context is</span>
-<span class="sd">            &quot;preprocessed&quot; which will output to a dedicated &quot;preprocessed&quot; folder</span>
-<span class="sd">            instead, and metadata will be partially re-used in an ERT model run. If a</span>
-<span class="sd">            non-FMU run is detected (e.g. you run from project), fmu-dataio will detect</span>
-<span class="sd">            that and set actual context to None as fall-back (unless preprocessed is</span>
-<span class="sd">            specified). If value is &quot;preprosessed&quot;, see also ``resuse_metadata`` key.</span>
+<span class="sd">            which will put data relative to the case root (see also casepath). Another</span>
+<span class="sd">            important context is &quot;preprocessed&quot; which will output to a dedicated</span>
+<span class="sd">            &quot;preprocessed&quot; folder instead, and metadata will be partially re-used in</span>
+<span class="sd">            an ERT model run. If a non-FMU run is detected (e.g. you run from project),</span>
+<span class="sd">            fmu-dataio will detect that and set actual context to None as fall-back</span>
+<span class="sd">            (unless preprocessed is specified). If value is &quot;preprosessed&quot;, see also</span>
+<span class="sd">            ``resuse_metadata`` key.</span>
 
 <span class="sd">        description: A multiline description of the data either as a string or a list</span>
 <span class="sd">            of strings.</span>
@@ -1398,7 +1400,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.1.0a3.dev3+g889853d).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.1.0a3.dev4+g50a6d9f).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

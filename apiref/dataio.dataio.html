@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 1.1.0a3.dev3+g889853d documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 1.1.0a3.dev4+g50a6d9f documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -191,7 +191,8 @@ The user can however force set the ‘actual’ rootpath by providing the input
 </p></li>
 <li><p><strong>casepath</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – To override the automatic and actual <code class="docutils literal notranslate"><span class="pre">rootpath</span></code>. Absolute path to
 the case root. If not provided, the rootpath will be attempted parsed from
-the file structure or by other means. Use with care!</p></li>
+the file structure or by other means. See also fmu_context, where “case”
+may need an explicit casepath!</p></li>
 <li><p><strong>config</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Required, either as key (here) or through an environment variable.
 A dictionary with static settings. In the standard case this is read from
 FMU global variables (via fmuconfig). The dictionary must contain some
@@ -205,12 +206,13 @@ Example is “depth” or {“fluid_contact”: {“xxx”: “yyy”, “zzz”
 Content is checked agains a white-list for validation!</p></li>
 <li><p><strong>fmu_context</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – In normal forward models, the fmu_context is <code class="docutils literal notranslate"><span class="pre">realization</span></code> which
 is default and will put data per realization. Other contexts may be <code class="docutils literal notranslate"><span class="pre">case</span></code>
-which will put data relative to the case root. Another important context is
-“preprocessed” which will output to a dedicated “preprocessed” folder
-instead, and metadata will be partially re-used in an ERT model run. If a
-non-FMU run is detected (e.g. you run from project), fmu-dataio will detect
-that and set actual context to None as fall-back (unless preprocessed is
-specified). If value is “preprosessed”, see also <code class="docutils literal notranslate"><span class="pre">resuse_metadata</span></code> key.</p></li>
+which will put data relative to the case root (see also casepath). Another
+important context is “preprocessed” which will output to a dedicated
+“preprocessed” folder instead, and metadata will be partially re-used in
+an ERT model run. If a non-FMU run is detected (e.g. you run from project),
+fmu-dataio will detect that and set actual context to None as fall-back
+(unless preprocessed is specified). If value is “preprosessed”, see also
+<code class="docutils literal notranslate"><span class="pre">resuse_metadata</span></code> key.</p></li>
 <li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – A multiline description of the data either as a string or a list
 of strings.</p></li>
 <li><p><strong>display_name</strong> – Optional, set name for clients to use when visualizing.</p></li>
@@ -849,7 +851,7 @@ settings here.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.1.0a3.dev3+g889853d).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.1.0a3.dev4+g50a6d9f).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
