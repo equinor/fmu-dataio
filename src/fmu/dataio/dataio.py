@@ -269,7 +269,8 @@ class ExportData:
 
         casepath: To override the automatic and actual ``rootpath``. Absolute path to
             the case root. If not provided, the rootpath will be attempted parsed from
-            the file structure or by other means. Use with care!
+            the file structure or by other means. See also fmu_context, where "case"
+            may need an explicit casepath!
 
         config: Required, either as key (here) or through an environment variable.
             A dictionary with static settings. In the standard case this is read from
@@ -286,12 +287,13 @@ class ExportData:
 
         fmu_context: In normal forward models, the fmu_context is ``realization`` which
             is default and will put data per realization. Other contexts may be ``case``
-            which will put data relative to the case root. Another important context is
-            "preprocessed" which will output to a dedicated "preprocessed" folder
-            instead, and metadata will be partially re-used in an ERT model run. If a
-            non-FMU run is detected (e.g. you run from project), fmu-dataio will detect
-            that and set actual context to None as fall-back (unless preprocessed is
-            specified). If value is "preprosessed", see also ``resuse_metadata`` key.
+            which will put data relative to the case root (see also casepath). Another
+            important context is "preprocessed" which will output to a dedicated
+            "preprocessed" folder instead, and metadata will be partially re-used in
+            an ERT model run. If a non-FMU run is detected (e.g. you run from project),
+            fmu-dataio will detect that and set actual context to None as fall-back
+            (unless preprocessed is specified). If value is "preprosessed", see also
+            ``resuse_metadata`` key.
 
         description: A multiline description of the data either as a string or a list
             of strings.

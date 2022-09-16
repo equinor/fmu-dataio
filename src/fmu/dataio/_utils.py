@@ -426,6 +426,9 @@ def read_metadata(filename: Union[str, Path]) -> dict:
         A dictionary with metadata read from the assiated metadata file.
     """
     fname = Path(filename)
+    if fname.stem.startswith("."):
+        raise IOError(f"The input is a hidden file, cannot continue: {fname.stem}")
+
     metafile = str(fname.parent) + "/." + fname.stem + fname.suffix + ".yml"
     metafilepath = Path(metafile)
     if not metafilepath.exists():

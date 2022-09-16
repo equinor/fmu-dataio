@@ -44,13 +44,61 @@ def test_fmuprovider_ert2_provider(fmurun, globalconfig1):
     assert myfmu.real_id == 0
 
 
+def test_fmuprovider_prehook_case(globalconfig2, tmp_path):
+    """The fmu run case metadata is initialized with Initialize case; then fet provider.
+
+    A typical prehook section in a ERT2 run is to establish case metadata, and then
+    subsequent hook workflows should still recognize this as an ERT2 run, altough
+    no iter and realization folders exists. This requires fmu_contact=case* and that
+    key casepath is given explicitly!.
+    """
+
+    icase = dio.InitializeCase(config=globalconfig2, verbosity="INFO")
+
+    caseroot = tmp_path / "prehook"
+    caseroot.mkdir(parents=True)
+
+    os.chdir(caseroot)
+    print("XXXX", caseroot)
+
+    exp = icase.export(
+        rootfolder=caseroot,
+        casename="MyCaseName",
+        caseuser="MyUser",
+        description="Some description",
+    )
+    casemetafile = caseroot / "share/metadata/fmu_case.yml"
+    assert casemetafile.is_file()
+    assert exp == str(casemetafile.resolve())
+    print("Case metafile", casemetafile)
+
+    eobj = dio.ExportData(
+        config=globalconfig2,
+        name="TopWhatever",
+        content="depth",
+        tagname="mytag",
+        is_observation=True,
+        fmu_context="case",
+        casepath=caseroot,
+    )
+
+    print(eobj._rootpath)
+    print(eobj._pwd)
+    print(eobj._inside_rms)
+
+    myfmu = _FmuProvider(eobj, verbosity="INFO")
+    myfmu.detect_provider()
+    assert myfmu.case_name == "prehook"
+    assert myfmu.real_name is None
+
+
 def test_fmuprovider_detect_no_case_metadata(fmurun, edataobj1):
     """Testing the case metadata file which is not found here.
 
     That will still provide a file path but the metadata will be {} i.e. empty
     """
     os.chdir(fmurun)
-    edataobj1._runpath = fmurun
+    edataobj1._rootpath = fmurun
 
     myfmu = _FmuProvider(edataobj1)
     myfmu.detect_provider()
