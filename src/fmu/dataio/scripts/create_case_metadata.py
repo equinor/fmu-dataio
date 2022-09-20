@@ -14,9 +14,9 @@ import logging
 from pathlib import Path
 
 try:
-    from ert_shared.plugins.plugin_manager import hook_implementation  # type: ignore
+    from ert.shared.plugins.plugin_manager import hook_implementation  # type: ignore
 except ModuleNotFoundError:
-    from ert.shared.plugins.plugin_manager import hook_implementation
+    from ert_shared.plugins.plugin_manager import hook_implementation  # type: ignore
 
 try:
     from ert import ErtScript  # type: ignore
