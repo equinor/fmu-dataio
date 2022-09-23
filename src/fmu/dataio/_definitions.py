@@ -57,6 +57,7 @@ ALLOWED_CONTENTS = {
     "volumetrics": None,  # or?
     "khproduct": None,
     "timeseries": None,
+    "unsmry": None,
 }
 
 # This setting will set if subkeys is required or not. If not found in list then
