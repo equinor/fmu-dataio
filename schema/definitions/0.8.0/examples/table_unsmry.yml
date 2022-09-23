@@ -66,47 +66,85 @@ file:
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
 
-  content: timeseries   # white-listed and standardized
-  timeseries:
-    source: UNSMRY # to be further discussed, 'source' is probably not great
+  content: unsmry
 
   # if stratigraphic, name must match the strat column. This is the official name of this surface.
   name: myunsmry
   stratigraphic: false
 
-  properties: 
-    - name: DATE
-      unit: m3
-      is_discrete: false
-    - name: YEARS
-      unit: m3
-    - name: FOPR
-      unit: SM3/DAY
-      is_total: false
-      is_discrete: false
-      is_rate: true
-      is_historical: false
-      longname: Field oil production # to be QA'ed
-    - name: FOPRH
-      unit: SM3/DAY
-      is_total: false
-      is_discrete: false
-      is_rate: true
-      is_historical: true
-      longname: Historical field oil production # just guessing here
+  properties:
+  - name: DATE
+  - name: YEARS
+    unit: YEARS
+    is_total: false
+    is_rate: false
+    is_historical: false
+    keyword: YEARS
+    get_num: -32676
+  - name: FOPR
+    unit: SM3/DAY
+    is_total: false
+    is_rate: true
+    is_historical: false
+    keyword: FOPR
+    get_num: 0
+  - name: FOPRH
+    unit: SM3/DAY
+    is_total: false
+    is_rate: true
+    is_historical: true
+    keyword: FOPRH
+    get_num: 0
+  - name: FGPR
+    unit: SM3/DAY
+    is_total: false
+    is_rate: true
+    is_historical: false
+    keyword: FGPR
+    get_num: 0
+  - name: RPR:20
+    unit: BARSA
+    is_total: false
+    is_rate: false
+    is_historical: false
+    keyword: RPR
+    get_num: 20
+  - name: GOPR:RFT
+    unit: SM3/DAY
+    is_total: false
+    is_rate: true
+    is_historical: false
+    keyword: GOPR
+    wgname: RFT
+    get_num: 1
+  - name: WOPRH:R_A2
+    unit: SM3/DAY
+    is_total: false
+    is_rate: true
+    is_historical: true
+    keyword: WOPRH
+    wgname: R_A2
+    get_num: 1
 
-  format: csv
+  format: arrow
   vertical_domain: depth # / time / null
   depth_reference: msl # / seabed / etc
   grid_model: # Making this an object to allow for expanding in the future
     name: MyGrid # important for data identification, also important for other data types
   spec: # class/layout dependent, optional? Can spec be expanded to work for all data types?
+    columns:
+      - YEARS
+      - FOPR
+      - FOPRH
+      - FGPR
+      - RPR:20
+      - GOPR:RFT
+      - WOPRH:R_A2
     ncol: 281
     nrow: 441
     undef: -999.25  # Allow both number and string
-  is_prediction: true # A mechanism for separating pure QC output from actual predictions
   description:
-    - Timeseries from UNSMRY
+    - Some freetext description
 
 display:
   name: UNSMRY, MyGrid

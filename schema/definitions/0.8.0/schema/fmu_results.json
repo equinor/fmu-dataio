@@ -255,18 +255,52 @@
                                     "MyPropertyName"
                                 ]
                             },
-                            "attribute": {
-                                "type": "string",
-                                "examples": [
-                                    "MyAttributeName"
-                                ]
-                            },
                             "is_discrete": {
                                 "type": "boolean",
                                 "examples": [
                                     true,
                                     false
                                 ]
+                            },
+                            "is_total": {
+                                "type": "boolean",
+                                "examples": [
+                                    true,
+                                    false
+                                ]
+                            },
+                            "is_rate": {
+                                "type": "boolean",
+                                "examples": [
+                                    true,
+                                    false
+                                ]
+                            },
+                            "is_historical": {
+                                "type": "boolean",
+                                "examples": [
+                                    true,
+                                    false
+                                ]
+                            },
+                            "unit": {
+                                "description": "The unit of this property.",
+                                "type": "string",
+                                "examples": [
+                                    "YEARS",
+                                    "m3/day",
+                                    "m3",
+                                    "BARSA"
+                                ]
+                            },
+                            "keyword": {
+                                "type": "string"
+                            },
+                            "wgname": {
+                                "type": "string"
+                            },
+                            "get_num": {
+                                "type": "integer"
                             }
                         }
                     }
