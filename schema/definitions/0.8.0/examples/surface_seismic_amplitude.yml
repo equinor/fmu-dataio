@@ -1,4 +1,4 @@
-# example YAML file for surfaces (a child object in Sumo)
+# Example metadata for a seismic amplitude surface.
 
 $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
 version: "0.8.0" # including for REP and others to build logic on.
@@ -45,7 +45,7 @@ fmu:
     uuid: 4b939310-34b1-4179-802c-49460bc0f799 # hash of case.uuid + iteration.id
     name: "iter-0" # /"pred"
 
-  realization:  # could be expanded in the future?
+  realization:
     id: 33
     uuid: 29a15b21-ce13-471b-9a4a-0f791552aa51 # hash of case.uuid + iteration.uuid + realization.id
     name: "realization-33"
@@ -53,30 +53,34 @@ fmu:
       SENSNAME: faultseal
       SENSCASE: low
       RMS_SEED: 1006
+      INIT_FILES:
+        PERM_FLUVCHAN_E1_NORM: 0.748433
+        PERM_FLUVCHAN_E21_NORM: 0.782068
       KVKH_CHANNEL: 0.6
-      KVKH_CREVASSE: 0.3
-      KVKH_LS: 0.7
       KVKH_US: 0.6
       FAULT_SEAL_SCALING: 0.1
       FWL_CENTRAL: 1677
-    jobs: # directly pass jobs.json. This is a lot of content, only a stub is included here.
-      umask: '0002'
-      DATA_ROOT: /some/path/20.4.0_20201106/ert/model
-      anything: something
-      something:
-        anything: something
-      global_update_path: {}
-      jobList:
-      - name: MAKE_DIRECTORY
-        min_arg: 1
-        anything: something
 
 file:
   relative_path: realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri # case-relative
   absolute_path: /some/absolute/path//realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri
   checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
+  size_bytes: 132321
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
+
+  content: seismic    # white-listed and standardized
+
+  seismic:
+    attribute: amplitude_timeshifted
+    zrange: 12.0
+    filter_size: 1.0
+    scaling_factor: 1.0
+    is_timelapse: True # possibly covered by having both time1 and time2
+    acquisition_start_date: 2021-04-21
+    acquisition_end_date: 2021-04-30
+    acquisition_reference_date: 2021-04-25
+    offset: 0-15  # near/mid/far/0-15/15-25/etc <-- Probably not to be indexed
 
   # if stratigraphic, name must match the strat column. This is the official name of this surface.
   name: volantis_top-volantis_base
@@ -97,19 +101,6 @@ data: # The data block describes the actual data (e.g. surface). Only present in
   alias: # other known-as names, such as name used inside RMS etc
     - somename_fm_1_top
     - top_somename
-
-  # content is flexible more than standardized for now.
-  content: seismic
-  seismic:
-    attribute: amplitude_timeshifted
-    zrange: 12.0
-    filter_size: 1.0
-    scaling_factor: 1.0
-    is_timelapse: True # possibly covered by having both time1 and time2
-    acquisition_start_date: 2021-04-21
-    acquisition_end_date: 2021-04-30
-    acquisition_reference_date: 2021-04-25
-    offset: 0-15  # near/mid/far/0-15/15-25/etc <-- Probably not to be indexed
 
   properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
     - name: PropertyName
@@ -188,14 +179,14 @@ masterdata:
         uuid: ad214d85-8a1d-19da-e053-c918a4889309
     discovery:
       - short_identifier: DROGON
-        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+        uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
     field:
       - identifier: DROGON
-        uuid: 00000000-0000-0000-0000-000000000000
-    coordinate_system:  # changing from "coordinates" to clarify this is not content
+        uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
+    coordinate_system:
       identifier: ST_WGS84_UTM37N_P32637
       uuid: ad214d85-dac7-19da-e053-c918a4889309
     stratigraphic_column:
       identifier: DROGON_2020
-      uuid: 12345678-1234-1234-1234-123456789012
+      uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
 

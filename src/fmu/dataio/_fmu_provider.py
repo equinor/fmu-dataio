@@ -71,9 +71,8 @@ class _FmuProvider:
         logger.info("Initialize %s", __class__)
 
     def detect_provider(self):
-        """First order method to detect provider."""
-        if self._detect_ert2provider():
-            logger.info("Detecting FMU provider as ERT2")
+        """First order method to detect provider, ans also check fmu_context."""
+        if self._detect_ert2provider() or self._detect_ert2provider_case_only():
             self.provider = "ERT2"
             self.get_ert2_information()
             self.get_ert2_case_metadata()
@@ -82,9 +81,22 @@ class _FmuProvider:
             logger.info("Detecting FMU provider as None")
             self.provider = None  # e.g. an interactive RMS run
             self.dataio._usecontext = None  # e.g. an interactive RMS run
+            if self.dataio.fmu_context == "preprocessed":
+                self.dataio._usecontext = self.dataio.fmu_context
+            if self.dataio.fmu_context != self.dataio._usecontext:
+                warn(
+                    f"Requested fmu_context is <{self.dataio.fmu_context}> but since "
+                    "this is detected as a non FMU run, the actual context "
+                    f"is set to <{self.dataio._usecontext}>",
+                    UserWarning,
+                )
 
     def _detect_ert2provider(self) -> bool:
-        """Detect if ERT2 is provider and set itername, casename, etc."""
+        """Detect if ERT2 is provider and set itername, casename, etc.
+
+        This is the pattern in a forward model, where realization etc exists.
+        """
+        logger.info("Try to detect ERT2 provider")
 
         folders = _get_folderlist(self.rootpath_initial)
         logger.info("Folders to evaluate: %s", folders)
@@ -135,8 +147,41 @@ class _FmuProvider:
                 logger.info("Initial rootpath: %s", self.rootpath_initial)
                 logger.info("Updated rootpath: %s", self.rootpath)
 
+                logger.info("Detecting FMU provider as ERT2")
                 return True
 
+        return False
+
+    def _detect_ert2provider_case_only(self) -> bool:
+        """Detect ERT2 as provider when fmu_context is case'ish and casepath is given.
+
+        This is typically found in ERT prehook work flows where case is establed by
+        fmu.dataio.InitialiseCase() but no iter and realization folders exist. So
+        only case-metadata are revelant here.
+        """
+        logger.info("Try to detect ERT2 provider (case context)")
+
+        if (
+            self.dataio.fmu_context
+            and "case" in self.dataio.fmu_context
+            and self.dataio.casepath
+        ):
+            self.rootpath = Path(self.dataio.casepath)
+
+            folders = _get_folderlist(self.rootpath)
+            logger.info("Folders to evaluate (case): %s", folders)
+
+            self.iter_path = None
+            self.real_path = None
+            self.case_name = folders[-1]
+            self.user_name = folders[-2]
+
+            logger.info("Initial rootpath: %s", self.rootpath_initial)
+            logger.info("Updated rootpath: %s", self.rootpath)
+            logger.info("case_name, user_name: %s %s", self.case_name, self.user_name)
+
+            logger.info("Detecting FMU provider as ERT2 (case only)")
+            return True
         return False
 
     def get_ert2_information(self):
@@ -202,7 +247,24 @@ class _FmuProvider:
         meta["context"] = {"stage": self.dataio._usecontext}
 
         if self.dataio.workflow:
-            meta["workflow"] = {"reference": self.dataio.workflow}
+            if isinstance(self.dataio.workflow, str):
+                meta["workflow"] = {"reference": self.dataio.workflow}
+            elif isinstance(self.dataio.workflow, dict):
+                if "reference" not in self.dataio.workflow:
+                    raise ValueError(
+                        "When workflow is given as a dict, the 'reference' "
+                        "key must be included and be a string"
+                    )
+                warn(
+                    "The 'workflow' argument should be given as a string. "
+                    "Support for dictionary input is scheduled for deprecation.",
+                    PendingDeprecationWarning,
+                )
+
+                meta["workflow"] = {"reference": self.dataio.workflow["reference"]}
+
+            else:
+                raise TypeError("'workflow' should be string.")
 
         case_uuid = "not_present"  # TODO! not allow missing case metadata?
         if self.case_metadata and "fmu" in self.case_metadata:

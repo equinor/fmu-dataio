@@ -1,5 +1,9 @@
-from ert_shared.plugins.plugin_manager import hook_implementation
-from ert_shared.plugins.plugin_response import plugin_response
+try:
+    from ert.shared.plugins.plugin_manager import hook_implementation
+    from ert.shared.plugins.plugin_response import plugin_response
+except ModuleNotFoundError:
+    from ert_shared.plugins.plugin_manager import hook_implementation
+    from ert_shared.plugins.plugin_response import plugin_response
 
 
 @hook_implementation
