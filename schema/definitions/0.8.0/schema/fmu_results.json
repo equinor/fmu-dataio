@@ -163,8 +163,7 @@
                 "name",
                 "format",
                 "spec",
-                "stratigraphic",
-                "is_prediction"
+                "stratigraphic"
             ],
             "properties": {
                 "name": {
