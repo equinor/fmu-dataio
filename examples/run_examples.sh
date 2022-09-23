@@ -21,6 +21,7 @@ cd $current/examples/s/d/nn/xcase/realization-0/iter-0/any/bin
 
 python export_grid3d.py
 python export_volumetables.py
+python export_unsmry.py
 
 # Emulate FMU run with 3 realizations and export data to disk
 for num in 0 1 9; do
