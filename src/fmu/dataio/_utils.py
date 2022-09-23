@@ -459,6 +459,7 @@ def pyarrow_field_to_dict(field, fieldname):
 
     return outdict
 
+
 def read_metadata(filename: Union[str, Path]) -> dict:
     """Read the metadata as a dictionary given a filename.
 
