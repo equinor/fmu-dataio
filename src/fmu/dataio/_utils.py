@@ -258,17 +258,19 @@ def nested_parameters_dict(
 def str2number(value):
     """Check if value (str) looks like a number and return the converted value."""
 
-    res = None
     try:
-        res = int(value)
+        return int(value)
+    except TypeError:
+        pass
     except ValueError:
-        try:
-            res = float(value)
-        except ValueError:
-            pass
+        pass
 
-    if res is not None:
-        return res
+    try:
+        return float(value)
+    except TypeError:
+        pass
+    except ValueError:
+        pass
 
     return value
 
