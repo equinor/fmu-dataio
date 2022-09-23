@@ -219,3 +219,7 @@ def test_objectdata_arrowtable_derive_properties(arrowtable_unsmry, edataobj3):
 
     assert "wgname" in _FOPR
     assert _FOPR["wgname"] is None
+
+    assert "get_num" in _FOPR
+    assert isinstance(_FOPR["get_num"], int)
+    assert _FOPR["get_num"] == 0

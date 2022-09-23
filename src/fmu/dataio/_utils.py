@@ -427,7 +427,8 @@ def pyarrow_field_to_dict(field, fieldname):
     else:
         # incoming dictionary is binary, so we asciify it
         outdict = {
-            key.decode(): str2bool(value.decode()) for key, value in bytesdict.items()
+            key.decode(): str2bool(str2number(value.decode()))
+            for key, value in bytesdict.items()
         }
 
     outdict["name"] = fieldname
