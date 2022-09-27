@@ -245,7 +245,7 @@ def read_parameters_txt(pfile: Union[Path, str]) -> Dict[str, Union[str, float, 
     parameterlines = Path(pfile).read_text().splitlines()
 
     dict_str_to_str = _design_kw.extract_key_value(parameterlines)
-    return {key: check_if_number(value) for key, value in dict_str_to_str.items()}
+    return {key: str2number(value) for key, value in dict_str_to_str.items()}
 
 
 def nested_parameters_dict(
@@ -279,20 +279,22 @@ def nested_parameters_dict(
     return nested_dict
 
 
-def check_if_number(value):
+def str2number(value):
     """Check if value (str) looks like a number and return the converted value."""
 
-    res = None
     try:
-        res = int(value)
+        return int(value)
+    except TypeError:
+        pass
     except ValueError:
-        try:
-            res = float(value)
-        except ValueError:
-            pass
+        pass
 
-    if res is not None:
-        return res
+    try:
+        return float(value)
+    except TypeError:
+        pass
+    except ValueError:
+        pass
 
     return value
 
