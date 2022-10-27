@@ -366,6 +366,8 @@ class ExportData:
 
         workflow: Short tag desciption of workflow (as description)
 
+        nan_is_zero: A flag that tells consumers that nans should be considered as zero
+
 
     .. note:: Comment on time formats
 
@@ -450,6 +452,7 @@ class ExportData:
     is_observation: bool = False
     is_prediction: bool = True
     name: str = ""
+    nan_is_zero: bool = False
     parent: str = ""
     realization: int = -999
     reuse_metadata_rule: Optional[str] = None

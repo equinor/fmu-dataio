@@ -610,6 +610,7 @@ class _ObjectDataProvider:
         meta["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
+        meta["nan_is_zero"] = self.dataio.nan_is_zero
 
         # timedata:
         tresult = self._derive_timedata()
