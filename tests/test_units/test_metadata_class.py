@@ -38,7 +38,7 @@ def test_populate_meta_objectdata(regsurf, edataobj2):
     assert mymeta.objdata.name == "VOLANTIS GP. Top"
 
 
-def test_populate_meta_nan_is_zero(regsurf, globalconfig2):
+def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
 
     eobj1 = dio.ExportData(
         config=globalconfig2,
@@ -48,21 +48,21 @@ def test_populate_meta_nan_is_zero(regsurf, globalconfig2):
 
     # assert field is present and default is False
     mymeta1 = eobj1.generate_metadata(regsurf)
-    assert mymeta1["data"]["nan_is_zero"] is False
+    assert mymeta1["data"]["undef_is_zero"] is False
 
     # assert that value is reflected when passed to generate_metadata
-    mymeta2 = eobj1.generate_metadata(regsurf, nan_is_zero=True)
-    assert mymeta2["data"]["nan_is_zero"] is True
+    mymeta2 = eobj1.generate_metadata(regsurf, undef_is_zero=True)
+    assert mymeta2["data"]["undef_is_zero"] is True
 
     # assert that value is reflected when passed to ExportData
     eobj2 = dio.ExportData(
         config=globalconfig2,
         name="TopVolantis",
         unit="m",
-        nan_is_zero=True,
+        undef_is_zero=True,
     )
-    mymeta3 = eobj2.generate_metadata(regsurf, nan_is_zero=True)
-    assert mymeta3["data"]["nan_is_zero"] is True
+    mymeta3 = eobj2.generate_metadata(regsurf, undef_is_zero=True)
+    assert mymeta3["data"]["undef_is_zero"] is True
 
 
 # --------------------------------------------------------------------------------------

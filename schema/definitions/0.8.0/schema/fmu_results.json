@@ -324,8 +324,8 @@
                         null
                     ]
                 },
-                "nan_is_zero": {
-                    "description": "Flag if nan values are to be interpreted as zero",
+                "undef_is_zero": {
+                    "description": "Flag if undefined values are to be interpreted as zero",
                     "type": "boolean",
                     "examples": [
                         "True"
