@@ -116,14 +116,13 @@ to simplify an existing aggregation service, as well as make de-centralized meth
 robust by centralizing the definitions and handling of metadata.
 
 .. note::
-    Some surfaces are exported out of RMS with NaN (UNDEF) instead of the value 0, e.g.
-    volumetrics maps. When these maps are used in post-processing across multiple realisations,
-    this can create erroneous results. Therefore, when exporting surfaces of this type,
-    set the `nan_is_zero` argument to `True` when exporting. This tells later consumers
-    of the surfaces that they should handle `NaN` as zero. Also note that the recommended
-    pattern is to make sure, prior to export, that exported surfaces have values reflecting
-    their _actual_ values. In other words: We recommend you to actively set the correct
-    values before export, but we offer this solution if you are unable to.
+   It is common that surfaces exported from RMS or other sources have undefined areas.
+   For some surfaces, typically various thickness surfaces (e.g. HCPV thickness from RMS
+   volumetric jobs), undefined values shall be treated as zero (0.0) when included in 
+   statistical calculations. Therefore, when exporting surfaces of this type, set the 
+   `undef_is_zero` flag to `True` when exporting. This tells later consumers of the 
+   surface that they should handle `UNDEF` as zero.
+
 
 Python script
 ~~~~~~~~~~~~~
