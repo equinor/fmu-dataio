@@ -115,6 +115,16 @@ services are also in the making (Sumo). The example below show how fmu-dataio ca
 to simplify an existing aggregation service, as well as make de-centralized methods more
 robust by centralizing the definitions and handling of metadata.
 
+.. note::
+    Some surfaces are exported out of RMS with NaN (UNDEF) instead of the value 0, e.g.
+    volumetrics maps. When these maps are used in post-processing across multiple realisations,
+    this can create erroneous results. Therefore, when exporting surfaces of this type,
+    set the `nan_is_zero` argument to `True` when exporting. This tells later consumers
+    of the surfaces that they should handle `NaN` as zero. Also note that the recommended
+    pattern is to make sure, prior to export, that exported surfaces have values reflecting
+    their _actual_ values. In other words: We recommend you to actively set the correct
+    values before export, but we offer this solution if you are unable to.
+
 Python script
 ~~~~~~~~~~~~~
 
