@@ -366,7 +366,7 @@ class ExportData:
 
         workflow: Short tag desciption of workflow (as description)
 
-        undef_is_zero: A flag that tells consumers that nans should be considered as zero
+        undef_is_zero: Flags that nans should be considered as zero in aggregations
 
 
     .. note:: Comment on time formats
