@@ -128,7 +128,14 @@ def _check_content(proposed: Union[str, dict]) -> Any:
         logger.debug("usecontent is %s", usecontent)
         content_specific = content[usecontent]
         logger.debug("content_specific is %s", content_specific)
-
+        if not isinstance(content_specific, dict):
+            raise ValueError(
+                "Content is incorrectly formatted. When giving content as a dict, "
+                "it must be formatted as:"
+                "{'mycontent': {extra_key: extra_value} where mycontent is a string "
+                "and in the list of valid contents, and extra keys in associated "
+                " dictionary must be valid keys for this content."
+            )
     else:
         raise ValidationError("The 'content' must be string or dict")
 
@@ -485,7 +492,7 @@ class ExportData:
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
         logger.info("Running __post_init__ ExportData")
-        logger.debug("Global config is %s", prettyprint_dict(self.config))
+        # logger.debug("Global config is %s", prettyprint_dict(self.config))
 
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
