@@ -196,7 +196,9 @@ class _FmuProvider:
             nested_params = _utils.nested_parameters_dict(params)
             self.ert2["params"] = nested_params
             logger.debug("parameters.txt parsed.")
-        logger.debug("parameters.txt was not found")
+        else:
+            self.ert2["params"] = None
+            logger.debug("parameters.txt was not found")
 
         # store jobs.json if required!
         if self.dataio.include_ert2jobs:

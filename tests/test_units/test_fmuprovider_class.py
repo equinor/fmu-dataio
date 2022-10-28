@@ -44,6 +44,22 @@ def test_fmuprovider_ert2_provider(fmurun, globalconfig1):
     assert myfmu.real_id == 0
 
 
+def test_fmuprovider_ert2_provider_missing_parameter_txt(fmurun, globalconfig1):
+    """Test for an ERT2 case, when missing file parameter.txt (e.g. pred. run)"""
+
+    os.chdir(fmurun)
+    (fmurun / "parameters.txt").unlink()
+
+    ex = dio.ExportData(fmu_context="realization", config=globalconfig1)
+    ex._rootpath = fmurun
+
+    myfmu = _FmuProvider(ex)
+    myfmu.detect_provider()
+    assert myfmu.case_name == "ertrun1"
+    assert myfmu.real_name == "realization-0"
+    assert myfmu.real_id == 0
+
+
 def test_fmuprovider_prehook_case(globalconfig2, tmp_path):
     """The fmu run case metadata is initialized with Initialize case; then fet provider.
 
@@ -59,7 +75,6 @@ def test_fmuprovider_prehook_case(globalconfig2, tmp_path):
     caseroot.mkdir(parents=True)
 
     os.chdir(caseroot)
-    print("XXXX", caseroot)
 
     exp = icase.export(
         rootfolder=caseroot,
@@ -70,7 +85,6 @@ def test_fmuprovider_prehook_case(globalconfig2, tmp_path):
     casemetafile = caseroot / "share/metadata/fmu_case.yml"
     assert casemetafile.is_file()
     assert exp == str(casemetafile.resolve())
-    print("Case metafile", casemetafile)
 
     eobj = dio.ExportData(
         config=globalconfig2,
@@ -81,10 +95,6 @@ def test_fmuprovider_prehook_case(globalconfig2, tmp_path):
         fmu_context="case",
         casepath=caseroot,
     )
-
-    print(eobj._rootpath)
-    print(eobj._pwd)
-    print(eobj._inside_rms)
 
     myfmu = _FmuProvider(eobj, verbosity="INFO")
     myfmu.detect_provider()
