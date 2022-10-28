@@ -324,6 +324,13 @@
                         null
                     ]
                 },
+                "undef_is_zero": {
+                    "description": "Flag if undefined values are to be interpreted as zero",
+                    "type": "boolean",
+                    "examples": [
+                        "True"
+                    ]
+                },
                 "grid_model": {
                     "type": "object",
                     "properties": {
