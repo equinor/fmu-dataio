@@ -84,6 +84,22 @@ def test_content_is_invalid(globalconfig1):
         ExportData(config=globalconfig1, **kval)
 
 
+def test_content_specific_fields(regsurf, globalconfig2):
+    eobj1 = ExportData(config=globalconfig2, name="TopVolantis", content="seismic")
+    mymeta1 = eobj1.generate_metadata(regsurf)
+    assert mymeta1["data"]["content"] == "seismic"
+
+    eobj2 = ExportData(
+        config=globalconfig2,
+        name="TopVolantis",
+        content={"seismic": {"attribute": "myattribute", "zrange": 12.0}},
+    )
+    mymeta2 = eobj2.generate_metadata(regsurf)
+    assert mymeta2["data"]["content"] == "seismic"
+    assert "seismic" in mymeta2["data"]
+    assert mymeta2["data"]["seismic"] == {"attribute": "myattribute", "zrange": 12.0}
+
+
 def test_global_config_from_env(globalconfig_asfile):
     """Testing getting global config from a file"""
     os.environ["FMU_GLOBAL_CONFIG"] = globalconfig_asfile

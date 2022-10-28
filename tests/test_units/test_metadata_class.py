@@ -6,7 +6,6 @@ import pytest
 
 import fmu.dataio as dio
 from fmu.dataio._metadata import SCHEMA, SOURCE, VERSION, ConfigurationError, _MetaData
-from fmu.dataio.dataio import ValidationError
 from fmu.dataio._utils import prettyprint_dict
 
 # pylint: disable=no-member
@@ -64,30 +63,6 @@ def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
     )
     mymeta3 = eobj2.generate_metadata(regsurf, undef_is_zero=True)
     assert mymeta3["data"]["undef_is_zero"] is True
-
-
-def test_invalid_content(regsurf, globalconfig2):
-    """Test that invalid content is blocked"""
-    with pytest.raises(ValidationError):
-        dio.ExportData(
-            config=globalconfig2, name="TopVolantis", content="invalid_content"
-        )
-
-
-def test_content_specific_fields(regsurf, globalconfig2):
-    eobj1 = dio.ExportData(config=globalconfig2, name="TopVolantis", content="seismic")
-    mymeta1 = eobj1.generate_metadata(regsurf)
-    assert mymeta1["data"]["content"] == "seismic"
-
-    eobj2 = dio.ExportData(
-        config=globalconfig2,
-        name="TopVolantis",
-        content={"seismic": {"attribute": "myattribute", "zrange": 12.0}},
-    )
-    mymeta2 = eobj2.generate_metadata(regsurf)
-    assert mymeta2["data"]["content"] == "seismic"
-    assert "seismic" in mymeta2["data"]
-    assert mymeta2["data"]["seismic"] == {"attribute": "myattribute", "zrange": 12.0}
 
 
 # --------------------------------------------------------------------------------------
