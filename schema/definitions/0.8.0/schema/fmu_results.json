@@ -1161,21 +1161,7 @@
                     "required": [
                         "model",
                         "case",
-                        "iteration",
                         "workflow"
-                    ],
-                    "$comment": "Data objects can be either realization or aggregation - never both.",
-                    "oneOf": [
-                        {
-                            "required": [
-                                "realization"
-                            ]
-                        },
-                        {
-                            "required": [
-                                "aggregation"
-                            ]
-                        }
                     ],
                     "properties": {
                         "model": {
@@ -1196,6 +1182,13 @@
                         "aggregation": {
                             "$ref": "#/definitions/fmu/aggregation"
                         }
+                    },
+                    "$comment": "realization or aggregation or none, never both",
+                    "not": {
+                        "required": [
+                            "realization",
+                            "aggregation"
+                        ]
                     }
                 },
                 "file": {

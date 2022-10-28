@@ -127,6 +127,45 @@ def test_schema_080_logic_case():
         jsonschema.validate(instance=_example, schema=schema)
 
 
+def test_schema_080_logic_fmu_block_aggregation_realization():
+    """Test that fmu.realization and fmu.aggregation are not allowed at the same time"""
+
+    # parse the schema and polygons
+    schema = _parse_json(
+        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
+    metadata = _parse_yaml(
+        str(
+            PurePath(
+                ROOTPWD,
+                "schema/definitions/0.8.0/examples/surface_depth.yml",
+            )
+        )
+    )
+
+    # check that assumptions for the test is true
+    assert "realization" in metadata["fmu"]
+    assert "aggregation" not in metadata["fmu"]
+
+    # assert validation as-is
+    jsonschema.validate(instance=metadata, schema=schema)
+
+    # add aggregation, shall fail. Get this from an actual example that validates.
+    _metadata_aggregation = _parse_yaml(
+        str(
+            PurePath(
+                ROOTPWD,
+                "schema/definitions/0.8.0/examples/aggregated_surface_depth.yml",
+            )
+        )
+    )
+
+    metadata["fmu"]["aggregation"] = _metadata_aggregation["fmu"]["aggregation"]
+
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=metadata, schema=schema)
+
+
 def test_schema_080_logic_field_outline():
     """Test content-specific rule
 
