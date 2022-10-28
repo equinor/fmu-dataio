@@ -97,6 +97,11 @@ def test_content_valid_string(regsurf, globalconfig2):
 
 
 def test_content_valid_dict(regsurf, globalconfig2):
+    """Test for incorrectly formatted dict.
+
+    When a dict is given, there shall be one key which is the content, and there shall
+    be one value, which shall be a dictionary containing content-specific attributes."""
+
     eobj = ExportData(
         config=globalconfig2,
         name="TopVolantis",
@@ -107,10 +112,10 @@ def test_content_valid_dict(regsurf, globalconfig2):
     assert mymeta["data"]["seismic"] == {"attribute": "myattribute", "zrange": 12.0}
 
 
-def test_content_is_a_wrongly_formatted_dict(regsurf, globalconfig2):
+def test_content_is_a_wrongly_formatted_dict(globalconfig2):
     """When content is a dict, it shall have one key with one dict as value."""
     with pytest.raises(ValueError, match="incorrectly formatted"):
-        eobj = ExportData(
+        ExportData(
             config=globalconfig2,
             name="TopVolantis",
             content={"seismic": "myvalue"},

@@ -492,7 +492,7 @@ class ExportData:
     def __post_init__(self):
         logger.setLevel(level=self.verbosity)
         logger.info("Running __post_init__ ExportData")
-        # logger.debug("Global config is %s", prettyprint_dict(self.config))
+        logger.debug("Global config is %s", prettyprint_dict(self.config))
 
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
