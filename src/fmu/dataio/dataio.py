@@ -106,7 +106,6 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     content = proposed
     logger.debug("content is %s of type %s", str(content), type(content))
     usecontent = "unset"
-    useextra = None
     if content is None:
         warn(
             "The <content> is not provided which defaults to 'depth'. "
@@ -116,13 +115,19 @@ def _check_content(proposed: Union[str, dict]) -> Any:
         usecontent = "depth"
 
     elif isinstance(content, str):
+        logger.debug("content is a string")
         if content in CONTENTS_REQUIRED:
             raise ValidationError(f"content {content} requires additional input")
         usecontent = content
+        content_specific = None  # not relevant when content is a string
+        logger.debug("usecontent is %s", usecontent)
 
     elif isinstance(content, dict):
+        logger.debug("content is a dictionary")
         usecontent = (list(content.keys()))[0]
-        useextra = content[usecontent]
+        logger.debug("usecontent is %s", usecontent)
+        content_specific = content[usecontent]
+        logger.debug("content_specific is %s", content_specific)
 
     else:
         raise ValidationError("The 'content' must be string or dict")
@@ -134,12 +139,12 @@ def _check_content(proposed: Union[str, dict]) -> Any:
         )
 
     logger.debug("outgoing content is set to %s", usecontent)
-    if useextra:
-        _content_validate(usecontent, useextra)
-        return {usecontent: useextra}
+    if content_specific:
+        _content_validate(usecontent, content_specific)
     else:
         logger.debug("content has no extra information")
-        return usecontent
+
+    return usecontent, content_specific
 
 
 def _content_validate(name, fields):
@@ -538,9 +543,7 @@ class ExportData:
     def _validate_content_key(self):
         """Validate the given 'content' input."""
 
-        updated_content = _check_content(self.content)
-        # keep the updated content as extra setting
-        self._usecontent = updated_content
+        self._usecontent, self._content_specific = _check_content(self.content)
 
     def _validate_fmucontext_key(self):
         """Validate the given 'fmu_context' input."""

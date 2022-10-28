@@ -79,25 +79,32 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, wtype, expected_msg
 
 def test_content_is_invalid(globalconfig1):
 
-    kval = {"content": "not_legal"}
+    kval1 = {"content": "not_legal"}
     with pytest.raises(ValidationError, match=r"Invalid content"):
-        ExportData(config=globalconfig1, **kval)
+        ExportData(config=globalconfig1, **kval1)
+
+    kval2 = {"content": {"some_key": "some_value"}}
+    with pytest.raises(ValidationError, match=r"Invalid content"):
+        ExportData(config=globalconfig1, **kval2)
 
 
-def test_content_specific_fields(regsurf, globalconfig2):
-    eobj1 = ExportData(config=globalconfig2, name="TopVolantis", content="seismic")
-    mymeta1 = eobj1.generate_metadata(regsurf)
-    assert mymeta1["data"]["content"] == "seismic"
+def test_content_is_string(regsurf, globalconfig2):
+    eobj = ExportData(config=globalconfig2, name="TopVolantis", content="seismic")
+    mymeta = eobj.generate_metadata(regsurf)
+    assert mymeta["data"]["content"] == "seismic"
+    assert "seismic" not in mymeta["data"]
 
-    eobj2 = ExportData(
+
+def test_content_is_correctly_formatted_dict(regsurf, globalconfig2):
+    eobj = ExportData(
         config=globalconfig2,
         name="TopVolantis",
         content={"seismic": {"attribute": "myattribute", "zrange": 12.0}},
+        verbosity="DEBUG",
     )
-    mymeta2 = eobj2.generate_metadata(regsurf)
-    assert mymeta2["data"]["content"] == "seismic"
-    assert "seismic" in mymeta2["data"]
-    assert mymeta2["data"]["seismic"] == {"attribute": "myattribute", "zrange": 12.0}
+    mymeta = eobj.generate_metadata(regsurf)
+    assert mymeta["data"]["content"] == "seismic"
+    assert mymeta["data"]["seismic"] == {"attribute": "myattribute", "zrange": 12.0}
 
 
 def test_global_config_from_env(globalconfig_asfile):
