@@ -131,6 +131,7 @@ data: # The data block describes the actual data (e.g. surface). Only present in
       label: "some other label"
   is_prediction: true # A mechanism for separating pure QC output from actual predictions
   is_observation: true # Used for 4D data currently but also valid for other data?
+  undef_is_zero: false # Used to flag if undef should be considered 0.0 in statistics
   description:
     - Depth surfaces extracted from the structural model
     - Made in a FMU work flow
