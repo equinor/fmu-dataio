@@ -282,6 +282,9 @@ def nested_parameters_dict(
 def check_if_number(value):
     """Check if value (str) looks like a number and return the converted value."""
 
+    if value is None:
+        return
+
     res = None
     try:
         res = int(value)
