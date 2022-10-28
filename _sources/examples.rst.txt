@@ -115,6 +115,15 @@ services are also in the making (Sumo). The example below show how fmu-dataio ca
 to simplify an existing aggregation service, as well as make de-centralized methods more
 robust by centralizing the definitions and handling of metadata.
 
+.. note::
+   It is common that surfaces exported from RMS or other sources have undefined areas.
+   For some surfaces, typically various thickness surfaces (e.g. HCPV thickness from RMS
+   volumetric jobs), undefined values shall be treated as zero (0.0) when included in 
+   statistical calculations. Therefore, when exporting surfaces of this type, set the 
+   `undef_is_zero` flag to `True` when exporting. This tells later consumers of the 
+   surface that they should handle `UNDEF` as zero.
+
+
 Python script
 ~~~~~~~~~~~~~
 

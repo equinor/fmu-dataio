@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 1.1.1.dev1+g4236289 documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 1.1.2.dev1+gc3bf5c9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script>let toggleHintShow = 'Expand';</script>
         <script>let toggleHintHide = 'Click to hide';</script>
         <script>let toggleOpenOnPrint = 'true';</script>
@@ -653,6 +654,13 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                        </span><span class="s2">&quot;sb&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                        </span><span class="s2">&quot;rkb&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                        </span><span class="kc">null</span><span class="w"></span>
+<span class="w">                    </span><span class="p">]</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="s2">&quot;undef_is_zero&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Flag if undefined values are to be interpreted as zero&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                        </span><span class="s2">&quot;True&quot;</span><span class="w"></span>
 <span class="w">                    </span><span class="p">]</span><span class="w"></span>
 <span class="w">                </span><span class="p">},</span><span class="w"></span>
 <span class="w">                </span><span class="s2">&quot;grid_model&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -2120,6 +2128,7 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">      </span><span class="nt">label</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;some</span><span class="nv"> </span><span class="s">other</span><span class="nv"> </span><span class="s">label&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">is_prediction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1"># A mechanism for separating pure QC output from actual predictions</span><span class="w"></span>
 <span class="w">  </span><span class="nt">is_observation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1"># Used for 4D data currently but also valid for other data?</span><span class="w"></span>
+<span class="w">  </span><span class="nt">undef_is_zero</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"> </span><span class="c1"># Used to flag if undef should be considered 0.0 in statistics</span><span class="w"></span>
 <span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Depth surfaces extracted from the structural model</span><span class="w"></span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Made in a FMU work flow</span><span class="w"></span>
@@ -2212,7 +2221,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.1.1.dev1+g4236289).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.1.2.dev1+gc3bf5c9).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
