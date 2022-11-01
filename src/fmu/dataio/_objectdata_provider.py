@@ -602,6 +602,14 @@ class _ObjectDataProvider:
         meta["top"] = nameres.get("top", None)
         meta["base"] = nameres.get("base", None)
         meta["content"] = self.dataio._usecontent
+
+        # Outgoing content is always a string, but it can be given as a dict if content-
+        # specific information is to be included in the metadata.
+        # In that case, it shall be inserted in the data block as a key with name as the
+        # content, e.g. "seismic" or "field_outline"
+        if self.dataio._content_specific is not None:
+            meta[self.dataio._usecontent] = self.dataio._content_specific
+
         meta["tagname"] = self.dataio.tagname
         meta["format"] = objres["fmt"]
         meta["layout"] = objres["layout"]

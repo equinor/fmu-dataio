@@ -77,11 +77,49 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, wtype, expected_msg
         edata.generate_metadata(regsurf, **kval)
 
 
-def test_content_is_invalid(globalconfig1):
-
-    kval = {"content": "not_legal"}
+def test_content_invalid_string(globalconfig1):
     with pytest.raises(ValidationError, match=r"Invalid content"):
-        ExportData(config=globalconfig1, **kval)
+        ExportData(config=globalconfig1, content="not_valid")
+
+
+def test_content_invalid_dict(globalconfig1):
+    with pytest.raises(ValidationError, match=r"Invalid content"):
+        ExportData(
+            config=globalconfig1, content={"not_valid": {"some_key": "some_value"}}
+        )
+
+
+def test_content_valid_string(regsurf, globalconfig2):
+    eobj = ExportData(config=globalconfig2, name="TopVolantis", content="seismic")
+    mymeta = eobj.generate_metadata(regsurf)
+    assert mymeta["data"]["content"] == "seismic"
+    assert "seismic" not in mymeta["data"]
+
+
+def test_content_valid_dict(regsurf, globalconfig2):
+    """Test for incorrectly formatted dict.
+
+    When a dict is given, there shall be one key which is the content, and there shall
+    be one value, which shall be a dictionary containing content-specific attributes."""
+
+    eobj = ExportData(
+        config=globalconfig2,
+        name="TopVolantis",
+        content={"seismic": {"attribute": "myattribute", "zrange": 12.0}},
+    )
+    mymeta = eobj.generate_metadata(regsurf)
+    assert mymeta["data"]["content"] == "seismic"
+    assert mymeta["data"]["seismic"] == {"attribute": "myattribute", "zrange": 12.0}
+
+
+def test_content_is_a_wrongly_formatted_dict(globalconfig2):
+    """When content is a dict, it shall have one key with one dict as value."""
+    with pytest.raises(ValueError, match="incorrectly formatted"):
+        ExportData(
+            config=globalconfig2,
+            name="TopVolantis",
+            content={"seismic": "myvalue"},
+        )
 
 
 def test_global_config_from_env(globalconfig_asfile):
