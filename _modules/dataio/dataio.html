@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.2.1.dev1+g8d3baa7 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.2.1.dev2+g313efc5 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -184,7 +184,6 @@
     <span class="n">content</span> <span class="o">=</span> <span class="n">proposed</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content is </span><span class="si">%s</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
     <span class="n">usecontent</span> <span class="o">=</span> <span class="s2">&quot;unset&quot;</span>
-    <span class="n">useextra</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;The &lt;content&gt; is not provided which defaults to &#39;depth&#39;. &quot;</span>
@@ -194,14 +193,27 @@
         <span class="n">usecontent</span> <span class="o">=</span> <span class="s2">&quot;depth&quot;</span>
 
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content is a string&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">CONTENTS_REQUIRED</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;content </span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2"> requires additional input&quot;</span><span class="p">)</span>
         <span class="n">usecontent</span> <span class="o">=</span> <span class="n">content</span>
+        <span class="n">content_specific</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># not relevant when content is a string</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;usecontent is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">usecontent</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content is a dictionary&quot;</span><span class="p">)</span>
         <span class="n">usecontent</span> <span class="o">=</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">keys</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">useextra</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">usecontent</span><span class="p">]</span>
-
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;usecontent is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">usecontent</span><span class="p">)</span>
+        <span class="n">content_specific</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">usecontent</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content_specific is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">content_specific</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content_specific</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Content is incorrectly formatted. When giving content as a dict, &quot;</span>
+                <span class="s2">&quot;it must be formatted as:&quot;</span>
+                <span class="s2">&quot;{&#39;mycontent&#39;: {extra_key: extra_value} where mycontent is a string &quot;</span>
+                <span class="s2">&quot;and in the list of valid contents, and extra keys in associated &quot;</span>
+                <span class="s2">&quot; dictionary must be valid keys for this content.&quot;</span>
+            <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;The &#39;content&#39; must be string or dict&quot;</span><span class="p">)</span>
 
@@ -212,12 +224,12 @@
         <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;outgoing content is set to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">usecontent</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">useextra</span><span class="p">:</span>
-        <span class="n">_content_validate</span><span class="p">(</span><span class="n">usecontent</span><span class="p">,</span> <span class="n">useextra</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">usecontent</span><span class="p">:</span> <span class="n">useextra</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">content_specific</span><span class="p">:</span>
+        <span class="n">_content_validate</span><span class="p">(</span><span class="n">usecontent</span><span class="p">,</span> <span class="n">content_specific</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content has no extra information&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">usecontent</span>
+
+    <span class="k">return</span> <span class="n">usecontent</span><span class="p">,</span> <span class="n">content_specific</span>
 
 
 <span class="k">def</span> <span class="nf">_content_validate</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
@@ -616,9 +628,7 @@
     <span class="k">def</span> <span class="nf">_validate_content_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Validate the given &#39;content&#39; input.&quot;&quot;&quot;</span>
 
-        <span class="n">updated_content</span> <span class="o">=</span> <span class="n">_check_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-        <span class="c1"># keep the updated content as extra setting</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_usecontent</span> <span class="o">=</span> <span class="n">updated_content</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_usecontent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_specific</span> <span class="o">=</span> <span class="n">_check_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_validate_fmucontext_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Validate the given &#39;fmu_context&#39; input.&quot;&quot;&quot;</span>
@@ -1404,7 +1414,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.2.1.dev1+g8d3baa7).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.2.1.dev2+g313efc5).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
