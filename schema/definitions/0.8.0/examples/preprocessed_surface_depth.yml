@@ -1,0 +1,168 @@
+# Example metadata for a pre-processed surface.
+
+# Pre-processed (relative to the realization context) data are data generated before the
+# main model run starts, and is data that belongs to a case or an iteration, not a
+# realization. 
+
+# In general, the blocks fmu.case, fmu.iteration and fmu.iteration denote by their
+# presence if a data object exists in the case context, the iteration context or the
+# realization context. E.g. if a data object has fmu.case, fmu.iteration and 
+# fmu.realization, it is in the realization context (analogue to being stored under 
+# /case/iteration/realization). If an object has fmu.case only, it is in the case 
+# context (analogue to being stored under /case/). This is an example of a surface in
+# the case context.
+
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
+version: "0.8.0"
+source: fmu
+
+tracklog:
+  - datetime: 2020-10-28T14:28:02
+    user:
+      id: peesv
+    event: created
+  - datetime: 2020-10-28T14:46:14
+    user: 
+      id: peesv
+    event: updated
+
+class: surface # class is the main identifier of the data type.
+
+fmu: # the fmu-block contains information directly related to the FMU context
+  model:
+    name: ff
+    revision: 21.0.0.dev
+    description:
+      - detailed description
+      - optional
+
+  workflow:
+    reference: rms/structural_model
+
+  case:
+    name: MyCaseName
+    uuid: 8bb56d60-8758-481a-89a4-6bac8561d38e
+    user:
+      id: jriv # $USER from ERT
+    description:
+      - yet other detailed description
+      - optional
+
+file:
+  relative_path: share/results/maps/volantis_gp_base--amplitude--mean.gri # case-relative
+  absolute_path: /some/absolute/path/share/results/maps/volantis_gp_base--amplitude--mean.gri
+  checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
+  size_bytes: 132321
+
+data: # The data block describes the actual data (e.g. surface). Only present in data objects
+
+  content: depth   # white-listed and standardized
+
+  # if stratigraphic, name must match the strat column. This is the official name of this surface.
+  name: volantis_top-volantis_base
+  stratigraphic: false  # if true, this is a stratigraphic surface found in the strat column
+  offset: 0.0  # to be used if a specific horizon is represented with an offset.
+
+  top: # not required, but allowed
+    name: volantis_gp_top
+    stratigraphic: true
+    offset: 2.0
+  base:
+    name: volantis_gp_top
+    stratigraphic: true
+    offset: 8.3
+
+  stratigraphic_alias: # other stratigraphic entities this corresponds to in the strat column, e.g. Top Viking vs Top Draupne.
+    - SomeName Fm. 1 Top
+  alias: # other known-as names, such as name used inside RMS etc
+    - somename_fm_1_top
+    - top_somename
+
+  properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
+    - name: PropertyName
+      attribute: mean
+      is_discrete: false # to be used for discrete values in surfaces.
+      calculation: null # max/min/rms/var/maxpos/sum/etc
+
+  format: irap_binary
+  layout: regular # / cornerpoint / structured / etc
+  unit: m
+  vertical_domain: depth # / time / null
+  depth_reference: msl # / seabed / etc # mandatory when vertical_domain is depth?
+  grid_model: # Making this an object to allow for expanding in the future
+    name: MyGrid # important for data identification, also important for other data types
+  spec: # class/layout dependent, optional? Can spec be expanded to work for all data types?
+    ncol: 281
+    nrow: 441
+    nlay: 333
+    xori: 461499.9997558594
+    yori: 5926500.0
+    xinc: 25.0
+    yinc: 25.0
+    yflip: 1
+    rotation: 30.000000834826057
+    undef: 1.0e+33  # Allow both number and string
+  bbox:
+    xmin: 456012.5003497944
+    xmax: 467540.52762886323
+    ymin: 5926499.999511719
+    ymax: 5939492.128326312
+    zmin: 1244.039
+    zmax: 2302.683
+  time:
+    - value: 2020-10-28T14:28:02
+      label: "some label"
+    - value: 2020-10-28T14:28:02
+      label: "some other label"
+  is_prediction: true # A mechanism for separating pure QC output from actual predictions
+  is_observation: true # Used for 4D data currently but also valid for other data?
+  description:
+    - Depth surfaces extracted from the structural model
+    - Made in a FMU work flow
+
+display:
+  name: Top Volantis
+  subtitle: Some subtitle
+  line:
+    show: true
+    color: black
+    style: solid
+  points:
+    show: false
+    color: null
+  contours:
+    show: true
+    color: black
+    increment: 20
+  fill:
+    show: true
+    color: black # color and colormap are mutually exclusive in practice, so clients must choose.
+    colormap: gist_earth
+    display_min: 1221.3
+    display_max: 1900.0
+
+access:
+  asset:
+    name: Drogon
+  ssdl:
+    access_level: internal
+    rep_include: true
+
+masterdata:
+  smda:
+    country:
+      - identifier: Norway
+        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+      - short_identifier: DROGON
+        uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
+    field:
+      - identifier: DROGON
+        uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    stratigraphic_column:
+      identifier: DROGON_2020
+      uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
+
