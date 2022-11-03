@@ -1189,6 +1189,22 @@
                         "aggregation": {
                             "$ref": "#/definitions/fmu/aggregation"
                         }
+                    },
+                    "dependencies": {
+                        "aggregation": {
+                            "not": {
+                                "required": [
+                                    "realization"
+                                ]
+                            }
+                        },
+                        "realization": {
+                            "not": {
+                                "required": [
+                                    "aggregation"
+                                ]
+                            }
+                        }
                     }
                 },
                 "file": {
