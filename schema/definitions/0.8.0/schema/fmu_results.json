@@ -1163,13 +1163,6 @@
                         "case",
                         "workflow"
                     ],
-                    "$comment": "realization or aggregation or none, never both",
-                    "not": {
-                        "required": [
-                            "realization",
-                            "aggregation"
-                        ]
-                    },
                     "properties": {
                         "model": {
                             "$ref": "#/definitions/fmu/model"
