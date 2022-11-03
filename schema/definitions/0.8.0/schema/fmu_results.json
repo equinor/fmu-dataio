@@ -1183,6 +1183,7 @@
                             "$ref": "#/definitions/fmu/aggregation"
                         }
                     },
+                    "$comment": "implementation below allows realization or aggregation or none of them, never both",
                     "dependencies": {
                         "aggregation": {
                             "not": {
