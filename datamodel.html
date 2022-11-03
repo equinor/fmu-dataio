@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 1.2.1.dev2+g313efc5 documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 1.2.1.dev3+ge11cd39 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -100,8 +100,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>The FMU results data model</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">The FMU results data model</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/datamodel.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -1495,13 +1495,6 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                        </span><span class="s2">&quot;case&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                        </span><span class="s2">&quot;workflow&quot;</span><span class="w"></span>
 <span class="w">                    </span><span class="p">],</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;realization or aggregation or none, never both&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;not&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                            </span><span class="s2">&quot;realization&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                            </span><span class="s2">&quot;aggregation&quot;</span><span class="w"></span>
-<span class="w">                        </span><span class="p">]</span><span class="w"></span>
-<span class="w">                    </span><span class="p">},</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                        </span><span class="s2">&quot;model&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                            </span><span class="s2">&quot;$ref&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#/definitions/fmu/model&quot;</span><span class="w"></span>
@@ -1520,6 +1513,23 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                        </span><span class="p">},</span><span class="w"></span>
 <span class="w">                        </span><span class="s2">&quot;aggregation&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                            </span><span class="s2">&quot;$ref&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#/definitions/fmu/aggregation&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">}</span><span class="w"></span>
+<span class="w">                    </span><span class="p">},</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;implementation below allows realization or aggregation or none of them, never both&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;dependencies&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                        </span><span class="s2">&quot;aggregation&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;not&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                                    </span><span class="s2">&quot;realization&quot;</span><span class="w"></span>
+<span class="w">                                </span><span class="p">]</span><span class="w"></span>
+<span class="w">                            </span><span class="p">}</span><span class="w"></span>
+<span class="w">                        </span><span class="p">},</span><span class="w"></span>
+<span class="w">                        </span><span class="s2">&quot;realization&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;not&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                                </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                                    </span><span class="s2">&quot;aggregation&quot;</span><span class="w"></span>
+<span class="w">                                </span><span class="p">]</span><span class="w"></span>
+<span class="w">                            </span><span class="p">}</span><span class="w"></span>
 <span class="w">                        </span><span class="p">}</span><span class="w"></span>
 <span class="w">                    </span><span class="p">}</span><span class="w"></span>
 <span class="w">                </span><span class="p">},</span><span class="w"></span>
@@ -2214,7 +2224,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.2.1.dev2+g313efc5).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.2.1.dev3+ge11cd39).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
