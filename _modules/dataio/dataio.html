@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.2.1.dev3+ge11cd39 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.2.1.dev4+g26729a9 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -1284,7 +1284,7 @@
             <span class="s2">&quot;masterdata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;masterdata&quot;</span><span class="p">],</span>
             <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
         <span class="p">}</span>
-        <span class="n">etemp</span> <span class="o">=</span> <span class="n">ExportData</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">fakeconfig</span><span class="p">)</span>
+        <span class="n">etemp</span> <span class="o">=</span> <span class="n">ExportData</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">fakeconfig</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">etempmeta</span> <span class="o">=</span> <span class="n">etemp</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span><span class="p">)</span>
 
         <span class="n">template</span><span class="p">[</span><span class="s2">&quot;tracklog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etempmeta</span><span class="p">[</span><span class="s2">&quot;tracklog&quot;</span><span class="p">]</span>
@@ -1297,8 +1297,8 @@
             <span class="n">template</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span><span class="p">:</span>
             <span class="n">template</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;tagname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span>
-
-        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;bbox&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etempmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;bbox&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">etempmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bbox&quot;</span><span class="p">):</span>
+            <span class="n">template</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;bbox&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etempmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;bbox&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">template</span>
 
@@ -1414,7 +1414,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.2.1.dev3+ge11cd39).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.2.1.dev4+g26729a9).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
