@@ -275,7 +275,8 @@ def test_forcefolder(tmp_path, globalconfig2, regsurf):
 
     ExportData._inside_rms = True
     edata = ExportData(config=globalconfig2, forcefolder="whatever")
-    meta = edata.generate_metadata(regsurf)
+    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
+        meta = edata.generate_metadata(regsurf)
     logger.info("RMS PATH %s", rmspath)
     logger.info("\n %s", prettyprint_dict(meta))
     assert meta["file"]["relative_path"].startswith("share/results/whatever/")
@@ -283,8 +284,8 @@ def test_forcefolder(tmp_path, globalconfig2, regsurf):
 
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
-def test_forcefolder_absolute_shall_raise(tmp_path, globalconfig2, regsurf):
-    """Testing the forcefolder mechanism, absoluteptah shall raise ValueError."""
+def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsurf):
+    """Testing the forcefolder mechanism."""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
     os.chdir(rmspath)
@@ -297,7 +298,9 @@ def test_forcefolder_absolute_shall_raise(tmp_path, globalconfig2, regsurf):
 
     ExportData.allow_forcefolder_absolute = True
     edata = ExportData(config=globalconfig2, forcefolder="/tmp/what")
-    meta = edata.generate_metadata(regsurf, name="y")
+    with pytest.warns(UserWarning, match="absolute paths in forcefolder is not rec"):
+        meta = edata.generate_metadata(regsurf, name="y")
+
     assert (
         meta["file"]["relative_path"]
         == meta["file"]["absolute_path"]

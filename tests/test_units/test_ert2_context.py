@@ -283,13 +283,14 @@ def test_cube_export_file_is_observation_forcefolder(
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
-    output = edata.export(
-        cube,
-        name="MyCube",
-        is_observation=True,
-        fmu_context="realization",
-        forcefolder="seismic",
-    )
+    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
+        output = edata.export(
+            cube,
+            name="MyCube",
+            is_observation=True,
+            fmu_context="realization",
+            forcefolder="seismic",
+        )
     logger.info("Output is %s", output)
 
     assert str(output) == str(
@@ -315,13 +316,16 @@ def test_cube_export_file_is_observation_forcefolder_abs(
     dataio.ExportData.allow_forcefolder_absolute = True
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
-    output = edata.export(
-        cube,
-        name="MyCube",
-        is_observation=True,
-        fmu_context="realization",
-        forcefolder="/tmp/seismic",
-    )
+    with pytest.warns(
+        UserWarning, match="absolute paths in forcefolder is not recommended"
+    ):
+        output = edata.export(
+            cube,
+            name="MyCube",
+            is_observation=True,
+            fmu_context="realization",
+            forcefolder="/tmp/seismic",
+        )
     logger.info("Output is %s", output)
 
     assert str(output) == "/tmp/seismic/mycube.segy"

@@ -84,11 +84,11 @@ class _FmuProvider:
             if self.dataio.fmu_context == "preprocessed":
                 self.dataio._usecontext = self.dataio.fmu_context
             if self.dataio.fmu_context != self.dataio._usecontext:
-                warn(
-                    f"Requested fmu_context is <{self.dataio.fmu_context}> but since "
-                    "this is detected as a non FMU run, the actual context "
-                    f"is set to <{self.dataio._usecontext}>",
-                    UserWarning,
+                logger.warning(
+                    "Requested fmu_context is <%s> but since this is detected as a non "
+                    "FMU run, the actual context is set to <%s>",
+                    self.dataio.fmu_context,
+                    self.dataio._usecontext,
                 )
 
     def _detect_ert2provider(self) -> bool:
@@ -237,6 +237,7 @@ class _FmuProvider:
         logger.info("Generate ERT2 metadata...")
 
         if not self.case_metadata:
+            logger.info("Trigger UserWarning!")
             warn(
                 f"The fmu provider: {self.provider} is found but no case metadata!",
                 UserWarning,
