@@ -8,7 +8,7 @@ import pytest
 import yaml
 
 from fmu.dataio._utils import prettyprint_dict
-from fmu.dataio.dataio import ExportData, ValidationError
+from fmu.dataio.dataio import ExportData, ValidationError, read_metadata
 
 # pylint: disable=no-member
 
@@ -32,6 +32,28 @@ def test_generate_metadata_simple(globalconfig1):
     assert edata.name == ""
 
     ExportData.grid_fformat = default_fformat  # reset
+
+
+def test_missing_or_wrong_config_exports_with_warning(regsurf):
+    """In case a config is missing, or is invalid, do export with warning."""
+
+    with pytest.warns(
+        PendingDeprecationWarning, match="One or more keys required for valid metadata"
+    ):
+        edata = ExportData(config={})
+
+    with pytest.warns(PendingDeprecationWarning, match="One or more"):
+        meta = edata.generate_metadata(regsurf)
+
+    assert "masterdata" not in meta
+
+    with pytest.warns(PendingDeprecationWarning, match="One or more"):
+        out = edata.export(regsurf, name="mysurface")
+
+    assert "mysurface" in out
+
+    with pytest.raises(OSError, match="Cannot find requested metafile"):
+        read_metadata(out)
 
 
 def test_update_check_settings_shall_fail(globalconfig1):

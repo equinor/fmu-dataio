@@ -6,6 +6,7 @@ import os
 import shutil
 import tempfile
 import uuid
+import warnings
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
@@ -350,14 +351,17 @@ def some_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
     if envvar in os.environ:
         cfg_path = os.environ[envvar]
     else:
-        raise ValueError(
+        warnings.warn(
             (
                 "No config was received. "
-                "The config must be given explicitly as an input argument, or "
-                "the environment variable %s must point to a valid yaml file.",
-                envvar,
+                "The config should be given explicitly as an input argument, or "
+                f"the environment variable {envvar} must point to a valid yaml file. "
+                "A missing config will still export a file, but without a metadata "
+                "file. Such exports may be disabled in a future version of fmu.dataio",
+                UserWarning,
             )
         )
+        return None
 
     with open(cfg_path, "r", encoding="utf8") as stream:
         try:

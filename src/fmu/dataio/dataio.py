@@ -2,10 +2,10 @@
 
 The metadata spec is documented as a JSON schema, stored under schema/.
 """
-
 import logging
 import os
 import uuid
+import warnings
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -78,24 +78,46 @@ def _validate_variable(key, value, legals) -> bool:
     return True
 
 
-def _check_global_config(globalconfig: dict, strict: bool = True):
-    """A check/validation of static global_config.
+def _check_global_config(
+    globalconfig: dict, strict: bool = True, action: str = "error"
+) -> bool:
+    """A minimum check/validation of the static global_config.
 
-    Currently not a full validation. For now, just check that some required
-    keys are present in the config and raise if not.
+    Currently far from a full validation. For now, just check that some required
+    keys are present in the config and warn/raise if not.
     """
 
     if not globalconfig and not strict:
-        warn(
-            "Empty global config, expect input from environment_variable instead",
-            UserWarning,
+        logger.info(
+            "Empty global config, expect input from environment_variable insteac"
         )
-        return
+        return False
 
     config_required_keys = ["access", "masterdata", "model"]
+    missing_keys = []
     for required_key in config_required_keys:
         if required_key not in globalconfig:
-            raise ValidationError(f"Required key '{required_key}' not found in config.")
+            missing_keys.append(required_key)
+
+    if missing_keys:
+        msg = (
+            "One or more keys required for valid metadata are not found: "
+            f"{missing_keys} (perhaps the config is empty?) "
+        )
+        if "err" in action:
+            msg = msg + " STOP!"
+            raise ValueError(msg)
+        else:
+            msg += (
+                "The metadata may become invalid; hence no metadata file will be made, "
+                "but the data item may still be exported. Note: allowing these keys to "
+                "be missing is a temporary solution that may change in future versions!"
+            )
+            warnings.warn(msg, PendingDeprecationWarning)
+
+        return False
+
+    return True
 
 
 # the two next content key related function may require refactoring/simplification
@@ -284,14 +306,19 @@ class ExportData:
             the file structure or by other means. See also fmu_context, where "case"
             may need an explicit casepath!
 
-        config: Required, either as key (here) or through an environment variable.
-            A dictionary with static settings. In the standard case this is read from
-            FMU global variables (via fmuconfig). The dictionary must contain some
+        config: Required in order to produce valid metadata, either as key (here) or
+            through an environment variable. A dictionary with static settings.
+            In the standard case this is read from FMU global variables
+            (via fmuconfig). The dictionary must contain some
             predefined main level keys to work with fmu-dataio. If the key is missing or
             key value is None, then it will look for the environment variable
             FMU_GLOBAL_CONFIG to detect the file. If no success in finding the file, a
             UserWarning is made. If both a valid config is provided and
             FMU_GLOBAL_CONFIG is provided in addition, the latter will be used.
+            Note that this key shall be set while initializing the instance, ie. it
+            cannot be used in ``generate_metadata()`` or ``export()``.
+            Note also: If missing or empty, export() may still be done, but without a
+            metadata file (this feature may change in future releases).
 
         content: Optional, default is "depth". Is a string or a dictionary with one key.
             Example is "depth" or {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}.
@@ -485,6 +512,7 @@ class ExportData:
     # storing resulting state variables for instance, non-public:
     _metadata: dict = field(default_factory=dict, init=False)
     _pwd: Path = field(default_factory=Path, init=False)
+    _config_is_valid: bool = field(default=True, init=False)
 
     # << NB! storing ACTUAL casepath:
     _rootpath: Path = field(default_factory=Path, init=False)
@@ -496,8 +524,6 @@ class ExportData:
 
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
-
-        _check_global_config(self.config, strict=False)
 
         # if input is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
@@ -516,21 +542,30 @@ class ExportData:
                         if key == "verbosity":
                             logger.setLevel(level=self.verbosity)
 
-        self._metadata_is_valid = _check_global_config(
+        self._config_is_valid = _check_global_config(
             self.config, strict=False, action="warn"
         )
 
         # global config which may be given as env variable -> a file; will override
-        if not self.config or GLOBAL_ENVNAME in os.environ:
-            self.config = some_config_from_env(GLOBAL_ENVNAME)
+        if GLOBAL_ENVNAME in os.environ:
+            theconfig = some_config_from_env(GLOBAL_ENVNAME)
+            self._config_is_valid = _check_global_config(
+                theconfig, strict=True, action="warn"
+            )
+            if theconfig is not None:
+                self.config = theconfig
 
         self._validate_content_key()
         logger.info("Validate FMU context which is %s", self.fmu_context)
         self._validate_fmucontext_key()
         self._update_globalconfig_from_settings()
-        _check_global_config(self.config, strict=True)
-        self._establish_pwd_rootpath()
 
+        # check state of global config
+        self._config_is_valid = _check_global_config(
+            self.config, strict=True, action="warn"
+        )
+
+        self._establish_pwd_rootpath()
         self._show_deprecations_or_notimplemented()
         logger.info("FMU context is %s", self.fmu_context)
         logger.info("Ran __post_init__")
@@ -581,6 +616,11 @@ class ExportData:
         # derive legal input from dataclass signature
         annots = getattr(self, "__annotations__", {})
         legals = {key: val for key, val in annots.items() if not key.startswith("_")}
+        if "config" in legals.keys():
+            del legals["config"]  # config cannot be updated
+
+        if "config" in newsettings.keys():
+            raise ValueError("Cannot have 'config' outside instance initialization")
 
         for setting, value in newsettings.items():
             if _validate_variable(setting, value, legals):
@@ -698,7 +738,11 @@ class ExportData:
 
         self._update_check_settings(kwargs)
         self._update_globalconfig_from_settings()
-        _check_global_config(self.config)
+
+        self._config_is_valid = _check_global_config(
+            self.config, strict=True, action="warn"
+        )
+
         obj = self._check_obj_if_file(obj)
         self._establish_pwd_rootpath()
         self._validate_content_key()
@@ -755,10 +799,13 @@ class ExportData:
         )
         # inject md5 checksum in metadata
         metadata["file"]["checksum_md5"] = md5
-
-        export_metadata_file(metafile, metadata, savefmt=self.meta_format)
         logger.info("Actual file is:   %s", outfile)
-        logger.info("Metadata file is: %s", metafile)
+
+        if self._config_is_valid:
+            export_metadata_file(metafile, metadata, savefmt=self.meta_format)
+            logger.info("Metadata file is: %s", metafile)
+        else:
+            warnings.warn("Metadata are invalid and will not be exported!", UserWarning)
 
         # generate symlink if requested
         outfile_target = None
@@ -833,7 +880,8 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         if not self.config or GLOBAL_ENVNAME in os.environ:
             self.config = some_config_from_env(GLOBAL_ENVNAME)
 
-        _check_global_config(self.config)
+        # For this class, the global config must be valid; hence error if not
+        _check_global_config(self.config, strict=True, action="error")
         logger.info("Ran __post_init__ for InitializeCase")
 
     def _update_settings(self, newsettings: dict) -> None:

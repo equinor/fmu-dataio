@@ -78,9 +78,8 @@ def test_metadata_populate_masterdata_is_empty(globalconfig1):
 
     mymeta = _MetaData("dummy", some)
 
-    with pytest.warns(UserWarning):
+    with pytest.raises(ValueError, match="A config exists, but 'masterdata' are not"):
         mymeta._populate_meta_masterdata()
-    assert mymeta.meta_masterdata is None
 
 
 def test_metadata_populate_masterdata_is_present_ok(edataobj1, edataobj2):
