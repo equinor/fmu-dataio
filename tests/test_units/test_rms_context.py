@@ -328,16 +328,17 @@ def test_cube_export_file_set_name_as_observation_forcefolder(
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
-    # use forcefolder to apply share/observations/seismic
-    output = edata.export(
-        cube,
-        name="MyCube",
-        fmu_context="realization",
-        is_observation=True,
-        forcefolder="seismic",
-    )
-    logger.info("Output after force is %s", output)
+    # use forcefolder to apply share/observations/seismic which trigger a warning
+    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
+        output = edata.export(
+            cube,
+            name="MyCube",
+            fmu_context="realization",
+            is_observation=True,
+            forcefolder="seismic",
+        )
 
+    logger.info("Output after force is %s", output)
     assert str(output) == str(
         (edata._rootpath / "share/observations/seismic/mycube.segy").resolve()
     )
@@ -355,14 +356,13 @@ def test_cube_export_as_case(rmssetup, rmsglobalconfig, cube):
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
     # use forcefolder to apply share/observations/seismic
-    with pytest.warns(UserWarning, match=r"this is detected as a non FMU run"):
-        output = edata.export(
-            cube,
-            name="MyCube",
-            fmu_context="case",
-            is_observation=True,
-        )
-        logger.info("Output %s", output)
+    output = edata.export(
+        cube,
+        name="MyCube",
+        fmu_context="case",
+        is_observation=True,
+    )
+    logger.info("Output %s", output)
 
     assert str(output) == str(
         (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
@@ -380,14 +380,13 @@ def test_cube_export_as_case_symlink_realization(rmssetup, rmsglobalconfig, cube
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
-    with pytest.warns(UserWarning, match=r"this is detected as a non FMU run"):
-        output = edata.export(
-            cube,
-            name="MyCube",
-            fmu_context="case_symlink_realization",
-            is_observation=True,
-        )
-        logger.info("Output %s", output)
+    output = edata.export(
+        cube,
+        name="MyCube",
+        fmu_context="case_symlink_realization",
+        is_observation=True,
+    )
+    logger.info("Output %s", output)
 
     assert str(output) == str(
         (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
@@ -409,12 +408,13 @@ def test_cube_export_as_observation_forcefolder_w_added_folder(
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
     # use forcefolder to apply share/observations/seismic
-    output = edata.export(
-        cube,
-        name="MyCube",
-        is_observation=True,
-        forcefolder="seismic/xxx",
-    )
+    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
+        output = edata.export(
+            cube,
+            name="MyCube",
+            is_observation=True,
+            forcefolder="seismic/xxx",
+        )
     logger.info("Output after force is %s", output)
 
     assert str(output) == str(
@@ -436,13 +436,14 @@ def test_cube_export_as_observation_forcefolder_w_true_subfolder(
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
     # use forcefolder to apply share/observations/seismic
-    output = edata.export(
-        cube,
-        name="MyCube",
-        is_observation=True,
-        forcefolder="seismic/xxx",
-        subfolder="mysubfolder",
-    )
+    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
+        output = edata.export(
+            cube,
+            name="MyCube",
+            is_observation=True,
+            forcefolder="seismic/xxx",
+            subfolder="mysubfolder",
+        )
     logger.info("Output after force is %s", output)
 
     assert str(output) == str(
@@ -470,13 +471,14 @@ def test_cube_export_as_observation_forcefolder_w_subfolder_case(
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
     # use forcefolder to apply share/observations/seismic
-    output = edata.export(
-        cube,
-        name="MyCube",
-        is_observation=True,
-        fmu_context="case",
-        forcefolder="seismic/xxx",
-    )
+    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
+        output = edata.export(
+            cube,
+            name="MyCube",
+            is_observation=True,
+            fmu_context="case",
+            forcefolder="seismic/xxx",
+        )
     logger.info("Output after force is %s", output)
 
     assert str(output) == str(

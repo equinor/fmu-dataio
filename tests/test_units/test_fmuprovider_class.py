@@ -10,7 +10,6 @@ FOLDERTREE = "scratch/myfield/case/realization-13/iter-2"
 
 
 def test_get_folderlist(fmurun):
-
     os.chdir(fmurun)
     mylist = _get_folderlist(fmurun)
     assert mylist[-1] == "iter-0"
@@ -19,8 +18,8 @@ def test_get_folderlist(fmurun):
 
 def test_fmuprovider_no_provider(testroot, globalconfig1):
     """Testing the FmuProvider basics where no ERT context is found from folder tree."""
-
     os.chdir(testroot)
+
     ex = dio.ExportData(fmu_context="realization", config=globalconfig1)
     myfmu = _FmuProvider(ex)
     myfmu.detect_provider()
@@ -30,15 +29,16 @@ def test_fmuprovider_no_provider(testroot, globalconfig1):
 
 
 def test_fmuprovider_ert2_provider(fmurun, globalconfig1):
-    """Testing the FmuProvider for an ERT2 case"""
-
+    """Testing the FmuProvider for an ERT2 case; case metadata are missing here"""
     os.chdir(fmurun)
 
     ex = dio.ExportData(fmu_context="realization", config=globalconfig1)
     ex._rootpath = fmurun
 
     myfmu = _FmuProvider(ex)
-    myfmu.detect_provider()
+    with pytest.warns(UserWarning, match="ERT2 is found but no case metadata"):
+        # since case name is missing
+        myfmu.detect_provider()
     assert myfmu.case_name == "ertrun1"
     assert myfmu.real_name == "realization-0"
     assert myfmu.real_id == 0
@@ -54,7 +54,8 @@ def test_fmuprovider_ert2_provider_missing_parameter_txt(fmurun, globalconfig1):
     ex._rootpath = fmurun
 
     myfmu = _FmuProvider(ex)
-    myfmu.detect_provider()
+    with pytest.warns(UserWarning, match="ERT2 is found but no case metadata"):
+        myfmu.detect_provider()
     assert myfmu.case_name == "ertrun1"
     assert myfmu.real_name == "realization-0"
     assert myfmu.real_id == 0
@@ -111,7 +112,8 @@ def test_fmuprovider_detect_no_case_metadata(fmurun, edataobj1):
     edataobj1._rootpath = fmurun
 
     myfmu = _FmuProvider(edataobj1)
-    myfmu.detect_provider()
+    with pytest.warns(UserWarning, match="ERT2 is found but no case metadata"):
+        myfmu.detect_provider()
     assert myfmu.case_name == "ertrun1"
     assert myfmu.real_name == "realization-0"
     assert myfmu.real_id == 0

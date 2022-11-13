@@ -33,7 +33,7 @@ INSIDE_RMS = detect_inside_rms()
 
 
 GLOBAL_ENVNAME = "FMU_GLOBAL_CONFIG"
-SETTINGS_ENVNAME = "FMU_DATAIO_CONFIG"  # input settings from a file!
+SETTINGS_ENVNAME = "FMU_DATAIO_CONFIG"  # input settings from a spesific file!
 
 logger = logging.getLogger(__name__)
 logging.captureWarnings(True)
@@ -501,19 +501,24 @@ class ExportData:
 
         # if input is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
-            external_config = some_config_from_env(SETTINGS_ENVNAME)
+            external_input = some_config_from_env(SETTINGS_ENVNAME)
 
-            # derive legal input from dataclass signature
-            annots = getattr(self, "__annotations__", None)
-            legals = {
-                key: val for key, val in annots.items() if not key.startswith("_")
-            }
+            if external_input:
+                # derive legal input from dataclass signature
+                annots = getattr(self, "__annotations__", None)
+                legals = {
+                    key: val for key, val in annots.items() if not key.startswith("_")
+                }
 
-            for key, value in external_config.items():
-                if _validate_variable(key, value, legals):
-                    setattr(self, key, value)
-                    if key == "verbosity":
-                        logger.setLevel(level=self.verbosity)
+                for key, value in external_input.items():
+                    if _validate_variable(key, value, legals):
+                        setattr(self, key, value)
+                        if key == "verbosity":
+                            logger.setLevel(level=self.verbosity)
+
+        self._metadata_is_valid = _check_global_config(
+            self.config, strict=False, action="warn"
+        )
 
         # global config which may be given as env variable -> a file; will override
         if not self.config or GLOBAL_ENVNAME in os.environ:

@@ -139,7 +139,8 @@ def test_inicase_generate_case_metadata(fmurun, globalconfig2):
     logger.info("Case folder is now %s", myroot)
 
     icase = InitializeCase(globalconfig2, verbosity="INFO")
-    icase.generate_case_metadata()
+    with pytest.warns(UserWarning, match="The rootfolder is defaulted"):
+        icase.generate_case_metadata()
 
 
 def test_inicase_generate_case_metadata_exists_so_fails(
