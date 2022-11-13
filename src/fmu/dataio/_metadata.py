@@ -53,9 +53,17 @@ def generate_meta_tracklog() -> list:
 
 def generate_meta_masterdata(config: dict) -> Optional[dict]:
     """Populate metadata from masterdata section in config."""
-    if not config or "masterdata" not in config.keys():
-        warn("No masterdata section present", UserWarning)
+    if not config:
+        # this may be a temporary solution for a while, which will be told to the user
+        # in related checks in dataio.py.
+        warn(
+            "The global config is empty, hence the 'masterdata' section "
+            "in the metadata will be omitted.",
+            UserWarning,
+        )
         return None
+    elif "masterdata" not in config.keys():
+        raise ValueError("A config exists, but 'masterdata' are not present.")
 
     return config["masterdata"]
 
