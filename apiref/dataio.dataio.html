@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 1.2.2.dev3+g994c0f5 documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 1.2.2.dev6+g530ddcd documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
@@ -26,7 +26,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="dataio.testc module" href="dataio.testc.html" />
+    <link rel="next" title="dataio.version module" href="dataio.version.html" />
     <link rel="prev" title="dataio.scripts.create_case_metadata module" href="dataio.scripts.create_case_metadata.html" /> 
 </head>
 
@@ -55,7 +55,6 @@
 <li class="toctree-l3"><a class="reference internal" href="dataio.html#subpackages">Subpackages</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="dataio.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">dataio.dataio module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="dataio.testc.html">dataio.testc module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dataio.version.html">dataio.version module</a></li>
 </ul>
 </li>
@@ -194,14 +193,19 @@ The user can however force set the ‘actual’ rootpath by providing the input
 the case root. If not provided, the rootpath will be attempted parsed from
 the file structure or by other means. See also fmu_context, where “case”
 may need an explicit casepath!</p></li>
-<li><p><strong>config</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Required, either as key (here) or through an environment variable.
-A dictionary with static settings. In the standard case this is read from
-FMU global variables (via fmuconfig). The dictionary must contain some
+<li><p><strong>config</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Required in order to produce valid metadata, either as key (here) or
+through an environment variable. A dictionary with static settings.
+In the standard case this is read from FMU global variables
+(via fmuconfig). The dictionary must contain some
 predefined main level keys to work with fmu-dataio. If the key is missing or
 key value is None, then it will look for the environment variable
 FMU_GLOBAL_CONFIG to detect the file. If no success in finding the file, a
 UserWarning is made. If both a valid config is provided and
-FMU_GLOBAL_CONFIG is provided in addition, the latter will be used.</p></li>
+FMU_GLOBAL_CONFIG is provided in addition, the latter will be used.
+Note that this key shall be set while initializing the instance, ie. it
+cannot be used in <code class="docutils literal notranslate"><span class="pre">generate_metadata()</span></code> or <code class="docutils literal notranslate"><span class="pre">export()</span></code>.
+Note also: If missing or empty, export() may still be done, but without a
+metadata file (this feature may change in future releases).</p></li>
 <li><p><strong>content</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Optional, default is “depth”. Is a string or a dictionary with one key.
 Example is “depth” or {“fluid_contact”: {“xxx”: “yyy”, “zzz”: “uuu”}}.
 Content is checked agains a white-list for validation!</p></li>
@@ -852,13 +856,13 @@ settings here.</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="dataio.scripts.create_case_metadata.html" class="btn btn-neutral float-left" title="dataio.scripts.create_case_metadata module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="dataio.testc.html" class="btn btn-neutral float-right" title="dataio.testc module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dataio.version.html" class="btn btn-neutral float-right" title="dataio.version module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.2.2.dev3+g994c0f5).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.2.2.dev6+g530ddcd).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

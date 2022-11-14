@@ -1,7 +1,0 @@
-dataio.testc module
-===================
-
-.. automodule:: dataio.testc
-   :members:
-   :undoc-members:
-   :show-inheritance:
