@@ -172,6 +172,18 @@
                 "is_prediction",
                 "is_observation"
             ],
+            "dependencies": {
+                "top": {
+                    "required": [
+                        "base"
+                    ]
+                },
+                "base": {
+                    "required": [
+                        "top"
+                    ]
+                }
+            },
             "properties": {
                 "name": {
                     "type": "string",
