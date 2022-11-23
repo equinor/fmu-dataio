@@ -166,6 +166,51 @@ def test_schema_080_logic_fmu_block_aggregation_realization():
         jsonschema.validate(instance=metadata, schema=schema)
 
 
+def test_schema_080_logic_data_top_base():
+    """Test require data.top and data.base.
+
+    * Require both data.top and data.base, or none.
+    """
+
+    # parse the schema and metadata example
+    schema = _parse_json(
+        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
+    )
+    metadata = _parse_yaml(
+        str(
+            PurePath(
+                ROOTPWD,
+                "schema/definitions/0.8.0/examples/surface_seismic_amplitude.yml",
+            )
+        )
+    )
+
+    # check that assumptions for the test is true
+    assert "top" in metadata["data"]
+    assert "base" in metadata["data"]
+
+    # assert validation as-is
+    jsonschema.validate(instance=metadata, schema=schema)
+
+    # remove "top" - shall fail
+    _metadata = deepcopy(metadata)
+    del _metadata["data"]["top"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_metadata, schema=schema)
+
+    # remove "base" - shall fail
+    _metadata = deepcopy(metadata)
+    del _metadata["data"]["base"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_metadata, schema=schema)
+
+    # remove both - shall pass
+    del _metadata["data"]["top"]
+    assert "top" not in _metadata["data"]  # test assumption
+    assert "base" not in _metadata["data"]  # test assumption
+    jsonschema.validate(instance=_metadata, schema=schema)
+
+
 def test_schema_080_logic_field_outline():
     """Test content-specific rule
 
