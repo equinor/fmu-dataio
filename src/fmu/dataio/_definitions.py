@@ -44,7 +44,7 @@ ALLOWED_CONTENTS = {
         "zrange": float,
         "filter_size": float,
         "scaling_factor": float,
-        "offset": str,
+        "stacking_offset": str,
     },
     "fluid_contact": {"contact": str, "truncated": bool},
     "field_outline": {"contact": str},

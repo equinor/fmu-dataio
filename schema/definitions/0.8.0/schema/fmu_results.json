@@ -573,6 +573,12 @@
                             "examples": [
                                 1.0
                             ]
+                        },
+                        "stacking_offset": {
+                            "type": "string",
+                            "examples": [
+                                "0-15"
+                            ]
                         }
                     }
                 }
