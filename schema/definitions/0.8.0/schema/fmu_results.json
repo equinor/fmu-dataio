@@ -1172,8 +1172,7 @@
                     "$comment": "This is the fmu block as it appears in data objects",
                     "required": [
                         "model",
-                        "case",
-                        "workflow"
+                        "case"
                     ],
                     "properties": {
                         "model": {
