@@ -170,7 +170,7 @@ def test_content_is_dict_with_wrong_types(globalconfig2):
 
 def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
     """Assert that usage of seismic.offset still works but give deprecation warning."""
-    with pytest.warns(PendingDeprecationWarning, match="seismic.offset is deprecated"):
+    with pytest.warns(DeprecationWarning, match="seismic.offset is deprecated"):
         eobj = ExportData(
             config=globalconfig2,
             name="TopVolantis",
@@ -183,7 +183,7 @@ def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
         )
         mymeta = eobj.generate_metadata(regsurf)
 
-    # depreacted 'offset' replaced with 'stacking_offset'
+    # deprecated 'offset' replaced with 'stacking_offset'
     assert "offset" not in mymeta["data"]["seismic"]
     assert mymeta["data"]["seismic"] == {
         "stacking_offset": "0-15",

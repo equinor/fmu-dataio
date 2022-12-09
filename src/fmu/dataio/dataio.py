@@ -211,7 +211,7 @@ def _content_validate(name, fields):
 
             warn(
                 message,
-                PendingDeprecationWarning,
+                DeprecationWarning,
             )
 
         else:
