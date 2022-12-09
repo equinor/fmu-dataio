@@ -189,6 +189,8 @@ def _content_validate(name, fields):
 
     logger.info("name: %s", name)
 
+    replace_deprecated = {}
+
     for key, dtype in fields.items():
         if key in valid.keys():
             wanted_type = valid[key]
@@ -199,24 +201,26 @@ def _content_validate(name, fields):
                 )
         elif DEPRECATED_CONTENTS.get(name, {}).get(key, None) is not None:
             logger.debug("%s/%s is deprecated, issue warning", name, key)
-            _replaced_by = DEPRECATED_CONTENTS[name][key].get("replaced_by", None)
+            replaced_by = DEPRECATED_CONTENTS[name][key].get("replaced_by", None)
 
-            _message = f"Content {name}.{key} is deprecated. "
+            message = f"Content {name}.{key} is deprecated. "
 
-            if _replaced_by is not None:
-                _message += f"Please use {_replaced_by}. "
-
-            logger.debug("Replacing deprecated %s.%s with %s", name, key, _replaced_by)
-            fields[_replaced_by] = fields.pop(key)
-            logger.debug("Updated fields is: %s", fields)
+            if replaced_by is not None:
+                message += f"Please use {replaced_by}. "
+                replace_deprecated.update({key: replaced_by})
 
             warn(
-                _message,
+                message,
                 PendingDeprecationWarning,
             )
 
         else:
             raise ValidationError(f"Key <{key}> is not valid for <{name}>")
+
+    for key, replaced_by in replace_deprecated.items():
+        logger.debug("Replacing deprecated %s.%s with %s", name, key, replaced_by)
+        fields[replaced_by] = fields.pop(key)
+        logger.debug("Updated fields is: %s", fields)
 
     required = CONTENTS_REQUIRED.get(name, None)
     if isinstance(required, dict):
