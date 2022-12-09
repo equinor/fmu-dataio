@@ -15,7 +15,12 @@ from warnings import warn
 import pandas as pd  # type: ignore
 
 from . import _metadata
-from ._definitions import ALLOWED_CONTENTS, ALLOWED_FMU_CONTEXTS, CONTENTS_REQUIRED
+from ._definitions import (
+    ALLOWED_CONTENTS,
+    ALLOWED_FMU_CONTEXTS,
+    CONTENTS_REQUIRED,
+    DEPRECATED_CONTENTS,
+)
 from ._utils import (
     create_symlink,
     detect_inside_rms,
@@ -192,6 +197,24 @@ def _content_validate(name, fields):
                     f"Invalid type for <{key}> with value <{dtype}>, not of "
                     f"type <{wanted_type}>"
                 )
+        elif DEPRECATED_CONTENTS.get(name, {}).get(key, None) is not None:
+            logger.debug("%s/%s is deprecated, issue warning", name, key)
+            _replaced_by = DEPRECATED_CONTENTS[name][key].get("replaced_by", None)
+
+            _message = f"Content {name}.{key} is deprecated. "
+
+            if _replaced_by is not None:
+                _message += f"Please use {_replaced_by}. "
+
+            logger.debug("Replacing deprecated %s.%s with %s", name, key, _replaced_by)
+            fields[_replaced_by] = fields.pop(key)
+            logger.debug("Updated fields is: %s", fields)
+
+            warn(
+                _message,
+                PendingDeprecationWarning,
+            )
+
         else:
             raise ValidationError(f"Key <{key}> is not valid for <{name}>")
 
