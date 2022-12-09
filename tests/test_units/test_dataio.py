@@ -127,11 +127,21 @@ def test_content_valid_dict(regsurf, globalconfig2):
     eobj = ExportData(
         config=globalconfig2,
         name="TopVolantis",
-        content={"seismic": {"attribute": "myattribute", "zrange": 12.0}},
+        content={
+            "seismic": {
+                "attribute": "myattribute",
+                "zrange": 12.0,
+                "stacking_offset": "0-15",
+            }
+        },
     )
     mymeta = eobj.generate_metadata(regsurf)
     assert mymeta["data"]["content"] == "seismic"
-    assert mymeta["data"]["seismic"] == {"attribute": "myattribute", "zrange": 12.0}
+    assert mymeta["data"]["seismic"] == {
+        "attribute": "myattribute",
+        "zrange": 12.0,
+        "stacking_offset": "0-15",
+    }
 
 
 def test_content_is_a_wrongly_formatted_dict(globalconfig2):
@@ -142,6 +152,42 @@ def test_content_is_a_wrongly_formatted_dict(globalconfig2):
             name="TopVolantis",
             content={"seismic": "myvalue"},
         )
+
+
+def test_content_is_dict_with_wrong_types(globalconfig2):
+    """When content is a dict, it shall have right types for known keys."""
+    with pytest.raises(ValidationError):
+        ExportData(
+            config=globalconfig2,
+            name="TopVolantis",
+            content={
+                "seismic": {
+                    "stacking_offset": 123.4,  # not a string
+                }
+            },
+        )
+
+
+def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
+    """Assert that usage of seismic.offset still works but give deprecation warning."""
+    with pytest.warns(DeprecationWarning, match="seismic.offset is deprecated"):
+        eobj = ExportData(
+            config=globalconfig2,
+            name="TopVolantis",
+            content={
+                "seismic": {
+                    "offset": "0-15",
+                }
+            },
+            verbosity="DEBUG",
+        )
+        mymeta = eobj.generate_metadata(regsurf)
+
+    # deprecated 'offset' replaced with 'stacking_offset'
+    assert "offset" not in mymeta["data"]["seismic"]
+    assert mymeta["data"]["seismic"] == {
+        "stacking_offset": "0-15",
+    }
 
 
 def test_global_config_from_env(globalconfig_asfile):

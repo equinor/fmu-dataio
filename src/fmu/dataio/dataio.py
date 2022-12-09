@@ -15,7 +15,12 @@ from warnings import warn
 import pandas as pd  # type: ignore
 
 from . import _metadata
-from ._definitions import ALLOWED_CONTENTS, ALLOWED_FMU_CONTEXTS, CONTENTS_REQUIRED
+from ._definitions import (
+    ALLOWED_CONTENTS,
+    ALLOWED_FMU_CONTEXTS,
+    CONTENTS_REQUIRED,
+    DEPRECATED_CONTENTS,
+)
 from ._utils import (
     create_symlink,
     detect_inside_rms,
@@ -184,6 +189,8 @@ def _content_validate(name, fields):
 
     logger.info("name: %s", name)
 
+    replace_deprecated = {}
+
     for key, dtype in fields.items():
         if key in valid.keys():
             wanted_type = valid[key]
@@ -192,8 +199,28 @@ def _content_validate(name, fields):
                     f"Invalid type for <{key}> with value <{dtype}>, not of "
                     f"type <{wanted_type}>"
                 )
+        elif DEPRECATED_CONTENTS.get(name, {}).get(key, None) is not None:
+            logger.debug("%s/%s is deprecated, issue warning", name, key)
+            replaced_by = DEPRECATED_CONTENTS[name][key].get("replaced_by", None)
+
+            message = f"Content {name}.{key} is deprecated. "
+
+            if replaced_by is not None:
+                message += f"Please use {replaced_by}. "
+                replace_deprecated.update({key: replaced_by})
+
+            warn(
+                message,
+                DeprecationWarning,
+            )
+
         else:
             raise ValidationError(f"Key <{key}> is not valid for <{name}>")
+
+    for key, replaced_by in replace_deprecated.items():
+        logger.debug("Replacing deprecated %s.%s with %s", name, key, replaced_by)
+        fields[replaced_by] = fields.pop(key)
+        logger.debug("Updated fields is: %s", fields)
 
     required = CONTENTS_REQUIRED.get(name, None)
     if isinstance(required, dict):

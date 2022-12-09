@@ -80,7 +80,7 @@ data: # The data block describes the actual data (e.g. surface). Only present in
     acquisition_start_date: 2021-04-21
     acquisition_end_date: 2021-04-30
     acquisition_reference_date: 2021-04-25
-    offset: 0-15  # near/mid/far/0-15/15-25/etc <-- Probably not to be indexed
+    stacking_offset: 0-15  # near/mid/far/0-15/15-25/etc <-- Probably not to be indexed
 
   # if stratigraphic, name must match the strat column. This is the official name of this surface.
   name: volantis_top-volantis_base

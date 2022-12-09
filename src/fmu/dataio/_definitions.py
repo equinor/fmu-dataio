@@ -44,7 +44,7 @@ ALLOWED_CONTENTS = {
         "zrange": float,
         "filter_size": float,
         "scaling_factor": float,
-        "offset": str,
+        "stacking_offset": str,
     },
     "fluid_contact": {"contact": str, "truncated": bool},
     "field_outline": {"contact": str},
@@ -57,6 +57,14 @@ ALLOWED_CONTENTS = {
     "volumetrics": None,  # or?
     "khproduct": None,
     "timeseries": None,
+}
+
+DEPRECATED_CONTENTS = {
+    "seismic": {
+        "offset": {
+            "replaced_by": "stacking_offset",
+        }
+    }
 }
 
 # This setting will set if subkeys is required or not. If not found in list then
