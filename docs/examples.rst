@@ -35,7 +35,7 @@ Press + to see generated YAML file.
 
 .. toggle::
 
-   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/polygons/.topvolantis--faultlines.pol.yml
+   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/polygons/.volantis_gp_top--faultlines.pol.yml
       :language: yaml
 
 |
@@ -78,7 +78,7 @@ Press + to see generated YAML files for metadata.
 
 .. toggle::
 
-   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.geogrid--facies.roff.yml
+   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.facies.roff.yml
       :language: yaml
 
 |

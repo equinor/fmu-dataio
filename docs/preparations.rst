@@ -228,6 +228,7 @@ from the Drogon workflow:
 Now, load this workflow in your ERT config file and make it a HOOK workflow:
 
 .. code-block::
+  
     -- Hook workflow for creating case metadata and (optional) registering case on Sumo
     LOAD_WORKFLOW   ../../bin/workflows/xhook_create_case_metadata
     HOOK_WORKFLOW   xhook_create_case_metadata  PRE_SIMULATION
