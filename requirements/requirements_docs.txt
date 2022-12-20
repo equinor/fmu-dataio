@@ -4,4 +4,3 @@ autoapi
 sphinx-autodoc-typehints
 sphinxcontrib-apidoc
 sphinx-togglebutton
-ert
