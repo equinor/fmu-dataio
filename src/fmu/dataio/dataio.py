@@ -20,6 +20,7 @@ from ._definitions import (
     ALLOWED_FMU_CONTEXTS,
     CONTENTS_REQUIRED,
     DEPRECATED_CONTENTS,
+    CLASS_DATA_REQUIRED
 )
 from ._utils import (
     create_symlink,
@@ -730,6 +731,21 @@ class ExportData:
 
         return obj
 
+    def _check_class_data_required(self):
+        """Checking if data section has any required fields"""
+        logger.debug("Meta at required check %s", self._metadata)
+        class_type = self._metadata["class"]
+        ok = True
+        try:
+            required_data = CLASS_DATA_REQUIRED[class_type]
+            logger.debug("Found requirement: %s", required_data)
+            if not required_data in self._metadata["data"]:
+                ok = False
+        except KeyError:
+            logger.info("No specific requirements for class %s", class_type)
+
+        return ok
+
     # ==================================================================================
     # Public methods:
     # ==================================================================================
@@ -781,6 +797,8 @@ class ExportData:
         self._metadata = metaobj.generate_export_metadata()
 
         self._rootpath = Path(metaobj.rootpath)
+        if not self._check_class_data_required():
+            raise AttributeError("Not all requirement for class met")
 
         logger.info("The metadata are now ready!")
 
