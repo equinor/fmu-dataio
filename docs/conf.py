@@ -59,6 +59,9 @@ copyright = "Equinor " + str(current_year) + f" (fmu-dataio release {release})"
 autodoc_member_order = "bysource"
 autodoc_default_flags = ["members", "show_inheritance"]
 
+# Mocking ert module
+autodoc_mock_imports = ["ert"]
+
 exclude_patterns = ["_build"]
 
 pygments_style = "sphinx"
