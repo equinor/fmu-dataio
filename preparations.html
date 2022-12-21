@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prepare FMU workflow to produce rich metadata &mdash; fmu.dataio 1.3.1.dev4+g6f889f8 documentation</title>
+  <title>Prepare FMU workflow to produce rich metadata &mdash; fmu.dataio 1.4.1.dev1+g57dd0a1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -276,6 +276,11 @@ WF_CREATE_CASE_METADATA  &lt;SCRATCH&gt;/&lt;USER&gt;/&lt;CASE_DIR&gt;  &lt;CONF
 about that for now, but we will return to this if applicable.</p>
 </div>
 <p>Now, load this workflow in your ERT config file and make it a HOOK workflow:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">--</span> <span class="n">Hook</span> <span class="n">workflow</span> <span class="k">for</span> <span class="n">creating</span> <span class="n">case</span> <span class="n">metadata</span> <span class="ow">and</span> <span class="p">(</span><span class="n">optional</span><span class="p">)</span> <span class="n">registering</span> <span class="n">case</span> <span class="n">on</span> <span class="n">Sumo</span>
+<span class="n">LOAD_WORKFLOW</span>   <span class="o">../../</span><span class="nb">bin</span><span class="o">/</span><span class="n">workflows</span><span class="o">/</span><span class="n">xhook_create_case_metadata</span>
+<span class="n">HOOK_WORKFLOW</span>   <span class="n">xhook_create_case_metadata</span>  <span class="n">PRE_SIMULATION</span>
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In the Drogon example, you will notice that the loading is done in the <code class="docutils literal notranslate"><span class="pre">install_custom_jobs.ert</span></code>
@@ -310,7 +315,7 @@ get going 👍</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.3.1.dev4+g6f889f8).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.4.1.dev1+g57dd0a1).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
