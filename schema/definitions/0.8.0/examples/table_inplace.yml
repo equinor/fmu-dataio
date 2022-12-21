@@ -10,7 +10,7 @@ tracklog:
       id: peesv
     event: created
   - datetime: 2020-10-28T14:46:14
-    user: 
+    user:
       id: peesv
     event: updated
 
@@ -72,7 +72,13 @@ data: # The data block describes the actual data (e.g. surface). Only present in
   name: inplace_mygrid
   stratigraphic: false
 
-  properties: 
+  table_index:
+    - ZONE
+    - REGION
+    - FACIES
+    - LICENCE
+
+  properties:
     - name: BULK_OIL
       unit: m3
       is_discrete: false
@@ -138,4 +144,3 @@ masterdata:
     stratigraphic_column:
       identifier: DROGON_2020
       uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
-
