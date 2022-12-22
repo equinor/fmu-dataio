@@ -575,7 +575,11 @@ class _ObjectDataProvider:
 
         # derive the additional attributes needed later e.g. in Filedata provider:
         relpath = Path(self.meta_existing["file"]["relative_path"])
-        self.efolder = relpath.parent.name
+        if self.dataio.subfolder:
+            self.efolder = relpath.parent.parent.name
+        else:
+            self.efolder = relpath.parent.name
+
         self.classname = self.meta_existing["class"]
         self.extension = relpath.suffix
         self.fmt = self.meta_existing["data"]["format"]

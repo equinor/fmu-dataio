@@ -189,6 +189,10 @@ class _FileDataProvider:
 
         if mode == "preprocessed":
             outroot = outroot / "preprocessed"
+            if self.dataio.forcefolder:
+                raise ValueError(
+                    "Cannot use 'forcefolder' option with preprocessed data"
+                )
 
         if mode != "preprocessed":
             if self.dataio.is_observation:

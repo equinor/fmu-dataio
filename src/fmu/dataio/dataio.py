@@ -404,7 +404,7 @@ class ExportData:
 
         reuse_metadata_rule: This input is None or a string describing rule for reusing
             metadata. Default is None, but if the input is a file string or object with
-            already valid metdata, then it is assumed to be "preprocessed", which
+            already valid metadata, then it is assumed to be "preprocessed", which
             merges the metadata after predefined rules.
 
         runpath: TODO! Optional and deprecated. The relative location of the current run
@@ -718,7 +718,11 @@ class ExportData:
         logger.info("rootpath:   %s", str(self._rootpath))
 
     def _check_obj_if_file(self, obj: Any) -> Any:
-        """When obj is file-like, it must be checked + assume preprocessed."""
+        """When obj is file-like, it must be checked + assume preprocessed.
+
+        In addition, if preprocessed, derive the subfolder if present and subfolder is
+        not set already.
+        """
 
         if isinstance(obj, (str, Path)):
             if isinstance(obj, str):
@@ -728,6 +732,16 @@ class ExportData:
             if not self.reuse_metadata_rule:
                 self.reuse_metadata_rule = "preprocessed"
 
+            # detect if object is on a subfolder relative to /preprocessed/xxxx
+            for ipar in range(3):
+                foldername = obj.parents[ipar].stem
+                if foldername == "preprocessed" and ipar == 2:
+                    if not self.subfolder:
+                        self.subfolder = obj.parents[0].stem
+                        logger.info(
+                            "Subfolder is auto-derived from preprocessed file path: %s",
+                            self.subfolder,
+                        )
         return obj
 
     # ==================================================================================
