@@ -13,6 +13,7 @@ import logging
 import os
 from pathlib import Path
 
+import pytest
 from conftest import inside_rms
 
 import fmu.dataio.dataio as dataio
@@ -140,3 +141,92 @@ def test_regsurf_preprocessed_observation(
     _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, mysurf)
 
     logger.info("Preprocessed surface is %s", mysurf)
+
+
+def test_regsurf_preprocessed_observation_subfolder(
+    fmurun_w_casemetadata, rmssetup, rmsglobalconfig, regsurf
+):
+    """As previous test, but with data using subfolder option.
+
+    When the original output is using a subfolder key, the subsequent job shall detect
+    this from the filepath and automatically output to the same subfolder name, also.
+
+    Alternatively the subfolder can be given another name.
+    """
+
+    @inside_rms
+    def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
+        """Run an export of a preprocessed surface inside RMS."""
+        logger.info("Active folder is %s", rmssetup)
+
+        os.chdir(rmssetup)
+        edata = dataio.ExportData(
+            config=rmsglobalconfig,  # read from global config
+            fmu_context="preprocessed",
+            name="preprocessedmap",
+            is_observation=True,
+            timedata=[[20240802, "moni"], [20200909, "base"]],
+            subfolder="mysub",
+        )
+
+        metadata = edata.generate_metadata(regsurf)
+        logger.debug("\n%s", utils.prettyprint_dict(metadata))
+
+        assert (
+            metadata["file"]["relative_path"]
+            == "share/preprocessed/maps/mysub/preprocessedmap--20240802_20200909.gri"
+        )
+
+        return edata.export(regsurf)
+
+    def _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, surfacepath, subf=None):
+        """Run FMU workflow, using the preprocessed data on a subfolder."""
+
+        os.chdir(fmurun_w_casemetadata)
+        logger.info("Active folder is %s", fmurun_w_casemetadata)
+
+        edata = dataio.ExportData(
+            config=rmsglobalconfig,  # read from global config
+            fmu_context="case",
+            name="pre_v3",
+            is_observation=True,
+        )
+        if subf is not None:
+            metadata = edata.generate_metadata(surfacepath, subfolder=subf)
+            assert (
+                metadata["file"]["relative_path"]
+                == f"share/observations/maps/{subf}/pre_v3--20240802_20200909.gri"
+            )
+        else:
+            metadata = edata.generate_metadata(surfacepath)
+            assert (
+                metadata["file"]["relative_path"]
+                == "share/observations/maps/mysub/pre_v3--20240802_20200909.gri"
+            )
+        assert "merged" in metadata["tracklog"][-1]["event"]
+
+    # run two stage process
+    mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
+    _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, mysurf)
+    _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, mysurf, subf="xxxx")
+
+
+@inside_rms
+def test_preprocessed_with_forcefolder_shall_fail(rmssetup, rmsglobalconfig, regsurf):
+    """Run an export of a preprocessed surface inside RMS."""
+    logger.info("Active folder is %s", rmssetup)
+
+    os.chdir(rmssetup)
+    edata = dataio.ExportData(
+        config=rmsglobalconfig,  # read from global config
+        fmu_context="preprocessed",
+        name="some",
+        is_observation=True,
+        timedata=[[20240802, "moni"], [20200909, "base"]],
+        forcefolder="/tmp",
+    )
+
+    with pytest.raises(
+        ValueError, match="Cannot use 'forcefolder' option with preprocessed data"
+    ):
+        edata.generate_metadata(regsurf)
