@@ -56,7 +56,8 @@ class ValidationError(ValueError, KeyError):
 
 def _validate_variable(key, value, legals) -> bool:
     """Use data from __annotions__ to validate that overriden var. is of legal type."""
-
+    print(f"key: {key}")
+    print(f"value: {value}")
     if key not in legals:
         logger.warning("Unsupported key, raise an error")
         raise ValidationError(f"The input key '{key}' is not supported")
@@ -66,11 +67,13 @@ def _validate_variable(key, value, legals) -> bool:
     else:
         valid_type = legals[key]
 
+    print(valid_type)
     try:
         validcheck = valid_type.__args__
     except AttributeError:
         validcheck = valid_type
 
+    print(validcheck)
     if "typing." not in str(validcheck):
         if not isinstance(value, validcheck):
             logger.warning("Wrong type of value, raise an error")
@@ -531,6 +534,7 @@ class ExportData:
     verbosity: str = "CRITICAL"
     vertical_domain: dict = field(default_factory=dict)
     workflow: str = ""
+    table_index: Union[None, list] = None
 
     # some keys that are modified version of input, prepended with _use
     _usecontent: dict = field(default_factory=dict, init=False)
@@ -825,6 +829,7 @@ class ExportData:
         Returns:
             String: full path to exported item.
         """
+        self.table_index = kwargs.get("table_index", self.table_index)
         self.generate_metadata(obj, compute_md5=False, **kwargs)
         metadata = self._metadata
 

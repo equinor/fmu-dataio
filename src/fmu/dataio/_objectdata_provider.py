@@ -482,33 +482,42 @@ class _ObjectDataProvider:
 
     def _derive_index(self):
         """Derive table index"""
-        logger.debug("Finding index to include")
-        index = []
         try:
             columns = list(self.obj.columns)
         except AttributeError:
             columns = self.obj.column_names
 
-        logger.debug("Available columns in table %s ", columns)
-        # Summary data
-        if "DATE" in columns:
+        if self.dataio.table_index is None:
+            logger.debug("Finding index to include")
+            index = []
 
-            index.append("DATE")
+            logger.debug("Available columns in table %s ", columns)
+            # Summary data
+            if "DATE" in columns:
 
-        # Inplace volumes
-        inplacers = ["ZONE", "REGION", "FACIES", "LICENCE"]
+                index.append("DATE")
 
-        for inplace_col in inplacers:
-            if inplace_col in columns:
-                index.append(inplace_col)
+            # Inplace volumes
+            inplacers = ["ZONE", "REGION", "FACIES", "LICENCE"]
 
-        # RFT
-        rft_cols = ["measured_depth", "well", "time"]
-        for rft_col in rft_cols:
-            if rft_col in columns:
-                index.append(rft_col)
+            for inplace_col in inplacers:
+                if inplace_col in columns:
+                    index.append(inplace_col)
 
-        logger.debug(f"Proudly presenting the index: {index}")
+            # RFT
+            rft_cols = ["measured_depth", "well", "time"]
+            for rft_col in rft_cols:
+                if rft_col in columns:
+                    index.append(rft_col)
+
+            logger.debug(f"Proudly presenting the index: {index}")
+        else:
+            check = [index for index in self.dataio.table_index if index not in columns]
+            if len(check) > 0:
+                raise KeyError(
+                    f"These names from table index: {check} are not in table"
+                )
+            index = self.dataio.table_index
         return index
 
     def _derive_timedata(self):
