@@ -81,6 +81,7 @@
             "title": "FMU time object",
             "description": "List of time stamps referring to simulated time",
             "type": [
+                "object",
                 "array",
                 "null"
             ],
