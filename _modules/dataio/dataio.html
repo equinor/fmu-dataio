@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.4.1.dev1+g57dd0a1 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.4.1.dev2+gd6f6cb2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -482,7 +482,7 @@
 
 <span class="sd">        reuse_metadata_rule: This input is None or a string describing rule for reusing</span>
 <span class="sd">            metadata. Default is None, but if the input is a file string or object with</span>
-<span class="sd">            already valid metdata, then it is assumed to be &quot;preprocessed&quot;, which</span>
+<span class="sd">            already valid metadata, then it is assumed to be &quot;preprocessed&quot;, which</span>
 <span class="sd">            merges the metadata after predefined rules.</span>
 
 <span class="sd">        runpath: TODO! Optional and deprecated. The relative location of the current run</span>
@@ -796,7 +796,11 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rootpath:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_check_obj_if_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;When obj is file-like, it must be checked + assume preprocessed.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;When obj is file-like, it must be checked + assume preprocessed.</span>
+
+<span class="sd">        In addition, if preprocessed, derive the subfolder if present and subfolder is</span>
+<span class="sd">        not set already.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -806,6 +810,16 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse_metadata_rule</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">reuse_metadata_rule</span> <span class="o">=</span> <span class="s2">&quot;preprocessed&quot;</span>
 
+            <span class="c1"># detect if object is on a subfolder relative to /preprocessed/xxxx</span>
+            <span class="k">for</span> <span class="n">ipar</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="n">foldername</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="n">ipar</span><span class="p">]</span><span class="o">.</span><span class="n">stem</span>
+                <span class="k">if</span> <span class="n">foldername</span> <span class="o">==</span> <span class="s2">&quot;preprocessed&quot;</span> <span class="ow">and</span> <span class="n">ipar</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stem</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="s2">&quot;Subfolder is auto-derived from preprocessed file path: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span><span class="p">,</span>
+                        <span class="p">)</span>
         <span class="k">return</span> <span class="n">obj</span>
 
     <span class="c1"># ==================================================================================</span>
@@ -1494,7 +1508,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.4.1.dev1+g57dd0a1).</p>
+    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.4.1.dev2+gd6f6cb2).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
