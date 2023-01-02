@@ -91,18 +91,20 @@ def test_regsurf_preprocessed_observation(
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             fmu_context="preprocessed",
-            name="preprocessedmap",
+            name="TopVolantis",
             is_observation=True,
             timedata=[[20240802, "moni"], [20200909, "base"]],
         )
 
         metadata = edata.generate_metadata(regsurf)
-        logger.debug("\n%s", utils.prettyprint_dict(metadata))
+        logger.info("\n%s", utils.prettyprint_dict(metadata))
 
         assert (
             metadata["file"]["relative_path"]
-            == "share/preprocessed/maps/preprocessedmap--20240802_20200909.gri"
+            == "share/preprocessed/maps/topvolantis--20240802_20200909.gri"
         )
+        assert metadata["data"]["name_input"] == "TopVolantis"
+        assert metadata["data"]["name"] == "VOLANTIS GP. Top"
 
         return edata.export(regsurf)
 
@@ -120,10 +122,10 @@ def test_regsurf_preprocessed_observation(
         os.chdir(fmurun_w_casemetadata)
         logger.info("Active folder is %s", fmurun_w_casemetadata)
 
+        # no name key is given; then name will be inherited from preprocessed data
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             fmu_context="case",
-            name="preprocessed_v2",
             is_observation=True,
         )
         metadata = edata.generate_metadata(
@@ -132,9 +134,11 @@ def test_regsurf_preprocessed_observation(
         logger.debug("\n%s", utils.prettyprint_dict(metadata))
         assert (
             metadata["file"]["relative_path"]
-            == "share/observations/maps/preprocessed_v2--20240802_20200909.gri"
+            == "share/observations/maps/topvolantis--20240802_20200909.gri"
         )
         assert "merged" in metadata["tracklog"][-1]["event"]
+        assert metadata["data"]["name_input"] == "TopVolantis"
+        assert metadata["data"]["name"] == "VOLANTIS GP. Top"
 
     # run two stage process
     mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)

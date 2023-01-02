@@ -168,6 +168,8 @@ class _ObjectDataProvider:
             except AttributeError:
                 name = ""
 
+        result["name_input"] = name
+
         # next check if usename has a "truename" and/or aliases from the config
         strat = self.dataio.config.get("stratigraphy", None)  # shortform
 
@@ -600,6 +602,7 @@ class _ObjectDataProvider:
         meta = self.metadata  # shortform
 
         meta["name"] = nameres["name"]
+        meta["name_input"] = nameres["name_input"]
         meta["stratigraphic"] = nameres.get("stratigraphic", None)
         meta["offset"] = nameres.get("offset", None)
         meta["alias"] = nameres.get("alias", None)

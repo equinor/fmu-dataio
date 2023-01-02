@@ -31,6 +31,7 @@ def test_objectdata_regularsurface_derive_name_stratigraphy_differ(regsurf, edat
     assert res["name"] == "VOLANTIS GP. Top"
     assert "TopVolantis" in res["alias"]
     assert res["stratigraphic"] is True
+    assert res["name_input"] == "TopVolantis"
 
 
 def test_objectdata_regularsurface_validate_extension(regsurf, edataobj1):

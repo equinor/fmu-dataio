@@ -733,8 +733,8 @@ class ExportData:
                 self.reuse_metadata_rule = "preprocessed"
 
             currentmeta = read_metadata(obj)
-            if not self.name and currentmeta["data"].get("name", ""):
-                self.name = currentmeta["data"]["name"]
+            if not self.name and currentmeta["data"].get("name_input", ""):
+                self.name = currentmeta["data"]["name_input"]
 
             if not self.tagname and currentmeta["data"].get("tagname", ""):
                 self.tagname = currentmeta["data"]["tagname"]
