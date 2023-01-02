@@ -358,8 +358,8 @@ class ExportData:
             "preprocessed" folder instead, and metadata will be partially re-used in
             an ERT model run. If a non-FMU run is detected (e.g. you run from project),
             fmu-dataio will detect that and set actual context to None as fall-back
-            (unless preprocessed is specified). If value is "preprosessed", see also
-            ``resuse_metadata`` key.
+            (unless preprocessed is specified). If value is "preprocessed", see also
+            ``reuse_metadata`` key.
 
         description: A multiline description of the data either as a string or a list
             of strings.
@@ -720,8 +720,8 @@ class ExportData:
     def _check_obj_if_file(self, obj: Any) -> Any:
         """When obj is file-like, it must be checked + assume preprocessed.
 
-        In addition, if preprocessed, derive the subfolder if present and subfolder is
-        not set already.
+        In addition, if preprocessed, derive the name, tagname, subfolder if present and
+        those are not set already.
         """
 
         if isinstance(obj, (str, Path)):
@@ -731,6 +731,13 @@ class ExportData:
                 raise ValidationError(f"The file {obj} does not exist.")
             if not self.reuse_metadata_rule:
                 self.reuse_metadata_rule = "preprocessed"
+
+            currentmeta = read_metadata(obj)
+            if not self.name and currentmeta["data"].get("name", ""):
+                self.name = currentmeta["data"]["name"]
+
+            if not self.tagname and currentmeta["data"].get("tagname", ""):
+                self.tagname = currentmeta["data"]["tagname"]
 
             # detect if object is on a subfolder relative to /preprocessed/xxxx
             for ipar in range(3):
