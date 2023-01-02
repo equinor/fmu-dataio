@@ -8,6 +8,7 @@
         "tracklog",
         "data.format",
         "data.name",
+        "data.name_input",
         "data.stratigraphic",
         "data.alias",
         "data.stratigraphic_alias",
@@ -40,29 +41,21 @@
             "$comment": "GENERIC DEFINITIONS",
             "datetime": {
                 "type": "string",
-                "examples": [
-                    "2020-10-28T14:28:02"
-                ]
+                "examples": ["2020-10-28T14:28:02"]
             },
             "uuid": {
                 "type": "string",
                 "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
-                "examples": [
-                    "ad214d85-8a1d-19da-e053-c918a4889309"
-                ]
+                "examples": ["ad214d85-8a1d-19da-e053-c918a4889309"]
             },
             "user": {
                 "type": "object",
-                "required": [
-                    "id"
-                ],
+                "required": ["id"],
                 "properties": {
                     "id": {
                         "title": "User ID",
                         "type": "string",
-                        "examples": [
-                            "peesv"
-                        ]
+                        "examples": ["peesv"]
                     }
                 }
             },
@@ -71,20 +64,14 @@
                 "type": "array",
                 "items": {
                     "type": "string",
-                    "examples": [
-                        "Some description"
-                    ]
+                    "examples": ["Some description"]
                 }
             }
         },
         "fmu_time": {
             "title": "FMU time object",
             "description": "List of time stamps referring to simulated time",
-            "type": [
-                "object",
-                "array",
-                "null"
-            ],
+            "type": ["object", "array", "null"],
             "items": {
                 "type": "object",
                 "properties": {
@@ -93,9 +80,7 @@
                     },
                     "label": {
                         "type": "string",
-                        "examples": [
-                            "Label for time stamp"
-                        ]
+                        "examples": ["Label for time stamp"]
                     }
                 }
             },
@@ -104,11 +89,7 @@
         "class": {
             "title": "Metadata class",
             "type": "string",
-            "examples": [
-                "surface",
-                "table",
-                "points"
-            ],
+            "examples": ["surface", "table", "points"],
             "enum": [
                 "case",
                 "surface",
@@ -132,9 +113,7 @@
             "title": "FMU results metadata version",
             "type": "string",
             "$comment": "This is 0.8.0, so require version to be == 0.8.0",
-            "enum": [
-                "0.8.0"
-            ],
+            "enum": ["0.8.0"],
             "example": "1.2.3"
         },
         "tracklog_event": {
@@ -148,10 +127,7 @@
                 },
                 "event": {
                     "type": "string",
-                    "examples": [
-                        "created",
-                        "updated"
-                    ]
+                    "examples": ["created", "updated"]
                 }
             }
         },
@@ -175,31 +151,23 @@
             ],
             "dependencies": {
                 "top": {
-                    "required": [
-                        "base"
-                    ]
+                    "required": ["base"]
                 },
                 "base": {
-                    "required": [
-                        "top"
-                    ]
+                    "required": ["top"]
                 }
             },
             "properties": {
                 "name": {
                     "type": "string",
                     "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
-                    "examples": [
-                        "VIKING GP. Top"
-                    ]
+                    "examples": ["VIKING GP. Top"]
                 },
                 "stratigraphic": {
                     "$comment": "Determines of validation against strat column should happen or not",
                     "type": "boolean",
                     "description": "True if data object represents an entity in the stratigraphic column",
-                    "examples": [
-                        true
-                    ]
+                    "examples": [true]
                 },
                 "alias": {
                     "type": "array",
@@ -247,20 +215,20 @@
                         }
                     }
                 },
+                "name_input": {
+                    "type": "string",
+                    "description": "Input name; may differ from name if stratigraphic alias in lookup",
+                    "examples": ["TopVolantis", "Porosity"]
+                },
                 "content": {
                     "type": "string",
                     "description": "The contents of this data object",
-                    "examples": [
-                        "depth"
-                    ]
+                    "examples": ["depth"]
                 },
                 "tagname": {
                     "type": "string",
                     "description": "A semi-human readable tag for internal usage and uniqueness",
-                    "examples": [
-                        "ds_extract_geogrid",
-                        "ds_post_strucmod"
-                    ]
+                    "examples": ["ds_extract_geogrid", "ds_post_strucmod"]
                 },
                 "properties": {
                     "$comment": "This is not the JSON Schema properties, this is FMU properties",
@@ -271,90 +239,52 @@
                         "properties": {
                             "name": {
                                 "type": "string",
-                                "examples": [
-                                    "MyPropertyName"
-                                ]
+                                "examples": ["MyPropertyName"]
                             },
                             "attribute": {
                                 "type": "string",
-                                "examples": [
-                                    "MyAttributeName"
-                                ]
+                                "examples": ["MyAttributeName"]
                             },
                             "is_discrete": {
                                 "type": "boolean",
-                                "examples": [
-                                    true,
-                                    false
-                                ]
+                                "examples": [true, false]
                             }
                         }
                     }
                 },
                 "format": {
                     "type": "string",
-                    "examples": [
-                        "irap_binary"
-                    ]
+                    "examples": ["irap_binary"]
                 },
                 "layout": {
                     "type": "string",
-                    "examples": [
-                        "regular"
-                    ]
+                    "examples": ["regular"]
                 },
                 "unit": {
-                    "type": [
-                        "string",
-                        "null"
-                    ],
-                    "examples": [
-                        "m"
-                    ]
+                    "type": ["string", "null"],
+                    "examples": ["m"]
                 },
                 "vertical_domain": {
                     "type": "string",
-                    "enum": [
-                        "depth",
-                        "time"
-                    ],
-                    "examples": [
-                        "depth"
-                    ]
+                    "enum": ["depth", "time"],
+                    "examples": ["depth"]
                 },
                 "depth_reference": {
-                    "type": [
-                        "string",
-                        "null"
-                    ],
-                    "examples": [
-                        "msl"
-                    ],
-                    "enum": [
-                        "msl",
-                        "sb",
-                        "rkb",
-                        null
-                    ]
+                    "type": ["string", "null"],
+                    "examples": ["msl"],
+                    "enum": ["msl", "sb", "rkb", null]
                 },
                 "undef_is_zero": {
                     "description": "Flag if undefined values are to be interpreted as zero",
                     "type": "boolean",
-                    "examples": [
-                        "True"
-                    ]
+                    "examples": ["True"]
                 },
                 "grid_model": {
                     "type": "object",
                     "properties": {
                         "name": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "examples": [
-                                "MyGrid"
-                            ]
+                            "type": ["string", "null"],
+                            "examples": ["MyGrid"]
                         }
                     }
                 },
@@ -364,125 +294,77 @@
                         "ncol": {
                             "$comment": "https://json-schema.org/understanding-json-schema/reference/numeric.html",
                             "type": "integer",
-                            "examples": [
-                                281
-                            ]
+                            "examples": [281]
                         },
                         "nrow": {
                             "type": "integer",
-                            "examples": [
-                                441
-                            ]
+                            "examples": [441]
                         },
                         "nlay": {
                             "type": "integer",
-                            "examples": [
-                                333
-                            ]
+                            "examples": [333]
                         },
                         "xori": {
                             "type": "number",
-                            "examples": [
-                                461499.9997558594
-                            ]
+                            "examples": [461499.9997558594]
                         },
                         "yori": {
                             "type": "number",
-                            "examples": [
-                                5926500.224123242
-                            ]
+                            "examples": [5926500.224123242]
                         },
                         "xinc": {
                             "type": "number",
-                            "examples": [
-                                25.0
-                            ]
+                            "examples": [25.0]
                         },
                         "yflip": {
                             "type": "integer",
                             "$comment": "A boolean represented by an integer (?)",
-                            "enum": [
-                                0,
-                                1
-                            ],
-                            "examples": [
-                                1
-                            ]
+                            "enum": [0, 1],
+                            "examples": [1]
                         },
                         "rotation": {
                             "type": "number",
-                            "examples": [
-                                "30.00000000231"
-                            ]
+                            "examples": ["30.00000000231"]
                         },
                         "undef": {
                             "type": "number",
                             "$comment": "How is the undefined value represented?",
-                            "examples": [
-                                1.0e+33
-                            ]
+                            "examples": [1.0e33]
                         },
                         "npolys": {
                             "description": "The number of individual polygons in the data object",
                             "type": "integer",
-                            "examples": [
-                                1
-                            ]
+                            "examples": [1]
                         }
                     }
                 },
                 "bbox": {
                     "type": "object",
-                    "required": [
-                        "xmin",
-                        "xmax",
-                        "ymin",
-                        "ymax"
-                    ],
+                    "required": ["xmin", "xmax", "ymin", "ymax"],
                     "properties": {
                         "xmin": {
                             "type": "number",
-                            "examples": [
-                                456012.5003497944
-                            ]
+                            "examples": [456012.5003497944]
                         },
                         "xmax": {
                             "type": "number",
-                            "examples": [
-                                467540.52762886323
-                            ]
+                            "examples": [467540.52762886323]
                         },
                         "ymin": {
                             "type": "number",
-                            "examples": [
-                                5926499.999511719
-                            ]
+                            "examples": [5926499.999511719]
                         },
                         "ymax": {
                             "type": "number",
-                            "examples": [
-                                5939492.128326312
-                            ]
+                            "examples": [5939492.128326312]
                         },
                         "zmin": {
-                            "type": [
-                                "number",
-                                "null"
-                            ],
-                            "examples": [
-                                1244.039,
-                                null
-                            ]
+                            "type": ["number", "null"],
+                            "examples": [1244.039, null]
                         },
                         "zmax": {
-                            "type": [
-                                "number",
-                                "null"
-                            ],
-                            "examples": [
-                                2302.683,
-                                null
-                            ]
+                            "type": ["number", "null"],
+                            "examples": [2302.683, null]
                         }
                     }
                 },
@@ -493,17 +375,13 @@
                     "title": "Is prediction flag",
                     "$comment": "For flagging predictions, and separating them from non-predictions",
                     "type": "boolean",
-                    "examples": [
-                        true
-                    ]
+                    "examples": [true]
                 },
                 "is_observation": {
                     "title": "Is observation flag",
                     "$comment": "For flagging observations, and separating them from non-observations",
                     "type": "boolean",
-                    "examples": [
-                        true
-                    ]
+                    "examples": [true]
                 },
                 "fluid_contact": {
                     "type": "object",
@@ -511,33 +389,21 @@
                     "properties": {
                         "contact": {
                             "type": "string",
-                            "enum": [
-                                "owc",
-                                "fwl",
-                                "goc",
-                                "fgl"
-                            ],
+                            "enum": ["owc", "fwl", "goc", "fgl"],
                             "$comment": "Not sure if wise to enum this",
-                            "examples": [
-                                "owc",
-                                "fwl"
-                            ]
+                            "examples": ["owc", "fwl"]
                         },
                         "truncated": {
                             "type": "boolean",
                             "$comment": "Is this contact truncated to the stratigraphy?",
-                            "examples": [
-                                true
-                            ]
+                            "examples": [true]
                         }
                     }
                 },
                 "field_outline": {
                     "description": "Conditional field",
                     "type": "object",
-                    "required": [
-                        "contact"
-                    ],
+                    "required": ["contact"],
                     "properties": {
                         "contact": {
                             "type": "string"
@@ -553,33 +419,23 @@
                     "properties": {
                         "attribute": {
                             "type": "string",
-                            "examples": [
-                                "amplitude_timeshifted"
-                            ]
+                            "examples": ["amplitude_timeshifted"]
                         },
                         "zrange": {
                             "type": "number",
-                            "examples": [
-                                12.0
-                            ]
+                            "examples": [12.0]
                         },
                         "filter_size": {
                             "type": "number",
-                            "examples": [
-                                1.0
-                            ]
+                            "examples": [1.0]
                         },
                         "scaling_factor": {
                             "type": "number",
-                            "examples": [
-                                1.0
-                            ]
+                            "examples": [1.0]
                         },
                         "stacking_offset": {
                             "type": "string",
-                            "examples": [
-                                "0-15"
-                            ]
+                            "examples": ["0-15"]
                         }
                     }
                 }
@@ -590,31 +446,22 @@
             "properties": {
                 "name": {
                     "type": "string",
-                    "examples": [
-                        "Top Volantis"
-                    ]
+                    "examples": ["Top Volantis"]
                 },
                 "subtitle": {
                     "type": "string",
-                    "examples": [
-                        "Some subtitle"
-                    ]
+                    "examples": ["Some subtitle"]
                 },
                 "line": {
                     "type": "object",
                     "properties": {
                         "show": {
                             "type": "boolean",
-                            "examples": [
-                                true
-                            ]
+                            "examples": [true]
                         },
                         "color": {
                             "type": "string",
-                            "examples": [
-                                "black",
-                                "#000000"
-                            ]
+                            "examples": ["black", "#000000"]
                         }
                     }
                 },
@@ -623,16 +470,11 @@
                     "properties": {
                         "show": {
                             "type": "boolean",
-                            "examples": [
-                                true
-                            ]
+                            "examples": [true]
                         },
                         "color": {
                             "type": "string",
-                            "examples": [
-                                "black",
-                                "#000000"
-                            ]
+                            "examples": ["black", "#000000"]
                         }
                     }
                 },
@@ -641,24 +483,17 @@
                     "properties": {
                         "show": {
                             "type": "boolean",
-                            "examples": [
-                                true
-                            ]
+                            "examples": [true]
                         },
                         "color": {
                             "description": "The color of the contour lines",
                             "type": "string",
-                            "examples": [
-                                "black",
-                                "#000000"
-                            ]
+                            "examples": ["black", "#000000"]
                         },
                         "increment": {
                             "description": "The contour increment in same values as the data",
                             "type": "number",
-                            "examples": [
-                                20.0
-                            ]
+                            "examples": [20.0]
                         }
                     }
                 },
@@ -667,38 +502,27 @@
                     "properties": {
                         "show": {
                             "type": "boolean",
-                            "examples": [
-                                true
-                            ]
+                            "examples": [true]
                         },
                         "color": {
                             "type": "string",
-                            "examples": [
-                                "black",
-                                "#000000"
-                            ]
+                            "examples": ["black", "#000000"]
                         },
                         "colormap": {
                             "$comment": "colormap can be given alongside fill.color. Clients must choose.",
                             "description": "named reference to a colormap",
                             "type": "string",
-                            "examples": [
-                                "gist_earth"
-                            ]
+                            "examples": ["gist_earth"]
                         },
                         "display_min": {
                             "description": "The low-side boundary to use for fill color",
                             "type": "number",
-                            "examples": [
-                                1000.0
-                            ]
+                            "examples": [1000.0]
                         },
                         "display_max": {
                             "description": "The high-side boundary to use for fill color",
                             "type": "number",
-                            "examples": [
-                                1600.0
-                            ]
+                            "examples": [1600.0]
                         }
                     }
                 }
@@ -709,41 +533,28 @@
             "properties": {
                 "asset": {
                     "type": "object",
-                    "required": [
-                        "name"
-                    ],
+                    "required": ["name"],
                     "properties": {
                         "name": {
                             "type": "string",
-                            "examples": [
-                                "Drogon"
-                            ]
+                            "examples": ["Drogon"]
                         }
                     }
                 },
                 "ssdl": {
                     "type": "object",
                     "$comment": "Required for data objects",
-                    "required": [
-                        "access_level",
-                        "rep_include"
-                    ],
+                    "required": ["access_level", "rep_include"],
                     "properties": {
                         "access_level": {
                             "$comment": "Who should SSDL be allowed to share this further with?",
                             "type": "string",
-                            "enum": [
-                                "internal",
-                                "asset"
-                            ]
+                            "enum": ["internal", "asset"]
                         },
                         "rep_include": {
                             "$comment": "Should REP display this data?",
                             "type": "boolean",
-                            "examples": [
-                                true,
-                                false
-                            ]
+                            "examples": [true, false]
                         }
                     }
                 }
@@ -752,9 +563,7 @@
         "masterdata": {
             "$comment": "Block holds references to master data",
             "type": "object",
-            "required": [
-                "smda"
-            ],
+            "required": ["smda"],
             "properties": {
                 "smda": {
                     "type": "object",
@@ -771,16 +580,11 @@
                             "type": "array",
                             "items": {
                                 "type": "object",
-                                "required": [
-                                    "identifier",
-                                    "uuid"
-                                ],
+                                "required": ["identifier", "uuid"],
                                 "properties": {
                                     "identifier": {
                                         "type": "string",
-                                        "examples": [
-                                            "Norway"
-                                        ]
+                                        "examples": ["Norway"]
                                     },
                                     "uuid": {
                                         "$ref": "#/definitions/generic/uuid"
@@ -793,16 +597,11 @@
                             "type": "array",
                             "items": {
                                 "type": "object",
-                                "required": [
-                                    "short_identifier",
-                                    "uuid"
-                                ],
+                                "required": ["short_identifier", "uuid"],
                                 "properties": {
                                     "short_identifier": {
                                         "type": "string",
-                                        "examples": [
-                                            "SomeDiscovery"
-                                        ]
+                                        "examples": ["SomeDiscovery"]
                                     },
                                     "uuid": {
                                         "$ref": "#/definitions/generic/uuid"
@@ -815,16 +614,11 @@
                             "type": "array",
                             "items": {
                                 "type": "object",
-                                "required": [
-                                    "identifier",
-                                    "uuid"
-                                ],
+                                "required": ["identifier", "uuid"],
                                 "properties": {
                                     "identifier": {
                                         "type": "string",
-                                        "examples": [
-                                            "OseFax"
-                                        ]
+                                        "examples": ["OseFax"]
                                     },
                                     "uuid": {
                                         "$ref": "#/definitions/generic/uuid"
@@ -835,16 +629,11 @@
                         "coordinate_system": {
                             "$comment": "SMDA-valid coordinate system.",
                             "type": "object",
-                            "required": [
-                                "identifier",
-                                "uuid"
-                            ],
+                            "required": ["identifier", "uuid"],
                             "properties": {
                                 "identifier": {
                                     "type": "string",
-                                    "examples": [
-                                        "ST_WGS84_UTM37N_P32637"
-                                    ]
+                                    "examples": ["ST_WGS84_UTM37N_P32637"]
                                 },
                                 "uuid": {
                                     "$ref": "#/definitions/generic/uuid"
@@ -854,16 +643,11 @@
                         "stratigraphic_column": {
                             "$comment": "SMDA-valid stratigraphic column.",
                             "type": "object",
-                            "required": [
-                                "identifier",
-                                "uuid"
-                            ],
+                            "required": ["identifier", "uuid"],
                             "properties": {
                                 "identifier": {
                                     "type": "string",
-                                    "examples": [
-                                        "DROGON_2020"
-                                    ]
+                                    "examples": ["DROGON_2020"]
                                 },
                                 "uuid": {
                                     "$ref": "#/definitions/generic/uuid"
@@ -880,15 +664,11 @@
                 "properties": {
                     "name": {
                         "type": "string",
-                        "examples": [
-                            "Drogon"
-                        ]
+                        "examples": ["Drogon"]
                     },
                     "revision": {
                         "type": "string",
-                        "examples": [
-                            "21.0.0.dev"
-                        ]
+                        "examples": ["21.0.0.dev"]
                     },
                     "description": {
                         "description": "This is a free text description of the model setup",
@@ -907,18 +687,12 @@
             },
             "case": {
                 "type": "object",
-                "required": [
-                    "name",
-                    "uuid",
-                    "user"
-                ],
+                "required": ["name", "uuid", "user"],
                 "properties": {
                     "name": {
                         "type": "string",
                         "description": "The case name",
-                        "examples": [
-                            "MyCaseName"
-                        ]
+                        "examples": ["MyCaseName"]
                     },
                     "uuid": {
                         "$ref": "#/definitions/generic/uuid"
@@ -939,25 +713,17 @@
             },
             "iteration": {
                 "type": "object",
-                "required": [
-                    "name",
-                    "id",
-                    "uuid"
-                ],
+                "required": ["name", "id", "uuid"],
                 "properties": {
                     "name": {
                         "description": "The convential name of this iteration, e.g. iter-0 or pred",
                         "type": "string",
-                        "examples": [
-                            "iter-0"
-                        ]
+                        "examples": ["iter-0"]
                     },
                     "id": {
                         "description": "The internal identification of this iteration, e.g. the iteration number",
                         "type": "integer",
-                        "examples": [
-                            0
-                        ]
+                        "examples": [0]
                     },
                     "uuid": {
                         "$ref": "#/definitions/generic/uuid"
@@ -967,25 +733,17 @@
             "realization": {
                 "$comment": "Some schema repetition between realization and aggregation",
                 "type": "object",
-                "required": [
-                    "name",
-                    "id",
-                    "uuid"
-                ],
+                "required": ["name", "id", "uuid"],
                 "properties": {
                     "name": {
                         "description": "The convential name of this iteration, e.g. iter-0 or pred",
                         "type": "string",
-                        "examples": [
-                            "iter-0"
-                        ]
+                        "examples": ["iter-0"]
                     },
                     "id": {
                         "type": "integer",
                         "description": "The unique number of this realization as used in FMU",
-                        "examples": [
-                            33
-                        ]
+                        "examples": [33]
                     },
                     "uuid": {
                         "$ref": "#/definitions/generic/uuid"
@@ -1006,10 +764,7 @@
             "aggregation": {
                 "$comment": "Some schema repetition between realization and aggregation",
                 "type": "object",
-                "required": [
-                    "operation",
-                    "realization_ids"
-                ],
+                "required": ["operation", "realization_ids"],
                 "properties": {
                     "operation": {
                         "type": "string",
@@ -1020,12 +775,7 @@
                         "description": "Array of realization ids included in this aggregation",
                         "items": {
                             "type": "integer",
-                            "examples": [
-                                0,
-                                1,
-                                2,
-                                3
-                            ]
+                            "examples": [0, 1, 2, 3]
                         }
                     },
                     "parameters": {
@@ -1043,9 +793,7 @@
                         "$comment": "Not used in Drogon but widely used on e.g. Johan Sverdrup",
                         "$comment": "Used for enabling common display and joint visual settings",
                         "$comment": "A unique uuid is currently used, and included as example but any ID should be sufficient",
-                        "examples": [
-                            "15ce3b84-766f-4c93-9050-b154861f9100"
-                        ]
+                        "examples": ["15ce3b84-766f-4c93-9050-b154861f9100"]
                     }
                 }
             }
@@ -1055,17 +803,12 @@
             "$comment": "While the file may seize to exist, the concept is still useful",
             "$comment": "A lot of logic exists on top of the file name now, legacy but not likely to disappear soon",
             "type": "object",
-            "required": [
-                "relative_path",
-                "checksum_md5"
-            ],
+            "required": ["relative_path", "checksum_md5"],
             "properties": {
                 "relative_path": {
                     "type": "string",
                     "description": "The file path relative to RUNPATH",
-                    "examples": [
-                        "share/results/maps/volantis_gp_base--depth.gri"
-                    ]
+                    "examples": ["share/results/maps/volantis_gp_base--depth.gri"]
                 },
                 "absolute_path": {
                     "type": "string",
@@ -1077,16 +820,12 @@
                 "checksum_md5": {
                     "description": "md5 checksum of the file or bytestring",
                     "type": "string",
-                    "examples": [
-                        "kjhsdfvsdlfk23knerknvk23"
-                    ]
+                    "examples": ["kjhsdfvsdlfk23knerknvk23"]
                 },
                 "size_bytes": {
                     "description": "Size of file object in bytes",
                     "type": "integer",
-                    "examples": [
-                        123
-                    ]
+                    "examples": [123]
                 }
             }
         }
@@ -1132,18 +871,13 @@
             "$comment": "Valid when class == case)",
             "properties": {
                 "class": {
-                    "enum": [
-                        "case"
-                    ]
+                    "enum": ["case"]
                 },
                 "fmu": {
                     "description": "The FMU block records properties that are specific to FMU",
                     "$comment": "This is the fmu block as it appears in data objects",
                     "type": "object",
-                    "required": [
-                        "model",
-                        "case"
-                    ],
+                    "required": ["model", "case"],
                     "properties": {
                         "model": {
                             "$ref": "#/definitions/fmu/model"
@@ -1154,33 +888,23 @@
                     }
                 },
                 "access": {
-                    "required": [
-                        "asset"
-                    ]
+                    "required": ["asset"]
                 }
             }
         },
         {
             "$comment": "Valid when class != case",
-            "required": [
-                "data",
-                "file"
-            ],
+            "required": ["data", "file"],
             "properties": {
                 "class": {
                     "not": {
-                        "enum": [
-                            "case"
-                        ]
+                        "enum": ["case"]
                     }
                 },
                 "fmu": {
                     "description": "The FMU block records properties that are specific to FMU",
                     "$comment": "This is the fmu block as it appears in data objects",
-                    "required": [
-                        "model",
-                        "case"
-                    ],
+                    "required": ["model", "case"],
                     "properties": {
                         "model": {
                             "$ref": "#/definitions/fmu/model"
@@ -1205,16 +929,12 @@
                     "dependencies": {
                         "aggregation": {
                             "not": {
-                                "required": [
-                                    "realization"
-                                ]
+                                "required": ["realization"]
                             }
                         },
                         "realization": {
                             "not": {
-                                "required": [
-                                    "aggregation"
-                                ]
+                                "required": ["aggregation"]
                             }
                         }
                     }
@@ -1235,9 +955,7 @@
                                 }
                             },
                             "then": {
-                                "required": [
-                                    "field_outline"
-                                ]
+                                "required": ["field_outline"]
                             }
                         },
                         {
@@ -1250,9 +968,7 @@
                                 }
                             },
                             "then": {
-                                "required": [
-                                    "fluid_contact"
-                                ]
+                                "required": ["fluid_contact"]
                             }
                         },
                         {
@@ -1265,18 +981,13 @@
                                 }
                             },
                             "then": {
-                                "required": [
-                                    "seismic"
-                                ]
+                                "required": ["seismic"]
                             }
                         }
                     ]
                 },
                 "access": {
-                    "required": [
-                        "asset",
-                        "ssdl"
-                    ]
+                    "required": ["asset", "ssdl"]
                 }
             }
         }
