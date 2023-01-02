@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prepare FMU workflow to produce rich metadata &mdash; fmu.dataio 1.4.2.dev1+g94c5cfb documentation</title>
+  <title>Prepare FMU workflow to produce rich metadata &mdash; fmu.dataio 1.4.2.dev2+g5f76f6e documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -114,22 +114,22 @@ this commonly defined entity. These definitions, we store as <em>master data</em
 single applications shall own this definition.</p>
 </div>
 <p>This is the content of <code class="docutils literal notranslate"><span class="pre">_masterdata.yml</span></code> from the Drogon example. Adjust to your needs:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">smda</span><span class="p">:</span><span class="w"></span>
-<span class="nt">country</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Norway</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span><span class="w"></span>
-<span class="nt">discovery</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">short_identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span><span class="w"></span>
-<span class="nt">field</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span><span class="w"></span>
-<span class="nt">coordinate_system</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span><span class="w"></span>
-<span class="w">  </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span><span class="w"></span>
-<span class="nt">stratigraphic_column</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON_HAS_NO_STRATCOLUMN</span><span class="w"></span>
-<span class="w">  </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">smda</span><span class="p">:</span>
+<span class="nt">country</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Norway</span>
+<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+<span class="nt">discovery</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">short_identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+<span class="nt">field</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+<span class="nt">coordinate_system</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span>
+<span class="w">  </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span>
+<span class="nt">stratigraphic_column</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON_HAS_NO_STRATCOLUMN</span>
+<span class="w">  </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
 </pre></div>
 </div>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">country</span></code>, <code class="docutils literal notranslate"><span class="pre">discovery</span></code> and <code class="docutils literal notranslate"><span class="pre">field</span></code> are lists. Most of us will only need one
@@ -140,11 +140,11 @@ use the <code class="docutils literal notranslate"><span class="pre">identifier<
 <p>Next, establish <code class="docutils literal notranslate"><span class="pre">_access.yml</span></code>. In this file, you will enter some information related
 to how FMU results from your workflow are to be governed when it comes to access rights.</p>
 <p>Example from Drogon:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">asset</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Drogon</span><span class="w"></span>
-<span class="nt">ssdl</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">access_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">internal</span><span class="w"></span>
-<span class="w">  </span><span class="nt">rep_include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">asset</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Drogon</span>
+<span class="nt">ssdl</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">access_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">internal</span>
+<span class="w">  </span><span class="nt">rep_include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
 <p>Under <code class="docutils literal notranslate"><span class="pre">asset.name</span></code> you will put the name of your asset. This is only relevant if you plan
@@ -176,55 +176,55 @@ and is in the stratigraphic column, while “Seabed” is not.</p>
 - <cite>alias</cite> is a list of known aliases for this stratigraphic entity.
 - <cite>stratigraphic_alias</cite> is a list of valid <em>stratigraphic</em> aliases for this entry, e.g. when a specific horizon is the top of both a formation and a group, or similar.</p>
 <p>From the Drogon tutorial:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># HORIZONS</span><span class="w"></span>
-<span class="nt">Seabed</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w"></span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Seabed</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># HORIZONS</span>
+<span class="nt">Seabed</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Seabed</span>
 
-<span class="nt">TopVolantis</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VOLANTIS GP. Top</span><span class="w"></span>
-<span class="w">    </span><span class="nt">alias</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TopVOLANTIS</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TOP_VOLANTIS</span><span class="w"></span>
-<span class="w">    </span><span class="nt">stratigraphic_alias</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TopValysar</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Valysar Fm. Top</span><span class="w"></span>
+<span class="nt">TopVolantis</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VOLANTIS GP. Top</span>
+<span class="w">    </span><span class="nt">alias</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TopVOLANTIS</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TOP_VOLANTIS</span>
+<span class="w">    </span><span class="nt">stratigraphic_alias</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TopValysar</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Valysar Fm. Top</span>
 
-<span class="nt">TopTherys</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Therys Fm. Top</span><span class="w"></span>
+<span class="nt">TopTherys</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Therys Fm. Top</span>
 
 
-<span class="c1"># ZONES/INTERVALS</span><span class="w"></span>
+<span class="c1"># ZONES/INTERVALS</span>
 
-<span class="nt">Above</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w"></span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Above</span><span class="w"></span>
+<span class="nt">Above</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Above</span>
 
-<span class="nt">Valysar</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Valysar Fm.</span><span class="w"></span>
+<span class="nt">Valysar</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Valysar Fm.</span>
 </pre></div>
 </div>
 <p>Finally, in <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code> we will do 2 things. First, we will enter a <code class="docutils literal notranslate"><span class="pre">model</span></code>
 block which contains some information about the model setup. Then, we will include the
 3 files made above. Example from Drogon:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
 
-<span class="l l-Scalar l-Scalar-Plain">(rest of global_variables.yml)</span><span class="w"></span>
+<span class="l l-Scalar l-Scalar-Plain">(rest of global_variables.yml)</span>
 
-<span class="l l-Scalar l-Scalar-Plain">#===================================================================================</span><span class="w"></span>
-<span class="l l-Scalar l-Scalar-Plain"># Elements pertaining to metadata</span><span class="w"></span>
-<span class="l l-Scalar l-Scalar-Plain">#===================================================================================</span><span class="w"></span>
+<span class="l l-Scalar l-Scalar-Plain">#===================================================================================</span>
+<span class="l l-Scalar l-Scalar-Plain"># Elements pertaining to metadata</span>
+<span class="l l-Scalar l-Scalar-Plain">#===================================================================================</span>
 
-<span class="l l-Scalar l-Scalar-Plain">model</span><span class="p p-Indicator">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ff</span><span class="w"></span>
-<span class="w">  </span><span class="nt">revision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22.1.0.dev</span><span class="w"></span>
+<span class="l l-Scalar l-Scalar-Plain">model</span><span class="p p-Indicator">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ff</span>
+<span class="w">  </span><span class="nt">revision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22.1.0.dev</span>
 
-<span class="nt">masterdata</span><span class="p">:</span><span class="w"> </span><span class="kt">!include</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_masterdata.yml</span><span class="w"></span>
-<span class="nt">access</span><span class="p">:</span><span class="w"> </span><span class="kt">!include</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_access.yml</span><span class="w"></span>
-<span class="nt">stratigraphy</span><span class="p">:</span><span class="w"> </span><span class="kt">!include</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_stratigraphy.yml</span><span class="w"></span>
+<span class="nt">masterdata</span><span class="p">:</span><span class="w"> </span><span class="kt">!include</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_masterdata.yml</span>
+<span class="nt">access</span><span class="p">:</span><span class="w"> </span><span class="kt">!include</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_access.yml</span>
+<span class="nt">stratigraphy</span><span class="p">:</span><span class="w"> </span><span class="kt">!include</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_stratigraphy.yml</span>
 </pre></div>
 </div>
 <p>You are done with the first part! This is to a large degree a one-off thing, and you
@@ -315,7 +315,7 @@ get going 👍</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.4.2.dev1+g94c5cfb).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.4.2.dev2+g5f76f6e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

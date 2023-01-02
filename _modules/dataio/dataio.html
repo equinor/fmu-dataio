@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.4.2.dev1+g94c5cfb documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.4.2.dev2+g5f76f6e documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -123,7 +123,7 @@
 
 
 <div class="viewcode-block" id="ValidationError"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ValidationError">[docs]</a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raise error while validating.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise error while validating.&quot;&quot;&quot;</span></div>
 
 
 <span class="c1"># ======================================================================================</span>
@@ -132,7 +132,7 @@
 
 
 <span class="k">def</span> <span class="nf">_validate_variable</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Use data from __annotions__ to validate that overriden var. is of legal type.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Use data from __annotions__ to validate that overriden var. is of legal type.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">legals</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unsupported key, raise an error&quot;</span><span class="p">)</span>
@@ -164,7 +164,7 @@
 <span class="k">def</span> <span class="nf">_check_global_config</span><span class="p">(</span>
     <span class="n">globalconfig</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;A minimum check/validation of the static global_config.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A minimum check/validation of the static global_config.</span>
 
 <span class="sd">    Currently far from a full validation. For now, just check that some required</span>
 <span class="sd">    keys are present in the config and warn/raise if not.</span>
@@ -205,7 +205,7 @@
 
 <span class="c1"># the two next content key related function may require refactoring/simplification</span>
 <span class="k">def</span> <span class="nf">_check_content</span><span class="p">(</span><span class="n">proposed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Check content and return a validated version.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check content and return a validated version.&quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Evaluate content&quot;</span><span class="p">)</span>
 
     <span class="n">content</span> <span class="o">=</span> <span class="n">proposed</span>
@@ -322,7 +322,7 @@
 
 
 <div class="viewcode-block" id="read_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.read_metadata">[docs]</a><span class="k">def</span> <span class="nf">read_metadata</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Read the metadata as a dictionary given a filename.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the metadata as a dictionary given a filename.</span>
 
 <span class="sd">    If the filename is e.g. /some/path/mymap.gri, the assosiated metafile</span>
 <span class="sd">    will be /some/path/.mymap.gri.yml (or json?)</span>
@@ -343,7 +343,7 @@
 
 <div class="viewcode-block" id="ExportData"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ExportData">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ExportData</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Class for exporting data with rich metadata in FMU.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for exporting data with rich metadata in FMU.</span>
 
 <span class="sd">    This class sets up the general metadata content to be applied in export. The idea is</span>
 <span class="sd">    that one ExportData instance can be re-used for several similar export() jobs. For</span>
@@ -436,8 +436,8 @@
 <span class="sd">            &quot;preprocessed&quot; folder instead, and metadata will be partially re-used in</span>
 <span class="sd">            an ERT model run. If a non-FMU run is detected (e.g. you run from project),</span>
 <span class="sd">            fmu-dataio will detect that and set actual context to None as fall-back</span>
-<span class="sd">            (unless preprocessed is specified). If value is &quot;preprosessed&quot;, see also</span>
-<span class="sd">            ``resuse_metadata`` key.</span>
+<span class="sd">            (unless preprocessed is specified). If value is &quot;preprocessed&quot;, see also</span>
+<span class="sd">            ``reuse_metadata`` key.</span>
 
 <span class="sd">        description: A multiline description of the data either as a string or a list</span>
 <span class="sd">            of strings.</span>
@@ -676,7 +676,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ran __post_init__&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_show_deprecations_or_notimplemented</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Warn on deprecated keys or on stuff not implemented yet.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Warn on deprecated keys or on stuff not implemented yet.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runpath</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
@@ -693,12 +693,12 @@
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_validate_content_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Validate the given &#39;content&#39; input.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate the given &#39;content&#39; input.&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_usecontent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_specific</span> <span class="o">=</span> <span class="n">_check_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_validate_fmucontext_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Validate the given &#39;fmu_context&#39; input.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate the given &#39;fmu_context&#39; input.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ALLOWED_FMU_CONTEXTS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -715,7 +715,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using flag format: &lt;</span><span class="si">%s</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_check_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Update instance settings (properties) from other routines.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update instance settings (properties) from other routines.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Try new settings </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">)</span>
 
         <span class="c1"># derive legal input from dataclass signature</span>
@@ -740,7 +740,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Validate FMU context which is now </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_globalconfig_from_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;A few user settings may update/append the global config directly.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A few user settings may update/append the global config directly.&quot;&quot;&quot;</span>
         <span class="n">newglobals</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_ssdl</span><span class="p">:</span>
@@ -756,7 +756,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">newglobals</span>
 
     <span class="k">def</span> <span class="nf">_establish_pwd_rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Establish state variables pwd and the (initial) rootpath.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Establish state variables pwd and the (initial) rootpath.</span>
 
 <span class="sd">        The self._pwd stores the process working directory, i.e. the folder</span>
 <span class="sd">        from which the process is ran</span>
@@ -796,10 +796,10 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rootpath:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_check_obj_if_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;When obj is file-like, it must be checked + assume preprocessed.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;When obj is file-like, it must be checked + assume preprocessed.</span>
 
-<span class="sd">        In addition, if preprocessed, derive the subfolder if present and subfolder is</span>
-<span class="sd">        not set already.</span>
+<span class="sd">        In addition, if preprocessed, derive the name, tagname, subfolder if present and</span>
+<span class="sd">        those are not set already.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
@@ -809,6 +809,13 @@
                 <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The file </span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse_metadata_rule</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">reuse_metadata_rule</span> <span class="o">=</span> <span class="s2">&quot;preprocessed&quot;</span>
+
+            <span class="n">currentmeta</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span> <span class="ow">and</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tagname&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span> <span class="o">=</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;tagname&quot;</span><span class="p">]</span>
 
             <span class="c1"># detect if object is on a subfolder relative to /preprocessed/xxxx</span>
             <span class="k">for</span> <span class="n">ipar</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
@@ -827,7 +834,7 @@
     <span class="c1"># ==================================================================================</span>
 
 <div class="viewcode-block" id="ExportData.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ExportData.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Generate and return the complete metadata for a provided object.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate and return the complete metadata for a provided object.</span>
 
 <span class="sd">        An object may be a map, 3D grid, cube, table, etc which is of a known and</span>
 <span class="sd">        supported type.</span>
@@ -879,7 +886,7 @@
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ExportData.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ExportData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">return_symlink</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Export data objects of &#39;known&#39; type to FMU storage solution with metadata.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export data objects of &#39;known&#39; type to FMU storage solution with metadata.</span>
 
 <span class="sd">        This function will also collect the data spesific class metadata. For &quot;classic&quot;</span>
 <span class="sd">        files, the metadata will be stored i a YAML file with same name stem as the</span>
@@ -954,7 +961,7 @@
 
 <div class="viewcode-block" id="InitializeCase"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">InitializeCase</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
-    <span class="sd">&quot;&quot;&quot;Instantate InitializeCase object.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Instantate InitializeCase object.</span>
 
 <span class="sd">    In ERT this is typically ran as an hook workflow in advance.</span>
 
@@ -1004,7 +1011,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ran __post_init__ for InitializeCase&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Update instance settings (properties) from other routines.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update instance settings (properties) from other routines.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Try new settings </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">)</span>
 
         <span class="c1"># derive legal input from dataclass signature</span>
@@ -1019,7 +1026,7 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New setting OK for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_establish_pwd_casepath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Establish state variables pwd and casepath.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Establish state variables pwd and casepath.</span>
 
 <span class="sd">        See ExportData&#39;s method but this is much simpler (e.g. no RMS context)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1065,7 +1072,7 @@
 <div class="viewcode-block" id="InitializeCase.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">skip_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Generate case metadata.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate case metadata.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            force: Overwrite existing case metadata if True. Default is False. If force</span>
@@ -1128,7 +1135,7 @@
     <span class="n">generate_case_metadata</span> <span class="o">=</span> <span class="n">generate_metadata</span>
 
 <div class="viewcode-block" id="InitializeCase.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">skip_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Export case metadata to file.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export case metadata to file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            force: Overwrite existing case metadata if True. Default is False. If force</span>
@@ -1173,7 +1180,7 @@
 
 <div class="viewcode-block" id="AggregatedData"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">AggregatedData</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Instantate AggregatedData object.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Instantate AggregatedData object.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        aggregation_id: Give an explicit ID for the aggregation. If None, an ID will be</span>
@@ -1211,7 +1218,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_generate_aggr_uuid</span><span class="p">(</span><span class="n">uuids</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Unless aggregation_id; use existing UUIDs to generate a new UUID.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unless aggregation_id; use existing UUIDs to generate a new UUID.&quot;&quot;&quot;</span>
 
         <span class="n">stringinput</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">xuuid</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">uuids</span><span class="p">):</span>
@@ -1220,7 +1227,7 @@
         <span class="k">return</span> <span class="n">uuid_from_string</span><span class="p">(</span><span class="n">stringinput</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Update instance settings (properties) from other routines.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update instance settings (properties) from other routines.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Try new settings </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">)</span>
 
         <span class="c1"># derive legal input from dataclass signature</span>
@@ -1235,7 +1242,7 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New setting OK for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_construct_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Construct the paths/filenames for aggregated data.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the paths/filenames for aggregated data.</span>
 
 <span class="sd">        These filenames are constructed a bit different than in a forward job, since we</span>
 <span class="sd">        do not now which folder we &#39;are in&#39; when doing aggregations. Could possibly also</span>
@@ -1407,7 +1414,7 @@
         <span class="n">skip_null</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Generate metadata for the aggregated data.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate metadata for the aggregated data.</span>
 
 <span class="sd">        This is a quite different and much simpler operation than the ExportData()</span>
 <span class="sd">        version, as here most metadata for each input element are already known. Hence,</span>
@@ -1456,13 +1463,13 @@
         <span class="n">skip_null</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Alias method name, see ``generate_metadata``&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Alias method name, see ``generate_metadata``&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span>
             <span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span><span class="p">,</span> <span class="n">skip_null</span><span class="o">=</span><span class="n">skip_null</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="AggregatedData.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Export aggregated file with metadata to file.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export aggregated file with metadata to file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            obj: Aggregated object to export, e.g. a XTGeo RegularSurface</span>
@@ -1508,7 +1515,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.4.2.dev1+g94c5cfb).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.4.2.dev2+g5f76f6e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

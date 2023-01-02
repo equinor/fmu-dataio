@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.scripts.create_case_metadata &mdash; fmu.dataio 1.4.2.dev1+g94c5cfb documentation</title>
+  <title>dataio.scripts.create_case_metadata &mdash; fmu.dataio 1.4.2.dev2+g5f76f6e documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/togglebutton.css" type="text/css" />
@@ -130,7 +130,7 @@
 
 
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Entry point from command line&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entry point from command line&quot;&quot;&quot;</span>
 
     <span class="c1"># When script is called from an ERT workflow, it will be called through the &#39;run&#39;</span>
     <span class="c1"># method on the WfCreateCaseMetadata class. This context is the intended usage.</span>
@@ -143,7 +143,7 @@
 
 
 <div class="viewcode-block" id="WfCreateCaseMetadata"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.WfCreateCaseMetadata">[docs]</a><span class="k">class</span> <span class="nc">WfCreateCaseMetadata</span><span class="p">(</span><span class="n">ErtScript</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A class with a run() function that can be registered as an ERT plugin.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class with a run() function that can be registered as an ERT plugin.</span>
 
 <span class="sd">    This is used for the ERT workflow context.&quot;&quot;&quot;</span>
 
@@ -153,14 +153,14 @@
     <span class="c1"># pylint: disable=too-few-public-methods</span>
 <div class="viewcode-block" id="WfCreateCaseMetadata.run"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.WfCreateCaseMetadata.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># pylint: disable=no-self-use</span>
-        <span class="sd">&quot;&quot;&quot;Parse arguments and call _create_case_metadata_main()&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse arguments and call _create_case_metadata_main()&quot;&quot;&quot;</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
         <span class="n">workflow_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="n">create_case_metadata_main</span><span class="p">(</span><span class="n">workflow_args</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="create_case_metadata_main"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.create_case_metadata_main">[docs]</a><span class="k">def</span> <span class="nf">create_case_metadata_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Create the case metadata and register case on Sumo.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the case metadata and register case on Sumo.&quot;&quot;&quot;</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
     <span class="n">check_arguments</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
@@ -171,7 +171,7 @@
 
 
 <div class="viewcode-block" id="create_metadata"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.create_metadata">[docs]</a><span class="k">def</span> <span class="nf">create_metadata</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Create the case metadata and print them to the disk&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the case metadata and print them to the disk&quot;&quot;&quot;</span>
     <span class="n">_global_variables_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ert_config_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">global_variables_path</span><span class="p">)</span>
     <span class="n">global_variables</span> <span class="o">=</span> <span class="n">_parse_yaml</span><span class="p">(</span><span class="n">_global_variables_path</span><span class="p">)</span>
 
@@ -192,7 +192,7 @@
 
 
 <div class="viewcode-block" id="register_on_sumo"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.register_on_sumo">[docs]</a><span class="k">def</span> <span class="nf">register_on_sumo</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">case_metadata_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Register the case on Sumo by sending the case metadata&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Register the case on Sumo by sending the case metadata&quot;&quot;&quot;</span>
 
     <span class="n">env</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">sumo_env</span>
 
@@ -221,7 +221,7 @@
 
 
 <span class="k">def</span> <span class="nf">_parse_yaml</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Parse the global variables, return as dict&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the global variables, return as dict&quot;&quot;&quot;</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
@@ -230,7 +230,7 @@
 
 
 <div class="viewcode-block" id="check_arguments"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.check_arguments">[docs]</a><span class="k">def</span> <span class="nf">check_arguments</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Do basic sanity checks of input&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Do basic sanity checks of input&quot;&quot;&quot;</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking input arguments&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;arguments: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
@@ -241,7 +241,7 @@
 
 
 <div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Construct parser object.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct parser object.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;ert_caseroot&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Absolute path to the case root&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -269,7 +269,7 @@
 
 <span class="nd">@hook_implementation</span>
 <span class="k">def</span> <span class="nf">legacy_ertscript_workflow</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Hook the WfCreateCaseMetadata class with documentation into ERT.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hook the WfCreateCaseMetadata class with documentation into ERT.&quot;&quot;&quot;</span>
     <span class="n">workflow</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">add_workflow</span><span class="p">(</span><span class="n">WfCreateCaseMetadata</span><span class="p">,</span> <span class="s2">&quot;WF_CREATE_CASE_METADATA&quot;</span><span class="p">)</span>
     <span class="n">workflow</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span>
     <span class="n">workflow</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">DESCRIPTION</span>
@@ -288,7 +288,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2022 (fmu-dataio release 1.4.2.dev1+g94c5cfb).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.4.2.dev2+g5f76f6e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
