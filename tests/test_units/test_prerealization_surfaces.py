@@ -143,6 +143,108 @@ def test_regsurf_preprocessed_observation(
     logger.info("Preprocessed surface is %s", mysurf)
 
 
+@pytest.mark.parametrize(
+    "name_pre, tagname_pre, name_merge, tagname_merge, exproot1, exproot2",
+    [
+        ("myname", "", "", "", "myname", "myname"),
+        ("myname", "", "newname", "", "myname", "newname"),
+        ("myname", "mytag", "", "", "myname--mytag", "myname--mytag"),
+        ("myname", "mytag", "newname", "newtag", "myname--mytag", "newname--newtag"),
+        ("myname", "", "", "newtag", "myname", "myname--newtag"),
+    ],
+    ids=[
+        "use both preprocessed name, no tagname",
+        "change name, no tagname",
+        "keep initial name and tagname",
+        "change both name and tagname",
+        "keep names, not initial tagname, but a merged tagname",
+    ],
+)
+def test_regsurf_preprocessed_obs_vary_name_tagname(
+    fmurun_w_casemetadata,
+    rmssetup,
+    rmsglobalconfig,
+    regsurf,
+    name_pre,
+    tagname_pre,
+    name_merge,
+    tagname_merge,
+    exproot1,
+    exproot2,
+):
+    """Check that current name and/or tagname are propegated or updated."""
+
+    @inside_rms
+    def _export_data_from_rms(
+        rmssetup,
+        rmsglobalconfig,
+        regsurf,
+        name_pre,
+        tagname_pre,
+        exproot1,
+    ):
+        """Run an export of a preprocessed surface inside RMS."""
+        logger.info("Active folder is %s", rmssetup)
+
+        os.chdir(rmssetup)
+        edata = dataio.ExportData(
+            config=rmsglobalconfig,  # read from global config
+            fmu_context="preprocessed",
+            timedata=[[20240802, "moni"], [20200909, "base"]],
+            is_observation=True,
+            name=name_pre,
+            tagname=tagname_pre,
+        )
+
+        metadata = edata.generate_metadata(regsurf)
+
+        dates = "20240802_20200909"
+        assert (
+            metadata["file"]["relative_path"]
+            == f"share/preprocessed/maps/{exproot1}--{dates}.gri"
+        )
+
+        return edata.export(regsurf)
+
+    def _run_case_fmu(
+        fmurun_w_casemetadata,
+        rmsglobalconfig,
+        surfacepath,
+        name_merge,
+        tagname_merge,
+        exproot2,
+    ):
+        """Run FMU workflow, using the preprocessed data on a subfolder."""
+
+        os.chdir(fmurun_w_casemetadata)
+        logger.info("Active folder is %s", fmurun_w_casemetadata)
+
+        edata = dataio.ExportData(
+            config=rmsglobalconfig,  # read from global config
+            fmu_context="case",
+            is_observation=True,
+            name=name_merge,
+            tagname=tagname_merge,
+        )
+        prefix = "share/observations/maps"
+        dates = "20240802_20200909"
+
+        metadata = edata.generate_metadata(surfacepath)
+        assert metadata["file"]["relative_path"] == f"{prefix}/{exproot2}--{dates}.gri"
+
+    mysurf = _export_data_from_rms(
+        rmssetup, rmsglobalconfig, regsurf, name_pre, tagname_pre, exproot1
+    )
+    _run_case_fmu(
+        fmurun_w_casemetadata,
+        rmsglobalconfig,
+        mysurf,
+        name_merge,
+        tagname_merge,
+        exproot2,
+    )
+
+
 def test_regsurf_preprocessed_observation_subfolder(
     fmurun_w_casemetadata, rmssetup, rmsglobalconfig, regsurf
 ):
