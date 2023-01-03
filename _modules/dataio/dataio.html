@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.4.2.dev2+g5f76f6e documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.4.2.dev3+g4bd1e0a documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -811,22 +811,22 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">reuse_metadata_rule</span> <span class="o">=</span> <span class="s2">&quot;preprocessed&quot;</span>
 
             <span class="n">currentmeta</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;_preprocessed&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">currentmeta</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="s2">&quot;The special entry for preprocessed data &lt;_preprocessed&gt; is&quot;</span>
+                    <span class="s2">&quot;missing in the metadata. A possible solution is to rerun the&quot;</span>
+                    <span class="s2">&quot;preprocessed export.&quot;</span>
+                <span class="p">)</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span> <span class="ow">and</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tagname&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span> <span class="o">=</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;tagname&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;_preprocessed&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;_preprocessed&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
 
-            <span class="c1"># detect if object is on a subfolder relative to /preprocessed/xxxx</span>
-            <span class="k">for</span> <span class="n">ipar</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
-                <span class="n">foldername</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="n">ipar</span><span class="p">]</span><span class="o">.</span><span class="n">stem</span>
-                <span class="k">if</span> <span class="n">foldername</span> <span class="o">==</span> <span class="s2">&quot;preprocessed&quot;</span> <span class="ow">and</span> <span class="n">ipar</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stem</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                            <span class="s2">&quot;Subfolder is auto-derived from preprocessed file path: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span><span class="p">,</span>
-                        <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span> <span class="ow">and</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;_preprocessed&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tagname&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span> <span class="o">=</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;_preprocessed&quot;</span><span class="p">][</span><span class="s2">&quot;tagname&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span> <span class="ow">and</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;_preprocessed&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subfolder&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span> <span class="o">=</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;_preprocessed&quot;</span><span class="p">][</span><span class="s2">&quot;subfolder&quot;</span><span class="p">]</span>
+
         <span class="k">return</span> <span class="n">obj</span>
 
     <span class="c1"># ==================================================================================</span>
@@ -1515,7 +1515,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.4.2.dev2+g5f76f6e).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.4.2.dev3+g4bd1e0a).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
