@@ -318,8 +318,10 @@ def test_regsurf_preprocessed_observation_subfolder(
 
 
 @inside_rms
-def test_preprocessed_with_forcefolder_shall_fail(rmssetup, rmsglobalconfig, regsurf):
-    """Run an export of a preprocessed surface inside RMS."""
+def test_preprocessed_with_abs_forcefolder_shall_fail(
+    rmssetup, rmsglobalconfig, regsurf
+):
+    """Run an export of a preprocessed surface inside RMS, with absolute forcefolder."""
     logger.info("Active folder is %s", rmssetup)
 
     os.chdir(rmssetup)
@@ -332,7 +334,24 @@ def test_preprocessed_with_forcefolder_shall_fail(rmssetup, rmsglobalconfig, reg
         forcefolder="/tmp",
     )
 
-    with pytest.raises(
-        ValueError, match="Cannot use 'forcefolder' option with preprocessed data"
-    ):
+    with pytest.raises(ValueError, match="Cannot use absolute path to 'forcefolder'"):
         edata.generate_metadata(regsurf)
+
+
+@inside_rms
+def test_preprocessed_with_rel_forcefolder_ok(rmssetup, rmsglobalconfig, regsurf):
+    """Run an export of a preprocessed surface inside RMS, with forcefolder."""
+    logger.info("Active folder is %s", rmssetup)
+
+    os.chdir(rmssetup)
+    edata = dataio.ExportData(
+        config=rmsglobalconfig,  # read from global config
+        fmu_context="preprocessed",
+        name="some",
+        is_observation=True,
+        timedata=[[20240802, "moni"], [20200909, "base"]],
+        forcefolder="tmp",
+    )
+
+    meta = edata.generate_metadata(regsurf)
+    assert "preprocessed/tmp" in meta["file"]["relative_path"]
