@@ -733,22 +733,22 @@ class ExportData:
                 self.reuse_metadata_rule = "preprocessed"
 
             currentmeta = read_metadata(obj)
-            if not self.name and currentmeta["data"].get("name", ""):
-                self.name = currentmeta["data"]["name"]
+            if "_preprocessed" not in currentmeta:
+                raise ValidationError(
+                    "The special entry for preprocessed data <_preprocessed> is"
+                    "missing in the metadata. A possible solution is to rerun the"
+                    "preprocessed export."
+                )
 
-            if not self.tagname and currentmeta["data"].get("tagname", ""):
-                self.tagname = currentmeta["data"]["tagname"]
+            if not self.name and currentmeta["_preprocessed"].get("name", ""):
+                self.name = currentmeta["_preprocessed"]["name"]
 
-            # detect if object is on a subfolder relative to /preprocessed/xxxx
-            for ipar in range(3):
-                foldername = obj.parents[ipar].stem
-                if foldername == "preprocessed" and ipar == 2:
-                    if not self.subfolder:
-                        self.subfolder = obj.parents[0].stem
-                        logger.info(
-                            "Subfolder is auto-derived from preprocessed file path: %s",
-                            self.subfolder,
-                        )
+            if not self.tagname and currentmeta["_preprocessed"].get("tagname", ""):
+                self.tagname = currentmeta["_preprocessed"]["tagname"]
+
+            if not self.subfolder and currentmeta["_preprocessed"].get("subfolder", ""):
+                self.subfolder = currentmeta["_preprocessed"]["subfolder"]
+
         return obj
 
     # ==================================================================================

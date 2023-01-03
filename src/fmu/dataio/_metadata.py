@@ -152,6 +152,8 @@ class _MetaData:
     meta_file: dict = field(default_factory=dict, init=False)
     meta_tracklog: list = field(default_factory=list, init=False)
     meta_fmu: dict = field(default_factory=dict, init=False)
+    # temporary storage for preprocessed data:
+    meta_xpreprocessed: dict = field(default_factory=dict, init=False)
 
     # relevant when ERT* fmu_context; same as rootpath in the ExportData class!:
     rootpath: str = field(default="", init=False)
@@ -282,6 +284,13 @@ class _MetaData:
         if self.dataio:
             self.meta_access = generate_meta_access(self.dataio.config)
 
+    def _populate_meta_xpreprocessed(self):
+        """Populate a few necessary 'tmp' metadata needed for preprocessed data."""
+        if self.dataio.fmu_context == "preprocessed":
+            self.meta_xpreprocessed["name"] = self.dataio.name
+            self.meta_xpreprocessed["tagname"] = self.dataio.tagname
+            self.meta_xpreprocessed["subfolder"] = self.dataio.subfolder
+
     def _reuse_existing_metadata(self, meta):
         """Perform a merge procedure if the key `reuse_metadata_rule` is active."""
         if self.dataio and self.dataio.reuse_metadata_rule:
@@ -307,6 +316,7 @@ class _MetaData:
         self._populate_meta_class()
         self._populate_meta_fmu()
         self._populate_meta_file()
+        self._populate_meta_xpreprocessed()
 
         # glue together metadata, order is as legacy code (but will be screwed if reuse
         # of existing metadata...)
@@ -322,6 +332,9 @@ class _MetaData:
 
         meta["access"] = self.meta_access
         meta["masterdata"] = self.meta_masterdata
+
+        if self.dataio.fmu_context == "preprocessed":
+            meta["_preprocessed"] = self.meta_xpreprocessed
 
         if skip_null:
             meta = drop_nones(meta)

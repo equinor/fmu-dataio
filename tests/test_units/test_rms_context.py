@@ -92,6 +92,13 @@ def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
         (edata._rootpath / "share/results/maps/topvolantis.gri").resolve()
     )
 
+    meta = edata.generate_metadata(
+        regsurf,
+        name="TopVolantis",
+    )
+    assert meta["data"]["name"] == "VOLANTIS GP. Top"  # strat name from SMDA
+    assert "TopVolantis" in meta["data"]["alias"]
+
 
 @inside_rms
 def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
