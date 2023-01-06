@@ -557,6 +557,12 @@
                                 "amplitude_timeshifted"
                             ]
                         },
+                        "calculation": {
+                            "type": "string",
+                            "examples": [
+                                "mean"
+                            ]
+                        },
                         "zrange": {
                             "type": "number",
                             "examples": [

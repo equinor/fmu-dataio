@@ -129,7 +129,8 @@ def test_content_valid_dict(regsurf, globalconfig2):
         name="TopVolantis",
         content={
             "seismic": {
-                "attribute": "myattribute",
+                "attribute": "amplitude",
+                "calculation": "mean",
                 "zrange": 12.0,
                 "stacking_offset": "0-15",
             }
@@ -138,7 +139,8 @@ def test_content_valid_dict(regsurf, globalconfig2):
     mymeta = eobj.generate_metadata(regsurf)
     assert mymeta["data"]["content"] == "seismic"
     assert mymeta["data"]["seismic"] == {
-        "attribute": "myattribute",
+        "attribute": "amplitude",
+        "calculation": "mean",
         "zrange": 12.0,
         "stacking_offset": "0-15",
     }
