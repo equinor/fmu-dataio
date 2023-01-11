@@ -73,6 +73,7 @@ data: # The data block describes the actual data (e.g. surface). Only present in
 
   seismic:
     attribute: amplitude_timeshifted
+    calculation: mean
     zrange: 12.0
     filter_size: 1.0
     scaling_factor: 1.0
@@ -189,4 +190,3 @@ masterdata:
     stratigraphic_column:
       identifier: DROGON_2020
       uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
-

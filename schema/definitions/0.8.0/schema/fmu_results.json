@@ -81,6 +81,7 @@
             "title": "FMU time object",
             "description": "List of time stamps referring to simulated time",
             "type": [
+                "object",
                 "array",
                 "null"
             ],
@@ -554,6 +555,12 @@
                             "type": "string",
                             "examples": [
                                 "amplitude_timeshifted"
+                            ]
+                        },
+                        "calculation": {
+                            "type": "string",
+                            "examples": [
+                                "mean"
                             ]
                         },
                         "zrange": {
