@@ -94,7 +94,7 @@ import numpy as np
 import pandas as pd  # type: ignore
 import xtgeo  # type: ignore
 
-from ._definitions import _ValidFormats
+from ._definitions import _ValidFormats, TABLE_CONTENTS
 from ._utils import generate_description, parse_timedata
 
 try:
@@ -284,6 +284,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_dataframe()
+            self._check_index()
 
         elif HAS_PYARROW and isinstance(self.obj, pa.Table):
             result["table_index"] = self._derive_index()
@@ -296,6 +297,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
+            self._check_index()
 
         else:
             raise NotImplementedError(
@@ -480,45 +482,41 @@ class _ObjectDataProvider:
 
         return specs, bbox
 
-    def _derive_index(self):
-        """Derive table index"""
+    def _get_columns(self):
+        """Get the columns from table"""
         try:
             columns = list(self.obj.columns)
         except AttributeError:
             columns = self.obj.column_names
+        logger.debug("Available columns in table %s ", columns)
+        return columns
 
+    def _derive_index(self):
+        """Derive table index"""
+        columns = self._get_columns()
         if self.dataio.table_index is None:
             logger.debug("Finding index to include")
             index = []
-
-            logger.debug("Available columns in table %s ", columns)
-            # Summary data
-            if "DATE" in columns:
-
-                index.append("DATE")
-
-            # Inplace volumes
-            inplacers = ["ZONE", "REGION", "FACIES", "LICENCE"]
-
-            for inplace_col in inplacers:
-                if inplace_col in columns:
-                    index.append(inplace_col)
-
-            # RFT
-            rft_cols = ["measured_depth", "well", "time"]
-            for rft_col in rft_cols:
-                if rft_col in columns:
-                    index.append(rft_col)
+            for table_content in TABLE_CONTENTS:
+                for valid_col in TABLE_CONTENTS[table_content]:
+                    if valid_col in columns:
+                        index.append(valid_col)
 
             logger.debug(f"Proudly presenting the index: {index}")
-        else:
-            check = [index for index in self.dataio.table_index if index not in columns]
-            if len(check) > 0:
-                raise KeyError(
-                    f"These names from table index: {check} are not in table"
-                )
-            index = self.dataio.table_index
         return index
+
+    def _check_index(self):
+        """Check the table index
+
+        Raises:
+            KeyError: if index contains names that are not in table
+        """
+        columns = self._get_columns()
+        # Using generator, this is lazy
+        unwanteds = (item for item in self.dataio.table_index if item not in columns)
+        for unwanted in unwanteds:
+
+            raise KeyError(f"{unwanted} is not in table")
 
     def _derive_timedata(self):
         """Format input timedata to metadata."""
@@ -528,7 +526,7 @@ class _ObjectDataProvider:
             return {}
 
         if self.dataio.legacy_time_format:
-            timedata =  self._derive_timedata_legacy()
+            timedata = self._derive_timedata_legacy()
         else:
             timedata = self._derive_timedata_newformat()
         return timedata
@@ -673,7 +671,7 @@ class _ObjectDataProvider:
         meta["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
-        meta["table_index"] = objres["table_index"] #  dbs: Why do we need this?
+        meta["table_index"] = objres["table_index"]  #  dbs: Why do we need this?
         meta["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:

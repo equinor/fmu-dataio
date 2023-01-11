@@ -60,6 +60,12 @@ ALLOWED_CONTENTS = {
     "timeseries": None,
 }
 
+TABLE_CONTENTS = {
+    "inplace_volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
+    "timeseries": ["DATE"],  # summary
+    "rft": ["measured_depth", "well", "time"],
+}
+
 DEPRECATED_CONTENTS = {
     "seismic": {
         "offset": {
@@ -75,9 +81,7 @@ CONTENTS_REQUIRED = {
     "field_outline": {"contact": False},
 }
 # Defined subkeys required for specific classes
-CLASS_DATA_REQUIRED = {
-    "table": "table_index"
-}
+CLASS_DATA_REQUIRED = {"table": "table_index"}
 
 # This setting sets the FMU context for the output. If detected as a non-fmu run,
 # the code will internally set actual_context=None
