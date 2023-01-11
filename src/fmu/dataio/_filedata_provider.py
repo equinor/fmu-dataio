@@ -189,6 +189,10 @@ class _FileDataProvider:
 
         if mode == "preprocessed":
             outroot = outroot / "preprocessed"
+            if self.dataio.forcefolder and self.dataio.forcefolder.startswith("/"):
+                raise ValueError(
+                    "Cannot use absolute path to 'forcefolder' with preprocessed data"
+                )
 
         if mode != "preprocessed":
             if self.dataio.is_observation:

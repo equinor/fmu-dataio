@@ -40,7 +40,8 @@ ALLOWED_CONTENTS = {
     "thickness": None,
     "property": {"attribute": str, "is_discrete": bool},
     "seismic": {
-        "attribute": str,
+        "attribute": str,  # e.g. amplitude
+        "calculation": str,  # e.g. mean
         "zrange": float,
         "filter_size": float,
         "scaling_factor": float,

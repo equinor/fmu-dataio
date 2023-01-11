@@ -20,7 +20,7 @@ from ._definitions import (
     ALLOWED_FMU_CONTEXTS,
     CONTENTS_REQUIRED,
     DEPRECATED_CONTENTS,
-    CLASS_DATA_REQUIRED
+    CLASS_DATA_REQUIRED,
 )
 from ._utils import (
     create_symlink,
@@ -56,8 +56,6 @@ class ValidationError(ValueError, KeyError):
 
 def _validate_variable(key, value, legals) -> bool:
     """Use data from __annotions__ to validate that overriden var. is of legal type."""
-    print(f"key: {key}")
-    print(f"value: {value}")
     if key not in legals:
         logger.warning("Unsupported key, raise an error")
         raise ValidationError(f"The input key '{key}' is not supported")
@@ -67,13 +65,11 @@ def _validate_variable(key, value, legals) -> bool:
     else:
         valid_type = legals[key]
 
-    print(valid_type)
     try:
         validcheck = valid_type.__args__
     except AttributeError:
         validcheck = valid_type
 
-    print(validcheck)
     if "typing." not in str(validcheck):
         if not isinstance(value, validcheck):
             logger.warning("Wrong type of value, raise an error")
@@ -362,8 +358,8 @@ class ExportData:
             "preprocessed" folder instead, and metadata will be partially re-used in
             an ERT model run. If a non-FMU run is detected (e.g. you run from project),
             fmu-dataio will detect that and set actual context to None as fall-back
-            (unless preprocessed is specified). If value is "preprosessed", see also
-            ``resuse_metadata`` key.
+            (unless preprocessed is specified). If value is "preprocessed", see also
+            ``reuse_metadata`` key.
 
         description: A multiline description of the data either as a string or a list
             of strings.
@@ -408,7 +404,7 @@ class ExportData:
 
         reuse_metadata_rule: This input is None or a string describing rule for reusing
             metadata. Default is None, but if the input is a file string or object with
-            already valid metdata, then it is assumed to be "preprocessed", which
+            already valid metadata, then it is assumed to be "preprocessed", which
             merges the metadata after predefined rules.
 
         runpath: TODO! Optional and deprecated. The relative location of the current run
@@ -723,7 +719,11 @@ class ExportData:
         logger.info("rootpath:   %s", str(self._rootpath))
 
     def _check_obj_if_file(self, obj: Any) -> Any:
-        """When obj is file-like, it must be checked + assume preprocessed."""
+        """When obj is file-like, it must be checked + assume preprocessed.
+
+        In addition, if preprocessed, derive the name, tagname, subfolder if present and
+        those are not set already.
+        """
 
         if isinstance(obj, (str, Path)):
             if isinstance(obj, str):
@@ -732,6 +732,23 @@ class ExportData:
                 raise ValidationError(f"The file {obj} does not exist.")
             if not self.reuse_metadata_rule:
                 self.reuse_metadata_rule = "preprocessed"
+
+            currentmeta = read_metadata(obj)
+            if "_preprocessed" not in currentmeta:
+                raise ValidationError(
+                    "The special entry for preprocessed data <_preprocessed> is"
+                    "missing in the metadata. A possible solution is to rerun the"
+                    "preprocessed export."
+                )
+
+            if not self.name and currentmeta["_preprocessed"].get("name", ""):
+                self.name = currentmeta["_preprocessed"]["name"]
+
+            if not self.tagname and currentmeta["_preprocessed"].get("tagname", ""):
+                self.tagname = currentmeta["_preprocessed"]["tagname"]
+
+            if not self.subfolder and currentmeta["_preprocessed"].get("subfolder", ""):
+                self.subfolder = currentmeta["_preprocessed"]["subfolder"]
 
         return obj
 

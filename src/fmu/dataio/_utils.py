@@ -367,7 +367,7 @@ def some_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
         try:
             config = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
-            print(exc)
+            logger.info(exc)
             raise
 
     return config
@@ -450,15 +450,16 @@ def glue_metadata_preprocessed(oldmeta, newmeta):
     """Glue (combine) to metadata dicts according to rule 'preprocessed'."""
 
     meta = oldmeta.copy()
+
+    if "_preprocessed" in meta:
+        del meta["_preprocessed"]
+
     meta["fmu"] = newmeta["fmu"]
     meta["file"] = newmeta["file"]
     meta["access"] = newmeta["access"]
 
     newmeta["tracklog"][-1]["event"] = "merged"
     meta["tracklog"].extend(newmeta["tracklog"])
-
-    # the only field in 'data' that are allowed to update is name:
-    meta["data"]["name"] = newmeta["data"]["name"]
 
     return meta
 
