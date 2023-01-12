@@ -166,7 +166,7 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     else:
         raise ValidationError("The 'content' must be string or dict")
 
-    if usecontent not in ALLOWED_CONTENTS.keys():
+    if usecontent not in ALLOWED_CONTENTS:
         raise ValidationError(
             f"Invalid content: <{usecontent}>! "
             f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
@@ -847,6 +847,7 @@ class ExportData:
             String: full path to exported item.
         """
         self.table_index = kwargs.get("table_index", self.table_index)
+        print(self.table_index)
         self.generate_metadata(obj, compute_md5=False, **kwargs)
         metadata = self._metadata
 

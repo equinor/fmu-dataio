@@ -284,7 +284,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_dataframe()
-            self._check_index()
+            self._check_index(result["table_index"])
 
         elif HAS_PYARROW and isinstance(self.obj, pa.Table):
             result["table_index"] = self._derive_index()
@@ -297,7 +297,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
-            self._check_index()
+            self._check_index(result["table_index"])
 
         else:
             raise NotImplementedError(
@@ -494,26 +494,31 @@ class _ObjectDataProvider:
     def _derive_index(self):
         """Derive table index"""
         columns = self._get_columns()
-        if self.dataio.table_index is None:
+        index = []
+        preset_index = self.dataio.table_index
+        if  preset_index is None:
             logger.debug("Finding index to include")
-            index = []
             for table_content in TABLE_CONTENTS:
                 for valid_col in TABLE_CONTENTS[table_content]:
                     if valid_col in columns:
                         index.append(valid_col)
 
             logger.debug(f"Proudly presenting the index: {index}")
+        else:
+            index = preset_index
         return index
 
-    def _check_index(self):
+    def _check_index(self, index):
         """Check the table index
+        ARGS:
+            index (list): list of column names
 
         Raises:
-            KeyError: if index contains names that are not in table
+            KeyError: if index contains names that are not in self
         """
         columns = self._get_columns()
         # Using generator, this is lazy
-        unwanteds = (item for item in self.dataio.table_index if item not in columns)
+        unwanteds = (item for item in index if item not in self._get_columns())
         for unwanted in unwanteds:
 
             raise KeyError(f"{unwanted} is not in table")
