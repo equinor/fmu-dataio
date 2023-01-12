@@ -492,18 +492,20 @@ class _ObjectDataProvider:
         return columns
 
     def _derive_index(self):
+        # This could in the future also return context
         """Derive table index"""
         columns = self._get_columns()
         index = []
         preset_index = self.dataio.table_index
         if  preset_index is None:
             logger.debug("Finding index to include")
-            for table_content in TABLE_CONTENTS:
-                for valid_col in TABLE_CONTENTS[table_content]:
+            for context, standard_cols in TABLE_CONTENTS.items():
+                for valid_col in standard_cols:
                     if valid_col in columns:
                         index.append(valid_col)
-
-            logger.debug(f"Proudly presenting the index: {index}")
+                if index:
+                    logger.info("Context is %s ", context)
+            logger.debug("Proudly presenting the index: %s", index)
         else:
             index = preset_index
         return index
@@ -516,7 +518,6 @@ class _ObjectDataProvider:
         Raises:
             KeyError: if index contains names that are not in self
         """
-        columns = self._get_columns()
         # Using generator, this is lazy
         unwanteds = (item for item in index if item not in self._get_columns())
         for unwanted in unwanteds:
@@ -676,7 +677,7 @@ class _ObjectDataProvider:
         meta["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
-        meta["table_index"] = objres["table_index"]  #  dbs: Why do we need this?
+        meta["table_index"] = objres["table_index"]
         meta["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:
