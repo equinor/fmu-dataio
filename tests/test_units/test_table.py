@@ -2,7 +2,6 @@
 """
 from pathlib import Path
 import pandas as pd
-import shutil
 import pytest
 from fmu.dataio import ExportData
 from fmu.config.utilities import yaml_load
@@ -53,10 +52,15 @@ def assert_works(file_path, answer):
         answer (list): expected answer
     """
     file_path = Path(file_path)
-    meta = yaml_load(file_path.parent / f".{file_path.name}.yml")
+    meta_path = file_path.parent / f".{file_path.name}.yml"
+    meta = yaml_load(meta_path)
+    file_path.unlink()
+    meta_path.unlink()
     index = meta["data"]["table_index"]
+    type_failure = f"{index} should be list, but is {type(index)}"
     fail_string = f"table index should be {answer}, but is {index}"
-    assert meta["data"]["table_index"] == answer, fail_string
+    assert isinstance(index, list), type_failure
+    assert index == answer, fail_string
 
 
 def test_inplace_volume_index(vol_data, globalconfig2):
@@ -122,3 +126,4 @@ def test_set_table_index_not_in_table(vol_data, globalconfig2):
     exd = ExportData(config=globalconfig2)
     with pytest.raises(KeyError) as k_err:
         exd.export(vol_data, name="baretull", table_index=index)
+    assert k_err.value.args[0] == "banana is not in table"

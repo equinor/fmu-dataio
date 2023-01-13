@@ -755,17 +755,21 @@ class ExportData:
     def _check_class_data_required(self):
         """Checking if data section has any required fields"""
         logger.debug("Meta at required check %s", self._metadata)
-        class_type = self._metadata["class"]
-        ok = True
-        try:
-            required_data = CLASS_DATA_REQUIRED[class_type]
-            logger.debug("Found requirement: %s", required_data)
-            if not required_data in self._metadata["data"]:
-                ok = False
-        except KeyError:
-            logger.info("No specific requirements for class %s", class_type)
-
-        return ok
+        given_class = self._metadata["class"]
+        for class_type, required_data in CLASS_DATA_REQUIRED.items():
+            requirements_ok = True
+            if given_class == class_type:
+                logger.debug("Found requirement: %s", required_data)
+                if not required_data in self._metadata["data"]:
+                    requirements_ok = False
+            elif required_data in self._metadata["data"]:
+                del self._metadata["data"][required_data]
+                logger.debug(
+                    "deleting: %s, doesn't belong in class %s",
+                    required_data,
+                    given_class,
+                )
+        return requirements_ok
 
     # ==================================================================================
     # Public methods:
