@@ -677,7 +677,7 @@ class _ObjectDataProvider:
         meta["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
-        meta["table_index"] = objres["table_index"]
+        meta["table_index"] = objres.get("table_index")
         meta["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:
