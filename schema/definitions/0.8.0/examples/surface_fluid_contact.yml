@@ -35,6 +35,9 @@ fmu:
   user:
     id: jriv
 
+  context:
+    stage: realization
+
   case:
     name: MyCaseName
     uuid: 8bb56d60-8758-481a-89a4-6bac8561d38e # (pseudo-)random valid uuid4
