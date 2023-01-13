@@ -4,7 +4,6 @@ from pathlib import Path
 import pandas as pd
 import shutil
 import pytest
-import logging
 from fmu.dataio import ExportData
 from fmu.config.utilities import yaml_load
 
@@ -17,9 +16,6 @@ from fmu.config.utilities import yaml_load
 # """
 # config_path = "tests/data/drogon/global_config2/global_variables.yml"
 # return yaml_load(config_path)
-
-
-logging.basicConfig(level="ERROR")
 
 
 @pytest.fixture(name="sum_data")
