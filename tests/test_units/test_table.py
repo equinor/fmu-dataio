@@ -10,16 +10,18 @@ from fmu.config.utilities import yaml_load
 
 # @pytest.fixture(name="globalconfig2")
 # def fixture_config():
-    # """Gets global variables dict
+# """Gets global variables dict
 
-    # Returns:
-        # dict: the global var dict
-    # """
-    # config_path = "tests/data/drogon/global_config2/global_variables.yml"
-    # return yaml_load(config_path)
+# Returns:
+# dict: the global var dict
+# """
+# config_path = "tests/data/drogon/global_config2/global_variables.yml"
+# return yaml_load(config_path)
 
 
 logging.basicConfig(level="ERROR")
+
+
 @pytest.fixture(name="sum_data")
 def fixture_sum_data():
     """Return summary mock data
@@ -56,7 +58,6 @@ def assert_works(file_path, answer):
     """
     file_path = Path(file_path)
     meta = yaml_load(file_path.parent / f".{file_path.name}.yml")
-    print(meta["data"])
     index = meta["data"]["table_index"]
     fail_string = f"table index should be {answer}, but is {index}"
     assert meta["data"]["table_index"] == answer, fail_string
@@ -69,7 +70,6 @@ def test_inplace_volume_index(vol_data, globalconfig2):
         vol_data (pd.DataFrame): a volumetriclike dataset
         globalconfig2 (dict): one global variables dict
     """
-    print("Gunning on!")
     answer = ["ZONE", "LICENCE"]
     exd = ExportData(config=globalconfig2)
     path = exd.export(vol_data, name="baretull")
