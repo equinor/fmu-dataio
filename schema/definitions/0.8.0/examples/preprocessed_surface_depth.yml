@@ -48,6 +48,9 @@ fmu: # the fmu-block contains information directly related to the FMU context
       - yet other detailed description
       - optional
 
+  context:
+    stage: case
+
 file:
   relative_path: share/results/maps/volantis_gp_base--amplitude--mean.gri # case-relative
   absolute_path: /some/absolute/path/share/results/maps/volantis_gp_base--amplitude--mean.gri

@@ -58,6 +58,9 @@ fmu: # the fmu-block contains information directly related to the FMU context
       FAULT_SEAL_SCALING: 0.1
       FWL_CENTRAL: 1677
 
+  context:
+    stage: realization
+
 file:
   relative_path: realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri # case-relative
   absolute_path: /some/absolute/path/realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri

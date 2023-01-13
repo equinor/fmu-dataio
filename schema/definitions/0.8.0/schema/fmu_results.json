@@ -31,6 +31,7 @@
         "fmu.realization.uuid",
         "fmu.aggregation.operation",
         "fmu.aggregation.realization_ids",
+        "fmu.context.stage",
         "file.relative_path",
         "file.checksum_md5",
         "file.size_bytes"
@@ -1051,6 +1052,21 @@
                         "$comment": "A unique uuid is currently used, and included as example but any ID should be sufficient",
                         "examples": [
                             "15ce3b84-766f-4c93-9050-b154861f9100"
+                        ]
+                    }
+                }
+            },
+            "context": {
+                "description": "The internal FMU context in which this data object was produced",
+                "type": "object",
+                "required": [
+                    "stage"
+                ],
+                "properties": {
+                    "stage": {
+                        "type": "string",
+                        "examples": [
+                            "case", "iteration", "realization"
                         ]
                     }
                 }
