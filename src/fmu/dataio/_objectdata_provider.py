@@ -144,7 +144,6 @@ class _ObjectDataProvider:
     time1: str = field(default="", init=False)
 
     def __post_init__(self):
-
         logger.info("Ran __post_init__")
 
     def _derive_name_stratigraphy(self) -> dict:
@@ -492,12 +491,12 @@ class _ObjectDataProvider:
         return columns
 
     def _derive_index(self):
-        # This could in the future also return context
         """Derive table index"""
+        # This could in the future also return context
         columns = self._get_columns()
         index = []
         preset_index = self.dataio.table_index
-        if  preset_index is None:
+        if preset_index is None:
             logger.debug("Finding index to include")
             for context, standard_cols in TABLE_CONTENTS.items():
                 for valid_col in standard_cols:
@@ -521,7 +520,6 @@ class _ObjectDataProvider:
         # Using generator, this is lazy
         unwanteds = (item for item in index if item not in self._get_columns())
         for unwanted in unwanteds:
-
             raise KeyError(f"{unwanted} is not in table")
 
     def _derive_timedata(self):
@@ -552,7 +550,6 @@ class _ObjectDataProvider:
                 xfield["label"] = elem[1]
             tresult["time"].append(xfield)
         if len(tdata) == 2:
-
             elem1 = tdata[0]
             xfield1 = {"value": dt.strptime(str(elem1[0]), "%Y%m%d").isoformat()}
             if len(elem1) == 2:
