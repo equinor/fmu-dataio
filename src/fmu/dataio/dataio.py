@@ -760,7 +760,7 @@ class ExportData:
             requirements_ok = True
             if given_class == class_type:
                 logger.debug("Found requirement: %s", required_data)
-                if not required_data in self._metadata["data"]:
+                if required_data not in self._metadata["data"]:
                     requirements_ok = False
             elif required_data in self._metadata["data"]:
                 del self._metadata["data"][required_data]
