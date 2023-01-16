@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 1.4.4.dev1+g8dbe875 documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 1.5.1.dev1+g4d1f190 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -363,6 +363,7 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">        </span><span class="s2">&quot;fmu.realization.uuid&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="s2">&quot;fmu.aggregation.operation&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="s2">&quot;fmu.aggregation.realization_ids&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;fmu.context.stage&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="s2">&quot;file.relative_path&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="s2">&quot;file.checksum_md5&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="s2">&quot;file.size_bytes&quot;</span>
@@ -1386,6 +1387,21 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                        </span><span class="p">]</span>
 <span class="w">                    </span><span class="p">}</span>
 <span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="s2">&quot;context&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;The internal FMU context in which this data object was produced&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">&quot;stage&quot;</span>
+<span class="w">                </span><span class="p">],</span>
+<span class="w">                </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="s2">&quot;stage&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                            </span><span class="s2">&quot;case&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;iteration&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;realization&quot;</span>
+<span class="w">                        </span><span class="p">]</span>
+<span class="w">                    </span><span class="p">}</span>
+<span class="w">                </span><span class="p">}</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="s2">&quot;file&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
@@ -2082,6 +2098,9 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">      </span><span class="nt">FAULT_SEAL_SCALING</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
 <span class="w">      </span><span class="nt">FWL_CENTRAL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1677</span>
 
+<span class="w">  </span><span class="nt">context</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">stage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">realization</span>
+
 <span class="nt">file</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">relative_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri</span><span class="w"> </span><span class="c1"># case-relative</span>
 <span class="w">  </span><span class="nt">absolute_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/some/absolute/path/realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri</span>
@@ -2248,7 +2267,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.4.4.dev1+g8dbe875).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.5.1.dev1+g4d1f190).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
