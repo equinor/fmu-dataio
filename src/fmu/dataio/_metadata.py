@@ -309,9 +309,11 @@ class _MetaData:
         """Main function to generate the full metadata"""
 
         # populate order matters, in particular objectdata provides input to class/file
-        self._populate_meta_masterdata()
+        if self.dataio._config_is_valid:
+            self._populate_meta_masterdata()
+            self._populate_meta_access()
+
         self._populate_meta_tracklog()
-        self._populate_meta_access()
         self._populate_meta_objectdata()
         self._populate_meta_class()
         self._populate_meta_fmu()

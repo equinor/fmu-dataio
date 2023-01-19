@@ -56,6 +56,27 @@ def test_missing_or_wrong_config_exports_with_warning(regsurf):
         read_metadata(out)
 
 
+def test_config_miss_required_fields(globalconfig1, regsurf):
+    """Global config exists but missing critical data; export file but skip metadata."""
+
+    cfg = globalconfig1.copy()
+
+    del cfg["access"]
+    del cfg["masterdata"]
+    del cfg["model"]
+
+    with pytest.warns(PendingDeprecationWarning, match="One or more keys required"):
+        edata = ExportData(config=cfg)
+
+    with pytest.warns(UserWarning, match="without metadata"):
+        out = edata.export(regsurf, name="mysurface")
+
+    assert "mysurface" in out
+
+    with pytest.raises(OSError, match="Cannot find requested metafile"):
+        read_metadata(out)
+
+
 def test_update_check_settings_shall_fail(globalconfig1):
 
     # pylint: disable=unexpected-keyword-arg
