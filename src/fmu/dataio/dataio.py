@@ -94,10 +94,11 @@ def _check_global_config(
 
     if not globalconfig and not strict:
         logger.info(
-            "Empty global config, expect input from environment_variable insteac"
+            "Empty global config, expect input from environment_variable instead"
         )
         return False
 
+    # strict is True:
     config_required_keys = ["access", "masterdata", "model"]
     missing_keys = []
     for required_key in config_required_keys:
@@ -853,7 +854,7 @@ class ExportData:
             export_metadata_file(metafile, metadata, savefmt=self.meta_format)
             logger.info("Metadata file is: %s", metafile)
         else:
-            warnings.warn("Metadata are invalid and will not be exported!", UserWarning)
+            warnings.warn("Data will be exported, but without metadata.", UserWarning)
 
         # generate symlink if requested
         outfile_target = None
