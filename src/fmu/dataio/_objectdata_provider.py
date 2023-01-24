@@ -94,7 +94,7 @@ import numpy as np
 import pandas as pd  # type: ignore
 import xtgeo  # type: ignore
 
-from ._definitions import _ValidFormats, TABLE_CONTENTS
+from ._definitions import _ValidFormats, STANDARD_TABLE_COLUMNS
 from ._utils import generate_description, parse_timedata
 
 try:
@@ -483,9 +483,11 @@ class _ObjectDataProvider:
 
     def _get_columns(self):
         """Get the columns from table"""
-        try:
+        if isinstance(self.obj, pd.DataFrame):
+            logger.debug("pandas")
             columns = list(self.obj.columns)
-        except AttributeError:
+        else:
+            logger.debug("arrow")
             columns = self.obj.column_names
         logger.debug("Available columns in table %s ", columns)
         return columns
@@ -498,7 +500,7 @@ class _ObjectDataProvider:
         preset_index = self.dataio.table_index
         if preset_index is None:
             logger.debug("Finding index to include")
-            for context, standard_cols in TABLE_CONTENTS.items():
+            for context, standard_cols in STANDARD_TABLE_COLUMNS.items():
                 for valid_col in standard_cols:
                     if valid_col in columns:
                         index.append(valid_col)

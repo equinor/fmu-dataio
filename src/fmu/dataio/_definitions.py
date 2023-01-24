@@ -60,7 +60,7 @@ ALLOWED_CONTENTS = {
     "timeseries": None,
 }
 
-TABLE_CONTENTS = {
+STANDARD_TABLE_COLUMNS = {
     "inplace_volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
     "timeseries": ["DATE"],  # summary
     "rft": ["measured_depth", "well", "time"],

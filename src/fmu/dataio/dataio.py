@@ -757,11 +757,12 @@ class ExportData:
         logger.debug("Meta at required check %s", self._metadata)
         given_class = self._metadata["class"]
         for class_type, required_data in CLASS_DATA_REQUIRED.items():
-            requirements_ok = True
+
+            logger.debug("Class %s has requirement: %s", class_type, required_data)
             if given_class == class_type:
-                logger.debug("Found requirement: %s", required_data)
                 if required_data not in self._metadata["data"]:
-                    requirements_ok = False
+                    raise AttributeError("Not all requirement for class met")
+
             elif required_data in self._metadata["data"]:
                 del self._metadata["data"][required_data]
                 logger.debug(
@@ -769,7 +770,6 @@ class ExportData:
                     required_data,
                     given_class,
                 )
-        return requirements_ok
 
     # ==================================================================================
     # Public methods:
@@ -822,8 +822,7 @@ class ExportData:
         self._metadata = metaobj.generate_export_metadata()
 
         self._rootpath = Path(metaobj.rootpath)
-        if not self._check_class_data_required():
-            raise AttributeError("Not all requirement for class met")
+        self._check_class_data_required()
 
         logger.info("The metadata are now ready!")
 
