@@ -1,11 +1,7 @@
 """Test the schema"""
 import logging
-from pathlib import Path, PurePath
-import datetime
 from copy import deepcopy
 
-import yaml
-import json
 import jsonschema
 
 import pytest
@@ -14,8 +10,6 @@ import pytest
 # pylint: disable=no-member
 
 logger = logging.getLogger(__name__)
-
-ROOTPWD = Path(".").absolute()
 
 
 def test_schema_basic_json_syntax(schema_080):
