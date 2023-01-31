@@ -455,7 +455,7 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
 
 def _parse_json(schema_path):
     """Parse the schema, return JSON"""
-    with open(schema_path) as stream:
+    with open(schema_path, "r", encoding="utf-8") as stream:
         data = json.load(stream)
 
     return data
@@ -475,12 +475,10 @@ def _isoformat_all_datetimes(indate):
     """Recursive function to isoformat all datetimes in a dictionary"""
 
     if isinstance(indate, list):
-        indate = [_isoformat_all_datetimes(i) for i in indate]
-        return indate
+        return [_isoformat_all_datetimes(i) for i in indate]
 
     if isinstance(indate, dict):
-        for key in indate:
-            indate[key] = _isoformat_all_datetimes(indate[key])
+        return {key: _isoformat_all_datetimes(indate[key]) for key in indate.keys()}
 
     if isinstance(indate, (datetime.datetime, datetime.date)):
         return indate.isoformat()
