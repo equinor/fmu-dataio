@@ -463,7 +463,7 @@ def _parse_json(schema_path):
 
 def _parse_yaml(yaml_path):
     """Parse the filename as json, return data"""
-    with open(yaml_path, "r") as stream:
+    with open(yaml_path, "r", encoding="utf-8") as stream:
         data = yaml.safe_load(stream)
 
     data = _isoformat_all_datetimes(data)
@@ -471,21 +471,18 @@ def _parse_yaml(yaml_path):
     return data
 
 
-def _isoformat_all_datetimes(data):
+def _isoformat_all_datetimes(indate):
     """Recursive function to isoformat all datetimes in a dictionary"""
 
-    if isinstance(data, list):
-        data = [_isoformat_all_datetimes(i) for i in data]
-        return data
+    if isinstance(indate, list):
+        indate = [_isoformat_all_datetimes(i) for i in indate]
+        return indate
 
-    if isinstance(data, dict):
-        for key in data:
-            data[key] = _isoformat_all_datetimes(data[key])
+    if isinstance(indate, dict):
+        for key in indate:
+            indate[key] = _isoformat_all_datetimes(indate[key])
 
-    if isinstance(data, datetime.datetime):
-        return data.isoformat()
+    if isinstance(indate, (datetime.datetime, datetime.date)):
+        return indate.isoformat()
 
-    if isinstance(data, datetime.date):
-        return data.isoformat()
-
-    return data
+    return indate
