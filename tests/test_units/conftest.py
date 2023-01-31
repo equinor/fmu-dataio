@@ -26,6 +26,7 @@ from fmu.dataio.dataio import ExportData, read_metadata
 
 logger = logging.getLogger(__name__)
 
+logger.setLevel("ERROR")
 ROOTPWD = Path(".").absolute()
 RUN1 = "tests/data/drogon/ertrun1/realization-0/iter-0"
 RUN2 = "tests/data/drogon/ertrun1"
@@ -414,3 +415,54 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     os.chdir(origfolder)
 
     return (aggregated["mean"], metas)
+
+
+@pytest.fixture(name="edataobj3")
+def fixture_edataobj1(globalconfig1):
+    """Combined globalconfig and settings to instance, for internal testing"""
+    # logger.info("Establish edataobj1")
+
+    eobj = ExportData(
+        config=globalconfig1, name="summary", content="timeseries", tagname=""
+    )
+
+    return eobj
+
+
+@pytest.fixture(name="mock_summary")
+def fixture_summary():
+    """Return summary mock data
+
+    Returns:
+        pd.DataFram: dummy data
+    """
+    return pd.DataFrame({"alf": ["A", "B", "C"], "DATE": [1, 2, 3]})
+
+
+@pytest.fixture(name="drogon_summary")
+def fixture_drogon_sum():
+    """Return pyarrow table
+
+    Returns:
+        pa.Table: table with summary data
+    """
+    path = ROOTPWD / "tests/data/drogon/tabular/summary.arrow"
+    table = pa.feather.read_table(path)
+    return table
+
+
+@pytest.fixture(name="mock_volumes")
+def fixture_mock_volumes():
+    """Return volume mock data
+
+    Returns:
+        pd.DataFrame: dummy data
+    """
+    return pd.DataFrame(
+        {
+            "ZONE": ["A", "B", "C"],
+            "LICENCE": ["L1", "L2", "L2"],
+            "nums": [1, 2, 3],
+            "OTHER": ["c", "d", "f"],
+        }
+    )
