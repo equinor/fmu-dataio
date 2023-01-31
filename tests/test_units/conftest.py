@@ -10,10 +10,8 @@ import pandas as pd
 import pytest
 import xtgeo
 import yaml
-from fmu.config import utilities as ut
 from termcolor import cprint
 
-import fmu.dataio as dio
 
 try:
     import pyarrow as pa
@@ -22,6 +20,8 @@ except ImportError:
 else:
     HAS_PYARROW = True
 
+import fmu.dataio as dio
+from fmu.config import utilities as ut
 from fmu.dataio.dataio import ExportData, read_metadata
 
 logger = logging.getLogger(__name__)
@@ -234,7 +234,7 @@ def fixture_globalconfig_asfile() -> str:
 
 
 @pytest.fixture(name="edataobj1", scope="module")
-def fixture_edataobj1(globalconfig1):
+def fixture_edataobj3(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
     logger.info("Establish edataobj1")
 
@@ -260,7 +260,9 @@ def fixture_globalconfig2() -> dict:
     """More advanced global config from file state variable in ExportData class."""
     globvar = {}
     with open(
-        ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml", "r"
+        ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml",
+        "r",
+        encoding="utf-8",
     ) as stream:
         globvar = yaml.safe_load(stream)
 
@@ -369,12 +371,12 @@ def fixture_dataframe():
 @pytest.fixture(name="arrowtable", scope="module", autouse=True)
 def fixture_arrowtable():
     """Create an arrow table instance."""
+    table = None
     if HAS_PYARROW:
         logger.info("Ran %s", inspect.currentframe().f_code.co_name)
         dfr = pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
-        return pa.Table.from_pandas(dfr)
-    else:
-        return None
+        table = pa.Table.from_pandas(dfr)
+    return table
 
 
 @pytest.fixture(name="aggr_surfs_mean", scope="module", autouse=True)
