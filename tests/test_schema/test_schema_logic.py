@@ -240,3 +240,42 @@ def test_schema_080_masterdata_smda(schema_080, metadata_examples):
 
         with pytest.raises(jsonschema.exceptions.ValidationError):
             jsonschema.validate(instance=_example, schema=schema_080)
+
+
+def test_schema_080_data_time(schema_080, metadata_examples):
+    """Test schema logic for data.time."""
+
+    # fetch one example that contains the data.time element
+    example = metadata_examples["surface_seismic_amplitude.yml"]
+    assert "time" in example["data"]
+
+    # assert validation with no changes
+    jsonschema.validate(instance=example, schema=schema_080)
+
+    # valid when data.time is missing
+    _example = deepcopy(example)
+    del _example["data"]["time"]
+    jsonschema.validate(instance=_example, schema=schema_080)
+
+    # valid when only t0
+    _example = deepcopy(example)
+    del _example["data"]["time"]["t1"]
+    assert "t0" in _example["data"]["time"]  # test assumption
+    jsonschema.validate(instance=_example, schema=schema_080)
+
+    # valid without labels
+    _example = deepcopy(example)
+    del _example["data"]["time"]["t0"]["label"]
+    jsonschema.validate(instance=_example, schema=schema_080)
+
+    # NOT valid when other types
+    for testvalue in [
+        [{"t0": "2020-10-28T14:28:02", "label": "mylabel"}],
+        "2020-10-28T14:28:02",
+        123,
+        123.4,
+    ]:
+        _example = deepcopy(example)
+        _example["data"]["time"] = testvalue
+        with pytest.raises(jsonschema.exceptions.ValidationError):
+            jsonschema.validate(instance=_example, schema=schema_080)

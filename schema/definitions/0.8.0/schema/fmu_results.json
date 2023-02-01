@@ -80,27 +80,24 @@
         },
         "fmu_time": {
             "title": "FMU time object",
-            "description": "List of time stamps referring to simulated time",
+            "description": "Time stamp for data object.",
             "type": [
                 "object",
-                "array",
                 "null"
             ],
-            "items": {
-                "type": "object",
-                "properties": {
-                    "value": {
-                        "$ref": "#/definitions/generic/datetime"
-                    },
-                    "label": {
-                        "type": "string",
-                        "examples": [
-                            "Label for time stamp"
-                        ]
-                    }
+            "properties": {
+                "value": {
+                    "$ref": "#/definitions/generic/datetime"
+                },
+                "label": {
+                    "type": "string",
+                    "examples": [
+                        "base",
+                        "monitor",
+                        "mylabel"
+                    ]
                 }
-            },
-            "minItems": 1
+            }
         },
         "class": {
             "title": "Metadata class",
@@ -488,7 +485,15 @@
                     }
                 },
                 "time": {
-                    "$ref": "#/definitions/fmu_time"
+                    "type": "object",
+                    "properties": {
+                        "t0": {
+                            "$ref": "#/definitions/fmu_time"
+                        },
+                        "t1": {
+                            "$ref": "#/definitions/fmu_time"
+                        }
+                    }
                 },
                 "is_prediction": {
                     "title": "Is prediction flag",
@@ -1066,7 +1071,9 @@
                     "stage": {
                         "type": "string",
                         "examples": [
-                            "case", "iteration", "realization"
+                            "case",
+                            "iteration",
+                            "realization"
                         ]
                     }
                 }
