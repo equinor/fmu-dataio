@@ -78,7 +78,6 @@ def test_config_miss_required_fields(globalconfig1, regsurf):
 
 
 def test_update_check_settings_shall_fail(globalconfig1):
-
     # pylint: disable=unexpected-keyword-arg
     with pytest.raises(TypeError):
         _ = ExportData(config=globalconfig1, stupid="str")
