@@ -708,7 +708,6 @@ class ExportData:
 
         else:
             if self._inside_rms or INSIDE_RMS or "RUN_DATAIO_EXAMPLES" in os.environ:
-
                 self._rootpath = (self._pwd / "../../.").absolute().resolve()
                 logger.info("Run from inside RMS (or pretend)")
                 self._inside_rms = True
@@ -970,7 +969,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.info("Set rootpath (case): %s", str(self._casepath))
 
     def _check_already_metadata_or_create_folder(self, force=False) -> bool:
-
         if not self._casepath.exists():
             self._casepath.mkdir(parents=True, exist_ok=True)
             logger.info("Created rootpath (case) %s", self._casepath)
@@ -1269,7 +1267,6 @@ class AggregatedData:
     def _generate_aggrd_metadata(
         self, obj: Any, real_ids: List[int], uuids: List[str], compute_md5: bool = True
     ):
-
         logger.info(
             "self.aggregation is %s (%s)",
             self.aggregation_id,

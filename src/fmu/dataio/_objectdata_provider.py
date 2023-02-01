@@ -144,7 +144,6 @@ class _ObjectDataProvider:
     time1: str = field(default="", init=False)
 
     def __post_init__(self):
-
         logger.info("Ran __post_init__")
 
     def _derive_name_stratigraphy(self) -> dict:
@@ -497,7 +496,6 @@ class _ObjectDataProvider:
                 xfield["label"] = elem[1]
             tresult["time"].append(xfield)
         if len(tdata) == 2:
-
             elem1 = tdata[0]
             xfield1 = {"value": dt.strptime(str(elem1[0]), "%Y%m%d").isoformat()}
             if len(elem1) == 2:
