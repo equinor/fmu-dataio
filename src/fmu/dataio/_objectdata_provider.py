@@ -509,6 +509,9 @@ class _ObjectDataProvider:
             logger.debug("Proudly presenting the index: %s", index)
         else:
             index = preset_index
+        if "REAL" in columns:
+            index.append("REAL")
+
         return index
 
     def _check_index(self, index):

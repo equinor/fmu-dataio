@@ -1,7 +1,6 @@
 """Tests for table index
 """
 from pathlib import Path
-import pandas as pd
 import pyarrow as pa
 import pytest
 from fmu.dataio import ExportData
