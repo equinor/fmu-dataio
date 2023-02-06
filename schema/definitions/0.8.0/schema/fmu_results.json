@@ -17,6 +17,7 @@
         "data.vertical_domain",
         "data.grid_model",
         "data.bbox",
+        "data.time",
         "data.is_prediction",
         "data.is_observation",
         "data.seismic.attribute",
