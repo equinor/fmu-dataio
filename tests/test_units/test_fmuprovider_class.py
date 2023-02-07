@@ -73,7 +73,7 @@ def test_fmuprovider_arbitrary_iter_name(edataobj1, fmurun_w_casemetadata_pred):
     assert myfmu.real_name == "realization-0"
     assert myfmu.real_id == 0
     assert myfmu.iter_name == "pred"
-    assert myfmu.iter_id == None
+    assert myfmu.iter_id is None
     assert "fmu_case" in str(myfmu.case_metafile)
     assert (
         myfmu.case_metadata["fmu"]["case"]["uuid"]
