@@ -61,6 +61,26 @@ def test_fmuprovider_ert2_provider_missing_parameter_txt(fmurun, globalconfig1):
     assert myfmu.real_id == 0
 
 
+def test_fmuprovider_arbitrary_iter_name(edataobj1, fmurun_w_casemetadata_pred):
+    """Test that iteration block correctly populated also with arbitrary iteration
+    names."""
+
+    edataobj1._rootpath = fmurun_w_casemetadata_pred
+    os.chdir(fmurun_w_casemetadata_pred)
+    myfmu = _FmuProvider(edataobj1, verbosity="DEBUG")
+    myfmu.detect_provider()
+    assert myfmu.case_name == "ertrun1"
+    assert myfmu.real_name == "realization-0"
+    assert myfmu.real_id == 0
+    assert myfmu.iter_name == "pred"
+    assert myfmu.iter_id == None
+    assert "fmu_case" in str(myfmu.case_metafile)
+    assert (
+        myfmu.case_metadata["fmu"]["case"]["uuid"]
+        == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
+    )
+
+
 def test_fmuprovider_prehook_case(globalconfig2, tmp_path):
     """The fmu run case metadata is initialized with Initialize case; then fet provider.
 

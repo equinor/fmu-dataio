@@ -136,7 +136,7 @@ class _FmuProvider:
                     self.iter_id = int(iterfolder.replace("iter-", ""))
                 elif isinstance(iterfolder, str):
                     # any custom name of the iteration, like "pred"
-                    self.iter_id = 0
+                    self.iter_id = None
                 else:
                     raise ValueError("Could not derive iteration ID")
 
@@ -275,7 +275,7 @@ class _FmuProvider:
             case_uuid = meta["case"]["uuid"]
 
         if "realization" in self.dataio._usecontext:
-            iter_uuid = _utils.uuid_from_string(case_uuid + str(self.iter_id))
+            iter_uuid = _utils.uuid_from_string(case_uuid + str(self.iter_name))
             meta["iteration"] = {
                 "id": self.iter_id,
                 "uuid": iter_uuid,
