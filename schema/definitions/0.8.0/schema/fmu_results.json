@@ -940,11 +940,6 @@
                         "description": "The user name used in ERT",
                         "$ref": "#/definitions/generic/user"
                     },
-                    "restart_from": {
-                        "description": "A reference to another case/iteration that this iteration was restarted from",
-                        "$comment": "This is not required and should not be included if not defined",
-                        "type": "string"
-                    },
                     "description": {
                         "$ref": "#/definitions/generic/_description"
                     }
@@ -973,6 +968,10 @@
                         ]
                     },
                     "uuid": {
+                        "$ref": "#/definitions/generic/uuid"
+                    },
+                    "restart_from": {
+                        "description": "A uuid reference to another iteration that this iteration was restarted from",
                         "$ref": "#/definitions/generic/uuid"
                     }
                 }

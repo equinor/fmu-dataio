@@ -38,12 +38,12 @@ fmu: # the fmu-block contains information directly related to the FMU context
     description:
       - yet other detailed description
       - optional
-    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration/case
 
   iteration:
     id: 0 # always an int, will be 0 for e.g. "pred"
     uuid: 4b939310-34b1-4179-802c-49460bc0f799
     name: "iter-0" # /"pred"
+    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration
 
   realization:
     id: 33
