@@ -25,7 +25,8 @@
         "fmu.model",
         "fmu.workflow",
         "fmu.case",
-        "fmu.iteration",
+        "fmu.iteration.name",
+        "fmu.iteration.uuid",
         "fmu.realization.name",
         "fmu.realization.id",
         "fmu.realization.uuid",
@@ -953,7 +954,6 @@
                 "type": "object",
                 "required": [
                     "name",
-                    "id",
                     "uuid"
                 ],
                 "properties": {
