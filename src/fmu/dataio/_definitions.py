@@ -49,7 +49,7 @@ ALLOWED_CONTENTS = {
     },
     "fluid_contact": {"contact": str, "truncated": bool},
     "field_outline": {"contact": str},
-    "field_region": None,
+    "field_region": {"id": int},
     "regions": None,
     "pinchout": None,
     "subcrop": None,
@@ -74,6 +74,7 @@ DEPRECATED_CONTENTS = {
 CONTENTS_REQUIRED = {
     "fluid_contact": {"contact": True},
     "field_outline": {"contact": False},
+    "field_region": {"id": True},
 }
 
 # This setting sets the FMU context for the output. If detected as a non-fmu run,

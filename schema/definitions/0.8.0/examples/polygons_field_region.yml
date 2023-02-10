@@ -62,6 +62,8 @@ file:
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
   content: field_region  # white-listed and standardized
+  field_region: # content-specific element, only present when content == "field_region"
+    id: 1 # if applicable, the number of the region
   name: CentralHorst
   stratigraphic: false
   format: csv

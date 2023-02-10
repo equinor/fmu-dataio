@@ -36,8 +36,22 @@ def test_schema_example_filenames(metadata_examples):
 def test_schema_080_validate_examples_as_is(schema_080, metadata_examples):
     """Confirm that examples are valid against the schema"""
 
-    for _, example in metadata_examples.items():
-        jsonschema.validate(instance=example, schema=schema_080)
+    for i, (name, metadata) in enumerate(metadata_examples.items()):
+        try:
+            jsonschema.validate(instance=metadata, schema=schema_080)
+        except jsonschema.exceptions.ValidationError:
+            logger.error("Failed validating existing example: %s", name)
+            if i == 0:
+                logger.error(
+                    "This was the first example attempted."
+                    "Error is most likely int he schema."
+                )
+            else:
+                logger.error(
+                    "This was not the first example attemted."
+                    "Error is most likely in the example."
+                )
+            raise
 
 
 def test_schema_080_file_block(schema_080, metadata_examples):
@@ -168,6 +182,38 @@ def test_schema_080_logic_field_outline(schema_080, metadata_examples):
     # assert failure when content is field_outline and fluid_contact is missing
     _metadata = deepcopy(metadata)
     del _metadata["data"]["field_outline"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_metadata, schema=schema_080)
+
+
+def test_schema_080_logic_field_region(schema_080, metadata_examples):
+    """Test content-specific rule: field_region
+
+    When content == field_outline, require the data.field_region field.
+    """
+
+    metadata = metadata_examples["polygons_field_region.yml"]
+
+    # check assumptions
+    assert metadata["data"]["content"] == "field_region"
+    assert "field_region" in metadata["data"]
+    assert "id" in metadata["data"]["field_region"]
+    jsonschema.validate(instance=metadata, schema=schema_080)
+
+    # assert that data.field_region is required
+    _metadata = deepcopy(metadata)
+    del _metadata["data"]["field_region"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_metadata, schema=schema_080)
+
+    # validation of data.field_region
+    _metadata = deepcopy(metadata)
+    del _metadata["data"]["field_region"]["id"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_metadata, schema=schema_080)
+
+    _metadata = deepcopy(metadata)
+    _metadata["data"]["field_region"]["id"] = "NotANumber"
     with pytest.raises(jsonschema.exceptions.ValidationError):
         jsonschema.validate(instance=_metadata, schema=schema_080)
 

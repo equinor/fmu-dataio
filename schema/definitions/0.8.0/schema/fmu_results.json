@@ -550,6 +550,19 @@
                         }
                     }
                 },
+                "field_region": {
+                    "description": "Conditional field",
+                    "type": "object",
+                    "required": [
+                        "id"
+                    ],
+                    "properties": {
+                        "id": {
+                            "description": "The ID of the region",
+                            "type": "integer"
+                        }
+                    }
+                },
                 "description": {
                     "$ref": "#/definitions/generic/_description"
                 },
@@ -1266,6 +1279,21 @@
                             "then": {
                                 "required": [
                                     "field_outline"
+                                ]
+                            }
+                        },
+                        {
+                            "$comment": "When content == field_region, require data.field_region",
+                            "if": {
+                                "properties": {
+                                    "content": {
+                                        "const": "field_region"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "required": [
+                                    "field_region"
                                 ]
                             }
                         },
