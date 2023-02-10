@@ -49,6 +49,7 @@ ALLOWED_CONTENTS = {
     },
     "fluid_contact": {"contact": str, "truncated": bool},
     "field_outline": {"contact": str},
+    "field_region": None,
     "regions": None,
     "pinchout": None,
     "subcrop": None,
