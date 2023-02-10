@@ -62,7 +62,7 @@ file:
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
   content: field_region  # white-listed and standardized
-  name: central_horst
+  name: CentralHorst
   stratigraphic: false
   format: csv
   unit: m
