@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 1.5.2.dev4+g8cbbc7f documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 1.5.3.dev1+g8a6be9d documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: #C0C0C0" >
-            <a href="index.html" class="icon icon-home"> fmu.dataio
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            fmu.dataio
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -100,7 +104,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">The FMU results data model</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/datamodel.rst.txt" rel="nofollow"> View page source</a>
@@ -1272,11 +1276,6 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                        </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;The user name used in ERT&quot;</span><span class="p">,</span>
 <span class="w">                        </span><span class="s2">&quot;$ref&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#/definitions/generic/user&quot;</span>
 <span class="w">                    </span><span class="p">},</span>
-<span class="w">                    </span><span class="s2">&quot;restart_from&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                        </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;A reference to another case/iteration that this iteration was restarted from&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;This is not required and should not be included if not defined&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                    </span><span class="p">},</span>
 <span class="w">                    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                        </span><span class="s2">&quot;$ref&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#/definitions/generic/_description&quot;</span>
 <span class="w">                    </span><span class="p">}</span>
@@ -1305,6 +1304,10 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                        </span><span class="p">]</span>
 <span class="w">                    </span><span class="p">},</span>
 <span class="w">                    </span><span class="s2">&quot;uuid&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="s2">&quot;$ref&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#/definitions/generic/uuid&quot;</span>
+<span class="w">                    </span><span class="p">},</span>
+<span class="w">                    </span><span class="s2">&quot;restart_from&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;A uuid reference to another iteration that this iteration was restarted from&quot;</span><span class="p">,</span>
 <span class="w">                        </span><span class="s2">&quot;$ref&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#/definitions/generic/uuid&quot;</span>
 <span class="w">                    </span><span class="p">}</span>
 <span class="w">                </span><span class="p">}</span>
@@ -2083,12 +2086,12 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">    </span><span class="nt">description</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yet other detailed description</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">optional</span>
-<span class="w">    </span><span class="nt">restart_from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15ce3b84-766f-4c93-9050-b154861f9100</span><span class="w">   </span><span class="c1"># fmu.iteration.uuid for another iteration/case</span>
 
 <span class="w">  </span><span class="nt">iteration</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"> </span><span class="c1"># always an int, will be 0 for e.g. &quot;pred&quot;</span>
 <span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4b939310-34b1-4179-802c-49460bc0f799</span><span class="w"> </span><span class="c1"># hash of case.uuid + iteration.id</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;iter-0&quot;</span><span class="w"> </span><span class="c1"># /&quot;pred&quot;</span>
+<span class="w">    </span><span class="nt">restart_from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15ce3b84-766f-4c93-9050-b154861f9100</span><span class="w">   </span><span class="c1"># fmu.iteration.uuid for another iteration</span>
 
 <span class="w">  </span><span class="nt">realization</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
@@ -2270,7 +2273,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.5.2.dev4+g8cbbc7f).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.5.3.dev1+g8a6be9d).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
