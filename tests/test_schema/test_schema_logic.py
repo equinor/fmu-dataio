@@ -1,11 +1,7 @@
 """Test the schema"""
 import logging
-from pathlib import Path, PurePath
-import datetime
 from copy import deepcopy
 
-import yaml
-import json
 import jsonschema
 
 import pytest
@@ -15,253 +11,221 @@ import pytest
 
 logger = logging.getLogger(__name__)
 
-ROOTPWD = Path(".").absolute()
+
+def test_schema_basic_json_syntax(schema_080):
+    """Confirm that schemas are valid JSON."""
+
+    assert "$schema" in schema_080
 
 
-def test_schema_basic_json_syntax():
-    """Confirm that schemas are valid JSON"""
-
-    # find and parse all schema files. Listing to catch if none are found.
-    schema_file_paths = list(ROOTPWD.glob("schema/definitions/*/schema/*.json"))
-
-    # check that schemas are there
-    assert len(schema_file_paths) > 0
-
-    for schema_file_path in schema_file_paths:
-        _parse_json(schema_file_path)
-
-
-def test_schema_example_filenames():
+def test_schema_example_filenames(metadata_examples):
     """Assert that all examples are .yml, not .yaml"""
 
-    # find and parse all example files. Listing to catch if none are found.
-    filenames = list(ROOTPWD.glob("schema/definitions/*/examples/*.*"))
-
     # check that examples are there
-    assert len(filenames) > 0
+    assert len(metadata_examples) > 0
 
-    for filename in filenames:
-        assert filename.name.endswith(".yml"), filename
+    for filename in metadata_examples:
+        assert filename.endswith(".yml"), filename
 
 
-def test_schema_080_validate_examples_as_is():
+# ======================================================================================
+# 0.8.0
+# ======================================================================================
+
+
+def test_schema_080_validate_examples_as_is(schema_080, metadata_examples):
     """Confirm that examples are valid against the schema"""
 
-    # parse the schema
-    schema = _parse_json(
-        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
-    )
-    examples = [
-        _parse_yaml(str(path))
-        for path in ROOTPWD.glob("schema/definitions/0.8.0/examples/*.yml")
-    ]
+    for i, (name, metadata) in enumerate(metadata_examples.items()):
+        try:
+            jsonschema.validate(instance=metadata, schema=schema_080)
+        except jsonschema.exceptions.ValidationError:
+            logger.error("Failed validating existing example: %s", name)
+            if i == 0:
+                logger.error(
+                    "This was the first example attempted."
+                    "Error is most likely int he schema."
+                )
+            else:
+                logger.error(
+                    "This was not the first example attemted."
+                    "Error is most likely in the example."
+                )
+            raise
 
-    for example in examples:
-        jsonschema.validate(instance=example, schema=schema)
 
-
-def test_schema_080_file_block():
+def test_schema_080_file_block(schema_080, metadata_examples):
     """Test variations on the file block."""
 
-    # parse the schema
-    schema = _parse_json(
-        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
-    )
-    metadata = _parse_yaml(
-        ROOTPWD / "schema/definitions/0.8.0/examples/surface_depth.yml"
-    )
+    # get a specific example
+    example = metadata_examples["surface_depth.yml"]
 
     # shall validate as-is
-    jsonschema.validate(instance=metadata, schema=schema)
+    jsonschema.validate(instance=example, schema=schema_080)
 
     # shall validate without absolute_path
-    del metadata["file"]["absolute_path"]
-    jsonschema.validate(instance=metadata, schema=schema)
+    _example = deepcopy(example)
+    del _example["file"]["absolute_path"]
+    jsonschema.validate(instance=_example, schema=schema_080)
 
     # md5 checksum shall be a string
-    metadata["file"]["checksum_md5"] = 123.4
+    _example["file"]["checksum_md5"] = 123.4
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=metadata, schema=schema)
+        jsonschema.validate(instance=_example, schema=schema_080)
 
     # shall not validate without checksum_md5
-    del metadata["file"]["checksum_md5"]
+    del _example["file"]["checksum_md5"]
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=metadata, schema=schema)
+        jsonschema.validate(instance=_example, schema=schema_080)
 
     # shall validate when checksum is put back in
-    metadata["file"]["checksum_md5"] = "somechecksum"
-    jsonschema.validate(instance=metadata, schema=schema)
+    _example["file"]["checksum_md5"] = "somechecksum"
+    jsonschema.validate(instance=_example, schema=schema_080)
 
     # shall not validate without relative_path
-    del metadata["file"]["relative_path"]
+    del _example["file"]["relative_path"]
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=metadata, schema=schema)
+        jsonschema.validate(instance=_example, schema=schema_080)
 
 
-def test_schema_080_logic_case():
+def test_schema_080_logic_case(schema_080, metadata_examples):
     """Asserting validation failure when illegal contents in case example"""
 
-    # parse the schema and one example
-    schema = _parse_json(
-        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
-    )
-    example = _parse_yaml(
-        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/examples/case.yml"))
-    )
+    example = metadata_examples["case.yml"]
 
     # assert validation with no changes
-    jsonschema.validate(instance=example, schema=schema)
+    jsonschema.validate(instance=example, schema=schema_080)
 
     # assert validation error when "fmu" is missing
     _example = deepcopy(example)
     del _example["fmu"]
 
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=_example, schema=schema)
+        jsonschema.validate(instance=_example, schema=schema_080)
 
     # assert validation error when "fmu.model" is missing
     _example = deepcopy(example)
     del _example["fmu"]["model"]
 
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=_example, schema=schema)
+        jsonschema.validate(instance=_example, schema=schema_080)
 
 
-def test_schema_080_logic_fmu_block_aggregation_realization():
+def test_schema_080_logic_fmu_block_aggr_real(schema_080, metadata_examples):
     """Test that fmu.realization and fmu.aggregation are not allowed at the same time"""
 
-    # parse the schema and polygons
-    schema = _parse_json(
-        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
-    )
-    metadata = _parse_yaml(
-        str(
-            PurePath(
-                ROOTPWD,
-                "schema/definitions/0.8.0/examples/surface_depth.yml",
-            )
-        )
-    )
-
+    metadata = metadata_examples["surface_depth.yml"]
     # check that assumptions for the test is true
     assert "realization" in metadata["fmu"]
     assert "aggregation" not in metadata["fmu"]
 
     # assert validation as-is
-    jsonschema.validate(instance=metadata, schema=schema)
+    jsonschema.validate(instance=metadata, schema=schema_080)
 
     # add aggregation, shall fail. Get this from an actual example that validates.
-    _metadata_aggregation = _parse_yaml(
-        str(
-            PurePath(
-                ROOTPWD,
-                "schema/definitions/0.8.0/examples/aggregated_surface_depth.yml",
-            )
-        )
-    )
-
+    _metadata_aggregation = metadata_examples["aggregated_surface_depth.yml"]
     metadata["fmu"]["aggregation"] = _metadata_aggregation["fmu"]["aggregation"]
 
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=metadata, schema=schema)
+        jsonschema.validate(instance=metadata, schema=schema_080)
 
 
-def test_schema_080_logic_data_top_base():
+def test_schema_080_logic_data_top_base(schema_080, metadata_examples):
     """Test require data.top and data.base.
 
     * Require both data.top and data.base, or none.
     """
 
-    # parse the schema and metadata example
-    schema = _parse_json(
-        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
-    )
-    metadata = _parse_yaml(
-        str(
-            PurePath(
-                ROOTPWD,
-                "schema/definitions/0.8.0/examples/surface_seismic_amplitude.yml",
-            )
-        )
-    )
+    metadata = metadata_examples["surface_seismic_amplitude.yml"]
 
     # check that assumptions for the test is true
     assert "top" in metadata["data"]
     assert "base" in metadata["data"]
 
     # assert validation as-is
-    jsonschema.validate(instance=metadata, schema=schema)
+    jsonschema.validate(instance=metadata, schema=schema_080)
 
     # remove "top" - shall fail
     _metadata = deepcopy(metadata)
     del _metadata["data"]["top"]
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=_metadata, schema=schema)
+        jsonschema.validate(instance=_metadata, schema=schema_080)
 
     # remove "base" - shall fail
     _metadata = deepcopy(metadata)
     del _metadata["data"]["base"]
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=_metadata, schema=schema)
+        jsonschema.validate(instance=_metadata, schema=schema_080)
 
     # remove both - shall pass
     del _metadata["data"]["top"]
     assert "top" not in _metadata["data"]  # test assumption
     assert "base" not in _metadata["data"]  # test assumption
-    jsonschema.validate(instance=_metadata, schema=schema)
+    jsonschema.validate(instance=_metadata, schema=schema_080)
 
 
-def test_schema_080_logic_field_outline():
-    """Test content-specific rule
+def test_schema_080_logic_field_outline(schema_080, metadata_examples):
+    """Test content-specific rule.
 
     When content == field_outline, require the field_outline field
     """
 
-    # parse the schema and polygons
-    schema = _parse_json(
-        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
-    )
-    metadata = _parse_yaml(
-        str(
-            PurePath(
-                ROOTPWD,
-                "schema/definitions/0.8.0/examples/polygons_field_outline.yml",
-            )
-        )
-    )
+    metadata = metadata_examples["polygons_field_outline.yml"]
 
     # check that assumptions for the test is true
     assert metadata["data"]["content"] == "field_outline"
     assert "field_outline" in metadata["data"]
 
     # assert validation as-is
-    jsonschema.validate(instance=metadata, schema=schema)
+    jsonschema.validate(instance=metadata, schema=schema_080)
 
     # assert failure when content is field_outline and fluid_contact is missing
     _metadata = deepcopy(metadata)
     del _metadata["data"]["field_outline"]
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=_metadata, schema=schema)
+        jsonschema.validate(instance=_metadata, schema=schema_080)
 
 
-def test_schema_080_logic_fluid_contact():
-    """Test content-specific rule
+def test_schema_080_logic_field_region(schema_080, metadata_examples):
+    """Test content-specific rule: field_region
+
+    When content == field_outline, require the data.field_region field.
+    """
+
+    metadata = metadata_examples["polygons_field_region.yml"]
+
+    # check assumptions
+    assert metadata["data"]["content"] == "field_region"
+    assert "field_region" in metadata["data"]
+    assert "id" in metadata["data"]["field_region"]
+    jsonschema.validate(instance=metadata, schema=schema_080)
+
+    # assert that data.field_region is required
+    _metadata = deepcopy(metadata)
+    del _metadata["data"]["field_region"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_metadata, schema=schema_080)
+
+    # validation of data.field_region
+    _metadata = deepcopy(metadata)
+    del _metadata["data"]["field_region"]["id"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_metadata, schema=schema_080)
+
+    _metadata = deepcopy(metadata)
+    _metadata["data"]["field_region"]["id"] = "NotANumber"
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=_metadata, schema=schema_080)
+
+
+def test_schema_080_logic_fluid_contact(schema_080, metadata_examples):
+    """Test content-specific rule.
 
     When content == fluid_contact, require the fluid_contact field
     """
 
     # parse the schema and polygons
-    schema = _parse_json(
-        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
-    )
-    metadata = _parse_yaml(
-        str(
-            PurePath(
-                ROOTPWD,
-                "schema/definitions/0.8.0/examples/surface_fluid_contact.yml",
-            )
-        )
-    )
+    metadata = metadata_examples["surface_fluid_contact.yml"]
 
     # check that assumptions for the test is true
     assert metadata["data"]["content"] == "fluid_contact"
@@ -271,35 +235,29 @@ def test_schema_080_logic_fluid_contact():
     _metadata = deepcopy(metadata)
     del _metadata["data"]["fluid_contact"]
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=_metadata, schema=schema)
+        jsonschema.validate(instance=_metadata, schema=schema_080)
 
 
-def test_schema_080_masterdata_smda():
-    """Test schema logic for masterdata.smda"""
+def test_schema_080_masterdata_smda(schema_080, metadata_examples):
+    """Test schema logic for masterdata.smda."""
 
-    # parse the schema and one example
-    schema = _parse_json(
-        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/schema/fmu_results.json"))
-    )
-    example = _parse_yaml(
-        str(PurePath(ROOTPWD, "schema/definitions/0.8.0/examples/case.yml"))
-    )
+    example = metadata_examples["case.yml"]
 
     # assert validation with no changes
-    jsonschema.validate(instance=example, schema=schema)
+    jsonschema.validate(instance=example, schema=schema_080)
 
     # assert validation error when masterdata block is missing
     _example = deepcopy(example)
     del _example["masterdata"]
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=_example, schema=schema)
+        jsonschema.validate(instance=_example, schema=schema_080)
 
     # assert validation error when masterdata.smda is missing
     # print(example["masterdata"])
     _example = deepcopy(example)
     del _example["masterdata"]["smda"]
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=_example, schema=schema)
+        jsonschema.validate(instance=_example, schema=schema_080)
 
     # assert validation error when missing attribute
     for block in [
@@ -312,7 +270,7 @@ def test_schema_080_masterdata_smda():
         _example = deepcopy(example)
         del _example["masterdata"]["smda"][block]
         with pytest.raises(jsonschema.exceptions.ValidationError):
-            jsonschema.validate(instance=_example, schema=schema)
+            jsonschema.validate(instance=_example, schema=schema_080)
 
     # assert validation error if not correct type
     for block, type_ in [
@@ -327,47 +285,43 @@ def test_schema_080_masterdata_smda():
         _example["masterdata"]["smda"][block] = "somestring"
 
         with pytest.raises(jsonschema.exceptions.ValidationError):
-            jsonschema.validate(instance=_example, schema=schema)
+            jsonschema.validate(instance=_example, schema=schema_080)
 
 
-# ==========================================
-# Utility functions
-# ==========================================
+def test_schema_080_data_time(schema_080, metadata_examples):
+    """Test schema logic for data.time."""
 
+    # fetch one example that contains the data.time element
+    example = metadata_examples["surface_seismic_amplitude.yml"]
+    assert "time" in example["data"]
 
-def _parse_json(schema_path):
-    """Parse the schema, return JSON"""
-    with open(schema_path) as stream:
-        data = json.load(stream)
+    # assert validation with no changes
+    jsonschema.validate(instance=example, schema=schema_080)
 
-    return data
+    # valid when data.time is missing
+    _example = deepcopy(example)
+    del _example["data"]["time"]
+    jsonschema.validate(instance=_example, schema=schema_080)
 
+    # valid when only t0
+    _example = deepcopy(example)
+    del _example["data"]["time"]["t1"]
+    assert "t0" in _example["data"]["time"]  # test assumption
+    jsonschema.validate(instance=_example, schema=schema_080)
 
-def _parse_yaml(yaml_path):
-    """Parse the filename as json, return data"""
-    with open(yaml_path, "r") as stream:
-        data = yaml.safe_load(stream)
+    # valid without labels
+    _example = deepcopy(example)
+    del _example["data"]["time"]["t0"]["label"]
+    jsonschema.validate(instance=_example, schema=schema_080)
 
-    data = _isoformat_all_datetimes(data)
-
-    return data
-
-
-def _isoformat_all_datetimes(data):
-    """Recursive function to isoformat all datetimes in a dictionary"""
-
-    if isinstance(data, list):
-        data = [_isoformat_all_datetimes(i) for i in data]
-        return data
-
-    if isinstance(data, dict):
-        for key in data:
-            data[key] = _isoformat_all_datetimes(data[key])
-
-    if isinstance(data, datetime.datetime):
-        return data.isoformat()
-
-    if isinstance(data, datetime.date):
-        return data.isoformat()
-
-    return data
+    # NOT valid when other types
+    for testvalue in [
+        [{"t0": "2020-10-28T14:28:02", "label": "mylabel"}],
+        "2020-10-28T14:28:02",
+        123,
+        123.4,
+    ]:
+        _example = deepcopy(example)
+        _example["data"]["time"] = testvalue
+        with pytest.raises(jsonschema.exceptions.ValidationError):
+            jsonschema.validate(instance=_example, schema=schema_080)

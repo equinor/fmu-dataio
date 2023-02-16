@@ -31,7 +31,9 @@ fmu: # the fmu-block contains information directly related to the FMU context
     description:
       - yet other detailed description
       - optional
-    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration/case
+
+  context:
+    stage: case
 
 access:
   asset:

@@ -35,6 +35,9 @@ fmu:
   user:
     id: jriv
 
+  context:
+    stage: realization
+
   case:
     name: MyCaseName
     uuid: 8bb56d60-8758-481a-89a4-6bac8561d38e # (pseudo-)random valid uuid4
@@ -43,12 +46,12 @@ fmu:
     description:
       - yet other detailed description
       - optional
-    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100 # fmu.iteration.uuid for another iteration/case
 
   iteration:
     id: 0 # always an int, will be 0 for e.g. "pred"
     uuid: 4b939310-34b1-4179-802c-49460bc0f799 # hash of case.uuid + iteration.id
     name: "iter-0" # /"pred"
+    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration
 
   realization:
     id: 33
@@ -131,11 +134,6 @@ data: # The data block describes the actual data (e.g. surface).Only present in 
     ymax: 5939492.128326312
     zmin: 1244.039
     zmax: 2302.683
-  time:
-    - value: 2020-10-28T14:28:02
-      label: "some label"
-    - value: 2020-10-28T14:28:02
-      label: "some other label"
   is_prediction: true # A mechanism for separating pure QC output from actual predictions
   is_observation: true # Used for 4D data currently but also valid for other data?
   description:

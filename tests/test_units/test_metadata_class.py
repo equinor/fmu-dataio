@@ -39,7 +39,6 @@ def test_populate_meta_objectdata(regsurf, edataobj2):
 
 
 def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
-
     eobj1 = dio.ExportData(
         config=globalconfig2,
         name="TopVolantis",

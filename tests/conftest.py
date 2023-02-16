@@ -5,11 +5,15 @@ import os
 import shutil
 from functools import wraps
 from pathlib import Path
+import json
+import yaml
+import datetime
 
 import pandas as pd
 import pytest
 import xtgeo
 import yaml
+from fmu.config import utilities as ut
 from termcolor import cprint
 
 
@@ -300,6 +304,36 @@ def fixture_edataobj2(globalconfig2):
 
 
 # ======================================================================================
+# Schema
+# ======================================================================================
+
+
+@pytest.fixture(name="schema_080", scope="session", autouse=True)
+def fixture_schema_080():
+    """Return 0.8.0 version of schema as json."""
+
+    return _parse_json(ROOTPWD / "schema/definitions/0.8.0/schema/fmu_results.json")
+
+
+@pytest.fixture(name="metadata_examples", scope="session", autouse=True)
+def fixture_metadata_examples():
+    """Parse all metadata examples.
+
+    Returns:
+        Dict: Dictionary with filename as key, file contents as value.
+
+    """
+
+    # hard code 0.8.0 for now
+    examples = {
+        path.name: _isoformat_all_datetimes(_parse_yaml(str(path)))
+        for path in ROOTPWD.glob("schema/definitions/0.8.0/examples/*.yml")
+    }
+
+    return examples
+
+
+# ======================================================================================
 # Various objects
 # ======================================================================================
 
@@ -468,3 +502,41 @@ def fixture_mock_volumes():
             "OTHER": ["c", "d", "f"],
         }
     )
+
+
+# ======================================================================================
+# Utilities
+# ======================================================================================
+
+
+def _parse_json(schema_path):
+    """Parse the schema, return JSON"""
+    with open(schema_path, "r", encoding="utf-8") as stream:
+        data = json.load(stream)
+
+    return data
+
+
+def _parse_yaml(yaml_path):
+    """Parse the filename as json, return data"""
+    with open(yaml_path, "r", encoding="utf-8") as stream:
+        data = yaml.safe_load(stream)
+
+    data = _isoformat_all_datetimes(data)
+
+    return data
+
+
+def _isoformat_all_datetimes(indate):
+    """Recursive function to isoformat all datetimes in a dictionary"""
+
+    if isinstance(indate, list):
+        return [_isoformat_all_datetimes(i) for i in indate]
+
+    if isinstance(indate, dict):
+        return {key: _isoformat_all_datetimes(indate[key]) for key in indate.keys()}
+
+    if isinstance(indate, (datetime.datetime, datetime.date)):
+        return indate.isoformat()
+
+    return indate

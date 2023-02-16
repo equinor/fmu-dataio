@@ -56,8 +56,28 @@ def test_missing_or_wrong_config_exports_with_warning(regsurf):
         read_metadata(out)
 
 
-def test_update_check_settings_shall_fail(globalconfig1):
+def test_config_miss_required_fields(globalconfig1, regsurf):
+    """Global config exists but missing critical data; export file but skip metadata."""
 
+    cfg = globalconfig1.copy()
+
+    del cfg["access"]
+    del cfg["masterdata"]
+    del cfg["model"]
+
+    with pytest.warns(PendingDeprecationWarning, match="One or more keys required"):
+        edata = ExportData(config=cfg)
+
+    with pytest.warns(UserWarning, match="without metadata"):
+        out = edata.export(regsurf, name="mysurface")
+
+    assert "mysurface" in out
+
+    with pytest.raises(OSError, match="Cannot find requested metafile"):
+        read_metadata(out)
+
+
+def test_update_check_settings_shall_fail(globalconfig1):
     # pylint: disable=unexpected-keyword-arg
     with pytest.raises(TypeError):
         _ = ExportData(config=globalconfig1, stupid="str")
@@ -168,6 +188,21 @@ def test_content_is_dict_with_wrong_types(globalconfig2):
                 }
             },
         )
+
+
+def test_content_with_subfields(globalconfig2, polygons):
+    """When subfield is given and allowed, it shall be produced to metadata."""
+    eobj = ExportData(
+        config=globalconfig2,
+        name="Central Horst",
+        content={"field_region": {"id": 1}},
+    )
+    mymeta = eobj.generate_metadata(polygons)
+
+    assert mymeta["data"]["name"] == "Central Horst"
+    assert mymeta["data"]["content"] == "field_region"
+    assert "field_region" in mymeta["data"]
+    assert mymeta["data"]["field_region"] == {"id": 1}
 
 
 def test_content_deprecated_seismic_offset(regsurf, globalconfig2):

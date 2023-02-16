@@ -35,12 +35,12 @@ fmu: # the fmu-block contains information directly related to the FMU context
     description:
       - yet other detailed description
       - optional
-    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration/case
 
   iteration:
     id: 0 # always an int, will be 0 for e.g. "pred"
     uuid: 4b939310-34b1-4179-802c-49460bc0f799 # hash of case.uuid + iteration.id
     name: "iter-0" # /"pred"
+    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration
 
   realization:
     id: 33
@@ -57,6 +57,9 @@ fmu: # the fmu-block contains information directly related to the FMU context
       KVKH_US: 0.6
       FAULT_SEAL_SCALING: 0.1
       FWL_CENTRAL: 1677
+
+  context:
+    stage: realization
 
 file:
   relative_path: realization-33/iter-0/share/results/maps/volantis_gp_base--amplitude.gri # case-relative
@@ -124,11 +127,6 @@ data: # The data block describes the actual data (e.g. surface). Only present in
     ymax: 5939492.128326312
     zmin: 1244.039
     zmax: 2302.683
-  time:
-    - value: 2020-10-28T14:28:02
-      label: "some label"
-    - value: 2020-10-28T14:28:02
-      label: "some other label"
   is_prediction: true # A mechanism for separating pure QC output from actual predictions
   is_observation: true # Used for 4D data currently but also valid for other data?
   undef_is_zero: false # Used to flag if undef should be considered 0.0 in statistics

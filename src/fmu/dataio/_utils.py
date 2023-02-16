@@ -93,7 +93,6 @@ def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -
     """Export genericly and ordered to the complementary metadata file."""
     logger.setLevel(level=verbosity)
     if metadata:
-
         xdata = drop_nones(metadata)
 
         if savefmt == "yaml":

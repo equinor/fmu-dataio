@@ -94,10 +94,11 @@ def _check_global_config(
 
     if not globalconfig and not strict:
         logger.info(
-            "Empty global config, expect input from environment_variable insteac"
+            "Empty global config, expect input from environment_variable instead"
         )
         return False
 
+    # strict is True:
     config_required_keys = ["access", "masterdata", "model"]
     missing_keys = []
     for required_key in config_required_keys:
@@ -708,7 +709,6 @@ class ExportData:
 
         else:
             if self._inside_rms or INSIDE_RMS or "RUN_DATAIO_EXAMPLES" in os.environ:
-
                 self._rootpath = (self._pwd / "../../.").absolute().resolve()
                 logger.info("Run from inside RMS (or pretend)")
                 self._inside_rms = True
@@ -876,7 +876,7 @@ class ExportData:
             export_metadata_file(metafile, metadata, savefmt=self.meta_format)
             logger.info("Metadata file is: %s", metafile)
         else:
-            warnings.warn("Metadata are invalid and will not be exported!", UserWarning)
+            warnings.warn("Data will be exported, but without metadata.", UserWarning)
 
         # generate symlink if requested
         outfile_target = None
@@ -992,7 +992,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.info("Set rootpath (case): %s", str(self._casepath))
 
     def _check_already_metadata_or_create_folder(self, force=False) -> bool:
-
         if not self._casepath.exists():
             self._casepath.mkdir(parents=True, exist_ok=True)
             logger.info("Created rootpath (case) %s", self._casepath)
@@ -1291,7 +1290,6 @@ class AggregatedData:
     def _generate_aggrd_metadata(
         self, obj: Any, real_ids: List[int], uuids: List[str], compute_md5: bool = True
     ):
-
         logger.info(
             "self.aggregation is %s (%s)",
             self.aggregation_id,

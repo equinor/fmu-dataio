@@ -49,6 +49,7 @@ ALLOWED_CONTENTS = {
     },
     "fluid_contact": {"contact": str, "truncated": bool},
     "field_outline": {"contact": str},
+    "field_region": {"id": int},
     "regions": None,
     "pinchout": None,
     "subcrop": None,
@@ -79,6 +80,7 @@ DEPRECATED_CONTENTS = {
 CONTENTS_REQUIRED = {
     "fluid_contact": {"contact": True},
     "field_outline": {"contact": False},
+    "field_region": {"id": True},
 }
 # Defined subkeys required for specific classes
 CLASS_DATA_REQUIRED = {"table": "table_index"}

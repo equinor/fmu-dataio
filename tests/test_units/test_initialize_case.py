@@ -16,13 +16,11 @@ logger = logging.getLogger(__name__)
 
 
 def test_inicase_barebone(globalconfig2):
-
     icase = InitializeCase(config=globalconfig2, verbosity="INFO")
     assert "Drogon" in str(icase.config)
 
 
 def test_inicase_barebone_with_export(globalconfig2, fmurun):
-
     icase = InitializeCase(config=globalconfig2, verbosity="INFO")
     assert "Drogon" in str(icase.config)
 
@@ -57,7 +55,6 @@ def test_inicase_barebone_with_export(globalconfig2, fmurun):
 
 
 def test_inicase_pwd_basepath(fmurun, globalconfig2):
-
     logger.info("Active folder is %s", fmurun)
     os.chdir(fmurun)
 
@@ -132,7 +129,6 @@ def test_inicase_update_settings_shall_fail(fmurun, globalconfig2):
 
 
 def test_inicase_generate_case_metadata(fmurun, globalconfig2):
-
     logger.info("Active folder is %s", fmurun)
     os.chdir(fmurun)
     myroot = fmurun.parent.parent.parent / "mycase"
@@ -146,7 +142,6 @@ def test_inicase_generate_case_metadata(fmurun, globalconfig2):
 def test_inicase_generate_case_metadata_exists_so_fails(
     fmurun_w_casemetadata, globalconfig2
 ):
-
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     os.chdir(fmurun_w_casemetadata)
     logger.info("Folder is %s", fmurun_w_casemetadata)
@@ -160,7 +155,6 @@ def test_inicase_generate_case_metadata_exists_so_fails(
 def test_inicase_generate_case_metadata_exists_but_force(
     fmurun_w_casemetadata, globalconfig2
 ):
-
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     os.chdir(fmurun_w_casemetadata)
     logger.info("Folder is %s", fmurun_w_casemetadata)
