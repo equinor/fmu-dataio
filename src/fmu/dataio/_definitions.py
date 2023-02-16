@@ -82,8 +82,6 @@ CONTENTS_REQUIRED = {
     "field_outline": {"contact": False},
     "field_region": {"id": True},
 }
-# Defined subkeys required for specific classes
-CLASS_DATA_REQUIRED = {"table": "table_index"}
 
 # This setting sets the FMU context for the output. If detected as a non-fmu run,
 # the code will internally set actual_context=None

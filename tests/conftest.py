@@ -238,7 +238,7 @@ def fixture_globalconfig_asfile() -> str:
 
 
 @pytest.fixture(name="edataobj1", scope="module")
-def fixture_edataobj3(globalconfig1):
+def fixture_edataobj1(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
     logger.info("Establish edataobj1")
 
@@ -454,7 +454,7 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
 
 
 @pytest.fixture(name="edataobj3")
-def fixture_edataobj1(globalconfig1):
+def fixture_edataobj3(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
     # logger.info("Establish edataobj1")
 

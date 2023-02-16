@@ -20,7 +20,6 @@ from ._definitions import (
     ALLOWED_FMU_CONTEXTS,
     CONTENTS_REQUIRED,
     DEPRECATED_CONTENTS,
-    CLASS_DATA_REQUIRED,
 )
 from ._utils import (
     create_symlink,
@@ -752,24 +751,14 @@ class ExportData:
 
         return obj
 
-    def _check_class_data_required(self):
-        """Checking if data section has any required fields"""
-        logger.debug("Meta at required check %s", self._metadata)
-        given_class = self._metadata["class"]
-        for class_type, required_data in CLASS_DATA_REQUIRED.items():
-
-            logger.debug("Class %s has requirement: %s", class_type, required_data)
-            if given_class == class_type:
-                if required_data not in self._metadata["data"]:
-                    raise AttributeError("Not all requirement for class met")
-
-            elif required_data in self._metadata["data"]:
-                del self._metadata["data"][required_data]
-                logger.debug(
-                    "deleting: %s, doesn't belong in class %s",
-                    required_data,
-                    given_class,
-                )
+    def _check_table_index(self):
+        """Removing table_index if None"""
+        try:
+            if self._metadata["data"]["table_index"] is None:
+                del self._metadata["data"]["table_index"]
+                logger.debug("Table index was none, removed")
+        except KeyError:
+            logger.debug("No table index in the first place")
 
     # ==================================================================================
     # Public methods:
@@ -822,7 +811,7 @@ class ExportData:
         self._metadata = metaobj.generate_export_metadata()
 
         self._rootpath = Path(metaobj.rootpath)
-        self._check_class_data_required()
+        self._check_table_index()
 
         logger.info("The metadata are now ready!")
 
