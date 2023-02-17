@@ -107,7 +107,6 @@ def test_set_table_index_not_in_table(mock_volumes, globalconfig2):
 
 
 def test_real_sum(edataobj3, drogon_summary):
-
     objdata = _ObjectDataProvider(drogon_summary, edataobj3)
     res = objdata._derive_objectdata()
     print("-----------------")
