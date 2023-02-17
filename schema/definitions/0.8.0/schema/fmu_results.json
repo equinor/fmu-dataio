@@ -399,12 +399,13 @@
                         },
                         "yflip": {
                             "type": "integer",
-                            "$comment": "A boolean represented by an integer (?)",
+                            "$comment": "Orientation indicator of coordinate system",
                             "enum": [
-                                0,
+                                -1,
                                 1
                             ],
                             "examples": [
+                                -1,
                                 1
                             ]
                         },
