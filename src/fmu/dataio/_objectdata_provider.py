@@ -94,7 +94,7 @@ import numpy as np
 import pandas as pd  # type: ignore
 import xtgeo  # type: ignore
 
-from ._definitions import _ValidFormats, STANDARD_TABLE_COLUMNS
+from ._definitions import _ValidFormats, STANDARD_TABLE_INDEX_COLUMNS
 from ._utils import generate_description, parse_timedata
 
 try:
@@ -500,7 +500,7 @@ class _ObjectDataProvider:
         preset_index = self.dataio.table_index
         if preset_index is None:
             logger.debug("Finding index to include")
-            for context, standard_cols in STANDARD_TABLE_COLUMNS.items():
+            for context, standard_cols in STANDARD_TABLE_INDEX_COLUMNS.items():
                 for valid_col in standard_cols:
                     if valid_col in columns:
                         index.append(valid_col)
@@ -515,17 +515,18 @@ class _ObjectDataProvider:
         return index
 
     def _check_index(self, index):
-        """Check the table index
-        ARGS:
+
+        """Check the table index.
+        Args:
             index (list): list of column names
 
         Raises:
             KeyError: if index contains names that are not in self
         """
-        # Using generator, this is lazy
-        unwanteds = (item for item in index if item not in self._get_columns())
-        for unwanted in unwanteds:
-            raise KeyError(f"{unwanted} is not in table")
+
+        not_founds = (item for item in index if item not in self._get_columns())
+        if len(not_founds) > 0:
+            raise KeyError(f"{not_founds} not in table")
 
     def _derive_timedata(self):
         """Format input timedata to metadata."""
