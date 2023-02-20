@@ -515,7 +515,6 @@ class _ObjectDataProvider:
         return index
 
     def _check_index(self, index):
-
         """Check the table index.
         Args:
             index (list): list of column names

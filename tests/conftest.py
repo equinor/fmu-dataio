@@ -30,7 +30,6 @@ from fmu.dataio.dataio import ExportData, read_metadata
 
 logger = logging.getLogger(__name__)
 
-logger.setLevel("ERROR")
 ROOTPWD = Path(".").absolute()
 RUN1 = "tests/data/drogon/ertrun1/realization-0/iter-0"
 RUN2 = "tests/data/drogon/ertrun1"

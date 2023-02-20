@@ -530,7 +530,7 @@ class ExportData:
     verbosity: str = "CRITICAL"
     vertical_domain: dict = field(default_factory=dict)
     workflow: str = ""
-    table_index: Union[None, list] = None
+    table_index: Optional[list] = None
 
     # some keys that are modified version of input, prepended with _use
     _usecontent: dict = field(default_factory=dict, init=False)
@@ -839,7 +839,6 @@ class ExportData:
             String: full path to exported item.
         """
         self.table_index = kwargs.get("table_index", self.table_index)
-        print(self.table_index)
         self.generate_metadata(obj, compute_md5=False, **kwargs)
         metadata = self._metadata
 
