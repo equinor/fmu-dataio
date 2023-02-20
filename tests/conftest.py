@@ -12,7 +12,6 @@ import datetime
 import pandas as pd
 import pytest
 import xtgeo
-import yaml
 from fmu.config import utilities as ut
 from termcolor import cprint
 
@@ -25,7 +24,6 @@ else:
     HAS_PYARROW = True
 
 import fmu.dataio as dio
-from fmu.config import utilities as ut
 from fmu.dataio.dataio import ExportData, read_metadata
 
 logger = logging.getLogger(__name__)

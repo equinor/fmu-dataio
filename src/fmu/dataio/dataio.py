@@ -751,15 +751,6 @@ class ExportData:
 
         return obj
 
-    def _check_table_index(self):
-        """Removing table_index if None"""
-        try:
-            if self._metadata["data"]["table_index"] is None:
-                del self._metadata["data"]["table_index"]
-                logger.debug("Table index was none, removed")
-        except KeyError:
-            logger.debug("No table index in the first place")
-
     # ==================================================================================
     # Public methods:
     # ==================================================================================
@@ -811,7 +802,6 @@ class ExportData:
         self._metadata = metaobj.generate_export_metadata()
 
         self._rootpath = Path(metaobj.rootpath)
-        self._check_table_index()
 
         logger.info("The metadata are now ready!")
 

@@ -525,7 +525,7 @@ class _ObjectDataProvider:
 
         not_founds = (item for item in index if item not in self._get_columns())
         for not_found in not_founds:
-            raise KeyError(f"{not_found} not in table")
+            raise KeyError(f"{not_found} is not in table")
 
     def _derive_timedata(self):
         """Format input timedata to metadata."""
