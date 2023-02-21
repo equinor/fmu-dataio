@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 ROOTPWD = Path(".").absolute()
 RUN1 = "tests/data/drogon/ertrun1/realization-0/iter-0"
 RUN2 = "tests/data/drogon/ertrun1"
+RUN_PRED = "tests/data/drogon/ertrun1/realization-0/pred"
 
 
 def pytest_configure():
@@ -82,6 +83,16 @@ def fixture_fmurun_w_casemetadata(tmp_path_factory):
     rootpath = newpath / "realization-0/iter-0"
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return rootpath
+
+
+@pytest.fixture(name="fmurun_pred", scope="session", autouse=True)
+def fixture_fmurun_pred(tmp_path_factory):
+    """Create a tmp folder structure for testing; here a new fmurun for prediction."""
+    tmppath = tmp_path_factory.mktemp("data_pred")
+    newpath = tmppath / RUN_PRED
+    shutil.copytree(ROOTPWD / RUN_PRED, newpath)
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return newpath
 
 
 @pytest.fixture(name="rmsrun_fmu_w_casemetadata", scope="session", autouse=True)

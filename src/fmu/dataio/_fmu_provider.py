@@ -21,6 +21,7 @@ from . import _utils
 
 # case metadata relative to rootpath
 ERT2_RELATIVE_CASE_METADATA_FILE = "share/metadata/fmu_case.yml"
+RESTART_PATH_ENVNAME = "RESTART_FROM_PATH"
 
 logger = logging.getLogger(__name__)
 
@@ -202,9 +203,9 @@ class _FmuProvider:
             logger.debug("parameters.txt was not found")
 
         # Load restart_from information
-        if "RESTART_FROM_PATH" in environ:
+        if RESTART_PATH_ENVNAME in environ:
             logger.info("Detected a restart run from environment variable")
-            restart_path = self.iter_path / environ["RESTART_FROM_PATH"]
+            restart_path = self.iter_path / environ[RESTART_PATH_ENVNAME]
             restart_iter = _get_folderlist(restart_path)[-1]
             restart_case_metafile = (
                 restart_path / "../.." / ERT2_RELATIVE_CASE_METADATA_FILE
