@@ -748,6 +748,17 @@
                         }
                     }
                 },
+                "classification": {
+                    "type": "string",
+                    "enum": [
+                        "internal",
+                        "restricted"
+                    ],
+                    "examples": [
+                        "internal",
+                        "restricted"
+                    ]
+                },
                 "ssdl": {
                     "type": "object",
                     "$comment": "Required for data objects",

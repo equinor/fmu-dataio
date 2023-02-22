@@ -114,7 +114,7 @@ def test_schema_080_logic_case(schema_080, metadata_examples):
 def test_schema_080_logic_fmu_block_aggr_real(schema_080, metadata_examples):
     """Test that fmu.realization and fmu.aggregation are not allowed at the same time"""
 
-    metadata = metadata_examples["surface_depth.yml"]
+    metadata = deepcopy(metadata_examples["surface_depth.yml"])
     # check that assumptions for the test is true
     assert "realization" in metadata["fmu"]
     assert "aggregation" not in metadata["fmu"]
@@ -325,3 +325,29 @@ def test_schema_080_data_time(schema_080, metadata_examples):
         _example["data"]["time"] = testvalue
         with pytest.raises(jsonschema.exceptions.ValidationError):
             jsonschema.validate(instance=_example, schema=schema_080)
+
+
+def test_schema_logic_classification(schema_080, metadata_examples):
+    """Test the classification of individual files."""
+
+    # fetch example
+    example = deepcopy(metadata_examples["surface_depth.yml"])
+
+    # assert validation with no changes
+    jsonschema.validate(instance=example, schema=schema_080)
+
+    # assert "internal" and "restricted" validates
+    example["access"]["classification"] = "internal"
+    jsonschema.validate(instance=example, schema=schema_080)
+
+    example["access"]["classification"] = "restricted"
+    jsonschema.validate(instance=example, schema=schema_080)
+
+    # assert erroneous value does not validate
+    example["access"]["classification"] = "open"
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=example, schema=schema_080)
+
+    # assert missing value validates
+    del example["access"]["classification"]
+    jsonschema.validate(instance=example, schema=schema_080)
