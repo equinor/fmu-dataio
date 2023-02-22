@@ -94,7 +94,7 @@ import numpy as np
 import pandas as pd  # type: ignore
 import xtgeo  # type: ignore
 
-from ._definitions import _ValidFormats
+from ._definitions import _ValidFormats, STANDARD_TABLE_INDEX_COLUMNS
 from ._utils import generate_description, parse_timedata
 
 try:
@@ -216,6 +216,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().surface
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_regularsurface()
+
         elif isinstance(self.obj, xtgeo.Polygons):
             result["subtype"] = "Polygons"
             result["classname"] = "polygons"
@@ -226,6 +227,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().polygons
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_polygons()
+
         elif isinstance(self.obj, xtgeo.Points):
             result["subtype"] = "Points"
             result["classname"] = "points"
@@ -236,6 +238,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().points
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_points()
+
         elif isinstance(self.obj, xtgeo.Cube):
             result["subtype"] = "RegularCube"
             result["classname"] = "cube"
@@ -246,6 +249,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().cube
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_cube()
+
         elif isinstance(self.obj, xtgeo.Grid):
             result["subtype"] = "CPGrid"
             result["classname"] = "cpgrid"
@@ -256,6 +260,7 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().grid
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_cpgrid()
+
         elif isinstance(self.obj, xtgeo.GridProperty):
             result["subtype"] = "CPGridProperty"
             result["classname"] = "cpgrid_property"
@@ -266,7 +271,9 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().grid
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_cpgridproperty()
+
         elif isinstance(self.obj, pd.DataFrame):
+            result["table_index"] = self._derive_index()
             result["subtype"] = "DataFrame"
             result["classname"] = "table"
             result["layout"] = "table"
@@ -276,7 +283,10 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_dataframe()
+            self._check_index(result["table_index"])
+
         elif HAS_PYARROW and isinstance(self.obj, pa.Table):
+            result["table_index"] = self._derive_index()
             result["subtype"] = "ArrowTable"
             result["classname"] = "table"
             result["layout"] = "table"
@@ -286,6 +296,8 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
+            self._check_index(result["table_index"])
+
         else:
             raise NotImplementedError(
                 "This data type is not (yet) supported: ", type(self.obj)
@@ -469,6 +481,52 @@ class _ObjectDataProvider:
 
         return specs, bbox
 
+    def _get_columns(self):
+        """Get the columns from table"""
+        if isinstance(self.obj, pd.DataFrame):
+            logger.debug("pandas")
+            columns = list(self.obj.columns)
+        else:
+            logger.debug("arrow")
+            columns = self.obj.column_names
+        logger.debug("Available columns in table %s ", columns)
+        return columns
+
+    def _derive_index(self):
+        """Derive table index"""
+        # This could in the future also return context
+        columns = self._get_columns()
+        index = []
+        preset_index = self.dataio.table_index
+        if preset_index is None:
+            logger.debug("Finding index to include")
+            for context, standard_cols in STANDARD_TABLE_INDEX_COLUMNS.items():
+                for valid_col in standard_cols:
+                    if valid_col in columns:
+                        index.append(valid_col)
+                if index:
+                    logger.info("Context is %s ", context)
+            logger.debug("Proudly presenting the index: %s", index)
+        else:
+            index = preset_index
+        if "REAL" in columns:
+            index.append("REAL")
+
+        return index
+
+    def _check_index(self, index):
+        """Check the table index.
+        Args:
+            index (list): list of column names
+
+        Raises:
+            KeyError: if index contains names that are not in self
+        """
+
+        not_founds = (item for item in index if item not in self._get_columns())
+        for not_found in not_founds:
+            raise KeyError(f"{not_found} is not in table")
+
     def _derive_timedata(self):
         """Format input timedata to metadata."""
 
@@ -477,9 +535,10 @@ class _ObjectDataProvider:
             return {}
 
         if self.dataio.legacy_time_format:
-            return self._derive_timedata_legacy()
+            timedata = self._derive_timedata_legacy()
         else:
-            return self._derive_timedata_newformat()
+            timedata = self._derive_timedata_newformat()
+        return timedata
 
     def _derive_timedata_legacy(self):
         """Format input timedata to metadata. legacy version."""
@@ -620,6 +679,7 @@ class _ObjectDataProvider:
         meta["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
+        meta["table_index"] = objres.get("table_index")
         meta["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:

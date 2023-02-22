@@ -61,6 +61,12 @@ ALLOWED_CONTENTS = {
     "timeseries": None,
 }
 
+STANDARD_TABLE_INDEX_COLUMNS = {
+    "inplace_volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
+    "timeseries": ["DATE"],  # summary
+    "rft": ["measured_depth", "well", "time"],
+}
+
 DEPRECATED_CONTENTS = {
     "seismic": {
         "offset": {

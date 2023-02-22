@@ -366,7 +366,7 @@ def some_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
         try:
             config = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
-            print(exc)
+            logger.info(exc)
             raise
 
     return config
