@@ -5,127 +5,33 @@
 [![PyPI version](https://badge.fury.io/py/fmu-dataio.svg)](https://badge.fury.io/py/fmu-dataio)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fmu-dataio.svg)
 ![PyPI - License](https://img.shields.io/pypi/l/fmu-dataio.svg)
+![ReadTheDocs](https://readthedocs.org/projects/fmu-dataio/badge/?version=latest&style=flat)
 
-Utility functions for data transfer of FMU data with rich metadata, for REP,
-SUMO, WEBVIZ, etc.
+**fmu-dataio** is a library for handling data flow in and out of Fast Model Update workflows.
+For export, it automates the adherence to the FMU data standard ✅ including both file and folder
+conventions as well as richer metadata 🔖 for use by various data consumers both inside and
+outside the FMU context via Sumo.
 
-These fmu.dataio functions can be ran both inside RMS and outside RMS with
-exactly the same syntax.
+**fmu-dataio** is designed to be used with the same syntax in all parts of an FMU workflow, 
+including post- and pre-processing jobs and as part of ERT `FORWARD_MODEL`, both inside and outside RMS.
 
-For surfaces, grids, wells, polygons, the input object must be parsed by
-xtgeo. Tables must be represented as a pandas dataframe or pyarrow.
+👉 [Detailed documentation for fmu-dataio at Read the Docs.](https://fmu-dataio.readthedocs.io/en/latest/) 👀
 
-A configuration input is required and will within Equinor be read from the
-so-called `global_variables.yml` produced by fmu-config. Details on syntax
-will be given in the documentation.
+**fmu-dataio** is also showcased in Drogon. 💪
 
-As default, output with metadata will be stored in `share/results` for each
-realization, while ensemble metadata when run with ERT will be stored in
-`/scratch/<field>/<user>/<case>/share/metadata`
+## Data standard definitions
+![Radix](https://api.radix.equinor.com/api/v1/applications/fmu-schemas/environments/dev/buildstatus)
 
-# Metadata definitions
-![](https://api.radix.equinor.com/api/v1/applications/fmu-schemas/environments/dev/buildstatus)
-
-Definitions of metadata applied to FMU results are in the form of a [JSON schema](https://json-schema.org/).
-Within Equinor, the schema is available on a Radix-hosted endpoint.
-
-## Usage
-
-### Initialise a case
-
-This is typically done via a hook workflow in ERT. This will make it possible to
-register a case for the Sumo uploader. As default, this will give a case metadata
-file stored in `/scratch/somefield/someuser/somecase/share/metadata/fmu_case.yml`.
-
-
-```python
-from fmu.config import utilities as ut
-from fmu.dataio import InitializeCase
-
-CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
-
-CDIR = "/scratch/somefield"
-CNAME = "somecase"
-CUSER = "someuser"
-DSC = "The ultimate history match"
-
-def initalize():
-
-    mycase = InitializeCase(config=CFG)
-
-    mycase.export(rootfolder=CDIR, casename=CNAME, caseuser=CUSER, description=DSC)
-
-```
-
-### Export a surface
-
-```python
-import xtgeo
-from fmu.config import utilities as ut
-from fmu.dataio import ExportData
-
-CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
-
-
-def export_some_surface():
-    srf = xtgeo.surface_from_file("top_of_some.gri")
-
-    exp = ExportData(
-        config=CFG,
-        content="depth",
-        unit="m",
-        vertical_domain={"depth": "msl"},
-        timedata=None,
-        is_prediction=True,
-        is_observation=False,
-        verbosity="WARNING",
-    )
-
-    exp.export(srf, tagname="Some Descr")
-
-if __name__ == "__main__":
-    export_some_surface()
-
-```
-
-
-### Export a table
-
-This is coming functionality and code in example is tentative!
-
-```python
-import pandas as pd
-from fmu.config import utilities as ut
-from fmu.dataio import ExportData
-
-CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
-
-
-def export_some_table():
-    vol = pd.read_csv("some_table_vol.csv")
-
-    exp = ExportData(
-        config=CFG,
-        content="volumetrics",
-        unit="m",
-        is_prediction=True,
-        is_observation=False,
-    )
-
-    exp.export(vol, tagname="voltable")
-
-if __name__ == "__main__":
-    export_some_table()
-
-```
+The metadata standard is defined by a [JSON schema](https://json-schema.org/). Within Equinor,
+the schema is available on a Radix-hosted endpoint ⚡
 
 
 ## Installation
 
-Install a specific version (e.g. 0.1.1) directly from github through:
+Install a specific version (e.g. 1.2.3) directly from github through:
 
 ```console
-pip install git+ssh://git@github.com/equinor/fmu-dataio@0.1.1
+pip install git+ssh://git@github.com/equinor/fmu-dataio@1.2.3
 ```
 
 Local development and testing:
@@ -153,6 +59,3 @@ Then run the command:
 pytest
 ```
 
-## License
-
-Apache 2.0
