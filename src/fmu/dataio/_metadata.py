@@ -12,7 +12,14 @@ from pathlib import Path
 from typing import Any, Optional
 from warnings import warn
 
-from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
+from fmu.dataio._definitions import (
+    SCHEMA,
+    SOURCE,
+    VERSION,
+    DEFAULT_ACCESS_CLASSIFICATION,
+    ALLOWED_ACCESS_CLASSIFICATION,
+)
+
 from fmu.dataio._filedata_provider import _FileDataProvider
 from fmu.dataio._fmu_provider import _FmuProvider
 from fmu.dataio._objectdata_provider import _ObjectDataProvider
@@ -78,31 +85,68 @@ def generate_meta_access(config: dict) -> Optional[dict]:
 
     The "ssdl" field can come from the config, or be explicitly given through
     the "access_ssdl" input argument. If the access_ssdl input argument is present,
-    its contents shall take presedence.
+    its contents shall take precedence.
 
+    The "classification" field can come from the "access_classification" input
+    argument (1), from config (2) or from dataio constants (3). If it has come from
+    the input argument, self.config has been updated in ExportData.update_globalconfig..
     """
+
     if not config:
         warn("The config is empty or missing", UserWarning)
         return None
 
     if config and "access" not in config:
-        raise ConfigurationError("The config misses the 'access' section")
+        raise ConfigurationError(
+            "'access.access' section missing from config (global_variables)"
+        )
 
     a_cfg = config["access"]
-
-    if "asset" not in a_cfg:
-        # asset shall be present if config is used
-        raise ConfigurationError("The 'access.asset' field not found in the config")
 
     # initialize and populate with defaults from config
     a_meta = dict()  # shortform
 
+    # access.asset
+
     # if there is a config, the 'asset' tag shall be present
+    if "asset" not in a_cfg:
+        raise ConfigurationError(
+            "The 'access.asset' field not found in the config (global_variables)"
+        )
     a_meta["asset"] = a_cfg["asset"]
 
-    # ssdl
+    # access.ssdl
     if "ssdl" in a_cfg and a_cfg["ssdl"]:
         a_meta["ssdl"] = a_cfg["ssdl"]
+
+    # access.classification
+
+    # first try config
+    # Note that value in config may have been inserted via arguments by
+    # ExportData._update_globalconfig_from_settings()
+    if "classification" in a_cfg and a_cfg["classification"]:
+        if a_cfg["classification"] not in ALLOWED_ACCESS_CLASSIFICATION:
+            raise ConfigurationError(
+                "Error in config/global_variables.yml: "
+                f"access.classifiation = {a_cfg['classification']} "
+                f"Allowed values are: {ALLOWED_ACCESS_CLASSIFICATION}"
+            )
+        a_meta["classification"] = a_cfg["classification"]
+        logger.debug("classification set to %s from config", a_meta["classification"])
+
+    # finally fall back to constant. We include this for backwards compatibility, as
+    # we expect to encounter global_configs without the access.classification field.
+    else:
+        a_meta["classification"] = DEFAULT_ACCESS_CLASSIFICATION
+        logger.debug(
+            "classification set to %s from constants", a_meta["classification"]
+        )
+        warn(
+            f"access.classification is defaulted to {DEFAULT_ACCESS_CLASSIFICATION}. "
+            "Silence this warning by adding the 'classification' key to the 'access' "
+            "block in global_variables or passing the 'access_classification' argument "
+            "to ExportData() or ExportData().export()."
+        )
 
     return a_meta
 
@@ -272,13 +316,16 @@ class _MetaData:
         """Populate metadata overall from access section in config + allowed keys.
 
         Access should be possible to change per object, based on user input.
-        This is done through the access_ssdl input argument.
+        This is done through the access_ssdl and the classification input arguments.
 
         The "asset" field shall come from the config. This is static information.
 
         The "ssdl" field can come from the config, or be explicitly given through
         the "access_ssdl" input argument. If the access_ssdl input argument is present,
-        its contents shall take presedence.
+        its contents shall take precedence.
+
+        The "classification" field can come from the "access_classification" input
+        argument (1), from config (2) or from constants (3).
 
         """
         if self.dataio:

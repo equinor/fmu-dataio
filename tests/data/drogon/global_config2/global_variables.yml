@@ -25,6 +25,7 @@ access:
   ssdl:
     access_level: internal
     rep_include: true
+  classification: restricted # default for all data objects
 model:
   name: ff
   revision: AUTO

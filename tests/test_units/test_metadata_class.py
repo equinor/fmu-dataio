@@ -5,6 +5,7 @@ from copy import deepcopy
 import pytest
 
 import fmu.dataio as dio
+from fmu.dataio.dataio import ValidationError
 from fmu.dataio._metadata import SCHEMA, SOURCE, VERSION, ConfigurationError, _MetaData
 from fmu.dataio._utils import prettyprint_dict
 
@@ -110,6 +111,78 @@ def test_metadata_populate_access_miss_config_access(edataobj1):
         mymeta._populate_meta_access()
 
 
+def test_metadata_populate_access_classification(globalconfig1):
+    """Testing the materialization of access.classification.
+
+    The 'access.classification' field defines the information classification of each
+    exported data object. It is populated primarily from a configured default
+    (global_variables). It can be overridden by the 'access_classification' argument
+    when passed to ExportData() or ExportData().export().
+
+    If no argument, and missing from config, a constant default shall be set. This is
+    included for backwards compatibility.
+
+    * Shall use input argument regardless of contents in config.
+    * Shall use from config if no argument is given.
+    * Shall fallback with warning to constant if not in config and no argument.
+    * Shall only accept the values "internal" and "restricted".
+
+    """
+
+    # verify test assumptions
+    assert "access" in globalconfig1
+    assert "classification" in globalconfig1["access"]
+    assert globalconfig1["access"]["classification"] == "internal"
+
+    # if input arguments, use those
+    edata = dio.ExportData(
+        config=globalconfig1,
+        access_classification="restricted",
+    )
+
+    mymeta = _MetaData("dummy", edata)
+    mymeta._populate_meta_access()
+    assert mymeta.meta_access["classification"] == "restricted"
+
+    # if error in input arguments, fail
+    with pytest.raises(ValidationError):
+        edata = dio.ExportData(
+            config=globalconfig1,
+            access_classification="wrong",
+        )
+
+    # if no input arguments, use config
+    edata = dio.ExportData(
+        config=globalconfig1,
+    )
+    mymeta = _MetaData("dummy", edata)
+    mymeta._populate_meta_access()
+    assert "classification" in mymeta.meta_access
+    assert mymeta.meta_access["classification"] == "internal"
+
+    # if error in config, fail
+    _config = deepcopy(globalconfig1)
+    _config["access"]["classification"] = "wrong"
+    edata = dio.ExportData(
+        config=_config,
+    )
+    mymeta = _MetaData("dummy", edata)
+    with pytest.raises(ConfigurationError):
+        mymeta._populate_meta_access()
+
+    # if no input arguments and no config, use constant and warn
+    _config = deepcopy(globalconfig1)
+    del _config["access"]["classification"]  # no config
+    edata = dio.ExportData(
+        config=_config,
+    )
+    mymeta = _MetaData("dummy", edata)
+    with pytest.warns(match="access.classification is defaulted"):
+        mymeta._populate_meta_access()
+    _default = dio._definitions.DEFAULT_ACCESS_CLASSIFICATION
+    assert mymeta.meta_access["classification"] == _default
+
+
 def test_metadata_populate_access_ok_config(edataobj2):
     """Testing the access part, now with config ok access."""
 
@@ -118,6 +191,7 @@ def test_metadata_populate_access_ok_config(edataobj2):
     mymeta._populate_meta_access()
     assert mymeta.meta_access == {
         "asset": {"name": "Drogon"},
+        "classification": "restricted",
         "ssdl": {"access_level": "internal", "rep_include": True},
     }
 
@@ -127,6 +201,7 @@ def test_metadata_populate_change_access_ok(globalconfig1):
 
     edata = dio.ExportData(
         config=globalconfig1,
+        access_classification="internal",
         access_ssdl={"access_level": "paranoid", "rep_include": False},
     )
     mymeta = _MetaData("dummy", edata)
@@ -134,6 +209,7 @@ def test_metadata_populate_change_access_ok(globalconfig1):
     mymeta._populate_meta_access()
     assert mymeta.meta_access == {
         "asset": {"name": "Test"},
+        "classification": "internal",
         "ssdl": {"access_level": "paranoid", "rep_include": False},
     }
 

@@ -91,3 +91,8 @@ ALLOWED_FMU_CONTEXTS = {
     "case_symlink_realization": "To case/share, with symlinks on realizations level",
     "preprocessed": "To share/preprocessed; from interactive runs but re-used later",
 }
+
+# A default information classification to ensure backwards compatibility, and act as
+# ultimate fallback if missing in both arguments and config.
+DEFAULT_ACCESS_CLASSIFICATION = "restricted"
+ALLOWED_ACCESS_CLASSIFICATION = ["internal", "restricted"]

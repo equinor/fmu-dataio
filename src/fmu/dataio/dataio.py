@@ -20,6 +20,7 @@ from ._definitions import (
     ALLOWED_FMU_CONTEXTS,
     CONTENTS_REQUIRED,
     DEPRECATED_CONTENTS,
+    ALLOWED_ACCESS_CLASSIFICATION,
 )
 from ._utils import (
     create_symlink,
@@ -328,6 +329,11 @@ class ExportData:
              to the default ssdl settings read from the config. Example:
             ``{"access_level": "restricted", "rep_include": False}``
 
+        access_classification: Optional. A string representing the classification of the
+            exported object(s). Valid values are "internal" and "restricted". If not
+            passed, defaults will be grabbed from either global_variables or fallback
+            to using built-in default.
+
         casepath: To override the automatic and actual ``rootpath``. Absolute path to
             the case root. If not provided, the rootpath will be attempted parsed from
             the file structure or by other means. See also fmu_context, where "case"
@@ -506,6 +512,7 @@ class ExportData:
 
     # input keys (alphabetic)
     access_ssdl: dict = field(default_factory=dict)
+    access_classification: str = None
     aggregation: bool = False
     casepath: Union[str, Path, None] = None
     config: dict = field(default_factory=dict)
@@ -675,6 +682,16 @@ class ExportData:
             logger.info(
                 "Updated global config's access.ssdl value: %s", newglobals["access"]
             )
+
+        if self.access_classification is not None:
+            newglobals["access"]["classification"] = self.access_classification
+
+            if self.access_classification not in ALLOWED_ACCESS_CLASSIFICATION:
+                raise ValidationError(
+                    "Error in input arguments: "
+                    f"access_classifiation = {self.access_classification} "
+                    f"Allowed values are: {ALLOWED_ACCESS_CLASSIFICATION}"
+                )
 
         self.config = newglobals
 

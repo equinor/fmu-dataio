@@ -219,6 +219,7 @@ def fixture_globalconfig1():
             "access_level": "internal",
             "rep_include": False,
         },
+        "classification": "internal",
     }
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return cfg
