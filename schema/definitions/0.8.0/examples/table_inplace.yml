@@ -115,6 +115,10 @@ data: # The data block describes the actual data (e.g. surface). Only present in
     ncol: 281
     nrow: 441
     undef: -999.25  # Allow both number and string
+    columns:
+      - BULK_OIL
+      - NET_OIL
+      - PORE_OIL
   is_prediction: true # A mechanism for separating pure QC output from actual predictions
   is_observation: false
   description:

@@ -21,6 +21,7 @@
         "data.is_prediction",
         "data.is_observation",
         "data.seismic.attribute",
+        "data.spec.columns",
         "access",
         "masterdata",
         "fmu.model",
@@ -428,6 +429,26 @@
                             "examples": [
                                 1
                             ]
+                        },
+                        "size": {
+                            "description": "Size of data object.",
+                            "type": "integer",
+                            "examples": [
+                                1,
+                                9999
+                            ]
+                        },
+                        "columns": {
+                            "description": "List of columns present in a table.",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "examples": [
+                                    "FOPT",
+                                    "STOIIP_OIL",
+                                    "COL_1"
+                                ]
+                            }
                         }
                     }
                 },
