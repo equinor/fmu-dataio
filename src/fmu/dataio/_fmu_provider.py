@@ -218,12 +218,14 @@ class _FmuProvider:
                 )
             else:
                 print(
-                    f"{RESTART_PATH_ENVNAME} environment variable is set to {environ[RESTART_PATH_ENVNAME]} "
-                    "which is invalid. Metadata restart_from will remain empty."
+                    f"{RESTART_PATH_ENVNAME} environment variable is set to "
+                    "{environ[RESTART_PATH_ENVNAME]} which is invalid. Metadata "
+                    "restart_from will remain empty."
                 )
                 logger.warning(
-                    f"{RESTART_PATH_ENVNAME} environment variable is set to {environ[RESTART_PATH_ENVNAME]} "
-                    "which is invalid. Metadata restart_from will remain empty."
+                    f"{RESTART_PATH_ENVNAME} environment variable is set to "
+                    "{environ[RESTART_PATH_ENVNAME]} which is invalid. Metadata "
+                    "restart_from will remain empty."
                 )
 
         # store jobs.json if required!
