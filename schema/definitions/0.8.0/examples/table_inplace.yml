@@ -10,7 +10,7 @@ tracklog:
       id: peesv
     event: created
   - datetime: 2020-10-28T14:46:14
-    user: 
+    user:
       id: peesv
     event: updated
 
@@ -38,12 +38,12 @@ fmu: # the fmu-block contains information directly related to the FMU context
     description:
       - yet other detailed description
       - optional
-    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration/case
 
   iteration:
     id: 0 # always an int, will be 0 for e.g. "pred"
     uuid: 4b939310-34b1-4179-802c-49460bc0f799 # hash of case.uuid + iteration.id
     name: "iter-0" # /"pred"
+    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration
 
   realization:
     id: 33
@@ -75,7 +75,13 @@ data: # The data block describes the actual data (e.g. surface). Only present in
   name: inplace_mygrid
   stratigraphic: false
 
-  properties: 
+  table_index:
+    - ZONE
+    - REGION
+    - FACIES
+    - LICENCE
+
+  properties:
     - name: BULK_OIL
       unit: m3
       is_discrete: false
@@ -109,6 +115,10 @@ data: # The data block describes the actual data (e.g. surface). Only present in
     ncol: 281
     nrow: 441
     undef: -999.25  # Allow both number and string
+    columns:
+      - BULK_OIL
+      - NET_OIL
+      - PORE_OIL
   is_prediction: true # A mechanism for separating pure QC output from actual predictions
   is_observation: false
   description:
@@ -141,4 +151,3 @@ masterdata:
     stratigraphic_column:
       identifier: DROGON_2020
       uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
-

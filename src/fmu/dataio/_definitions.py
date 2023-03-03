@@ -49,6 +49,7 @@ ALLOWED_CONTENTS = {
     },
     "fluid_contact": {"contact": str, "truncated": bool},
     "field_outline": {"contact": str},
+    "field_region": {"id": int},
     "regions": None,
     "pinchout": None,
     "subcrop": None,
@@ -58,6 +59,12 @@ ALLOWED_CONTENTS = {
     "volumetrics": None,  # or?
     "khproduct": None,
     "timeseries": None,
+}
+
+STANDARD_TABLE_INDEX_COLUMNS = {
+    "inplace_volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
+    "timeseries": ["DATE"],  # summary
+    "rft": ["measured_depth", "well", "time"],
 }
 
 DEPRECATED_CONTENTS = {
@@ -73,6 +80,7 @@ DEPRECATED_CONTENTS = {
 CONTENTS_REQUIRED = {
     "fluid_contact": {"contact": True},
     "field_outline": {"contact": False},
+    "field_region": {"id": True},
 }
 
 # This setting sets the FMU context for the output. If detected as a non-fmu run,

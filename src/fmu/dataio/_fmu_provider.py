@@ -12,6 +12,7 @@ import pathlib
 import re
 from copy import deepcopy
 from dataclasses import dataclass, field
+from os import environ
 from pathlib import Path
 from typing import Any, Optional
 from warnings import warn
@@ -20,6 +21,7 @@ from . import _utils
 
 # case metadata relative to rootpath
 ERT2_RELATIVE_CASE_METADATA_FILE = "share/metadata/fmu_case.yml"
+RESTART_PATH_ENVNAME = "RESTART_FROM_PATH"
 
 logger = logging.getLogger(__name__)
 
@@ -200,6 +202,32 @@ class _FmuProvider:
             self.ert2["params"] = None
             logger.debug("parameters.txt was not found")
 
+        # Load restart_from information
+        if RESTART_PATH_ENVNAME in environ:
+            logger.info("Detected a restart run from environment variable")
+            restart_path = self.iter_path / environ[RESTART_PATH_ENVNAME]
+            restart_iter = _get_folderlist(restart_path)[-1]
+            restart_case_metafile = (
+                restart_path / "../.." / ERT2_RELATIVE_CASE_METADATA_FILE
+            ).resolve()
+            if restart_case_metafile.exists():
+                restart_metadata = _utils.load_yaml(restart_case_metafile)
+                self.ert2["restart_from"] = _utils.uuid_from_string(
+                    restart_metadata["fmu"]["case"]["uuid"]
+                    + restart_iter.replace("iter-", "")
+                )
+            else:
+                print(
+                    f"{RESTART_PATH_ENVNAME} environment variable is set to "
+                    "{environ[RESTART_PATH_ENVNAME]} which is invalid. Metadata "
+                    "restart_from will remain empty."
+                )
+                logger.warning(
+                    f"{RESTART_PATH_ENVNAME} environment variable is set to "
+                    "{environ[RESTART_PATH_ENVNAME]} which is invalid. Metadata "
+                    "restart_from will remain empty."
+                )
+
         # store jobs.json if required!
         if self.dataio.include_ert2jobs:
             jobs_file = self.iter_path / "jobs.json"
@@ -280,8 +308,12 @@ class _FmuProvider:
                 "id": self.iter_id,
                 "uuid": iter_uuid,
                 "name": self.iter_name,
+                **(
+                    {"restart_from": self.ert2["restart_from"]}
+                    if "restart_from" in self.ert2
+                    else {}
+                ),
             }
-
             real_uuid = _utils.uuid_from_string(
                 case_uuid + str(iter_uuid) + str(self.real_id)
             )

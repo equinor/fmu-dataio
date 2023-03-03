@@ -4,7 +4,7 @@ import os
 import pytest
 
 import fmu.dataio as dio
-from fmu.dataio._fmu_provider import _FmuProvider, _get_folderlist
+from fmu.dataio._fmu_provider import _FmuProvider, _get_folderlist, RESTART_PATH_ENVNAME
 
 FOLDERTREE = "scratch/myfield/case/realization-13/iter-2"
 
@@ -139,6 +139,68 @@ def test_fmuprovider_detect_no_case_metadata(fmurun, edataobj1):
     assert myfmu.real_id == 0
     assert "fmu_case" in str(myfmu.case_metafile)
     assert not myfmu.case_metadata
+
+
+def test_fmuprovider_valid_restart_env(fmurun_w_casemetadata, fmurun_pred, edataobj1):
+    """Testing the scenario given a valid RESTART_FROM_PATH environment variable
+
+    This will give the correct restart_from uuid
+    """
+
+    edataobj1._rootpath = fmurun_w_casemetadata
+    os.chdir(fmurun_w_casemetadata)
+    fmu_restart_from = _FmuProvider(edataobj1)
+    fmu_restart_from.detect_provider()
+
+    os.environ[RESTART_PATH_ENVNAME] = str(fmurun_w_casemetadata)
+    edataobj1._rootpath = fmurun_pred
+    os.chdir(fmurun_pred)
+    fmu_restart = _FmuProvider(edataobj1)
+    with pytest.warns(UserWarning, match="ERT2 is found but no case metadata"):
+        fmu_restart.detect_provider()
+    assert (
+        fmu_restart.metadata["iteration"]["restart_from"]
+        == fmu_restart_from.metadata["iteration"]["uuid"]
+    )
+
+
+def test_fmuprovider_invalid_restart_env(fmurun_w_casemetadata, fmurun_pred, edataobj1):
+    """Testing the scenario given invalid RESTART_FROM_PATH environment variable
+
+    The iteration metadata will not contain restart_from key
+    """
+
+    edataobj1._rootpath = fmurun_w_casemetadata
+    os.chdir(fmurun_w_casemetadata)
+    fmu_restart_from = _FmuProvider(edataobj1)
+    fmu_restart_from.detect_provider()
+
+    os.environ[RESTART_PATH_ENVNAME] = "/path/to/somewhere/invalid"
+    edataobj1._rootpath = fmurun_pred
+    os.chdir(fmurun_pred)
+    fmu_restart = _FmuProvider(edataobj1)
+    with pytest.warns(UserWarning, match="ERT2 is found but no case metadata"):
+        fmu_restart.detect_provider()
+    assert "restart_from" not in fmu_restart.metadata["iteration"]
+
+
+def test_fmuprovider_no_restart_env(fmurun_w_casemetadata, fmurun_pred, edataobj1):
+    """Testing the scenario without RESTART_FROM_PATH environment variable
+
+    The iteration metadata will not contain restart_from key
+    """
+
+    edataobj1._rootpath = fmurun_w_casemetadata
+    os.chdir(fmurun_w_casemetadata)
+    fmu_restart_from = _FmuProvider(edataobj1)
+    fmu_restart_from.detect_provider()
+
+    edataobj1._rootpath = fmurun_pred
+    os.chdir(fmurun_pred)
+    fmu_restart = _FmuProvider(edataobj1)
+    with pytest.warns(UserWarning, match="ERT2 is found but no case metadata"):
+        fmu_restart.detect_provider()
+    assert "restart_from" not in fmu_restart.metadata["iteration"]
 
 
 def test_fmuprovider_detect_case_has_metadata(fmurun_w_casemetadata, edataobj1):

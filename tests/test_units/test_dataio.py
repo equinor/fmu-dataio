@@ -190,6 +190,21 @@ def test_content_is_dict_with_wrong_types(globalconfig2):
         )
 
 
+def test_content_with_subfields(globalconfig2, polygons):
+    """When subfield is given and allowed, it shall be produced to metadata."""
+    eobj = ExportData(
+        config=globalconfig2,
+        name="Central Horst",
+        content={"field_region": {"id": 1}},
+    )
+    mymeta = eobj.generate_metadata(polygons)
+
+    assert mymeta["data"]["name"] == "Central Horst"
+    assert mymeta["data"]["content"] == "field_region"
+    assert "field_region" in mymeta["data"]
+    assert mymeta["data"]["field_region"] == {"id": 1}
+
+
 def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
     """Assert that usage of seismic.offset still works but give deprecation warning."""
     with pytest.warns(DeprecationWarning, match="seismic.offset is deprecated"):
