@@ -755,10 +755,6 @@
         },
         "access": {
             "type": "object",
-            "required": [
-                "asset",
-                "classification"
-            ],
             "properties": {
                 "asset": {
                     "type": "object",
@@ -1369,7 +1365,8 @@
                 "access": {
                     "required": [
                         "asset",
-                        "ssdl"
+                        "ssdl",
+                        "classification"
                     ]
                 }
             }

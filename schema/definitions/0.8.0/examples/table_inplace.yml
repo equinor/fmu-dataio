@@ -133,6 +133,7 @@ access:
   ssdl:
     access_level: asset
     rep_include: false
+  classification: internal
 
 masterdata:
   smda:

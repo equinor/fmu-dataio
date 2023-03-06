@@ -348,6 +348,7 @@ def test_schema_logic_classification(schema_080, metadata_examples):
     with pytest.raises(jsonschema.exceptions.ValidationError):
         jsonschema.validate(instance=example, schema=schema_080)
 
-    # assert missing value validates
+    # assert missing value fails
     del example["access"]["classification"]
-    jsonschema.validate(instance=example, schema=schema_080)
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=example, schema=schema_080)
