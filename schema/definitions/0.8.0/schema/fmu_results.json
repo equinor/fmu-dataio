@@ -795,6 +795,17 @@
                             ]
                         }
                     }
+                },
+                "classification": {
+                    "type": "string",
+                    "enum": [
+                        "internal",
+                        "restricted"
+                    ],
+                    "examples": [
+                        "internal",
+                        "restricted"
+                    ]
                 }
             }
         },

@@ -80,6 +80,12 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     the "access_ssdl" input argument. If the access_ssdl input argument is present,
     its contents shall take presedence.
 
+    The "classification" field shall be mapped from "ssdl.access_level" using the
+    following translation:
+
+        ssdl.access_level  -> classification
+        "internal"            "internal"
+        "asset"               "restricted"
     """
     if not config:
         warn("The config is empty or missing", UserWarning)
@@ -103,6 +109,19 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     # ssdl
     if "ssdl" in a_cfg and a_cfg["ssdl"]:
         a_meta["ssdl"] = a_cfg["ssdl"]
+
+    # classification
+    _ssdl_alvl = a_cfg.get("ssdl", {}).get("access_level")
+    _translation = {"internal": "internal", "asset": "restricted"}
+
+    if _ssdl_alvl is not None:
+        if _ssdl_alvl not in _translation:
+            raise ConfigurationError(
+                f"Illegal value for access.ssdl.access_level: {_ssdl_alvl} "
+                f"Valid values are: {_translation.keys()}")
+        a_meta["classification"] = _translation[_ssdl_alvl]
+    else:
+        a_meta["classification"] = "internal" # Default to "internal"
 
     return a_meta
 

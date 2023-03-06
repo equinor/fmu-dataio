@@ -119,24 +119,73 @@ def test_metadata_populate_access_ok_config(edataobj2):
     assert mymeta.meta_access == {
         "asset": {"name": "Drogon"},
         "ssdl": {"access_level": "internal", "rep_include": True},
+        "classification": "internal"
     }
 
 
-def test_metadata_populate_change_access_ok(globalconfig1):
+def test_metadata_populate_from_argument(globalconfig1):
     """Testing the access part, now with ok config and a change in access."""
+    
+    # test assumptions
+    assert globalconfig1["access"]["ssdl"]["access_level"] == "internal"
 
     edata = dio.ExportData(
         config=globalconfig1,
-        access_ssdl={"access_level": "paranoid", "rep_include": False},
+        access_ssdl={"access_level": "asset", "rep_include": False},
     )
     mymeta = _MetaData("dummy", edata)
 
     mymeta._populate_meta_access()
     assert mymeta.meta_access == {
         "asset": {"name": "Test"},
-        "ssdl": {"access_level": "paranoid", "rep_include": False},
+        "ssdl": {"access_level": "asset", "rep_include": False},
+        "classification": "restricted" # translated from "asset"
     }
 
+def test_metadata_populate_partial_access_ssdl(globalconfig1):
+    """Test what happens if ssdl_access argument is partial."""
+
+    # test assumptions
+    assert globalconfig1["access"]["ssdl"]["access_level"] == "internal"
+
+    edata = dio.ExportData(
+        config=globalconfig1,
+        access_ssdl={"rep_include": False}
+    )
+    mymeta = _MetaData("dummy", edata)
+    mymeta._populate_meta_access()
+    assert mymeta.meta_access == {
+        "asset": {"name": "Test"},
+        "ssdl": {
+            "rep_include": False
+            },
+        "classification": "internal" # default
+    }
+
+def test_metadata_populate_wrong_config(globalconfig1):
+    """Test error in access_ssdl in config."""
+
+    # test assumptions
+    _config = deepcopy(globalconfig1)
+    _config["access"]["ssdl"]["access_level"] = "wrong"
+
+    edata = dio.ExportData(
+        config=_config,
+    )
+    mymeta = _MetaData("dummy", edata)
+    with pytest.raises(ConfigurationError, match="Illegal value for access"):
+        mymeta._populate_meta_access()
+
+def test_metadata_populate_wrong_argument(globalconfig1):
+    """Test error in access_ssdl in arguments."""
+
+    edata = dio.ExportData(
+        config=globalconfig1,
+        access_ssdl={"access_level": "wrong"}
+    )
+    mymeta = _MetaData("dummy", edata)
+    with pytest.raises(ConfigurationError, match="Illegal value for access"):
+        mymeta._populate_meta_access()
 
 # --------------------------------------------------------------------------------------
 # The GENERATE method
