@@ -755,6 +755,10 @@
         },
         "access": {
             "type": "object",
+            "required": [
+                "asset",
+                "classification"
+            ],
             "properties": {
                 "asset": {
                     "type": "object",
