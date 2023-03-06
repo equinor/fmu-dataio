@@ -213,8 +213,7 @@ class _FmuProvider:
             if restart_case_metafile.exists():
                 restart_metadata = _utils.load_yaml(restart_case_metafile)
                 self.ert2["restart_from"] = _utils.uuid_from_string(
-                    restart_metadata["fmu"]["case"]["uuid"]
-                    + restart_iter.replace("iter-", "")
+                    restart_metadata["fmu"]["case"]["uuid"] + restart_iter
                 )
             else:
                 print(
