@@ -118,10 +118,11 @@ def generate_meta_access(config: dict) -> Optional[dict]:
         if _ssdl_alvl not in _translation:
             raise ConfigurationError(
                 f"Illegal value for access.ssdl.access_level: {_ssdl_alvl} "
-                f"Valid values are: {_translation.keys()}")
+                f"Valid values are: {_translation.keys()}"
+            )
         a_meta["classification"] = _translation[_ssdl_alvl]
     else:
-        a_meta["classification"] = "internal" # Default to "internal"
+        a_meta["classification"] = "internal"  # Default to "internal"
 
     return a_meta
 

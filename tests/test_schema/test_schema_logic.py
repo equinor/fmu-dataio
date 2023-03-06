@@ -326,6 +326,7 @@ def test_schema_080_data_time(schema_080, metadata_examples):
         with pytest.raises(jsonschema.exceptions.ValidationError):
             jsonschema.validate(instance=_example, schema=schema_080)
 
+
 def test_schema_logic_classification(schema_080, metadata_examples):
     """Test the classification of individual files."""
 
