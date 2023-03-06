@@ -85,6 +85,17 @@ def fixture_fmurun_w_casemetadata(tmp_path_factory):
     return rootpath
 
 
+@pytest.fixture(name="fmurun_w_casemetadata_pred", scope="session", autouse=True)
+def fixture_fmurun_w_casemetadata_pred(tmp_path_factory):
+    """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
+    tmppath = tmp_path_factory.mktemp("data3")
+    newpath = tmppath / RUN2
+    shutil.copytree(ROOTPWD / RUN2, newpath)
+    rootpath = newpath / "realization-0/pred"
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return rootpath
+
+
 @pytest.fixture(name="fmurun_pred", scope="session", autouse=True)
 def fixture_fmurun_pred(tmp_path_factory):
     """Create a tmp folder structure for testing; here a new fmurun for prediction."""
