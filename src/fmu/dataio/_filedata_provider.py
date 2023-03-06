@@ -99,7 +99,9 @@ class _FileDataProvider:
             try:
                 relpath = path.relative_to(self.rootpath)
             except ValueError as verr:
-                if "does not start with" in str(verr):
+                if ("does not start with" in str(verr)) or (
+                    "not in the subpath of" in str(verr)
+                ):
                     relpath = abspath
                     logger.info(
                         "Relative path equal to absolute path due to forcefolder "
