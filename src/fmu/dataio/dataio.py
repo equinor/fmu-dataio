@@ -914,7 +914,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     rootfolder: Union[str, Path, None] = None
     casename: Optional[str] = None
     caseuser: Optional[str] = None
-    restart_from: Optional[str] = None
     description: Union[str, list, None] = None
     verbosity: str = "CRITICAL"
 
