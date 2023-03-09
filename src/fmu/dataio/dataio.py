@@ -943,7 +943,8 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         for setting, value in newsettings.items():
             if setting == "restart_from":
                 warn(
-                    "The 'restart_from' has been move from case to iteration. It will be remove in near-future."
+                    "The 'restart_from' has been move from case to iteration. "
+                    "It will be remove in near-future."
                 )
             else:
                 if _validate_variable(setting, value, legals):
