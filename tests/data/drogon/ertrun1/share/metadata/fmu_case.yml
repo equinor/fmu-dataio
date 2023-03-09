@@ -15,7 +15,6 @@ fmu:
       id: peesv
     description:
       - My case / ERT run description
-    restart_from: x40b09e8-d47f-49b1-8fxx-g52a5119bd37_iter-3
   model:
     description:
       - Tutorials & stuff

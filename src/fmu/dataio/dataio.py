@@ -900,7 +900,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             or by other means.
         casename: Name of case (experiment)
         caseuser: Username provided
-        restart_from: ID of eventual restart
+        restart_from: ID of eventual restart (deprecated)
         description: Description text as string or list of strings.
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO".
@@ -942,11 +942,16 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         legals = {key: val for key, val in annots.items() if not key.startswith("_")}
 
         for setting, value in newsettings.items():
-            if _validate_variable(setting, value, legals):
-                setattr(self, setting, value)
-                if setting == "verbosity":
-                    logger.setLevel(level=self.verbosity)
-                logger.info("New setting OK for %s", setting)
+            if setting == "restart_from":
+                warn(
+                    "The 'restart_from' has been move from case to iteration. It will be remove in near-future."
+                )
+            else:
+                if _validate_variable(setting, value, legals):
+                    setattr(self, setting, value)
+                    if setting == "verbosity":
+                        logger.setLevel(level=self.verbosity)
+                    logger.info("New setting OK for %s", setting)
 
     def _establish_pwd_casepath(self):
         """Establish state variables pwd and casepath.
@@ -1042,7 +1047,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         mcase["user"] = {"id": self.caseuser}  # type: ignore
 
         mcase["description"] = generate_description(self.description)  # type: ignore
-        mcase["restart_from"] = self.restart_from
 
         meta["tracklog"] = _metadata.generate_meta_tracklog()
 

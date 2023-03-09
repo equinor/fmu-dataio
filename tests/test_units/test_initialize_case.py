@@ -171,7 +171,6 @@ def test_inicase_generate_case_metadata_exists_but_force(
         casename="ertrun1",
         caseuser="guffen",
         description="My curious case",
-        restart_from="Jurassic era",
     )
 
     new_metafile = casemetafolder / "share/metadata/fmu_case.yml"
