@@ -914,6 +914,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     rootfolder: Union[str, Path, None] = None
     casename: Optional[str] = None
     caseuser: Optional[str] = None
+    restart_from: Optional[str] = None
     description: Union[str, list, None] = None
     verbosity: str = "CRITICAL"
 
@@ -943,15 +944,17 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         for setting, value in newsettings.items():
             if setting == "restart_from":
                 warn(
-                    "The 'restart_from' has been move from case to iteration. "
-                    "It will be remove in near-future."
+                    "The 'restart_from' argument is deprecated and will be removed in "
+                    "a future version. Please refer to the fmu-dataio documentation "
+                    "for information on how to record information about restart "
+                    "source.",
+                    DeprecationWarning,
                 )
-            else:
-                if _validate_variable(setting, value, legals):
-                    setattr(self, setting, value)
-                    if setting == "verbosity":
-                        logger.setLevel(level=self.verbosity)
-                    logger.info("New setting OK for %s", setting)
+            if _validate_variable(setting, value, legals):
+                setattr(self, setting, value)
+                if setting == "verbosity":
+                    logger.setLevel(level=self.verbosity)
+                logger.info("New setting OK for %s", setting)
 
     def _establish_pwd_casepath(self):
         """Establish state variables pwd and casepath.
