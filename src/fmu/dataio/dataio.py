@@ -1050,6 +1050,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         mcase["user"] = {"id": self.caseuser}  # type: ignore
 
         mcase["description"] = generate_description(self.description)  # type: ignore
+        mcase["restart_from"] = self.restart_from
 
         meta["tracklog"] = _metadata.generate_meta_tracklog()
 
