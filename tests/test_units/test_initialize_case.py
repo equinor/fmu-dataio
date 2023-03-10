@@ -182,3 +182,17 @@ def test_inicase_generate_case_metadata_exists_but_force(
 
     assert old_content["class"] == new_content["class"]
     assert old_content["fmu"]["case"]["uuid"] != new_content["fmu"]["case"]["uuid"]
+
+
+def test_inicase_deprecated_restart_from(fmurun_w_casemetadata, globalconfig2):
+    icase = InitializeCase(globalconfig2, verbosity="INFO")
+    with pytest.warns(
+        DeprecationWarning,
+        match="The 'restart_from' argument is deprecated and will be removed in a "
+        "future version. Please refer to the fmu-dataio documentation for information "
+        "on how to record information about restart source.",
+    ):
+        icase.export(
+            rootfolder=fmurun_w_casemetadata.parent.parent,
+            restart_from="Jurassic era",
+        )
