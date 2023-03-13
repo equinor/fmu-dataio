@@ -131,15 +131,15 @@ def test_metadata_populate_from_argument(globalconfig1):
 
     edata = dio.ExportData(
         config=globalconfig1,
-        access_ssdl={"access_level": "asset", "rep_include": False},
+        access_ssdl={"access_level": "restricted", "rep_include": False},
     )
     mymeta = _MetaData("dummy", edata)
 
     mymeta._populate_meta_access()
     assert mymeta.meta_access == {
         "asset": {"name": "Test"},
-        "ssdl": {"access_level": "asset", "rep_include": False},
-        "classification": "restricted",  # translated from "asset"
+        "ssdl": {"access_level": "restricted", "rep_include": False},
+        "classification": "restricted",  # mirroring ssdl.access_level
     }
 
 
@@ -154,7 +154,7 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1):
     mymeta._populate_meta_access()
     assert mymeta.meta_access == {
         "asset": {"name": "Test"},
-        "ssdl": {"rep_include": False},
+        "ssdl": {"rep_include": False, "access_level": "internal"},  # default
         "classification": "internal",  # default
     }
 
@@ -181,6 +181,70 @@ def test_metadata_populate_wrong_argument(globalconfig1):
     mymeta = _MetaData("dummy", edata)
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
+
+
+def test_metadata_ssdl_access(globalconfig1):
+    """Test how we handle the various inputs for ssdl.access_level.
+
+    * access_ssdl may or may not contain the "access_level" entry.
+    * valid inputs for ssdl.access_level shall be 'internal' or 'restricted', but
+      'asset' (legacy) is still allowed with warning.
+    * when 'asset' is given, it shall be changed to 'restricted' with warning
+    * access.ssdl.access_level shall be identical to access.classification. For now,
+      we mirror ssdl.access_level to access.classification.
+    """
+
+    # Input is "restricted" - correct use, shall work
+    edata = dio.ExportData(
+        config=globalconfig1, access_ssdl={"access_level": "restricted"}
+    )
+    mymeta = _MetaData("dummy", edata)
+    mymeta._populate_meta_access()
+    assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
+    assert mymeta.meta_access["classification"] == "restricted"
+
+    # Input is "internal"
+    edata = dio.ExportData(
+        config=globalconfig1, access_ssdl={"access_level": "restricted"}
+    )
+    mymeta = _MetaData("dummy", edata)
+    mymeta._populate_meta_access()
+    assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
+    assert mymeta.meta_access["classification"] == "restricted"
+
+    # Input is "asset". Is deprecated, shall work with warning.
+    # Output shall be "restricted".
+    edata = dio.ExportData(config=globalconfig1, access_ssdl={"access_level": "asset"})
+    mymeta = _MetaData("dummy", edata)
+    with pytest.warns(match="The value 'asset' for access.ssdl.access_level is deprec"):
+        mymeta._populate_meta_access()
+    assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
+    assert mymeta.meta_access["classification"] == "restricted"
+
+    # Input is "secret". Not allowed, shall fail.
+    edata = dio.ExportData(config=globalconfig1, access_ssdl={"access_level": "secret"})
+    mymeta = _MetaData("dummy", edata)
+
+    with pytest.raises(ConfigurationError, match="Illegal value for access"):
+        mymeta._populate_meta_access()
+
+    # No input, revert to config
+    configcopy = deepcopy(globalconfig1)
+    configcopy["access"]["ssdl"]["access_level"] = "restricted"
+    edata = dio.ExportData(config=configcopy)
+    mymeta = _MetaData("dummy", edata)
+    mymeta._populate_meta_access()
+    assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
+    assert mymeta.meta_access["classification"] == "restricted"
+
+    # No input, no config, shall default to "internal"
+    configcopy = deepcopy(globalconfig1)
+    del configcopy["access"]["ssdl"]["access_level"]
+    edata = dio.ExportData(config=globalconfig1)
+    mymeta = _MetaData("dummy", edata)
+    mymeta._populate_meta_access()
+    assert mymeta.meta_access["ssdl"]["access_level"] == "internal"
+    assert mymeta.meta_access["classification"] == "internal"
 
 
 # --------------------------------------------------------------------------------------

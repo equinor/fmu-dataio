@@ -84,8 +84,9 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     following translation:
 
         ssdl.access_level  -> classification
-        "internal"            "internal"
-        "asset"               "restricted"
+        "internal"            "internal" # keep as is
+        "asset"               "restricted" # translate
+        "restricted           "restricted" # keep as is
     """
     if not config:
         warn("The config is empty or missing", UserWarning)
@@ -94,7 +95,7 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     if config and "access" not in config:
         raise ConfigurationError("The config misses the 'access' section")
 
-    a_cfg = config["access"]
+    a_cfg = config["access"]  # shortform
 
     if "asset" not in a_cfg:
         # asset shall be present if config is used
@@ -106,23 +107,75 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     # if there is a config, the 'asset' tag shall be present
     a_meta["asset"] = a_cfg["asset"]
 
-    # ssdl
-    if "ssdl" in a_cfg and a_cfg["ssdl"]:
-        a_meta["ssdl"] = a_cfg["ssdl"]
+    # ------------------------------------
+    # classification and ssdl.access_level
+    # ------------------------------------
 
-    # classification
-    ssdl_access_level = a_cfg.get("ssdl", {}).get("access_level")
-    ssdl_translation = {"internal": "internal", "asset": "restricted"}
+    # the access.ssdl entry is a dictionary, usually looks like this:
+    # {"access_level": ["internal", "asset"], "rep_include": [True/False]}
+    # We are moving towards using access.classification for the information
+    # classification instead. For now, we keep using the ssdl.access_level but
+    # mirror its value to access.classification.
 
-    if ssdl_access_level is not None:
-        if ssdl_access_level not in ssdl_translation:
+    # The information from the input argument "ssdl_access" has previously
+    # been inserted into the config. Meaning: The fact that it sits in the config
+    # at this stage, does not necessarily mean that the user actually has it in his
+    # config on the FMU side. It may come from user arguments.
+    # See dataio._update_globalconfig_from_settings
+
+    # first set defaults
+    a_meta["ssdl"] = {"access_level": "internal", "rep_include": False}
+
+    # then overwrite from config (which may also actually come from user arguments)
+    if "ssdl" in a_cfg and "access_level" in a_cfg["ssdl"]:
+        a_meta["ssdl"]["access_level"] = a_cfg["ssdl"]["access_level"]
+
+    if "ssdl" in a_cfg and "rep_include" in a_cfg["ssdl"]:
+        a_meta["ssdl"]["rep_include"] = a_cfg["ssdl"]["rep_include"]
+
+    # then check validity
+    _valid_ssdl_access_levels = ["internal", "restricted", "asset"]
+    _ssdl_access_level = a_meta["ssdl"]["access_level"]
+    if _ssdl_access_level not in _valid_ssdl_access_levels:
+        raise ConfigurationError(
+            f"Illegal value for access.ssdl.access_level: {_ssdl_access_level} "
+            f"Valid values are: {_valid_ssdl_access_levels}"
+        )
+
+    _ssdl_rep_include = a_meta["ssdl"]["rep_include"]
+    if not isinstance(_ssdl_rep_include, bool):
+        raise ConfigurationError(
+            f"Illegal value for access.ssdl.rep_include: {_ssdl_rep_include}"
+            "access.ssdl.rep_include must be a boolean (True/False)."
+        )
+
+    # if "asset", change to "restricted" and give warning
+    if a_meta["ssdl"]["access_level"] == "asset":
+        warn(
+            "The value 'asset' for access.ssdl.access_level is deprecated. "
+            "Please use 'restricted' in input arguments or global variables to silence "
+            " this warning.",
+            UserWarning,
+        )
+        a_meta["ssdl"]["access_level"] = "restricted"
+
+    # mirror access.ssdl.access_level to access.classification
+    a_meta["classification"] = a_meta["ssdl"]["access_level"]  # mirror
+
+    # ------------------------------------
+    # ssdl.rep_include
+    # ------------------------------------
+
+    ssdl_rep_include = a_cfg.get("ssdl", {}).get("rep_include")
+    if ssdl_rep_include is not None:
+        if not isinstance(ssdl_rep_include, bool):
             raise ConfigurationError(
-                f"Illegal value for access.ssdl.access_level: {ssdl_access_level} "
-                f"Valid values are: {ssdl_translation.keys()}"
+                f"Illegal value for access.ssdl.rep_include: {ssdl_rep_include}. "
+                "access.ssdl.rep_include must be a boolean (True/False)."
             )
-        a_meta["classification"] = ssdl_translation[ssdl_access_level]
+        a_meta["ssdl"]["rep_include"] = ssdl_rep_include
     else:
-        a_meta["classification"] = "internal"  # Default to "internal"
+        a_meta["ssdl"]["rep_include"] = False  # default
 
     return a_meta
 

@@ -121,12 +121,12 @@ def test_regsurf_export_file_fmurun(fmurun_w_casemetadata, rmsglobalconfig, regs
     output = edata.export(
         regsurf,
         name="TopVolantis",
-        access_ssdl={"access_level": "asset", "rep_include": False},
+        access_ssdl={"access_level": "restricted", "rep_include": False},
         unit="forthnite",  # intentional override
     )
     logger.info("Output is %s", output)
 
-    assert edata._metadata["access"]["ssdl"]["access_level"] == "asset"
+    assert edata._metadata["access"]["ssdl"]["access_level"] == "restricted"
     assert edata._metadata["data"]["unit"] == "forthnite"
 
 
