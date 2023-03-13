@@ -274,6 +274,9 @@ class _ObjectDataProvider:
 
         elif isinstance(self.obj, pd.DataFrame):
             result["table_index"] = self._derive_index()
+            result["table_index_values"] = self._derive_values_from_index(
+                result["table_index"]
+            )
             result["subtype"] = "DataFrame"
             result["classname"] = "table"
             result["layout"] = "table"
@@ -283,10 +286,12 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_dataframe()
-            self._check_index(result["table_index"])
 
         elif HAS_PYARROW and isinstance(self.obj, pa.Table):
             result["table_index"] = self._derive_index()
+            result["table_index_values"] = self._derive_values_from_index(
+                result["table_index"]
+            )
             result["subtype"] = "ArrowTable"
             result["classname"] = "table"
             result["layout"] = "table"
@@ -296,7 +301,6 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().table
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
-            self._check_index(result["table_index"])
 
         else:
             raise NotImplementedError(
@@ -492,13 +496,27 @@ class _ObjectDataProvider:
         logger.debug("Available columns in table %s ", columns)
         return columns
 
+    def _derive_values_from_index(self, table_index):
+        """Get unique values in table_index columns"""
+        index_values = {}
+        for index_name in table_index:
+            if isinstance(self.obj, pd.DataFrame):
+                logger.debug("pandas")
+                index_values[index_name] = self.obj[index_name].unique()
+            else:
+                logger.debug("arrow")
+                index_values[index_name] = pa.compute.unique(
+                    self.obj.column(index_name)
+                ).tolist()
+        return index_values
+
     def _derive_index(self):
         """Derive table index"""
         # This could in the future also return context
         columns = self._get_columns()
         index = []
-        preset_index = self.dataio.table_index
-        if preset_index is None:
+
+        if self.dataio.table_index is None:
             logger.debug("Finding index to include")
             for context, standard_cols in STANDARD_TABLE_INDEX_COLUMNS.items():
                 for valid_col in standard_cols:
@@ -508,10 +526,11 @@ class _ObjectDataProvider:
                     logger.info("Context is %s ", context)
             logger.debug("Proudly presenting the index: %s", index)
         else:
-            index = preset_index
+            index = self.dataio.table_index
+
         if "REAL" in columns:
             index.append("REAL")
-
+        self._check_index(index)
         return index
 
     def _check_index(self, index):
@@ -680,6 +699,7 @@ class _ObjectDataProvider:
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
         meta["table_index"] = objres.get("table_index")
+        meta["table_index_values"] = objres.get("table_index_values")
         meta["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:

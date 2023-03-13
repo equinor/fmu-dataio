@@ -8,23 +8,47 @@ from fmu.config.utilities import yaml_load
 from fmu.dataio._objectdata_provider import _ObjectDataProvider
 
 
-def assert_works(file_path, answer):
-    """does the assert work for all tests
-
+def read_dict(file_path):
+    """Reads text file into dictionary
     Args:
         file_path (string): path to generated file
-        answer (list): expected answer
+    Returns:
+        dict: contents of file
     """
     file_path = Path(file_path)
     meta_path = file_path.parent / f".{file_path.name}.yml"
     meta = yaml_load(meta_path)
     file_path.unlink()
     meta_path.unlink()
-    index = meta["data"]["table_index"]
+    return meta
+
+
+def do_the_assert(index, answer, field_to_check):
+    """Assert that index is list and the answer is correct
+
+    Args:
+        index (should be list): what to check
+    """
     type_failure = f"{index} should be list, but is {type(index)}"
-    fail_string = f"table index should be {answer}, but is {index}"
+    fail_string = f"{field_to_check} should be {answer}, but is {index}"
     assert isinstance(index, list), type_failure
     assert index == answer, fail_string
+
+
+def assert_works(dict_input, answer, field_to_check="table_index"):
+    """does the assert work for all tests
+
+    Args:
+        file_path (string): path to generated file
+        answer (list): expected answer
+    """
+    if isinstance(dict_input, dict):
+        meta = dict_input
+    else:
+        meta = read_dict(dict_input)
+
+    index = meta["data"][field_to_check]
+    do_the_assert(index, answer, field_to_check)
 
 
 def test_inplace_volume_index(mock_volumes, globalconfig2):
@@ -111,3 +135,35 @@ def test_real_sum(edataobj3, drogon_summary):
     res = objdata._derive_objectdata()
     print("-----------------")
     assert res["table_index"] == ["DATE"], "Incorrect table index "
+
+
+def test_real_volumes(edataobj3, drogon_volumes):
+    objdata = _ObjectDataProvider(drogon_volumes, edataobj3)
+    res = objdata._derive_objectdata()
+    correct_answers = {
+        "ZONE": ["Valysar", "Therys", "Volon"],
+        "REGION": [
+            "WestLowland",
+            "CentralSouth",
+            "CentralNorth",
+            "NorthHorst",
+            "CentralRamp",
+            "CentralHorst",
+            "EastLowland",
+        ],
+        "FACIES": [
+            "Floodplain",
+            "Channel",
+            "Crevasse",
+            "Coal",
+            "Calcite",
+            "Offshore",
+            "Lowershoreface",
+            "Uppershoreface",
+        ],
+    }
+    print(res["table_index"])
+    print(res["table_index_values"])
+    for col_name, answer_list in correct_answers.items():
+        index_items = res["table_index_values"][col_name]
+    do_the_assert(index_items, answer_list, col_name)
