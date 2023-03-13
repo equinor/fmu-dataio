@@ -900,7 +900,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             or by other means.
         casename: Name of case (experiment)
         caseuser: Username provided
-        restart_from: ID of eventual restart
+        restart_from: ID of eventual restart (deprecated)
         description: Description text as string or list of strings.
         verbosity: Is logging/message level for this module. Input as
             in standard python logging; e.g. "WARNING", "INFO".
@@ -942,6 +942,14 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         legals = {key: val for key, val in annots.items() if not key.startswith("_")}
 
         for setting, value in newsettings.items():
+            if setting == "restart_from":
+                warn(
+                    "The 'restart_from' argument is deprecated and will be removed in "
+                    "a future version. Please refer to the fmu-dataio documentation "
+                    "for information on how to record information about restart "
+                    "source.",
+                    DeprecationWarning,
+                )
             if _validate_variable(setting, value, legals):
                 setattr(self, setting, value)
                 if setting == "verbosity":

@@ -104,7 +104,6 @@ def create_metadata(args) -> str:
         rootfolder=args.ert_caseroot,
         casename=args.ert_casename,
         caseuser=args.ert_username,
-        restart_from=None,
         description=None,
     )
 

@@ -363,7 +363,6 @@ object was exported. ``fmu.case`` has the following subattributes, and more may 
   * **fmu.case.user.id**: [string] A user identity reference.
 
 * **fmu.case.description**: [list of strings] (a free-text description of this case) (optional)
-* **fmu.case.restart_from**: [uuid] (experimental) The intention with this attribute is to flag when a case is a restart fromm another case. Implementation of this attribute in fmu-dataio is pending alignment with ERT.
 
 .. note:: If an FMU data object is exported outside the case context, this block will not be present.
 
@@ -373,6 +372,7 @@ has the following defined sub-attributes:
 * **fmu.iteration.id**: [int] The internal ID of the iteration, typically represented by an integer.
 * **fmu.iteration.uuid**: [uuid] The universally unique identifier for this iteration. It is a hash of ``fmu.case.uuid`` and ``fmu.iteration.id``.
 * **fmu.iteration.name**: [string] The name of the iteration. This is typically reflecting the folder name on scratch. In ERT, custom names for iterations are supported, e.g. "pred". For this reason, if logic is implied, the name can be risky to trust - even if it often contains the ID, e.g. "iter-0"
+* **fmu.iteration.restart_from**: [uuid] The intention with this attribute is to flag when a iteration is a restart fromm another iteration. 
 
 **fmu.realization**: The ``fmu.realization`` block contains information about the realization this data object belongs to, with the following sub-attributes:
 
