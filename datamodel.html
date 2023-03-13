@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 1.5.4.dev5+g470592a documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 1.6.1.dev1+g4cd9a04 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -1786,7 +1786,6 @@ object was exported. <code class="docutils literal notranslate"><span class="pre
 </ul>
 </li>
 <li><p><strong>fmu.case.description</strong>: [list of strings] (a free-text description of this case) (optional)</p></li>
-<li><p><strong>fmu.case.restart_from</strong>: [uuid] (experimental) The intention with this attribute is to flag when a case is a restart fromm another case. Implementation of this attribute in fmu-dataio is pending alignment with ERT.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1798,6 +1797,7 @@ has the following defined sub-attributes:</p>
 <li><p><strong>fmu.iteration.id</strong>: [int] The internal ID of the iteration, typically represented by an integer.</p></li>
 <li><p><strong>fmu.iteration.uuid</strong>: [uuid] The universally unique identifier for this iteration. It is a hash of <code class="docutils literal notranslate"><span class="pre">fmu.case.uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">fmu.iteration.id</span></code>.</p></li>
 <li><p><strong>fmu.iteration.name</strong>: [string] The name of the iteration. This is typically reflecting the folder name on scratch. In ERT, custom names for iterations are supported, e.g. “pred”. For this reason, if logic is implied, the name can be risky to trust - even if it often contains the ID, e.g. “iter-0”</p></li>
+<li><p><strong>fmu.iteration.restart_from</strong>: [uuid] The intention with this attribute is to flag when a iteration is a restart fromm another iteration.</p></li>
 </ul>
 <p><strong>fmu.realization</strong>: The <code class="docutils literal notranslate"><span class="pre">fmu.realization</span></code> block contains information about the realization this data object belongs to, with the following sub-attributes:</p>
 <ul class="simple">
@@ -2323,7 +2323,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.5.4.dev5+g470592a).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.6.1.dev1+g4cd9a04).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
