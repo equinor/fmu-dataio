@@ -78,16 +78,20 @@ def generate_meta_access(config: dict) -> Optional[dict]:
 
     The "ssdl" field can come from the config, or be explicitly given through
     the "access_ssdl" input argument. If the access_ssdl input argument is present,
-    its contents shall take presedence.
+    its contents shall take presedence. If no input, and no config, revert to the
+    following defaults:
 
-    The "classification" field shall be mapped from "ssdl.access_level" using the
-    following translation:
+      access.ssdl.access_level: "internal" (we explicitly elevate to "restricted)
+      access.ssdl.rep_include: False (we explicitly flag to be included in REP)
 
-        ssdl.access_level  -> classification
-        "internal"            "internal" # keep as is
-        "asset"               "restricted" # translate
-        "restricted           "restricted" # keep as is
+    The access.ssdl.access_level field shall be "internal" or "restricted". We still
+    allow for the legacy input argument "asset", however we issue warning and change it
+    to "restricted".
+
+    The access.classification will in the future be the only information classification
+    field. For now, we simply mirror it from ssdl.access_level to avoid API change.
     """
+
     if not config:
         warn("The config is empty or missing", UserWarning)
         return None
@@ -111,31 +115,16 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     # classification & ssdl.access_level and ssdl.rep_include
     # ------------------------------------
 
-    # the access.ssdl entry is a dictionary, usually looks like this:
-    # {"access_level": ["internal", "asset"], "rep_include": [True/False]}
-    # We are moving towards using access.classification for the information
-    # classification instead. For now, we keep using the ssdl.access_level but
-    # mirror its value to access.classification.
-
     # The information from the input argument "ssdl_access" has previously
     # been inserted into the config. Meaning: The fact that it sits in the config
     # at this stage, does not necessarily mean that the user actually has it in his
     # config on the FMU side. It may come from user arguments.
     # See dataio._update_globalconfig_from_settings
 
-    # defaulting:
-    # * access.ssdl.access_level defaults to 'internal' if not given as argument or
-    #   global_variables. E.g. we explicitly restrict information beyond 'internal'.
-    #
-    # * access.ssdl.rep_include defaults to False if not given as argument or
-    #   global_variables. E.g. we explicitly include in REP.
-    #
-    # * access.classification is currently mirrored from access.ssdl.access_level.
-
-    # set defaults
+    # First set defaults
     a_meta["ssdl"] = {"access_level": "internal", "rep_include": False}
 
-    # overwrite from config (which may also actually come from user arguments)
+    # Then overwrite from config (which may also actually come from user arguments)
     if "ssdl" in a_cfg and "access_level" in a_cfg["ssdl"]:
         a_meta["ssdl"]["access_level"] = a_cfg["ssdl"]["access_level"]
 
