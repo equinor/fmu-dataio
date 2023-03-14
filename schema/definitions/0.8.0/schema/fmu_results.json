@@ -1366,8 +1366,7 @@
                 "access": {
                     "required": [
                         "asset",
-                        "ssdl",
-                        "classification"
+                        "ssdl"
                     ]
                 }
             }

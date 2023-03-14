@@ -347,8 +347,3 @@ def test_schema_logic_classification(schema_080, metadata_examples):
     example["access"]["classification"] = "open"
     with pytest.raises(jsonschema.exceptions.ValidationError):
         jsonschema.validate(instance=example, schema=schema_080)
-
-    # assert missing value fails
-    del example["access"]["classification"]
-    with pytest.raises(jsonschema.exceptions.ValidationError):
-        jsonschema.validate(instance=example, schema=schema_080)
