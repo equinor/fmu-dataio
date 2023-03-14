@@ -108,7 +108,7 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     a_meta["asset"] = a_cfg["asset"]
 
     # ------------------------------------
-    # classification and ssdl.access_level
+    # classification & ssdl.access_level and ssdl.rep_include
     # ------------------------------------
 
     # the access.ssdl entry is a dictionary, usually looks like this:
@@ -123,17 +123,26 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     # config on the FMU side. It may come from user arguments.
     # See dataio._update_globalconfig_from_settings
 
-    # first set defaults
+    # defaulting:
+    # * access.ssdl.access_level defaults to 'internal' if not given as argument or
+    #   global_variables. E.g. we explicitly restrict information beyond 'internal'.
+    #
+    # * access.ssdl.rep_include defaults to False if not given as argument or
+    #   global_variables. E.g. we explicitly include in REP.
+    #
+    # * access.classification is currently mirrored from access.ssdl.access_level.
+
+    # set defaults
     a_meta["ssdl"] = {"access_level": "internal", "rep_include": False}
 
-    # then overwrite from config (which may also actually come from user arguments)
+    # overwrite from config (which may also actually come from user arguments)
     if "ssdl" in a_cfg and "access_level" in a_cfg["ssdl"]:
         a_meta["ssdl"]["access_level"] = a_cfg["ssdl"]["access_level"]
 
     if "ssdl" in a_cfg and "rep_include" in a_cfg["ssdl"]:
         a_meta["ssdl"]["rep_include"] = a_cfg["ssdl"]["rep_include"]
 
-    # then check validity
+    # check validity
     _valid_ssdl_access_levels = ["internal", "restricted", "asset"]
     _ssdl_access_level = a_meta["ssdl"]["access_level"]
     if _ssdl_access_level not in _valid_ssdl_access_levels:
@@ -161,21 +170,6 @@ def generate_meta_access(config: dict) -> Optional[dict]:
 
     # mirror access.ssdl.access_level to access.classification
     a_meta["classification"] = a_meta["ssdl"]["access_level"]  # mirror
-
-    # ------------------------------------
-    # ssdl.rep_include
-    # ------------------------------------
-
-    ssdl_rep_include = a_cfg.get("ssdl", {}).get("rep_include")
-    if ssdl_rep_include is not None:
-        if not isinstance(ssdl_rep_include, bool):
-            raise ConfigurationError(
-                f"Illegal value for access.ssdl.rep_include: {ssdl_rep_include}. "
-                "access.ssdl.rep_include must be a boolean (True/False)."
-            )
-        a_meta["ssdl"]["rep_include"] = ssdl_rep_include
-    else:
-        a_meta["ssdl"]["rep_include"] = False  # default
 
     return a_meta
 
