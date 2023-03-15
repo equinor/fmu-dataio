@@ -78,9 +78,20 @@ def generate_meta_access(config: dict) -> Optional[dict]:
 
     The "ssdl" field can come from the config, or be explicitly given through
     the "access_ssdl" input argument. If the access_ssdl input argument is present,
-    its contents shall take presedence.
+    its contents shall take presedence. If no input, and no config, revert to the
+    following defaults:
 
+      access.ssdl.access_level: "internal" (we explicitly elevate to "restricted)
+      access.ssdl.rep_include: False (we explicitly flag to be included in REP)
+
+    The access.ssdl.access_level field shall be "internal" or "restricted". We still
+    allow for the legacy input argument "asset", however we issue warning and change it
+    to "restricted".
+
+    The access.classification will in the future be the only information classification
+    field. For now, we simply mirror it from ssdl.access_level to avoid API change.
     """
+
     if not config:
         warn("The config is empty or missing", UserWarning)
         return None
@@ -88,7 +99,7 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     if config and "access" not in config:
         raise ConfigurationError("The config misses the 'access' section")
 
-    a_cfg = config["access"]
+    a_cfg = config["access"]  # shortform
 
     if "asset" not in a_cfg:
         # asset shall be present if config is used
@@ -100,9 +111,54 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     # if there is a config, the 'asset' tag shall be present
     a_meta["asset"] = a_cfg["asset"]
 
-    # ssdl
-    if "ssdl" in a_cfg and a_cfg["ssdl"]:
-        a_meta["ssdl"] = a_cfg["ssdl"]
+    # ------------------------------------
+    # classification & ssdl.access_level and ssdl.rep_include
+    # ------------------------------------
+
+    # The information from the input argument "ssdl_access" has previously
+    # been inserted into the config. Meaning: The fact that it sits in the config
+    # at this stage, does not necessarily mean that the user actually has it in his
+    # config on the FMU side. It may come from user arguments.
+    # See dataio._update_globalconfig_from_settings
+
+    # First set defaults
+    a_meta["ssdl"] = {"access_level": "internal", "rep_include": False}
+
+    # Then overwrite from config (which may also actually come from user arguments)
+    if "ssdl" in a_cfg and "access_level" in a_cfg["ssdl"]:
+        a_meta["ssdl"]["access_level"] = a_cfg["ssdl"]["access_level"]
+
+    if "ssdl" in a_cfg and "rep_include" in a_cfg["ssdl"]:
+        a_meta["ssdl"]["rep_include"] = a_cfg["ssdl"]["rep_include"]
+
+    # check validity
+    _valid_ssdl_access_levels = ["internal", "restricted", "asset"]
+    _ssdl_access_level = a_meta["ssdl"]["access_level"]
+    if _ssdl_access_level not in _valid_ssdl_access_levels:
+        raise ConfigurationError(
+            f"Illegal value for access.ssdl.access_level: {_ssdl_access_level} "
+            f"Valid values are: {_valid_ssdl_access_levels}"
+        )
+
+    _ssdl_rep_include = a_meta["ssdl"]["rep_include"]
+    if not isinstance(_ssdl_rep_include, bool):
+        raise ConfigurationError(
+            f"Illegal value for access.ssdl.rep_include: {_ssdl_rep_include}"
+            "access.ssdl.rep_include must be a boolean (True/False)."
+        )
+
+    # if "asset", change to "restricted" and give warning
+    if a_meta["ssdl"]["access_level"] == "asset":
+        warn(
+            "The value 'asset' for access.ssdl.access_level is deprecated. "
+            "Please use 'restricted' in input arguments or global variables to silence "
+            " this warning.",
+            UserWarning,
+        )
+        a_meta["ssdl"]["access_level"] = "restricted"
+
+    # mirror access.ssdl.access_level to access.classification
+    a_meta["classification"] = a_meta["ssdl"]["access_level"]  # mirror
 
     return a_meta
 

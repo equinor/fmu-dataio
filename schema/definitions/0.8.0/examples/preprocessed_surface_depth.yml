@@ -145,6 +145,7 @@ access:
   ssdl:
     access_level: internal
     rep_include: true
+  classification: internal
 
 masterdata:
   smda:

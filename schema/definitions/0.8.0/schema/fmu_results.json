@@ -779,10 +779,11 @@
                     ],
                     "properties": {
                         "access_level": {
-                            "$comment": "Who should SSDL be allowed to share this further with?",
+                            "$comment": "'asset' is legacy, but will be allowed in a transition",
                             "type": "string",
                             "enum": [
                                 "internal",
+                                "restricted",
                                 "asset"
                             ]
                         },
@@ -795,6 +796,17 @@
                             ]
                         }
                     }
+                },
+                "classification": {
+                    "type": "string",
+                    "enum": [
+                        "internal",
+                        "restricted"
+                    ],
+                    "examples": [
+                        "internal",
+                        "restricted"
+                    ]
                 }
             }
         },
