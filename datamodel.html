@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 1.6.1.dev1+g4cd9a04 documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 1.6.1.dev2+gd7a937b documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -1115,10 +1115,11 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                    </span><span class="p">],</span>
 <span class="w">                    </span><span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                        </span><span class="s2">&quot;access_level&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                            </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Who should SSDL be allowed to share this further with?&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="s2">&quot;$comment&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&#39;asset&#39; is legacy, but will be allowed in a transition&quot;</span><span class="p">,</span>
 <span class="w">                            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
 <span class="w">                            </span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                                </span><span class="s2">&quot;internal&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="s2">&quot;restricted&quot;</span><span class="p">,</span>
 <span class="w">                                </span><span class="s2">&quot;asset&quot;</span>
 <span class="w">                            </span><span class="p">]</span>
 <span class="w">                        </span><span class="p">},</span>
@@ -1131,6 +1132,17 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                            </span><span class="p">]</span>
 <span class="w">                        </span><span class="p">}</span>
 <span class="w">                    </span><span class="p">}</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="s2">&quot;classification&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="s2">&quot;internal&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;restricted&quot;</span>
+<span class="w">                    </span><span class="p">],</span>
+<span class="w">                    </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="s2">&quot;internal&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;restricted&quot;</span>
+<span class="w">                    </span><span class="p">]</span>
 <span class="w">                </span><span class="p">}</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
@@ -2262,6 +2274,7 @@ there are existing dependencies on top of this data model already, and more are 
 <span class="w">  </span><span class="nt">ssdl</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">access_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">internal</span>
 <span class="w">    </span><span class="nt">rep_include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">classification</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">internal</span>
 
 <span class="nt">masterdata</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">smda</span><span class="p">:</span>
@@ -2323,7 +2336,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.6.1.dev1+g4cd9a04).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.6.1.dev2+gd7a937b).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
