@@ -23,7 +23,7 @@ def read_dict(file_path):
     return meta
 
 
-def do_the_assert(index, answer, field_to_check):
+def assert_list_and_answer(index, answer, field_to_check):
     """Assert that index is list and the answer is correct
 
     Args:
@@ -35,20 +35,21 @@ def do_the_assert(index, answer, field_to_check):
     assert index == answer, fail_string
 
 
-def assert_works(dict_input, answer, field_to_check="table_index"):
+def assert_correct_table_index(dict_input, answer):
     """does the assert work for all tests
 
     Args:
         file_path (string): path to generated file
         answer (list): expected answer
     """
+    index_name = "table_index"
     if isinstance(dict_input, dict):
         meta = dict_input
     else:
         meta = read_dict(dict_input)
 
-    index = meta["data"][field_to_check]
-    do_the_assert(index, answer, field_to_check)
+    index = meta["data"][index_name]
+    assert_list_and_answer(index, answer, index)
 
 
 def test_inplace_volume_index(mock_volumes, globalconfig2):
@@ -61,7 +62,7 @@ def test_inplace_volume_index(mock_volumes, globalconfig2):
     answer = ["ZONE", "LICENCE"]
     exd = ExportData(config=globalconfig2)
     path = exd.export(mock_volumes, name="baretull")
-    assert_works(path, answer)
+    assert_correct_table_index(path, answer)
 
 
 def test_derive_summary_index_pandas(mock_summary, globalconfig2):
@@ -74,7 +75,7 @@ def test_derive_summary_index_pandas(mock_summary, globalconfig2):
     answer = ["DATE"]
     exd = ExportData(config=globalconfig2)
     path = exd.export(mock_summary, name="baretull")
-    assert_works(path, answer)
+    assert_correct_table_index(path, answer)
 
 
 def test_derive_summary_index_pyarrow(mock_summary, globalconfig2):
@@ -87,7 +88,7 @@ def test_derive_summary_index_pyarrow(mock_summary, globalconfig2):
     answer = ["DATE"]
     exd = ExportData(config=globalconfig2)
     path = exd.export(pa.Table.from_pandas(mock_summary), name="baretull")
-    assert_works(path, answer)
+    assert_correct_table_index(path, answer)
 
 
 def test_set_from_exportdata(mock_volumes, globalconfig2):
@@ -100,7 +101,7 @@ def test_set_from_exportdata(mock_volumes, globalconfig2):
     index = ["OTHER"]
     exd = ExportData(config=globalconfig2, table_index=index)
     path = exd.export(mock_volumes, name="baretull")
-    assert_works(path, index)
+    assert_correct_table_index(path, index)
 
 
 def test_set_from_export(mock_volumes, globalconfig2):
@@ -113,7 +114,7 @@ def test_set_from_export(mock_volumes, globalconfig2):
     index = ["OTHER"]
     exd = ExportData(config=globalconfig2)
     path = exd.export(mock_volumes, name="baretull", table_index=index)
-    assert_works(path, index)
+    assert_correct_table_index(path, index)
 
 
 def test_set_table_index_not_in_table(mock_volumes, globalconfig2):
@@ -130,14 +131,25 @@ def test_set_table_index_not_in_table(mock_volumes, globalconfig2):
     assert k_err.value.args[0] == "banana is not in table"
 
 
-def test_real_sum(edataobj3, drogon_summary):
+def test_table_index_real_summary(edataobj3, drogon_summary):
+    """Test setting of table_index in real summary file
+
+    Args:
+        edataobj3 (dict): metadata
+        drogon_summary (pd.Dataframe): dataframe with summary data from sumo
+    """
     objdata = _ObjectDataProvider(drogon_summary, edataobj3)
     res = objdata._derive_objectdata()
-    print("-----------------")
     assert res["table_index"] == ["DATE"], "Incorrect table index "
 
 
-def test_real_volumes(edataobj3, drogon_volumes):
+def test_table_index_values_real_volumes(edataobj3, drogon_volumes):
+    """Test setting of table_index and table_index_values in real inplace volume file
+
+    Args:
+        edataobj3 (_type_): _description_
+        drogon_volumes (_type_): _description_
+    """
     objdata = _ObjectDataProvider(drogon_volumes, edataobj3)
     res = objdata._derive_objectdata()
     correct_answers = {
@@ -162,8 +174,7 @@ def test_real_volumes(edataobj3, drogon_volumes):
             "Uppershoreface",
         ],
     }
-    print(res["table_index"])
-    print(res["table_index_values"])
+
     for col_name, answer_list in correct_answers.items():
         index_items = res["table_index_values"][col_name]
-    do_the_assert(index_items, answer_list, col_name)
+    assert_list_and_answer(index_items, answer_list, col_name)

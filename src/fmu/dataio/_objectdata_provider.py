@@ -99,6 +99,7 @@ from ._utils import generate_description, parse_timedata
 
 try:
     import pyarrow as pa  # type: ignore
+    import pyarrow.compute as pc
 except ImportError:
     HAS_PYARROW = False
 else:
@@ -505,7 +506,7 @@ class _ObjectDataProvider:
                 index_values[index_name] = self.obj[index_name].unique()
             else:
                 logger.debug("arrow")
-                index_values[index_name] = pa.compute.unique(
+                index_values[index_name] = pc.unique(
                     self.obj.column(index_name)
                 ).tolist()
         return index_values
