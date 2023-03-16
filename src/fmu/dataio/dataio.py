@@ -531,6 +531,7 @@ class ExportData:
     vertical_domain: dict = field(default_factory=dict)
     workflow: str = ""
     table_index: Optional[list] = None
+    table_index_values: Optional[dict] = None
 
     # some keys that are modified version of input, prepended with _use
     _usecontent: dict = field(default_factory=dict, init=False)

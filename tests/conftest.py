@@ -515,12 +515,24 @@ def fixture_mock_volumes():
     """
     return pd.DataFrame(
         {
-            "ZONE": ["A", "B", "C"],
-            "LICENCE": ["L1", "L2", "L2"],
+            "ZONE": ["B", "A", "C"],
+            "LICENCE": ["L3", "L2", "L1"],
             "nums": [1, 2, 3],
-            "OTHER": ["c", "d", "f"],
+            "OTHER": ["q", "a", "f"],
         }
     )
+
+
+@pytest.fixture(name="drogon_volumes")
+def fixture_drogon_volumes():
+    """Return pyarrow table
+
+    Returns:
+        pa.Table: table with summary data
+    """
+    path = ROOTPWD / "tests/data/drogon/tabular/geogrid--vol.csv"
+    table = pa.Table.from_pandas(pd.read_csv(path))
+    return table
 
 
 # ======================================================================================
