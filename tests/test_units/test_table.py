@@ -8,7 +8,7 @@ from fmu.config.utilities import yaml_load
 from fmu.dataio._objectdata_provider import _ObjectDataProvider
 
 
-def read_dict(file_path):
+def _read_dict(file_path):
     """Reads text file into dictionary
     Args:
         file_path (string): path to generated file
@@ -46,7 +46,7 @@ def assert_correct_table_index(dict_input, answer):
     if isinstance(dict_input, dict):
         meta = dict_input
     else:
-        meta = read_dict(dict_input)
+        meta = _read_dict(dict_input)
 
     index = meta["data"][index_name]
     assert_list_and_answer(index, answer, index)
