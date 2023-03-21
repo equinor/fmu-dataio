@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Any, Optional
 from warnings import warn
 
+from fmu.config import utilities as ut
+
 from . import _utils
 
 # case metadata relative to rootpath
@@ -211,7 +213,9 @@ class _FmuProvider:
                 restart_path / "../.." / ERT2_RELATIVE_CASE_METADATA_FILE
             ).resolve()
             if restart_case_metafile.exists():
-                restart_metadata = _utils.load_yaml(restart_case_metafile)
+                restart_metadata = ut.yaml_load(
+                    restart_case_metafile, loader="standard"
+                )
                 self.ert2["restart_from"] = _utils.uuid_from_string(
                     restart_metadata["fmu"]["case"]["uuid"] + restart_iter
                 )
@@ -252,7 +256,7 @@ class _FmuProvider:
         self.case_metafile = self.case_metafile.resolve()
         if self.case_metafile.exists():
             logger.info("Case metadata file exists at %s", str(self.case_metafile))
-            self.case_metadata = _utils.load_yaml(self.case_metafile)
+            self.case_metadata = ut.yaml_load(self.case_metafile, loader="standard")
             logger.info("Case metadata are now read!")
         else:
             logger.info(

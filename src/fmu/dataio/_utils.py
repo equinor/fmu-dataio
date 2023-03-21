@@ -14,6 +14,7 @@ from typing import Dict, List, Optional, Union
 
 import pandas as pd  # type: ignore
 import yaml
+from fmu.config import utilities as ut
 
 try:
     import pyarrow as pa  # type: ignore
@@ -345,7 +346,6 @@ def some_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
     variable: Raise if the environment variable is not found.
     """
 
-    config = None
     logger.info("Getting config from file via environment %s", envvar)
     if envvar in os.environ:
         cfg_path = os.environ[envvar]
@@ -362,22 +362,7 @@ def some_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
         )
         return None
 
-    with open(cfg_path, "r", encoding="utf8") as stream:
-        try:
-            config = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            logger.info(exc)
-            raise
-
-    return config
-
-
-def load_yaml(yfil: Union[str, Path]) -> dict:
-    """Loading a YAML file"""
-    cfg = None
-    with open(yfil, "r", encoding="UTF8") as stream:
-        cfg = yaml.safe_load(stream)
-    return cfg
+    return ut.yaml_load(cfg_path, loader="fmu")
 
 
 def filter_validate_metadata(metadata_in: dict) -> dict:
