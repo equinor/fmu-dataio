@@ -224,7 +224,10 @@ def test_metadata_access_deprecated_input(globalconfig1):
     # Output shall be "restricted".
     edata = dio.ExportData(config=globalconfig1, access_ssdl={"access_level": "asset"})
     mymeta = _MetaData("dummy", edata)
-    with pytest.warns(match="The value 'asset' for access.ssdl.access_level is deprec"):
+    with pytest.warns(
+        UserWarning,
+        match="The value 'asset' for access.ssdl.access_level is deprec",
+    ):
         mymeta._populate_meta_access()
     assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
     assert mymeta.meta_access["classification"] == "restricted"
