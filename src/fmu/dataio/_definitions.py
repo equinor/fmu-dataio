@@ -35,7 +35,6 @@ class _ValidFormats:
 
 
 ALLOWED_CONTENTS = {
-    "unset": None,  # default content
     "depth": None,
     "time": None,
     "thickness": None,
