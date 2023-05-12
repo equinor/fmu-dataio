@@ -34,6 +34,24 @@ fmu: # the fmu-block contains information directly related to the FMU context
 
   context:
     stage: case
+  
+  config:
+    globals:  # transferred from global_variables.yml
+      REGIONS:
+        WestLowland:
+          NUM: 1
+          OWC: 1660.0
+          FWL: 1660.0
+          GOC: 1000.0
+          COL: (238, 221, 130)
+          EQT: 0
+        CentralSouth:
+          NUM: 2
+          OWC: 1677.0
+          FWL: 1677.0
+          GOC: 1000.0
+          EQT: 0
+          COL: (105, 89, 205)
 
 access:
   asset:

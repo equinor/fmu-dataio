@@ -993,6 +993,10 @@
                     }
                 }
             },
+            "config": {
+                "type": "object",
+                "description": "Transferred elements from global config"
+            },
             "iteration": {
                 "type": "object",
                 "required": [
@@ -1226,6 +1230,9 @@
                         },
                         "case": {
                             "$ref": "#/definitions/fmu/case"
+                        },
+                        "config": {
+                            "$ref": "#/definitions/fmu/config"
                         }
                     }
                 },
