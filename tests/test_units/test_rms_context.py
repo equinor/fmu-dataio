@@ -45,10 +45,11 @@ def test_regsurf_generate_metadata_change_content(rmssetup, rmsglobalconfig, reg
 
     edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
 
-    meta1 = edata.generate_metadata(regsurf)
+    with pytest.warns(match="The <content> is not provided"):
+        meta1 = edata.generate_metadata(regsurf)
     meta2 = edata.generate_metadata(regsurf, content="time")
 
-    assert meta1["data"]["content"] == "depth"
+    assert meta1["data"]["content"] == "unset"
     assert meta2["data"]["content"] == "time"
 
 

@@ -119,6 +119,12 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, wtype, expected_msg
         edata.generate_metadata(regsurf, **kval)
 
 
+def test_content_not_given(globalconfig1):
+    """When content is not explicitly given, warning shall be issued."""
+    with pytest.warns(match="The <content> is not provided"):
+        ExportData(config=globalconfig1)
+
+
 def test_content_invalid_string(globalconfig1):
     with pytest.raises(ValidationError, match=r"Invalid content"):
         ExportData(config=globalconfig1, content="not_valid")

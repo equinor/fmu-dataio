@@ -136,11 +136,11 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     usecontent = "unset"
     if content is None:
         warn(
-            "The <content> is not provided which defaults to 'depth'. "
+            "The <content> is not provided which defaults to 'unset'. "
             "It is strongly recommended that content is given explicitly!",
             UserWarning,
         )
-        usecontent = "depth"
+        usecontent = "unset"
 
     elif isinstance(content, str):
         logger.debug("content is a string")
@@ -167,7 +167,7 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     else:
         raise ValidationError("The 'content' must be string or dict")
 
-    if usecontent not in ALLOWED_CONTENTS:
+    if usecontent != "unset" and usecontent not in ALLOWED_CONTENTS:
         raise ValidationError(
             f"Invalid content: <{usecontent}>! "
             f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
@@ -510,7 +510,7 @@ class ExportData:
     aggregation: bool = False
     casepath: Union[str, Path, None] = None
     config: dict = field(default_factory=dict)
-    content: Union[dict, str] = "depth"
+    content: Union[dict, str, None] = None
     depth_reference: str = "msl"
     description: Union[str, list] = ""
     fmu_context: str = "realization"
