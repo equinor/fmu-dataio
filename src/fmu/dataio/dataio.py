@@ -20,6 +20,7 @@ from ._definitions import (
     ALLOWED_FMU_CONTEXTS,
     CONTENTS_REQUIRED,
     DEPRECATED_CONTENTS,
+    CONFIG_FIELDS_2_CASE_METADATA,
 )
 from ._utils import (
     create_symlink,
@@ -996,6 +997,28 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
         return False
 
+    def _get_globals_from_globalconfig(self):
+        cfg_global = dict()
+
+        for key in CONFIG_FIELDS_2_CASE_METADATA.keys():
+            expect_type = CONFIG_FIELDS_2_CASE_METADATA[key]["type"]
+            block = self.config["global"].get(key)
+
+            if block is None:
+                warn(f"{key} was not found in the global_config.")
+                continue
+
+            if isinstance(block, expect_type):
+                logger.info("Adding %s to case metadata", key)
+                cfg_global[key] = self.config["global"][key]
+            else:
+                warn(
+                    f"{key} was found in global_config but is not of type "
+                    f"{expect_type} and will be ignored."
+                )
+
+        return cfg_global
+
     # ==================================================================================
     # Public methods:
     # ==================================================================================
@@ -1043,6 +1066,8 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
         meta["fmu"] = dict()
         meta["fmu"]["model"] = self.config["model"]
+        meta["fmu"]["config"] = dict()
+        meta["fmu"]["config"]["global"] = self._get_globals_from_globalconfig()
 
         mcase = meta["fmu"]["case"] = dict()
         mcase["name"] = self.casename

@@ -91,3 +91,9 @@ ALLOWED_FMU_CONTEXTS = {
     "case_symlink_realization": "To case/share, with symlinks on realizations level",
     "preprocessed": "To share/preprocessed; from interactive runs but re-used later",
 }
+
+CONFIG_FIELDS_2_CASE_METADATA = {
+    "REGIONS": {
+        "type": dict,
+    }
+}
