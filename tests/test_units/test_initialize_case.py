@@ -5,12 +5,14 @@ This class is used for creating the case metadata.
 
 import logging
 import os
+from copy import deepcopy
 
 import pytest
 import yaml
 
 from fmu.dataio import InitializeCase
 from fmu.dataio._utils import prettyprint_dict
+from fmu.dataio._definitions import CONFIG_FIELDS_2_CASE_METADATA
 
 logger = logging.getLogger(__name__)
 
@@ -196,3 +198,42 @@ def test_inicase_deprecated_restart_from(fmurun_w_casemetadata, globalconfig2):
             rootfolder=fmurun_w_casemetadata.parent.parent,
             restart_from="Jurassic era",
         )
+
+
+def test_inicase_get_globals(globalconfig2):
+    """Test the _get_globals_from_globalconfig private method."""
+
+    # Verify that fmu-dataio is _told_ to get REGIONS (test assumption)
+    assert "REGIONS" in CONFIG_FIELDS_2_CASE_METADATA
+
+    # verify that fmu-dataio _gets_ REGIONS
+    icase = InitializeCase(globalconfig2)
+    global_ = icase._get_globals_from_globalconfig()
+    assert "REGIONS" in global_
+    assert isinstance(global_, dict)
+
+
+def test_inicase_get_globals_with_metadata_generation(globalconfig2, fmurun):
+    icase = InitializeCase(globalconfig2)
+    caseroot = fmurun.parent.parent
+    metadata = icase.generate_case_metadata(rootfolder=caseroot, force=True)
+
+    assert "fmu" in metadata
+    assert "config" in metadata["fmu"]
+    assert "global" in metadata["fmu"]["config"]
+
+    cfg_gl = metadata["fmu"]["config"]["global"]  # short form
+    assert "REGIONS" in cfg_gl
+    assert "WestLowland" in cfg_gl["REGIONS"]
+
+
+def test_inicase_get_globals_missing_block(globalconfig2, fmurun):
+    """Test behavior when a wanted block is missing from global_variables."""
+
+    globalconfig2_copy = deepcopy(globalconfig2)
+    del globalconfig2_copy["global"]["REGIONS"]
+
+    icase = InitializeCase(globalconfig2_copy)
+    caseroot = fmurun.parent.parent
+    with pytest.warns(match="REGIONS was not found"):
+        metadata = icase.generate_case_metadata(rootfolder=caseroot, force=True)
