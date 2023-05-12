@@ -1,8 +1,8 @@
-"""Test the dataio running from within RMS interactive as context.
+"""Test the InitializeCase class.
 
-In this case a user sits in RMS, which is in folder rms/model and runs
-interactive. Hence the basepath will be ../../
+This class is used for creating the case metadata.
 """
+
 import logging
 import os
 
