@@ -131,6 +131,7 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     logger.info("Evaluate content")
 
     content = proposed
+    content_specific = None
     logger.debug("content is %s of type %s", str(content), type(content))
     usecontent = "unset"
     if content is None:
