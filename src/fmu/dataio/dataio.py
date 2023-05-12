@@ -133,7 +133,6 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     content = proposed
     content_specific = None
     logger.debug("content is %s of type %s", str(content), type(content))
-    usecontent = "unset"
     if content is None:
         warn(
             "The <content> is not provided which defaults to 'unset'. "
