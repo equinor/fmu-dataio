@@ -95,5 +95,8 @@ ALLOWED_FMU_CONTEXTS = {
 CONFIG_FIELDS_2_CASE_METADATA = {
     "REGIONS": {
         "type": dict,
-    }
+    },
+    "SEISMIC_DATES": {
+        "type": list,
+    },
 }

@@ -224,6 +224,8 @@ def test_inicase_get_globals_with_metadata_generation(globalconfig2, fmurun):
 
     cfg_gl = metadata["fmu"]["config"]["global"]  # short form
     assert "REGIONS" in cfg_gl
+    expected_type = CONFIG_FIELDS_2_CASE_METADATA["REGIONS"]["type"]
+    assert isinstance(cfg_gl["REGIONS"], expected_type)
     assert "WestLowland" in cfg_gl["REGIONS"]
 
 
@@ -237,3 +239,14 @@ def test_inicase_get_globals_missing_block(globalconfig2, fmurun):
     caseroot = fmurun.parent.parent
     with pytest.warns(match="REGIONS was not found"):
         metadata = icase.generate_case_metadata(rootfolder=caseroot, force=True)
+
+    assert "fmu" in metadata
+    assert "config" in metadata["fmu"]
+    assert "global" in metadata["fmu"]["config"]
+
+    cfg_gl = metadata["fmu"]["config"]["global"]  # short form
+    assert "REGIONS" not in cfg_gl
+    assert "SEISMIC_DATES" in cfg_gl
+
+    expected_type = CONFIG_FIELDS_2_CASE_METADATA["SEISMIC_DATES"]["type"]
+    assert isinstance(cfg_gl["SEISMIC_DATES"], expected_type)
