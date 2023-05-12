@@ -1315,7 +1315,9 @@ class AggregatedData:
             "masterdata": self.source_metadata[0]["masterdata"],
             "model": self.source_metadata[0]["fmu"]["model"],
         }
-        etemp = ExportData(config=fakeconfig, name=self.name)
+
+        content = template["data"]["content"]
+        etemp = ExportData(config=fakeconfig, name=self.name, content=content)
         etempmeta = etemp.generate_metadata(obj, compute_md5=compute_md5)
 
         template["tracklog"] = etempmeta["tracklog"]
