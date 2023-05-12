@@ -298,6 +298,7 @@ def fixture_edataobj2(globalconfig2):
     """Combined globalconfig2 and other settings; NB for internal unit testing"""
     eobj = dio.ExportData(
         config=globalconfig2,
+        content="depth",
         name="TopVolantis",
         unit="m",
         tagname="mytag",
@@ -442,6 +443,7 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
 
     edata = dio.ExportData(
         config=rmsglobalconfig,  # read from global config
+        content="depth",
         verbosity="INFO",
     )
 
