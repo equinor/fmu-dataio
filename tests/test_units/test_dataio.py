@@ -23,7 +23,7 @@ def test_generate_metadata_simple(globalconfig1):
 
     logger.info("Config in: \n%s", globalconfig1)
 
-    edata = ExportData(config=globalconfig1)
+    edata = ExportData(config=globalconfig1, content="depth")
 
     assert edata.config["model"]["name"] == "Test"
 
@@ -40,7 +40,7 @@ def test_missing_or_wrong_config_exports_with_warning(regsurf):
     with pytest.warns(
         PendingDeprecationWarning, match="One or more keys required for valid metadata"
     ):
-        edata = ExportData(config={})
+        edata = ExportData(config={}, content="depth")
 
     with pytest.warns(PendingDeprecationWarning, match="One or more"):
         meta = edata.generate_metadata(regsurf)
@@ -66,7 +66,7 @@ def test_config_miss_required_fields(globalconfig1, regsurf):
     del cfg["model"]
 
     with pytest.warns(PendingDeprecationWarning, match="One or more keys required"):
-        edata = ExportData(config=cfg)
+        edata = ExportData(config=cfg, content="depth")
 
     with pytest.warns(UserWarning, match="without metadata"):
         out = edata.export(regsurf, name="mysurface")
@@ -80,10 +80,10 @@ def test_config_miss_required_fields(globalconfig1, regsurf):
 def test_update_check_settings_shall_fail(globalconfig1):
     # pylint: disable=unexpected-keyword-arg
     with pytest.raises(TypeError):
-        _ = ExportData(config=globalconfig1, stupid="str")
+        _ = ExportData(config=globalconfig1, stupid="str", content="depth")
 
     newsettings = {"invalidkey": "some"}
-    some = ExportData(config=globalconfig1)
+    some = ExportData(config=globalconfig1, content="depth")
     with pytest.raises(KeyError):
         some._update_check_settings(newsettings)
 
@@ -111,11 +111,11 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, wtype, expected_msg
     # under primary initialisation
     kval = {key: value}
     with pytest.warns(wtype, match=expected_msg):
-        _ = ExportData(config=globalconfig1, **kval)
+        _ = ExportData(config=globalconfig1, content="depth", **kval)
 
     # under override
     with pytest.warns(wtype, match=expected_msg):
-        edata = ExportData(config=globalconfig1)
+        edata = ExportData(config=globalconfig1, content="depth")
         edata.generate_metadata(regsurf, **kval)
 
 
@@ -236,7 +236,7 @@ def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
 def test_global_config_from_env(globalconfig_asfile):
     """Testing getting global config from a file"""
     os.environ["FMU_GLOBAL_CONFIG"] = globalconfig_asfile
-    edata = ExportData()  # the env variable will override this
+    edata = ExportData(content="depth")  # the env variable will override this
     assert "smda" in edata.config["masterdata"]
 
     del os.environ["FMU_GLOBAL_CONFIG"]
@@ -255,7 +255,9 @@ def test_settings_config_from_env(tmp_path, rmsglobalconfig, regsurf):
         yaml.dump(settings, stream)
 
     os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
-    edata = ExportData(verbosity="INFO")  # the env variable will override this
+    edata = ExportData(
+        content="depth", verbosity="INFO"
+    )  # the env variable will override this
     assert edata.name == "MyFancyName"
 
     meta = edata.generate_metadata(regsurf)
@@ -282,7 +284,9 @@ def test_settings_and_global_config_from_env(tmp_path, rmsglobalconfig, regsurf)
     os.environ["FMU_GLOBAL_CONFIG"] = str(tmp_path / "global_variables.yml")
     os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
 
-    edata = ExportData(verbosity="INFO")  # the env variable will override this
+    edata = ExportData(
+        content="depth", verbosity="INFO"
+    )  # the env variable will override this
     assert edata.name == "MyFancyName"
 
     meta = edata.generate_metadata(regsurf)
@@ -305,7 +309,7 @@ def test_settings_config_from_env_invalid(tmp_path, rmsglobalconfig):
 
     os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
     with pytest.raises(ValidationError):
-        _ = ExportData(verbosity="INFO")
+        _ = ExportData(content="depth", verbosity="INFO")
 
     del os.environ["FMU_DATAIO_CONFIG"]
 
@@ -319,7 +323,7 @@ def test_norwegian_letters_globalconfig(globalvars_norw_letters, regsurf):
     path, cfg, cfg_asfile = globalvars_norw_letters
     os.chdir(path)
 
-    edata = ExportData(config=cfg, name="TopBlåbær")
+    edata = ExportData(content="depth", config=cfg, name="TopBlåbær")
     meta = edata.generate_metadata(regsurf)
     logger.debug("\n %s", prettyprint_dict(meta))
     assert meta["data"]["name"] == "TopBlåbær"
@@ -335,7 +339,7 @@ def test_norwegian_letters_globalconfig(globalvars_norw_letters, regsurf):
     # read file as global config
 
     os.environ["FMU_GLOBAL_CONFIG"] = cfg_asfile
-    edata2 = ExportData()  # the env variable will override this
+    edata2 = ExportData(content="depth")  # the env variable will override this
     meta2 = edata2.generate_metadata(regsurf, name="TopBlåbær")
     logger.debug("\n %s", prettyprint_dict(meta2))
     assert meta2["data"]["name"] == "TopBlåbær"
@@ -351,7 +355,7 @@ def test_norwegian_letters_globalconfig_as_json(globalvars_norw_letters, regsurf
     os.chdir(path)
 
     ExportData.meta_format = "json"
-    edata = ExportData(config=cfg, name="TopBlåbær")
+    edata = ExportData(config=cfg, name="TopBlåbær", content="depth")
 
     result = pathlib.Path(edata.export(regsurf))
     metafile = result.parent / ("." + str(result.stem) + ".gri.json")
@@ -369,7 +373,7 @@ def test_establish_pwd_runpath(tmp_path, globalconfig2):
     os.chdir(rmspath)
 
     ExportData._inside_rms = True
-    edata = ExportData(config=globalconfig2)
+    edata = ExportData(config=globalconfig2, content="depth")
     edata._establish_pwd_rootpath()
 
     assert edata._rootpath == rmspath.parent.parent
@@ -385,7 +389,7 @@ def test_forcefolder(tmp_path, globalconfig2, regsurf):
     os.chdir(rmspath)
 
     ExportData._inside_rms = True
-    edata = ExportData(config=globalconfig2, forcefolder="whatever")
+    edata = ExportData(config=globalconfig2, content="depth", forcefolder="whatever")
     with pytest.warns(UserWarning, match="The standard folder name is overrided"):
         meta = edata.generate_metadata(regsurf)
     logger.info("RMS PATH %s", rmspath)
@@ -403,12 +407,12 @@ def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsu
 
     ExportData._inside_rms = True
     ExportData.allow_forcefolder_absolute = False
-    edata = ExportData(config=globalconfig2, forcefolder="/tmp/what")
+    edata = ExportData(config=globalconfig2, content="depth", forcefolder="/tmp/what")
     with pytest.raises(ValueError):
         meta = edata.generate_metadata(regsurf, name="x")
 
     ExportData.allow_forcefolder_absolute = True
-    edata = ExportData(config=globalconfig2, forcefolder="/tmp/what")
+    edata = ExportData(config=globalconfig2, content="depth", forcefolder="/tmp/what")
     with pytest.warns(UserWarning, match="absolute paths in forcefolder is not rec"):
         meta = edata.generate_metadata(regsurf, name="y")
 

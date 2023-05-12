@@ -35,6 +35,7 @@ def test_regsurf_case_observation(fmurun_w_casemetadata, rmsglobalconfig, regsur
         config=rmsglobalconfig,  # read from global config
         fmu_context="case",
         name="mymap",
+        content="depth",
         is_observation=True,
     )
 
@@ -60,6 +61,7 @@ def test_regsurf_case_observation_w_symlinks(
         config=rmsglobalconfig,  # read from global config
         fmu_context="case_symlink_realization",
         name="mymap",
+        content="depth",
         is_observation=True,
     )
     metadata = edata.generate_metadata(regsurf)
@@ -92,6 +94,7 @@ def test_regsurf_preprocessed_observation(
             config=rmsglobalconfig,  # read from global config
             fmu_context="preprocessed",
             name="TopVolantis",
+            content="depth",
             is_observation=True,
             timedata=[[20240802, "moni"], [20200909, "base"]],
         )
@@ -125,6 +128,7 @@ def test_regsurf_preprocessed_observation(
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             fmu_context="case",
+            content="depth",
             is_observation=True,
         )
         metadata = edata.generate_metadata(
@@ -194,6 +198,7 @@ def test_regsurf_preprocessed_obs_vary_name_tagname(
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             fmu_context="preprocessed",
+            content="depth",
             timedata=[[20240802, "moni"], [20200909, "base"]],
             is_observation=True,
             name=name_pre,
@@ -226,6 +231,7 @@ def test_regsurf_preprocessed_obs_vary_name_tagname(
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             fmu_context="case",
+            content="depth",
             is_observation=True,
             name=name_merge,
             tagname=tagname_merge,
@@ -270,6 +276,7 @@ def test_regsurf_preprocessed_observation_subfolder(
             config=rmsglobalconfig,  # read from global config
             fmu_context="preprocessed",
             name="preprocessedmap",
+            content="depth",
             is_observation=True,
             timedata=[[20240802, "moni"], [20200909, "base"]],
             subfolder="mysub",
@@ -294,6 +301,7 @@ def test_regsurf_preprocessed_observation_subfolder(
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             fmu_context="case",
+            content="depth",
             name="pre_v3",
             is_observation=True,
         )
@@ -329,6 +337,7 @@ def test_preprocessed_with_abs_forcefolder_shall_fail(
         config=rmsglobalconfig,  # read from global config
         fmu_context="preprocessed",
         name="some",
+        content="depth",
         is_observation=True,
         timedata=[[20240802, "moni"], [20200909, "base"]],
         forcefolder="/tmp",
@@ -348,6 +357,7 @@ def test_preprocessed_with_rel_forcefolder_ok(rmssetup, rmsglobalconfig, regsurf
         config=rmsglobalconfig,  # read from global config
         fmu_context="preprocessed",
         name="some",
+        content="depth",
         is_observation=True,
         timedata=[[20240802, "moni"], [20200909, "base"]],
         forcefolder="tmp",

@@ -317,7 +317,7 @@ def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, reg
     os.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig,  # read from global config
+        config=rmsglobalconfig, content="depth"  # read from global config
     )
 
     aggs = []
