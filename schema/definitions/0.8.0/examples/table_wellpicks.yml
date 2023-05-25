@@ -71,7 +71,7 @@ data: # The data block describes the actual data (e.g. surface). Only present in
 
   content: well_picks   # white-listed and standardized
 
-  name: inplace_mygrid
+  name: wellpicks
   stratigraphic: false
   format: csv
   vertical_domain: depth # / time / null
@@ -81,19 +81,19 @@ data: # The data block describes the actual data (e.g. surface). Only present in
     nrow: 441
     undef: -999.25  # Allow both number and string
     columns:
-      - BULK_OIL
-      - NET_OIL
-      - PORE_OIL
+      - X_UTME
+      - Y_UTMN
+      - Z_TVDSS
+      - WELL
+      - HORIZON
   table_index:
     - WELL
     - HORIZON
   is_prediction: true # A mechanism for separating pure QC output from actual predictions
   is_observation: false
-  description:
-    - Inplace volumes calculated on MyGrid
 
 display:
-  name: Inplace, MyGrid
+  name: Wellpicks
 
 access:
   asset:
