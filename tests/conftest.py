@@ -442,6 +442,11 @@ def fixture_wellpicks():
                 10.0,
                 22.2,
             ],
+            "MD": [
+                0.1,
+                10.1,
+                10323323.83223,
+            ],
             "WELL": ["55_33-A-6", "55_34-B-7", "55_34-B-7"],
             "HORIZON": ["MSL", "TopTherys", "TopVolantis"],
         }

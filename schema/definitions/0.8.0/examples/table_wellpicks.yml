@@ -84,6 +84,7 @@ data: # The data block describes the actual data (e.g. surface). Only present in
       - X_UTME
       - Y_UTMN
       - Z_TVDSS
+      - MD
       - WELL
       - HORIZON
   table_index:
