@@ -1,4 +1,4 @@
-# Example metadata for an inplace volume table.
+# Example metadata for a wellpicks table.
 
 $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
 version: "0.8.0"
