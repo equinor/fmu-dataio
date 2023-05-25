@@ -421,6 +421,38 @@ def fixture_dataframe():
     return pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
 
 
+@pytest.fixture(name="wellpicks", scope="module", autouse=True)
+def fixture_wellpicks():
+    """Create a pandas dataframe containing wellpicks"""
+    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    return pd.DataFrame(
+        {
+            "X_UTME": [
+                46123.45,
+                46124.56,
+                46125.67,
+            ],
+            "Y_UTMN": [
+                5931123.45,
+                5931124.56,
+                5931125.78,
+            ],
+            "Z_TVDSS": [
+                0.0,
+                10.0,
+                22.2,
+            ],
+            "MD": [
+                0.1,
+                10.1,
+                10323323.83223,
+            ],
+            "WELL": ["55_33-A-6", "55_34-B-7", "55_34-B-7"],
+            "HORIZON": ["MSL", "TopTherys", "TopVolantis"],
+        }
+    )
+
+
 @pytest.fixture(name="arrowtable", scope="module", autouse=True)
 def fixture_arrowtable():
     """Create an arrow table instance."""
