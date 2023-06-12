@@ -4,3 +4,4 @@ autoapi
 sphinx-autodoc-typehints
 sphinxcontrib-apidoc
 sphinx-togglebutton
+wheel>=0.38.0 # not directly required, pinned by Snyk to avoid a vulnerability
