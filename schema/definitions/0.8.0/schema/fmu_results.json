@@ -1169,6 +1169,15 @@
     },
     "subschemas": {
         "case": {
+            "required": [
+                "source",
+                "version",
+                "class",
+                "fmu",
+                "access",
+                "tracklog",
+                "masterdata"
+            ],
             "properties": {
                 "fmu": {
                     "description": "The FMU block records properties that are specific to FMU",
@@ -1317,21 +1326,19 @@
                 }
             },
             "required": [
+                "source",
+                "version",
+                "class",
+                "fmu",
+                "access",
+                "tracklog",
+                "masterdata",
                 "data",
                 "file"
             ]
         }
     },
     "$comment": "DEFINITIONS END HERE",
-    "required": [
-        "source",
-        "version",
-        "class",
-        "fmu",
-        "access",
-        "tracklog",
-        "masterdata"
-    ],
     "$comment": "Common property definitions for all sub-schemas, may not be required/present in all sub-schemas.",
     "properties": {
         "source": {
