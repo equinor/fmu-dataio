@@ -1179,6 +1179,30 @@
                 "masterdata"
             ],
             "properties": {
+                "source": {
+                    "$ref": "#/$defs/source"
+                },
+                "version": {
+                    "$ref": "#/$defs/version"
+                },
+                "class": {
+                    "$ref": "#/$defs/class"
+                },
+                "tracklog": {
+                    "$ref": "#/$defs/tracklog"
+                },
+                "data": {
+                    "$ref": "#/$defs/data"
+                },
+                "access": {
+                    "$ref": "#/$defs/access",
+                    "required": [
+                        "asset"
+                    ]
+                },
+                "masterdata": {
+                    "$ref": "#/$defs/masterdata"
+                },
                 "fmu": {
                     "description": "The FMU block records properties that are specific to FMU",
                     "$comment": "This is the fmu block as it appears in data objects",
@@ -1195,11 +1219,6 @@
                             "$ref": "#/$defs/fmu/case"
                         }
                     }
-                },
-                "access": {
-                    "required": [
-                        "asset"
-                    ]
                 }
             }
         },
@@ -1256,6 +1275,9 @@
                 "data": {
                     "$comment": "Conditionals",
                     "allOf": [
+                        {
+                            "$ref": "#/$defs/data"
+                        },
                         {
                             "$comment": "When content == field_outline, require data.field_outline",
                             "if": {
@@ -1319,10 +1341,26 @@
                     ]
                 },
                 "access": {
+                    "$ref": "#/$defs/access",
                     "required": [
                         "asset",
                         "ssdl"
                     ]
+                },
+                "source": {
+                    "$ref": "#/$defs/source"
+                },
+                "version": {
+                    "$ref": "#/$defs/version"
+                },
+                "class": {
+                    "$ref": "#/$defs/class"
+                },
+                "tracklog": {
+                    "$ref": "#/$defs/tracklog"
+                },
+                "masterdata": {
+                    "$ref": "#/$defs/masterdata"
                 }
             },
             "required": [
@@ -1339,30 +1377,6 @@
         }
     },
     "$comment": "DEFINITIONS END HERE",
-    "$comment": "Common property definitions for all sub-schemas, may not be required/present in all sub-schemas.",
-    "properties": {
-        "source": {
-            "$ref": "#/$defs/source"
-        },
-        "version": {
-            "$ref": "#/$defs/version"
-        },
-        "class": {
-            "$ref": "#/$defs/class"
-        },
-        "tracklog": {
-            "$ref": "#/$defs/tracklog"
-        },
-        "data": {
-            "$ref": "#/$defs/data"
-        },
-        "access": {
-            "$ref": "#/$defs/access"
-        },
-        "masterdata": {
-            "$ref": "#/$defs/masterdata"
-        }
-    },
     "if": {
         "properties": {
             "class": {
