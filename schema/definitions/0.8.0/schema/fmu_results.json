@@ -39,7 +39,7 @@
         "file.checksum_md5",
         "file.size_bytes"
     ],
-    "definitions": {
+    "$defs": {
         "generic": {
             "$comment": "GENERIC DEFINITIONS",
             "datetime": {
@@ -90,7 +90,7 @@
             ],
             "properties": {
                 "value": {
-                    "$ref": "#/definitions/generic/datetime"
+                    "$ref": "#/$defs/generic/datetime"
                 },
                 "label": {
                     "type": "string",
@@ -142,10 +142,10 @@
             "type": "object",
             "properties": {
                 "datetime": {
-                    "$ref": "#/definitions/generic/datetime"
+                    "$ref": "#/$defs/generic/datetime"
                 },
                 "user": {
-                    "$ref": "#/definitions/generic/user"
+                    "$ref": "#/$defs/generic/user"
                 },
                 "event": {
                     "type": "string",
@@ -159,7 +159,7 @@
         "tracklog": {
             "type": "array",
             "items": {
-                "$ref": "#/definitions/tracklog_event"
+                "$ref": "#/$defs/tracklog_event"
             }
         },
         "data": {
@@ -205,13 +205,13 @@
                 "alias": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/data/properties/name"
+                        "$ref": "#/$defs/data/properties/name"
                     }
                 },
                 "stratigraphic_alias": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/data/properties/name"
+                        "$ref": "#/$defs/data/properties/name"
                     }
                 },
                 "offset": {
@@ -224,13 +224,13 @@
                     "$comment": "To be used if data object is an interval",
                     "properties": {
                         "name": {
-                            "$ref": "#/definitions/data/properties/name"
+                            "$ref": "#/$defs/data/properties/name"
                         },
                         "stratigraphic": {
-                            "$ref": "#/definitions/data/properties/stratigraphic"
+                            "$ref": "#/$defs/data/properties/stratigraphic"
                         },
                         "offset": {
-                            "$ref": "#/definitions/data/properties/offset"
+                            "$ref": "#/$defs/data/properties/offset"
                         }
                     }
                 },
@@ -238,13 +238,13 @@
                     "$comment": "To be used if data object is an interval",
                     "properties": {
                         "name": {
-                            "$ref": "#/definitions/data/properties/name"
+                            "$ref": "#/$defs/data/properties/name"
                         },
                         "stratigraphic": {
-                            "$ref": "#/definitions/data/properties/stratigraphic"
+                            "$ref": "#/$defs/data/properties/stratigraphic"
                         },
                         "offset": {
-                            "$ref": "#/definitions/data/properties/offset"
+                            "$ref": "#/$defs/data/properties/offset"
                         }
                     }
                 },
@@ -512,10 +512,10 @@
                     "type": "object",
                     "properties": {
                         "t0": {
-                            "$ref": "#/definitions/fmu_time"
+                            "$ref": "#/$defs/fmu_time"
                         },
                         "t1": {
-                            "$ref": "#/definitions/fmu_time"
+                            "$ref": "#/$defs/fmu_time"
                         }
                     }
                 },
@@ -588,7 +588,7 @@
                     }
                 },
                 "description": {
-                    "$ref": "#/definitions/generic/_description"
+                    "$ref": "#/$defs/generic/_description"
                 },
                 "seismic": {
                     "type": "object",
@@ -844,7 +844,7 @@
                                         ]
                                     },
                                     "uuid": {
-                                        "$ref": "#/definitions/generic/uuid"
+                                        "$ref": "#/$defs/generic/uuid"
                                     }
                                 }
                             }
@@ -866,7 +866,7 @@
                                         ]
                                     },
                                     "uuid": {
-                                        "$ref": "#/definitions/generic/uuid"
+                                        "$ref": "#/$defs/generic/uuid"
                                     }
                                 }
                             }
@@ -888,7 +888,7 @@
                                         ]
                                     },
                                     "uuid": {
-                                        "$ref": "#/definitions/generic/uuid"
+                                        "$ref": "#/$defs/generic/uuid"
                                     }
                                 }
                             }
@@ -908,7 +908,7 @@
                                     ]
                                 },
                                 "uuid": {
-                                    "$ref": "#/definitions/generic/uuid"
+                                    "$ref": "#/$defs/generic/uuid"
                                 }
                             }
                         },
@@ -927,7 +927,7 @@
                                     ]
                                 },
                                 "uuid": {
-                                    "$ref": "#/definitions/generic/uuid"
+                                    "$ref": "#/$defs/generic/uuid"
                                 }
                             }
                         }
@@ -953,7 +953,7 @@
                     },
                     "description": {
                         "description": "This is a free text description of the model setup",
-                        "$ref": "#/definitions/generic/_description"
+                        "$ref": "#/$defs/generic/_description"
                     }
                 }
             },
@@ -982,14 +982,14 @@
                         ]
                     },
                     "uuid": {
-                        "$ref": "#/definitions/generic/uuid"
+                        "$ref": "#/$defs/generic/uuid"
                     },
                     "user": {
                         "description": "The user name used in ERT",
-                        "$ref": "#/definitions/generic/user"
+                        "$ref": "#/$defs/generic/user"
                     },
                     "description": {
-                        "$ref": "#/definitions/generic/_description"
+                        "$ref": "#/$defs/generic/_description"
                     }
                 }
             },
@@ -1015,11 +1015,11 @@
                         ]
                     },
                     "uuid": {
-                        "$ref": "#/definitions/generic/uuid"
+                        "$ref": "#/$defs/generic/uuid"
                     },
                     "restart_from": {
                         "description": "A uuid reference to another iteration that this iteration was restarted from",
-                        "$ref": "#/definitions/generic/uuid"
+                        "$ref": "#/$defs/generic/uuid"
                     }
                 }
             },
@@ -1047,7 +1047,7 @@
                         ]
                     },
                     "uuid": {
-                        "$ref": "#/definitions/generic/uuid"
+                        "$ref": "#/$defs/generic/uuid"
                     },
                     "parameters": {
                         "type": "object",
@@ -1180,10 +1180,10 @@
                     ],
                     "properties": {
                         "model": {
-                            "$ref": "#/definitions/fmu/model"
+                            "$ref": "#/$defs/fmu/model"
                         },
                         "case": {
-                            "$ref": "#/definitions/fmu/case"
+                            "$ref": "#/$defs/fmu/case"
                         }
                     }
                 },
@@ -1205,22 +1205,22 @@
                     ],
                     "properties": {
                         "model": {
-                            "$ref": "#/definitions/fmu/model"
+                            "$ref": "#/$defs/fmu/model"
                         },
                         "case": {
-                            "$ref": "#/definitions/fmu/case"
+                            "$ref": "#/$defs/fmu/case"
                         },
                         "iteration": {
-                            "$ref": "#/definitions/fmu/iteration"
+                            "$ref": "#/$defs/fmu/iteration"
                         },
                         "realization": {
-                            "$ref": "#/definitions/fmu/realization"
+                            "$ref": "#/$defs/fmu/realization"
                         },
                         "workflow": {
-                            "$ref": "#/definitions/fmu/workflow"
+                            "$ref": "#/$defs/fmu/workflow"
                         },
                         "aggregation": {
-                            "$ref": "#/definitions/fmu/aggregation"
+                            "$ref": "#/$defs/fmu/aggregation"
                         }
                     },
                     "$comment": "implementation below allows realization or aggregation or none of them, never both",
@@ -1242,7 +1242,7 @@
                     }
                 },
                 "file": {
-                    "$ref": "#/definitions/file"
+                    "$ref": "#/$defs/file"
                 },
                 "data": {
                     "$comment": "Conditionals",
@@ -1335,25 +1335,25 @@
     "$comment": "Common property definitions for all sub-schemas, may not be required/present in all sub-schemas.",
     "properties": {
         "source": {
-            "$ref": "#/definitions/source"
+            "$ref": "#/$defs/source"
         },
         "version": {
-            "$ref": "#/definitions/version"
+            "$ref": "#/$defs/version"
         },
         "class": {
-            "$ref": "#/definitions/class"
+            "$ref": "#/$defs/class"
         },
         "tracklog": {
-            "$ref": "#/definitions/tracklog"
+            "$ref": "#/$defs/tracklog"
         },
         "data": {
-            "$ref": "#/definitions/data"
+            "$ref": "#/$defs/data"
         },
         "access": {
-            "$ref": "#/definitions/access"
+            "$ref": "#/$defs/access"
         },
         "masterdata": {
-            "$ref": "#/definitions/masterdata"
+            "$ref": "#/$defs/masterdata"
         }
     },
     "if": {
