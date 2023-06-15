@@ -1167,51 +1167,9 @@
             }
         }
     },
-    "$comment": "DEFINITIONS END HERE",
-    "$comment": "oneOf below reflects different structures depending on type",
-    "$comment": "The fmu-block is different for cases and data objects,",
-    "$comment": "and the data block is only present for data objects.",
-    "required": [
-        "source",
-        "version",
-        "class",
-        "fmu",
-        "access",
-        "tracklog",
-        "masterdata"
-    ],
-    "properties": {
-        "source": {
-            "$ref": "#/definitions/source"
-        },
-        "version": {
-            "$ref": "#/definitions/version"
-        },
-        "data": {
-            "$ref": "#/definitions/data"
-        },
-        "tracklog": {
-            "$ref": "#/definitions/tracklog"
-        },
-        "access": {
-            "$ref": "#/definitions/access"
-        },
-        "masterdata": {
-            "$ref": "#/definitions/masterdata"
-        },
-        "class": {
-            "$ref": "#/definitions/class"
-        }
-    },
-    "oneOf": [
-        {
-            "$comment": "Valid when class == case)",
+    "subschemas": {
+        "case": {
             "properties": {
-                "class": {
-                    "enum": [
-                        "case"
-                    ]
-                },
                 "fmu": {
                     "description": "The FMU block records properties that are specific to FMU",
                     "$comment": "This is the fmu block as it appears in data objects",
@@ -1236,20 +1194,8 @@
                 }
             }
         },
-        {
-            "$comment": "Valid when class != case",
-            "required": [
-                "data",
-                "file"
-            ],
+        "noncase": {
             "properties": {
-                "class": {
-                    "not": {
-                        "enum": [
-                            "case"
-                        ]
-                    }
-                },
                 "fmu": {
                     "description": "The FMU block records properties that are specific to FMU",
                     "$comment": "This is the fmu block as it appears in data objects",
@@ -1369,7 +1315,58 @@
                         "ssdl"
                     ]
                 }
+            },
+            "required": [
+                "data",
+                "file"
+            ]
+        }
+    },
+    "$comment": "DEFINITIONS END HERE",
+    "required": [
+        "source",
+        "version",
+        "class",
+        "fmu",
+        "access",
+        "tracklog",
+        "masterdata"
+    ],
+    "$comment": "Common property definitions for all sub-schemas, may not be required/present in all sub-schemas.",
+    "properties": {
+        "source": {
+            "$ref": "#/definitions/source"
+        },
+        "version": {
+            "$ref": "#/definitions/version"
+        },
+        "class": {
+            "$ref": "#/definitions/class"
+        },
+        "tracklog": {
+            "$ref": "#/definitions/tracklog"
+        },
+        "data": {
+            "$ref": "#/definitions/data"
+        },
+        "access": {
+            "$ref": "#/definitions/access"
+        },
+        "masterdata": {
+            "$ref": "#/definitions/masterdata"
+        }
+    },
+    "if": {
+        "properties": {
+            "class": {
+                "const": "case"
             }
         }
-    ]
+    },
+    "then": {
+        "$ref": "#/subschemas/case"
+    },
+    "else": {
+        "$ref": "#/subschemas/noncase"
+    }
 }
