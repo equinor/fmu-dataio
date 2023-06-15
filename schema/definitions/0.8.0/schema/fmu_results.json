@@ -1194,7 +1194,7 @@
                 }
             }
         },
-        "noncase": {
+        "data_object": {
             "properties": {
                 "fmu": {
                     "description": "The FMU block records properties that are specific to FMU",
@@ -1367,6 +1367,6 @@
         "$ref": "#/subschemas/case"
     },
     "else": {
-        "$ref": "#/subschemas/noncase"
+        "$ref": "#/subschemas/data_object"
     }
 }
