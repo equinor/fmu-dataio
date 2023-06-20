@@ -10,6 +10,7 @@ spec:
     - name: prod
   components:
     - name: main
+      src: .
       publicPort: http
       ports:
         - name: http
@@ -23,19 +24,50 @@ spec:
             maxReplicas: 2
           resources:
             requests:
-              memory: "1Gi"
-              cpu: "500m"
+              memory: 1Gi
+              cpu: 500m
             limits:
-              memory: "2Gi"
-              cpu: "1000m"
+              memory: 2Gi
+              cpu: 1000m
         - environment: prod
           horizontalScaling:
             minReplicas: 1
             maxReplicas: 2
           resources:
             requests:
-              memory: "1Gi"
-              cpu: "500m"
+              memory: 1Gi
+              cpu: 500m
             limits:
-              memory: "2Gi"
-              cpu: "1000m"
+              memory: 2Gi
+              cpu: 1000m
+    - name: docs
+      src: ./schema/docs
+      publicPort: http
+      ports:
+        - name: http
+          port: 3000
+      ingressConfiguration:
+        - stickysessions
+      environmentConfig:
+        - environment: dev
+          horizontalScaling:
+            minReplicas: 1
+            maxReplicas: 2
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 500m
+            limits:
+              memory: 2Gi
+              cpu: 1000m
+        - environment: prod
+          horizontalScaling:
+            minReplicas: 1
+            maxReplicas: 2
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 500m
+            limits:
+              memory: 2Gi
+              cpu: 1000m
