@@ -1,73 +1,73 @@
 apiVersion: radix.equinor.com/v1
 kind: RadixApplication
 metadata:
-  name: fmu-schemas
+    name: fmu-schemas
 spec:
-  environments:
-    - name: dev
-      build:
-        from: main
-    - name: prod
-  components:
-    - name: main
-      src: .
-      publicPort: http
-      ports:
-        - name: http
-          port: 8080
-      ingressConfiguration:
-        - stickysessions
-      environmentConfig:
-        - environment: dev
-          horizontalScaling:
-            minReplicas: 1
-            maxReplicas: 2
-          resources:
-            requests:
-              memory: 1Gi
-              cpu: 500m
-            limits:
-              memory: 2Gi
-              cpu: 1000m
-        - environment: prod
-          horizontalScaling:
-            minReplicas: 1
-            maxReplicas: 2
-          resources:
-            requests:
-              memory: 1Gi
-              cpu: 500m
-            limits:
-              memory: 2Gi
-              cpu: 1000m
-    - name: docs
-      src: ./schema/docs
-      publicPort: http
-      ports:
-        - name: http
-          port: 3000
-      ingressConfiguration:
-        - stickysessions
-      environmentConfig:
-        - environment: dev
-          horizontalScaling:
-            minReplicas: 1
-            maxReplicas: 2
-          resources:
-            requests:
-              memory: 1Gi
-              cpu: 500m
-            limits:
-              memory: 2Gi
-              cpu: 1000m
-        - environment: prod
-          horizontalScaling:
-            minReplicas: 1
-            maxReplicas: 2
-          resources:
-            requests:
-              memory: 1Gi
-              cpu: 500m
-            limits:
-              memory: 2Gi
-              cpu: 1000m
+    environments:
+        - name: dev
+          build:
+              from: main
+        - name: prod
+    components:
+        - name: main
+          src: "."
+          publicPort: http
+          ports:
+              - name: http
+                port: 8080
+          ingressConfiguration:
+              - stickysessions
+          environmentConfig:
+              - environment: dev
+                horizontalScaling:
+                    minReplicas: 1
+                    maxReplicas: 2
+                resources:
+                    requests:
+                        memory: "1Gi"
+                        cpu: "500m"
+                    limits:
+                        memory: "2Gi"
+                        cpu: "1000m"
+              - environment: prod
+                horizontalScaling:
+                    minReplicas: 1
+                    maxReplicas: 2
+                resources:
+                    requests:
+                        memory: "1Gi"
+                        cpu: "500m"
+                    limits:
+                        memory: "2Gi"
+                        cpu: "1000m"
+        - name: docs
+          src: "./schema/docs"
+          publicPort: http
+          ports:
+              - name: http
+                port: 3000
+          ingressConfiguration:
+              - stickysessions
+          environmentConfig:
+              - environment: dev
+                horizontalScaling:
+                    minReplicas: 1
+                    maxReplicas: 2
+                resources:
+                    requests:
+                        memory: "1Gi"
+                        cpu: "500m"
+                    limits:
+                        memory: "2Gi"
+                        cpu: "1000m"
+              - environment: prod
+                horizontalScaling:
+                    minReplicas: 1
+                    maxReplicas: 2
+                resources:
+                    requests:
+                        memory: "1Gi"
+                        cpu: "500m"
+                    limits:
+                        memory: "2Gi"
+                        cpu: "1000m"
