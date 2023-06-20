@@ -156,7 +156,7 @@ class Schema {
         for (let def of [defOne, defTwo]) {
             if (def?.$ref) {
                 const refPath = this.#getRefPath(def?.$ref);
-                def = this.#getPropDef(this.#schema.$defs, refPath);
+                def = this.#getPropDef(this.#defs, refPath);
             }
 
             if (def?.properties) {
@@ -212,8 +212,6 @@ class Schema {
 
                 return { ...prev, [curr]: this.#mergeDefs(base, sub) };
             }, {});
-
-            console.log(mergedSchema);
 
             return {
                 title: subSchema?.title || subSchema?.$comment || "no title",
