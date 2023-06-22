@@ -1,7 +1,7 @@
 # NOTE: you have to use single-quoted strings in TOML for regular expressions.
 [tool.black]
 line-length = 88
-target-version = ['py36', 'py37', 'py38']
+target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -26,10 +26,4 @@ exclude = '''
 profile = "black"
 
 [build-system]
-requires = [
-  "pip>=19.1.1",
-  "setuptools>=28",
-  "setuptools_scm>=3.2.0",
-  "wheel",
-  'pyarrow; python_version>"3.6.1"',
-]
+requires = ["pip>=19.1.1", "setuptools>=28", "setuptools_scm>=3.2.0", "pyarrow"]

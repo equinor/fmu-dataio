@@ -15,14 +15,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [3.7]
+        python-version: ["3.8"]
         os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v1
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -33,7 +33,7 @@ jobs:
           pip install xtgeo
           pip install git+https://github.com/equinor/fmu-config
           sh examples/run_examples.sh
-          python setup.py build_sphinx
+          sphinx-build -b html docs build/docs/html
       - name: Update GitHub pages
         if: github.repository_owner == 'equinor' && github.ref == 'refs/heads/main'
         run: |
