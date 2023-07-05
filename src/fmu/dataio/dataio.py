@@ -136,7 +136,9 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     if content is None:
         warn(
             "The <content> is not provided which defaults to 'unset'. "
-            "It is strongly recommended that content is given explicitly!",
+            "It is strongly recommended that content is given explicitly! "
+            f"\n\nValid contents are: {', '.join(ALLOWED_CONTENTS.keys())} "
+            "\n\nThis list can be extended upon request and need.",
             UserWarning,
         )
         usecontent = "unset"
