@@ -28,7 +28,7 @@ def test_regsurf_generate_metadata(rmssetup, rmsglobalconfig, regsurf):
     logger.debug(prettyprint_dict(rmsglobalconfig["access"]))
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig,  # read from global config
+        config=rmsglobalconfig, content="depth"  # read from global config
     )
     logger.info("Inside RMS status now %s", dataio.ExportData._inside_rms)
 
@@ -43,7 +43,9 @@ def test_regsurf_generate_metadata_change_content(rmssetup, rmsglobalconfig, reg
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     meta1 = edata.generate_metadata(regsurf)
     meta2 = edata.generate_metadata(regsurf, content="time")
@@ -55,7 +57,9 @@ def test_regsurf_generate_metadata_change_content(rmssetup, rmsglobalconfig, reg
 @inside_rms
 def test_regsurf_generate_metadata_change_content_invalid(rmsglobalconfig, regsurf):
     """As above but change an invalid name of key in the generate_metadata"""
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     with pytest.raises(ValidationError):
         _ = edata.generate_metadata(regsurf, blablabla="time")
@@ -67,7 +71,9 @@ def test_regsurf_export_file(rmssetup, rmsglobalconfig, regsurf):
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     output = edata.export(regsurf)
     logger.info("Output is %s", output)
@@ -83,7 +89,9 @@ def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     output = edata.export(regsurf, name="TopVolantis")
     logger.info("Output is %s", output)
@@ -108,11 +116,13 @@ def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
+        content="depth",
         verbosity="INFO",
     )  # read from global config
     meta1 = edata.generate_metadata(
         regsurf,
         name="TopVolantis",
+        content="depth",
         timedata=[[20300101, "moni"], [20100203, "base"]],
         verbosity="INFO",
     )
@@ -145,6 +155,7 @@ def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsur
     edata = dataio.ExportData(
         config=rmsglobalconfig,
         verbosity="INFO",
+        content="depth",
     )  # read from global config
     meta1 = edata.generate_metadata(
         regsurf,
@@ -163,6 +174,7 @@ def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsur
     meta1 = edata.generate_metadata(
         regsurf,
         name="TopVolantis",
+        content="depth",
         timedata=[[20300123, "one"]],
         verbosity="INFO",
     )
@@ -192,6 +204,7 @@ def test_regsurf_export_file_fmurun(
     edata = dataio.ExportData(
         config=rmsglobalconfig,
         verbosity="INFO",
+        content="depth",
         workflow="My test workflow",
         unit="myunit",
     )  # read from global config
@@ -230,7 +243,9 @@ def test_polys_export_file_set_name(rmssetup, rmsglobalconfig, polygons):
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     output = edata.export(polygons, name="TopVolantis")
     logger.info("Output is %s", output)
@@ -246,7 +261,9 @@ def test_points_export_file_set_name(rmssetup, rmsglobalconfig, points):
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     output = edata.export(points, name="TopVolantis")
     logger.info("Output is %s", output)
@@ -268,7 +285,7 @@ def test_points_export_file_set_name_xtgeoheaders(rmssetup, rmsglobalconfig, poi
     dataio.ExportData.points_fformat = "csv|xtgeo"
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig, verbosity="INFO"
+        config=rmsglobalconfig, verbosity="INFO", content="depth"
     )  # read from global config
 
     output = edata.export(points, name="TopVolantiz")
@@ -296,7 +313,9 @@ def test_cube_export_file_set_name(rmssetup, rmsglobalconfig, cube):
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     output = edata.export(cube, name="MyCube")
     logger.info("Output is %s", output)
@@ -312,7 +331,9 @@ def test_cube_export_file_set_name_as_observation(rmssetup, rmsglobalconfig, cub
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     output = edata.export(cube, name="MyCube", is_observation=True)
     logger.info("Output is %s", output)
@@ -333,7 +354,9 @@ def test_cube_export_file_set_name_as_observation_forcefolder(
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     # use forcefolder to apply share/observations/seismic which trigger a warning
     with pytest.warns(UserWarning, match="The standard folder name is overrided"):
@@ -360,7 +383,9 @@ def test_cube_export_as_case(rmssetup, rmsglobalconfig, cube):
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     # use forcefolder to apply share/observations/seismic
     output = edata.export(
@@ -385,7 +410,9 @@ def test_cube_export_as_case_symlink_realization(rmssetup, rmsglobalconfig, cube
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     output = edata.export(
         cube,
@@ -412,7 +439,9 @@ def test_cube_export_as_observation_forcefolder_w_added_folder(
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     # use forcefolder to apply share/observations/seismic
     with pytest.warns(UserWarning, match="The standard folder name is overrided"):
@@ -440,7 +469,9 @@ def test_cube_export_as_observation_forcefolder_w_true_subfolder(
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     # use forcefolder to apply share/observations/seismic
     with pytest.warns(UserWarning, match="The standard folder name is overrided"):
@@ -475,7 +506,9 @@ def test_cube_export_as_observation_forcefolder_w_subfolder_case(
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     # use forcefolder to apply share/observations/seismic
     with pytest.warns(UserWarning, match="The standard folder name is overrided"):
@@ -504,7 +537,9 @@ def test_grid_export_file_set_name(rmssetup, rmsglobalconfig, grid):
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     output = edata.export(grid, name="MyGrid")
     logger.info("Output is %s", output)
@@ -520,7 +555,9 @@ def test_gridproperty_export_file_set_name(rmssetup, rmsglobalconfig, gridproper
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     output = edata.export(gridproperty, name="MyGridProperty")
     logger.info("Output is %s", output)
@@ -541,7 +578,9 @@ def test_dataframe_export_file_set_name(rmssetup, rmsglobalconfig, dataframe):
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     output = edata.export(dataframe, name="MyDataframe")
     logger.info("Output is %s", output)
@@ -560,7 +599,9 @@ def test_pyarrow_export_file_set_name(rmssetup, rmsglobalconfig, arrowtable):
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
 
-    edata = dataio.ExportData(config=rmsglobalconfig)  # read from global config
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
 
     if arrowtable:  # is None if PyArrow package is not present
         output = edata.export(arrowtable, name="MyArrowtable")

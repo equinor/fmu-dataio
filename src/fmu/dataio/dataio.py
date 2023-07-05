@@ -131,15 +131,17 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     logger.info("Evaluate content")
 
     content = proposed
+    content_specific = None
     logger.debug("content is %s of type %s", str(content), type(content))
-    usecontent = "unset"
     if content is None:
         warn(
-            "The <content> is not provided which defaults to 'depth'. "
-            "It is strongly recommended that content is given explicitly!",
+            "The <content> is not provided which defaults to 'unset'. "
+            "It is strongly recommended that content is given explicitly! "
+            f"\n\nValid contents are: {', '.join(ALLOWED_CONTENTS.keys())} "
+            "\n\nThis list can be extended upon request and need.",
             UserWarning,
         )
-        usecontent = "depth"
+        usecontent = "unset"
 
     elif isinstance(content, str):
         logger.debug("content is a string")
@@ -166,7 +168,7 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     else:
         raise ValidationError("The 'content' must be string or dict")
 
-    if usecontent not in ALLOWED_CONTENTS:
+    if usecontent != "unset" and usecontent not in ALLOWED_CONTENTS:
         raise ValidationError(
             f"Invalid content: <{usecontent}>! "
             f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
@@ -509,7 +511,7 @@ class ExportData:
     aggregation: bool = False
     casepath: Union[str, Path, None] = None
     config: dict = field(default_factory=dict)
-    content: Union[dict, str] = "depth"
+    content: Union[dict, str, None] = None
     depth_reference: str = "msl"
     description: Union[str, list] = ""
     fmu_context: str = "realization"
@@ -1315,7 +1317,9 @@ class AggregatedData:
             "masterdata": self.source_metadata[0]["masterdata"],
             "model": self.source_metadata[0]["fmu"]["model"],
         }
-        etemp = ExportData(config=fakeconfig, name=self.name)
+
+        content = template["data"]["content"]
+        etemp = ExportData(config=fakeconfig, name=self.name, content=content)
         etempmeta = etemp.generate_metadata(obj, compute_md5=compute_md5)
 
         template["tracklog"] = etempmeta["tracklog"]

@@ -20,7 +20,9 @@ def test_fmuprovider_no_provider(testroot, globalconfig1):
     """Testing the FmuProvider basics where no ERT context is found from folder tree."""
     os.chdir(testroot)
 
-    ex = dio.ExportData(fmu_context="realization", config=globalconfig1)
+    ex = dio.ExportData(
+        fmu_context="realization", config=globalconfig1, content="depth"
+    )
     myfmu = _FmuProvider(ex)
     myfmu.detect_provider()
 
@@ -32,7 +34,9 @@ def test_fmuprovider_ert2_provider(fmurun, globalconfig1):
     """Testing the FmuProvider for an ERT2 case; case metadata are missing here"""
     os.chdir(fmurun)
 
-    ex = dio.ExportData(fmu_context="realization", config=globalconfig1)
+    ex = dio.ExportData(
+        fmu_context="realization", config=globalconfig1, content="depth"
+    )
     ex._rootpath = fmurun
 
     myfmu = _FmuProvider(ex)
@@ -50,7 +54,9 @@ def test_fmuprovider_ert2_provider_missing_parameter_txt(fmurun, globalconfig1):
     os.chdir(fmurun)
     (fmurun / "parameters.txt").unlink()
 
-    ex = dio.ExportData(fmu_context="realization", config=globalconfig1)
+    ex = dio.ExportData(
+        fmu_context="realization", content="depth", config=globalconfig1
+    )
     ex._rootpath = fmurun
 
     myfmu = _FmuProvider(ex)

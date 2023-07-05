@@ -42,6 +42,7 @@ def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
     eobj1 = dio.ExportData(
         config=globalconfig2,
         name="TopVolantis",
+        content="depth",
         unit="m",
     )
 
@@ -57,6 +58,7 @@ def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
     eobj2 = dio.ExportData(
         config=globalconfig2,
         name="TopVolantis",
+        content="depth",
         unit="m",
         undef_is_zero=True,
     )
@@ -72,7 +74,7 @@ def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
 def test_metadata_populate_masterdata_is_empty(globalconfig1):
     """Testing the masterdata part, first with no settings."""
 
-    some = dio.ExportData(config=globalconfig1)
+    some = dio.ExportData(config=globalconfig1, content="depth")
     del some.config["masterdata"]  # to force missing masterdata
 
     mymeta = _MetaData("dummy", some)
@@ -132,6 +134,7 @@ def test_metadata_populate_from_argument(globalconfig1):
     edata = dio.ExportData(
         config=globalconfig1,
         access_ssdl={"access_level": "restricted", "rep_include": True},
+        content="depth",
     )
     mymeta = _MetaData("dummy", edata)
 
@@ -151,7 +154,9 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1):
     assert globalconfig1["access"]["ssdl"]["rep_include"] is False
 
     # rep_include only, but in config
-    edata = dio.ExportData(config=globalconfig1, access_ssdl={"rep_include": True})
+    edata = dio.ExportData(
+        config=globalconfig1, access_ssdl={"rep_include": True}, content="depth"
+    )
     mymeta = _MetaData("dummy", edata)
     mymeta._populate_meta_access()
     assert mymeta.meta_access["ssdl"]["rep_include"] is True
@@ -160,7 +165,9 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1):
 
     # access_level only, but in config
     edata = dio.ExportData(
-        config=globalconfig1, access_ssdl={"access_level": "restricted"}
+        config=globalconfig1,
+        access_ssdl={"access_level": "restricted"},
+        content="depth",
     )
     mymeta = _MetaData("dummy", edata)
     mymeta._populate_meta_access()
@@ -176,9 +183,7 @@ def test_metadata_populate_wrong_config(globalconfig1):
     _config = deepcopy(globalconfig1)
     _config["access"]["ssdl"]["access_level"] = "wrong"
 
-    edata = dio.ExportData(
-        config=_config,
-    )
+    edata = dio.ExportData(config=_config, content="depth")
     mymeta = _MetaData("dummy", edata)
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
@@ -187,7 +192,9 @@ def test_metadata_populate_wrong_config(globalconfig1):
 def test_metadata_populate_wrong_argument(globalconfig1):
     """Test error in access_ssdl in arguments."""
 
-    edata = dio.ExportData(config=globalconfig1, access_ssdl={"access_level": "wrong"})
+    edata = dio.ExportData(
+        config=globalconfig1, access_ssdl={"access_level": "wrong"}, content="depth"
+    )
     mymeta = _MetaData("dummy", edata)
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
@@ -198,6 +205,7 @@ def test_metadata_access_correct_input(globalconfig1):
     # Input is "restricted" and False - correct use, shall work
     edata = dio.ExportData(
         config=globalconfig1,
+        content="depth",
         access_ssdl={"access_level": "restricted", "rep_include": False},
     )
     mymeta = _MetaData("dummy", edata)
@@ -209,6 +217,7 @@ def test_metadata_access_correct_input(globalconfig1):
     # Input is "internal" and True - correct use, shall work
     edata = dio.ExportData(
         config=globalconfig1,
+        content="depth",
         access_ssdl={"access_level": "internal", "rep_include": True},
     )
     mymeta = _MetaData("dummy", edata)
@@ -222,7 +231,9 @@ def test_metadata_access_deprecated_input(globalconfig1):
     """Test giving deprecated input."""
     # Input is "asset". Is deprecated, shall work with warning.
     # Output shall be "restricted".
-    edata = dio.ExportData(config=globalconfig1, access_ssdl={"access_level": "asset"})
+    edata = dio.ExportData(
+        config=globalconfig1, access_ssdl={"access_level": "asset"}, content="depth"
+    )
     mymeta = _MetaData("dummy", edata)
     with pytest.warns(
         UserWarning,
@@ -237,13 +248,17 @@ def test_metadata_access_illegal_input(globalconfig1):
     """Test giving illegal input."""
 
     # Input is "secret". Not allowed, shall fail.
-    edata = dio.ExportData(config=globalconfig1, access_ssdl={"access_level": "secret"})
+    edata = dio.ExportData(
+        config=globalconfig1, access_ssdl={"access_level": "secret"}, content="depth"
+    )
     mymeta = _MetaData("dummy", edata)
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
 
     # Input is "open". Not allowed, shall fail.
-    edata = dio.ExportData(config=globalconfig1, access_ssdl={"access_level": "open"})
+    edata = dio.ExportData(
+        config=globalconfig1, access_ssdl={"access_level": "open"}, content="depth"
+    )
     mymeta = _MetaData("dummy", edata)
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
@@ -256,7 +271,7 @@ def test_metadata_access_no_input(globalconfig1):
     configcopy = deepcopy(globalconfig1)
     configcopy["access"]["ssdl"]["access_level"] = "restricted"
     configcopy["access"]["ssdl"]["rep_include"] = True
-    edata = dio.ExportData(config=configcopy)
+    edata = dio.ExportData(config=configcopy, content="depth")
     mymeta = _MetaData("dummy", edata)
     mymeta._populate_meta_access()
     assert mymeta.meta_access["ssdl"]["rep_include"] is True
@@ -267,7 +282,7 @@ def test_metadata_access_no_input(globalconfig1):
     configcopy = deepcopy(globalconfig1)
     del configcopy["access"]["ssdl"]["access_level"]
     del configcopy["access"]["ssdl"]["rep_include"]
-    edata = dio.ExportData(config=globalconfig1)
+    edata = dio.ExportData(config=globalconfig1, content="depth")
     mymeta = _MetaData("dummy", edata)
     mymeta._populate_meta_access()
     assert mymeta.meta_access["ssdl"]["rep_include"] is False  # default
