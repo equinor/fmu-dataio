@@ -14,6 +14,7 @@ class _ValidFormats:
     table: dict = field(default_factory=dict)
     polygons: dict = field(default_factory=dict)
     points: dict = field(default_factory=dict)
+    dictionary: dict = field(default_factory=dict)
 
     def __post_init__(self):
         self.surface = {"irap_binary": ".gri"}
@@ -32,6 +33,7 @@ class _ValidFormats:
             "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS
             "irap_ascii": ".poi",
         }
+        self.dictionary = {"json": ".json", "yaml": ".yml"}
 
 
 ALLOWED_CONTENTS = {

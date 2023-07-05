@@ -502,6 +502,7 @@ class ExportData:
     points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     surface_fformat: ClassVar[str] = "irap_binary"
     table_fformat: ClassVar[str] = "csv"
+    dict_fformat: ClassVar[str] = "json"
     table_include_index: ClassVar[bool] = False
     verifyfolder: ClassVar[bool] = True
     _inside_rms: ClassVar[bool] = False  # developer only! if True pretend inside RMS
