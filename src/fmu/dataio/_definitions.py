@@ -59,12 +59,14 @@ ALLOWED_CONTENTS = {
     "volumetrics": None,  # or?
     "khproduct": None,
     "timeseries": None,
+    "wellpicks": None,
 }
 
 STANDARD_TABLE_INDEX_COLUMNS = {
     "inplace_volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
     "timeseries": ["DATE"],  # summary
     "rft": ["measured_depth", "well", "time"],
+    "wellpicks": ["WELL", "HORIZON"],
 }
 
 DEPRECATED_CONTENTS = {

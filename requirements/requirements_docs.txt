@@ -1,6 +1,7 @@
-sphinx
+sphinx<7
 sphinx-rtd-theme
 autoapi
-sphinx-autodoc-typehints
+sphinx-autodoc-typehints<1.23
 sphinxcontrib-apidoc
 sphinx-togglebutton
+urllib3<1.27

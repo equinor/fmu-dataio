@@ -178,3 +178,16 @@ def test_table_index_values_real_volumes(edataobj3, drogon_volumes):
     for col_name, answer_list in correct_answers.items():
         index_items = res["table_index_values"][col_name]
     assert_list_and_answer(index_items, answer_list, col_name)
+
+
+def test_table_wellpicks(wellpicks, globalconfig1):
+    """Test export of wellpicks"""
+
+    exp = ExportData(config=globalconfig1, name="wellpicks", content="wellpicks")
+
+    metadata = exp.generate_metadata(wellpicks)
+
+    assert metadata["data"]["content"] == "wellpicks"
+
+    # table index shall be inserted automatically
+    assert metadata["data"]["table_index"] == ["WELL", "HORIZON"]
