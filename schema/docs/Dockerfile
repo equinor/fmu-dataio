@@ -9,4 +9,6 @@ RUN npm install
 
 EXPOSE 3000
 
+USER 65534
+
 CMD [ "node", "./src/index.js"]
