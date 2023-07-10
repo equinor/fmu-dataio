@@ -304,9 +304,9 @@ class _ObjectDataProvider:
             result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
 
         elif isinstance(self.obj, dict):
-            result["subtype"] = "Dictionary"
-            result["classname"] = "dict"
-            result["layout"] = "dict"
+            result["subtype"] = "JSON"
+            result["classname"] = "dictionary"
+            result["layout"] = "dictionary"
             result["efolder"] = "dictionaries"
             result["fmt"] = self.dataio.dict_fformat
             result["extension"] = self._validate_get_ext(

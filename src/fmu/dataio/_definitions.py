@@ -33,7 +33,7 @@ class _ValidFormats:
             "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS
             "irap_ascii": ".poi",
         }
-        self.dictionary = {"json": ".json", "yaml": ".yml"}
+        self.dictionary = {"json": ".json"}
 
 
 ALLOWED_CONTENTS = {
