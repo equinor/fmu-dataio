@@ -498,8 +498,8 @@ class _ObjectDataProvider:
         return specs, bbox
 
     def _derive_spec_bbox_dict(self):
-        """Process/collect the data items for Arrow table."""
-        logger.info("Process data metadata for arrow (tables)")
+        """Process/collect the data items for dictionary."""
+        logger.info("Process data metadata for dictionary")
 
         specs = dict()
         bbox = dict()
