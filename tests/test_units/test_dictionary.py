@@ -1,10 +1,11 @@
+"""Test dictionary functionality"""
 import os
-from pathlib import Path
-from fmu.dataio import ExportData
-from fmu.dataio._utils import read_parameters_txt, nested_parameters_dict
 import json
+from pathlib import Path
 import yaml
 import pytest
+from fmu.dataio import ExportData
+from fmu.dataio._utils import read_parameters_txt, nested_parameters_dict
 
 
 @pytest.fixture(name="direct_creation", scope="function")
@@ -30,14 +31,16 @@ def _fixture_json(fmurun_w_casemetadata):
     """
     os.chdir(fmurun_w_casemetadata)
     print(fmurun_w_casemetadata)
-    with open(fmurun_w_casemetadata / "parameters.json", "r") as stream:
+    with open(
+        fmurun_w_casemetadata / "parameters.json", "r", encoding="utf-8"
+    ) as stream:
         json_dict = json.load(stream)
     return json_dict
 
 
 @pytest.fixture(name="simple_parameters", scope="session")
 def _fixture_simple_parameters(fmurun_w_casemetadata):
-    """Return dictionary read from json file
+    """Return dictionary read from parameters.txt
 
     Args:
         fmurun_w_casemetadata (pathlib.Path): path to single fmu realization
@@ -53,7 +56,7 @@ def _fixture_nested_parameters(simple_parameters):
     """Return dictionary read from parameters.txt and split on : in original key
 
     Args:
-        simple_parameters (dict): dictionary read with fmu.dataio._utils.read_parameters_txt
+        simple_parameters (dict): dictionary parsed from parameters.txt
 
     Returns:
         dict: the parameters as nested dictionary
@@ -62,10 +65,18 @@ def _fixture_nested_parameters(simple_parameters):
 
 
 def assert_dict_correct(result_dict, meta, name):
+    """Assert dictionary and some metadata
+
+    Args:
+        result_dict (dict): the dictionaru
+        meta (dict): the metadata
+        name (str): the name in the metadata
+    """
     assert isinstance(result_dict, dict), f"Have not produced dict in test {name}"
     meta_name = meta["data"]["name"]
     assert meta_name == name, f"wrong output name, should be {name} is {meta_name}"
-    assert meta["data"]["format"] == "json", "wrong  format in test {test_name}"
+    meta_format = meta["data"]["format"]
+    assert meta_format == "json", f"wrong format dict {name} is {meta_format}"
 
 
 def read_dict_and_meta(path):
@@ -78,10 +89,10 @@ def read_dict_and_meta(path):
         tuple: the dictionary produced with corresponding metadata
     """
     result_dict = None
-    with open(path, "r") as stream:
+    with open(path, "r", encoding="utf-8") as stream:
         result_dict = json.load(stream)
     path = Path(path)
-    with open(path.parent / f".{path.name}.yml", "r") as meta_stream:
+    with open(path.parent / f".{path.name}.yml", "r", encoding="utf-8") as meta_stream:
         meta = yaml.load(meta_stream, Loader=yaml.Loader)
     return result_dict, meta
 
@@ -101,7 +112,7 @@ def test_export_dict_w_meta(globalconfig2, dictionary, request):
     Args:
         globalconfig2 (dict): a global variables dictionary
         dictionary (str): name of fixture to use
-        request (pytest.fixture): the fixture that enables use of fixtures in pytest parameterize
+        request (pytest.fixture): fixture for using fixtures in parameterize
     """
     name = dictionary
     in_dict = request.getfixturevalue(dictionary)
