@@ -149,6 +149,9 @@ def export_file(obj, filename, extension, flag=None):
         # actual file format is the same
         # (https://arrow.apache.org/docs/python/feather.html)
         feather.write_feather(obj, dest=filename)
+    elif extension == ".json":
+        with open(filename, "w") as stream:
+            json.dump(obj, stream)
     else:
         raise TypeError(f"Exporting {extension} for {type(obj)} is not supported")
 
