@@ -1387,9 +1387,13 @@
         }
     },
     "then": {
+        "title": "Case object",
+        "description": "Validation of a case object.",
         "$ref": "#/$defs/subschemas/case"
     },
     "else": {
+        "title": "Data object",
+        "description": "Validation of a non-case object (data object).",
         "$ref": "#/$defs/subschemas/data_object"
     }
 }
