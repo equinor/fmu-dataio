@@ -1308,6 +1308,9 @@ class AggregatedData:
         template["fmu"]["aggregation"]["realization_ids"] = real_ids
         template["fmu"]["aggregation"]["id"] = self.aggregation_id
 
+        # fmu.context.stage should be 'iteration'
+        template["fmu"]["context"]["stage"] = "iteration"
+
         # next, the new object will trigger update of: 'file', 'data' (some fields) and
         # 'tracklog'. The trick is to create an ExportData() instance and just retrieve
         # the metadata from that, and then blend the needed metadata from here into the
