@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.8.1.dev5+g43e139b documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.8.1.dev6+g517c71d documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -1389,6 +1389,9 @@
         <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">][</span><span class="s2">&quot;realization_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">real_ids</span>
         <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span>
 
+        <span class="c1"># fmu.context.stage should be &#39;iteration&#39;</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;context&quot;</span><span class="p">][</span><span class="s2">&quot;stage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;iteration&quot;</span>
+
         <span class="c1"># next, the new object will trigger update of: &#39;file&#39;, &#39;data&#39; (some fields) and</span>
         <span class="c1"># &#39;tracklog&#39;. The trick is to create an ExportData() instance and just retrieve</span>
         <span class="c1"># the metadata from that, and then blend the needed metadata from here into the</span>
@@ -1531,7 +1534,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.8.1.dev5+g43e139b).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.8.1.dev6+g517c71d).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
