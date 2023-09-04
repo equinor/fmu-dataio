@@ -64,7 +64,7 @@ ALLOWED_CONTENTS = {
     "khproduct": None,
     "timeseries": None,
     "wellpicks": None,
-    "parameters": None
+    "parameters": None,
 }
 
 STANDARD_TABLE_INDEX_COLUMNS = {
