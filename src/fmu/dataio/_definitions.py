@@ -1,7 +1,9 @@
 """Various definitions and hard settings used in fmu-dataio."""
 from dataclasses import dataclass, field
 
-SCHEMA = "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json"
+SCHEMA = (
+    "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json"
+)
 VERSION = "0.8.0"
 SOURCE = "fmu"
 
