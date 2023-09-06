@@ -366,3 +366,58 @@ def test_preprocessed_with_rel_forcefolder_ok(rmssetup, rmsglobalconfig, regsurf
         meta = edata.generate_metadata(regsurf)
 
     assert "preprocessed/tmp" in meta["file"]["relative_path"]
+
+
+def test_access_settings_retained(
+    fmurun_w_casemetadata, rmssetup, rmsglobalconfig, regsurf
+):
+    """Test that access level put on pre-processed data are retained when the
+    metadata is being completed during later FMU run.
+
+    The stub metadata is produced when data is made/pre-processed.
+    When adding metadata during FMU runtime, the access shall be retained."""
+
+    @inside_rms
+    def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
+        """Run an export of a preprocessed surface inside RMS."""
+        logger.info("Active folder is %s", rmssetup)
+
+        # Confirm assumption: Access level in config is "internal"
+        assert rmsglobalconfig["access"]["ssdl"]["access_level"] == "internal"
+
+        os.chdir(rmssetup)
+        edata = dataio.ExportData(
+            config=rmsglobalconfig,
+            fmu_context="preprocessed",
+            name="preprocessedmap",
+            content="depth",
+            access_ssdl={"access_level": "restricted"},  # access != config
+        )
+
+        metadata = edata.generate_metadata(regsurf)
+        logger.debug("\n%s", utils.prettyprint_dict(metadata))
+
+        assert metadata["access"]["classification"] == "restricted"
+
+        return edata.export(regsurf)
+
+    def _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, surfacepath):
+        """Run FMU workflow, test that access is retained from preprocessed."""
+
+        os.chdir(fmurun_w_casemetadata)
+        logger.info("Active folder is %s", fmurun_w_casemetadata)
+
+        edata = dataio.ExportData(
+            config=rmsglobalconfig,
+            fmu_context="case",
+            content="depth",
+            name="MyName",
+        )
+        metadata = edata.generate_metadata(surfacepath)
+
+        # access shall be inherited from preprocessed data
+        assert metadata["access"]["classification"] == "restricted"
+
+    # run two stage process
+    surfacepath = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
+    _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, surfacepath)
