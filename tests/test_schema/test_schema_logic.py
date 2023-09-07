@@ -366,5 +366,9 @@ def test_schema_logic_data_spec(schema_080, metadata_examples):
     # fetch dictionary example
     example_dict = deepcopy(metadata_examples["dictionary_parameters.yml"])
 
+    # assert data.spec is not present
+    with pytest.raises(KeyError):
+        example_dict["data"]["spec"]
+        
     # assert data.spec not required when class === dictionary
     jsonschema.validate(instance=example_dict, schema=schema_080)
