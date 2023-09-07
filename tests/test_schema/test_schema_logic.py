@@ -348,22 +348,23 @@ def test_schema_logic_classification(schema_080, metadata_examples):
     with pytest.raises(jsonschema.exceptions.ValidationError):
         jsonschema.validate(instance=example, schema=schema_080)
 
+
 def test_schema_logic_data_spec(schema_080, metadata_examples):
     """Test schema logic for data.spec"""
-    
+
     # fetch surface example
     example_surface = deepcopy(metadata_examples["surface_depth.yml"])
-    
+
     # assert validation with no changes
     jsonschema.validate(instance=example_surface, schema=schema_080)
-    
+
     # assert data.spec required when class == surface
     del example_surface["data"]["spec"]
     with pytest.raises(jsonschema.exceptions.ValidationError):
         jsonschema.validate(instance=example_surface, schema=schema_080)
-    
+
     # fetch dictionary example
     example_dict = deepcopy(metadata_examples["dictionary_parameters.yml"])
-    
+
     # assert data.spec not required when class === dictionary
     jsonschema.validate(instance=example_dict, schema=schema_080)
