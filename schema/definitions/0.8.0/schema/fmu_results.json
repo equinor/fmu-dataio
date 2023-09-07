@@ -170,7 +170,6 @@
                 "content",
                 "name",
                 "format",
-                "spec",
                 "stratigraphic",
                 "is_prediction",
                 "is_observation"
@@ -1370,7 +1369,31 @@
                         "ssdl"
                     ]
                 }
-            }
+            },
+            "allOf": [
+                {
+                    "$comment": "Require data.spec for table and surface objects",
+                    "if": {
+                        "properties": {
+                            "class": {
+                                "enum": [
+                                    "table",
+                                    "surface"
+                                ]
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "data": {
+                                "required": [
+                                    "spec"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
         }
     ]
 }
