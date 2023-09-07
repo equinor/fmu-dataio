@@ -117,7 +117,7 @@ def test_export_dict_w_meta(globalconfig2, dictionary, request):
     name = dictionary
     in_dict = request.getfixturevalue(dictionary)
     print(f"{name}: {in_dict}")
-    exd = ExportData(config=globalconfig2)
+    exd = ExportData(config=globalconfig2, content="parameters")
     out_dict, out_meta = read_dict_and_meta(exd.export(in_dict, name=name))
     assert in_dict == out_dict
     assert_dict_correct(out_dict, out_meta, name)
@@ -131,7 +131,7 @@ def test_invalid_dict(globalconfig2, drogon_summary, drogon_volumes):
         drogon_volumes (pa.Table): a pyarrow table
     """
     in_dict = {"volumes": drogon_volumes, "summary": drogon_summary}
-    exd = ExportData(config=globalconfig2)
+    exd = ExportData(config=globalconfig2, content="parameters")
     with pytest.raises(TypeError) as exc_info:
         print(exc_info)
         exd.export(in_dict, name="invalid")

@@ -119,7 +119,8 @@
                 "polygons",
                 "cube",
                 "well",
-                "points"
+                "points",
+                "dictionary"
             ]
         },
         "source": {
