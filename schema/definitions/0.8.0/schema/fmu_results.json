@@ -170,7 +170,6 @@
                 "content",
                 "name",
                 "format",
-                "spec",
                 "stratigraphic",
                 "is_prediction",
                 "is_observation"
@@ -1369,6 +1368,25 @@
                         "asset",
                         "ssdl"
                     ]
+                }
+            },
+            "if": {
+                "properties": {
+                    "class": {
+                        "enum": [
+                            "table",
+                            "surface"
+                        ]
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "data": {
+                        "required": [
+                            "spec"
+                        ]
+                    }
                 }
             }
         }
