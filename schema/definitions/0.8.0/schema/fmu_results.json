@@ -1370,30 +1370,25 @@
                     ]
                 }
             },
-            "allOf": [
-                {
-                    "$comment": "Require data.spec for table and surface objects",
-                    "if": {
-                        "properties": {
-                            "class": {
-                                "enum": [
-                                    "table",
-                                    "surface"
-                                ]
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "data": {
-                                "required": [
-                                    "spec"
-                                ]
-                            }
-                        }
+            "if": {
+                "properties": {
+                    "class": {
+                        "enum": [
+                            "table",
+                            "surface"
+                        ]
                     }
                 }
-            ]
+            },
+            "then": {
+                "properties": {
+                    "data": {
+                        "required": [
+                            "spec"
+                        ]
+                    }
+                }
+            }
         }
     ]
 }
