@@ -1362,24 +1362,24 @@
                     },
                     "masterdata": {
                         "$ref": "#/$defs/properties/masterdata"
-                    },
-                    "if": {
-                        "properties": {
-                            "class": {
-                                "enum": [
-                                    "table",
-                                    "surface"
-                                ]
-                            }
+                    }
+                },
+                "if": {
+                    "properties": {
+                        "class": {
+                            "enum": [
+                                "table",
+                                "surface"
+                            ]
                         }
-                    },
-                    "then": {
-                        "properties": {
-                            "data": {
-                                "required": [
-                                    "spec"
-                                ]
-                            }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "data": {
+                            "required": [
+                                "spec"
+                            ]
                         }
                     }
                 },
