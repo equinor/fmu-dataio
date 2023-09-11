@@ -134,9 +134,9 @@
                 "$comment": "Must always be on root level.",
                 "title": "FMU results metadata version",
                 "type": "string",
-                "$comment": "This is 0.8.0, so require version to be == 0.8.0",
+                "$comment": "This is 0.9.0, so require version to be == 0.9.0",
                 "enum": [
-                    "0.8.0"
+                    "0.9.0"
                 ],
                 "example": "1.2.3"
             },
