@@ -353,14 +353,19 @@ def fixture_metadata_examples():
     """Parse all metadata examples.
 
     Returns:
-        Dict: Dictionary with filename as key, file contents as value.
-
+        Dict: Nested dictionary schema revision - filename - file contents.
     """
 
     # hard code 0.8.0 for now
     examples = {
-        path.name: _isoformat_all_datetimes(_parse_yaml(str(path)))
-        for path in ROOTPWD.glob("schema/definitions/0.8.0/examples/*.yml")
+        "0.8.0": {
+            path.name: _isoformat_all_datetimes(_parse_yaml(str(path)))
+            for path in ROOTPWD.glob("schema/definitions/0.8.0/examples/*.yml")
+        },
+        "0.9.0": {
+            path.name: _isoformat_all_datetimes(_parse_yaml(str(path)))
+            for path in ROOTPWD.glob("schema/definitions/0.9.0/examples/*.yml")
+        },
     }
 
     return examples

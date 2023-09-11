@@ -23,17 +23,17 @@ def test_schema_example_filenames(metadata_examples):
     """Assert that all examples are .yml, not .yaml"""
 
     # check that examples are there
-    assert len(metadata_examples) > 0
-
-    for filename in metadata_examples:
-        assert filename.endswith(".yml"), filename
+    for rev in metadata_examples:
+        assert len(metadata_examples[rev]) > 0
+        for filename in metadata_examples[rev]:
+            assert filename.endswith(".yml"), filename
 
 
 def test_schema_validate_examples_as_is(all_schemas, metadata_examples):
     """Confirm that examples are valid against the schema"""
 
     for rev, schema in all_schemas.items():
-        for i, (name, metadata) in enumerate(metadata_examples.items()):
+        for i, (name, metadata) in enumerate(metadata_examples[rev].items()):
             try:
                 jsonschema.validate(instance=metadata, schema=schema)
             except jsonschema.exceptions.ValidationError:
