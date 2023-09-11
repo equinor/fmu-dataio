@@ -1,11 +1,7 @@
 """Test the schema basics."""
 
 import logging
-from copy import deepcopy
-
 import jsonschema
-
-import pytest
 
 
 # pylint: disable=no-member
