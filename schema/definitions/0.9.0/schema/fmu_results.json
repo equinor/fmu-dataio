@@ -171,7 +171,6 @@
                     "content",
                     "name",
                     "format",
-                    "spec",
                     "stratigraphic",
                     "is_prediction",
                     "is_observation"
@@ -1363,6 +1362,25 @@
                     },
                     "masterdata": {
                         "$ref": "#/$defs/properties/masterdata"
+                    },
+                    "if": {
+                        "properties": {
+                            "class": {
+                                "enum": [
+                                    "table",
+                                    "surface"
+                                ]
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "data": {
+                                "required": [
+                                    "spec"
+                                ]
+                            }
+                        }
                     }
                 },
                 "required": [
