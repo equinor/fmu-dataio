@@ -1,0 +1,145 @@
+# Example metadata for a polygon(s)
+
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.9.0/fmu_results.json
+version: "0.9.0"
+source: fmu
+
+tracklog:
+  - datetime: 2020-10-28T14:28:02
+    user:
+      id: peesv
+    event: created
+  - datetime: 2020-10-28T14:46:14
+    user: 
+      id: peesv
+    event: updated
+
+class: polygons # class is the main identifier of the data type.
+
+# fmu:
+# The fmu block in data objects have more sub-elements compared to ensemble objects.
+
+fmu: # the fmu-block contains information directly related to the FMU context
+  model:
+    name: ff
+    revision: 21.0.0.dev
+    description:
+      - detailed description
+      - optional
+
+  workflow:
+    reference: rms/structural_model
+
+  case:
+    name: MyCaseName
+    uuid: 8bb56d60-8758-481a-89a4-6bac8561d38e
+    user:
+      id: jriv # $USER from ERT
+    description:
+      - yet other detailed description
+      - optional
+
+  iteration:
+    id: 0 # always an int, will be 0 for e.g. "pred"
+    uuid: 4b939310-34b1-4179-802c-49460bc0f799
+    name: "iter-0" # /"pred"
+    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration
+
+  realization:
+    id: 33
+    uuid: 29a15b21-ce13-471b-9a4a-0f791552aa51 # hash of case.uuid + iteration.uuid + realization.id
+    name: "realization-33"
+    parameters: # directly pass parameters.txt. This is potentially a lot of content, only a stub is included here.
+      SENSNAME: faultseal
+      SENSCASE: low
+      RMS_SEED: 1006
+      INIT_FILES:
+        PERM_FLUVCHAN_E1_NORM: 0.748433
+        PERM_FLUVCHAN_E21_NORM: 0.782068
+      KVKH_CHANNEL: 0.6
+      KVKH_US: 0.6
+      FAULT_SEAL_SCALING: 0.1
+      FWL_CENTRAL: 1677
+
+  context:
+    stage: realization
+
+file:
+  relative_path: realization-33/iter-0/share/results/polygons/field_outline--goc.gri # case-relative
+  absolute_path: /some/absolute/path//realization-33/iter-0/share/results/polygons/field_outline--goc.gri
+  checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
+  size_bytes: 132321
+
+data: # The data block describes the actual data (e.g. surface). Only present in data objects
+
+  content: field_outline  # white-listed and standardized
+
+  # if stratigraphic, name must match the strat column. This is the official name of this surface.
+  name: field_outline--goc
+  stratigraphic: false  # if true, this is a stratigraphic surface found in the strat column
+
+  # content-specific tag: When content == "field_outline", expect the 'field_outline' tag
+  field_outline:
+    contact: goc
+
+  properties: # what the values actually show. List, only one for IRAP Binary surfaces. Multiple for 3d grid or multi-parameter surfaces. First is geometry.
+    - name: PropertyName
+      attribute: goc
+      is_discrete: false # to be used for discrete values in surfaces.
+      calculation: null # max/min/rms/var/maxpos/sum/etc
+
+  format: csv
+  unit: m
+  vertical_domain: depth # / time / null
+  depth_reference: msl # / seabed / etc # mandatory when vertical_domain is depth?
+  spec:
+    npolys: 6
+  bbox:
+    xmin: 456012.5003497944
+    xmax: 467540.52762886323
+    ymin: 5926499.999511719
+    ymax: 5939492.128326312
+    zmin: 1244.039
+    zmax: 2302.683
+  is_prediction: true # A mechanism for separating pure QC output from actual predictions
+  is_observation: false # Used for 4D data currently but also valid for other data?
+  description:
+    - Field outline calculated as intersection between top reservoir and the GOC
+    - Made in a FMU workflow
+
+display:
+  name: Field outline
+  subtitle: (GOC)
+  line:
+    show: true
+    color: red
+    style: solid
+  fill:
+    show: false
+
+access:
+  asset:
+    name: Drogon
+  ssdl:
+    access_level: internal
+    rep_include: true
+  classification: internal
+
+masterdata:
+  smda:
+    country:
+      - identifier: Norway
+        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+      - short_identifier: DROGON
+        uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
+    field:
+      - identifier: DROGON
+        uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    stratigraphic_column:
+      identifier: DROGON_2020
+      uuid: 00000000-0000-0000-0000-000000000000 # mock uuid for Drogon
+
