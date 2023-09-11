@@ -1,7 +1,9 @@
 """Various definitions and hard settings used in fmu-dataio."""
 from dataclasses import dataclass, field
 
-SCHEMA = "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json"
+SCHEMA = (
+    "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json"
+)
 VERSION = "0.8.0"
 SOURCE = "fmu"
 
@@ -14,6 +16,7 @@ class _ValidFormats:
     table: dict = field(default_factory=dict)
     polygons: dict = field(default_factory=dict)
     points: dict = field(default_factory=dict)
+    dictionary: dict = field(default_factory=dict)
 
     def __post_init__(self):
         self.surface = {"irap_binary": ".gri"}
@@ -32,6 +35,7 @@ class _ValidFormats:
             "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS
             "irap_ascii": ".poi",
         }
+        self.dictionary = {"json": ".json"}
 
 
 ALLOWED_CONTENTS = {
@@ -60,6 +64,7 @@ ALLOWED_CONTENTS = {
     "khproduct": None,
     "timeseries": None,
     "wellpicks": None,
+    "parameters": None,
 }
 
 STANDARD_TABLE_INDEX_COLUMNS = {

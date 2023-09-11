@@ -60,7 +60,7 @@ def test_inplace_volume_index(mock_volumes, globalconfig2):
         globalconfig2 (dict): one global variables dict
     """
     answer = ["ZONE", "LICENCE"]
-    exd = ExportData(config=globalconfig2)
+    exd = ExportData(config=globalconfig2, content="volumes")
     path = exd.export(mock_volumes, name="baretull")
     assert_correct_table_index(path, answer)
 
@@ -73,7 +73,7 @@ def test_derive_summary_index_pandas(mock_summary, globalconfig2):
         globalconfig2 (dict): global variables dict
     """
     answer = ["DATE"]
-    exd = ExportData(config=globalconfig2)
+    exd = ExportData(config=globalconfig2, content="timeseries")
     path = exd.export(mock_summary, name="baretull")
     assert_correct_table_index(path, answer)
 
@@ -86,7 +86,7 @@ def test_derive_summary_index_pyarrow(mock_summary, globalconfig2):
         globalconfig2 (dict): global variables dict
     """
     answer = ["DATE"]
-    exd = ExportData(config=globalconfig2)
+    exd = ExportData(config=globalconfig2, content="timeseries")
     path = exd.export(pa.Table.from_pandas(mock_summary), name="baretull")
     assert_correct_table_index(path, answer)
 
@@ -99,7 +99,7 @@ def test_set_from_exportdata(mock_volumes, globalconfig2):
         globalconfig2 (dict): one global variables dict
     """
     index = ["OTHER"]
-    exd = ExportData(config=globalconfig2, table_index=index)
+    exd = ExportData(config=globalconfig2, table_index=index, content="timeseries")
     path = exd.export(mock_volumes, name="baretull")
     assert_correct_table_index(path, index)
 
@@ -112,7 +112,7 @@ def test_set_from_export(mock_volumes, globalconfig2):
         globalconfig2 (dict): one global variable dict
     """
     index = ["OTHER"]
-    exd = ExportData(config=globalconfig2)
+    exd = ExportData(config=globalconfig2, content="timeseries")
     path = exd.export(mock_volumes, name="baretull", table_index=index)
     assert_correct_table_index(path, index)
 
@@ -125,7 +125,7 @@ def test_set_table_index_not_in_table(mock_volumes, globalconfig2):
         globalconfig2 (dict): one global variables dict
     """
     index = ["banana"]
-    exd = ExportData(config=globalconfig2)
+    exd = ExportData(config=globalconfig2, content="timeseries")
     with pytest.raises(KeyError) as k_err:
         exd.export(mock_volumes, name="baretull", table_index=index)
     assert k_err.value.args[0] == "banana is not in table"

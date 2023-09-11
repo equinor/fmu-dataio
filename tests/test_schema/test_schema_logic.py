@@ -347,3 +347,39 @@ def test_schema_logic_classification(schema_080, metadata_examples):
     example["access"]["classification"] = "open"
     with pytest.raises(jsonschema.exceptions.ValidationError):
         jsonschema.validate(instance=example, schema=schema_080)
+
+
+def test_schema_logic_data_spec(schema_080, metadata_examples):
+    """Test schema logic for data.spec"""
+
+    # fetch surface example
+    example_surface = deepcopy(metadata_examples["surface_depth.yml"])
+
+    # assert validation with no changes
+    jsonschema.validate(instance=example_surface, schema=schema_080)
+
+    # assert data.spec required when class == surface
+    del example_surface["data"]["spec"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=example_surface, schema=schema_080)
+
+    # fetch table example
+    example_table = deepcopy(metadata_examples["table_inplace.yml"])
+
+    # assert validation with no changes
+    jsonschema.validate(instance=example_table, schema=schema_080)
+
+    # assert data.spec required when class == table
+    del example_table["data"]["spec"]
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=example_table, schema=schema_080)
+
+    # fetch dictionary example
+    example_dict = deepcopy(metadata_examples["dictionary_parameters.yml"])
+
+    # assert data.spec is not present
+    with pytest.raises(KeyError):
+        example_dict["data"]["spec"]
+
+    # assert data.spec not required when class === dictionary
+    jsonschema.validate(instance=example_dict, schema=schema_080)

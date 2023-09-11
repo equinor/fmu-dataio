@@ -303,6 +303,17 @@ class _ObjectDataProvider:
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
 
+        elif isinstance(self.obj, dict):
+            result["subtype"] = "JSON"
+            result["classname"] = "dictionary"
+            result["layout"] = "dictionary"
+            result["efolder"] = "dictionaries"
+            result["fmt"] = self.dataio.dict_fformat
+            result["extension"] = self._validate_get_ext(
+                result["fmt"], result["subtype"], _ValidFormats().dictionary
+            )
+            result["spec"], result["bbox"] = self._derive_spec_bbox_dict()
+
         else:
             raise NotImplementedError(
                 "This data type is not (yet) supported: ", type(self.obj)
@@ -483,6 +494,15 @@ class _ObjectDataProvider:
 
         specs["columns"] = list(table.column_names)
         specs["size"] = table.num_columns * table.num_rows
+
+        return specs, bbox
+
+    def _derive_spec_bbox_dict(self):
+        """Process/collect the data items for dictionary."""
+        logger.info("Process data metadata for dictionary")
+
+        specs = dict()
+        bbox = dict()
 
         return specs, bbox
 

@@ -30,6 +30,7 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, aggr_surfs_mean):
     newmeta = aggdata.generate_metadata(aggr_mean)
     logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
     assert newmeta["fmu"]["aggregation"]["id"] == "1234"
+    assert newmeta["fmu"]["context"]["stage"] == "iteration"
 
 
 def test_regsurf_aggregated_export(fmurun_w_casemetadata, aggr_surfs_mean):
@@ -317,7 +318,7 @@ def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, reg
     os.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig,  # read from global config
+        config=rmsglobalconfig, content="depth"  # read from global config
     )
 
     aggs = []

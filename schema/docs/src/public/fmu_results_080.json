@@ -1,0 +1,1375 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "fmu_results.json",
+  "$contractual": [
+    "class",
+    "source",
+    "version",
+    "tracklog",
+    "data.format",
+    "data.name",
+    "data.stratigraphic",
+    "data.alias",
+    "data.stratigraphic_alias",
+    "data.offset",
+    "data.content",
+    "data.tagname",
+    "data.vertical_domain",
+    "data.grid_model",
+    "data.bbox",
+    "data.time",
+    "data.is_prediction",
+    "data.is_observation",
+    "data.seismic.attribute",
+    "data.spec.columns",
+    "access",
+    "masterdata",
+    "fmu.model",
+    "fmu.workflow",
+    "fmu.case",
+    "fmu.iteration.name",
+    "fmu.iteration.uuid",
+    "fmu.realization.name",
+    "fmu.realization.id",
+    "fmu.realization.uuid",
+    "fmu.aggregation.operation",
+    "fmu.aggregation.realization_ids",
+    "fmu.context.stage",
+    "file.relative_path",
+    "file.checksum_md5",
+    "file.size_bytes"
+  ],
+  "definitions": {
+    "generic": {
+      "$comment": "GENERIC DEFINITIONS",
+      "datetime": {
+        "type": "string",
+        "examples": [
+          "2020-10-28T14:28:02"
+        ]
+      },
+      "uuid": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
+        "examples": [
+          "ad214d85-8a1d-19da-e053-c918a4889309"
+        ]
+      },
+      "user": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "title": "User ID",
+            "type": "string",
+            "examples": [
+              "peesv"
+            ]
+          }
+        }
+      },
+      "_description": {
+        "$comment": "Underscore to keep JSON Schema validator functioning",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "examples": [
+            "Some description"
+          ]
+        }
+      }
+    },
+    "fmu_time": {
+      "title": "FMU time object",
+      "description": "Time stamp for data object.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "value": {
+          "$ref": "#/definitions/generic/datetime"
+        },
+        "label": {
+          "type": "string",
+          "examples": [
+            "base",
+            "monitor",
+            "mylabel"
+          ]
+        }
+      }
+    },
+    "class": {
+      "title": "Metadata class",
+      "type": "string",
+      "examples": [
+        "surface",
+        "table",
+        "points"
+      ],
+      "enum": [
+        "case",
+        "surface",
+        "table",
+        "cpgrid",
+        "cpgrid_property",
+        "polygons",
+        "cube",
+        "well",
+        "points"
+      ]
+    },
+    "source": {
+      "$comment": "Fixed field, only valid value is fmu.",
+      "description": "Data source (FMU)",
+      "type": "string",
+      "const": "fmu"
+    },
+    "version": {
+      "$comment": "Must always be on root level.",
+      "title": "FMU results metadata version",
+      "type": "string",
+      "$comment": "This is 0.8.0, so require version to be == 0.8.0",
+      "enum": [
+        "0.8.0"
+      ],
+      "example": "1.2.3"
+    },
+    "tracklog_event": {
+      "type": "object",
+      "properties": {
+        "datetime": {
+          "$ref": "#/definitions/generic/datetime"
+        },
+        "user": {
+          "$ref": "#/definitions/generic/user"
+        },
+        "event": {
+          "type": "string",
+          "examples": [
+            "created",
+            "updated"
+          ]
+        }
+      }
+    },
+    "tracklog": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/tracklog_event"
+      }
+    },
+    "data": {
+      "type": "object",
+      "title": "The data block",
+      "required": [
+        "content",
+        "name",
+        "format",
+        "spec",
+        "stratigraphic",
+        "is_prediction",
+        "is_observation"
+      ],
+      "dependencies": {
+        "top": {
+          "required": [
+            "base"
+          ]
+        },
+        "base": {
+          "required": [
+            "top"
+          ]
+        }
+      },
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ]
+        },
+        "stratigraphic": {
+          "$comment": "Determines of validation against strat column should happen or not",
+          "type": "boolean",
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "examples": [
+            true
+          ]
+        },
+        "alias": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/data/properties/name"
+          }
+        },
+        "stratigraphic_alias": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/data/properties/name"
+          }
+        },
+        "offset": {
+          "$comment": "To be used if data represents an offset from the specified name",
+          "$comment": "e.g. a surface representing an offset from a known horizon",
+          "type": "number",
+          "example": 11.2
+        },
+        "top": {
+          "$comment": "To be used if data object is an interval",
+          "properties": {
+            "name": {
+              "$ref": "#/definitions/data/properties/name"
+            },
+            "stratigraphic": {
+              "$ref": "#/definitions/data/properties/stratigraphic"
+            },
+            "offset": {
+              "$ref": "#/definitions/data/properties/offset"
+            }
+          }
+        },
+        "base": {
+          "$comment": "To be used if data object is an interval",
+          "properties": {
+            "name": {
+              "$ref": "#/definitions/data/properties/name"
+            },
+            "stratigraphic": {
+              "$ref": "#/definitions/data/properties/stratigraphic"
+            },
+            "offset": {
+              "$ref": "#/definitions/data/properties/offset"
+            }
+          }
+        },
+        "content": {
+          "type": "string",
+          "description": "The contents of this data object",
+          "examples": [
+            "depth"
+          ]
+        },
+        "tagname": {
+          "type": "string",
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ]
+        },
+        "properties": {
+          "$comment": "This is not the JSON Schema properties, this is FMU properties",
+          "description": "data.properties is an array of property objects, representing the properties present in the data object.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "examples": [
+                  "MyPropertyName"
+                ]
+              },
+              "attribute": {
+                "type": "string",
+                "examples": [
+                  "MyAttributeName"
+                ]
+              },
+              "is_discrete": {
+                "type": "boolean",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            }
+          }
+        },
+        "format": {
+          "type": "string",
+          "examples": [
+            "irap_binary"
+          ]
+        },
+        "layout": {
+          "type": "string",
+          "examples": [
+            "regular"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "examples": [
+            "m"
+          ]
+        },
+        "vertical_domain": {
+          "type": "string",
+          "enum": [
+            "depth",
+            "time"
+          ],
+          "examples": [
+            "depth"
+          ]
+        },
+        "depth_reference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "examples": [
+            "msl"
+          ],
+          "enum": [
+            "msl",
+            "sb",
+            "rkb",
+            null
+          ]
+        },
+        "undef_is_zero": {
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "type": "boolean",
+          "examples": [
+            "True"
+          ]
+        },
+        "grid_model": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "examples": [
+                "MyGrid"
+              ]
+            }
+          }
+        },
+        "spec": {
+          "type": "object",
+          "properties": {
+            "ncol": {
+              "$comment": "https://json-schema.org/understanding-json-schema/reference/numeric.html",
+              "type": "integer",
+              "examples": [
+                281
+              ]
+            },
+            "nrow": {
+              "type": "integer",
+              "examples": [
+                441
+              ]
+            },
+            "nlay": {
+              "type": "integer",
+              "examples": [
+                333
+              ]
+            },
+            "xori": {
+              "type": "number",
+              "examples": [
+                461499.9997558594
+              ]
+            },
+            "yori": {
+              "type": "number",
+              "examples": [
+                5926500.224123242
+              ]
+            },
+            "xinc": {
+              "type": "number",
+              "examples": [
+                25.0
+              ]
+            },
+            "yflip": {
+              "type": "integer",
+              "$comment": "Orientation indicator of coordinate system",
+              "enum": [
+                -1,
+                1
+              ],
+              "examples": [
+                -1,
+                1
+              ]
+            },
+            "rotation": {
+              "type": "number",
+              "examples": [
+                "30.00000000231"
+              ]
+            },
+            "undef": {
+              "type": "number",
+              "$comment": "How is the undefined value represented?",
+              "examples": [
+                1.0e+33
+              ]
+            },
+            "npolys": {
+              "description": "The number of individual polygons in the data object",
+              "type": "integer",
+              "examples": [
+                1
+              ]
+            },
+            "size": {
+              "description": "Size of data object.",
+              "type": "integer",
+              "examples": [
+                1,
+                9999
+              ]
+            },
+            "columns": {
+              "description": "List of columns present in a table.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "examples": [
+                  "FOPT",
+                  "STOIIP_OIL",
+                  "COL_1"
+                ]
+              }
+            }
+          }
+        },
+        "bbox": {
+          "type": "object",
+          "required": [
+            "xmin",
+            "xmax",
+            "ymin",
+            "ymax"
+          ],
+          "properties": {
+            "xmin": {
+              "type": "number",
+              "examples": [
+                456012.5003497944
+              ]
+            },
+            "xmax": {
+              "type": "number",
+              "examples": [
+                467540.52762886323
+              ]
+            },
+            "ymin": {
+              "type": "number",
+              "examples": [
+                5926499.999511719
+              ]
+            },
+            "ymax": {
+              "type": "number",
+              "examples": [
+                5939492.128326312
+              ]
+            },
+            "zmin": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "examples": [
+                1244.039,
+                null
+              ]
+            },
+            "zmax": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "examples": [
+                2302.683,
+                null
+              ]
+            }
+          }
+        },
+        "time": {
+          "type": "object",
+          "properties": {
+            "t0": {
+              "$ref": "#/definitions/fmu_time"
+            },
+            "t1": {
+              "$ref": "#/definitions/fmu_time"
+            }
+          }
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "$comment": "For flagging predictions, and separating them from non-predictions",
+          "type": "boolean",
+          "examples": [
+            true
+          ]
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "$comment": "For flagging observations, and separating them from non-observations",
+          "type": "boolean",
+          "examples": [
+            true
+          ]
+        },
+        "fluid_contact": {
+          "type": "object",
+          "description": "Conditional field",
+          "properties": {
+            "contact": {
+              "type": "string",
+              "enum": [
+                "owc",
+                "fwl",
+                "goc",
+                "fgl"
+              ],
+              "$comment": "Not sure if wise to enum this",
+              "examples": [
+                "owc",
+                "fwl"
+              ]
+            },
+            "truncated": {
+              "type": "boolean",
+              "$comment": "Is this contact truncated to the stratigraphy?",
+              "examples": [
+                true
+              ]
+            }
+          }
+        },
+        "field_outline": {
+          "description": "Conditional field",
+          "type": "object",
+          "required": [
+            "contact"
+          ],
+          "properties": {
+            "contact": {
+              "type": "string"
+            }
+          }
+        },
+        "field_region": {
+          "description": "Conditional field",
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "description": "The ID of the region",
+              "type": "integer"
+            }
+          }
+        },
+        "description": {
+          "$ref": "#/definitions/generic/_description"
+        },
+        "seismic": {
+          "type": "object",
+          "description": "Conditional field",
+          "properties": {
+            "attribute": {
+              "type": "string",
+              "examples": [
+                "amplitude_timeshifted"
+              ]
+            },
+            "calculation": {
+              "type": "string",
+              "examples": [
+                "mean"
+              ]
+            },
+            "zrange": {
+              "type": "number",
+              "examples": [
+                12.0
+              ]
+            },
+            "filter_size": {
+              "type": "number",
+              "examples": [
+                1.0
+              ]
+            },
+            "scaling_factor": {
+              "type": "number",
+              "examples": [
+                1.0
+              ]
+            },
+            "stacking_offset": {
+              "type": "string",
+              "examples": [
+                "0-15"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "display": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "examples": [
+            "Top Volantis"
+          ]
+        },
+        "subtitle": {
+          "type": "string",
+          "examples": [
+            "Some subtitle"
+          ]
+        },
+        "line": {
+          "type": "object",
+          "properties": {
+            "show": {
+              "type": "boolean",
+              "examples": [
+                true
+              ]
+            },
+            "color": {
+              "type": "string",
+              "examples": [
+                "black",
+                "#000000"
+              ]
+            }
+          }
+        },
+        "points": {
+          "type": "object",
+          "properties": {
+            "show": {
+              "type": "boolean",
+              "examples": [
+                true
+              ]
+            },
+            "color": {
+              "type": "string",
+              "examples": [
+                "black",
+                "#000000"
+              ]
+            }
+          }
+        },
+        "contours": {
+          "type": "object",
+          "properties": {
+            "show": {
+              "type": "boolean",
+              "examples": [
+                true
+              ]
+            },
+            "color": {
+              "description": "The color of the contour lines",
+              "type": "string",
+              "examples": [
+                "black",
+                "#000000"
+              ]
+            },
+            "increment": {
+              "description": "The contour increment in same values as the data",
+              "type": "number",
+              "examples": [
+                20.0
+              ]
+            }
+          }
+        },
+        "fill": {
+          "type": "object",
+          "properties": {
+            "show": {
+              "type": "boolean",
+              "examples": [
+                true
+              ]
+            },
+            "color": {
+              "type": "string",
+              "examples": [
+                "black",
+                "#000000"
+              ]
+            },
+            "colormap": {
+              "$comment": "colormap can be given alongside fill.color. Clients must choose.",
+              "description": "named reference to a colormap",
+              "type": "string",
+              "examples": [
+                "gist_earth"
+              ]
+            },
+            "display_min": {
+              "description": "The low-side boundary to use for fill color",
+              "type": "number",
+              "examples": [
+                1000.0
+              ]
+            },
+            "display_max": {
+              "description": "The high-side boundary to use for fill color",
+              "type": "number",
+              "examples": [
+                1600.0
+              ]
+            }
+          }
+        }
+      }
+    },
+    "access": {
+      "type": "object",
+      "properties": {
+        "asset": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "examples": [
+                "Drogon"
+              ]
+            }
+          }
+        },
+        "ssdl": {
+          "type": "object",
+          "$comment": "Required for data objects",
+          "required": [
+            "access_level",
+            "rep_include"
+          ],
+          "properties": {
+            "access_level": {
+              "$comment": "'asset' is legacy, but will be allowed in a transition",
+              "type": "string",
+              "enum": [
+                "internal",
+                "restricted",
+                "asset"
+              ]
+            },
+            "rep_include": {
+              "$comment": "Should REP display this data?",
+              "type": "boolean",
+              "examples": [
+                true,
+                false
+              ]
+            }
+          }
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "internal",
+            "restricted"
+          ],
+          "examples": [
+            "internal",
+            "restricted"
+          ]
+        }
+      }
+    },
+    "masterdata": {
+      "$comment": "Block holds references to master data",
+      "type": "object",
+      "required": [
+        "smda"
+      ],
+      "properties": {
+        "smda": {
+          "type": "object",
+          "required": [
+            "country",
+            "discovery",
+            "field",
+            "coordinate_system",
+            "stratigraphic_column"
+          ],
+          "properties": {
+            "country": {
+              "$comment": "Array of SMDA-valid countries. First entry is primary.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "identifier",
+                  "uuid"
+                ],
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "examples": [
+                      "Norway"
+                    ]
+                  },
+                  "uuid": {
+                    "$ref": "#/definitions/generic/uuid"
+                  }
+                }
+              }
+            },
+            "discovery": {
+              "$comment": "Array of SMDA-valid discoveries. First entry is primary.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "short_identifier",
+                  "uuid"
+                ],
+                "properties": {
+                  "short_identifier": {
+                    "type": "string",
+                    "examples": [
+                      "SomeDiscovery"
+                    ]
+                  },
+                  "uuid": {
+                    "$ref": "#/definitions/generic/uuid"
+                  }
+                }
+              }
+            },
+            "field": {
+              "$comment": "Array of SMDA-valid (oil & gas) fields. First entry is primary.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "identifier",
+                  "uuid"
+                ],
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "examples": [
+                      "OseFax"
+                    ]
+                  },
+                  "uuid": {
+                    "$ref": "#/definitions/generic/uuid"
+                  }
+                }
+              }
+            },
+            "coordinate_system": {
+              "$comment": "SMDA-valid coordinate system.",
+              "type": "object",
+              "required": [
+                "identifier",
+                "uuid"
+              ],
+              "properties": {
+                "identifier": {
+                  "type": "string",
+                  "examples": [
+                    "ST_WGS84_UTM37N_P32637"
+                  ]
+                },
+                "uuid": {
+                  "$ref": "#/definitions/generic/uuid"
+                }
+              }
+            },
+            "stratigraphic_column": {
+              "$comment": "SMDA-valid stratigraphic column.",
+              "type": "object",
+              "required": [
+                "identifier",
+                "uuid"
+              ],
+              "properties": {
+                "identifier": {
+                  "type": "string",
+                  "examples": [
+                    "DROGON_2020"
+                  ]
+                },
+                "uuid": {
+                  "$ref": "#/definitions/generic/uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "fmu": {
+      "model": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "examples": [
+              "Drogon"
+            ]
+          },
+          "revision": {
+            "type": "string",
+            "examples": [
+              "21.0.0.dev"
+            ]
+          },
+          "description": {
+            "description": "This is a free text description of the model setup",
+            "$ref": "#/definitions/generic/_description"
+          }
+        }
+      },
+      "workflow": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "description": "Reference to the part of the FMU workflow that produced this"
+          }
+        }
+      },
+      "case": {
+        "type": "object",
+        "required": [
+          "name",
+          "uuid",
+          "user"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The case name",
+            "examples": [
+              "MyCaseName"
+            ]
+          },
+          "uuid": {
+            "$ref": "#/definitions/generic/uuid"
+          },
+          "user": {
+            "description": "The user name used in ERT",
+            "$ref": "#/definitions/generic/user"
+          },
+          "description": {
+            "$ref": "#/definitions/generic/_description"
+          }
+        }
+      },
+      "iteration": {
+        "type": "object",
+        "required": [
+          "name",
+          "uuid"
+        ],
+        "properties": {
+          "name": {
+            "description": "The convential name of this iteration, e.g. iter-0 or pred",
+            "type": "string",
+            "examples": [
+              "iter-0"
+            ]
+          },
+          "id": {
+            "description": "The internal identification of this iteration, e.g. the iteration number",
+            "type": "integer",
+            "examples": [
+              0
+            ]
+          },
+          "uuid": {
+            "$ref": "#/definitions/generic/uuid"
+          },
+          "restart_from": {
+            "description": "A uuid reference to another iteration that this iteration was restarted from",
+            "$ref": "#/definitions/generic/uuid"
+          }
+        }
+      },
+      "realization": {
+        "$comment": "Some schema repetition between realization and aggregation",
+        "type": "object",
+        "required": [
+          "name",
+          "id",
+          "uuid"
+        ],
+        "properties": {
+          "name": {
+            "description": "The convential name of this iteration, e.g. iter-0 or pred",
+            "type": "string",
+            "examples": [
+              "iter-0"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "description": "The unique number of this realization as used in FMU",
+            "examples": [
+              33
+            ]
+          },
+          "uuid": {
+            "$ref": "#/definitions/generic/uuid"
+          },
+          "parameters": {
+            "type": "object",
+            "description": "Parameters for this realization",
+            "items": {
+              "type": "object"
+            }
+          },
+          "jobs": {
+            "type": "object",
+            "description": "Content directly taken from the ERT jobs.json file for this realization"
+          }
+        }
+      },
+      "aggregation": {
+        "$comment": "Some schema repetition between realization and aggregation",
+        "type": "object",
+        "required": [
+          "operation",
+          "realization_ids"
+        ],
+        "properties": {
+          "operation": {
+            "type": "string",
+            "description": "The aggregation performed"
+          },
+          "realization_ids": {
+            "type": "array",
+            "description": "Array of realization ids included in this aggregation",
+            "items": {
+              "type": "integer",
+              "examples": [
+                0,
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "parameters": {
+            "type": "object",
+            "description": "Parameters for this realization",
+            "items": {
+              "type": "object"
+            }
+          },
+          "id": {
+            "type": "string",
+            "description": "The ID of this aggregation",
+            "$comment": "Used for tying together representations of the same entity",
+            "$comment": "Example: Statistics for various time steps of the same surface",
+            "$comment": "Not used in Drogon but widely used on e.g. Johan Sverdrup",
+            "$comment": "Used for enabling common display and joint visual settings",
+            "$comment": "A unique uuid is currently used, and included as example but any ID should be sufficient",
+            "examples": [
+              "15ce3b84-766f-4c93-9050-b154861f9100"
+            ]
+          }
+        }
+      },
+      "context": {
+        "description": "The internal FMU context in which this data object was produced",
+        "type": "object",
+        "required": [
+          "stage"
+        ],
+        "properties": {
+          "stage": {
+            "type": "string",
+            "examples": [
+              "case",
+              "iteration",
+              "realization"
+            ]
+          }
+        }
+      }
+    },
+    "file": {
+      "description": "Block describing the file as the data appear in FMU context",
+      "$comment": "While the file may seize to exist, the concept is still useful",
+      "$comment": "A lot of logic exists on top of the file name now, legacy but not likely to disappear soon",
+      "type": "object",
+      "required": [
+        "relative_path",
+        "checksum_md5"
+      ],
+      "properties": {
+        "relative_path": {
+          "type": "string",
+          "description": "The file path relative to RUNPATH",
+          "examples": [
+            "share/results/maps/volantis_gp_base--depth.gri"
+          ]
+        },
+        "absolute_path": {
+          "type": "string",
+          "description": "The absolute file path",
+          "examples": [
+            "/abs/path/share/results/maps/volantis_gp_base--depth.gri"
+          ]
+        },
+        "checksum_md5": {
+          "description": "md5 checksum of the file or bytestring",
+          "type": "string",
+          "examples": [
+            "kjhsdfvsdlfk23knerknvk23"
+          ]
+        },
+        "size_bytes": {
+          "description": "Size of file object in bytes",
+          "type": "integer",
+          "examples": [
+            123
+          ]
+        }
+      }
+    }
+  },
+  "$comment": "DEFINITIONS END HERE",
+  "$comment": "oneOf below reflects different structures depending on type",
+  "$comment": "The fmu-block is different for cases and data objects,",
+  "$comment": "and the data block is only present for data objects.",
+  "required": [
+    "source",
+    "version",
+    "class",
+    "fmu",
+    "access",
+    "tracklog",
+    "masterdata"
+  ],
+  "properties": {
+    "source": {
+      "$ref": "#/definitions/source"
+    },
+    "version": {
+      "$ref": "#/definitions/version"
+    },
+    "data": {
+      "$ref": "#/definitions/data"
+    },
+    "tracklog": {
+      "$ref": "#/definitions/tracklog"
+    },
+    "access": {
+      "$ref": "#/definitions/access"
+    },
+    "masterdata": {
+      "$ref": "#/definitions/masterdata"
+    },
+    "class": {
+      "$ref": "#/definitions/class"
+    }
+  },
+  "oneOf": [
+    {
+      "$comment": "Valid when class == case)",
+      "properties": {
+        "class": {
+          "enum": [
+            "case"
+          ]
+        },
+        "fmu": {
+          "description": "The FMU block records properties that are specific to FMU",
+          "$comment": "This is the fmu block as it appears in data objects",
+          "type": "object",
+          "required": [
+            "model",
+            "case"
+          ],
+          "properties": {
+            "model": {
+              "$ref": "#/definitions/fmu/model"
+            },
+            "case": {
+              "$ref": "#/definitions/fmu/case"
+            }
+          }
+        },
+        "access": {
+          "required": [
+            "asset"
+          ]
+        }
+      }
+    },
+    {
+      "$comment": "Valid when class != case",
+      "required": [
+        "data",
+        "file"
+      ],
+      "properties": {
+        "class": {
+          "not": {
+            "enum": [
+              "case"
+            ]
+          }
+        },
+        "fmu": {
+          "description": "The FMU block records properties that are specific to FMU",
+          "$comment": "This is the fmu block as it appears in data objects",
+          "required": [
+            "model",
+            "case"
+          ],
+          "properties": {
+            "model": {
+              "$ref": "#/definitions/fmu/model"
+            },
+            "case": {
+              "$ref": "#/definitions/fmu/case"
+            },
+            "iteration": {
+              "$ref": "#/definitions/fmu/iteration"
+            },
+            "realization": {
+              "$ref": "#/definitions/fmu/realization"
+            },
+            "workflow": {
+              "$ref": "#/definitions/fmu/workflow"
+            },
+            "aggregation": {
+              "$ref": "#/definitions/fmu/aggregation"
+            }
+          },
+          "$comment": "implementation below allows realization or aggregation or none of them, never both",
+          "dependencies": {
+            "aggregation": {
+              "not": {
+                "required": [
+                  "realization"
+                ]
+              }
+            },
+            "realization": {
+              "not": {
+                "required": [
+                  "aggregation"
+                ]
+              }
+            }
+          }
+        },
+        "file": {
+          "$ref": "#/definitions/file"
+        },
+        "data": {
+          "$comment": "Conditionals",
+          "allOf": [
+            {
+              "$comment": "When content == field_outline, require data.field_outline",
+              "if": {
+                "properties": {
+                  "content": {
+                    "const": "field_outline"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "field_outline"
+                ]
+              }
+            },
+            {
+              "$comment": "When content == field_region, require data.field_region",
+              "if": {
+                "properties": {
+                  "content": {
+                    "const": "field_region"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "field_region"
+                ]
+              }
+            },
+            {
+              "$comment": "When content == fluid_contact, require data.fluid_contact",
+              "if": {
+                "properties": {
+                  "content": {
+                    "const": "fluid_contact"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "fluid_contact"
+                ]
+              }
+            },
+            {
+              "$comment": "When content == seismic, require data.seismic",
+              "if": {
+                "properties": {
+                  "content": {
+                    "const": "seismic"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "seismic"
+                ]
+              }
+            }
+          ]
+        },
+        "access": {
+          "required": [
+            "asset",
+            "ssdl"
+          ]
+        }
+      }
+    }
+  ]
+}
