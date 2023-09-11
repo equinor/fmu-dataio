@@ -1,4 +1,5 @@
-"""Test the schema"""
+"""Test the schema, version 0.8.0"""
+
 import logging
 from copy import deepcopy
 
@@ -12,46 +13,6 @@ import pytest
 logger = logging.getLogger(__name__)
 
 
-def test_schema_basic_json_syntax(all_schemas):
-    """Confirm that schemas are valid JSON."""
-
-    for rev, schema in all_schemas.items():
-        assert "$schema" in schema, f"$schema not found in {rev}"
-
-
-def test_schema_example_filenames(metadata_examples):
-    """Assert that all examples are .yml, not .yaml"""
-
-    # check that examples are there
-    for rev in metadata_examples:
-        assert len(metadata_examples[rev]) > 0
-        for filename in metadata_examples[rev]:
-            assert filename.endswith(".yml"), filename
-
-
-def test_schema_validate_examples_as_is(all_schemas, metadata_examples):
-    """Confirm that examples are valid against the schema"""
-
-    for rev, schema in all_schemas.items():
-        for i, (name, metadata) in enumerate(metadata_examples[rev].items()):
-            try:
-                jsonschema.validate(instance=metadata, schema=schema)
-            except jsonschema.exceptions.ValidationError:
-                logger.error("Failed validating existing example: %s", name)
-                logger.error("Schema revision was %s", rev)
-                if i == 0:
-                    logger.error(
-                        "This was the first example attempted."
-                        "Error is most likely int he schema."
-                    )
-                else:
-                    logger.error(
-                        "This was not the first example attemted."
-                        "Error is most likely in the example."
-                    )
-                raise
-
-
 # ======================================================================================
 # 0.8.0
 # ======================================================================================
@@ -61,7 +22,7 @@ def test_schema_080_file_block(schema_080, metadata_examples):
     """Test variations on the file block."""
 
     # get a specific example
-    example = metadata_examples["surface_depth.yml"]
+    example = metadata_examples["0.8.0"]["surface_depth.yml"]
 
     # shall validate as-is
     jsonschema.validate(instance=example, schema=schema_080)
@@ -94,7 +55,7 @@ def test_schema_080_file_block(schema_080, metadata_examples):
 def test_schema_080_logic_case(schema_080, metadata_examples):
     """Asserting validation failure when illegal contents in case example"""
 
-    example = metadata_examples["case.yml"]
+    example = metadata_examples["0.8.0"]["case.yml"]
 
     # assert validation with no changes
     jsonschema.validate(instance=example, schema=schema_080)
@@ -117,7 +78,7 @@ def test_schema_080_logic_case(schema_080, metadata_examples):
 def test_schema_080_logic_fmu_block_aggr_real(schema_080, metadata_examples):
     """Test that fmu.realization and fmu.aggregation are not allowed at the same time"""
 
-    metadata = deepcopy(metadata_examples["surface_depth.yml"])
+    metadata = deepcopy(metadata_examples["0.8.0"]["surface_depth.yml"])
     # check that assumptions for the test is true
     assert "realization" in metadata["fmu"]
     assert "aggregation" not in metadata["fmu"]
@@ -126,7 +87,7 @@ def test_schema_080_logic_fmu_block_aggr_real(schema_080, metadata_examples):
     jsonschema.validate(instance=metadata, schema=schema_080)
 
     # add aggregation, shall fail. Get this from an actual example that validates.
-    _metadata_aggregation = metadata_examples["aggregated_surface_depth.yml"]
+    _metadata_aggregation = metadata_examples["0.8.0"]["aggregated_surface_depth.yml"]
     metadata["fmu"]["aggregation"] = _metadata_aggregation["fmu"]["aggregation"]
 
     with pytest.raises(jsonschema.exceptions.ValidationError):
@@ -139,7 +100,7 @@ def test_schema_080_logic_data_top_base(schema_080, metadata_examples):
     * Require both data.top and data.base, or none.
     """
 
-    metadata = metadata_examples["surface_seismic_amplitude.yml"]
+    metadata = metadata_examples["0.8.0"]["surface_seismic_amplitude.yml"]
 
     # check that assumptions for the test is true
     assert "top" in metadata["data"]
@@ -173,7 +134,7 @@ def test_schema_080_logic_field_outline(schema_080, metadata_examples):
     When content == field_outline, require the field_outline field
     """
 
-    metadata = metadata_examples["polygons_field_outline.yml"]
+    metadata = metadata_examples["0.8.0"]["polygons_field_outline.yml"]
 
     # check that assumptions for the test is true
     assert metadata["data"]["content"] == "field_outline"
@@ -195,7 +156,7 @@ def test_schema_080_logic_field_region(schema_080, metadata_examples):
     When content == field_outline, require the data.field_region field.
     """
 
-    metadata = metadata_examples["polygons_field_region.yml"]
+    metadata = metadata_examples["0.8.0"]["polygons_field_region.yml"]
 
     # check assumptions
     assert metadata["data"]["content"] == "field_region"
@@ -228,7 +189,7 @@ def test_schema_080_logic_fluid_contact(schema_080, metadata_examples):
     """
 
     # parse the schema and polygons
-    metadata = metadata_examples["surface_fluid_contact.yml"]
+    metadata = metadata_examples["0.8.0"]["surface_fluid_contact.yml"]
 
     # check that assumptions for the test is true
     assert metadata["data"]["content"] == "fluid_contact"
@@ -244,7 +205,7 @@ def test_schema_080_logic_fluid_contact(schema_080, metadata_examples):
 def test_schema_080_masterdata_smda(schema_080, metadata_examples):
     """Test schema logic for masterdata.smda."""
 
-    example = metadata_examples["case.yml"]
+    example = metadata_examples["0.8.0"]["case.yml"]
 
     # assert validation with no changes
     jsonschema.validate(instance=example, schema=schema_080)
@@ -295,7 +256,7 @@ def test_schema_080_data_time(schema_080, metadata_examples):
     """Test schema logic for data.time."""
 
     # fetch one example that contains the data.time element
-    example = metadata_examples["surface_seismic_amplitude.yml"]
+    example = metadata_examples["0.8.0"]["surface_seismic_amplitude.yml"]
     assert "time" in example["data"]
 
     # assert validation with no changes
@@ -334,7 +295,7 @@ def test_schema_logic_classification(schema_080, metadata_examples):
     """Test the classification of individual files."""
 
     # fetch example
-    example = deepcopy(metadata_examples["surface_depth.yml"])
+    example = deepcopy(metadata_examples["0.8.0"]["surface_depth.yml"])
 
     # assert validation with no changes
     jsonschema.validate(instance=example, schema=schema_080)
@@ -356,7 +317,7 @@ def test_schema_logic_data_spec(schema_080, metadata_examples):
     """Test schema logic for data.spec"""
 
     # fetch surface example
-    example_surface = deepcopy(metadata_examples["surface_depth.yml"])
+    example_surface = deepcopy(metadata_examples["0.8.0"]["surface_depth.yml"])
 
     # assert validation with no changes
     jsonschema.validate(instance=example_surface, schema=schema_080)
@@ -367,7 +328,7 @@ def test_schema_logic_data_spec(schema_080, metadata_examples):
         jsonschema.validate(instance=example_surface, schema=schema_080)
 
     # fetch table example
-    example_table = deepcopy(metadata_examples["table_inplace.yml"])
+    example_table = deepcopy(metadata_examples["0.8.0"]["table_inplace.yml"])
 
     # assert validation with no changes
     jsonschema.validate(instance=example_table, schema=schema_080)
@@ -378,7 +339,7 @@ def test_schema_logic_data_spec(schema_080, metadata_examples):
         jsonschema.validate(instance=example_table, schema=schema_080)
 
     # fetch dictionary example
-    example_dict = deepcopy(metadata_examples["dictionary_parameters.yml"])
+    example_dict = deepcopy(metadata_examples["0.8.0"]["dictionary_parameters.yml"])
 
     # assert data.spec is not present
     with pytest.raises(KeyError):
