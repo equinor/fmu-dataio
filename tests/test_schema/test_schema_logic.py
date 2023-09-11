@@ -12,10 +12,11 @@ import pytest
 logger = logging.getLogger(__name__)
 
 
-def test_schema_basic_json_syntax(schema_080):
+def test_schema_basic_json_syntax(all_schemas):
     """Confirm that schemas are valid JSON."""
 
-    assert "$schema" in schema_080
+    for rev, schema in all_schemas.items():
+        assert "$schema" in schema, f"$schema not found in {rev}"
 
 
 def test_schema_example_filenames(metadata_examples):
@@ -28,30 +29,32 @@ def test_schema_example_filenames(metadata_examples):
         assert filename.endswith(".yml"), filename
 
 
+def test_schema_validate_examples_as_is(all_schemas, metadata_examples):
+    """Confirm that examples are valid against the schema"""
+
+    for rev, schema in all_schemas.items():
+        for i, (name, metadata) in enumerate(metadata_examples.items()):
+            try:
+                jsonschema.validate(instance=metadata, schema=schema)
+            except jsonschema.exceptions.ValidationError:
+                logger.error("Failed validating existing example: %s", name)
+                logger.error("Schema revision was %s", rev)
+                if i == 0:
+                    logger.error(
+                        "This was the first example attempted."
+                        "Error is most likely int he schema."
+                    )
+                else:
+                    logger.error(
+                        "This was not the first example attemted."
+                        "Error is most likely in the example."
+                    )
+                raise
+
+
 # ======================================================================================
 # 0.8.0
 # ======================================================================================
-
-
-def test_schema_080_validate_examples_as_is(schema_080, metadata_examples):
-    """Confirm that examples are valid against the schema"""
-
-    for i, (name, metadata) in enumerate(metadata_examples.items()):
-        try:
-            jsonschema.validate(instance=metadata, schema=schema_080)
-        except jsonschema.exceptions.ValidationError:
-            logger.error("Failed validating existing example: %s", name)
-            if i == 0:
-                logger.error(
-                    "This was the first example attempted."
-                    "Error is most likely int he schema."
-                )
-            else:
-                logger.error(
-                    "This was not the first example attemted."
-                    "Error is most likely in the example."
-                )
-            raise
 
 
 def test_schema_080_file_block(schema_080, metadata_examples):

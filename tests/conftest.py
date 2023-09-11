@@ -335,6 +335,19 @@ def fixture_schema_080():
     return _parse_json(ROOTPWD / "schema/definitions/0.8.0/schema/fmu_results.json")
 
 
+@pytest.fixture(name="schema_090", scope="session", autouse=True)
+def fixture_schema_090():
+    """Return 0.9.0 version of schema as json."""
+
+    return _parse_json(ROOTPWD / "schema/definitions/0.9.0/schema/fmu_results.json")
+
+
+@pytest.fixture(name="all_schemas", scope="session", autouse=True)
+def fixture_all_schemas(schema_080, schema_090):
+    """Return all schemas."""
+    return {"0.8.0": schema_080, "0.9.0": schema_090}
+
+
 @pytest.fixture(name="metadata_examples", scope="session", autouse=True)
 def fixture_metadata_examples():
     """Parse all metadata examples.
