@@ -443,7 +443,6 @@ def glue_metadata_preprocessed(oldmeta, newmeta):
 
     meta["fmu"] = newmeta["fmu"]
     meta["file"] = newmeta["file"]
-    meta["access"] = newmeta["access"]
 
     newmeta["tracklog"][-1]["event"] = "merged"
     meta["tracklog"].extend(newmeta["tracklog"])
