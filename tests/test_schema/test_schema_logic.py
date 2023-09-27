@@ -6,6 +6,7 @@ import jsonschema
 
 import pytest
 
+from fmu.dataio._definitions import ALLOWED_CONTENTS
 
 # pylint: disable=no-member
 
@@ -399,3 +400,17 @@ def test_schema_logic_content_whitelist(schema_080, metadata_examples):
     example_surface["data"]["content"] = "not_valid_content"
     with pytest.raises(jsonschema.exceptions.ValidationError):
         jsonschema.validate(instance=example_surface, schema=schema_080)
+
+
+def test_schema_content_synch_with_code(schema_080):
+    """Currently, the whitelist for content is maintained both in the schema
+    and in the code. This test asserts that list used in the code is in synch
+    with schema. Note! This is one-way, and will not fail if additional
+    elements are added to the schema only."""
+
+    schema_allowed = schema_080["definitions"]["data"]["properties"]["content"]["enum"]
+    for allowed_content in ALLOWED_CONTENTS:
+        if allowed_content not in schema_allowed:
+            raise ValueError(
+                f"content '{allowed_content}' allowed in code, but not schema."
+            )
