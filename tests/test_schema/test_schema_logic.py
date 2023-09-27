@@ -383,3 +383,19 @@ def test_schema_logic_data_spec(schema_080, metadata_examples):
 
     # assert data.spec not required when class === dictionary
     jsonschema.validate(instance=example_dict, schema=schema_080)
+
+
+def test_schema_logic_content_whitelist(schema_080, metadata_examples):
+    """Test that validation fails when value of data.content is not in
+    the whitelist."""
+
+    # fetch surface example
+    example_surface = deepcopy(metadata_examples["surface_depth.yml"])
+
+    # assert validation with no changes
+    jsonschema.validate(instance=example_surface, schema=schema_080)
+
+    # shall fail when content is not in whitelist
+    example_surface["data"]["content"] = "not_valid_content"
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=example_surface, schema=schema_080)
