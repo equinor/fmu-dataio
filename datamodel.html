@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 1.8.3.dev1+g38ac2dc documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 1.8.4.dev1+g8bd0308 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -586,8 +586,31 @@ met, the associated requirements for that condition is used.</p>
 <span class="w">                </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                    </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
 <span class="w">                    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;The contents of this data object&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="s2">&quot;depth&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;time&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;thickness&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;property&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;seismic&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;fluid_contact&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;field_outline&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;field_region&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;regions&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;pinchout&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;subcrop&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;fault_lines&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;velocity&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;volumes&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;volumetrics&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;inplace_volumes&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;khproduct&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;timeseries&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;wellpicks&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;parameters&quot;</span>
+<span class="w">                    </span><span class="p">],</span>
 <span class="w">                    </span><span class="s2">&quot;examples&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                        </span><span class="s2">&quot;depth&quot;</span>
+<span class="w">                        </span><span class="s2">&quot;depth&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;time&quot;</span>
 <span class="w">                    </span><span class="p">]</span>
 <span class="w">                </span><span class="p">},</span>
 <span class="w">                </span><span class="s2">&quot;tagname&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
@@ -2354,7 +2377,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.8.3.dev1+g38ac2dc).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.8.4.dev1+g8bd0308).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
