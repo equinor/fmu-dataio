@@ -61,6 +61,7 @@ ALLOWED_CONTENTS = {
     "velocity": None,
     "volumes": None,
     "volumetrics": None,  # or?
+    "inplace_volumes": None,  # or?
     "khproduct": None,
     "timeseries": None,
     "wellpicks": None,

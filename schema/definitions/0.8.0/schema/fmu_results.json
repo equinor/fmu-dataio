@@ -251,8 +251,31 @@
                 "content": {
                     "type": "string",
                     "description": "The contents of this data object",
+                    "enum": [
+                        "depth",
+                        "time",
+                        "thickness",
+                        "property",
+                        "seismic",
+                        "fluid_contact",
+                        "field_outline",
+                        "field_region",
+                        "regions",
+                        "pinchout",
+                        "subcrop",
+                        "fault_lines",
+                        "velocity",
+                        "volumes",
+                        "volumetrics",
+                        "inplace_volumes",
+                        "khproduct",
+                        "timeseries",
+                        "wellpicks",
+                        "parameters"
+                    ],
                     "examples": [
-                        "depth"
+                        "depth",
+                        "time"
                     ]
                 },
                 "tagname": {
