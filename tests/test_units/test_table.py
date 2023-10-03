@@ -143,43 +143,6 @@ def test_table_index_real_summary(edataobj3, drogon_summary):
     assert res["table_index"] == ["DATE"], "Incorrect table index "
 
 
-def test_table_index_values_real_volumes(edataobj3, drogon_volumes):
-    """Test setting of table_index and table_index_values in real inplace volume file
-
-    Args:
-        edataobj3 (_type_): _description_
-        drogon_volumes (_type_): _description_
-    """
-    objdata = _ObjectDataProvider(drogon_volumes, edataobj3)
-    res = objdata._derive_objectdata()
-    correct_answers = {
-        "ZONE": ["Valysar", "Therys", "Volon"],
-        "REGION": [
-            "WestLowland",
-            "CentralSouth",
-            "CentralNorth",
-            "NorthHorst",
-            "CentralRamp",
-            "CentralHorst",
-            "EastLowland",
-        ],
-        "FACIES": [
-            "Floodplain",
-            "Channel",
-            "Crevasse",
-            "Coal",
-            "Calcite",
-            "Offshore",
-            "Lowershoreface",
-            "Uppershoreface",
-        ],
-    }
-
-    for col_name, answer_list in correct_answers.items():
-        index_items = res["table_index_values"][col_name]
-    assert_list_and_answer(index_items, answer_list, col_name)
-
-
 def test_table_wellpicks(wellpicks, globalconfig1):
     """Test export of wellpicks"""
 

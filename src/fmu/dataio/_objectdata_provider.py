@@ -99,7 +99,6 @@ from ._utils import generate_description, parse_timedata
 
 try:
     import pyarrow as pa  # type: ignore
-    import pyarrow.compute as pc
 except ImportError:
     HAS_PYARROW = False
 else:
@@ -275,9 +274,7 @@ class _ObjectDataProvider:
 
         elif isinstance(self.obj, pd.DataFrame):
             result["table_index"] = self._derive_index()
-            result["table_index_values"] = self._derive_values_from_index(
-                result["table_index"]
-            )
+
             result["subtype"] = "DataFrame"
             result["classname"] = "table"
             result["layout"] = "table"
@@ -290,9 +287,7 @@ class _ObjectDataProvider:
 
         elif HAS_PYARROW and isinstance(self.obj, pa.Table):
             result["table_index"] = self._derive_index()
-            result["table_index_values"] = self._derive_values_from_index(
-                result["table_index"]
-            )
+
             result["subtype"] = "ArrowTable"
             result["classname"] = "table"
             result["layout"] = "table"
@@ -517,20 +512,6 @@ class _ObjectDataProvider:
         logger.debug("Available columns in table %s ", columns)
         return columns
 
-    def _derive_values_from_index(self, table_index):
-        """Get unique values in table_index columns"""
-        index_values = {}
-        for index_name in table_index:
-            if isinstance(self.obj, pd.DataFrame):
-                logger.debug("pandas")
-                index_values[index_name] = self.obj[index_name].unique()
-            else:
-                logger.debug("arrow")
-                index_values[index_name] = pc.unique(
-                    self.obj.column(index_name)
-                ).tolist()
-        return index_values
-
     def _derive_index(self):
         """Derive table index"""
         # This could in the future also return context
@@ -720,7 +701,6 @@ class _ObjectDataProvider:
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
         meta["table_index"] = objres.get("table_index")
-        meta["table_index_values"] = objres.get("table_index_values")
         meta["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:
