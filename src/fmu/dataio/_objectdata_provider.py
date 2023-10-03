@@ -99,7 +99,6 @@ from ._utils import generate_description, parse_timedata
 
 try:
     import pyarrow as pa  # type: ignore
-    import pyarrow.compute as pc
 except ImportError:
     HAS_PYARROW = False
 else:
