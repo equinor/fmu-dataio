@@ -87,14 +87,14 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 from warnings import warn
 
 import numpy as np
 import pandas as pd  # type: ignore
 import xtgeo  # type: ignore
 
-from ._definitions import _ValidFormats, STANDARD_TABLE_INDEX_COLUMNS
+from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, _ValidFormats
 from ._utils import generate_description, parse_timedata
 
 try:
@@ -664,6 +664,36 @@ class _ObjectDataProvider:
 
         self.time0, self.time1 = parse_timedata(self.meta_existing["data"])
 
+    def _process_content(self) -> Tuple[str, Optional[dict]]:
+        """Work with the `content` metadata"""
+
+        # content == "unset" is not wanted, but in case metadata has been produced while
+        # doing a preprocessing step first, and this step is re-using metadata, the
+        # check is not done.
+        if self.dataio._usecontent == "unset" and (
+            self.dataio.reuse_metadata_rule is None
+            or self.dataio.reuse_metadata_rule != "preprocessed"
+        ):
+            warn(
+                "The <content> is not provided which defaults to 'unset'. "
+                "It is strongly recommended that content is given explicitly! "
+                f"\n\nValid contents are: {', '.join(ALLOWED_CONTENTS.keys())} "
+                "\n\nThis list can be extended upon request and need.",
+                UserWarning,
+            )
+
+        content = self.dataio._usecontent
+        content_spesific = None
+
+        # Outgoing content is always a string, but it can be given as a dict if content-
+        # specific information is to be included in the metadata.
+        # In that case, it shall be inserted in the data block as a key with name as the
+        # content, e.g. "seismic" or "field_outline"
+        if self.dataio._content_specific is not None:
+            content_spesific = self.dataio._content_specific
+
+        return content, content_spesific
+
     def derive_metadata(self):
         """Main function here, will populate the metadata block for 'data'."""
         logger.info("Derive all metadata for data object...")
@@ -683,14 +713,11 @@ class _ObjectDataProvider:
         meta["alias"] = nameres.get("alias", None)
         meta["top"] = nameres.get("top", None)
         meta["base"] = nameres.get("base", None)
-        meta["content"] = self.dataio._usecontent
 
-        # Outgoing content is always a string, but it can be given as a dict if content-
-        # specific information is to be included in the metadata.
-        # In that case, it shall be inserted in the data block as a key with name as the
-        # content, e.g. "seismic" or "field_outline"
-        if self.dataio._content_specific is not None:
-            meta[self.dataio._usecontent] = self.dataio._content_specific
+        content, content_spesific = self._process_content()
+        meta["content"] = content
+        if content_spesific:
+            meta[self.dataio._usecontent] = content_spesific
 
         meta["tagname"] = self.dataio.tagname
         meta["format"] = objres["fmt"]

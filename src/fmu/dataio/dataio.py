@@ -134,14 +134,7 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     content_specific = None
     logger.debug("content is %s of type %s", str(content), type(content))
     if content is None:
-        warn(
-            "The <content> is not provided which defaults to 'unset'. "
-            "It is strongly recommended that content is given explicitly! "
-            f"\n\nValid contents are: {', '.join(ALLOWED_CONTENTS.keys())} "
-            "\n\nThis list can be extended upon request and need.",
-            UserWarning,
-        )
-        usecontent = "unset"
+        usecontent = "unset"  # user warnings on this will in _objectdata_provider
 
     elif isinstance(content, str):
         logger.debug("content is a string")
