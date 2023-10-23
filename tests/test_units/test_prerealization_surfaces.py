@@ -125,15 +125,19 @@ def test_regsurf_preprocessed_observation(
         os.chdir(fmurun_w_casemetadata)
         logger.info("Active folder is %s", fmurun_w_casemetadata)
 
+        casepath = fmurun_w_casemetadata.parent.parent
+
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             fmu_context="case",
-            content="depth",
+            content=None,  # shall be accepted without warning here in this context
             is_observation=True,
         )
         metadata = edata.generate_metadata(
             surfacepath,
+            casepath=casepath,
         )
+        logger.info("Casepath folder is now %s", casepath)
         logger.debug("\n%s", utils.prettyprint_dict(metadata))
         assert (
             metadata["file"]["relative_path"]
@@ -143,6 +147,19 @@ def test_regsurf_preprocessed_observation(
         assert metadata["data"]["name"] == "VOLANTIS GP. Top"
         assert "TopVolantis" in metadata["data"]["alias"]
         assert "_preprocessed" not in metadata
+
+        # do the actual export (which will copy data to case/share/observations/...)
+        edata.export(
+            surfacepath,
+            casepath=casepath,
+        )
+        assert (
+            casepath
+            / "share"
+            / "observations"
+            / "maps"
+            / ".topvolantis--20240802_20200909.gri.yml"
+        ).exists()
 
     # run two stage process
     mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)

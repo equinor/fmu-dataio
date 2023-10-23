@@ -121,11 +121,24 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, wtype, expected_msg
 
 def test_content_not_given(globalconfig1, regsurf):
     """When content is not explicitly given, warning shall be issued."""
-    with pytest.warns(match="The <content> is not provided"):
+    with pytest.warns(UserWarning, match="The <content> is not provided"):
         eobj = ExportData(config=globalconfig1)
         mymeta = eobj.generate_metadata(regsurf)
 
     assert mymeta["data"]["content"] == "unset"
+
+
+def test_content_given_init_or_later(globalconfig1, regsurf):
+    """When content is not explicitly given, warning shall be issued."""
+    eobj = ExportData(config=globalconfig1, content="time")
+    mymeta = eobj.generate_metadata(regsurf)
+
+    assert mymeta["data"]["content"] == "time"
+
+    # override by adding content at generate_metadata
+    mymeta = eobj.generate_metadata(regsurf, content="depth")
+
+    assert mymeta["data"]["content"] == "depth"  # last content shall win
 
 
 def test_content_invalid_string(globalconfig1):
