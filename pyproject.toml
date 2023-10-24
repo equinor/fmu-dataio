@@ -1,4 +1,82 @@
 # NOTE: you have to use single-quoted strings in TOML for regular expressions.
+[build-system]
+requires = ["pip>=19.1.1", "setuptools", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fmu-dataio"
+description = "Facilitate data io in FMU with rich metadata"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "Apache 2.0" }
+authors = [{ name = "Equinor", email = "xxxxx@equinor.com" }]
+keywords = ["fmu", "sumo"]
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Utilities",
+]
+dynamic = ["version"]
+dependencies = [
+    "xtgeo>=2.16",
+    "PyYAML",
+    "pyarrow",
+    "fmu-config>=1.1.0",
+    "pandas",
+    "numpy",
+]
+
+[project.urls]
+Homepage = "https://github.com/equinor/fmu-dataio"
+Repository = "https://github.com/equinor/fmu-dataio"
+Issues = "https://github.com/equinor/fmu-dataio/issues"
+Documentation = "https://fmu-dataio.readthedocs.io"
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "coverage>=4.1",
+    "flake8",
+    "isort",
+    "jsonschema",
+    "hypothesis",
+    "mypy",
+    "pylint",
+    "pytest",
+    "pytest-cov",
+    "pydocstyle",
+    "pytest-runner",
+    "pytest-mock",
+    "termcolor",
+    "rstcheck",
+]
+docs = [
+    "pydocstyle",
+    "Sphinx<7",
+    "autoapi",
+    "sphinx-rtd-theme",
+    "sphinx-autodoc-typehints<1.23",
+    "sphinxcontrib-apidoc",
+    "sphinx-togglebutton",
+    "urllib3<1.27",
+]
+
+[project.entry-points.ert]
+dataio_case_metadata = "fmu.dataio.scripts.create_case_metadata"
+
+
 [tool.black]
 line-length = 88
 target-version = ['py38', 'py39', 'py310', 'py311']
@@ -25,5 +103,68 @@ exclude = '''
 [tool.isort]
 profile = "black"
 
-[build-system]
-requires = ["pip>=19.1.1", "setuptools>=28", "setuptools_scm>=3.2.0", "pyarrow"]
+
+[tool.setuptools_scm]
+write_to = "src/fmu/dataio/version.py"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--verbose"
+log_cli = "False"
+log_cli_format = "%(levelname)8s (%(relativeCreated)6.0fms) %(filename)44s [%(funcName)40s()] %(lineno)4d >>   %(message)s"
+log_cli_level = "INFO"
+testpaths = "tests"
+markers = ["integration: marks a test as an integration test"]
+xfail_strict = true
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.pydocstyle]
+convention = "google"
+match = '(?!(test_|_)).*\.py'
+
+[tool.pylint.MASTER]
+ignore = ["version.py", "conf.py"]
+
+[tool.pylint.BASIC]
+additional-builtins = ["_x", "_y", "_z", "_tmp1", "_tmp2"]
+good-names = ["logger", "version", "i", "j", "k", "x", "y", "z", "_"]
+variable-rgx = "^[a-z_][_a-z0-9]+((_[a-z0-9]+)*)?$"
+argument-rgx = "^[a-z_][_a-z0-9]+((_[a-z0-9]+)*)?$"
+dummy-variables-rgx = "^_+[a-z0-9]*?$|dummy"
+
+[tool.pylint.TYPECHECK]
+generated-members = ["np.*", "numpy.*", "pd.*", "pandas.*"]
+
+[tool.pylint.FORMAT]
+max-line-length = 88
+max-module-lines = 3000
+
+[tool.pylint.DESIGN]
+max-attributes = 30
+max-args = 20
+max-locals = 30
+max-branches = 15
+max-bool-expr = 8
+
+[tool.pylint.SIMILARITIES]
+min-similarity-lines = 40
+ignore-comments = "yes"
+ignore-docstrings = "no"
+ignore-imports = "yes"
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = """
+    fixme,
+    missing-docstring,
+    protected-access,
+    C0330,
+    useless-object-inheritance,
+    import-outside-toplevel,
+    import-error,
+    no-name-in-module,
+    raise-missing-from,
+    unspecified-encoding,
+    wrong-import-order
+    """

@@ -16,8 +16,8 @@ jobs:
       - name: Check black style and linting
         run: |
           pip install black
-          black --check *.py src tests
+          black --check src tests
           pip install flake8
           flake8 src tests
           pip install isort
-          isort --profile=black *.py src tests
+          isort --profile=black src tests

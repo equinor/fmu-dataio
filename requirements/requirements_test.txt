@@ -1,3 +1,0 @@
-pytest
-fmu-config
-termcolor
