@@ -27,9 +27,8 @@ jobs:
       - name: Install fmu-dataio
         run: >
           pip install pip -U &&
-          pip install .
+          pip install .[dev]
 
       - name: Full test
         run: >
-          pip install -r requirements/requirements_test.txt &&
           pytest --disable-warnings -x

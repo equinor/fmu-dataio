@@ -52,10 +52,9 @@ pip install -e .
 ```
 Install requirements for running tests:
 ```console
-pip install -e .[tests,docs]
+pip install -e .[dev,docs]
 ```
-Then run the command: 
+Then run the command:
 ```console
 pytest
 ```
-
