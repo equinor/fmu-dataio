@@ -66,6 +66,11 @@ ALLOWED_CONTENTS = {
     "timeseries": None,
     "wellpicks": None,
     "parameters": None,
+    "rft": None,
+    "pvt": None,
+    "relperm": None,
+    "lift_curves": None,
+    "transmissibilities": None,
 }
 
 STANDARD_TABLE_INDEX_COLUMNS = {

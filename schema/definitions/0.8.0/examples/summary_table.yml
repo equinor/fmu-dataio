@@ -1,0 +1,101 @@
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json
+version: 0.8.0
+source: fmu
+tracklog:
+  - datetime: "2023-10-03T09:52:05.771422"
+    user:
+      id: dbs
+    event: created
+class: table
+fmu:
+  model:
+    name: ff
+    revision: undefined
+  context:
+    stage: realization
+  case:
+    name: drogon_ahm-2023-10-03
+    uuid: e48965be-1c35-4ca4-a555-a841a65d433c
+    user:
+      id: dbs
+  iteration:
+    id: 0
+    uuid: b6a6507f-0789-d899-7b68-a2e6a7f1f2c4
+    name: iter-0
+  realization:
+    id: 0
+    uuid: 318edd40-7e59-4a41-dbcc-a2f1aafd814d
+    name: realization-0
+    parameters:
+      GLOBVAR:
+        DCONV_ALTERNATIVE: 2
+        HUM_MODEL_MODE: 1
+        FACIESMODEL_ALTERNATIVE: 1
+        PETROMODEL_ALTERNATIVE: 1
+        FACIES_VALYSAR_SEISCOND: 1
+        FACIES_THERYS_ALT2: 1
+        VALYSAR_PORO_CHANNEL: 0.27
+        VALYSAR_PORO_CREVASSE: 0.22
+        THERYS_PORO_US: 0.31
+        THERYS_PORO_LS: 0.23
+        VOLON_PORO_CHANNEL: 0.2
+        VALYSAR_PERMH_CHANNEL: 1000
+        VALYSAR_PERMH_CREVASSE: 100
+file:
+  relative_path: realization-0/iter-0/share/results/tables/drogon--summary.arrow
+  absolute_path: /scratch/fmu/dbs/drogon_ahm-2023-10-03/realization-0/iter-0/share/results/tables/drogon--summary.arrow
+  checksum_md5: c1da337b642fb594246c275a9bd597da
+data:
+  name: DROGON
+  stratigraphic: false
+  content: timeseries
+  tagname: summary
+  format: arrow
+  layout: table
+  unit: ""
+  vertical_domain: depth
+  depth_reference: msl
+  spec:
+    columns:
+      - DATE
+      - YEARS
+      - FOPT
+      - FOPR
+      - FGPT
+      - FOPTH
+      - FWPR
+      - FWPRH
+      - WWPT:R_A4
+      - WTIRWT1:A4
+    size: 200
+  table_index:
+    - DATE
+  undef_is_zero: false
+  is_prediction: true
+  is_observation: false
+display:
+  name: DROGON
+access:
+  asset:
+    name: Drogon
+  ssdl:
+    access_level: internal
+    rep_include: false
+  classification: internal
+masterdata:
+  smda:
+    country:
+      - identifier: Norway
+        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+      - short_identifier: DROGON
+        uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    field:
+      - identifier: DROGON
+        uuid: 00000000-0000-0000-0000-000000000000
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    stratigraphic_column:
+      identifier: DROGON_HAS_NO_STRATCOLUMN
+      uuid: 00000000-0000-0000-0000-000000000000

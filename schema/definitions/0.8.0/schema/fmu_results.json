@@ -271,7 +271,12 @@
                         "khproduct",
                         "timeseries",
                         "wellpicks",
-                        "parameters"
+                        "parameters",
+                        "relperm",
+                        "rft",
+                        "pvt",
+                        "lift_curves",
+                        "transmissibilities"
                     ],
                     "examples": [
                         "depth",
