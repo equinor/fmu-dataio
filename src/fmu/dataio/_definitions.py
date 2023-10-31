@@ -69,8 +69,8 @@ ALLOWED_CONTENTS = {
     "rft": None,
     "pvt": None,
     "relperm": None,
-    "lift_curves", None,
-    "transmissibilities": None
+    "lift_curves": None,
+    "transmissibilities": None,
 }
 
 STANDARD_TABLE_INDEX_COLUMNS = {
