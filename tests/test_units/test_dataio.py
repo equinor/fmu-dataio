@@ -4,6 +4,8 @@ import os
 import pathlib
 import sys
 
+from copy import deepcopy
+
 import pytest
 import yaml
 
@@ -75,6 +77,56 @@ def test_config_miss_required_fields(globalconfig1, regsurf):
 
     with pytest.raises(OSError, match="Cannot find requested metafile"):
         read_metadata(out)
+
+
+def test_config_stratigraphy_empty_entries_alias(globalconfig2):
+    """Test that empty entries in 'alias' is detected and warned."""
+    cfg = deepcopy(globalconfig2)
+    cfg["stratigraphy"]["TopVolantis"]["alias"] += [None]
+
+    with pytest.warns(PendingDeprecationWarning, match="'alias' items must be strings"):
+        ExportData(config=cfg, content="depth")
+
+
+def test_config_stratigraphy_empty_entries_stratigraphic_alias(globalconfig2):
+    """Test that empty entries in 'stratigraphic_alias' is detected and warned."""
+    cfg = deepcopy(globalconfig2)
+    cfg["stratigraphy"]["TopVolantis"]["stratigraphic_alias"] += [None]
+
+    with pytest.warns(
+        PendingDeprecationWarning, match="'stratigraphic_alias' items must be strings"
+    ):
+        ExportData(config=cfg, content="depth")
+
+
+def test_config_stratigraphy_empty_name(globalconfig2):
+    """Test that empty 'name' is detected and warned."""
+    cfg = deepcopy(globalconfig2)
+    cfg["stratigraphy"]["TopVolantis"]["name"] = None
+
+    with pytest.warns(
+        PendingDeprecationWarning,
+        match="stratigraphy.TopVolantis: 'name' must be a string",
+    ):
+        ExportData(config=cfg, content="depth")
+
+
+def test_config_stratigraphy_stratigraphic_not_bool(globalconfig2):
+    """Test that non-boolean 'stratigraphic' is detected and warned."""
+    cfg = deepcopy(globalconfig2)
+    cfg["stratigraphy"]["TopVolantis"]["stratigraphic"] = None
+
+    with pytest.warns(
+        PendingDeprecationWarning, match="'stratigraphic' must be a bool"
+    ):
+        ExportData(config=cfg, content="depth")
+
+    cfg["stratigraphy"]["TopVolantis"]["stratigraphic"] = "a string"
+
+    with pytest.warns(
+        PendingDeprecationWarning, match="'stratigraphic' must be a bool"
+    ):
+        ExportData(config=cfg, content="depth")
 
 
 def test_update_check_settings_shall_fail(globalconfig1):
