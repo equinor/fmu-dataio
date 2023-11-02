@@ -151,11 +151,12 @@ def _check_global_config(
 
             if "stratigraphic_alias" in item:
                 if not isinstance(item["stratigraphic_alias"], list):
-                    msg += f"stratigraphy.{key}: 'stratigraphic_alias' must be a list."
+                    msg += f"stratigraphy.{key}: 'stratigraphic_alias' must be list.\n"
                 else:
                     for alias in item["stratigraphic_alias"]:
                         if not isinstance(alias, str):
-                            msg += f"stratigraphy.{key}: 'stratigraphic_alias' items must be strings"
+                            msg += f"stratigraphy.{key}: 'stratigraphic_alias' items "
+                            msg += "must be strings.\n"
 
     if msg:
         if "err" in action:
