@@ -79,17 +79,23 @@ def test_config_miss_required_fields(globalconfig1, regsurf):
         read_metadata(out)
 
 
-def test_config_stratigraphy_empty_entries_alias(globalconfig2):
-    """Test that empty entries in 'alias' is detected and warned."""
+def test_config_stratigraphy_empty_entries_alias(globalconfig2, regsurf):
+    """Test that empty entries in 'alias' is detected and warned and removed."""
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["alias"] += [None]
 
     with pytest.warns(PendingDeprecationWarning, match="'alias' items must be strings"):
-        ExportData(config=cfg, content="depth")
+        exp = ExportData(config=cfg, content="depth", name="TopVolantis")
+        metadata = exp.generate_metadata(regsurf)
+
+    assert None not in metadata["data"]["alias"]
 
 
-def test_config_stratigraphy_empty_entries_stratigraphic_alias(globalconfig2):
-    """Test that empty entries in 'stratigraphic_alias' is detected and warned."""
+def test_config_stratigraphy_empty_entries_stratigraphic_alias(globalconfig2, regsurf):
+    """Test that empty entries in 'stratigraphic_alias' detected and warned."""
+
+    # Note! stratigraphic_alias is not implemented, but we still check consistency
+
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic_alias"] += [None]
 

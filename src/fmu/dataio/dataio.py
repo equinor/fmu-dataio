@@ -149,6 +149,9 @@ def _check_global_config(
                                 f"stratigraphy.{key}: 'alias' items must be strings\n"
                             )
 
+                    # After checking and warning, remove empty entries
+                    item["alias"] = list(filter(lambda i: i is not None, item["alias"]))
+
             if "stratigraphic_alias" in item:
                 if not isinstance(item["stratigraphic_alias"], list):
                     msg += f"stratigraphy.{key}: 'stratigraphic_alias' must be list.\n"
@@ -157,6 +160,11 @@ def _check_global_config(
                         if not isinstance(alias, str):
                             msg += f"stratigraphy.{key}: 'stratigraphic_alias' items "
                             msg += "must be strings.\n"
+
+                    # After checking and warning, remove empty entries
+                    item["stratigraphic_alias"] = list(
+                        filter(lambda i: i is not None, item["stratigraphic_alias"])
+                    )
 
     if msg:
         if "err" in action:
