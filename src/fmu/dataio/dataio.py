@@ -111,7 +111,7 @@ def _check_global_config(
             missing_keys.append(required_key)
 
     if missing_keys:
-        msg = (
+        msg += (
             "One or more keys required for valid metadata are not found: "
             f"{missing_keys} (perhaps the config is empty?) "
         )
