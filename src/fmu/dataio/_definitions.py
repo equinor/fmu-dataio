@@ -51,6 +51,7 @@ ALLOWED_CONTENTS = {
         "scaling_factor": float,
         "stacking_offset": str,
     },
+    "grid_property": {"parent": str},
     "fluid_contact": {"contact": str, "truncated": bool},
     "field_outline": {"contact": str},
     "field_region": {"id": int},
