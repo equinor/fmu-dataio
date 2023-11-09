@@ -1,7 +1,5 @@
-import pytest
+"""Testing assignment of content to grid property"""
 from pathlib import Path
-import numpy as np
-from xtgeo import GridProperty
 from fmu.dataio import ExportData
 from fmu.config.utilities import yaml_load
 
