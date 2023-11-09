@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.8.6.dev4+gdf59ab3 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.8.7.dev1+ge2ebac9 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
@@ -170,6 +170,10 @@
 
 <span class="sd">    Currently far from a full validation. For now, just check that some required</span>
 <span class="sd">    keys are present in the config and warn/raise if not.</span>
+
+<span class="sd">    PS! Seems like a good job for jsonschema, but the produced error message are not</span>
+<span class="sd">    informative enough to provide meaningful information to user when something is</span>
+<span class="sd">    wrong.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">globalconfig</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">strict</span><span class="p">:</span>
@@ -178,20 +182,73 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="c1"># strict is True:</span>
-    <span class="n">config_required_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">,</span> <span class="s2">&quot;masterdata&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">]</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">missing_keys</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># check required key presence</span>
+    <span class="n">config_required_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">,</span> <span class="s2">&quot;masterdata&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">required_key</span> <span class="ow">in</span> <span class="n">config_required_keys</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">required_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">globalconfig</span><span class="p">:</span>
             <span class="n">missing_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">required_key</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">missing_keys</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
             <span class="s2">&quot;One or more keys required for valid metadata are not found: &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">missing_keys</span><span class="si">}</span><span class="s2"> (perhaps the config is empty?) &quot;</span>
         <span class="p">)</span>
+
+    <span class="c1"># check &quot;stratigraphy&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;stratigraphy&quot;</span> <span class="ow">in</span> <span class="n">globalconfig</span><span class="p">:</span>
+        <span class="c1"># we currently allow (why?) stratigraphy key missing from config.</span>
+        <span class="n">strat</span> <span class="o">=</span> <span class="n">globalconfig</span><span class="p">[</span><span class="s2">&quot;stratigraphy&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strat</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;The &#39;stratigraphy&#39; must be a dictionary.</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Loop the entries in &#39;stratigraphy&#39;</span>
+        <span class="c1"># These keys are custom, but we want error messages to point to the key when</span>
+        <span class="c1"># issues are discovered. This makes it tricky to use jsonschema. Pydantic might</span>
+        <span class="c1"># be an option. But for now, just go through all items and do defined checks.</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">strat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;name&#39; is missing. </span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;name&#39; must be a string.</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+            <span class="k">if</span> <span class="s2">&quot;stratigraphic&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;stratigraphic&#39; is missing.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;stratigraphic&quot;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;stratigraphic&#39; must be a boolean.</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+            <span class="k">if</span> <span class="s2">&quot;alias&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;alias&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;alias&#39; must be a list.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;alias&quot;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alias</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;alias&#39; items must be strings</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="p">)</span>
+
+                    <span class="c1"># After checking and warning, remove empty entries</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;alias&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;alias&quot;</span><span class="p">]))</span>
+
+            <span class="k">if</span> <span class="s2">&quot;stratigraphic_alias&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;stratigraphic_alias&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;stratigraphic_alias&#39; must be list.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;stratigraphic_alias&quot;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alias</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;stratigraphic_alias&#39; items &quot;</span>
+                            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;must be strings.</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+                    <span class="c1"># After checking and warning, remove empty entries</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;stratigraphic_alias&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                        <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;stratigraphic_alias&quot;</span><span class="p">])</span>
+                    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">msg</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;err&quot;</span> <span class="ow">in</span> <span class="n">action</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot; STOP!&quot;</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
@@ -1526,7 +1583,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.8.6.dev4+gdf59ab3).</p>
+    <p>&#169; Copyright Equinor 2023 (fmu-dataio release 1.8.7.dev1+ge2ebac9).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
