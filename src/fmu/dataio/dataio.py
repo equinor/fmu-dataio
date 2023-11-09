@@ -89,6 +89,10 @@ def _check_global_config(
 
     Currently far from a full validation. For now, just check that some required
     keys are present in the config and warn/raise if not.
+
+    PS! Seems like a good job for jsonschema, but the produced error message are not
+    informative enough to provide meaningful information to user when something is
+    wrong.
     """
 
     if not globalconfig and not strict:
@@ -97,20 +101,73 @@ def _check_global_config(
         )
         return False
 
-    # strict is True:
-    config_required_keys = ["access", "masterdata", "model"]
+    msg = ""
     missing_keys = []
+
+    # check required key presence
+    config_required_keys = ["access", "masterdata", "model"]
     for required_key in config_required_keys:
         if required_key not in globalconfig:
             missing_keys.append(required_key)
 
     if missing_keys:
-        msg = (
+        msg += (
             "One or more keys required for valid metadata are not found: "
             f"{missing_keys} (perhaps the config is empty?) "
         )
+
+    # check "stratigraphy"
+    if "stratigraphy" in globalconfig:
+        # we currently allow (why?) stratigraphy key missing from config.
+        strat = globalconfig["stratigraphy"]
+        if not isinstance(strat, dict):
+            msg += "The 'stratigraphy' must be a dictionary.\n"
+
+        # Loop the entries in 'stratigraphy'
+        # These keys are custom, but we want error messages to point to the key when
+        # issues are discovered. This makes it tricky to use jsonschema. Pydantic might
+        # be an option. But for now, just go through all items and do defined checks.
+
+        for key, item in strat.items():
+            if "name" not in item:
+                msg += f"stratigraphy.{key}: 'name' is missing. \n"
+            elif not isinstance(item["name"], str):
+                msg += f"stratigraphy.{key}: 'name' must be a string.\n"
+
+            if "stratigraphic" not in item:
+                msg += f"stratigraphy.{key}: 'stratigraphic' is missing.\n"
+            elif not isinstance(item["stratigraphic"], bool):
+                msg += f"stratigraphy.{key}: 'stratigraphic' must be a boolean.\n"
+
+            if "alias" in item:
+                if not isinstance(item["alias"], list):
+                    msg += f"stratigraphy.{key}: 'alias' must be a list.\n"
+                else:
+                    for alias in item["alias"]:
+                        if not isinstance(alias, str):
+                            msg += (
+                                f"stratigraphy.{key}: 'alias' items must be strings\n"
+                            )
+
+                    # After checking and warning, remove empty entries
+                    item["alias"] = list(filter(lambda i: i is not None, item["alias"]))
+
+            if "stratigraphic_alias" in item:
+                if not isinstance(item["stratigraphic_alias"], list):
+                    msg += f"stratigraphy.{key}: 'stratigraphic_alias' must be list.\n"
+                else:
+                    for alias in item["stratigraphic_alias"]:
+                        if not isinstance(alias, str):
+                            msg += f"stratigraphy.{key}: 'stratigraphic_alias' items "
+                            msg += "must be strings.\n"
+
+                    # After checking and warning, remove empty entries
+                    item["stratigraphic_alias"] = list(
+                        filter(lambda i: i is not None, item["stratigraphic_alias"])
+                    )
+
+    if msg:
         if "err" in action:
-            msg = msg + " STOP!"
             raise ValueError(msg)
         else:
             msg += (
