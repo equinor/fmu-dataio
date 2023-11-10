@@ -50,8 +50,8 @@ def export_geogrid_parameters():
         prop = xtgeo.gridproperty_from_file(filename)
         ed = dataio.ExportData(
             name=propname,
-            # parent={"name": GNAME},
             config=CFG,
+            parent=GNAME,
             content="depth",
             unit="m",
             vertical_domain={"depth": "msl"},
