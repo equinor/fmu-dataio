@@ -203,7 +203,7 @@ class _ObjectDataProvider:
 
     def _derive_objectdata(self):
         """Derive object spesific data."""
-        logger.info("Evaluate data settings for object")
+        logger.info(f"Evaluate data settings for object of type {type(self.obj)}")
         result = dict()
 
         if isinstance(self.obj, xtgeo.RegularSurface):
@@ -271,6 +271,17 @@ class _ObjectDataProvider:
                 result["fmt"], result["subtype"], _ValidFormats().grid
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_cpgridproperty()
+
+            self.dataio._usecontent = "grid_property"
+
+            if self.dataio.parent == "":
+                raise AttributeError("For grid properties a parent must be set!")
+            else:
+                self.dataio._content_specific = {"parent": self.dataio.parent}
+                logger.debug(
+                    "Grid property with parent assignment: %s",
+                    self.dataio._content_specific,
+                )
 
         elif isinstance(self.obj, pd.DataFrame):
             result["table_index"] = self._derive_index()
@@ -706,14 +717,12 @@ class _ObjectDataProvider:
         objres = self._derive_objectdata()
 
         meta = self.metadata  # shortform
-
         meta["name"] = nameres["name"]
         meta["stratigraphic"] = nameres.get("stratigraphic", None)
         meta["offset"] = nameres.get("offset", None)
         meta["alias"] = nameres.get("alias", None)
         meta["top"] = nameres.get("top", None)
         meta["base"] = nameres.get("base", None)
-
         content, content_spesific = self._process_content()
         meta["content"] = content
         if content_spesific:
@@ -728,6 +737,7 @@ class _ObjectDataProvider:
         meta["spec"] = objres["spec"]
         meta["bbox"] = objres["bbox"]
         meta["table_index"] = objres.get("table_index")
+
         meta["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:

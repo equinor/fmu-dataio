@@ -276,7 +276,8 @@
                         "rft",
                         "pvt",
                         "lift_curves",
-                        "transmissibilities"
+                        "transmissibilities",
+                        "grid_property"
                     ],
                     "examples": [
                         "depth",
