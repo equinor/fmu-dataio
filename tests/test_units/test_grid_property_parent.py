@@ -21,7 +21,7 @@ def test_export_gridproperty_export(gridproperty, globalconfig2):
     assert (
         "parent" in meta["data"]["grid_property"]
     ), "Grid property not assigned a parent"
-    assert (
-        meta["data"]["grid_property"]["parent"] == "MyGrid"
-    ), (f"Wrong parent name,"
-        f" should be MyGrid is {meta['data']['grid_property']['parent']}")
+    assert meta["data"]["grid_property"]["parent"] == "MyGrid", (
+        f"Wrong parent name,"
+        f" should be MyGrid is {meta['data']['grid_property']['parent']}"
+    )
