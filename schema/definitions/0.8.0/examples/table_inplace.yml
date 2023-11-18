@@ -67,6 +67,11 @@ file:
   checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
   size_bytes: 5010144
 
+relations:
+  collections:
+    - 1b4fb471-159d-4b46-9b25-229419cd349b
+    - 3d338cd7-926a-49c0-8d6b-8ae2063f681f
+
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
 
   content: inplace_volumes   # white-listed and standardized

@@ -662,6 +662,18 @@
                 }
             }
         },
+        "relations": {
+            "type": "object",
+            "properties": {
+                "collections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/generic/uuid"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
         "display": {
             "type": "object",
             "properties": {
@@ -1229,6 +1241,9 @@
         },
         "class": {
             "$ref": "#/definitions/class"
+        },
+        "relations": {
+            "$ref": "#/definitions/relations"
         }
     },
     "oneOf": [
