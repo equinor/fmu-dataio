@@ -1,7 +1,6 @@
 """Test the _MetaData class from the _metadata.py module"""
 import logging
 from copy import deepcopy
-import os
 
 import pytest
 
