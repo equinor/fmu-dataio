@@ -497,3 +497,20 @@ def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsu
     )
     ExportData.allow_forcefolder_absolute = False  # reset
     ExportData._inside_rms = False
+
+
+def test_exportdata_with_collection_name(globalconfig2, regsurf, arrowtable, polygons):
+    """Test export of multiple objects with common collection_name."""
+
+    edata = ExportData(
+        config=globalconfig2, content="volumes", collection_name="mycollection"
+    )
+    metadatas = []
+    for obj in [regsurf, arrowtable, polygons]:
+        metadatas.append(edata.generate_metadata(obj, name="myname"))
+
+    collection_uuids = [
+        metadata["relations"]["collections"][0] for metadata in metadatas
+    ]
+    assert len(set(collection_uuids)) == 1
+    assert len(collection_uuids[0]) == 36

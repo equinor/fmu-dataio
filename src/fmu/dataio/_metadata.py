@@ -21,6 +21,7 @@ from fmu.dataio._utils import (
     export_file_compute_checksum_md5,
     glue_metadata_preprocessed,
     read_metadata,
+    uuid_from_string,
 )
 
 logger = logging.getLogger(__name__)
@@ -163,6 +164,48 @@ def generate_meta_access(config: dict) -> Optional[dict]:
     return a_meta
 
 
+def generate_meta_relations(dataio, meta_fmu: dict) -> Optional[dict]:
+    """Generate the relations block.
+
+    The collection_name argument can be a str or a list, and shall be combined with the
+    current fmu.case.uuid in a valid uuid4. This shall be put into the
+    relations.collections attribute, which shall be a list.
+    """
+
+    logger.debug("generate_meta_relations")
+    r_meta = {"collections": []}
+
+    if dataio.collection_name is None:
+        logger.debug("dataio.collection_name is None, returning empty")
+        return
+
+    if isinstance(dataio.collection_name, str):
+        logger.debug("collection_name is given as a string")
+        cnames = [dataio.collection_name]
+    elif isinstance(dataio.collection_name, list):
+        logger.debug("collection_name is given as a list")
+        cnames = dataio.collection_name
+    else:
+        raise ValueError("'collection_name' must be str or list.")
+
+    # case.uuid
+    if not meta_fmu:
+        # for non-FMU runs, RMS-gui, etc.
+        logger.debug("No case uuid")
+        case_uuid = ""
+    else:
+        case_uuid = meta_fmu["case"]["uuid"]
+        logger.debug("case uuid is %s", case_uuid)
+
+    for cname in cnames:
+        logger.debug("Making collection uuid for %s", cname)
+        collection_uuid = uuid_from_string(f"{case_uuid}{cname}")
+        logger.debug("uuid returned was %s", collection_uuid)
+        r_meta["collections"].append(collection_uuid)
+
+    return r_meta
+
+
 @dataclass
 class _MetaData:
     """Class for sampling, process and holding all metadata in an ExportData instance.
@@ -208,6 +251,8 @@ class _MetaData:
     meta_file: dict = field(default_factory=dict, init=False)
     meta_tracklog: list = field(default_factory=list, init=False)
     meta_fmu: dict = field(default_factory=dict, init=False)
+    meta_relations: dict = field(default_factory=dict, init=False)
+
     # temporary storage for preprocessed data:
     meta_xpreprocessed: dict = field(default_factory=dict, init=False)
 
@@ -340,6 +385,18 @@ class _MetaData:
         if self.dataio:
             self.meta_access = generate_meta_access(self.dataio.config)
 
+    def _populate_meta_relations(self):
+        """Populate the relations block.
+
+        The relations block shall contain information about relationships between this
+        data object and others.
+
+        TODO: Migrate existing relational attributes here, e.g. "parent".
+
+        """
+        if self.dataio:
+            self.meta_relations = generate_meta_relations(self.dataio, self.meta_fmu)
+
     def _populate_meta_xpreprocessed(self):
         """Populate a few necessary 'tmp' metadata needed for preprocessed data."""
         if self.dataio.fmu_context == "preprocessed":
@@ -375,6 +432,7 @@ class _MetaData:
         self._populate_meta_fmu()
         self._populate_meta_file()
         self._populate_meta_xpreprocessed()
+        self._populate_meta_relations()
 
         # glue together metadata, order is as legacy code (but will be screwed if reuse
         # of existing metadata...)
@@ -390,6 +448,8 @@ class _MetaData:
 
         meta["access"] = self.meta_access
         meta["masterdata"] = self.meta_masterdata
+
+        meta["relations"] = self.meta_relations
 
         if self.dataio.fmu_context == "preprocessed":
             meta["_preprocessed"] = self.meta_xpreprocessed

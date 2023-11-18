@@ -385,6 +385,9 @@ class ExportData:
             the file structure or by other means. See also fmu_context, where "case"
             may need an explicit casepath!
 
+        collection_name: To include a data object in a collection. Shall be string or
+            list of strings. Will be combined with case uuid.
+
         config: Required in order to produce valid metadata, either as key (here) or
             through an environment variable. A dictionary with static settings.
             In the standard case this is read from FMU global variables
@@ -561,6 +564,7 @@ class ExportData:
     access_ssdl: dict = field(default_factory=dict)
     aggregation: bool = False
     casepath: Union[str, Path, None] = None
+    collection_name: Union[str, List[str], None] = None
     config: dict = field(default_factory=dict)
     content: Union[dict, str, None] = None
     depth_reference: str = "msl"

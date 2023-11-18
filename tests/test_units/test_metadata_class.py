@@ -1,6 +1,7 @@
 """Test the _MetaData class from the _metadata.py module"""
 import logging
 from copy import deepcopy
+import os
 
 import pytest
 
@@ -292,6 +293,114 @@ def test_metadata_access_no_input(globalconfig1):
 
 def test_metadata_access_rep_include(globalconfig1):
     """Test the input of the rep_include field."""
+
+
+# --------------------------------------------------------------------------------------
+# RELATIONS block
+# --------------------------------------------------------------------------------------
+
+
+def test_metadata_relations_no_collection_name(globalconfig1):
+    "Test the relations generation when collection_name is not provided."
+    edata = dio.ExportData(config=globalconfig1, content="depth")
+    mymeta = _MetaData("dummy", edata)
+    mymeta._populate_meta_relations()
+
+    # no collection_name given, relations shall be None
+    assert mymeta.dataio.collection_name is None
+    assert mymeta.meta_relations is None
+
+
+def test_metadata_relations_with_case_uuid(globalconfig1, fmurun_w_casemetadata):
+    """Confirm collection changes with different case_uuids."""
+
+    cname = "mycollection"
+
+    # produce with original fmu.case.uuid
+    edata = dio.ExportData(config=globalconfig1, content="depth", collection_name=cname)
+    edata._rootpath = fmurun_w_casemetadata
+    mymeta = _MetaData("dummy", edata, verbosity="DEBUG")
+    mymeta._populate_meta_fmu()
+    mymeta._populate_meta_relations()
+    first = deepcopy(mymeta.meta_relations["collections"][0])
+    assert len(mymeta.meta_relations["collections"]) == 1
+
+    # produce again, verify identical
+    mymeta._populate_meta_relations()
+    same_as_first = deepcopy(mymeta.meta_relations["collections"][0])
+    assert first == same_as_first
+
+    # modify fmu.case.uuid and produce again
+    newuuid = "b31b05e8-e47f-47b1-8fee-e94b2234aa21"
+    mymeta.meta_fmu["case"]["uuid"] = newuuid
+    mymeta._populate_meta_relations()
+    second = deepcopy(mymeta.meta_relations["collections"][0])
+    assert len(mymeta.meta_relations["collections"]) == 1
+
+    # verify different
+    assert first != second
+    assert len(first) == len(second) == 36
+
+
+def test_metadata_relations_one_collection_name(globalconfig1):
+    """Test the relations generation when collection name is provided as list with one
+    member. Also test that similar behaviour if list or not.
+
+    collection_name = ["tst"] and collection_name = "tst" shall give same result.
+
+    """
+
+    # === Input as list[str]
+    edata_list = dio.ExportData(
+        config=globalconfig1, content="depth", collection_name=["tst"]
+    )
+    mymeta_list = _MetaData("dummy", edata_list, verbosity="DEBUG")
+    mymeta_list._populate_meta_relations()
+
+    assert "collections" in mymeta_list.meta_relations
+    assert isinstance(mymeta_list.meta_relations["collections"], list)
+    assert len(mymeta_list.meta_relations["collections"]) == 1
+
+    collections_ref_list = mymeta_list.meta_relations["collections"][0]
+
+    assert isinstance(collections_ref_list, str)
+    assert len(collections_ref_list) == 36  # poor mans verification of uuid4
+
+    # === Input as str
+    edata_str = dio.ExportData(
+        config=globalconfig1, content="depth", collection_name="tst"
+    )
+    mymeta_str = _MetaData("dummy", edata_str, verbosity="DEBUG")
+    mymeta_str._populate_meta_relations()
+
+    assert "collections" in mymeta_str.meta_relations
+    assert isinstance(mymeta_str.meta_relations["collections"], list)
+    assert len(mymeta_str.meta_relations["collections"]) == 1
+
+    collections_ref_str = mymeta_str.meta_relations["collections"][0]
+
+    assert isinstance(collections_ref_str, str)
+    assert len(collections_ref_str) == 36  # poor mans verification of uuid4
+
+    # === Confirm identical
+    assert collections_ref_str == collections_ref_list
+
+
+def test_metadata_relations_multiple_collection_name(globalconfig1):
+    """Test the relations generation when multiple collection name is provided."""
+    edata = dio.ExportData(
+        config=globalconfig1, content="depth", collection_name=["tst", "tst2", "tst3"]
+    )
+    mymeta = _MetaData("dummy", edata)
+    mymeta._populate_meta_relations()
+
+    assert "collections" in mymeta.meta_relations
+    assert isinstance(mymeta.meta_relations["collections"], list)
+    assert len(mymeta.meta_relations["collections"]) == 3
+
+    for collections_ref in mymeta.meta_relations["collections"]:
+        assert isinstance(collections_ref, str)
+        assert len(collections_ref) == 36  # poor mans verification of uuid4
 
 
 # --------------------------------------------------------------------------------------
