@@ -668,7 +668,18 @@
                 "collections": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/generic/uuid"
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "examples": [
+                                    "MyCollectionName"
+                                ]
+                            },
+                            "uuid": {
+                                "$ref": "#/definitions/generic/uuid"
+                            }
+                        }
                     }
                 }
             },

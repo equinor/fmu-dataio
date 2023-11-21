@@ -69,8 +69,10 @@ file:
 
 relations:
   collections:
-    - 1b4fb471-159d-4b46-9b25-229419cd349b
-    - 3d338cd7-926a-49c0-8d6b-8ae2063f681f
+    - name: MyCollection
+      uuid: 1b4fb471-159d-4b46-9b25-229419cd349b
+    - name: MySecondCollection
+      uuid: 3d338cd7-926a-49c0-8d6b-8ae2063f681f
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
 
