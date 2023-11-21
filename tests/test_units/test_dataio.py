@@ -505,12 +505,17 @@ def test_exportdata_with_collection_name(globalconfig2, regsurf, arrowtable, pol
     edata = ExportData(
         config=globalconfig2, content="volumes", collection_name="mycollection"
     )
-    metadatas = []
-    for obj in [regsurf, arrowtable, polygons]:
-        metadatas.append(edata.generate_metadata(obj, name="myname"))
 
-    collection_uuids = [
-        metadata["relations"]["collections"][0] for metadata in metadatas
+    # Use .generate_metadata, not .export, as file export is not needed here.
+    metadatas = [
+        edata.generate_metadata(obj, name="myname")
+        for obj in [regsurf, arrowtable, polygons]
     ]
-    assert len(set(collection_uuids)) == 1
-    assert len(collection_uuids[0]) == 36
+
+    # Have now produced metadata for 3 objects, all of which shall belong to the same
+    # collection. Hence they will all have exactly 1 entry in relation.collections, and
+    # they will all be identical.
+
+    collections = [metadata["relations"]["collections"] for metadata in metadatas]
+    for collection in collections:
+        assert collection == collections[0]

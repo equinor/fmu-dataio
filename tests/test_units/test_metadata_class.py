@@ -336,9 +336,10 @@ def test_metadata_relations_with_case_uuid(globalconfig1, fmurun_w_casemetadata)
     second = deepcopy(mymeta.meta_relations["collections"][0])
     assert len(mymeta.meta_relations["collections"]) == 1
 
-    # verify different
-    assert first != second
-    assert len(first) == len(second) == 36
+    # verify differences
+    assert first["uuid"] != second["uuid"]  # different case, different uuid
+    assert first["name"] == second["name"]  # different case, but SAME name
+    assert len(first["uuid"]) == len(second["uuid"]) == 36
 
 
 def test_metadata_relations_one_collection_name(globalconfig1):
@@ -360,10 +361,15 @@ def test_metadata_relations_one_collection_name(globalconfig1):
     assert isinstance(mymeta_list.meta_relations["collections"], list)
     assert len(mymeta_list.meta_relations["collections"]) == 1
 
-    collections_ref_list = mymeta_list.meta_relations["collections"][0]
+    collections_1 = mymeta_list.meta_relations["collections"]
+    assert isinstance(collections_1, list)
 
-    assert isinstance(collections_ref_list, str)
-    assert len(collections_ref_list) == 36  # poor mans verification of uuid4
+    mycollection = mymeta_list.meta_relations["collections"][0]
+    assert isinstance(mycollection, dict)
+    assert "name" in mycollection
+    assert "uuid" in mycollection
+
+    assert len(mycollection["uuid"]) == 36  # poor mans verification of uuid4
 
     # === Input as str
     edata_str = dio.ExportData(
@@ -376,13 +382,8 @@ def test_metadata_relations_one_collection_name(globalconfig1):
     assert isinstance(mymeta_str.meta_relations["collections"], list)
     assert len(mymeta_str.meta_relations["collections"]) == 1
 
-    collections_ref_str = mymeta_str.meta_relations["collections"][0]
-
-    assert isinstance(collections_ref_str, str)
-    assert len(collections_ref_str) == 36  # poor mans verification of uuid4
-
     # === Confirm identical
-    assert collections_ref_str == collections_ref_list
+    assert mymeta_str.meta_relations["collections"][0] == collections_1[0]
 
 
 def test_metadata_relations_multiple_collection_name(globalconfig1):
@@ -397,9 +398,11 @@ def test_metadata_relations_multiple_collection_name(globalconfig1):
     assert isinstance(mymeta.meta_relations["collections"], list)
     assert len(mymeta.meta_relations["collections"]) == 3
 
-    for collections_ref in mymeta.meta_relations["collections"]:
-        assert isinstance(collections_ref, str)
-        assert len(collections_ref) == 36  # poor mans verification of uuid4
+    for collection in mymeta.meta_relations["collections"]:
+        assert isinstance(collection, dict)
+        assert "uuid" in collection
+        assert "name" in collection
+        assert len(collection["uuid"]) == 36  # poor mans verification of uuid4
 
 
 # --------------------------------------------------------------------------------------

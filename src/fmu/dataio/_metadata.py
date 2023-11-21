@@ -201,7 +201,7 @@ def generate_meta_relations(dataio, meta_fmu: dict) -> Optional[dict]:
         logger.debug("Making collection uuid for %s", cname)
         collection_uuid = uuid_from_string(f"{case_uuid}{cname}")
         logger.debug("uuid returned was %s", collection_uuid)
-        r_meta["collections"].append(collection_uuid)
+        r_meta["collections"].append({"name": cname, "uuid": collection_uuid})
 
     return r_meta
 
