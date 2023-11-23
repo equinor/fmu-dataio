@@ -6,8 +6,6 @@ from xtgeo import gridproperty_from_roxar, surface_from_roxar
 from fmu.dataio import ExportData
 from fmu.config.utilities import yaml_load
 from fmu.dataio.rmscollectors import utils
-import roxar
-import roxar.jobs
 
 logging.basicConfig(level="DEBUG")
 logger = logging.getLogger("Inplace")
@@ -273,23 +271,6 @@ class RmsInplaceVolumes:
         _export_collection(
             self.project, self.report_output, self.grid_name, self.job_name
         )
-
-
-@dataclass
-class RmsGrid:
-    """Class for exporting data Grid"""
-
-    project: str
-    grid_name: str
-    job_name: str
-    params: dict = None
-
-    def __post_init__(self):
-        """Initialize what is not initialized upfront"""
-        self.params = utils.get_job_arguments(
-            ["Grid models", self.grid_name, "Grid"], "Create Grid", self.job_name
-        )
-        self.project = utils._get_project(self.project, True)
 
 
 @dataclass
