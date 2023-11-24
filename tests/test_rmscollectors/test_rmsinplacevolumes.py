@@ -1,15 +1,39 @@
 """Test fuc"""
 import os
 import pytest
+import yaml
 from pathlib import Path
 import pandas as pd
 import roxar
 from fmu.dataio.rmscollectors.volumetrics import RmsInplaceVolumes
 
 DROGON_PATH = "/project/fmu/tutorial/drogon/resmod/ff/users/dbs/23.1.1/"
+TEST_DATA = Path(__file__).parent / "../data/drogon/"
 DROGON_FMU_CONFIG = (
     Path(__file__).parent / "../data/drogon/global_config2/global_variables.yml"
 )
+
+
+@pytest.fixture(name="inplace_parameters", scope="session")
+def _fix_inplace_parameters():
+    """Return parameter set originally extracted from drogon
+
+    Raises:
+        IOError: if cannot find test data
+
+    Returns:
+        dict: the parameter dictionary
+    """
+    # This parameter set is extracted from drogon rms project
+    # rms version 13.1.2 linux based
+    params = None
+    inplace_params = TEST_DATA / "rmscollectors/rmsinplace_params.yml"
+    with open(inplace_params, "r") as stream:
+        params = yaml.load(stream, Loader=yaml.SafeLoader)
+
+    if params is None:
+        raise IOError(f"Cannot find parameters at {str(inplace_params)}")
+    return params
 
 
 @pytest.fixture(name="drogon_project", scope="session")
