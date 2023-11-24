@@ -256,9 +256,16 @@ class RmsInplaceVolumes:
         logger.debug(self.report_output["properties"])
         self.report_output["table"] = self.report
 
-    def export(self):
-        _export_collection(
-            self.project, self.report_output, self.grid_name, self.job_name
+    def export(
+        self, config_path="../../fmuconfig/output/global_variables.yml", **kwargs
+    ):
+        return _export_collection(
+            self.project,
+            self.report_output,
+            self.grid_name,
+            self.job_name,
+            config_path,
+            **kwargs,
         )
 
 
