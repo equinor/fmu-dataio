@@ -20,16 +20,18 @@ def _fix_drogon_project():
     return proj
 
 
-def test_inplace_volumes_attributes(drogon_project):
+@pytest.fixture(name="geo_volumes", scope="session")
+def _fix_geo_volumes(drogon_project):
+    return RmsInplaceVolumes(drogon_project, "Geogrid", "geogrid_volumes")
+
+
+def test_inplace_volumes_attributes(geo_volumes):
     """Test class RmsInplaceVolumes
 
     Args:
         drogon_project (roxar.Project): an instance of the drogon project
     """
-    inplace = RmsInplaceVolumes(drogon_project, "Geogrid", "geogrid_volumes")
-    assert isinstance(inplace.params, dict), (
-        "Params should be dictionary, but is" f" {type(inplace.params)}"
-    )
+
     attr_names = ["params", "input", "output", "report", "variables"]
 
     for attr_name in attr_names:
@@ -38,9 +40,9 @@ def test_inplace_volumes_attributes(drogon_project):
         else:
             att_type = dict
         assert hasattr(
-            inplace, attr_name
+            geo_volumes, attr_name
         ), f"No {attr_name} attribute for RmsInplaceVolumes"
-        attr = getattr(inplace, attr_name)
+        attr = getattr(geo_volumes, attr_name)
         assert isinstance(
             attr, att_type
         ), f" {attr_name} should be dictionary, but is {type(attr)}"
