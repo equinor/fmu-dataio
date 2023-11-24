@@ -1,5 +1,6 @@
 """Test fuc"""
 import pytest
+import pandas as pd
 import roxar
 from fmu.dataio.rmscollectors.volumetrics import RmsInplaceVolumes
 
@@ -19,7 +20,7 @@ def _fix_drogon_project():
     return proj
 
 
-def test_inplace_volumes(drogon_project):
+def test_inplace_volumes_attributes(drogon_project):
     """Test class RmsInplaceVolumes
 
     Args:
@@ -29,3 +30,17 @@ def test_inplace_volumes(drogon_project):
     assert isinstance(inplace.params, dict), (
         "Params should be dictionary, but is" f" {type(inplace.params)}"
     )
+    attr_names = ["params", "input", "output", "report", "variables"]
+
+    for attr_name in attr_names:
+        if attr_name == "report":
+            att_type = pd.DataFrame
+        else:
+            att_type = dict
+        assert hasattr(
+            inplace, attr_name
+        ), f"No {attr_name} attribute for RmsInplaceVolumes"
+        attr = getattr(inplace, attr_name)
+        assert isinstance(
+            attr, att_type
+        ), f" {attr_name} should be dictionary, but is {type(attr)}"
