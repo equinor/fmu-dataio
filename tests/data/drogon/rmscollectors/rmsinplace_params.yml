@@ -1,0 +1,159 @@
+Input:
+- BulkVolumeProperty: []
+  SelectedZoneNames:
+  - Valysar
+  - Therys
+  - Volon
+  RegionProperty:
+  - Grid models
+  - Geogrid
+  - Region
+  SelectedRegionNames:
+  - WestLowland
+  - CentralSouth
+  - CentralNorth
+  - NorthHorst
+  - CentralRamp
+  - CentralHorst
+  - EastLowland
+  FaciesProperty:
+  - Grid models
+  - Geogrid
+  - FACIES
+  SelectedFaciesNames:
+  - Floodplain
+  - Channel
+  - Crevasse
+  - Coal
+  - Calcite
+  - Offshore
+  - Lowershoreface
+  - Uppershoreface
+  LicenseBoundaries: []
+Output:
+- Prefix: ''
+  UseOil: true
+  UseGas: true
+  UseTotals: true
+  AreaAverage: false
+  CreateDiscreteFluidProperty: false
+  AcceptNegativeCellVolumes: false
+  MapLayout:
+  - Horizons
+  - TopVolantis
+  - DS_extract_simgrid
+  MapOutput: CLIPBOARD
+  MapIncrementMultiplier: 1.0
+  Calculations:
+  - Type: BULK
+    CreateProperty: true
+    CreateZoneMap: false
+    CreateTotalMap: false
+  - Type: PORE
+    CreateProperty: true
+    CreateZoneMap: false
+    CreateTotalMap: false
+  - Type: HCPV
+    CreateProperty: false
+    CreateZoneMap: false
+    CreateTotalMap: false
+  - Type: STOIIP
+    CreateProperty: true
+    CreateZoneMap: true
+    CreateTotalMap: false
+  - Type: ASSOCIATED_GAS
+    CreateProperty: false
+    CreateZoneMap: false
+    CreateTotalMap: false
+  - Type: GIIP
+    CreateProperty: false
+    CreateZoneMap: true
+    CreateTotalMap: false
+  - Type: ASSOCIATED_LIQUID
+    CreateProperty: false
+    CreateZoneMap: false
+    CreateTotalMap: false
+Report:
+- ReportLayout: TABULAR
+  FileType: EXCEL
+  FileName: ''
+  AppendRelisationInfo: false
+  UseRealizationNumber: true
+  ExportUnits: false
+  AddHeaders: false
+  ScientificNotation: false
+  DecimalCount: 2
+  OutputGrouping:
+  - Zone
+  - Region index
+  ReportTableName: geogrid_volumes
+Variables:
+- Formation Variables:
+  - InputType: ALL_ZONES_AND_REGIONS
+    InputSource: TABLE
+    TableValues: 1.0
+    DataInput: []
+    Name: NG
+  - InputType: ALL_ZONES_AND_REGIONS
+    InputSource: TABLE
+    TableValues: 0.0
+    DataInput:
+    - - Grid models
+      - Geogrid
+      - PHIT
+    Name: POR
+  Gas Variables:
+  - InputType: ALL_ZONES_AND_REGIONS
+    InputSource: TABLE
+    TableValues: 0.0
+    DataInput:
+    - - Grid models
+      - Geogrid
+      - SW
+    Name: SW
+  - InputType: EACH_REGION
+    InputSource: REGION_MODEL
+    TableValues: 0.0
+    DataInput: []
+    Name: BG_FACTOR
+  - InputType: EACH_REGION
+    InputSource: REGION_MODEL
+    TableValues: 0.0
+    DataInput: []
+    Name: LGR_RATIO
+  Oil Variables:
+  - InputType: EACH_REGION
+    InputSource: TABLE
+    TableValues:
+    - 1000.0
+    - 1000.0
+    - 1000.0
+    - 1640.0
+    - 1000.0
+    - 1000.0
+    - 1000.0
+    DataInput: []
+    Name: GOC
+  - InputType: EACH_REGION
+    InputSource: REGION_MODEL
+    TableValues: 0.0
+    DataInput: []
+    Name: OWC
+  - InputType: ALL_ZONES_AND_REGIONS
+    InputSource: TABLE
+    TableValues: 0.0
+    DataInput:
+    - - Grid models
+      - Geogrid
+      - SW
+    Name: SW
+  - InputType: EACH_REGION
+    InputSource: REGION_MODEL
+    TableValues: 0.0
+    DataInput: []
+    Name: BO_FACTOR
+  - InputType: EACH_REGION
+    InputSource: REGION_MODEL
+    TableValues: 0.0
+    DataInput: []
+    Name: GOR_RATIO
