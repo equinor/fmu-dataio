@@ -4,7 +4,6 @@ import pytest
 import yaml
 from pathlib import Path
 import pandas as pd
-import roxar
 from fmu.dataio.rmscollectors.volumetrics import RmsInplaceVolumes
 
 DROGON_PATH = "/project/fmu/tutorial/drogon/resmod/ff/users/dbs/23.1.1/"
@@ -34,19 +33,6 @@ def _fix_inplace_parameters():
     if params is None:
         raise IOError(f"Cannot find parameters at {str(inplace_params)}")
     return params
-
-
-@pytest.fixture(name="drogon_project", scope="session")
-def _fix_drogon_project():
-    """Return drogon rms project
-
-    Returns:
-        roxar.Project: instance of drogon project
-    """
-    drogon_rms_path = f"{DROGON_PATH}rms/model/drogon.rms13.1.2/"
-
-    proj = roxar.Project.open(drogon_rms_path, readonly=True)
-    return proj
 
 
 @pytest.fixture(name="geo_volumes", scope="session")
