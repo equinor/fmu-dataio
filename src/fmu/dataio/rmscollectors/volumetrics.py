@@ -1,4 +1,4 @@
-# Get the job
+"""Contains class RmsInplaceVolumes and related functions"""
 import logging
 from dataclasses import dataclass
 import pandas as pd
