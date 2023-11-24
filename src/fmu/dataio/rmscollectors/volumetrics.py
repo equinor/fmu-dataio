@@ -176,16 +176,10 @@ def get_volumetrics(report_params, project):
     return volumes
 
 
-def _export_collection(
-    project,
-    collection,
-    parent,
-    job_name,
-    config_path="../../fmuconfig/output/global_variables.yml",
-):
+def _export_collection(project, collection, parent, job_name, config_path, **kwargs):
+    export_paths = []
     config = yaml_load(config_path)
-    exd = ExportData(config=config, parent=parent)
-    count = 0
+    exd = ExportData(config=config, parent=parent, **kwargs)
     for map_name in collection["maps"]:
         for folder_name in collection["map_subfolders"]:
             folder_name = f"Volumetrics_{job_name}/{folder_name}"
@@ -196,49 +190,44 @@ def _export_collection(
                 surf = surface_from_roxar(
                     project, map_name, folder_name, stype=collection["map_location"]
                 )
-                logger.debug(
-                    "Exporting %s",
-                    exd.export(
-                        surf, name=map_name, tagname=job_name, content="property"
-                    ),
+                surf_path = exd.export(
+                    surf, name=map_name, tagname=job_name, content="property"
                 )
+                logger.debug("Exported %s", surf_path)
 
-                count += 1
+                export_paths.append(surf_path)
             except KeyError:
                 logger.warning("No surface called %s", map_name)
     for property_name in collection["properties"]:
         logger.debug("Will be exporting %s for %s", property_name, parent)
         try:
             prop = gridproperty_from_roxar(project, parent, property_name)
-            logger.debug(
-                "Exporting %s",
-                exd.export(
-                    prop, name=property_name, tagname=job_name, content="property"
-                ),
+            prop_path = exd.export(
+                prop, name=property_name, tagname=job_name, content="property"
             )
-            count += 1
+            logger.debug("Exported %s", prop_path)
+            export_paths.append(prop_path)
         except ValueError:
             logger.warning("No parameter called %s", property_name)
     try:
         if collection["table"] is not None:
-            logger.debug(
-                "Exporting %s",
-                exd.export(
-                    collection["table"],
-                    parent=parent,
-                    name="volumes",
-                    tagname=job_name,
-                    content="volumetrics",
-                ),
+            table_path = exd.export(
+                collection["table"],
+                parent=parent,
+                name="volumes",
+                tagname=job_name,
+                content="volumetrics",
             )
-            count += 1
+            logger.debug("Exported %s", table_path)
+            export_paths.append(table_path)
         else:
             logger.warning(
                 "No volumes exported, have you forgot to select table option?"
             )
     except KeyError:
         logger.warning("No volume table attached")
-    logger.info("Exported %i objects", count)
+    logger.info("Exported %i objects", len(export_paths))
+    return export_paths
 
 
 @dataclass
