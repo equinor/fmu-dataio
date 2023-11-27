@@ -1,0 +1,127 @@
+CreatePolygonModel: true
+InputData:
+- - Horizons
+  - DP_filter_post
+WellPickWellsFilter:
+- - Collection
+  - Library
+  - Wells
+  - Wells
+WellPickFilter: ''
+SampleFromAgileModel: false
+ParentModel: []
+AlgVersion: STANDARD
+SurfaceVisualizationResolution: 50.0
+IsochoreSet: []
+ZoneLog: Facies
+WellsSelection: []
+FaultNames:
+- F1
+- F2
+- F3
+- F4
+- F5
+- F6
+OlderThan:
+- ''
+- ''
+- ''
+- ''
+- ''
+- ''
+UseDisplacement:
+- false
+- false
+- false
+- false
+- false
+- false
+FaultConstraints:
+- NO_CONSTRAINT
+- NO_CONSTRAINT
+- NO_CONSTRAINT
+- NO_CONSTRAINT
+- NO_CONSTRAINT
+- NO_CONSTRAINT
+Layer Model:
+- ZoneLogCodes: []
+- ZoneLogCodes: []
+  Horizon Parameters:
+  - Horizon:
+    - Horizons
+    - TopVolantis
+    InputDataUsage:
+    - SOFT
+    Type: DEPOSITION
+    ConformalGroup: 0
+    GridXYIncrement: 20.0
+    SoftDataSmoothingRange: 0.0
+    HardDataCorrectionRange: 200.0
+    ConformalCorrectionRange: 200.0
+    SkeletonLines: []
+    GridZIncrement: 100.0
+    Isochore Input:
+    - IsochoreType: NONE
+      ConstantThickness: 10.0
+      Confidence: 0.5
+      IsochoreSurface: []
+- ZoneLogCodes: []
+  Horizon Parameters:
+  - Horizon:
+    - Horizons
+    - TopTherys
+    InputDataUsage:
+    - SOFT
+    Type: DEPOSITION
+    ConformalGroup: 0
+    GridXYIncrement: 20.0
+    SoftDataSmoothingRange: 0.0
+    HardDataCorrectionRange: 200.0
+    ConformalCorrectionRange: 200.0
+    SkeletonLines: []
+    GridZIncrement: 100.0
+    Isochore Input:
+    - IsochoreType: NONE
+      ConstantThickness: 10.0
+      Confidence: 0.5
+      IsochoreSurface: []
+- ZoneLogCodes: []
+  Horizon Parameters:
+  - Horizon:
+    - Horizons
+    - TopVolon
+    InputDataUsage:
+    - SOFT
+    Type: DEPOSITION
+    ConformalGroup: 0
+    GridXYIncrement: 20.0
+    SoftDataSmoothingRange: 0.0
+    HardDataCorrectionRange: 200.0
+    ConformalCorrectionRange: 200.0
+    SkeletonLines: []
+    GridZIncrement: 100.0
+    Isochore Input:
+    - IsochoreType: NONE
+      ConstantThickness: 10.0
+      Confidence: 0.5
+      IsochoreSurface: []
+- ZoneLogCodes: []
+  Horizon Parameters:
+  - Horizon:
+    - Horizons
+    - BaseVolantis
+    InputDataUsage:
+    - SOFT
+    Type: DEPOSITION
+    ConformalGroup: 0
+    GridXYIncrement: 20.0
+    SoftDataSmoothingRange: 0.0
+    HardDataCorrectionRange: 200.0
+    ConformalCorrectionRange: 200.0
+    SkeletonLines: []
+    GridZIncrement: 100.0
+    Isochore Input:
+    - IsochoreType: NONE
+      ConstantThickness: 10.0
+      Confidence: 0.5
+      IsochoreSurface: []
