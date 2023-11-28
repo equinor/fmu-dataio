@@ -2,6 +2,9 @@
 import logging
 from dataclasses import dataclass
 from fmu.dataio.rmscollectors import utils
+from xtgeo import points_from_roxar, surface_from_roxar, polygons_from_roxar
+from fmu.dataio import ExportData
+from fmu.config.utilities import yaml_load
 
 logging.basicConfig(level="DEBUG")
 logger = logging.getLogger("structuralmodel")
@@ -69,6 +72,33 @@ def _extract_surf_info(job_parameters, representations):
             logger.debug("No Horizon Parameters section present for level %s", i)
     logger.debug("Returning %s", surface_stack)
     return surface_stack
+
+
+def export_surfaces(project, surface_info, config_path):
+    export_paths = []
+    config = yaml_load(config_path)
+    exd = ExportData(config=config, content="depth")
+    for surf_name, specs in surface_info.items():
+        for rep_name in specs["representations"]:
+            print("Exporting representation %s for %s", rep_name, surf_name)
+            for rox_reader in [
+                points_from_roxar,
+                polygons_from_roxar,
+                surface_from_roxar,
+            ]:
+                try:
+                    obj = rox_reader(project, surf_name, rep_name)
+                    obj_path = exd.export(obj, name=surf_name, tagname=rep_name)
+                    export_paths.append(obj_path)
+                    continue
+                except TypeError:
+                    logger.info(
+                        "Trying to read %s %s with %s failed",
+                        surf_name,
+                        rep_name,
+                        rox_reader.__name__,
+                    )
+        return export_paths
 
 
 @dataclass
