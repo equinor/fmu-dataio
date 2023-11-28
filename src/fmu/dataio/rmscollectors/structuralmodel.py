@@ -149,3 +149,11 @@ class RmsStructuralModelJob:
     def surface_names(self):
         """Return surface keys as list"""
         return list(self.surfaces.keys())
+
+    def export(self, config_path="../../fmuconfig/output/global_variables.yml"):
+        """Export input to structural modelling job
+
+        Args:
+            config_path (str, optional): fmu config file with metadata. Defaults to "../../fmuconfig/output/global_variables.yml".
+        """
+        export_surfaces(self.project, self.surfaces, config_path)
