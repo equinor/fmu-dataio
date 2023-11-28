@@ -167,3 +167,13 @@ class RmsGrid:
         self.based_on = _get_horizon_model(self.params)
         self.faults = _get_fault_info(self.params)
         self.zones = _get_zone_info(self.params)
+
+    @property
+    def fault_names(self):
+        """Return keys of faults attribute as list"""
+        return list(self.faults.keys())
+
+    @property
+    def zone_names(self):
+        """Return keys of zones attribute as list"""
+        return list(self.zones.keys())
