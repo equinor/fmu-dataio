@@ -8,8 +8,8 @@ def _get_project(project, readonly):
     return project
 
 
-def get_job_arguments(owner, job_type, job_name):
-    """Get job arguments
+def get_job(owner, job_type, job_name):
+    """Get Roxar job
 
     Args:
         owner (list): list including parents of job
@@ -24,5 +24,20 @@ def get_job_arguments(owner, job_type, job_name):
         type=job_type,
         name=job_name,
     )
+    return job
+
+
+def get_job_arguments(owner, job_type, job_name):
+    """Get job arguments
+
+    Args:
+        owner (list): list including parents of job
+        job_type (str): what job type
+        job_name (str): name of job
+
+    Returns:
+        dict: job settings
+    """
+    job = get_job(owner, job_type, job_name)
     arguments = job.get_arguments()
     return arguments
