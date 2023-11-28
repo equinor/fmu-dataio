@@ -103,6 +103,21 @@ def export_surfaces(project, surface_info, config_path):
 
 @dataclass
 class RmsStructuralModel:
+    project: str
+    structural_model_name: str
+    horizon_model_name: str
+
+    def __post_init__(self):
+        self.project = utils._get_project(self.project, True)
+        sm = self.project.structural_models[self.structural_model_name]
+        hmodel = sm.horizon_models[self.horizon_model_name]
+        geom = hmodel.get_geometry()
+        self.horizons = geom.horizons
+        self.faults = geom.faults
+
+
+@dataclass
+class RmsStructuralModelJob:
     """Class for exporting data related to structural model"""
 
     project: str
@@ -118,8 +133,12 @@ class RmsStructuralModel:
             "Horizon Modeling",
             self.job_name,
         )
+        self.representations = _extract_input_types(self.params)
         self.faults = _extract_fault_info(self.params)
-        self.surfaces = _extract_surf_info(self.params)
+        self.surfaces = _extract_surf_info(self.params, self.representations)
+        self.horizon_model = RmsStructuralModel(
+            self.project, self.structural_model_name, self.horizon_model_name
+        )
 
     @property
     def fault_names(self):
