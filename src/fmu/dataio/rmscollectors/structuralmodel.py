@@ -26,7 +26,13 @@ def _extract_fault_info(job_parameters):
     return fault_dict
 
 
-def _extract_surf_info(job_parameters):
+def _extract_input_types(job_parameters):
+    input_data = job_parameters["InputData"]
+    representations = [rep[-1] for rep in input_data]
+    return representations
+
+
+def _extract_surf_info(job_parameters, representations):
     """Extract surface information
 
     Args:
@@ -35,14 +41,16 @@ def _extract_surf_info(job_parameters):
     Returns:
         dict: extracted surface information
     """
-    input_data = job_parameters["InputData"]
-    representations = [rep[-1] for rep in input_data]
     surface_stack = {}
     for i, surf_info in enumerate(job_parameters["Layer Model"]):
         logger.debug(surf_info["ZoneLogCodes"])
         try:
             for surf in surf_info["Horizon Parameters"]:
                 hor_info = surf["Horizon"]
+                representation_usage = {}
+
+                for i, data_usage in enumerate(surf["InputDataUsage"]):
+                    representation_usage[representations[i]] = data_usage
                 iso_input = surf["Isochore Input"][0]
                 if iso_input["IsochoreSurface"]:
                     iso = iso_input["IsochoreSurface"]
@@ -55,7 +63,7 @@ def _extract_surf_info(job_parameters):
                     "soft-smoothing-range": surf["SoftDataSmoothingRange"],
                     "hard-smoothing-range": surf["HardDataCorrectionRange"],
                     "conform-smoothing-range": surf["ConformalCorrectionRange"],
-                    "representations": representations,
+                    "representations": representation_usage,
                 }
         except KeyError:
             logger.debug("No Horizon Parameters section present for level %s", i)
