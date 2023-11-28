@@ -1,0 +1,87 @@
+HorizonModel:
+- Structural models
+- DepthModelPostprocess
+- GF
+RepeatSections: false
+RegularizedGrid: true
+VerticalBoundary: true
+JuxtapositionCorrection: false
+ClearExistingData: false
+FaultStateMap:
+- - F1
+  - '100'
+- - F2
+  - '100'
+- - F3
+  - '100'
+- - F4
+  - '100'
+- - F5
+  - '100'
+- - F6
+  - '100'
+ClipGrid: false
+ClipPolygon: []
+XCells: 50
+YCells: 50
+XInc: 150.0
+YInc: 150.0
+UseXInc: true
+UseYInc: true
+Origin:
+- 461776.5137
+- 5932996.0645
+XLength: 6900.0
+YLength: 10900.0
+Rotation: -30.0
+CellsPerZone:
+- 10
+- -1
+- 5
+ZoneNames:
+- Valysar
+- Therys
+- Volon
+UsedHorizons:
+- true
+- true
+- true
+- true
+SampledHorizons:
+- false
+- false
+- false
+- false
+AirHorizons:
+- false
+- false
+- false
+- false
+LayerThickness:
+- 0.0
+- 2.0
+- 0.0
+ConformalMode:
+- 0
+- 1
+- 0
+UseTopSurface:
+- false
+- false
+- false
+UseBottomSurface:
+- false
+- false
+- false
+TopSurfaces:
+- []
+- []
+- []
+BottomSurfaces:
+- []
+- []
+- []
+Truncated:
+- true
+- true
+- true
