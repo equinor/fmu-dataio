@@ -223,7 +223,7 @@ def _export_collection(project, collection, parent, job_name, config_path, **kwa
     try:
         if collection["table"] is not None:
             table_path = exd.export(
-                collection["table"],
+                get_volumetrics(project, collection["table"]),
                 parent=parent,
                 name="volumes",
                 tagname=job_name,
