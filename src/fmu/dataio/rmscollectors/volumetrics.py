@@ -109,7 +109,7 @@ def _define_variables(variables_input):
                     variable_parameters.append(propname)
             else:
                 if source == "REGION_MODEL":
-                    table_values = "hidden"
+                    table_values = "hidden in region model"
             var_definitions[name] = {
                 "applies": variable["InputType"],
                 "values": table_values,
