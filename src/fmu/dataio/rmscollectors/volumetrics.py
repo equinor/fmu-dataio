@@ -259,14 +259,13 @@ class RmsInplaceVolumes:
         self.input = self.params["Input"][0]
         self.output = self.params["Output"][0]
         self.variables = self.params["Variables"][0]
-
-        self.report = get_volumetrics(self.params["Report"], self.project)
+        self.table = self.params["Report"][0]["ReportTableName"]
         self.selectors = _define_selectors(self.input)
         self.report_output = _define_output(self.output, self.selectors)
         self.input_variables, additional_props = _define_variables(self.variables)
         self.report_output["properties"].extend(additional_props)
         logger.debug(self.report_output["properties"])
-        self.report_output["table"] = self.report
+        self.report_output["table"] = self.table
 
     def export(
         self, config_path="../../fmuconfig/output/global_variables.yml", **kwargs
@@ -279,3 +278,7 @@ class RmsInplaceVolumes:
             config_path,
             **kwargs,
         )
+
+    def report(self):
+        """Return pandas dataframe with volumes"""
+        return get_volumetrics(self.project, self.table)
