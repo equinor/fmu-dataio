@@ -109,7 +109,13 @@ class RmsStructuralModel:
 
     def __post_init__(self):
         self.project = utils._get_project(self.project, True)
+        logger.debug("Fetching structural model %s", self.structural_model_name)
         sm = self.project.structural_models[self.structural_model_name]
+        logger.debug(
+            "Fetching horizon model %s, from %s",
+            self.horizon_model_name,
+            self.structural_model_name,
+        )
         hmodel = sm.horizon_models[self.horizon_model_name]
         geom = hmodel.get_geometry()
         self.horizons = geom.horizons
