@@ -240,10 +240,11 @@ class RmsInplaceVolumes:
 
     def __post_init__(self):
         """Initialize what is not initialized upfront"""
+        self.project = utils._get_project(self.project, True)
+
         self.params = utils.get_job_arguments(
             ["Grid models", self.grid_name, "Grid"], "Volumetrics", self.job_name
         )
-        self.project = utils._get_project(self.project, True)
         self.input = self.params["Input"][0]
         self.output = self.params["Output"][0]
         self.variables = self.params["Variables"][0]
