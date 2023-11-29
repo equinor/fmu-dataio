@@ -176,6 +176,18 @@ def get_volumetrics(project, table_name):
 
 
 def _export_collection(project, collection, parent, job_name, config_path, **kwargs):
+    """Export inplace volume collection
+
+    Args:
+        project (str or roxar.project): the rms project to read from
+        collection (dict): the collection of objects to read and export
+        parent (str): Name of grid connected to volumes
+        job_name (str): name of the job that calculates the volumes
+        config_path (str): path to fmu config file with metadata
+
+    Returns:
+        list: the paths to the exported objects
+    """
     export_paths = []
     config = yaml_load(config_path)
     exd = ExportData(config=config, parent=parent, **kwargs)
