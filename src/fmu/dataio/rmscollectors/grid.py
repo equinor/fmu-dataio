@@ -1,6 +1,8 @@
 import logging
 from dataclasses import dataclass
+from xtgeo import grid_from_roxar
 from fmu.dataio.rmscollectors import utils
+from fmu.dataio.rmscollectors.structuralmodel import RmsStructuralModel
 
 logging.basicConfig(level="DEBUG")
 logger = logging.getLogger("__file__")
@@ -22,7 +24,7 @@ def check_if(parameters, keyword, i=-1):
     else:
         bool_value = parameters[keyword][i]
         print_key = f"{keyword}[{i}]"
-    print(f"{print_key} {bool_value}, bool: {isinstance(bool_value, bool)}")
+    logger.debug("%s %s, bool: %s", print_key, bool_value, isinstance(bool_value, bool))
 
     return bool_value
 
@@ -56,7 +58,17 @@ def _get_horizon_model(parameters):
         dict: dictionary with structural model info
     """
     horizon_section = parameters["HorizonModel"]
-    return {"structural_model": horizon_section[1], "horizon_model": horizon_section[2]}
+    # Stupid implemented below because when running in jupyter notebook
+    # an empty entry is added to this section
+    while horizon_section[0] == "":
+        horizon_section.pop(0)
+    logger.debug("Will extract info from Horizon section: %s", horizon_section)
+    horizon_info = {
+        "structural_model": horizon_section[1],
+        "horizon_model": horizon_section[2],
+    }
+    logger.debug("After extraction: %s", horizon_info)
+    return horizon_info
 
 
 def _get_zone_info(parameters):
@@ -158,15 +170,22 @@ class RmsGrid:
 
     def __post_init__(self):
         """Initialize what is not initialized upfront"""
+        self.project = utils._get_project(self.project, True)
+
         self.params = utils.get_job_arguments(
             ["Grid models", self.grid_name, "Grid"], "Create Grid", self.job_name
         )
-        self.project = utils._get_project(self.project, True)
         self.dimensions = _get_grid_dimensions(self.params)
         self.general_settings = _get_general_settings(self.params)
         self.based_on = _get_horizon_model(self.params)
         self.faults = _get_fault_info(self.params)
         self.zones = _get_zone_info(self.params)
+        self.horizon_model = RmsStructuralModel(
+            self.project,
+            self.based_on["structural_model"],
+            self.based_on["horizon_model"],
+        )
+        self.grid = grid_from_roxar(self.project, self.grid_name)
 
     @property
     def fault_names(self):
@@ -177,3 +196,12 @@ class RmsGrid:
     def zone_names(self):
         """Return keys of zones attribute as list"""
         return list(self.zones.keys())
+
+    @property
+    def horizon_names(self):
+        """Return horizon_model horizon names
+
+        Returns:
+        list: names of horizons for structural model
+        """
+        return self.horizon_model.horizons["Name"]
