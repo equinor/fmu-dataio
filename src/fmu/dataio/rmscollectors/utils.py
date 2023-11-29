@@ -3,7 +3,16 @@ import roxar
 import roxar.jobs
 
 
-def _get_project(project, readonly):
+def _get_project(project, readonly=True):
+    """Get rms project
+
+    Args:
+        project (str or roxar.project): the project to return
+        readonly (bool, optional): true is read only, defaults to true
+
+    Returns:
+        roxar.project: the loaded project
+    """
     project = RoxUtils(project, readonly=readonly).project
     return project
 
