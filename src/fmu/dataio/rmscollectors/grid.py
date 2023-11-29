@@ -160,7 +160,7 @@ def _get_grid_dimensions(parameters):
 
 
 @dataclass
-class RmsGrid:
+class RmsGridJob:
     """Class for exporting data Grid"""
 
     project: str
