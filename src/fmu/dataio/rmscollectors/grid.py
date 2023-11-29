@@ -187,6 +187,10 @@ class RmsGridJob:
         )
         self.grid = grid_from_roxar(self.project, self.grid_name)
 
+    def execute(self):
+        """Execute the job"""
+        self.job.execute()
+
     @property
     def fault_names(self):
         """Return keys of faults attribute as list"""
