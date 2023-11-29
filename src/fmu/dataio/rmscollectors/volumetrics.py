@@ -150,21 +150,20 @@ def _define_selectors(in_dict):
     return selectors
 
 
-def get_volumetrics(report_params, project):
+def get_volumetrics(project, table_name):
     """Get volumetrics table
 
     Args:
-        report_params (dict): report section from volumetrics job
+        project (str or roxar.project): the rms project to read from
+        table_name (str): name of table in rms attached to job
 
     Returns:
         pd.DataFrame: the volumes
     """
-    logger.debug("\nGetting volumes reading %s", report_params)
+    logger.debug("\nGetting volumes reading %s", table_name)
     try:
         volumes = pd.DataFrame.from_dict(
-            project.volumetric_tables[report_params[0]["ReportTableName"]]
-            .get_data_table()
-            .to_dict()
+            project.volumetric_tables[table_name].get_data_table().to_dict()
         )
         logger.debug("Volumes before renaming %s", volumes.head(2))
         volumes.rename(columns=RENAME_VOLUMES, inplace=True)
