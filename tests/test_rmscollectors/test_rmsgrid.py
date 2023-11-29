@@ -1,6 +1,6 @@
 import yaml
 from pathlib import Path
-from fmu.dataio.rmscollectors.grid import RmsGrid
+from fmu.dataio.rmscollectors.grid import RmsGridJob
 from fmu.dataio.rmscollectors.grid import (
     _get_grid_dimensions,
     _get_general_settings,
@@ -23,7 +23,7 @@ def _fix_simgrid(drogon_project, write_yaml=False):
     Returns:
         RmsStructuralModel: results from job defined with names below
     """
-    grid = RmsGrid(drogon_project, "Simgrid", "make_simgrid")
+    grid = RmsGridJob(drogon_project, "Simgrid", "make_simgrid")
     out_file = TEST_DATA / "rmscollectors/rmsgrid_params.yml"
     if write_yaml:
         with open(out_file, "w") as stream:
