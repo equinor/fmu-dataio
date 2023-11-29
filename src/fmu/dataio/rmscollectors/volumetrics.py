@@ -142,8 +142,7 @@ def _define_selectors(in_dict):
 
     selectors.update(
         {
-            "Zone": {"filters": in_dict["SelectedZoneNames"]},
-            "parameter": "subgrids",
+            "Zone": {"filters": in_dict["SelectedZoneNames"], "parameter": "subgrids"},
         }
     )
     logger.debug("\nReturning %s", selectors)
