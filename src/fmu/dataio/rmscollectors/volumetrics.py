@@ -278,6 +278,7 @@ class RmsInplaceVolumes:
             **kwargs,
         )
 
+    @property
     def report(self):
         """Return pandas dataframe with volumes"""
         return get_volumetrics(self.project, self.table)

@@ -40,9 +40,7 @@ def _fix_geo_volumes(drogon_project):
     return RmsInplaceVolumes(drogon_project, "Geogrid", "geogrid_volumes")
 
 
-@pytest.mark.parametrize(
-    "attr_name", ["params", "input", "output", "report", "variables"]
-)
+@pytest.mark.parametrize("attr_name", ["params", "input", "output", "variables"])
 def test_inplace_volumes_attributes(geo_volumes, attr_name):
     """Test class RmsInplaceVolumes attributes
 
@@ -50,10 +48,7 @@ def test_inplace_volumes_attributes(geo_volumes, attr_name):
         drogon_project (roxar.Project): an instance of the drogon project
     """
 
-    if attr_name == "report":
-        att_type = pd.DataFrame
-    else:
-        att_type = dict
+    att_type = dict
     assert hasattr(
         geo_volumes, attr_name
     ), f"No {attr_name} attribute for RmsInplaceVolumes"
@@ -87,3 +82,10 @@ def test_inplace_volumes_export(geo_volumes, tmp_path):
         assert folder.name in folder_types, f"{folder} not in {folder_types}"
         folder_count += 1
     assert folder_count == 3, f"Found {folder_count} folders, not 3"
+
+
+def test_inplace_volumes_report(geo_volumes):
+    report = geo_volumes.report
+    assert isinstance(
+        report, pd.DataFrame
+    ), f"Report should be pandas dataframe, but is {type(report)}"
