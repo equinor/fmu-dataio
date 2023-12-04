@@ -1,8 +1,8 @@
 """Contains class RmsStructuralModel and related functions"""
 import logging
 from dataclasses import dataclass
-from fmu.dataio.rmscollectors import utils
 from xtgeo import points_from_roxar, surface_from_roxar, polygons_from_roxar
+from fmu.dataio.rmscollectors import utils
 from fmu.dataio import ExportData
 from fmu.config.utilities import yaml_load
 
