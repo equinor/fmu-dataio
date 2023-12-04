@@ -110,7 +110,9 @@ class RmsStructuralModel:
     def __post_init__(self):
         self.project = utils._get_project(self.project, True)
         logger.debug("Fetching structural model %s", self.structural_model_name)
-        sm = self.project.structural_models[self.structural_model_name]
+        sm = self.project.structural_models[
+            self.structural_model_name
+        ]  # pylint:disable=no-member
         logger.debug(
             "Fetching horizon model %s, from %s",
             self.horizon_model_name,
@@ -160,6 +162,7 @@ class RmsStructuralModelJob:
         """Export input to structural modelling job
 
         Args:
-            config_path (str, optional): fmu config file with metadata. Defaults to "../../fmuconfig/output/global_variables.yml".
+            config_path (str, optional): fmu config file with metadata.
+            Defaults to "../../fmuconfig/output/global_variables.yml".
         """
         export_surfaces(self.project, self.surfaces, config_path)
