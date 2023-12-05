@@ -50,3 +50,23 @@ def get_job_arguments(owner, job_type, job_name):
     job = get_job(owner, job_type, job_name)
     arguments = job.get_arguments()
     return arguments
+
+
+def describe_attributes(obj):
+    """Break down attributes for object
+
+    Args:
+        obj (object): a python instance of something
+
+    Returns:
+        dict: attributes broken down
+    """
+    attributes = {"methods": [], "attributes": []}
+    for attr in dir(obj):
+        if attr.startswith("__"):
+            continue
+        if callable(getattr(obj, attr)):
+            attributes["methods"].append(attr)
+        else:
+            attributes["attributes"].append(attr)
+    return attributes
