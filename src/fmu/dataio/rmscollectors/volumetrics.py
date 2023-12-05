@@ -246,15 +246,15 @@ class RmsInplaceVolumes:
 
     project: str
     grid_name: str
+    job_type = "Volumetrics"
     job_name: str
 
     def __post_init__(self):
         """Initialize what is not initialized upfront"""
         self.project = utils._get_project(self.project, True)
-
-        self.params = utils.get_job_arguments(
-            ["Grid models", self.grid_name, "Grid"], "Volumetrics", self.job_name
-        )
+        self.owner = ["Grid models", self.grid_name, "Grid"]
+        self.job = utils.get_job(self.owner, self.job_type, self.job_name)
+        self.params = utils.get_job_arguments(self.owner, self.job_type, self.job_name)
         self.table_name = self.params["Report"][0]["ReportTableName"]
         self.selectors = _define_selectors(self.params["Input"][0])
         self.report_output = _define_output(self.params["Output"][0], self.selectors)
@@ -264,6 +264,10 @@ class RmsInplaceVolumes:
         self.report_output["properties"].extend(additional_props)
         logger.debug(self.report_output["properties"])
         self.report_output["table"] = self.table_name
+
+    def execute(self):
+        """Execute the job"""
+        self.job.execute()
 
     def export(
         self, config_path="../../fmuconfig/output/global_variables.yml", **kwargs
