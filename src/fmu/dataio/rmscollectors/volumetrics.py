@@ -263,7 +263,7 @@ class RmsInplaceVolumes:
         )
         self.report_output["properties"].extend(additional_props)
         logger.debug(self.report_output["properties"])
-        self.report_output["table"] = self.table
+        self.report_output["table"] = self.table_name
 
     def export(
         self, config_path="../../fmuconfig/output/global_variables.yml", **kwargs
@@ -280,4 +280,4 @@ class RmsInplaceVolumes:
     @property
     def report(self):
         """Return pandas dataframe with volumes"""
-        return get_volumetrics(self.project, self.table)
+        return get_volumetrics(self.project, self.table_name)
