@@ -255,13 +255,12 @@ class RmsInplaceVolumes:
         self.params = utils.get_job_arguments(
             ["Grid models", self.grid_name, "Grid"], "Volumetrics", self.job_name
         )
-        self.input = self.params["Input"][0]
-        self.output = self.params["Output"][0]
-        self.variables = self.params["Variables"][0]
-        self.table = self.params["Report"][0]["ReportTableName"]
-        self.selectors = _define_selectors(self.input)
-        self.report_output = _define_output(self.output, self.selectors)
-        self.input_variables, additional_props = _define_variables(self.variables)
+        self.table_name = self.params["Report"][0]["ReportTableName"]
+        self.selectors = _define_selectors(self.params["Input"][0])
+        self.report_output = _define_output(self.params["Output"][0], self.selectors)
+        self.input_variables, additional_props = _define_variables(
+            self.params["Variables"][0]
+        )
         self.report_output["properties"].extend(additional_props)
         logger.debug(self.report_output["properties"])
         self.report_output["table"] = self.table
