@@ -4,9 +4,11 @@ import roxar
 
 DROGON_PATH = "/project/fmu/tutorial/drogon/resmod/ff/users/dbs/23.1.1/"
 TEST_DATA = Path(__file__).parent / "../data/drogon/"
-DROGON_FMU_CONFIG = (
-    Path(__file__).parent / "../data/drogon/global_config2/global_variables.yml"
-)
+
+
+@pytest.fixture(name="DROGON_FMU_CONFIG", scope="session")
+def _fix_fmu_config():
+    return Path(__file__).parent / "../data/drogon/global_config2/global_variables.yml"
 
 
 @pytest.fixture(name="drogon_project", scope="session")

@@ -8,9 +8,6 @@ from fmu.dataio.rmscollectors.volumetrics import RmsInplaceVolumes
 
 DROGON_PATH = "/project/fmu/tutorial/drogon/resmod/ff/users/dbs/23.1.1/"
 TEST_DATA = Path(__file__).parent / "../data/drogon/"
-DROGON_FMU_CONFIG = (
-    Path(__file__).parent / "../data/drogon/global_config2/global_variables.yml"
-)
 
 
 @pytest.fixture(name="inplace_parameters", scope="session")
@@ -58,7 +55,7 @@ def test_inplace_volumes_attributes(geo_volumes, attr_name):
     ), f" {attr_name} should be dictionary, but is {type(attr)}"
 
 
-def test_inplace_volumes_export(geo_volumes, tmp_path):
+def test_inplace_volumes_export(geo_volumes, DROGON_FMU_CONFIG, tmp_path):
     """Test export of inplace volumes
 
     Args:
