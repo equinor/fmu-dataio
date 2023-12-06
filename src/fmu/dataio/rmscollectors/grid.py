@@ -209,3 +209,16 @@ class RmsGridJob:
         list: names of horizons for structural model
         """
         return self.horizon_model.horizons["Name"]
+
+    def get_gridproperties(self):
+        """Return names of all connected grid properties"""
+        properties = self.project.grid_models[self.grid_name].properties
+        all_keys = properties.keys()
+        status = {"Filled": [], "Empty": []}
+        for key in all_keys:
+            if properties[key].is_empty():
+                status["Empty"].append(key)
+            else:
+                status["Filled"].append(key)
+
+        return status
