@@ -75,6 +75,12 @@ def _define_output(out_input, selectors):
                 properties.append(prfx + calculation["Type"].lower())
             if calculation["CreateZoneMap"]:
                 maps.append(prfx + calculation["Type"].upper())
+    for selector, select_info in selectors.items():
+        if selector == "Zone":
+            # Zone is defaulting grid subgrids,
+            # not a parameter you can export
+            continue
+        properties.append(select_info["parameter"])
     collated = {
         "maps": maps,
         "properties": properties,

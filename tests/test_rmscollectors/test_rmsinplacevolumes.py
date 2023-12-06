@@ -76,9 +76,20 @@ def test_inplace_volumes_export(geo_volumes, DROGON_FMU_CONFIG, tmp_path):
     folders = shared_path.glob("*/")
     folder_count = 0
     for folder in folders:
-        assert folder.name in folder_types, f"{folder} not in {folder_types}"
+        assert folder.name in folder_types, f"{folder.name} not in {folder_types}"
         folder_count += 1
+    metadata_files = list(shared_path.glob("**/*.yml"))
+    nr_objects = len(metadata_files)
+    nr_paths = len(exported)
+    assert (
+        nr_objects == nr_paths
+    ), f"number of objects exported {nr_objects}, and different to nr of paths {nr_paths}"
     assert folder_count == 3, f"Found {folder_count} folders, not 3"
+    for metadata_file in metadata_files:
+        obj_file = metadata_file.parent / metadata_file.name[1:].replace(".yml", "")
+        assert (
+            obj_file.exists()
+        ), f"{str(metadata_file)} does not have corresponding object file ({str(obj_file)})"
 
 
 def test_inplace_volumes_report(geo_volumes):
