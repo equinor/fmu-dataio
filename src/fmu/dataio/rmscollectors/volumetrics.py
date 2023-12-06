@@ -201,7 +201,7 @@ def _export_collection(project, collection, parent, job_name, config_path, **kwa
                     project, map_name, folder_name, stype=collection["map_location"]
                 )
                 surf_path = exd.export(
-                    surf, name=map_name, tagname=job_name, content="property"
+                    surf, name=map_name, tagname=folder_name, content="property"
                 )
                 logger.debug("Exported %s", surf_path)
 
