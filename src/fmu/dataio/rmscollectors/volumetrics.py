@@ -191,8 +191,8 @@ def _export_collection(project, collection, parent, job_name, config_path, **kwa
     config = yaml_load(config_path)
     exd = ExportData(config=config, parent=parent, **kwargs)
     for map_name in collection["maps"]:
-        for folder_name in collection["map_subfolders"]:
-            folder_name = f"Volumetrics_{job_name}/{folder_name}"
+        for zone_name in collection["map_subfolders"]:
+            folder_name = f"Volumetrics_{job_name}/{zone_name}"
             logger.debug(
                 "Fetching surface with name: %s, folder: %s", map_name, folder_name
             )
@@ -201,7 +201,7 @@ def _export_collection(project, collection, parent, job_name, config_path, **kwa
                     project, map_name, folder_name, stype=collection["map_location"]
                 )
                 surf_path = exd.export(
-                    surf, name=map_name, tagname=folder_name, content="property"
+                    surf, name=map_name, tagname=zone_name, content="property"
                 )
                 logger.debug("Exported %s", surf_path)
 
