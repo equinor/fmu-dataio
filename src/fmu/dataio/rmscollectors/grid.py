@@ -1,6 +1,8 @@
 import logging
 from dataclasses import dataclass
-from xtgeo import grid_from_roxar
+from xtgeo import grid_from_roxar, gridproperty_from_roxar
+from fmu.dataio import ExportData
+from fmu.config.utilities import yaml_load
 from fmu.dataio.rmscollectors import utils
 from fmu.dataio.rmscollectors.structuralmodel import RmsStructuralModel
 
@@ -186,10 +188,47 @@ class RmsGridJob:
             self.based_on["horizon_model"],
         )
         self.grid = grid_from_roxar(self.project, self.grid_name)
+        self.gridproperties = self.get_gridproperties()
 
     def execute(self):
         """Execute the job"""
         self.job.execute()
+
+    def export(
+        self,
+        property_names="all",
+        config_path="../../fmuconfig/output/global_variables.yml",
+    ):
+        """Export grid with grid properties"""
+
+        export_paths = []
+        config = yaml_load(config_path)
+        exd = ExportData(config=config)
+        exd.export(
+            self.grid, name=self.grid_name, tagname=self.job_name, content="depth"
+        )
+        if property_names == "all":
+            property_names = (
+                self.gridproperties["Filled"] + self.gridproperties["Empty"]
+            )
+
+        if len(self.gridproperties["Filled"]) == 0:
+            logger.warning("All parameters are empty, so no point in exporting")
+        else:
+            for property_name in property_names:
+                if property_name in self.gridproperties["Empty"]:
+                    logger.warning("%s is empty will not be exported", property_name)
+                else:
+                    prop = gridproperty_from_roxar(
+                        self.project, self.grid_name, property_name
+                    )
+                    exd.export(
+                        prop,
+                        parent=self.grid_name,
+                        name=property_name,
+                        tagname=self.job_name,
+                        content="property",
+                    )
 
     @property
     def fault_names(self):
