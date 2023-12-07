@@ -21,6 +21,13 @@ def _fix_simgridjob(drogon_project):
     ],
 )
 def test_rmsgridjob_attributes(SimgridJob, base, correct_list):
+    """Check attributes related to gridjob
+
+    Args:
+        SimgridJob (RmsGridJob): object containing all attributes
+        base (str): attribute base
+        correct_list (list): the expected attribute list
+    """
     list_attr = getattr(SimgridJob, f"{base}_names")
     assert isinstance(
         list_attr, list
