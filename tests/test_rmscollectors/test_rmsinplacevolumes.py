@@ -57,41 +57,46 @@ def test_inplace_volumes_attributes(geo_volumes, attr_name):
     ), f" {attr_name} should be dictionary, but is {type(attr)}"
 
 
-def test_inplace_volumes_export(geo_volumes, DROGON_FMU_CONFIG, tmp_path):
+def test_inplace_volumes_export(geo_volumes, DROGON_FMU_CONFIG, fmurun_w_casemetadata):
     """Test export of inplace volumes
 
     Args:
         geo_volumes (dataio.RmsInplaceVolumes): instance of RmsInplaceVolumes from drogon
         tmp_path (pathlib.Path): path where test will be stored
     """
-    test_path = tmp_path / "realization-0/iter-0/"
+    rms_path = fmurun_w_casemetadata / "rms/model/"
     folder_types = ["maps", "grids", "tables"]
-    test_path.mkdir(parents=True)
-    os.chdir(test_path)
+    rms_path.mkdir(parents=True, exist_ok=True)
+    os.chdir(rms_path)
     exported = geo_volumes.export(config_path=DROGON_FMU_CONFIG)
-    # TODO: Something wrong with export path, doesn't export to realization-*..
-    # moved on because I went blind, and couldn't figure what is wrong
-    # bad fix on the two lines below
-    # shared_path = test_path / share/results
-    shared_path = Path(exported[0]).parent.parent
+    shared_path = fmurun_w_casemetadata / "share/results"
     assert shared_path.exists(), f"folder {str(shared_path)}, not made"
     folders = shared_path.glob("*/")
     folder_count = 0
     for folder in folders:
         assert folder.name in folder_types, f"{folder.name} not in {folder_types}"
         folder_count += 1
-    metadata_files = list(shared_path.glob("**/*.yml"))
-    nr_objects = len(metadata_files)
+    metadata_files = shared_path.glob("**/*.yml")
+
+    print(metadata_files)
     nr_paths = len(exported)
-    assert (
-        nr_objects == nr_paths
-    ), f"number of objects exported {nr_objects}, and different to nr of paths {nr_paths}"
     assert folder_count == 3, f"Found {folder_count} folders, not 3"
+    nr_metadata = 0
     for metadata_file in metadata_files:
+        print(metadata_file)
+        # if statement below is needed because there is interaction between the tests
+        if (metadata_file.parent.name not in folder_types) or (
+            "geogrid" not in str(metadata_file)
+        ):
+            continue
         obj_file = metadata_file.parent / metadata_file.name[1:].replace(".yml", "")
         assert (
             obj_file.exists()
         ), f"{str(metadata_file)} does not have corresponding object file ({str(obj_file)})"
+        nr_metadata += 1
+    assert (
+        nr_metadata == nr_paths
+    ), f"Found {nr_metadata} objects, but {nr_paths} where expected"
 
 
 def test_inplace_volumes_report(geo_volumes):
