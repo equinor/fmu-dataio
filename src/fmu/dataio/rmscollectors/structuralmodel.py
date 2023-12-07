@@ -171,4 +171,4 @@ class RmsStructuralModelJob:
             config_path (str, optional): fmu config file with metadata.
             Defaults to "../../fmuconfig/output/global_variables.yml".
         """
-        export_surfaces(self.project, self.surfaces, config_path)
+        return export_surfaces(self.project, self.surfaces, config_path)
