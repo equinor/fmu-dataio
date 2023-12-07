@@ -37,7 +37,9 @@ def _fix_geo_volumes(drogon_project):
     return RmsInplaceVolumes(drogon_project, "Geogrid", "geogrid_volumes")
 
 
-@pytest.mark.parametrize("attr_name", ["params", "input", "output", "variables"])
+@pytest.mark.parametrize(
+    "attr_name", ["params", "report_output", "selectors", "input_variables"]
+)
 def test_inplace_volumes_attributes(geo_volumes, attr_name):
     """Test class RmsInplaceVolumes attributes
 
