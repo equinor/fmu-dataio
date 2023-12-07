@@ -1,4 +1,5 @@
 """Test for RmsStructuralModel"""
+import os
 import yaml
 import pytest
 from pathlib import Path
@@ -100,9 +101,18 @@ def test_extract_surf_info(structural_parameters):
     assert len(surf_info) == 4, f"There are {len(surf_info)} surfaces, should be 4"
 
 
-def test_export(structural_parameters):
-    export_surfaces(
+def test_export(
+    drogon_project, structural_parameters, fmurun_w_casemetadata, DROGON_FMU_CONFIG
+):
+    rms_path = fmurun_w_casemetadata / "rms/model/"
+    rms_path.mkdir(parents=True, exist_ok=True)
+    os.chdir(rms_path)
+    exported = export_surfaces(
+        drogon_project,
         _extract_surf_info(
-            structural_parameters, _extract_input_types(structural_parameters)
-        )
+            structural_parameters,
+            _extract_input_types(structural_parameters),
+        ),
+        DROGON_FMU_CONFIG,
     )
+    print(exported)
