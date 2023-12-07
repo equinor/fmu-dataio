@@ -204,8 +204,10 @@ class RmsGridJob:
         export_paths = []
         config = yaml_load(config_path)
         exd = ExportData(config=config)
-        exd.export(
-            self.grid, name=self.grid_name, tagname=self.job_name, content="depth"
+        export_paths.append(
+            exd.export(
+                self.grid, name=self.grid_name, tagname=self.job_name, content="depth"
+            )
         )
         if property_names == "all":
             property_names = (
@@ -222,13 +224,16 @@ class RmsGridJob:
                     prop = gridproperty_from_roxar(
                         self.project, self.grid_name, property_name
                     )
-                    exd.export(
-                        prop,
-                        parent=self.grid_name,
-                        name=property_name,
-                        tagname=self.job_name,
-                        content="property",
+                    export_paths.append(
+                        exd.export(
+                            prop,
+                            parent=self.grid_name,
+                            name=property_name,
+                            tagname=self.job_name,
+                            content="property",
+                        )
                     )
+        return export_paths
 
     @property
     def fault_names(self):
