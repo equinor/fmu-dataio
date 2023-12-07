@@ -78,26 +78,32 @@ def export_surfaces(project, surface_info, config_path):
     export_paths = []
     config = yaml_load(config_path)
     exd = ExportData(config=config, content="depth")
+    data_type = {
+        "points": points_from_roxar,
+        "polygons": polygons_from_roxar,
+        "surface": surface_from_roxar,
+    }
+    results_types = []
     for surf_name, specs in surface_info.items():
         for rep_name in specs["representations"]:
-            print("Exporting representation %s for %s", rep_name, surf_name)
-            for rox_reader in [
-                points_from_roxar,
-                polygons_from_roxar,
-                surface_from_roxar,
-            ]:
+            logger.error("Exporting representation %s for %s", rep_name, surf_name)
+            for rox_type, rox_reader in data_type.items():
                 try:
                     obj = rox_reader(project, surf_name, rep_name)
                     obj_path = exd.export(obj, name=surf_name, tagname=rep_name)
                     export_paths.append(obj_path)
-                    continue
-                except TypeError:
-                    logger.info(
+                    results_types.append(rox_type)
+                except (RuntimeError, AttributeError):
+                    logger.error(
                         "Trying to read %s %s with %s failed",
                         surf_name,
                         rep_name,
                         rox_reader.__name__,
                     )
+                    continue
+        logger.error(
+            "Status of how things went: %s", list(zip(export_paths, results_types))
+        )
         return export_paths
 
 
