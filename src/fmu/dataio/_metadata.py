@@ -45,7 +45,7 @@ def generate_meta_tracklog() -> list:
     """Create the tracklog metadata, which here assumes 'created' only."""
     meta = list()
 
-    dtime = datetime.datetime.now().isoformat()
+    dtime = datetime.datetime.now().astimezone().isoformat()
     user = getpass.getuser()
     meta.append({"datetime": dtime, "user": {"id": user}, "event": "created"})
     return meta

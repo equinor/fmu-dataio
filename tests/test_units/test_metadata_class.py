@@ -2,6 +2,8 @@
 import logging
 from copy import deepcopy
 
+from dateutil.parser import isoparse
+
 import pytest
 
 import fmu.dataio as dio
@@ -25,6 +27,27 @@ def test_metadata_dollars(edataobj1):
     assert mymeta.meta_dollars["version"] == VERSION
     assert mymeta.meta_dollars["$schema"] == SCHEMA
     assert mymeta.meta_dollars["source"] == SOURCE
+
+
+# --------------------------------------------------------------------------------------
+# Tracklog
+# --------------------------------------------------------------------------------------
+
+
+def test_generate_meta_tracklog(edataobj1):
+    mymeta = _MetaData("dummy", edataobj1)
+    mymeta._populate_meta_tracklog()
+    tracklog = mymeta.meta_tracklog
+
+    assert isinstance(tracklog, list) and len(tracklog) == 1  # assume "created"
+
+    logentry = tracklog[0]
+    assert "event" in logentry and logentry["event"] == "created"
+    assert "user" in logentry and "id" in logentry["user"]
+    assert "datetime" in logentry
+
+    # datetime in tracklog shall include time zone offset
+    assert isoparse(logentry["datetime"]).tzinfo is not None
 
 
 # --------------------------------------------------------------------------------------
