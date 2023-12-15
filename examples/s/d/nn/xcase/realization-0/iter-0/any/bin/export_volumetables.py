@@ -80,7 +80,7 @@ def export_dataio(df, gridname):
     exp = fmu.dataio.ExportData(
         name=gridname,
         config=CFG,
-        content="volumetrics",
+        content="volumes",
         unit="m",
         is_prediction=True,
         is_observation=False,
@@ -94,7 +94,6 @@ def export_dataio(df, gridname):
 
 
 if __name__ == "__main__":
-
     if IN_ROXAR:
         for vtable in VTABLES:
             export_dataio(*volume_as_dataframe_rms(vtable))
