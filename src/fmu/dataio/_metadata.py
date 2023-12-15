@@ -5,6 +5,7 @@ This contains the _MetaData class which collects and holds all relevant metadata
 # https://realpython.com/python-data-classes/#basic-data-classes
 
 import datetime
+from datetime import timezone
 import getpass
 import logging
 from dataclasses import dataclass, field
@@ -45,7 +46,7 @@ def generate_meta_tracklog() -> list:
     """Create the tracklog metadata, which here assumes 'created' only."""
     meta = list()
 
-    dtime = datetime.datetime.now().astimezone().isoformat()
+    dtime = datetime.datetime.now(timezone.utc).isoformat()
     user = getpass.getuser()
     meta.append({"datetime": dtime, "user": {"id": user}, "event": "created"})
     return meta

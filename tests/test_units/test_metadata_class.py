@@ -49,6 +49,9 @@ def test_generate_meta_tracklog(edataobj1):
     # datetime in tracklog shall include time zone offset
     assert isoparse(logentry["datetime"]).tzinfo is not None
 
+    # datetime in tracklog shall be on UTC time
+    assert isoparse(logentry["datetime"]).utcoffset().total_seconds() == 0
+
 
 # --------------------------------------------------------------------------------------
 # DATA block (ObjectData)
