@@ -414,3 +414,32 @@ def test_schema_content_synch_with_code(schema_080):
             raise ValueError(
                 f"content '{allowed_content}' allowed in code, but not schema."
             )
+
+
+def test_schema_relations(schema_080, metadata_examples):
+    """Test the relations.collections."""
+
+    # fetch surface example
+    metadata = deepcopy(metadata_examples["table_inplace.yml"])
+
+    # test assumption
+    assert "relations" in metadata
+    assert isinstance(metadata["relations"]["collections"], list)
+
+    # validate as-is
+    jsonschema.validate(instance=metadata, schema=schema_080)
+
+    # non-uuid, shall fail
+    metadata["relations"]["collections"].append("non-uuid")
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=metadata, schema=schema_080)
+    metadata["relations"]["collections"].pop()  # cleanup
+
+    # insert non-valid property, shall fail
+    metadata["relations"]["tst"] = "hei"
+    with pytest.raises(jsonschema.exceptions.ValidationError):
+        jsonschema.validate(instance=metadata, schema=schema_080)
+
+    # remove relations block, shall still validate (not required)
+    del metadata["relations"]
+    jsonschema.validate(instance=metadata, schema=schema_080)

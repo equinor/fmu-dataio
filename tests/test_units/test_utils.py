@@ -25,3 +25,16 @@ from fmu.dataio import _utils as utils
 )
 def test_check_if_number(value, result):
     assert utils.check_if_number(value) == result
+
+
+def test_uuid_from_string():
+    """Test the uuid_from_string method."""
+    result = utils.uuid_from_string("mystring")
+    assert len(result) == 36
+    assert isinstance(result, str)
+
+    # test repeatability
+    first = utils.uuid_from_string("mystring")
+    second = utils.uuid_from_string("mystring")
+
+    assert first == second

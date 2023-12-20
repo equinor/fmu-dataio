@@ -497,3 +497,25 @@ def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsu
     )
     ExportData.allow_forcefolder_absolute = False  # reset
     ExportData._inside_rms = False
+
+
+def test_exportdata_with_collection_name(globalconfig2, regsurf, arrowtable, polygons):
+    """Test export of multiple objects with common collection_name."""
+
+    edata = ExportData(
+        config=globalconfig2, content="volumes", collection_name="mycollection"
+    )
+
+    # Use .generate_metadata, not .export, as file export is not needed here.
+    metadatas = [
+        edata.generate_metadata(obj, name="myname")
+        for obj in [regsurf, arrowtable, polygons]
+    ]
+
+    # Have now produced metadata for 3 objects, all of which shall belong to the same
+    # collection. Hence they will all have exactly 1 entry in relation.collections, and
+    # they will all be identical.
+
+    collections = [metadata["relations"]["collections"] for metadata in metadatas]
+    for collection in collections:
+        assert collection == collections[0]
