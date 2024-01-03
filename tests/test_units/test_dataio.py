@@ -307,6 +307,26 @@ def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
     }
 
 
+def test_set_display_name(regsurf, globalconfig2):
+    """Test that giving the display_name argument sets display.name."""
+    eobj = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        display_name="MyDisplayName",
+        content="depth",
+    )
+    mymeta = eobj.generate_metadata(regsurf)
+
+    assert mymeta["data"]["name"] == "MyName"
+    assert mymeta["display"]["name"] == "MyDisplayName"
+
+    # also test when setting directly in the method call
+    mymeta = eobj.generate_metadata(regsurf, display_name="MyOtherDisplayName")
+
+    assert mymeta["data"]["name"] == "MyName"
+    assert mymeta["display"]["name"] == "MyOtherDisplayName"
+
+
 def test_global_config_from_env(globalconfig_asfile):
     """Testing getting global config from a file"""
     os.environ["FMU_GLOBAL_CONFIG"] = globalconfig_asfile
