@@ -316,8 +316,20 @@ def test_metadata_access_no_input(globalconfig1):
     assert mymeta.meta_access["classification"] == "internal"  # mirrored
 
 
-def test_metadata_access_rep_include(globalconfig1):
-    """Test the input of the rep_include field."""
+# --------------------------------------------------------------------------------------
+# DISPLAY block
+# --------------------------------------------------------------------------------------
+
+
+def test_metadata_display_name_not_given(regsurf, edataobj2):
+    """Test that display.name == data.name when not explicitly provided."""
+
+    mymeta = _MetaData(regsurf, edataobj2)
+    mymeta._populate_meta_objectdata()
+    mymeta._populate_meta_display()
+
+    assert "name" in mymeta.meta_display
+    assert mymeta.meta_display["name"] == mymeta.objdata.name
 
 
 # --------------------------------------------------------------------------------------
