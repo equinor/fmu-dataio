@@ -341,6 +341,11 @@ class _MetaData:
         if self.dataio:
             self.meta_access = generate_meta_access(self.dataio.config)
 
+    def _populate_meta_display(self):
+        """Populate the display block."""
+
+        self.meta_display = {"name": self.objdata.name}
+
     def _populate_meta_xpreprocessed(self):
         """Populate a few necessary 'tmp' metadata needed for preprocessed data."""
         if self.dataio.fmu_context == "preprocessed":
@@ -375,6 +380,7 @@ class _MetaData:
         self._populate_meta_class()
         self._populate_meta_fmu()
         self._populate_meta_file()
+        self._populate_meta_display()
         self._populate_meta_xpreprocessed()
 
         # glue together metadata, order is as legacy code (but will be screwed if reuse
@@ -387,7 +393,7 @@ class _MetaData:
         meta["file"] = self.meta_file
 
         meta["data"] = self.meta_objectdata
-        meta["display"] = {"name": self.dataio.name}  # solution so far; TBD
+        meta["display"] = self.meta_display
 
         meta["access"] = self.meta_access
         meta["masterdata"] = self.meta_masterdata
