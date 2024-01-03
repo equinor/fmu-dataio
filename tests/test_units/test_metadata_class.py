@@ -332,6 +332,18 @@ def test_metadata_display_name_not_given(regsurf, edataobj2):
     assert mymeta.meta_display["name"] == mymeta.objdata.name
 
 
+def test_metadata_display_name_given(regsurf, edataobj2):
+    """Test that display.name is set when explicitly given."""
+
+    mymeta = _MetaData(regsurf, edataobj2)
+    edataobj2.display_name = "My Display Name"
+    mymeta._populate_meta_objectdata()
+    mymeta._populate_meta_display()
+
+    assert mymeta.meta_display["name"] == "My Display Name"
+    assert mymeta.objdata.name == mymeta.meta_objectdata["name"] == "VOLANTIS GP. Top"
+
+
 # --------------------------------------------------------------------------------------
 # The GENERATE method
 # --------------------------------------------------------------------------------------

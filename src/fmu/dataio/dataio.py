@@ -565,6 +565,7 @@ class ExportData:
     content: Union[dict, str, None] = None
     depth_reference: str = "msl"
     description: Union[str, list] = ""
+    display_name: Optional[str] = None
     fmu_context: str = "realization"
     forcefolder: str = ""
     grid_model: Optional[str] = None

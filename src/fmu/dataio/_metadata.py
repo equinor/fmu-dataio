@@ -344,7 +344,13 @@ class _MetaData:
     def _populate_meta_display(self):
         """Populate the display block."""
 
-        self.meta_display = {"name": self.objdata.name}
+        # display.name
+        if self.dataio.display_name is not None:
+            display_name = self.dataio.display_name
+        else:
+            display_name = self.objdata.name
+
+        self.meta_display = {"name": display_name}
 
     def _populate_meta_xpreprocessed(self):
         """Populate a few necessary 'tmp' metadata needed for preprocessed data."""
