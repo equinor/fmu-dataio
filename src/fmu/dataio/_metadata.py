@@ -5,10 +5,10 @@ This contains the _MetaData class which collects and holds all relevant metadata
 # https://realpython.com/python-data-classes/#basic-data-classes
 
 import datetime
-from datetime import timezone
 import getpass
 import logging
 from dataclasses import dataclass, field
+from datetime import timezone
 from pathlib import Path
 from typing import Any, Optional
 from warnings import warn

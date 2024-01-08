@@ -1,20 +1,19 @@
 """The conftest.py, providing magical fixtures to tests."""
+import datetime
 import inspect
+import json
 import logging
 import os
 import shutil
 from functools import wraps
 from pathlib import Path
-import json
-import yaml
-import datetime
 
 import pandas as pd
 import pytest
 import xtgeo
+import yaml
 from fmu.config import utilities as ut
 from termcolor import cprint
-
 
 try:
     import pyarrow as pa
@@ -147,7 +146,7 @@ def fixture_rmsglobalconfig(rmssetup):
     # read the global config
     os.chdir(rmssetup)
     logger.info("Global config is %s", str(rmssetup / "global_variables.yml"))
-    with open("global_variables.yml", "r", encoding="utf8") as stream:
+    with open("global_variables.yml", encoding="utf8") as stream:
         global_cfg = yaml.safe_load(stream)
 
     logger.info("Ran setup for %s", "rmsglobalconfig")
@@ -284,7 +283,6 @@ def fixture_globalconfig2() -> dict:
     globvar = {}
     with open(
         ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml",
-        "r",
         encoding="utf-8",
     ) as stream:
         globvar = yaml.safe_load(stream)
@@ -576,7 +574,7 @@ def fixture_drogon_volumes():
 
 def _parse_json(schema_path):
     """Parse the schema, return JSON"""
-    with open(schema_path, "r", encoding="utf-8") as stream:
+    with open(schema_path, encoding="utf-8") as stream:
         data = json.load(stream)
 
     return data
@@ -584,7 +582,7 @@ def _parse_json(schema_path):
 
 def _parse_yaml(yaml_path):
     """Parse the filename as json, return data"""
-    with open(yaml_path, "r", encoding="utf-8") as stream:
+    with open(yaml_path, encoding="utf-8") as stream:
         data = yaml.safe_load(stream)
 
     data = _isoformat_all_datetimes(data)

@@ -2,9 +2,8 @@
 import logging
 from copy import deepcopy
 
-from dateutil.parser import isoparse
-
 import pytest
+from dateutil.parser import isoparse
 
 import fmu.dataio as dio
 from fmu.dataio._metadata import SCHEMA, SOURCE, VERSION, ConfigurationError, _MetaData

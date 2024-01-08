@@ -232,6 +232,6 @@ class _FileDataProvider:
 
         # check that destination actually exists if verifyfolder is True
         if self.dataio.verifyfolder and not dest.exists():
-            raise IOError(f"Folder {str(dest)} is not present.")
+            raise OSError(f"Folder {str(dest)} is not present.")
 
         return dest

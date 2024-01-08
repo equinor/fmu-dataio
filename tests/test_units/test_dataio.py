@@ -3,7 +3,6 @@ import logging
 import os
 import pathlib
 import sys
-
 from copy import deepcopy
 
 import pytest
@@ -426,7 +425,7 @@ def test_norwegian_letters_globalconfig(globalvars_norw_letters, regsurf):
     # export to file and reread as raw
     result = pathlib.Path(edata.export(regsurf))
     metafile = result.parent / ("." + str(result.stem) + ".gri.yml")
-    with open(metafile, "r", encoding="utf-8") as stream:
+    with open(metafile, encoding="utf-8") as stream:
         stuff = stream.read()
     assert "DRÅGØN" in stuff
 
@@ -453,7 +452,7 @@ def test_norwegian_letters_globalconfig_as_json(globalvars_norw_letters, regsurf
 
     result = pathlib.Path(edata.export(regsurf))
     metafile = result.parent / ("." + str(result.stem) + ".gri.json")
-    with open(metafile, "r", encoding="utf-8") as stream:
+    with open(metafile, encoding="utf-8") as stream:
         stuff = stream.read()
     assert "DRÅGØN" in stuff
 

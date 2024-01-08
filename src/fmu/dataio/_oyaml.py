@@ -31,10 +31,6 @@ pyyaml.add_representer(dict, map_representer, Dumper=DangerDumper)
 pyyaml.add_representer(OrderedDict, map_representer, Dumper=DangerDumper)
 
 
-if sys.version_info < (3, 7):
-    pyyaml.add_constructor("tag:yaml.org,2002:map", map_constructor)
-
-
 del map_constructor, map_representer
 
 # cf. stackoverflow.com/questions/21695705/dump-an-python-object-as-yaml-file/51261042

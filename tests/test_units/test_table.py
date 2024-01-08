@@ -1,10 +1,12 @@
 """Tests for table index
 """
 from pathlib import Path
+
 import pyarrow as pa
 import pytest
-from fmu.dataio import ExportData
 from fmu.config.utilities import yaml_load
+
+from fmu.dataio import ExportData
 from fmu.dataio._objectdata_provider import _ObjectDataProvider
 
 

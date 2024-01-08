@@ -8,10 +8,11 @@ Script will parse global variables from the template location. If
 pointed towards the produced global_variables, fmu-config should run
 before this script to make sure global_variables is updated."""
 
-import yaml
 import argparse
 import logging
 from pathlib import Path
+
+import yaml
 
 try:
     from ert.shared.plugins.plugin_manager import hook_implementation  # type: ignore
@@ -124,7 +125,7 @@ def register_on_sumo(args, case_metadata_path) -> str:
         return
 
     # lazy loading of Sumo dependencies
-    from fmu.sumo.uploader import SumoConnection, CaseOnDisk
+    from fmu.sumo.uploader import CaseOnDisk, SumoConnection
 
     # establish connection
     sumo_conn = SumoConnection(env=env)
@@ -144,7 +145,7 @@ def register_on_sumo(args, case_metadata_path) -> str:
 def _parse_yaml(path):
     """Parse the global variables, return as dict"""
 
-    with open(path, "r") as stream:
+    with open(path) as stream:
         data = yaml.safe_load(stream)
 
     return data
