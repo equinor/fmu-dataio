@@ -6,6 +6,8 @@ fields to the FMU data block.
 Note that FMU may potentially have different providers, e.g. ERT2 vs ERT3
 or it can detect that no providers are present (e.g. just ran from RMS interactive)
 """
+from __future__ import annotations
+
 import json
 import logging
 import pathlib
@@ -14,7 +16,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from os import environ
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Final, Optional
 from warnings import warn
 
 from fmu.config import utilities as ut
@@ -22,10 +24,10 @@ from fmu.config import utilities as ut
 from . import _utils
 
 # case metadata relative to rootpath
-ERT2_RELATIVE_CASE_METADATA_FILE = "share/metadata/fmu_case.yml"
-RESTART_PATH_ENVNAME = "RESTART_FROM_PATH"
+ERT2_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
+RESTART_PATH_ENVNAME: Final = "RESTART_FROM_PATH"
 
-logger = logging.getLogger(__name__)
+logger: Final = logging.getLogger(__name__)
 
 
 def _get_folderlist(current: Path) -> list:
@@ -65,16 +67,16 @@ class _FmuProvider:
     metadata: dict = field(default_factory=dict, init=False)
     rootpath: Optional[Path] = field(default=None, init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         logger.setLevel(level=self.verbosity)
 
         self.rootpath = Path(self.dataio._rootpath.absolute())
 
         self.rootpath_initial = self.rootpath
 
-        logger.info("Initialize %s", __class__)
+        logger.info("Initialize %s", self.__class__)
 
-    def detect_provider(self):
+    def detect_provider(self) -> None:
         """First order method to detect provider, ans also check fmu_context."""
         if self._detect_ert2provider() or self._detect_ert2provider_case_only():
             self.provider = "ERT2"
@@ -188,7 +190,7 @@ class _FmuProvider:
             return True
         return False
 
-    def get_ert2_information(self):
+    def get_ert2_information(self) -> None:
         """Retrieve information from an ERT2 run."""
         if not self.iter_path:
             return
@@ -197,7 +199,9 @@ class _FmuProvider:
         parameters_file = self.iter_path / "parameters.txt"
         if parameters_file.is_file():
             params = _utils.read_parameters_txt(parameters_file)
-            nested_params = _utils.nested_parameters_dict(params)
+            # BUG(?): value can contain Nones, loop in fn. below
+            # does contains check, will fail.
+            nested_params = _utils.nested_parameters_dict(params)  # type: ignore
             self.ert2["params"] = nested_params
             logger.debug("parameters.txt parsed.")
         else:
@@ -245,13 +249,14 @@ class _FmuProvider:
 
         logger.debug("ERT files has been parsed.")
 
-    def get_ert2_case_metadata(self):
+    def get_ert2_case_metadata(self) -> None:
         """Check if metadatafile file for CASE exists, and if so parse metadata.
 
         If file does not exist, still give a proposed file path, but the
         self.case_metadata will be {} (empty) and the physical file will not be made.
         """
 
+        assert self.rootpath is not None
         self.case_metafile = self.rootpath / ERT2_RELATIVE_CASE_METADATA_FILE
         self.case_metafile = self.case_metafile.resolve()
         if self.case_metafile.exists():
@@ -263,7 +268,7 @@ class _FmuProvider:
                 "Case metadata file does not exists as %s", str(self.case_metafile)
             )
 
-    def generate_ert2_metadata(self):
+    def generate_ert2_metadata(self) -> None:
         """Construct the metadata FMU block for an ERT2 forward job."""
         logger.info("Generate ERT2 metadata...")
 

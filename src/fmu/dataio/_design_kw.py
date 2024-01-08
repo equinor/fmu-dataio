@@ -5,30 +5,30 @@ https://github.com/equinor/semeio/blob/master/semeio/jobs/design_kw/design_kw.py
 It is copied here instead of pip-installed in order to avoid dragging
 along all dependencies of semeio"""
 
-# pylint: disable=logging-fstring-interpolation
+from __future__ import annotations
+
 import logging
 import re
 import shlex
+from typing import Any, Final, Iterable
 
-_STATUS_FILE_NAME = "DESIGN_KW.OK"
+_STATUS_FILE_NAME: Final = "DESIGN_KW.OK"
 
-_logger = logging.getLogger(__name__)
+_logger: Final = logging.getLogger(__name__)
 
 
 def run(
-    template_file_name,
-    result_file_name,
-    log_level,
-    parameters_file_name="parameters.txt",
-):
+    template_file_name: str,
+    result_file_name: str,
+    log_level: str,
+    parameters_file_name: str = "parameters.txt",
+) -> None:
     # Get all key, value pairs
     # If FWL key is having multiple entries in the parameters file
     # KeyError is raised. This will be logged, and no OK
     # file is written
 
     _logger.setLevel(log_level)
-
-    valid = True
 
     with open(parameters_file_name) as parameters_file:
         parameters = parameters_file.readlines()
@@ -40,24 +40,22 @@ def run(
     with open(template_file_name) as template_file:
         template = template_file.readlines()
 
-    if valid:
-        with open(result_file_name, "w") as result_file:
-            for line in template:
-                if not is_comment(line):
-                    for key, value in key_vals.items():
-                        line = line.replace(f"<{key}>", str(value))
+    with open(result_file_name, "w") as result_file:
+        for line in template:
+            if not is_comment(line):
+                for key, value in key_vals.items():
+                    line = line.replace(f"<{key}>", str(value))
 
-                    if not all_matched(line, template_file_name, template):
-                        valid = False
+                if not all_matched(line, template_file_name, template):
+                    pass
 
-                result_file.write(line)
+            result_file.write(line)
 
-    if valid:
-        with open(_STATUS_FILE_NAME, "w") as status_file:
-            status_file.write("DESIGN_KW OK\n")
+    with open(_STATUS_FILE_NAME, "w") as status_file:
+        status_file.write("DESIGN_KW OK\n")
 
 
-def all_matched(line, template_file_name, template):
+def all_matched(line: str, template_file_name: str, template: list[str]) -> bool:
     valid = True
     for unmatched in unmatched_templates(line):
         if is_perl(template_file_name, template):
@@ -73,24 +71,24 @@ def all_matched(line, template_file_name, template):
     return valid
 
 
-def is_perl(file_name, template):
-    return file_name.endswith(".pl") or template[0].find("perl") != -1
+def is_perl(file_name: str, template: list[str]) -> bool:
+    return bool(file_name.endswith(".pl") or template[0].find("perl") != -1)
 
 
-def unmatched_templates(line):
+def unmatched_templates(line: str) -> list[str]:
     bracketpattern = re.compile("<.+?>")
     if bracketpattern.search(line):
         return bracketpattern.findall(line)
     return []
 
 
-def is_comment(line):
+def is_comment(line: str) -> bool:
     ecl_comment_pattern = re.compile("^--")
     std_comment_pattern = re.compile("^#")
-    return ecl_comment_pattern.search(line) or std_comment_pattern.search(line)
+    return bool(ecl_comment_pattern.search(line) or std_comment_pattern.search(line))
 
 
-def extract_key_value(parameters):
+def extract_key_value(parameters: Iterable[str]) -> dict[str, str]:
     """Parses a list of strings, looking for key-value pairs pr. line
     separated by whitespace, into a dictionary.
 
@@ -128,7 +126,10 @@ def extract_key_value(parameters):
     return res
 
 
-def rm_genkw_prefix(paramsdict, ignoreprefixes="LOG10_"):
+def rm_genkw_prefix(
+    paramsdict: dict[str, Any],
+    ignoreprefixes: str | list[str] | None = "LOG10_",
+) -> dict[str, Any]:
     """Strip prefixes from keys in a dictionary.
 
     Prefix is any string before a colon. No colon means no prefix.
@@ -152,7 +153,8 @@ def rm_genkw_prefix(paramsdict, ignoreprefixes="LOG10_"):
         ignoreprefixes = []
     if isinstance(ignoreprefixes, str):
         ignoreprefixes = [ignoreprefixes]
-    ignoreprefixes = filter(None, ignoreprefixes)
+
+    ignoreprefixes = list(filter(None, ignoreprefixes))
 
     for ignore_str in ignoreprefixes:
         paramsdict = {

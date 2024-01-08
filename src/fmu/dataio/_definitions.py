@@ -1,41 +1,62 @@
 """Various definitions and hard settings used in fmu-dataio."""
-from dataclasses import dataclass, field
+from __future__ import annotations
 
-SCHEMA = (
+from dataclasses import dataclass, field
+from typing import Final
+
+SCHEMA: Final = (
     "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json"
 )
-VERSION = "0.8.0"
-SOURCE = "fmu"
+VERSION: Final = "0.8.0"
+SOURCE: Final = "fmu"
 
 
 @dataclass
 class _ValidFormats:
-    surface: dict = field(default_factory=dict)
-    grid: dict = field(default_factory=dict)
-    cube: dict = field(default_factory=dict)
-    table: dict = field(default_factory=dict)
-    polygons: dict = field(default_factory=dict)
-    points: dict = field(default_factory=dict)
-    dictionary: dict = field(default_factory=dict)
-
-    def __post_init__(self):
-        self.surface = {"irap_binary": ".gri"}
-        self.grid = {"hdf": ".hdf", "roff": ".roff"}
-        self.cube = {"segy": ".segy"}
-        self.table = {"hdf": ".hdf", "csv": ".csv", "arrow": ".arrow"}
-        self.polygons = {
+    surface: dict = field(
+        default_factory=lambda: {
+            "irap_binary": ".gri",
+        }
+    )
+    grid: dict = field(
+        default_factory=lambda: {
+            "hdf": ".hdf",
+            "roff": ".roff",
+        }
+    )
+    cube: dict = field(
+        default_factory=lambda: {
+            "segy": ".segy",
+        }
+    )
+    table: dict = field(
+        default_factory=lambda: {
+            "hdf": ".hdf",
+            "csv": ".csv",
+            "arrow": ".arrow",
+        }
+    )
+    polygons: dict = field(
+        default_factory=lambda: {
             "hdf": ".hdf",
             "csv": ".csv",  # columns will be X Y Z, ID
             "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, ... POLY_ID
             "irap_ascii": ".pol",
         }
-        self.points = {
+    )
+    points: dict = field(
+        default_factory=lambda: {
             "hdf": ".hdf",
             "csv": ".csv",  # columns will be X Y Z
             "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS
             "irap_ascii": ".poi",
         }
-        self.dictionary = {"json": ".json"}
+    )
+    dictionary: dict = field(
+        default_factory=lambda: {
+            "json": ".json",
+        }
+    )
 
 
 ALLOWED_CONTENTS = {

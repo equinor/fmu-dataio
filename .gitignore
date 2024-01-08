@@ -96,3 +96,6 @@ venv.bak/
 
 # setuptools_scm version
 src/fmu/dataio/version.py
+
+# mypy
+.dmypy.json

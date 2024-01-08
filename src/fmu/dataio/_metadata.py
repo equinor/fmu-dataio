@@ -4,13 +4,15 @@ This contains the _MetaData class which collects and holds all relevant metadata
 """
 # https://realpython.com/python-data-classes/#basic-data-classes
 
+from __future__ import annotations
+
 import datetime
 import getpass
 import logging
 from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Final
 from warnings import warn
 
 from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
@@ -24,7 +26,7 @@ from fmu.dataio._utils import (
     read_metadata,
 )
 
-logger = logging.getLogger(__name__)
+logger: Final = logging.getLogger(__name__)
 
 
 class ConfigurationError(ValueError):
@@ -42,7 +44,7 @@ def default_meta_dollars() -> dict:
     return dollars
 
 
-def generate_meta_tracklog() -> list:
+def generate_meta_tracklog() -> list[dict]:
     """Create the tracklog metadata, which here assumes 'created' only."""
     meta = []
 
@@ -52,8 +54,9 @@ def generate_meta_tracklog() -> list:
     return meta
 
 
-def generate_meta_masterdata(config: dict) -> Optional[dict]:
+def generate_meta_masterdata(config: dict) -> dict | None:
     """Populate metadata from masterdata section in config."""
+
     if not config:
         # this may be a temporary solution for a while, which will be told to the user
         # in related checks in dataio.py.
@@ -70,7 +73,7 @@ def generate_meta_masterdata(config: dict) -> Optional[dict]:
     return config["masterdata"]
 
 
-def generate_meta_access(config: dict) -> Optional[dict]:
+def generate_meta_access(config: dict) -> dict | None:
     """Populate metadata overall from access section in config + allowed keys.
 
     Access should be possible to change per object, based on user input.
@@ -219,7 +222,7 @@ class _MetaData:
     # if re-using existing metadata
     meta_existing: dict = field(default_factory=dict, init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         logger.setLevel(level=self.verbosity)
         logger.info("Initialize _MetaData instance.")
 
@@ -230,7 +233,7 @@ class _MetaData:
             logger.info("Partially reuse existing metadata from %s", self.obj)
             self.meta_existing = read_metadata(self.obj)
 
-    def _populate_meta_objectdata(self):
+    def _populate_meta_objectdata(self) -> None:
         """Analyze the actual object together with input settings.
 
         This will provide input to the ``data`` block of the metas but has also
@@ -242,7 +245,7 @@ class _MetaData:
         self.objdata.derive_metadata()
         self.meta_objectdata = self.objdata.metadata
 
-    def _get_case_metadata(self):
+    def _get_case_metadata(self) -> object:
         """Detect existing fmu CASE block in the metadata.
 
         This block may be missing in case the client is not within a FMU run, e.g.
@@ -255,7 +258,7 @@ class _MetaData:
         logger.info("FMU provider is %s", self.fmudata.provider)
         return self.fmudata.case_metadata
 
-    def _populate_meta_fmu(self):
+    def _populate_meta_fmu(self) -> None:
         """Populate the fmu block in the metadata.
 
         This block may be missing in case the client is not within a FMU run, e.g.
@@ -267,9 +270,9 @@ class _MetaData:
         self.fmudata.detect_provider()
         logger.info("FMU provider is %s", self.fmudata.provider)
         self.meta_fmu = self.fmudata.metadata
-        self.rootpath = self.fmudata.rootpath
+        self.rootpath = str(self.fmudata.rootpath if self.fmudata.rootpath else "")
 
-    def _populate_meta_file(self):
+    def _populate_meta_file(self) -> None:
         """Populate the file block in the metadata.
 
         The file block also contains all needed info for doing the actual file export.
@@ -288,7 +291,7 @@ class _MetaData:
         fdata = _FileDataProvider(
             self.dataio,
             self.objdata,
-            self.rootpath,
+            Path(self.rootpath),
             self.fmudata.iter_name,
             self.fmudata.real_name,
             self.verbosity,
@@ -305,7 +308,8 @@ class _MetaData:
             logger.info("Compute MD5 sum for tmp file...")
             _, self.meta_file["checksum_md5"] = export_file_compute_checksum_md5(
                 self.obj,
-                "tmp",
+                "tmp",  # type: ignore
+                # tmp = true given, this arg is not needed.
                 self.objdata.extension,
                 tmp=True,
                 flag=self.dataio._usefmtflag,
@@ -314,19 +318,19 @@ class _MetaData:
             logger.info("Do not compute MD5 sum at this stage!")
             self.meta_file["checksum_md5"] = None
 
-    def _populate_meta_class(self):
+    def _populate_meta_class(self) -> None:
         """Get the general class which is a simple string."""
         self.meta_class = self.objdata.classname
 
-    def _populate_meta_tracklog(self):
+    def _populate_meta_tracklog(self) -> None:
         """Create the tracklog metadata, which here assumes 'created' only."""
         self.meta_tracklog = generate_meta_tracklog()
 
-    def _populate_meta_masterdata(self):
+    def _populate_meta_masterdata(self) -> None:
         """Populate metadata from masterdata section in config."""
-        self.meta_masterdata = generate_meta_masterdata(self.dataio.config)
+        self.meta_masterdata = generate_meta_masterdata(self.dataio.config) or {}
 
-    def _populate_meta_access(self):
+    def _populate_meta_access(self) -> None:
         """Populate metadata overall from access section in config + allowed keys.
 
         Access should be possible to change per object, based on user input.
@@ -340,9 +344,9 @@ class _MetaData:
 
         """
         if self.dataio:
-            self.meta_access = generate_meta_access(self.dataio.config)
+            self.meta_access = generate_meta_access(self.dataio.config) or {}
 
-    def _populate_meta_display(self):
+    def _populate_meta_display(self) -> None:
         """Populate the display block."""
 
         # display.name
@@ -353,14 +357,14 @@ class _MetaData:
 
         self.meta_display = {"name": display_name}
 
-    def _populate_meta_xpreprocessed(self):
+    def _populate_meta_xpreprocessed(self) -> None:
         """Populate a few necessary 'tmp' metadata needed for preprocessed data."""
         if self.dataio.fmu_context == "preprocessed":
             self.meta_xpreprocessed["name"] = self.dataio.name
             self.meta_xpreprocessed["tagname"] = self.dataio.tagname
             self.meta_xpreprocessed["subfolder"] = self.dataio.subfolder
 
-    def _reuse_existing_metadata(self, meta):
+    def _reuse_existing_metadata(self, meta: dict) -> dict:
         """Perform a merge procedure if the key `reuse_metadata_rule` is active."""
         if self.dataio and self.dataio.reuse_metadata_rule:
             oldmeta = self.meta_existing
@@ -373,7 +377,9 @@ class _MetaData:
             )
         return meta
 
-    def generate_export_metadata(self, skip_null=True) -> dict:  # TODO! -> skip_null?
+    def generate_export_metadata(
+        self, skip_null: bool = True
+    ) -> dict:  # TODO! -> skip_null?
         """Main function to generate the full metadata"""
 
         # populate order matters, in particular objectdata provides input to class/file

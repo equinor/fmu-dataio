@@ -8,25 +8,28 @@ Script will parse global variables from the template location. If
 pointed towards the produced global_variables, fmu-config should run
 before this script to make sure global_variables is updated."""
 
+from __future__ import annotations
+
 import argparse
 import logging
 from pathlib import Path
+from typing import Final
 
 import yaml
 
 try:
-    from ert.shared.plugins.plugin_manager import hook_implementation  # type: ignore
+    from ert.shared.plugins.plugin_manager import hook_implementation
 except ModuleNotFoundError:
-    from ert_shared.plugins.plugin_manager import hook_implementation  # type: ignore
+    from ert_shared.plugins.plugin_manager import hook_implementation
 
 try:
-    from ert import ErtScript  # type: ignore
+    from ert import ErtScript
 except ImportError:
-    from res.job_queue import ErtScript  # type: ignore
+    from res.job_queue import ErtScript
 
 from fmu.dataio import InitializeCase
 
-logger = logging.getLogger(__name__)
+logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
 
 # This documentation is for ERT workflow
@@ -74,7 +77,7 @@ class WfCreateCaseMetadata(ErtScript):
     # name in fmu-dataio
 
     # pylint: disable=too-few-public-methods
-    def run(self, *args) -> None:
+    def run(self, *args: str) -> None:
         # pylint: disable=no-self-use
         """Parse arguments and call _create_case_metadata_main()"""
         parser = get_parser()
@@ -82,18 +85,19 @@ class WfCreateCaseMetadata(ErtScript):
         create_case_metadata_main(workflow_args)
 
 
-def create_case_metadata_main(args) -> None:
+def create_case_metadata_main(args: argparse.Namespace) -> None:
     """Create the case metadata and register case on Sumo."""
 
     logger.setLevel(level=args.verbosity)
     check_arguments(args)
     case_metadata_path = create_metadata(args)
+    assert case_metadata_path is not None
     register_on_sumo(args, case_metadata_path)
 
     logger.debug("create_case_metadata.py has finished.")
 
 
-def create_metadata(args) -> str:
+def create_metadata(args: argparse.Namespace) -> str | None:
     """Create the case metadata and print them to the disk"""
     _global_variables_path = Path(args.ert_config_path, args.global_variables_path)
     global_variables = _parse_yaml(_global_variables_path)
@@ -105,7 +109,8 @@ def create_metadata(args) -> str:
         rootfolder=args.ert_caseroot,
         casename=args.ert_casename,
         caseuser=args.ert_username,
-        description=None,
+        description=None,  # type: ignore
+        # BUG(JB): description must be str accoring to dataclass
     )
 
     logger.info("Case metadata has been made: %s", case_metadata_path)
@@ -113,7 +118,10 @@ def create_metadata(args) -> str:
     return case_metadata_path
 
 
-def register_on_sumo(args, case_metadata_path) -> str:
+def register_on_sumo(
+    args: argparse.Namespace,
+    case_metadata_path: str,
+) -> str | None:
     """Register the case on Sumo by sending the case metadata"""
 
     env = args.sumo_env
@@ -142,14 +150,14 @@ def register_on_sumo(args, case_metadata_path) -> str:
     return sumo_id
 
 
-def _parse_yaml(path):
+def _parse_yaml(path: Path) -> dict:
     """Parse the global variables, return as dict"""
 
     with open(path) as stream:
         return yaml.safe_load(stream)
 
 
-def check_arguments(args):
+def check_arguments(args: argparse.Namespace) -> None:
     """Do basic sanity checks of input"""
 
     logger.debug("Checking input arguments")
@@ -188,9 +196,12 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 @hook_implementation
-def legacy_ertscript_workflow(config) -> None:
+def legacy_ertscript_workflow(config: object) -> None:
     """Hook the WfCreateCaseMetadata class with documentation into ERT."""
-    workflow = config.add_workflow(WfCreateCaseMetadata, "WF_CREATE_CASE_METADATA")
+    workflow = config.add_workflow(  # type: ignore
+        WfCreateCaseMetadata,
+        "WF_CREATE_CASE_METADATA",
+    )
     workflow.parser = get_parser
     workflow.description = DESCRIPTION
     workflow.examples = EXAMPLES

@@ -58,6 +58,7 @@ dev = [
     "rstcheck",
     "ruff",
     "termcolor",
+    "types-PyYAML",
 ]
 docs = [
     "autoapi",

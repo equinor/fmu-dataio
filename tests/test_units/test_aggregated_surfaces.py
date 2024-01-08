@@ -74,21 +74,17 @@ def test_regsurf_aggregated_alt_keys(fmurun_w_casemetadata, aggr_surfs_mean):
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
 
-    aggdata1 = dataio.AggregatedData(
+    meta1 = dataio.AggregatedData(
         source_metadata=metas,
         operation="mean",
         name="myaggrd",
         tagname="mean",
         verbosity="INFO",
         aggregation_id="1234",
-    )
-
-    meta1 = aggdata1.generate_metadata(aggr_mean)
+    ).generate_metadata(aggr_mean)
 
     # alternative
-    aggdata2 = dataio.AggregatedData()
-
-    meta2 = aggdata2.generate_metadata(
+    meta2 = dataio.AggregatedData().generate_metadata(
         aggr_mean,
         source_metadata=metas,
         operation="mean",
@@ -100,8 +96,7 @@ def test_regsurf_aggregated_alt_keys(fmurun_w_casemetadata, aggr_surfs_mean):
 
     # alternative with export
     aggdata3 = dataio.AggregatedData()
-
-    _ = aggdata3.export(
+    aggdata3.export(
         aggr_mean,
         source_metadata=metas,
         operation="mean",

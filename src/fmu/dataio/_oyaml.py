@@ -1,4 +1,5 @@
 # flake8: noqa
+# type: ignore
 # Borrowed from OYAML 0.5 on the internet...
 import sys
 from collections import OrderedDict
