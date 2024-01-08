@@ -7,7 +7,6 @@ from copy import deepcopy
 
 import pytest
 import yaml
-
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ExportData, ValidationError, read_metadata
 
@@ -338,7 +337,7 @@ def test_global_config_from_env(globalconfig_asfile):
 def test_settings_config_from_env(tmp_path, rmsglobalconfig, regsurf):
     """Testing getting user settings config from a file via env variable."""
 
-    settings = dict()
+    settings = {}
     settings["name"] = "MyFancyName"
     settings["tagname"] = "MyFancyTag"
     settings["workflow"] = "Some work flow"
@@ -362,7 +361,7 @@ def test_settings_config_from_env(tmp_path, rmsglobalconfig, regsurf):
 def test_settings_and_global_config_from_env(tmp_path, rmsglobalconfig, regsurf):
     """Testing getting user settings config ands global from a env -> file."""
 
-    settings = dict()
+    settings = {}
     settings["name"] = "MyFancyName"
     settings["tagname"] = "MyFancyTag"
     settings["workflow"] = "Some work flow"
@@ -392,7 +391,7 @@ def test_settings_and_global_config_from_env(tmp_path, rmsglobalconfig, regsurf)
 def test_settings_config_from_env_invalid(tmp_path, rmsglobalconfig):
     """Testing getting user settings config from a file but some invalid stuff."""
 
-    settings = dict()
+    settings = {}
     settings["invalid"] = "MyFancyName"
     settings["workflow"] = "Some work flow"
     settings["config"] = rmsglobalconfig

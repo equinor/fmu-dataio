@@ -4,7 +4,6 @@ from copy import deepcopy
 
 import jsonschema
 import pytest
-
 from fmu.dataio._definitions import ALLOWED_CONTENTS
 
 # pylint: disable=no-member

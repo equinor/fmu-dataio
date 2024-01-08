@@ -155,9 +155,7 @@ class _FileDataProvider:
         # treat norwegian special letters
         stem = stem.replace("æ", "ae")
         stem = stem.replace("ø", "oe")
-        stem = stem.replace("å", "aa")
-
-        return stem
+        return stem.replace("å", "aa")
 
     def _get_path(self):
         """Construct and get the folder path(s)."""
@@ -211,8 +209,7 @@ class _FileDataProvider:
                     "starting with '/'. This is strongly discouraged and is only "
                     "allowed if classvariable allow_forcefolder_absolute is set to True"
                 )
-            else:
-                warn("Using absolute paths in forcefolder is not recommended!")
+            warn("Using absolute paths in forcefolder is not recommended!")
 
             # absolute if starts with "/", otherwise relative to outroot
             dest = Path(self.dataio.forcefolder)

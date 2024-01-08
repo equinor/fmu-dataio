@@ -2,11 +2,10 @@
 import logging
 import os
 
-import pytest
-import xtgeo
-
 import fmu.dataio._utils as utils
 import fmu.dataio.dataio as dataio
+import pytest
+import xtgeo
 
 logger = logging.getLogger(__name__)
 
@@ -318,7 +317,8 @@ def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, reg
     os.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig, content="depth"  # read from global config
+        config=rmsglobalconfig,
+        content="depth",  # read from global config
     )
 
     aggs = []

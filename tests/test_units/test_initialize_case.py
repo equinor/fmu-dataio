@@ -8,7 +8,6 @@ import os
 
 import pytest
 import yaml
-
 from fmu.dataio import InitializeCase
 from fmu.dataio._utils import prettyprint_dict
 

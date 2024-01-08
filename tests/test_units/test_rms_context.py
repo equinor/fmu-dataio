@@ -6,11 +6,10 @@ interactive or from ERT. Hence the rootpath will be ../../
 import logging
 import os
 
+import fmu.dataio.dataio as dataio
 import pandas as pd
 import pytest
 from conftest import inside_rms
-
-import fmu.dataio.dataio as dataio
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
 
@@ -28,7 +27,8 @@ def test_regsurf_generate_metadata(rmssetup, rmsglobalconfig, regsurf):
     logger.debug(prettyprint_dict(rmsglobalconfig["access"]))
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig, content="depth"  # read from global config
+        config=rmsglobalconfig,
+        content="depth",  # read from global config
     )
     logger.info("Inside RMS status now %s", dataio.ExportData._inside_rms)
 

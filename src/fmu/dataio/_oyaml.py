@@ -34,11 +34,11 @@ pyyaml.add_representer(OrderedDict, map_representer, Dumper=DangerDumper)
 del map_constructor, map_representer
 
 # cf. stackoverflow.com/questions/21695705/dump-an-python-object-as-yaml-file/51261042
-pyyaml.SafeDumper.yaml_representers[
-    None
-] = lambda self, data: pyyaml.representer.SafeRepresenter.represent_str(
-    self,
-    str(data),
+pyyaml.SafeDumper.yaml_representers[None] = (
+    lambda self, data: pyyaml.representer.SafeRepresenter.represent_str(
+        self,
+        str(data),
+    )
 )
 
 # Merge PyYAML namespace into ours.

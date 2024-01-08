@@ -1,13 +1,12 @@
 """Use fmu-dataio for aggregated surfaces created by an aggregation service."""
+from __future__ import annotations
 
-import logging
 from pathlib import Path
 
+import fmu.dataio
 import numpy as np
 import xtgeo
 import yaml
-
-import fmu.dataio
 
 
 def main():
@@ -56,9 +55,6 @@ def main():
     # This is the ID we assign to this set of aggregations
     aggregation_id = "something_very_unique"  # IRL this will usually be a uuid
 
-    # We aggregate these source surfaces and collect results in list of dictionaries
-    aggregations = []
-
     # Initialize an AggregatedData object for this set of aggregations
     exp = fmu.dataio.AggregatedData(
         source_metadata=source_metadata,
@@ -81,8 +77,8 @@ def main():
 
         # ==============================================================================
         # Example 2: We only want the metadata (e.g. we are in a cloud service)
-        metadata = exp.generate_metadata(aggregated_surface, operation=operation)
-        print(f"Example 2: Metadata generated")
+        exp.generate_metadata(aggregated_surface, operation=operation)
+        print("Example 2: Metadata generated")
 
         # At this point, we have the surface, the operation and the metadata
         # These can be collected into e.g. a list or a dictionary for further usage,
@@ -128,8 +124,7 @@ def _parse_yaml(fname):
     """
 
     with open(fname) as stream:
-        data = yaml.safe_load(stream)
-    return data
+        return yaml.safe_load(stream)
 
 
 def _metadata_filename(fname):
@@ -152,7 +147,10 @@ def _get_realization_ids(casepath):
 
 
 def _get_source_surfaces_from_disk(
-    casepath: Path, iter_name: str, realization_ids: list, relative_path: Path
+    casepath: Path,
+    iter_name: str,
+    realization_ids: list,
+    relative_path: Path,
 ):
     """Collect surfaces and metadata from disk.
 
@@ -192,7 +190,10 @@ def _get_source_surfaces_from_disk(
 
 
 def _get_source_surfaces_from_sumo(
-    case_uuid: str, iter_name: str, realization_ids: list, relative_path: Path
+    case_uuid: str,
+    iter_name: str,
+    realization_ids: list,
+    relative_path: Path,
 ):
     """Collect surfaces and metadata from Sumo.
 
@@ -202,7 +203,7 @@ def _get_source_surfaces_from_sumo(
 
     Not implemented.
     """
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 if __name__ == "__main__":

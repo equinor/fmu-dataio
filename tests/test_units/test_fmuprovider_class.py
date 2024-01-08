@@ -1,9 +1,8 @@
 """Test the _MetaData class from the _metadata.py module"""
 import os
 
-import pytest
-
 import fmu.dataio as dio
+import pytest
 from fmu.dataio._fmu_provider import RESTART_PATH_ENVNAME, _FmuProvider, _get_folderlist
 
 FOLDERTREE = "scratch/myfield/case/realization-13/iter-2"

@@ -14,6 +14,7 @@ from typing import Dict, List, Optional, Union
 
 import pandas as pd  # type: ignore
 import yaml
+
 from fmu.config import utilities as ut
 
 try:
@@ -24,10 +25,11 @@ else:
     HAS_PYARROW = True
     from pyarrow import feather
 
+import contextlib
+
 import xtgeo  # type: ignore
 
-from . import _design_kw
-from . import _oyaml as oyaml
+from . import _design_kw, _oyaml as oyaml
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +140,7 @@ def export_file(obj, filename, extension, flag=None):
     elif extension == ".roff" and isinstance(obj, (xtgeo.Grid, xtgeo.GridProperty)):
         obj.to_file(filename, fformat="roff")
     elif extension == ".csv" and isinstance(obj, pd.DataFrame):
-        includeindex = True if flag == "include_index" else False
+        includeindex = flag == "include_index"
         obj.to_csv(filename, index=includeindex)
     elif extension == ".arrow" and HAS_PYARROW and isinstance(obj, pa.Table):
         # comment taken from equinor/webviz_subsurface/smry2arrow.py
@@ -253,7 +255,7 @@ def read_parameters_txt(pfile: Union[Path, str]) -> Dict[str, Union[str, float, 
 
 
 def nested_parameters_dict(
-    paramdict: Dict[str, Union[str, int, float]]
+    paramdict: Dict[str, Union[str, int, float]],
 ) -> Dict[str, Union[str, int, float, Dict[str, Union[str, int, float]]]]:
     """Interpret a flat parameters dictionary into a nested dictionary, based on
     presence of colons in keys.
@@ -287,16 +289,14 @@ def check_if_number(value):
     """Check if value (str) looks like a number and return the converted value."""
 
     if value is None:
-        return
+        return None
 
     res = None
     try:
         res = int(value)
     except ValueError:
-        try:
+        with contextlib.suppress(ValueError):
             res = float(value)
-        except ValueError:
-            pass
 
     if res is not None:
         return res
@@ -320,19 +320,19 @@ def get_object_name(obj):
         name = obj.name
     except AttributeError:
         logger.info("display.name could not be set")
-        return
+        return None
 
     if isinstance(obj, xtgeo.RegularSurface) and name == "unknown":
         logger.debug("Got 'unknown' as name from a surface object, returning None")
-        return
+        return None
 
     if isinstance(obj, xtgeo.Polygons) and name == "poly":
         logger.debug("Got 'poly' as name from a polygons object, returning None")
-        return
+        return None
 
     if isinstance(obj, xtgeo.Grid) and name == "noname":
         logger.debug("Got 'noname' as name from grids object, returning None")
-        return
+        return None
 
     return name
 
@@ -387,7 +387,7 @@ def filter_validate_metadata(metadata_in: dict) -> dict:
 
     metadata = deepcopy(metadata_in)
 
-    for key in metadata_in.keys():
+    for key in metadata_in:
         if key not in valids:
             del metadata[key]
 
@@ -401,10 +401,10 @@ def generate_description(desc: Optional[Union[str, list]] = None) -> Union[list,
 
     if isinstance(desc, str):
         return [desc]
-    elif isinstance(desc, list):
+    if isinstance(desc, list):
         return desc
-    else:
-        raise ValueError("Description of wrong type, must be list of strings or string")
+
+    raise ValueError("Description of wrong type, must be list of strings or string")
 
 
 def read_metadata(filename: Union[str, Path]) -> dict:
@@ -428,9 +428,7 @@ def read_metadata(filename: Union[str, Path]) -> dict:
     if not metafilepath.exists():
         raise OSError(f"Cannot find requested metafile: {metafile}")
     with open(metafilepath) as stream:
-        metacfg = yaml.safe_load(stream)
-
-    return metacfg
+        return yaml.safe_load(stream)
 
 
 def glue_metadata_preprocessed(oldmeta, newmeta):

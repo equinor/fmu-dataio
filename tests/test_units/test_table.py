@@ -5,7 +5,6 @@ from pathlib import Path
 import pyarrow as pa
 import pytest
 from fmu.config.utilities import yaml_load
-
 from fmu.dataio import ExportData
 from fmu.dataio._objectdata_provider import _ObjectDataProvider
 
@@ -45,10 +44,7 @@ def assert_correct_table_index(dict_input, answer):
         answer (list): expected answer
     """
     index_name = "table_index"
-    if isinstance(dict_input, dict):
-        meta = dict_input
-    else:
-        meta = _read_dict(dict_input)
+    meta = dict_input if isinstance(dict_input, dict) else _read_dict(dict_input)
 
     index = meta["data"][index_name]
     assert_list_and_answer(index, answer, index)

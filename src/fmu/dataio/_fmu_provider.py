@@ -325,7 +325,7 @@ class _FmuProvider:
                 "Generate ERT2 metadata continues, and real ID %s", self.real_id
             )
 
-            mreal = meta["realization"] = dict()
+            mreal = meta["realization"] = {}
             mreal["id"] = self.real_id
             mreal["uuid"] = real_uuid
             mreal["name"] = self.real_name

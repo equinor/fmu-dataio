@@ -2,10 +2,9 @@
 
 import pathlib
 
+import fmu.dataio as dataio
 import xtgeo
 from fmu.config import utilities as ut
-
-import fmu.dataio as dataio
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 

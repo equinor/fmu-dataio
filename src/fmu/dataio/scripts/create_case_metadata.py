@@ -122,7 +122,7 @@ def register_on_sumo(args, case_metadata_path) -> str:
         logger.info("Registering case on Sumo (%s)", env)
     else:
         logger.info("Sumo registration has been deactivated through arguments")
-        return
+        return None
 
     # lazy loading of Sumo dependencies
     from fmu.sumo.uploader import CaseOnDisk, SumoConnection
@@ -146,9 +146,7 @@ def _parse_yaml(path):
     """Parse the global variables, return as dict"""
 
     with open(path) as stream:
-        data = yaml.safe_load(stream)
-
-    return data
+        return yaml.safe_load(stream)
 
 
 def check_arguments(args):
