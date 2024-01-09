@@ -1,7 +1,7 @@
 # fmu-dataio
 
 ![linting](https://github.com/equinor/fmu-dataio/workflows/linting/badge.svg)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![PyPI version](https://badge.fury.io/py/fmu-dataio.svg)](https://badge.fury.io/py/fmu-dataio)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fmu-dataio.svg)
 ![PyPI - License](https://img.shields.io/pypi/l/fmu-dataio.svg)
