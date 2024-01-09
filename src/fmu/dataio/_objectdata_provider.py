@@ -157,7 +157,7 @@ class _ObjectDataProvider:
 
         """
         logger.info("Evaluate data:name attribute and stratigraphy")
-        result = dict()  # shorter form
+        result = {}  # shorter form
 
         name = self.dataio.name
 
@@ -177,7 +177,7 @@ class _ObjectDataProvider:
         else:
             logger.info("The name in strat...")
             result["name"] = strat[name].get("name", name)
-            result["alias"] = strat[name].get("alias", list())
+            result["alias"] = strat[name].get("alias", [])
             if result["name"] != "name":
                 result["alias"].append(name)  # type: ignore
             result["stratigraphic"] = strat[name].get("stratigraphic", False)
@@ -192,19 +192,18 @@ class _ObjectDataProvider:
     @staticmethod
     def _validate_get_ext(fmt, subtype, validator):
         """Validate that fmt (file format) matches data and return legal extension."""
-        if fmt not in validator.keys():
+        if fmt not in validator:
             raise ConfigurationError(
                 f"The file format {fmt} is not supported.",
                 f"Valid {subtype} formats are: {list(validator.keys())}",
             )
 
-        ext = validator.get(fmt, None)
-        return ext
+        return validator.get(fmt, None)
 
     def _derive_objectdata(self):
         """Derive object spesific data."""
         logger.info("Evaluate data settings for object")
-        result = dict()
+        result = {}
 
         if isinstance(self.obj, xtgeo.RegularSurface):
             result["subtype"] = "RegularSurface"
@@ -332,8 +331,8 @@ class _ObjectDataProvider:
         logger.info("Derive bbox and specs for RegularSurface")
         regsurf = self.obj
 
-        specs = dict()
-        bbox = dict()
+        specs = {}
+        bbox = {}
 
         xtgeo_specs = regsurf.metadata.required
         for spec, val in xtgeo_specs.items():
@@ -356,8 +355,8 @@ class _ObjectDataProvider:
         logger.info("Derive bbox and specs for Polygons")
         poly = self.obj
 
-        specs = dict()
-        bbox = dict()
+        specs = {}
+        bbox = {}
         # number of polygons:
         specs["npolys"] = np.unique(poly.dataframe[poly.pname].values).size
         xmin, xmax, ymin, ymax, zmin, zmax = poly.get_boundary()
@@ -375,8 +374,8 @@ class _ObjectDataProvider:
         logger.info("Derive bbox and specs for Points")
         pnts = self.obj
 
-        specs = dict()
-        bbox = dict()
+        specs = {}
+        bbox = {}
 
         if len(pnts.dataframe.columns) > 3:
             attrnames = pnts.dataframe.columns[3:]
@@ -397,8 +396,8 @@ class _ObjectDataProvider:
         logger.info("Derive bbox and specs for Cube")
         cube = self.obj
 
-        specs = dict()
-        bbox = dict()
+        specs = {}
+        bbox = {}
 
         xtgeo_specs = cube.metadata.required
         for spec, val in xtgeo_specs.items():
@@ -434,8 +433,8 @@ class _ObjectDataProvider:
         logger.info("Derive bbox and specs for Gride (geometry)")
         grid = self.obj
 
-        specs = dict()
-        bbox = dict()
+        specs = {}
+        bbox = {}
 
         xtgeo_specs = grid.metadata.required
         for spec, val in xtgeo_specs.items():
@@ -458,8 +457,8 @@ class _ObjectDataProvider:
         logger.info("Derive bbox and specs for GridProperty")
         gridprop = self.obj
 
-        specs = dict()
-        bbox = dict()
+        specs = {}
+        bbox = {}
 
         specs["ncol"] = gridprop.ncol
         specs["nrow"] = gridprop.nrow
@@ -471,8 +470,8 @@ class _ObjectDataProvider:
         logger.info("Process data metadata for DataFrame (tables)")
         dfr = self.obj
 
-        specs = dict()
-        bbox = dict()
+        specs = {}
+        bbox = {}
 
         specs["columns"] = list(dfr.columns)
         specs["size"] = int(dfr.size)
@@ -484,8 +483,8 @@ class _ObjectDataProvider:
         logger.info("Process data metadata for arrow (tables)")
         table = self.obj
 
-        specs = dict()
-        bbox = dict()
+        specs = {}
+        bbox = {}
 
         specs["columns"] = list(table.column_names)
         specs["size"] = table.num_columns * table.num_rows
@@ -496,8 +495,8 @@ class _ObjectDataProvider:
         """Process/collect the data items for dictionary."""
         logger.info("Process data metadata for dictionary")
 
-        specs = dict()
-        bbox = dict()
+        specs = {}
+        bbox = {}
 
         return specs, bbox
 
@@ -565,11 +564,11 @@ class _ObjectDataProvider:
         """Format input timedata to metadata. legacy version."""
         tdata = self.dataio.timedata
 
-        tresult = dict()
-        tresult["time"] = list()
+        tresult = {}
+        tresult["time"] = []
         if len(tdata) == 1:
             elem = tdata[0]
-            tresult["time"] = list()
+            tresult["time"] = []
             xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
             self.time0 = str(elem[0])
             if len(elem) == 2:
@@ -609,11 +608,11 @@ class _ObjectDataProvider:
         set for those who wants it turned around).
         """
         tdata = self.dataio.timedata
-        tresult = dict()
+        tresult = {}
 
         if len(tdata) == 1:
             elem = tdata[0]
-            tresult["t0"] = dict()
+            tresult["t0"] = {}
             xfield = {"value": dt.strptime(str(elem[0]), "%Y%m%d").isoformat()}
             self.time0 = str(elem[0])
             if len(elem) == 2:
@@ -737,7 +736,7 @@ class _ObjectDataProvider:
                 for key, val in tresult.items():
                     meta[key] = val
             else:
-                meta["time"] = dict()
+                meta["time"] = {}
                 for key, val in tresult.items():
                     meta["time"][key] = val
 

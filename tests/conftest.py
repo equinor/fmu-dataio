@@ -192,7 +192,7 @@ def fixture_casesetup(tmp_path_factory):
 @pytest.fixture(name="caseglobalconfig", scope="module", autouse=True)
 def fixture_caseglobalconfig():
     """Create as global config for case testing."""
-    gconfig = dict()
+    gconfig = {}
     gconfig["model"] = {"name": "Test", "revision": "21.0.0"}
     gconfig["masterdata"] = {
         "smda": {
@@ -213,9 +213,9 @@ def fixture_caseglobalconfig():
 def fixture_globalconfig1():
     """Minimalistic global config variables no. 1 in ExportData class."""
 
-    cfg = dict()
+    cfg = {}
 
-    cfg = dict()
+    cfg = {}
     cfg["model"] = {"name": "Test", "revision": "AUTO"}
     cfg["stratigraphy"] = {
         "TopWhatever": {
@@ -343,12 +343,10 @@ def fixture_metadata_examples():
     """
 
     # hard code 0.8.0 for now
-    examples = {
+    return {
         path.name: _isoformat_all_datetimes(_parse_yaml(str(path)))
         for path in ROOTPWD.glob("schema/definitions/0.8.0/examples/*.yml")
     }
-
-    return examples
 
 
 # ======================================================================================
@@ -509,11 +507,9 @@ def fixture_edataobj3(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
     # logger.info("Establish edataobj1")
 
-    eobj = ExportData(
+    return ExportData(
         config=globalconfig1, name="summary", content="timeseries", tagname=""
     )
-
-    return eobj
 
 
 @pytest.fixture(name="mock_summary")
@@ -534,8 +530,7 @@ def fixture_drogon_sum():
         pa.Table: table with summary data
     """
     path = ROOTPWD / "tests/data/drogon/tabular/summary.arrow"
-    table = pa.feather.read_table(path)
-    return table
+    return pa.feather.read_table(path)
 
 
 @pytest.fixture(name="mock_volumes")
@@ -563,8 +558,7 @@ def fixture_drogon_volumes():
         pa.Table: table with summary data
     """
     path = ROOTPWD / "tests/data/drogon/tabular/geogrid--vol.csv"
-    table = pa.Table.from_pandas(pd.read_csv(path))
-    return table
+    return pa.Table.from_pandas(pd.read_csv(path))
 
 
 # ======================================================================================
@@ -575,9 +569,7 @@ def fixture_drogon_volumes():
 def _parse_json(schema_path):
     """Parse the schema, return JSON"""
     with open(schema_path, encoding="utf-8") as stream:
-        data = json.load(stream)
-
-    return data
+        return json.load(stream)
 
 
 def _parse_yaml(yaml_path):
@@ -585,9 +577,7 @@ def _parse_yaml(yaml_path):
     with open(yaml_path, encoding="utf-8") as stream:
         data = yaml.safe_load(stream)
 
-    data = _isoformat_all_datetimes(data)
-
-    return data
+    return _isoformat_all_datetimes(data)
 
 
 def _isoformat_all_datetimes(indate):
@@ -597,7 +587,7 @@ def _isoformat_all_datetimes(indate):
         return [_isoformat_all_datetimes(i) for i in indate]
 
     if isinstance(indate, dict):
-        return {key: _isoformat_all_datetimes(indate[key]) for key in indate.keys()}
+        return {key: _isoformat_all_datetimes(indate[key]) for key in indate}
 
     if isinstance(indate, (datetime.datetime, datetime.date)):
         return indate.isoformat()

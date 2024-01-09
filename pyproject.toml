@@ -30,12 +30,12 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "xtgeo>=2.16",
-    "PyYAML",
-    "pyarrow",
     "fmu-config>=1.1.0",
-    "pandas",
     "numpy",
+    "pandas",
+    "pyarrow",
+    "PyYAML",
+    "xtgeo>=2.16",
 ]
 
 [project.urls]
@@ -46,63 +46,32 @@ Documentation = "https://fmu-dataio.readthedocs.io"
 
 [project.optional-dependencies]
 dev = [
-    "black",
     "coverage>=4.1",
-    "flake8",
-    "isort",
-    "jsonschema",
     "hypothesis",
+    "jsonschema",
     "mypy",
-    "pylint",
-    "pytest",
-    "pytest-cov",
     "pydocstyle",
-    "pytest-runner",
+    "pytest-cov",
     "pytest-mock",
-    "termcolor",
+    "pytest-runner",
+    "pytest",
     "rstcheck",
+    "ruff",
+    "termcolor",
 ]
 docs = [
-    "pydocstyle",
-    "Sphinx<7",
     "autoapi",
-    "sphinx-rtd-theme",
+    "pydocstyle",
     "sphinx-autodoc-typehints<1.23",
-    "sphinxcontrib-apidoc",
+    "sphinx-rtd-theme",
     "sphinx-togglebutton",
+    "Sphinx<7",
+    "sphinxcontrib-apidoc",
     "urllib3<1.27",
 ]
 
 [project.entry-points.ert]
 dataio_case_metadata = "fmu.dataio.scripts.create_case_metadata"
-
-
-[tool.black]
-line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  # The following are specific to Black, you probably don't want those.
-  | blib2to3
-  | tests/data
-  | profiling
-)/
-'''
-
-[tool.isort]
-profile = "black"
-
 
 [tool.setuptools_scm]
 write_to = "src/fmu/dataio/version.py"
@@ -117,54 +86,30 @@ testpaths = "tests"
 markers = ["integration: marks a test as an integration test"]
 xfail_strict = true
 
-[tool.mypy]
-ignore_missing_imports = true
-
 [tool.pydocstyle]
 convention = "google"
 match = '(?!(test_|_)).*\.py'
 
-[tool.pylint.MASTER]
-ignore = ["version.py", "conf.py"]
-
-[tool.pylint.BASIC]
-additional-builtins = ["_x", "_y", "_z", "_tmp1", "_tmp2"]
-good-names = ["logger", "version", "i", "j", "k", "x", "y", "z", "_"]
-variable-rgx = "^[a-z_][_a-z0-9]+((_[a-z0-9]+)*)?$"
-argument-rgx = "^[a-z_][_a-z0-9]+((_[a-z0-9]+)*)?$"
-dummy-variables-rgx = "^_+[a-z0-9]*?$|dummy"
-
-[tool.pylint.TYPECHECK]
-generated-members = ["np.*", "numpy.*", "pd.*", "pandas.*"]
-
-[tool.pylint.FORMAT]
-max-line-length = 88
-max-module-lines = 3000
-
-[tool.pylint.DESIGN]
-max-attributes = 30
-max-args = 20
-max-locals = 30
-max-branches = 15
-max-bool-expr = 8
-
-[tool.pylint.SIMILARITIES]
-min-similarity-lines = 40
-ignore-comments = "yes"
-ignore-docstrings = "no"
-ignore-imports = "yes"
-
-[tool.pylint."MESSAGES CONTROL"]
-disable = """
-    fixme,
-    missing-docstring,
-    protected-access,
-    C0330,
-    useless-object-inheritance,
-    import-outside-toplevel,
-    import-error,
-    no-name-in-module,
-    raise-missing-from,
-    unspecified-encoding,
-    wrong-import-order
-    """
+[tool.ruff]
+ignore = [
+    "C901",
+]
+select = [
+    "C",
+    "E",
+    "F",
+    "I",
+    "PIE",
+    "Q",
+    "RET",
+    "RSE",
+    "SIM",
+    "W",
+    # "C90",
+    # "NPY",
+    # "PD",
+    # "PL",
+]
+line-length = 88
+[tool.ruff.lint.isort]
+combine-as-imports = true

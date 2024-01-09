@@ -1,10 +1,9 @@
 """Export faultpolygons via dataio with metadata."""
 from pathlib import Path
 
+import fmu.dataio as dataio
 import xtgeo
 from fmu.config import utilities as utils
-
-import fmu.dataio as dataio
 
 CFG = utils.yaml_load("../../fmuconfig/output/global_variables.yml")
 

@@ -2,10 +2,9 @@
 import logging
 from copy import deepcopy
 
+import fmu.dataio as dio
 import pytest
 from dateutil.parser import isoparse
-
-import fmu.dataio as dio
 from fmu.dataio._metadata import SCHEMA, SOURCE, VERSION, ConfigurationError, _MetaData
 from fmu.dataio._utils import prettyprint_dict
 

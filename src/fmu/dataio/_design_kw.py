@@ -81,8 +81,7 @@ def unmatched_templates(line):
     bracketpattern = re.compile("<.+?>")
     if bracketpattern.search(line):
         return bracketpattern.findall(line)
-    else:
-        return []
+    return []
 
 
 def is_comment(line):

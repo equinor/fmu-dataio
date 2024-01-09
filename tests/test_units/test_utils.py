@@ -1,7 +1,6 @@
 """Test the utils module"""
 
 import pytest
-
 from fmu.dataio import _utils as utils
 
 

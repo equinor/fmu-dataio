@@ -6,10 +6,9 @@ import logging
 import os
 import sys
 
+import fmu.dataio.dataio as dataio
 import pandas as pd
 import pytest
-
-import fmu.dataio.dataio as dataio
 from fmu.dataio._utils import prettyprint_dict
 
 logger = logging.getLogger(__name__)

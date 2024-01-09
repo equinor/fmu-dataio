@@ -14,10 +14,10 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@v4
       - name: Check black style and linting
-        run: |
-          pip install black
-          black --check src tests
-          pip install flake8
-          flake8 src tests
-          pip install isort
-          isort --profile=black src tests
+        run: pip install ruff
+      - name: Ruff check
+        if: ${{ always() }}
+        run: ruff check .
+      - name: Ruff format
+        if: ${{ always() }}
+        run: ruff format . --check

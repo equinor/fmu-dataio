@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 
 import pytest
-
 from fmu.dataio._filedata_provider import _FileDataProvider
 from fmu.dataio._objectdata_provider import _ObjectDataProvider
 

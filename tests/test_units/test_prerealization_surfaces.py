@@ -13,10 +13,9 @@ import logging
 import os
 from pathlib import Path
 
+import fmu.dataio.dataio as dataio
 import pytest
 from conftest import inside_rms
-
-import fmu.dataio.dataio as dataio
 from fmu.dataio import _utils as utils
 
 logger = logging.getLogger(__name__)

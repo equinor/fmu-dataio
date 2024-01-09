@@ -35,7 +35,7 @@ class ConfigurationError(ValueError):
 
 
 def default_meta_dollars() -> dict:
-    dollars = dict()
+    dollars = {}
     dollars["$schema"] = SCHEMA
     dollars["version"] = VERSION
     dollars["source"] = SOURCE
@@ -44,7 +44,7 @@ def default_meta_dollars() -> dict:
 
 def generate_meta_tracklog() -> list:
     """Create the tracklog metadata, which here assumes 'created' only."""
-    meta = list()
+    meta = []
 
     dtime = datetime.datetime.now(timezone.utc).isoformat()
     user = getpass.getuser()
@@ -63,7 +63,8 @@ def generate_meta_masterdata(config: dict) -> Optional[dict]:
             UserWarning,
         )
         return None
-    elif "masterdata" not in config.keys():
+
+    if "masterdata" not in config:
         raise ValueError("A config exists, but 'masterdata' are not present.")
 
     return config["masterdata"]
@@ -107,7 +108,7 @@ def generate_meta_access(config: dict) -> Optional[dict]:
         raise ConfigurationError("The 'access.asset' field not found in the config")
 
     # initialize and populate with defaults from config
-    a_meta = dict()  # shortform
+    a_meta = {}  # shortform
 
     # if there is a config, the 'asset' tag shall be present
     a_meta["asset"] = a_cfg["asset"]
@@ -366,11 +367,10 @@ class _MetaData:
             newmeta = meta.copy()
             if self.dataio.reuse_metadata_rule == "preprocessed":
                 return glue_metadata_preprocessed(oldmeta, newmeta)
-            else:
-                raise ValueError(
-                    f"The reuse_metadata_rule {self.dataio.reuse_metadata_rule} is not "
-                    "supported."
-                )
+            raise ValueError(
+                f"The reuse_metadata_rule {self.dataio.reuse_metadata_rule} is not "
+                "supported."
+            )
         return meta
 
     def generate_export_metadata(self, skip_null=True) -> dict:  # TODO! -> skip_null?
@@ -410,6 +410,4 @@ class _MetaData:
         if skip_null:
             meta = drop_nones(meta)
 
-        meta = self._reuse_existing_metadata(meta)
-
-        return meta
+        return self._reuse_existing_metadata(meta)

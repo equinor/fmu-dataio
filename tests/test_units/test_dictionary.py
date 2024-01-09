@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-
 from fmu.dataio import ExportData
 from fmu.dataio._utils import nested_parameters_dict, read_parameters_txt
 
@@ -17,8 +16,7 @@ def _fixture_simple():
     Returns:
         dict: the dictionary created
     """
-    simple = {"this": "is a test"}
-    return simple
+    return {"this": "is a test"}
 
 
 @pytest.fixture(name="json_dict", scope="function")
@@ -34,8 +32,7 @@ def _fixture_json(fmurun_w_casemetadata):
     os.chdir(fmurun_w_casemetadata)
     print(fmurun_w_casemetadata)
     with open(fmurun_w_casemetadata / "parameters.json", encoding="utf-8") as stream:
-        json_dict = json.load(stream)
-    return json_dict
+        return json.load(stream)
 
 
 @pytest.fixture(name="simple_parameters", scope="session")

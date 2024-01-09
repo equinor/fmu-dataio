@@ -30,9 +30,10 @@ from ._utils import (
     filter_validate_metadata,
     generate_description,
     prettyprint_dict,
+    read_metadata as _utils_read_metadata,
+    some_config_from_env,
+    uuid_from_string,
 )
-from ._utils import read_metadata as _utils_read_metadata
-from ._utils import some_config_from_env, uuid_from_string
 
 INSIDE_RMS = detect_inside_rms()
 
@@ -59,10 +60,7 @@ def _validate_variable(key, value, legals) -> bool:
         logger.warning("Unsupported key, raise an error")
         raise ValidationError(f"The input key '{key}' is not supported")
 
-    if isinstance(legals[key], str):
-        valid_type = eval(legals[key])  # pylint: disable=eval-used
-    else:
-        valid_type = legals[key]
+    valid_type = eval(legals[key]) if isinstance(legals[key], str) else legals[key]
 
     try:
         validcheck = valid_type.__args__
@@ -169,13 +167,12 @@ def _check_global_config(
     if msg:
         if "err" in action:
             raise ValueError(msg)
-        else:
-            msg += (
-                "The metadata may become invalid; hence no metadata file will be made, "
-                "but the data item may still be exported. Note: allowing these keys to "
-                "be missing is a temporary solution that may change in future versions!"
-            )
-            warnings.warn(msg, PendingDeprecationWarning)
+        msg += (
+            "The metadata may become invalid; hence no metadata file will be made, "
+            "but the data item may still be exported. Note: allowing these keys to "
+            "be missing is a temporary solution that may change in future versions!"
+        )
+        warnings.warn(msg, PendingDeprecationWarning)
 
         return False
 
@@ -244,7 +241,7 @@ def _content_validate(name, fields):
     replace_deprecated = {}
 
     for key, dtype in fields.items():
-        if key in valid.keys():
+        if key in valid:
             wanted_type = valid[key]
             if not isinstance(dtype, wanted_type):
                 raise ValidationError(
@@ -280,10 +277,10 @@ def _content_validate(name, fields):
         logger.info("rlist is %s", rlist)
         logger.info("fields is %s", fields)
         rkey, status = rlist.pop()
-        logger.info("rkey not in fields.keys(): %s", str(rkey not in fields.keys()))
+        logger.info("rkey not in fields.keys(): %s", str(rkey not in fields))
         logger.info("rkey: %s", rkey)
         logger.info("fields.keys(): %s", str(fields.keys()))
-        if rkey not in fields.keys() and status is True:
+        if rkey not in fields and status is True:
             raise ValidationError(
                 f"The subkey <{rkey}> is required for content <{name}> ",
                 "but is not found",
@@ -698,10 +695,10 @@ class ExportData:
         # derive legal input from dataclass signature
         annots = getattr(self, "__annotations__", {})
         legals = {key: val for key, val in annots.items() if not key.startswith("_")}
-        if "config" in legals.keys():
+        if "config" in legals:
             del legals["config"]  # config cannot be updated
 
-        if "config" in newsettings.keys():
+        if "config" in newsettings:
             raise ValueError("Cannot have 'config' outside instance initialization")
 
         for setting, value in newsettings.items():
@@ -722,7 +719,7 @@ class ExportData:
 
         if self.access_ssdl:
             if "ssdl" not in self.config["access"]:
-                newglobals["access"]["ssdl"] = dict()
+                newglobals["access"]["ssdl"] = {}
 
             newglobals["access"]["ssdl"] = deepcopy(self.access_ssdl)
 
@@ -923,8 +920,7 @@ class ExportData:
 
         if return_symlink and outfile_target:
             return str(outfile_target)
-        else:
-            return str(outfile)
+        return str(outfile)
 
 
 # ######################################################################################
@@ -1091,13 +1087,13 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
         # only asset, not ssdl
         access = _metadata.generate_meta_access(self.config)
-        meta["access"] = dict()
+        meta["access"] = {}
         meta["access"]["asset"] = access["asset"]
 
-        meta["fmu"] = dict()
+        meta["fmu"] = {}
         meta["fmu"]["model"] = self.config["model"]
 
-        mcase = meta["fmu"]["case"] = dict()
+        mcase = meta["fmu"]["case"] = {}
         mcase["name"] = self.casename
         mcase["uuid"] = str(uuid.uuid4())
 
@@ -1295,8 +1291,7 @@ class AggregatedData:
                     f"The given casepath {casepath} does not exist. "
                     "It must exist in advance!"
                 )
-            else:
-                abspath = str(casepath / relpath)
+            abspath = str(casepath / relpath)
 
         relpath = relpath.replace(realiname + "/", "")
         relpath = Path(relpath)
@@ -1353,7 +1348,7 @@ class AggregatedData:
         # fmu.realization shall not be used
         del template["fmu"]["realization"]
 
-        template["fmu"]["aggregation"] = dict()
+        template["fmu"]["aggregation"] = {}
         template["fmu"]["aggregation"]["operation"] = self.operation
         template["fmu"]["aggregation"]["realization_ids"] = real_ids
         template["fmu"]["aggregation"]["id"] = self.aggregation_id
