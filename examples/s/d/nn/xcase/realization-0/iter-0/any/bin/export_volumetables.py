@@ -6,9 +6,11 @@ RMS (to demostrate how volume tables can be fetched via Roxar API).
 For the file case, CSV files are read from disk. The dataio function is the same.
 """
 import pathlib
+
 import pandas as pd
-import fmu.dataio
 from fmu.config import utilities as ut
+
+import fmu.dataio
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 

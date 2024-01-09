@@ -1,12 +1,12 @@
 """Use fmu-dataio for aggregated surfaces created by an aggregation service."""
 
-from pathlib import Path
 import logging
+from pathlib import Path
 
-import yaml
 import numpy as np
-
 import xtgeo
+import yaml
+
 import fmu.dataio
 
 
@@ -67,7 +67,6 @@ def main():
     )
 
     for operation in operations:
-
         print(f"Running aggregation: {operation}")
 
         # Call the aggregation machine and create an aggregated surface
@@ -128,7 +127,7 @@ def _parse_yaml(fname):
         dict
     """
 
-    with open(fname, "r") as stream:
+    with open(fname) as stream:
         data = yaml.safe_load(stream)
     return data
 

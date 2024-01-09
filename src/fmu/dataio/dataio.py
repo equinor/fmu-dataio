@@ -1473,7 +1473,7 @@ class AggregatedData:
         abspath = metadata["file"].get("absolute_path", None)
 
         if not abspath:
-            raise IOError(
+            raise OSError(
                 "The absolute_path is None, hence no export is possible. "
                 "Use the ``casepath`` key to provide a valid absolute path."
             )

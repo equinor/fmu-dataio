@@ -187,17 +187,17 @@ def create_symlink(source, target):
 
     thesource = Path(source)
     if not thesource.exists():
-        raise IOError(f"Cannot symlink: Source file {thesource} does not exist.")
+        raise OSError(f"Cannot symlink: Source file {thesource} does not exist.")
 
     thetarget = Path(target)
 
     if thetarget.exists() and not thetarget.is_symlink():
-        raise IOError(f"Target file {thetarget} exists already as a normal file.")
+        raise OSError(f"Target file {thetarget} exists already as a normal file.")
 
     os.symlink(source, target)
 
     if not (thetarget.exists() and thetarget.is_symlink()):
-        raise IOError(f"Target file {thesource} does not exist or is not a symlink.")
+        raise OSError(f"Target file {thesource} does not exist or is not a symlink.")
 
 
 def size(fname):
@@ -421,13 +421,13 @@ def read_metadata(filename: Union[str, Path]) -> dict:
     """
     fname = Path(filename)
     if fname.stem.startswith("."):
-        raise IOError(f"The input is a hidden file, cannot continue: {fname.stem}")
+        raise OSError(f"The input is a hidden file, cannot continue: {fname.stem}")
 
     metafile = str(fname.parent) + "/." + fname.stem + fname.suffix + ".yml"
     metafilepath = Path(metafile)
     if not metafilepath.exists():
-        raise IOError(f"Cannot find requested metafile: {metafile}")
-    with open(metafilepath, "r") as stream:
+        raise OSError(f"Cannot find requested metafile: {metafile}")
+    with open(metafilepath) as stream:
         metacfg = yaml.safe_load(stream)
 
     return metacfg

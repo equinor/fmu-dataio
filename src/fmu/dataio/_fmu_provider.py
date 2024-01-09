@@ -235,7 +235,7 @@ class _FmuProvider:
         if self.dataio.include_ert2jobs:
             jobs_file = self.iter_path / "jobs.json"
             if jobs_file.is_file():
-                with open(jobs_file, "r") as stream:
+                with open(jobs_file) as stream:
                     self.ert2["jobs"] = json.load(stream)
                 logger.debug("jobs.json parsed.")
             logger.debug("jobs.json was not found")

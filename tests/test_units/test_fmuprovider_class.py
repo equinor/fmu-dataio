@@ -4,7 +4,7 @@ import os
 import pytest
 
 import fmu.dataio as dio
-from fmu.dataio._fmu_provider import _FmuProvider, _get_folderlist, RESTART_PATH_ENVNAME
+from fmu.dataio._fmu_provider import RESTART_PATH_ENVNAME, _FmuProvider, _get_folderlist
 
 FOLDERTREE = "scratch/myfield/case/realization-13/iter-2"
 

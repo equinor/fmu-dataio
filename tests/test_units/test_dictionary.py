@@ -1,11 +1,13 @@
 """Test dictionary functionality"""
-import os
 import json
+import os
 from pathlib import Path
-import yaml
+
 import pytest
+import yaml
+
 from fmu.dataio import ExportData
-from fmu.dataio._utils import read_parameters_txt, nested_parameters_dict
+from fmu.dataio._utils import nested_parameters_dict, read_parameters_txt
 
 
 @pytest.fixture(name="direct_creation", scope="function")
@@ -31,9 +33,7 @@ def _fixture_json(fmurun_w_casemetadata):
     """
     os.chdir(fmurun_w_casemetadata)
     print(fmurun_w_casemetadata)
-    with open(
-        fmurun_w_casemetadata / "parameters.json", "r", encoding="utf-8"
-    ) as stream:
+    with open(fmurun_w_casemetadata / "parameters.json", encoding="utf-8") as stream:
         json_dict = json.load(stream)
     return json_dict
 
@@ -89,10 +89,10 @@ def read_dict_and_meta(path):
         tuple: the dictionary produced with corresponding metadata
     """
     result_dict = None
-    with open(path, "r", encoding="utf-8") as stream:
+    with open(path, encoding="utf-8") as stream:
         result_dict = json.load(stream)
     path = Path(path)
-    with open(path.parent / f".{path.name}.yml", "r", encoding="utf-8") as meta_stream:
+    with open(path.parent / f".{path.name}.yml", encoding="utf-8") as meta_stream:
         meta = yaml.load(meta_stream, Loader=yaml.Loader)
     return result_dict, meta
 

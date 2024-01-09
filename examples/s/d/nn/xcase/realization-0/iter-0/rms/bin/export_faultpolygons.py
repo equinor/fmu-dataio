@@ -34,7 +34,6 @@ def export_faultlines():
     )
 
     for hname in HORISONNAMES:
-
         # RMS version for reading polygons from a project:
         # poly = xtgeo.polygons_from_roxar(project, hname, RMS_POL_CATEGORY)
 

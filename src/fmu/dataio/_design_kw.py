@@ -7,9 +7,8 @@ along all dependencies of semeio"""
 
 # pylint: disable=logging-fstring-interpolation
 import logging
-import shlex
 import re
-
+import shlex
 
 _STATUS_FILE_NAME = "DESIGN_KW.OK"
 
@@ -38,7 +37,7 @@ def run(
 
     key_vals.update(rm_genkw_prefix(key_vals))
 
-    with open(template_file_name, "r") as template_file:
+    with open(template_file_name) as template_file:
         template = template_file.readlines()
 
     if valid:
@@ -63,10 +62,8 @@ def all_matched(line, template_file_name, template):
     for unmatched in unmatched_templates(line):
         if is_perl(template_file_name, template):
             _logger.warning(  # pylint: disable=logging-fstring-interpolation
-                (
-                    f"{unmatched} not found in design matrix, "
-                    f"but this is probably a Perl file"
-                )
+                f"{unmatched} not found in design matrix, "
+                f"but this is probably a Perl file"
             )
         else:
             _logger.error(  # pylint: disable=logging-fstring-interpolation

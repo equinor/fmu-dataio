@@ -39,7 +39,7 @@ def test_inicase_barebone_with_export(globalconfig2, fmurun):
     casemetafile = caseroot / "share/metadata/fmu_case.yml"
 
     # check that special characters made it through
-    with open(casemetafile, "r") as stream:
+    with open(casemetafile) as stream:
         metadata = yaml.safe_load(stream)
 
     assert metadata["fmu"]["case"]["name"] == "MyCaseName_with_Æ"
@@ -48,7 +48,7 @@ def test_inicase_barebone_with_export(globalconfig2, fmurun):
     # Check that special characters are encoded properly in stored metadatafile.
     # yaml.safe_load() seems to sort this out, but we want files on disk to be readable.
     # Therefore check by reading the raw file content.
-    with open(casemetafile, "r") as stream:
+    with open(casemetafile) as stream:
         metadata_string = stream.read()
 
     assert "æøå" in metadata_string
@@ -161,7 +161,7 @@ def test_inicase_generate_case_metadata_exists_but_force(
     casemetafolder = fmurun_w_casemetadata.parent.parent
     old_metafile = casemetafolder / "share/metadata/fmu_case.yml"
 
-    with open(old_metafile, "r", encoding="utf-8") as stream:
+    with open(old_metafile, encoding="utf-8") as stream:
         old_content = yaml.safe_load(stream)
 
     icase = InitializeCase(globalconfig2, verbosity="INFO")
@@ -174,7 +174,7 @@ def test_inicase_generate_case_metadata_exists_but_force(
     )
 
     new_metafile = casemetafolder / "share/metadata/fmu_case.yml"
-    with open(new_metafile, "r", encoding="utf-8") as stream:
+    with open(new_metafile, encoding="utf-8") as stream:
         new_content = yaml.safe_load(stream)
 
     logger.debug("\n%s\n", prettyprint_dict(old_content))
