@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Examples &mdash; fmu.dataio 1.9.1.dev3+gef36369 documentation</title>
+  <title>Examples &mdash; fmu.dataio 1.9.1.dev4+ge6a9285 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
@@ -223,10 +223,9 @@ can comment it out in your code.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Export faultpolygons via dataio with metadata.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
+<span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
 <span class="kn">import</span> <span class="nn">xtgeo</span>
 <span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">utils</span>
-
-<span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
 
 <span class="n">CFG</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
 
@@ -282,7 +281,7 @@ can comment it out in your code.</p>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-09T11:15:52.732153+00:00&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-09T11:23:13.799196+00:00&#39;</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runner</span>
 <span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
@@ -400,10 +399,9 @@ can comment it out in your code.</p>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
+<span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
 <span class="kn">import</span> <span class="nn">xtgeo</span>
 <span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">ut</span>
-
-<span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
 
 <span class="n">CFG</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
 
@@ -472,7 +470,7 @@ can comment it out in your code.</p>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-09T11:15:53.570278+00:00&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-09T11:23:14.594493+00:00&#39;</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runner</span>
 <span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
@@ -588,10 +586,9 @@ can comment it out in your code.</p>
 
 <span class="kn">import</span> <span class="nn">pathlib</span>
 
+<span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
 <span class="kn">import</span> <span class="nn">xtgeo</span>
 <span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">ut</span>
-
-<span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
 
 <span class="n">CFG</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
 
@@ -664,7 +661,7 @@ can comment it out in your code.</p>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-09T11:15:54.371499+00:00&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-09T11:23:15.363825+00:00&#39;</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runner</span>
 <span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
@@ -702,7 +699,7 @@ can comment it out in your code.</p>
 <span class="nt">file</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">relative_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/grids/geogrid.roff</span>
 <span class="w">  </span><span class="nt">absolute_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/geogrid.roff</span>
-<span class="w">  </span><span class="nt">checksum_md5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e470e47261aeb9ae4ee85eb633a0facb</span>
+<span class="w">  </span><span class="nt">checksum_md5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e574e01e81570b0fd8f54b34fdf5f311</span>
 <span class="nt">data</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">geogrid</span>
 <span class="w">  </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
@@ -771,7 +768,7 @@ can comment it out in your code.</p>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-09T11:15:54.681817+00:00&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-09T11:23:15.665616+00:00&#39;</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runner</span>
 <span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
@@ -809,7 +806,7 @@ can comment it out in your code.</p>
 <span class="nt">file</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">relative_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/grids/facies.roff</span>
 <span class="w">  </span><span class="nt">absolute_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/facies.roff</span>
-<span class="w">  </span><span class="nt">checksum_md5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bb0e7dc5e5d7c0a96e56780d7b0d5f03</span>
+<span class="w">  </span><span class="nt">checksum_md5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f3af9900c978b4c8af811877b5ecd6b0</span>
 <span class="nt">data</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">facies</span>
 <span class="w">  </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
@@ -874,10 +871,9 @@ can comment it out in your code.</p>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 
+<span class="kn">import</span> <span class="nn">fmu.dataio</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">ut</span>
-
-<span class="kn">import</span> <span class="nn">fmu.dataio</span>
 
 <span class="n">CFG</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
 
@@ -977,7 +973,7 @@ can comment it out in your code.</p>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-09T11:15:55.425952+00:00&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-09T11:23:16.377937+00:00&#39;</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runner</span>
 <span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
@@ -1108,15 +1104,14 @@ surface that they should handle <cite>UNDEF</cite> as zero.</p>
 <section id="id4">
 <h3>Python script<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Use fmu-dataio for aggregated surfaces created by an aggregation service.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
+<span class="kn">import</span> <span class="nn">fmu.dataio</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xtgeo</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
-
-<span class="kn">import</span> <span class="nn">fmu.dataio</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -1165,9 +1160,6 @@ surface that they should handle <cite>UNDEF</cite> as zero.</p>
     <span class="c1"># This is the ID we assign to this set of aggregations</span>
     <span class="n">aggregation_id</span> <span class="o">=</span> <span class="s2">&quot;something_very_unique&quot;</span>  <span class="c1"># IRL this will usually be a uuid</span>
 
-    <span class="c1"># We aggregate these source surfaces and collect results in list of dictionaries</span>
-    <span class="n">aggregations</span> <span class="o">=</span> <span class="p">[]</span>
-
     <span class="c1"># Initialize an AggregatedData object for this set of aggregations</span>
     <span class="n">exp</span> <span class="o">=</span> <span class="n">fmu</span><span class="o">.</span><span class="n">dataio</span><span class="o">.</span><span class="n">AggregatedData</span><span class="p">(</span>
         <span class="n">source_metadata</span><span class="o">=</span><span class="n">source_metadata</span><span class="p">,</span>
@@ -1190,8 +1182,8 @@ surface that they should handle <cite>UNDEF</cite> as zero.</p>
 
         <span class="c1"># ==============================================================================</span>
         <span class="c1"># Example 2: We only want the metadata (e.g. we are in a cloud service)</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">aggregated_surface</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="n">operation</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Example 2: Metadata generated&quot;</span><span class="p">)</span>
+        <span class="n">exp</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">aggregated_surface</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="n">operation</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Example 2: Metadata generated&quot;</span><span class="p">)</span>
 
         <span class="c1"># At this point, we have the surface, the operation and the metadata</span>
         <span class="c1"># These can be collected into e.g. a list or a dictionary for further usage,</span>
@@ -1237,8 +1229,7 @@ surface that they should handle <cite>UNDEF</cite> as zero.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_metadata_filename</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
@@ -1261,7 +1252,10 @@ surface that they should handle <cite>UNDEF</cite> as zero.</p>
 
 
 <span class="k">def</span> <span class="nf">_get_source_surfaces_from_disk</span><span class="p">(</span>
-    <span class="n">casepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">iter_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">realization_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">relative_path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">casepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">iter_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">realization_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">relative_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Collect surfaces and metadata from disk.</span>
 
@@ -1301,7 +1295,10 @@ surface that they should handle <cite>UNDEF</cite> as zero.</p>
 
 
 <span class="k">def</span> <span class="nf">_get_source_surfaces_from_sumo</span><span class="p">(</span>
-    <span class="n">case_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iter_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">realization_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">relative_path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">case_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">iter_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">realization_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">relative_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Collect surfaces and metadata from Sumo.</span>
 
@@ -1311,7 +1308,7 @@ surface that they should handle <cite>UNDEF</cite> as zero.</p>
 
 <span class="sd">    Not implemented.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -1336,7 +1333,7 @@ surface that they should handle <cite>UNDEF</cite> as zero.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 1.9.1.dev3+gef36369).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 1.9.1.dev4+ge6a9285).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

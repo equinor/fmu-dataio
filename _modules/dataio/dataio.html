@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 1.9.1.dev3+gef36369 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 1.9.1.dev4+ge6a9285 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
@@ -113,9 +113,10 @@
     <span class="n">filter_validate_metadata</span><span class="p">,</span>
     <span class="n">generate_description</span><span class="p">,</span>
     <span class="n">prettyprint_dict</span><span class="p">,</span>
+    <span class="n">read_metadata</span> <span class="k">as</span> <span class="n">_utils_read_metadata</span><span class="p">,</span>
+    <span class="n">some_config_from_env</span><span class="p">,</span>
+    <span class="n">uuid_from_string</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="n">read_metadata</span> <span class="k">as</span> <span class="n">_utils_read_metadata</span>
-<span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="n">some_config_from_env</span><span class="p">,</span> <span class="n">uuid_from_string</span>
 
 <span class="n">INSIDE_RMS</span> <span class="o">=</span> <span class="n">detect_inside_rms</span><span class="p">()</span>
 
@@ -142,10 +143,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unsupported key, raise an error&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The input key &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">legals</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">valid_type</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">legals</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>  <span class="c1"># pylint: disable=eval-used</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">valid_type</span> <span class="o">=</span> <span class="n">legals</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="n">valid_type</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">legals</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">legals</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">legals</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">validcheck</span> <span class="o">=</span> <span class="n">valid_type</span><span class="o">.</span><span class="n">__args__</span>
@@ -252,13 +250,12 @@
     <span class="k">if</span> <span class="n">msg</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;err&quot;</span> <span class="ow">in</span> <span class="n">action</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
-                <span class="s2">&quot;The metadata may become invalid; hence no metadata file will be made, &quot;</span>
-                <span class="s2">&quot;but the data item may still be exported. Note: allowing these keys to &quot;</span>
-                <span class="s2">&quot;be missing is a temporary solution that may change in future versions!&quot;</span>
-            <span class="p">)</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">PendingDeprecationWarning</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="s2">&quot;The metadata may become invalid; hence no metadata file will be made, &quot;</span>
+            <span class="s2">&quot;but the data item may still be exported. Note: allowing these keys to &quot;</span>
+            <span class="s2">&quot;be missing is a temporary solution that may change in future versions!&quot;</span>
+        <span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">PendingDeprecationWarning</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="kc">False</span>
 
@@ -327,7 +324,7 @@
     <span class="n">replace_deprecated</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">valid</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">:</span>
             <span class="n">wanted_type</span> <span class="o">=</span> <span class="n">valid</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">wanted_type</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
@@ -363,10 +360,10 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rlist is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rlist</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;fields is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
         <span class="n">rkey</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">rlist</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rkey not in fields.keys(): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">rkey</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rkey not in fields.keys(): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">rkey</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rkey: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rkey</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;fields.keys(): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-        <span class="k">if</span> <span class="n">rkey</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rkey</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;The subkey &lt;</span><span class="si">{</span><span class="n">rkey</span><span class="si">}</span><span class="s2">&gt; is required for content &lt;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">,</span>
                 <span class="s2">&quot;but is not found&quot;</span><span class="p">,</span>
@@ -781,10 +778,10 @@
         <span class="c1"># derive legal input from dataclass signature</span>
         <span class="n">annots</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__annotations__&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">legals</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">annots</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)}</span>
-        <span class="k">if</span> <span class="s2">&quot;config&quot;</span> <span class="ow">in</span> <span class="n">legals</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s2">&quot;config&quot;</span> <span class="ow">in</span> <span class="n">legals</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">legals</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">]</span>  <span class="c1"># config cannot be updated</span>
 
-        <span class="k">if</span> <span class="s2">&quot;config&quot;</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s2">&quot;config&quot;</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot have &#39;config&#39; outside instance initialization&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -805,7 +802,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_ssdl</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;ssdl&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">]:</span>
-                <span class="n">newglobals</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">][</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                <span class="n">newglobals</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">][</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
             <span class="n">newglobals</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">][</span><span class="s2">&quot;ssdl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">access_ssdl</span><span class="p">)</span>
 
@@ -1006,8 +1003,7 @@
 
         <span class="k">if</span> <span class="n">return_symlink</span> <span class="ow">and</span> <span class="n">outfile_target</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile_target</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div></div>
 
 
 <span class="c1"># ######################################################################################</span>
@@ -1174,13 +1170,13 @@
 
         <span class="c1"># only asset, not ssdl</span>
         <span class="n">access</span> <span class="o">=</span> <span class="n">_metadata</span><span class="o">.</span><span class="n">generate_meta_access</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">][</span><span class="s2">&quot;asset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">access</span><span class="p">[</span><span class="s2">&quot;asset&quot;</span><span class="p">]</span>
 
-        <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>
 
-        <span class="n">mcase</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;case&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">mcase</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;case&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">mcase</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">casename</span>
         <span class="n">mcase</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
 
@@ -1378,8 +1374,7 @@
                     <span class="sa">f</span><span class="s2">&quot;The given casepath </span><span class="si">{</span><span class="n">casepath</span><span class="si">}</span><span class="s2"> does not exist. &quot;</span>
                     <span class="s2">&quot;It must exist in advance!&quot;</span>
                 <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">abspath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">casepath</span> <span class="o">/</span> <span class="n">relpath</span><span class="p">)</span>
+            <span class="n">abspath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">casepath</span> <span class="o">/</span> <span class="n">relpath</span><span class="p">)</span>
 
         <span class="n">relpath</span> <span class="o">=</span> <span class="n">relpath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">realiname</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">relpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
@@ -1436,7 +1431,7 @@
         <span class="c1"># fmu.realization shall not be used</span>
         <span class="k">del</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;realization&quot;</span><span class="p">]</span>
 
-        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">][</span><span class="s2">&quot;operation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span>
         <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">][</span><span class="s2">&quot;realization_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">real_ids</span>
         <span class="n">template</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">][</span><span class="s2">&quot;aggregation&quot;</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_id</span>
@@ -1586,7 +1581,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 1.9.1.dev3+gef36369).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 1.9.1.dev4+ge6a9285).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
