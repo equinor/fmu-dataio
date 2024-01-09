@@ -27,7 +27,6 @@ def run(
     # If FWL key is having multiple entries in the parameters file
     # KeyError is raised. This will be logged, and no OK
     # file is written
-
     _logger.setLevel(log_level)
 
     with open(parameters_file_name) as parameters_file:
@@ -40,6 +39,7 @@ def run(
     with open(template_file_name) as template_file:
         template = template_file.readlines()
 
+    valid = True
     with open(result_file_name, "w") as result_file:
         for line in template:
             if not is_comment(line):
@@ -47,12 +47,13 @@ def run(
                     line = line.replace(f"<{key}>", str(value))
 
                 if not all_matched(line, template_file_name, template):
-                    pass
+                    valid = False
 
             result_file.write(line)
 
-    with open(_STATUS_FILE_NAME, "w") as status_file:
-        status_file.write("DESIGN_KW OK\n")
+    if valid:
+        with open(_STATUS_FILE_NAME, "w") as status_file:
+            status_file.write("DESIGN_KW OK\n")
 
 
 def all_matched(line: str, template_file_name: str, template: list[str]) -> bool:

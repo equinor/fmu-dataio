@@ -89,7 +89,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 from pathlib import Path
-from typing import Any, Dict, Final, Optional
+from typing import Any, Final, Optional
 from warnings import warn
 
 import numpy as np
@@ -159,7 +159,7 @@ class _ObjectDataProvider:
 
         """
         logger.info("Evaluate data:name attribute and stratigraphy")
-        result: Dict[str, Any] = {}
+        result: dict[str, Any] = {}
 
         name = self.dataio.name
 
@@ -209,7 +209,7 @@ class _ObjectDataProvider:
     def _derive_objectdata(self) -> dict:
         """Derive object spesific data."""
         logger.info("Evaluate data settings for object")
-        result: Dict[str, Any] = {}
+        result: dict[str, Any] = {}
 
         if isinstance(self.obj, xtgeo.RegularSurface):
             result["subtype"] = "RegularSurface"
@@ -393,14 +393,14 @@ class _ObjectDataProvider:
         bbox["zmax"] = float(zmax)
         return specs, bbox
 
-    def _derive_spec_bbox_points(self) -> tuple[Dict[str, Any], Dict[str, Any]]:
+    def _derive_spec_bbox_points(self) -> tuple[dict[str, Any], dict[str, Any]]:
         """Process/collect the data.spec and data.bbox for Points"""
         logger.info("Derive bbox and specs for Points")
         pnts = self.obj
 
-        specs: Dict[str, Any] = {}
+        specs: dict[str, Any] = {}
 
-        bbox: Dict[str, Any] = {}
+        bbox: dict[str, Any] = {}
 
         if len(pnts.dataframe.columns) > 3:
             attrnames = pnts.dataframe.columns[3:]
@@ -482,8 +482,8 @@ class _ObjectDataProvider:
         logger.info("Derive bbox and specs for GridProperty")
         gridprop = self.obj
 
-        specs: Dict[str, Any] = {}
-        bbox: Dict[str, Any] = {}
+        specs: dict[str, Any] = {}
+        bbox: dict[str, Any] = {}
 
         specs["ncol"] = gridprop.ncol
         specs["nrow"] = gridprop.nrow
@@ -493,15 +493,15 @@ class _ObjectDataProvider:
     def _derive_spec_bbox_dataframe(
         self,
     ) -> tuple[
-        Dict[str, Any],
-        Dict[str, Any],
+        dict[str, Any],
+        dict[str, Any],
     ]:
         """Process/collect the data items for DataFrame."""
         logger.info("Process data metadata for DataFrame (tables)")
         dfr = self.obj
 
-        specs: Dict[str, Any] = {}
-        bbox: Dict[str, Any] = {}
+        specs: dict[str, Any] = {}
+        bbox: dict[str, Any] = {}
 
         specs["columns"] = list(dfr.columns)
         specs["size"] = int(dfr.size)
@@ -511,22 +511,22 @@ class _ObjectDataProvider:
     def _derive_spec_bbox_arrowtable(
         self,
     ) -> tuple[
-        Dict[str, Any],
-        Dict[str, Any],
+        dict[str, Any],
+        dict[str, Any],
     ]:
         """Process/collect the data items for Arrow table."""
         logger.info("Process data metadata for arrow (tables)")
         table = self.obj
 
-        specs: Dict[str, Any] = {}
-        bbox: Dict[str, Any] = {}
+        specs: dict[str, Any] = {}
+        bbox: dict[str, Any] = {}
 
         specs["columns"] = list(table.column_names)
         specs["size"] = table.num_columns * table.num_rows
 
         return specs, bbox
 
-    def _derive_spec_bbox_dict(self) -> tuple[Dict[str, Any], Dict[str, Any]]:
+    def _derive_spec_bbox_dict(self) -> tuple[dict[str, Any], dict[str, Any]]:
         """Process/collect the data items for dictionary."""
         logger.info("Process data metadata for dictionary")
         return {}, {}
@@ -591,12 +591,12 @@ class _ObjectDataProvider:
             timedata = self._derive_timedata_newformat()
         return timedata
 
-    def _derive_timedata_legacy(self) -> Dict[str, Any]:
+    def _derive_timedata_legacy(self) -> dict[str, Any]:
         """Format input timedata to metadata. legacy version."""
         # TODO(JB): Covnert tresult to TypedDict or Dataclass.
         tdata = self.dataio.timedata
 
-        tresult: Dict[str, Any] = {}
+        tresult: dict[str, Any] = {}
         tresult["time"] = []
         if len(tdata) == 1:
             elem = tdata[0]
@@ -640,7 +640,7 @@ class _ObjectDataProvider:
         set for those who wants it turned around).
         """
         tdata = self.dataio.timedata
-        tresult: Dict[str, Any] = {}
+        tresult: dict[str, Any] = {}
 
         if len(tdata) == 1:
             elem = tdata[0]

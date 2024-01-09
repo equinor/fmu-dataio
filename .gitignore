@@ -99,3 +99,6 @@ src/fmu/dataio/version.py
 
 # mypy
 .dmypy.json
+
+# Apple macOS
+.DS_Store 

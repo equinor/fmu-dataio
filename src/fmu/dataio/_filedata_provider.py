@@ -68,7 +68,6 @@ class _FileDataProvider:
 
     def derive_filedata(self) -> None:
         relpath, symrelpath = self._get_path()
-        assert relpath is not None
         relative, absolute = self._derive_filedata_generic(relpath)
         self.relative_path = relative
         self.absolute_path = absolute

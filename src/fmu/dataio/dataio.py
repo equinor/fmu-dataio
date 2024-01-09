@@ -11,7 +11,7 @@ import warnings
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, ClassVar, Final, List, Optional, Union
+from typing import Any, ClassVar, Final, List, Literal, Optional, Union
 from warnings import warn
 
 import pandas as pd
@@ -64,7 +64,7 @@ def _validate_variable(key: str, value: type, legals: dict[str, str | type]) -> 
 
     legal_key = legals[key]
     # Potential issue: Eval will use the modules namespace. If given
-    #   "from typing import ClassVar" or simular
+    #   "from typing import ClassVar" or similar.
     # is missing from the namespace, eval(...) will fail.
     valid_type = eval(legal_key) if isinstance(legal_key, str) else legal_key
 
@@ -74,7 +74,6 @@ def _validate_variable(key: str, value: type, legals: dict[str, str | type]) -> 
         validcheck = valid_type
 
     if "typing." not in str(validcheck):
-        print(f"{value=}, {validcheck=}, {type(value)=}, {type(validcheck)=}")
         if not isinstance(value, validcheck):
             logger.warning("Wrong type of value, raise an error")
             raise ValidationError(
@@ -550,7 +549,7 @@ class ExportData:
     grid_fformat: ClassVar[str] = "roff"
     include_ert2jobs: ClassVar[bool] = False  # if True, include jobs.json from ERT2
     legacy_time_format: ClassVar[bool] = False
-    meta_format: ClassVar[str] = "yaml"
+    meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
     polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     surface_fformat: ClassVar[str] = "irap_binary"
@@ -976,7 +975,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     """
 
     # class variables
-    meta_format: ClassVar[str] = "yaml"
+    meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
 
     # instance
     config: dict
@@ -1209,7 +1208,7 @@ class AggregatedData:
     """
 
     # class variable(s)
-    meta_format: ClassVar[str] = "yaml"
+    meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
 
     # instance
     aggregation_id: Optional[str] = None

@@ -59,7 +59,7 @@ class _ValidFormats:
     )
 
 
-ALLOWED_CONTENTS = {
+ALLOWED_CONTENTS: Final = {
     "depth": None,
     "time": None,
     "thickness": None,
@@ -92,14 +92,14 @@ ALLOWED_CONTENTS = {
     "transmissibilities": None,
 }
 
-STANDARD_TABLE_INDEX_COLUMNS = {
+STANDARD_TABLE_INDEX_COLUMNS: Final = {
     "inplace_volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
     "timeseries": ["DATE"],  # summary
     "rft": ["measured_depth", "well", "time"],
     "wellpicks": ["WELL", "HORIZON"],
 }
 
-DEPRECATED_CONTENTS = {
+DEPRECATED_CONTENTS: Final = {
     "seismic": {
         "offset": {
             "replaced_by": "stacking_offset",
@@ -109,7 +109,7 @@ DEPRECATED_CONTENTS = {
 
 # This setting will set if subkeys is required or not. If not found in list then
 # assume False.
-CONTENTS_REQUIRED = {
+CONTENTS_REQUIRED: Final = {
     "fluid_contact": {"contact": True},
     "field_outline": {"contact": False},
     "field_region": {"id": True},
@@ -117,7 +117,7 @@ CONTENTS_REQUIRED = {
 
 # This setting sets the FMU context for the output. If detected as a non-fmu run,
 # the code will internally set actual_context=None
-ALLOWED_FMU_CONTEXTS = {
+ALLOWED_FMU_CONTEXTS: Final = {
     "realization": "To realization-N/iter_M/share",
     "case": "To casename/share, but will also work on project disk",
     "case_symlink_realization": "To case/share, with symlinks on realizations level",

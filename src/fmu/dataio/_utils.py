@@ -13,7 +13,7 @@ import warnings
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, Literal
 
 import pandas as pd
 import yaml
@@ -83,7 +83,10 @@ def drop_nones(dinput: dict) -> dict:
 
 
 def export_metadata_file(
-    yfile: Path, metadata: dict, savefmt: str = "yaml", verbosity: str = "WARNING"
+    yfile: Path,
+    metadata: dict,
+    savefmt: Literal["yaml", "json"] = "yaml",
+    verbosity: str = "WARNING",
 ) -> None:
     """Export genericly and ordered to the complementary metadata file."""
     logger.setLevel(level=verbosity)
