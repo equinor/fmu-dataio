@@ -2,6 +2,8 @@
 
 The metadata spec is documented as a JSON schema, stored under schema/.
 """
+from __future__ import annotations
+
 import logging
 import os
 import uuid
@@ -9,10 +11,10 @@ import warnings
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, ClassVar, List, Optional, Tuple, Union
+from typing import Any, ClassVar, Final, List, Literal, Optional, Union
 from warnings import warn
 
-import pandas as pd  # type: ignore
+import pandas as pd
 
 from . import _metadata
 from ._definitions import (
@@ -35,13 +37,13 @@ from ._utils import (
     uuid_from_string,
 )
 
-INSIDE_RMS = detect_inside_rms()
+INSIDE_RMS: Final = detect_inside_rms()
 
 
-GLOBAL_ENVNAME = "FMU_GLOBAL_CONFIG"
-SETTINGS_ENVNAME = "FMU_DATAIO_CONFIG"  # input settings from a spesific file!
+GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
+SETTINGS_ENVNAME: Final = "FMU_DATAIO_CONFIG"  # input settings from a spesific file!
 
-logger = logging.getLogger(__name__)
+logger: Final = logging.getLogger(__name__)
 logging.captureWarnings(True)
 
 
@@ -54,13 +56,17 @@ class ValidationError(ValueError, KeyError):
 # ======================================================================================
 
 
-def _validate_variable(key, value, legals) -> bool:
+def _validate_variable(key: str, value: type, legals: dict[str, str | type]) -> bool:
     """Use data from __annotions__ to validate that overriden var. is of legal type."""
     if key not in legals:
         logger.warning("Unsupported key, raise an error")
         raise ValidationError(f"The input key '{key}' is not supported")
 
-    valid_type = eval(legals[key]) if isinstance(legals[key], str) else legals[key]
+    legal_key = legals[key]
+    # Potential issue: Eval will use the modules namespace. If given
+    #   "from typing import ClassVar" or similar.
+    # is missing from the namespace, eval(...) will fail.
+    valid_type = eval(legal_key) if isinstance(legal_key, str) else legal_key
 
     try:
         validcheck = valid_type.__args__
@@ -173,14 +179,13 @@ def _check_global_config(
             "be missing is a temporary solution that may change in future versions!"
         )
         warnings.warn(msg, PendingDeprecationWarning)
-
         return False
 
     return True
 
 
 # the two next content key related function may require refactoring/simplification
-def _check_content(proposed: Union[str, dict]) -> Any:
+def _check_content(proposed: str | dict | None) -> Any:
     """Check content and return a validated version."""
     logger.info("Evaluate content")
 
@@ -230,7 +235,7 @@ def _check_content(proposed: Union[str, dict]) -> Any:
     return usecontent, content_specific
 
 
-def _content_validate(name, fields):
+def _content_validate(name: str, fields: dict[str, type]) -> None:
     logger.debug("starting staticmethod _data_process_content_validate")
     valid = ALLOWED_CONTENTS.get(name, None)
     if valid is None:
@@ -292,7 +297,7 @@ def _content_validate(name, fields):
 # ======================================================================================
 
 
-def read_metadata(filename: Union[str, Path]) -> dict:
+def read_metadata(filename: str | Path) -> dict:
     """Read the metadata as a dictionary given a filename.
 
     If the filename is e.g. /some/path/mymap.gri, the assosiated metafile
@@ -544,7 +549,7 @@ class ExportData:
     grid_fformat: ClassVar[str] = "roff"
     include_ert2jobs: ClassVar[bool] = False  # if True, include jobs.json from ERT2
     legacy_time_format: ClassVar[bool] = False
-    meta_format: ClassVar[str] = "yaml"
+    meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
     polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     surface_fformat: ClassVar[str] = "irap_binary"
@@ -596,7 +601,7 @@ class ExportData:
     # << NB! storing ACTUAL casepath:
     _rootpath: Path = field(default_factory=Path, init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         logger.setLevel(level=self.verbosity)
         logger.info("Running __post_init__ ExportData")
         logger.debug("Global config is %s", prettyprint_dict(self.config))
@@ -610,7 +615,7 @@ class ExportData:
 
             if external_input:
                 # derive legal input from dataclass signature
-                annots = getattr(self, "__annotations__", None)
+                annots = getattr(self, "__annotations__", {})
                 legals = {
                     key: val for key, val in annots.items() if not key.startswith("_")
                 }
@@ -628,6 +633,7 @@ class ExportData:
         # global config which may be given as env variable -> a file; will override
         if GLOBAL_ENVNAME in os.environ:
             theconfig = some_config_from_env(GLOBAL_ENVNAME)
+            assert theconfig is not None
             self._config_is_valid = _check_global_config(
                 theconfig, strict=True, action="warn"
             )
@@ -649,7 +655,7 @@ class ExportData:
         logger.info("FMU context is %s", self.fmu_context)
         logger.info("Ran __post_init__")
 
-    def _show_deprecations_or_notimplemented(self):
+    def _show_deprecations_or_notimplemented(self) -> None:
         """Warn on deprecated keys or on stuff not implemented yet."""
 
         if self.runpath:
@@ -666,12 +672,11 @@ class ExportData:
                 PendingDeprecationWarning,
             )
 
-    def _validate_content_key(self):
+    def _validate_content_key(self) -> None:
         """Validate the given 'content' input."""
-
         self._usecontent, self._content_specific = _check_content(self.content)
 
-    def _validate_fmucontext_key(self):
+    def _validate_fmucontext_key(self) -> None:
         """Validate the given 'fmu_context' input."""
         if self.fmu_context not in ALLOWED_FMU_CONTEXTS:
             msg = ""
@@ -713,7 +718,7 @@ class ExportData:
         self._validate_fmucontext_key()
         logger.info("Validate FMU context which is now %s", self.fmu_context)
 
-    def _update_globalconfig_from_settings(self):
+    def _update_globalconfig_from_settings(self) -> None:
         """A few user settings may update/append the global config directly."""
         newglobals = deepcopy(self.config)
 
@@ -729,7 +734,7 @@ class ExportData:
 
         self.config = newglobals
 
-    def _establish_pwd_rootpath(self):
+    def _establish_pwd_rootpath(self) -> None:
         """Establish state variables pwd and the (initial) rootpath.
 
         The self._pwd stores the process working directory, i.e. the folder
@@ -761,8 +766,8 @@ class ExportData:
             if self._inside_rms or INSIDE_RMS or "RUN_DATAIO_EXAMPLES" in os.environ:
                 self._rootpath = (self._pwd / "../../.").absolute().resolve()
                 logger.info("Run from inside RMS (or pretend)")
-                self._inside_rms = True
-        # make some extra keys in settings:
+                # BUG(?): Should be ExportData._inside_rms ?
+                self._inside_rms = True  # type: ignore[misc]
         self._usecontext = self.fmu_context  # may change later!
 
         logger.info("pwd:        %s", str(self._pwd))
@@ -806,7 +811,9 @@ class ExportData:
     # Public methods:
     # ==================================================================================
 
-    def generate_metadata(self, obj: Any, compute_md5: bool = True, **kwargs) -> dict:
+    def generate_metadata(
+        self, obj: object, compute_md5: bool = True, **kwargs: object
+    ) -> dict:
         """Generate and return the complete metadata for a provided object.
 
         An object may be a map, 3D grid, cube, table, etc which is of a known and
@@ -858,7 +865,12 @@ class ExportData:
 
         return deepcopy(self._metadata)
 
-    def export(self, obj, return_symlink=False, **kwargs) -> str:
+    def export(
+        self,
+        obj: object,
+        return_symlink: bool = False,
+        **kwargs: Any,
+    ) -> str:
         """Export data objects of 'known' type to FMU storage solution with metadata.
 
         This function will also collect the data spesific class metadata. For "classic"
@@ -886,17 +898,23 @@ class ExportData:
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
-        useflag: Union[bool, str]
-        if isinstance(obj, pd.DataFrame):
-            useflag = self.table_include_index
-        else:
-            useflag = self._usefmtflag
+        useflag = (
+            self.table_include_index
+            if isinstance(obj, pd.DataFrame)
+            else self._usefmtflag
+        )
 
         obj = self._check_obj_if_file(obj)
         logger.info("Export to file and compute MD5 sum, using flag: <%s>", useflag)
-        outfile, md5 = export_file_compute_checksum_md5(
-            obj, outfile, outfile.suffix, flag=useflag
+        toutfile, md5 = export_file_compute_checksum_md5(
+            obj,
+            outfile,
+            outfile.suffix,
+            flag=useflag,  # type: ignore
+            # BUG(?): Looks buggy, if flag is bool export_file will blow up.
         )
+        assert toutfile is not None
+        outfile = toutfile
         # inject md5 checksum in metadata
         metadata["file"]["checksum_md5"] = md5
         logger.info("Actual file is:   %s", outfile)
@@ -912,9 +930,9 @@ class ExportData:
         if metadata["file"].get("absolute_path_symlink"):
             outfile_target = Path(metadata["file"]["absolute_path_symlink"])
             outfile_source = Path(metadata["file"]["absolute_path"])
-            create_symlink(outfile_source, outfile_target)
+            create_symlink(str(outfile_source), str(outfile_target))
             metafile_target = outfile_target.parent / ("." + str(outfile.name) + ".yml")
-            create_symlink(metafile, metafile_target)
+            create_symlink(str(metafile), str(metafile_target))
 
         self._metadata = metadata
 
@@ -957,7 +975,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     """
 
     # class variables
-    meta_format: ClassVar[str] = "yaml"
+    meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
 
     # instance
     config: dict
@@ -973,11 +991,13 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     _pwd: Path = field(default_factory=Path, init=False)
     _casepath: Path = field(default_factory=Path, init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         logger.setLevel(level=self.verbosity)
 
         if not self.config or GLOBAL_ENVNAME in os.environ:
-            self.config = some_config_from_env(GLOBAL_ENVNAME)
+            cnf = some_config_from_env(GLOBAL_ENVNAME)
+            assert cnf is not None
+            self.config = cnf
 
         # For this class, the global config must be valid; hence error if not
         _check_global_config(self.config, strict=True, action="error")
@@ -1006,7 +1026,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
                     logger.setLevel(level=self.verbosity)
                 logger.info("New setting OK for %s", setting)
 
-    def _establish_pwd_casepath(self):
+    def _establish_pwd_casepath(self) -> None:
         """Establish state variables pwd and casepath.
 
         See ExportData's method but this is much simpler (e.g. no RMS context)
@@ -1027,7 +1047,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.info("Set PWD (case): %s", str(self._pwd))
         logger.info("Set rootpath (case): %s", str(self._casepath))
 
-    def _check_already_metadata_or_create_folder(self, force=False) -> bool:
+    def _check_already_metadata_or_create_folder(self, force: bool = False) -> bool:
         if not self._casepath.exists():
             self._casepath.mkdir(parents=True, exist_ok=True)
             logger.info("Created rootpath (case) %s", self._casepath)
@@ -1050,8 +1070,11 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     # ==================================================================================
 
     def generate_metadata(
-        self, force: bool = False, skip_null=True, **kwargs
-    ) -> Union[dict, None]:
+        self,
+        force: bool = False,
+        skip_null: bool = True,
+        **kwargs: object,
+    ) -> dict | None:
         """Generate case metadata.
 
         Args:
@@ -1087,6 +1110,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
         # only asset, not ssdl
         access = _metadata.generate_meta_access(self.config)
+        assert access is not None
         meta["access"] = {}
         meta["access"]["asset"] = access["asset"]
 
@@ -1114,7 +1138,12 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     # alias
     generate_case_metadata = generate_metadata
 
-    def export(self, force: bool = False, skip_null=True, **kwargs) -> Union[str, None]:
+    def export(
+        self,
+        force: bool = False,
+        skip_null: bool = True,
+        **kwargs: dict[str, Any],
+    ) -> str | None:
         """Export case metadata to file.
 
         Args:
@@ -1179,7 +1208,7 @@ class AggregatedData:
     """
 
     # class variable(s)
-    meta_format: ClassVar[str] = "yaml"
+    meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
 
     # instance
     aggregation_id: Optional[str] = None
@@ -1193,7 +1222,7 @@ class AggregatedData:
     _metadata: dict = field(default_factory=dict, init=False)
     _metafile: Path = field(default_factory=Path, init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         logger.setLevel(level=self.verbosity)
 
     @staticmethod
@@ -1221,7 +1250,7 @@ class AggregatedData:
                     logger.setLevel(level=self.verbosity)
                 logger.info("New setting OK for %s", setting)
 
-    def _construct_filename(self, template: dict) -> Tuple[Path, Path]:
+    def _construct_filename(self, template: dict) -> tuple[Path, Path | None]:
         """Construct the paths/filenames for aggregated data.
 
         These filenames are constructed a bit different than in a forward job, since we
@@ -1323,8 +1352,12 @@ class AggregatedData:
         return relname, absname
 
     def _generate_aggrd_metadata(
-        self, obj: Any, real_ids: List[int], uuids: List[str], compute_md5: bool = True
-    ):
+        self,
+        obj: object,
+        real_ids: list[int],
+        uuids: list[str],
+        compute_md5: bool = True,
+    ) -> None:
         logger.info(
             "self.aggregation is %s (%s)",
             self.aggregation_id,
@@ -1392,10 +1425,10 @@ class AggregatedData:
 
     def generate_metadata(
         self,
-        obj: Any,
+        obj: object,
         compute_md5: bool = True,
         skip_null: bool = True,
-        **kwargs,
+        **kwargs: object,
     ) -> dict:
         """Generate metadata for the aggregated data.
 
@@ -1441,17 +1474,17 @@ class AggregatedData:
     # alias method
     def generate_aggregation_metadata(
         self,
-        obj: Any,
+        obj: object,
         compute_md5: bool = True,
         skip_null: bool = True,
-        **kwargs,
+        **kwargs: object,
     ) -> dict:
         """Alias method name, see ``generate_metadata``"""
         return self.generate_metadata(
             obj, compute_md5=compute_md5, skip_null=skip_null, **kwargs
         )
 
-    def export(self, obj, **kwargs) -> str:
+    def export(self, obj: object, **kwargs: object) -> str:
         """Export aggregated file with metadata to file.
 
         Args:
@@ -1478,7 +1511,9 @@ class AggregatedData:
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
         logger.info("Export to file and compute MD5 sum")
-        outfile, md5 = export_file_compute_checksum_md5(obj, outfile, outfile.suffix)
+        toutfile, md5 = export_file_compute_checksum_md5(obj, outfile, outfile.suffix)
+        assert toutfile is not None
+        outfile = Path(toutfile)
 
         # inject the computed md5 checksum in metadata
         metadata["file"]["checksum_md5"] = md5

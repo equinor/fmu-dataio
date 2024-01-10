@@ -1,44 +1,65 @@
 """Various definitions and hard settings used in fmu-dataio."""
-from dataclasses import dataclass, field
+from __future__ import annotations
 
-SCHEMA = (
+from dataclasses import dataclass, field
+from typing import Final
+
+SCHEMA: Final = (
     "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json"
 )
-VERSION = "0.8.0"
-SOURCE = "fmu"
+VERSION: Final = "0.8.0"
+SOURCE: Final = "fmu"
 
 
 @dataclass
 class _ValidFormats:
-    surface: dict = field(default_factory=dict)
-    grid: dict = field(default_factory=dict)
-    cube: dict = field(default_factory=dict)
-    table: dict = field(default_factory=dict)
-    polygons: dict = field(default_factory=dict)
-    points: dict = field(default_factory=dict)
-    dictionary: dict = field(default_factory=dict)
-
-    def __post_init__(self):
-        self.surface = {"irap_binary": ".gri"}
-        self.grid = {"hdf": ".hdf", "roff": ".roff"}
-        self.cube = {"segy": ".segy"}
-        self.table = {"hdf": ".hdf", "csv": ".csv", "arrow": ".arrow"}
-        self.polygons = {
+    surface: dict = field(
+        default_factory=lambda: {
+            "irap_binary": ".gri",
+        }
+    )
+    grid: dict = field(
+        default_factory=lambda: {
+            "hdf": ".hdf",
+            "roff": ".roff",
+        }
+    )
+    cube: dict = field(
+        default_factory=lambda: {
+            "segy": ".segy",
+        }
+    )
+    table: dict = field(
+        default_factory=lambda: {
+            "hdf": ".hdf",
+            "csv": ".csv",
+            "arrow": ".arrow",
+        }
+    )
+    polygons: dict = field(
+        default_factory=lambda: {
             "hdf": ".hdf",
             "csv": ".csv",  # columns will be X Y Z, ID
             "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, ... POLY_ID
             "irap_ascii": ".pol",
         }
-        self.points = {
+    )
+    points: dict = field(
+        default_factory=lambda: {
             "hdf": ".hdf",
             "csv": ".csv",  # columns will be X Y Z
             "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS
             "irap_ascii": ".poi",
         }
-        self.dictionary = {"json": ".json"}
+    )
+    dictionary: dict = field(
+        default_factory=lambda: {
+            "json": ".json",
+        }
+    )
 
 
-ALLOWED_CONTENTS = {
+ALLOWED_CONTENTS: Final = {
     "depth": None,
     "time": None,
     "thickness": None,
@@ -71,14 +92,14 @@ ALLOWED_CONTENTS = {
     "transmissibilities": None,
 }
 
-STANDARD_TABLE_INDEX_COLUMNS = {
+STANDARD_TABLE_INDEX_COLUMNS: Final = {
     "inplace_volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
     "timeseries": ["DATE"],  # summary
     "rft": ["measured_depth", "well", "time"],
     "wellpicks": ["WELL", "HORIZON"],
 }
 
-DEPRECATED_CONTENTS = {
+DEPRECATED_CONTENTS: Final = {
     "seismic": {
         "offset": {
             "replaced_by": "stacking_offset",
@@ -88,7 +109,7 @@ DEPRECATED_CONTENTS = {
 
 # This setting will set if subkeys is required or not. If not found in list then
 # assume False.
-CONTENTS_REQUIRED = {
+CONTENTS_REQUIRED: Final = {
     "fluid_contact": {"contact": True},
     "field_outline": {"contact": False},
     "field_region": {"id": True},
@@ -96,7 +117,7 @@ CONTENTS_REQUIRED = {
 
 # This setting sets the FMU context for the output. If detected as a non-fmu run,
 # the code will internally set actual_context=None
-ALLOWED_FMU_CONTEXTS = {
+ALLOWED_FMU_CONTEXTS: Final = {
     "realization": "To realization-N/iter_M/share",
     "case": "To casename/share, but will also work on project disk",
     "case_symlink_realization": "To case/share, with symlinks on realizations level",

@@ -3,15 +3,16 @@
 Populate and verify stuff in the 'file' block in fmu (partial excpetion is checksum_md5
 as this is convinient to populate later, on demand)
 """
+from __future__ import annotations
 
 import logging
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Final, Optional
 from warnings import warn
 
-logger = logging.getLogger(__name__)
+logger: Final = logging.getLogger(__name__)
 
 
 @dataclass
@@ -41,7 +42,7 @@ class _FileDataProvider:
     absolute_path_symlink: Optional[str] = field(default="", init=False)
     checksum_md5: Optional[str] = field(default="", init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         logger.setLevel(level=self.verbosity)
 
         if self.dataio.name:
@@ -63,9 +64,9 @@ class _FileDataProvider:
 
         self.fmu_context = self.dataio._usecontext  # may be None!
 
-        logger.info("Initialize %s", __class__)
+        logger.info("Initialize %s", self.__class__)
 
-    def derive_filedata(self):
+    def derive_filedata(self) -> None:
         relpath, symrelpath = self._get_path()
         relative, absolute = self._derive_filedata_generic(relpath)
         self.relative_path = relative
@@ -78,7 +79,7 @@ class _FileDataProvider:
 
         logger.info("Derived filedata")
 
-    def _derive_filedata_generic(self, inrelpath):
+    def _derive_filedata_generic(self, inrelpath: Path) -> tuple[str, str]:
         """This works with both normal data and symlinks."""
         stem = self._get_filestem()
 
@@ -116,7 +117,7 @@ class _FileDataProvider:
         logger.info("Derived filedata")
         return str(relpath), str(abspath)
 
-    def _get_filestem(self):
+    def _get_filestem(self) -> str:
         """Construct the file"""
 
         if not self.name:
@@ -153,13 +154,13 @@ class _FileDataProvider:
             stem = stem.replace("__", "_")
 
         # treat norwegian special letters
+        # BUG(?): What about germen letter like "Ü"?
         stem = stem.replace("æ", "ae")
         stem = stem.replace("ø", "oe")
         return stem.replace("å", "aa")
 
-    def _get_path(self):
+    def _get_path(self) -> tuple[Path, Path | None]:
         """Construct and get the folder path(s)."""
-        dest = None
         linkdest = None
 
         dest = self._get_path_generic(mode=self.fmu_context, allow_forcefolder=True)
@@ -171,7 +172,9 @@ class _FileDataProvider:
 
         return dest, linkdest
 
-    def _get_path_generic(self, mode="realization", allow_forcefolder=True, info=""):
+    def _get_path_generic(
+        self, mode: str = "realization", allow_forcefolder: bool = True, info: str = ""
+    ) -> Path:
         """Generically construct and get the folder path and verify."""
         dest = None
 
@@ -212,8 +215,7 @@ class _FileDataProvider:
             warn("Using absolute paths in forcefolder is not recommended!")
 
             # absolute if starts with "/", otherwise relative to outroot
-            dest = Path(self.dataio.forcefolder)
-            dest = dest.absolute()
+            dest = Path(self.dataio.forcefolder).absolute()
             self.forcefolder_is_absolute = True
 
             if not allow_forcefolder:

@@ -83,28 +83,30 @@ data:
         - Depth surfaces extracted from the structural model
 
 """
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 from pathlib import Path
-from typing import Any, Optional, Tuple
+from typing import Any, Final, Optional
 from warnings import warn
 
 import numpy as np
-import pandas as pd  # type: ignore
-import xtgeo  # type: ignore
+import pandas as pd
+import xtgeo
 
 from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, _ValidFormats
 from ._utils import generate_description, parse_timedata
 
 try:
-    import pyarrow as pa  # type: ignore
+    import pyarrow as pa
 except ImportError:
     HAS_PYARROW = False
 else:
     HAS_PYARROW = True
 
-logger = logging.getLogger(__name__)
+logger: Final = logging.getLogger(__name__)
 
 
 class ConfigurationError(ValueError):
@@ -143,7 +145,7 @@ class _ObjectDataProvider:
     time0: str = field(default="", init=False)
     time1: str = field(default="", init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         logger.info("Ran __post_init__")
 
     def _derive_name_stratigraphy(self) -> dict:
@@ -157,7 +159,7 @@ class _ObjectDataProvider:
 
         """
         logger.info("Evaluate data:name attribute and stratigraphy")
-        result = {}  # shorter form
+        result: dict[str, Any] = {}
 
         name = self.dataio.name
 
@@ -179,7 +181,7 @@ class _ObjectDataProvider:
             result["name"] = strat[name].get("name", name)
             result["alias"] = strat[name].get("alias", [])
             if result["name"] != "name":
-                result["alias"].append(name)  # type: ignore
+                result["alias"].append(name)
             result["stratigraphic"] = strat[name].get("stratigraphic", False)
             result["stratigraphic_alias"] = strat[name].get("stratigraphic_alias", None)
             result["offset"] = strat[name].get("offset", None)
@@ -190,7 +192,11 @@ class _ObjectDataProvider:
         return result
 
     @staticmethod
-    def _validate_get_ext(fmt, subtype, validator):
+    def _validate_get_ext(
+        fmt: str,
+        subtype: str,
+        validator: dict[str, Any],
+    ) -> object | None:
         """Validate that fmt (file format) matches data and return legal extension."""
         if fmt not in validator:
             raise ConfigurationError(
@@ -200,10 +206,10 @@ class _ObjectDataProvider:
 
         return validator.get(fmt, None)
 
-    def _derive_objectdata(self):
+    def _derive_objectdata(self) -> dict:
         """Derive object spesific data."""
         logger.info("Evaluate data settings for object")
-        result = {}
+        result: dict[str, Any] = {}
 
         if isinstance(self.obj, xtgeo.RegularSurface):
             result["subtype"] = "RegularSurface"
@@ -212,7 +218,9 @@ class _ObjectDataProvider:
             result["efolder"] = "maps"
             result["fmt"] = self.dataio.surface_fformat
             result["extension"] = self._validate_get_ext(
-                result["fmt"], result["subtype"], _ValidFormats().surface
+                result["fmt"],
+                result["subtype"],
+                _ValidFormats().surface,
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_regularsurface()
 
@@ -223,7 +231,9 @@ class _ObjectDataProvider:
             result["efolder"] = "polygons"
             result["fmt"] = self.dataio.polygons_fformat
             result["extension"] = self._validate_get_ext(
-                result["fmt"], result["subtype"], _ValidFormats().polygons
+                result["fmt"],
+                result["subtype"],
+                _ValidFormats().polygons,
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_polygons()
 
@@ -234,7 +244,9 @@ class _ObjectDataProvider:
             result["efolder"] = "points"
             result["fmt"] = self.dataio.points_fformat
             result["extension"] = self._validate_get_ext(
-                result["fmt"], result["subtype"], _ValidFormats().points
+                result["fmt"],
+                result["subtype"],
+                _ValidFormats().points,
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_points()
 
@@ -245,7 +257,9 @@ class _ObjectDataProvider:
             result["efolder"] = "cubes"
             result["fmt"] = self.dataio.cube_fformat
             result["extension"] = self._validate_get_ext(
-                result["fmt"], result["subtype"], _ValidFormats().cube
+                result["fmt"],
+                result["subtype"],
+                _ValidFormats().cube,
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_cube()
 
@@ -256,7 +270,9 @@ class _ObjectDataProvider:
             result["efolder"] = "grids"
             result["fmt"] = self.dataio.grid_fformat
             result["extension"] = self._validate_get_ext(
-                result["fmt"], result["subtype"], _ValidFormats().grid
+                result["fmt"],
+                result["subtype"],
+                _ValidFormats().grid,
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_cpgrid()
 
@@ -267,7 +283,9 @@ class _ObjectDataProvider:
             result["efolder"] = "grids"
             result["fmt"] = self.dataio.grid_fformat
             result["extension"] = self._validate_get_ext(
-                result["fmt"], result["subtype"], _ValidFormats().grid
+                result["fmt"],
+                result["subtype"],
+                _ValidFormats().grid,
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_cpgridproperty()
 
@@ -280,7 +298,9 @@ class _ObjectDataProvider:
             result["efolder"] = "tables"
             result["fmt"] = self.dataio.table_fformat
             result["extension"] = self._validate_get_ext(
-                result["fmt"], result["subtype"], _ValidFormats().table
+                result["fmt"],
+                result["subtype"],
+                _ValidFormats().table,
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_dataframe()
 
@@ -293,7 +313,9 @@ class _ObjectDataProvider:
             result["efolder"] = "tables"
             result["fmt"] = self.dataio.arrow_fformat
             result["extension"] = self._validate_get_ext(
-                result["fmt"], result["subtype"], _ValidFormats().table
+                result["fmt"],
+                result["subtype"],
+                _ValidFormats().table,
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
 
@@ -304,7 +326,9 @@ class _ObjectDataProvider:
             result["efolder"] = "dictionaries"
             result["fmt"] = self.dataio.dict_fformat
             result["extension"] = self._validate_get_ext(
-                result["fmt"], result["subtype"], _ValidFormats().dictionary
+                result["fmt"],
+                result["subtype"],
+                _ValidFormats().dictionary,
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_dict()
 
@@ -326,7 +350,7 @@ class _ObjectDataProvider:
 
         return result
 
-    def _derive_spec_bbox_regularsurface(self):
+    def _derive_spec_bbox_regularsurface(self) -> tuple[dict, dict]:
         """Process/collect the data.spec and data.bbox for RegularSurface"""
         logger.info("Derive bbox and specs for RegularSurface")
         regsurf = self.obj
@@ -350,7 +374,7 @@ class _ObjectDataProvider:
 
         return specs, bbox
 
-    def _derive_spec_bbox_polygons(self):
+    def _derive_spec_bbox_polygons(self) -> tuple[dict, dict]:
         """Process/collect the data.spec and data.bbox for Polygons"""
         logger.info("Derive bbox and specs for Polygons")
         poly = self.obj
@@ -369,13 +393,14 @@ class _ObjectDataProvider:
         bbox["zmax"] = float(zmax)
         return specs, bbox
 
-    def _derive_spec_bbox_points(self):
+    def _derive_spec_bbox_points(self) -> tuple[dict[str, Any], dict[str, Any]]:
         """Process/collect the data.spec and data.bbox for Points"""
         logger.info("Derive bbox and specs for Points")
         pnts = self.obj
 
-        specs = {}
-        bbox = {}
+        specs: dict[str, Any] = {}
+
+        bbox: dict[str, Any] = {}
 
         if len(pnts.dataframe.columns) > 3:
             attrnames = pnts.dataframe.columns[3:]
@@ -391,7 +416,7 @@ class _ObjectDataProvider:
 
         return specs, bbox
 
-    def _derive_spec_bbox_cube(self):
+    def _derive_spec_bbox_cube(self) -> tuple[dict, dict]:
         """Process/collect the data.spec and data.bbox Cube"""
         logger.info("Derive bbox and specs for Cube")
         cube = self.obj
@@ -428,7 +453,7 @@ class _ObjectDataProvider:
 
         return specs, bbox
 
-    def _derive_spec_bbox_cpgrid(self):
+    def _derive_spec_bbox_cpgrid(self) -> tuple[dict, dict]:
         """Process/collect the data.spec and data.bbox CornerPoint Grid geometry"""
         logger.info("Derive bbox and specs for Gride (geometry)")
         grid = self.obj
@@ -452,55 +477,61 @@ class _ObjectDataProvider:
         bbox["zmax"] = round(float(geox["zmax"]), 4)
         return specs, bbox
 
-    def _derive_spec_bbox_cpgridproperty(self):
+    def _derive_spec_bbox_cpgridproperty(self) -> tuple[dict, dict]:
         """Process/collect the data.spec and data.bbox GridProperty"""
         logger.info("Derive bbox and specs for GridProperty")
         gridprop = self.obj
 
-        specs = {}
-        bbox = {}
+        specs: dict[str, Any] = {}
+        bbox: dict[str, Any] = {}
 
         specs["ncol"] = gridprop.ncol
         specs["nrow"] = gridprop.nrow
         specs["nlay"] = gridprop.nlay
         return specs, bbox
 
-    def _derive_spec_bbox_dataframe(self):
+    def _derive_spec_bbox_dataframe(
+        self,
+    ) -> tuple[
+        dict[str, Any],
+        dict[str, Any],
+    ]:
         """Process/collect the data items for DataFrame."""
         logger.info("Process data metadata for DataFrame (tables)")
         dfr = self.obj
 
-        specs = {}
-        bbox = {}
+        specs: dict[str, Any] = {}
+        bbox: dict[str, Any] = {}
 
         specs["columns"] = list(dfr.columns)
         specs["size"] = int(dfr.size)
 
         return specs, bbox
 
-    def _derive_spec_bbox_arrowtable(self):
+    def _derive_spec_bbox_arrowtable(
+        self,
+    ) -> tuple[
+        dict[str, Any],
+        dict[str, Any],
+    ]:
         """Process/collect the data items for Arrow table."""
         logger.info("Process data metadata for arrow (tables)")
         table = self.obj
 
-        specs = {}
-        bbox = {}
+        specs: dict[str, Any] = {}
+        bbox: dict[str, Any] = {}
 
         specs["columns"] = list(table.column_names)
         specs["size"] = table.num_columns * table.num_rows
 
         return specs, bbox
 
-    def _derive_spec_bbox_dict(self):
+    def _derive_spec_bbox_dict(self) -> tuple[dict[str, Any], dict[str, Any]]:
         """Process/collect the data items for dictionary."""
         logger.info("Process data metadata for dictionary")
+        return {}, {}
 
-        specs = {}
-        bbox = {}
-
-        return specs, bbox
-
-    def _get_columns(self):
+    def _get_columns(self) -> list[str]:
         """Get the columns from table"""
         if isinstance(self.obj, pd.DataFrame):
             logger.debug("pandas")
@@ -511,7 +542,7 @@ class _ObjectDataProvider:
         logger.debug("Available columns in table %s ", columns)
         return columns
 
-    def _derive_index(self):
+    def _derive_index(self) -> list[str]:
         """Derive table index"""
         # This could in the future also return context
         columns = self._get_columns()
@@ -534,7 +565,7 @@ class _ObjectDataProvider:
         self._check_index(index)
         return index
 
-    def _check_index(self, index):
+    def _check_index(self, index: list[str]) -> None:
         """Check the table index.
         Args:
             index (list): list of column names
@@ -547,7 +578,7 @@ class _ObjectDataProvider:
         for not_found in not_founds:
             raise KeyError(f"{not_found} is not in table")
 
-    def _derive_timedata(self):
+    def _derive_timedata(self) -> dict:
         """Format input timedata to metadata."""
 
         tdata = self.dataio.timedata
@@ -560,11 +591,12 @@ class _ObjectDataProvider:
             timedata = self._derive_timedata_newformat()
         return timedata
 
-    def _derive_timedata_legacy(self):
+    def _derive_timedata_legacy(self) -> dict[str, Any]:
         """Format input timedata to metadata. legacy version."""
+        # TODO(JB): Covnert tresult to TypedDict or Dataclass.
         tdata = self.dataio.timedata
 
-        tresult = {}
+        tresult: dict[str, Any] = {}
         tresult["time"] = []
         if len(tdata) == 1:
             elem = tdata[0]
@@ -598,7 +630,7 @@ class _ObjectDataProvider:
         logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self.time1)
         return tresult
 
-    def _derive_timedata_newformat(self):
+    def _derive_timedata_newformat(self) -> dict[str, Any]:
         """Format input timedata to metadata, new format.
 
         When using two dates, input convention is [[newestdate, "monitor"], [oldestdate,
@@ -608,7 +640,7 @@ class _ObjectDataProvider:
         set for those who wants it turned around).
         """
         tdata = self.dataio.timedata
-        tresult = {}
+        tresult: dict[str, Any] = {}
 
         if len(tdata) == 1:
             elem = tdata[0]
@@ -642,11 +674,12 @@ class _ObjectDataProvider:
         logger.info("Timedata: time0 is %s while time1 is %s", self.time0, self.time1)
         return tresult
 
-    def _derive_from_existing(self):
+    def _derive_from_existing(self) -> None:
         """Derive from existing metadata."""
 
         # do not change any items in 'data' block, as it may ruin e.g. stratigrapical
         # setting (i.e. changing data.name is not allowed)
+        assert self.meta_existing is not None
         self.metadata = self.meta_existing["data"]
         self.name = self.meta_existing["data"]["name"]
 
@@ -661,9 +694,10 @@ class _ObjectDataProvider:
         self.extension = relpath.suffix
         self.fmt = self.meta_existing["data"]["format"]
 
-        self.time0, self.time1 = parse_timedata(self.meta_existing["data"])
+        # TODO: Clean up types below.
+        self.time0, self.time1 = parse_timedata(self.meta_existing["data"])  # type: ignore
 
-    def _process_content(self) -> Tuple[str, Optional[dict]]:
+    def _process_content(self) -> tuple[str, dict | None]:
         """Work with the `content` metadata"""
 
         # content == "unset" is not wanted, but in case metadata has been produced while
@@ -693,7 +727,7 @@ class _ObjectDataProvider:
 
         return content, content_spesific
 
-    def derive_metadata(self):
+    def derive_metadata(self) -> None:
         """Main function here, will populate the metadata block for 'data'."""
         logger.info("Derive all metadata for data object...")
 

@@ -1,4 +1,7 @@
 """Module for private utilities/helpers for DataIO class."""
+from __future__ import annotations
+
+import contextlib
 import hashlib
 import json
 import logging
@@ -10,39 +13,26 @@ import warnings
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Final, Literal
 
-import pandas as pd  # type: ignore
+import pandas as pd
 import yaml
 
 from fmu.config import utilities as ut
 
 try:
-    import pyarrow as pa  # type: ignore
+    import pyarrow as pa
 except ImportError:
     HAS_PYARROW = False
 else:
     HAS_PYARROW = True
     from pyarrow import feather
 
-import contextlib
-
-import xtgeo  # type: ignore
+import xtgeo
 
 from . import _design_kw, _oyaml as oyaml
 
-logger = logging.getLogger(__name__)
-
-
-def inherit_docstring(inherit_from):
-    """Local decorator to inherit a docstring"""
-
-    def decorator_set_docstring(func):
-        if func.__doc__ is None and inherit_from.__doc__ is not None:
-            func.__doc__ = inherit_from.__doc__
-        return func
-
-    return decorator_set_docstring
+logger: Final = logging.getLogger(__name__)
 
 
 def detect_inside_rms() -> bool:
@@ -54,7 +44,7 @@ def detect_inside_rms() -> bool:
     """
     inside_rms = False
     try:
-        import roxar  # type: ignore
+        import roxar
 
         inside_rms = True
         logger.info("Roxar version is %s", roxar.__version__)
@@ -92,14 +82,19 @@ def drop_nones(dinput: dict) -> dict:
     return dd
 
 
-def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -> None:
+def export_metadata_file(
+    yfile: Path,
+    metadata: dict,
+    savefmt: Literal["yaml", "json"] = "yaml",
+    verbosity: str = "WARNING",
+) -> None:
     """Export genericly and ordered to the complementary metadata file."""
     logger.setLevel(level=verbosity)
     if metadata:
         xdata = drop_nones(metadata)
 
         if savefmt == "yaml":
-            yamlblock = oyaml.safe_dump(xdata, allow_unicode=True)
+            yamlblock = oyaml.safe_dump(xdata, allow_unicode=True)  # type: ignore
             with open(yfile, "w", encoding="utf8") as stream:
                 stream.write(yamlblock)
         else:
@@ -115,7 +110,12 @@ def export_metadata_file(yfile, metadata, savefmt="yaml", verbosity="WARNING") -
     logger.info("Yaml file on: %s", yfile)
 
 
-def export_file(obj, filename, extension, flag=None):
+def export_file(
+    obj: object,
+    filename: Path,
+    extension: str,
+    flag: str | None = None,
+) -> str:
     """Export a valid object to file"""
 
     if isinstance(obj, Path):
@@ -125,6 +125,7 @@ def export_file(obj, filename, extension, flag=None):
         obj.to_file(filename, fformat="irap_binary")
     elif extension == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
         out = obj.copy()  # to not modify incoming instance!
+        assert flag is not None
         if "xtgeo" not in flag:
             out.xname = "X"
             out.yname = "Y"
@@ -160,7 +161,7 @@ def export_file(obj, filename, extension, flag=None):
     return str(filename)
 
 
-def md5sum(fname):
+def md5sum(fname: Path) -> str:
     hash_md5 = hashlib.md5()
     with open(fname, "rb") as fil:
         for chunk in iter(lambda: fil.read(4096), b""):
@@ -168,14 +169,21 @@ def md5sum(fname):
     return hash_md5.hexdigest()
 
 
-def export_file_compute_checksum_md5(obj, filename, extension, flag=None, tmp=False):
+def export_file_compute_checksum_md5(
+    obj: object,
+    filename: Path,
+    extension: str,
+    flag: str | None = None,
+    tmp: bool = False,
+) -> tuple[Path | None, str]:
     """Export and compute checksum, with possibility to use a tmp file."""
 
-    usefile = filename
+    usefile: Path | None = filename
     if tmp:
         tmpdir = tempfile.TemporaryDirectory()
         usefile = Path(tmpdir.name) / "tmpfile"
 
+    assert usefile is not None
     export_file(obj, usefile, extension, flag=flag)
     checksum = md5sum(usefile)
     if tmp:
@@ -184,7 +192,7 @@ def export_file_compute_checksum_md5(obj, filename, extension, flag=None, tmp=Fa
     return usefile, checksum
 
 
-def create_symlink(source, target):
+def create_symlink(source: str, target: str) -> None:
     """Create a symlinked file with some checks."""
 
     thesource = Path(source)
@@ -202,16 +210,16 @@ def create_symlink(source, target):
         raise OSError(f"Target file {thesource} does not exist or is not a symlink.")
 
 
-def size(fname):
+def size(fname: str) -> int:
     return Path(fname).stat().st_size
 
 
-def uuid_from_string(string):
+def uuid_from_string(string: str) -> str:
     """Produce valid and repeteable UUID4 as a hash of given string"""
     return str(uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest()))
 
 
-def read_parameters_txt(pfile: Union[Path, str]) -> Dict[str, Union[str, float, int]]:
+def read_parameters_txt(pfile: Path | str) -> dict[str, str | float | int | None]:
     """Read the parameters.txt file and convert to a dict.
     The parameters.txt file has this structure::
       SENSNAME rms_seed
@@ -255,8 +263,8 @@ def read_parameters_txt(pfile: Union[Path, str]) -> Dict[str, Union[str, float, 
 
 
 def nested_parameters_dict(
-    paramdict: Dict[str, Union[str, int, float]],
-) -> Dict[str, Union[str, int, float, Dict[str, Union[str, int, float]]]]:
+    paramdict: dict[str, str | int | float],
+) -> dict[str, str | int | float | dict[str, str | int | float]]:
     """Interpret a flat parameters dictionary into a nested dictionary, based on
     presence of colons in keys.
 
@@ -265,10 +273,8 @@ def nested_parameters_dict(
     In design_kw (semeio) this namespace identifier is actively ignored, meaning that
     the keys without the namespace must be unique.
     """
-    nested_dict: Dict[
-        str, Union[str, int, float, Dict[str, Union[str, int, float]]]
-    ] = {}
-    unique_keys: List[str] = []
+    nested_dict: dict[str, str | int | float | dict[str, str | int | float]] = {}
+    unique_keys: list[str] = []
     for key, value in paramdict.items():
         if ":" in key:
             subdict, newkey = key.split(":", 1)
@@ -285,26 +291,22 @@ def nested_parameters_dict(
     return nested_dict
 
 
-def check_if_number(value):
+def check_if_number(value: str | None) -> int | float | str | None:
     """Check if value (str) looks like a number and return the converted value."""
 
     if value is None:
         return None
 
-    res = None
-    try:
-        res = int(value)
-    except ValueError:
-        with contextlib.suppress(ValueError):
-            res = float(value)
+    with contextlib.suppress(ValueError):
+        return int(value)
 
-    if res is not None:
-        return res
+    with contextlib.suppress(ValueError):
+        return float(value)
 
     return value
 
 
-def get_object_name(obj):
+def get_object_name(obj: Path) -> str | None:
     """Get the name of the object.
 
     If not possible, return None.
@@ -342,7 +344,7 @@ def prettyprint_dict(inp: dict) -> str:
     return str(json.dumps(inp, indent=2, default=str, ensure_ascii=False))
 
 
-def some_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
+def some_config_from_env(envvar: str = "FMU_GLOBAL_CONFIG") -> dict | None:
     """Get the config from environment variable.
 
     This function is only called if config SHALL be fetched from the environment
@@ -354,14 +356,12 @@ def some_config_from_env(envvar="FMU_GLOBAL_CONFIG") -> dict:
         cfg_path = os.environ[envvar]
     else:
         warnings.warn(
-            (
-                "No config was received. "
-                "The config should be given explicitly as an input argument, or "
-                f"the environment variable {envvar} must point to a valid yaml file. "
-                "A missing config will still export a file, but without a metadata "
-                "file. Such exports may be disabled in a future version of fmu.dataio",
-                UserWarning,
-            )
+            "No config was received. "
+            "The config should be given explicitly as an input argument, or "
+            f"the environment variable {envvar} must point to a valid yaml file. "
+            "A missing config will still export a file, but without a metadata "
+            "file. Such exports may be disabled in a future version of fmu.dataio",
+            UserWarning,
         )
         return None
 
@@ -394,7 +394,7 @@ def filter_validate_metadata(metadata_in: dict) -> dict:
     return metadata
 
 
-def generate_description(desc: Optional[Union[str, list]] = None) -> Union[list, None]:
+def generate_description(desc: str | list | None = None) -> list | None:
     """Parse desciption input (generic)."""
     if not desc:
         return None
@@ -407,7 +407,7 @@ def generate_description(desc: Optional[Union[str, list]] = None) -> Union[list,
     raise ValueError("Description of wrong type, must be list of strings or string")
 
 
-def read_metadata(filename: Union[str, Path]) -> dict:
+def read_metadata(filename: str | Path) -> dict:
     """Read the metadata as a dictionary given a filename.
 
     If the filename is e.g. /some/path/mymap.gri, the assosiated metafile
@@ -431,7 +431,9 @@ def read_metadata(filename: Union[str, Path]) -> dict:
         return yaml.safe_load(stream)
 
 
-def glue_metadata_preprocessed(oldmeta, newmeta):
+def glue_metadata_preprocessed(
+    oldmeta: dict[str, Any], newmeta: dict[str, Any]
+) -> dict[str, Any]:
     """Glue (combine) to metadata dicts according to rule 'preprocessed'."""
 
     meta = oldmeta.copy()
@@ -448,7 +450,10 @@ def glue_metadata_preprocessed(oldmeta, newmeta):
     return meta
 
 
-def parse_timedata(datablock: dict, isoformat=True):
+def parse_timedata(
+    datablock: dict,
+    isoformat: bool = True,
+) -> tuple[str | None, str | None]:
     """The time section under datablock has variants to parse.
 
     Formats::
@@ -492,7 +497,7 @@ def parse_timedata(datablock: dict, isoformat=True):
     if isinstance(datablock["time"], list):
         date0 = datablock["time"][0]["value"]
 
-        if len(datablock["time"] == 2):
+        if len(datablock["time"]) == 2:
             date1 = datablock["time"][1]["value"]
 
     elif isinstance(datablock["time"], dict):
@@ -503,10 +508,10 @@ def parse_timedata(datablock: dict, isoformat=True):
     if not isoformat:
         if date0:
             tdate0 = datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S")
-            date0 = tdate0.datetime.strftime("%Y%m%d")
+            date0 = tdate0.strftime("%Y%m%d")
 
         if date1:
             tdate1 = datetime.strptime(date1, "%Y-%m-%dT%H:%M:%S")
-            date1 = tdate1.datetime.strftime("%Y%m%d")
+            date1 = tdate1.strftime("%Y%m%d")
 
     return (date0, date1)
