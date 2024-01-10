@@ -7,7 +7,6 @@ import json
 import logging
 import os
 import shutil
-import tempfile
 import uuid
 import warnings
 from copy import deepcopy
@@ -174,22 +173,10 @@ def export_file_compute_checksum_md5(
     filename: Path,
     extension: str,
     flag: str | None = None,
-    tmp: bool = False,
-) -> tuple[Path | None, str]:
-    """Export and compute checksum, with possibility to use a tmp file."""
-
-    usefile: Path | None = filename
-    if tmp:
-        tmpdir = tempfile.TemporaryDirectory()
-        usefile = Path(tmpdir.name) / "tmpfile"
-
-    assert usefile is not None
-    export_file(obj, usefile, extension, flag=flag)
-    checksum = md5sum(usefile)
-    if tmp:
-        tmpdir.cleanup()
-        usefile = None
-    return usefile, checksum
+) -> str:
+    """Export and compute checksum"""
+    export_file(obj, filename, extension, flag=flag)
+    return md5sum(filename)
 
 
 def create_symlink(source: str, target: str) -> None:

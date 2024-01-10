@@ -12,6 +12,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any, Final
 from warnings import warn
 
@@ -305,15 +306,14 @@ class _MetaData:
             self.meta_file["absolute_path_symlink"] = fdata.absolute_path_symlink
 
         if self.compute_md5:
-            logger.info("Compute MD5 sum for tmp file...")
-            _, self.meta_file["checksum_md5"] = export_file_compute_checksum_md5(
-                self.obj,
-                "tmp",  # type: ignore
-                # tmp = true given, this arg is not needed.
-                self.objdata.extension,
-                tmp=True,
-                flag=self.dataio._usefmtflag,
-            )
+            with NamedTemporaryFile(buffering=0) as tf:
+                logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
+                self.meta_file["checksum_md5"] = export_file_compute_checksum_md5(
+                    self.obj,
+                    Path(tf.name),
+                    self.objdata.extension,
+                    flag=self.dataio._usefmtflag,
+                )
         else:
             logger.info("Do not compute MD5 sum at this stage!")
             self.meta_file["checksum_md5"] = None
