@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gcafb98f documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g2c13a20 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
@@ -989,17 +989,14 @@
 
         <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_obj_if_file</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum, using flag: &lt;</span><span class="si">%s</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="n">useflag</span><span class="p">)</span>
-        <span class="n">toutfile</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
+        <span class="c1"># inject md5 checksum in metadata</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
             <span class="n">obj</span><span class="p">,</span>
             <span class="n">outfile</span><span class="p">,</span>
             <span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span>
             <span class="n">flag</span><span class="o">=</span><span class="n">useflag</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
             <span class="c1"># BUG(?): Looks buggy, if flag is bool export_file will blow up.</span>
         <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">toutfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="n">outfile</span> <span class="o">=</span> <span class="n">toutfile</span>
-        <span class="c1"># inject md5 checksum in metadata</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">md5</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Actual file is:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span><span class="p">:</span>
@@ -1594,12 +1591,10 @@
         <span class="n">metafile</span> <span class="o">=</span> <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum&quot;</span><span class="p">)</span>
-        <span class="n">toutfile</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">export_file_compute_checksum_md5</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">toutfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="n">outfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">toutfile</span><span class="p">)</span>
-
         <span class="c1"># inject the computed md5 checksum in metadata</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">md5</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
+            <span class="n">obj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span>
+        <span class="p">)</span>
 
         <span class="n">export_metadata_file</span><span class="p">(</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">savefmt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_format</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Actual file is:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
@@ -1616,7 +1611,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gcafb98f).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g2c13a20).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
