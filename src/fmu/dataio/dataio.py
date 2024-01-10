@@ -910,7 +910,6 @@ class ExportData:
         metadata["file"]["checksum_md5"] = export_file_compute_checksum_md5(
             obj,
             outfile,
-            outfile.suffix,
             flag=useflag,  # type: ignore
             # BUG(?): Looks buggy, if flag is bool export_file will blow up.
         )
@@ -1510,7 +1509,7 @@ class AggregatedData:
         logger.info("Export to file and compute MD5 sum")
         # inject the computed md5 checksum in metadata
         metadata["file"]["checksum_md5"] = export_file_compute_checksum_md5(
-            obj, outfile, outfile.suffix
+            obj, outfile
         )
 
         export_metadata_file(metafile, metadata, savefmt=self.meta_format)

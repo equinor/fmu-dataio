@@ -112,7 +112,6 @@ def export_metadata_file(
 def export_file(
     obj: object,
     filename: Path,
-    extension: str,
     flag: str | None = None,
 ) -> str:
     """Export a valid object to file"""
@@ -120,9 +119,9 @@ def export_file(
     if isinstance(obj, Path):
         # special case when processing data which already has metadata
         shutil.copy(obj, filename)
-    elif extension == ".gri" and isinstance(obj, xtgeo.RegularSurface):
+    elif filename.suffix == ".gri" and isinstance(obj, xtgeo.RegularSurface):
         obj.to_file(filename, fformat="irap_binary")
-    elif extension == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
+    elif filename.suffix == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
         out = obj.copy()  # to not modify incoming instance!
         assert flag is not None
         if "xtgeo" not in flag:
@@ -133,16 +132,18 @@ def export_file(
                 # out.pname = "ID"  not working
                 out.dataframe.rename(columns={out.pname: "ID"}, inplace=True)
         out.dataframe.to_csv(filename, index=False)
-    elif extension == ".pol" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
+    elif filename.suffix == ".pol" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
         obj.to_file(filename)
-    elif extension == ".segy" and isinstance(obj, xtgeo.Cube):
+    elif filename.suffix == ".segy" and isinstance(obj, xtgeo.Cube):
         obj.to_file(filename, fformat="segy")
-    elif extension == ".roff" and isinstance(obj, (xtgeo.Grid, xtgeo.GridProperty)):
+    elif filename.suffix == ".roff" and isinstance(
+        obj, (xtgeo.Grid, xtgeo.GridProperty)
+    ):
         obj.to_file(filename, fformat="roff")
-    elif extension == ".csv" and isinstance(obj, pd.DataFrame):
+    elif filename.suffix == ".csv" and isinstance(obj, pd.DataFrame):
         includeindex = flag == "include_index"
         obj.to_csv(filename, index=includeindex)
-    elif extension == ".arrow" and HAS_PYARROW and isinstance(obj, pa.Table):
+    elif filename.suffix == ".arrow" and HAS_PYARROW and isinstance(obj, pa.Table):
         # comment taken from equinor/webviz_subsurface/smry2arrow.py
 
         # Writing here is done through the feather import, but could also be done using
@@ -151,11 +152,11 @@ def export_file(
         # actual file format is the same
         # (https://arrow.apache.org/docs/python/feather.html)
         feather.write_feather(obj, dest=filename)
-    elif extension == ".json":
+    elif filename.suffix == ".json":
         with open(filename, "w") as stream:
             json.dump(obj, stream)
     else:
-        raise TypeError(f"Exporting {extension} for {type(obj)} is not supported")
+        raise TypeError(f"Exporting {filename.suffix} for {type(obj)} is not supported")
 
     return str(filename)
 
@@ -171,11 +172,10 @@ def md5sum(fname: Path) -> str:
 def export_file_compute_checksum_md5(
     obj: object,
     filename: Path,
-    extension: str,
     flag: str | None = None,
 ) -> str:
     """Export and compute checksum"""
-    export_file(obj, filename, extension, flag=flag)
+    export_file(obj, filename, flag=flag)
     return md5sum(filename)
 
 
