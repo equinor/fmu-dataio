@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.scripts.create_case_metadata &mdash; fmu.dataio 1.9.1.dev6+g623488f documentation</title>
+  <title>dataio.scripts.create_case_metadata &mdash; fmu.dataio 0.1.dev1+gcafb98f documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
@@ -91,25 +91,28 @@
 <span class="sd">pointed towards the produced global_variables, fmu-config should run</span>
 <span class="sd">before this script to make sure global_variables is updated.&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Final</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">ert.shared.plugins.plugin_manager</span> <span class="kn">import</span> <span class="n">hook_implementation</span>  <span class="c1"># type: ignore</span>
+    <span class="kn">from</span> <span class="nn">ert.shared.plugins.plugin_manager</span> <span class="kn">import</span> <span class="n">hook_implementation</span>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">ert_shared.plugins.plugin_manager</span> <span class="kn">import</span> <span class="n">hook_implementation</span>  <span class="c1"># type: ignore</span>
+    <span class="kn">from</span> <span class="nn">ert_shared.plugins.plugin_manager</span> <span class="kn">import</span> <span class="n">hook_implementation</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">ert</span> <span class="kn">import</span> <span class="n">ErtScript</span>  <span class="c1"># type: ignore</span>
+    <span class="kn">from</span> <span class="nn">ert</span> <span class="kn">import</span> <span class="n">ErtScript</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">res.job_queue</span> <span class="kn">import</span> <span class="n">ErtScript</span>  <span class="c1"># type: ignore</span>
+    <span class="kn">from</span> <span class="nn">res.job_queue</span> <span class="kn">import</span> <span class="n">ErtScript</span>
 
 <span class="kn">from</span> <span class="nn">fmu.dataio</span> <span class="kn">import</span> <span class="n">InitializeCase</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">)</span>
 
 <span class="c1"># This documentation is for ERT workflow</span>
@@ -157,7 +160,7 @@
     <span class="c1"># name in fmu-dataio</span>
 
     <span class="c1"># pylint: disable=too-few-public-methods</span>
-<div class="viewcode-block" id="WfCreateCaseMetadata.run"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.WfCreateCaseMetadata.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="WfCreateCaseMetadata.run"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.WfCreateCaseMetadata.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># pylint: disable=no-self-use</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse arguments and call _create_case_metadata_main()&quot;&quot;&quot;</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
@@ -165,18 +168,19 @@
         <span class="n">create_case_metadata_main</span><span class="p">(</span><span class="n">workflow_args</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="create_case_metadata_main"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.create_case_metadata_main">[docs]</a><span class="k">def</span> <span class="nf">create_case_metadata_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="create_case_metadata_main"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.create_case_metadata_main">[docs]</a><span class="k">def</span> <span class="nf">create_case_metadata_main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the case metadata and register case on Sumo.&quot;&quot;&quot;</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
     <span class="n">check_arguments</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="n">case_metadata_path</span> <span class="o">=</span> <span class="n">create_metadata</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">case_metadata_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="n">register_on_sumo</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">case_metadata_path</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;create_case_metadata.py has finished.&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="create_metadata"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.create_metadata">[docs]</a><span class="k">def</span> <span class="nf">create_metadata</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="create_metadata"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.create_metadata">[docs]</a><span class="k">def</span> <span class="nf">create_metadata</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the case metadata and print them to the disk&quot;&quot;&quot;</span>
     <span class="n">_global_variables_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ert_config_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">global_variables_path</span><span class="p">)</span>
     <span class="n">global_variables</span> <span class="o">=</span> <span class="n">_parse_yaml</span><span class="p">(</span><span class="n">_global_variables_path</span><span class="p">)</span>
@@ -188,7 +192,8 @@
         <span class="n">rootfolder</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ert_caseroot</span><span class="p">,</span>
         <span class="n">casename</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ert_casename</span><span class="p">,</span>
         <span class="n">caseuser</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ert_username</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+        <span class="c1"># BUG(JB): description must be str accoring to dataclass</span>
     <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Case metadata has been made: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">case_metadata_path</span><span class="p">)</span>
@@ -196,7 +201,10 @@
     <span class="k">return</span> <span class="n">case_metadata_path</span></div>
 
 
-<div class="viewcode-block" id="register_on_sumo"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.register_on_sumo">[docs]</a><span class="k">def</span> <span class="nf">register_on_sumo</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">case_metadata_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="register_on_sumo"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.register_on_sumo">[docs]</a><span class="k">def</span> <span class="nf">register_on_sumo</span><span class="p">(</span>
+    <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">,</span>
+    <span class="n">case_metadata_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Register the case on Sumo by sending the case metadata&quot;&quot;&quot;</span>
 
     <span class="n">env</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">sumo_env</span>
@@ -225,14 +233,14 @@
     <span class="k">return</span> <span class="n">sumo_id</span></div>
 
 
-<span class="k">def</span> <span class="nf">_parse_yaml</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_parse_yaml</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the global variables, return as dict&quot;&quot;&quot;</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="check_arguments"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.check_arguments">[docs]</a><span class="k">def</span> <span class="nf">check_arguments</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="check_arguments"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.check_arguments">[docs]</a><span class="k">def</span> <span class="nf">check_arguments</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Do basic sanity checks of input&quot;&quot;&quot;</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking input arguments&quot;</span><span class="p">)</span>
@@ -271,9 +279,12 @@
 
 
 <span class="nd">@hook_implementation</span>
-<span class="k">def</span> <span class="nf">legacy_ertscript_workflow</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">legacy_ertscript_workflow</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Hook the WfCreateCaseMetadata class with documentation into ERT.&quot;&quot;&quot;</span>
-    <span class="n">workflow</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">add_workflow</span><span class="p">(</span><span class="n">WfCreateCaseMetadata</span><span class="p">,</span> <span class="s2">&quot;WF_CREATE_CASE_METADATA&quot;</span><span class="p">)</span>
+    <span class="n">workflow</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">add_workflow</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+        <span class="n">WfCreateCaseMetadata</span><span class="p">,</span>
+        <span class="s2">&quot;WF_CREATE_CASE_METADATA&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">workflow</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span>
     <span class="n">workflow</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">DESCRIPTION</span>
     <span class="n">workflow</span><span class="o">.</span><span class="n">examples</span> <span class="o">=</span> <span class="n">EXAMPLES</span>
@@ -291,7 +302,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 1.9.1.dev6+g623488f).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gcafb98f).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
