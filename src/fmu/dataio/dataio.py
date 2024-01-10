@@ -906,17 +906,14 @@ class ExportData:
 
         obj = self._check_obj_if_file(obj)
         logger.info("Export to file and compute MD5 sum, using flag: <%s>", useflag)
-        toutfile, md5 = export_file_compute_checksum_md5(
+        # inject md5 checksum in metadata
+        metadata["file"]["checksum_md5"] = export_file_compute_checksum_md5(
             obj,
             outfile,
             outfile.suffix,
             flag=useflag,  # type: ignore
             # BUG(?): Looks buggy, if flag is bool export_file will blow up.
         )
-        assert toutfile is not None
-        outfile = toutfile
-        # inject md5 checksum in metadata
-        metadata["file"]["checksum_md5"] = md5
         logger.info("Actual file is:   %s", outfile)
 
         if self._config_is_valid:
@@ -1511,12 +1508,10 @@ class AggregatedData:
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
         logger.info("Export to file and compute MD5 sum")
-        toutfile, md5 = export_file_compute_checksum_md5(obj, outfile, outfile.suffix)
-        assert toutfile is not None
-        outfile = Path(toutfile)
-
         # inject the computed md5 checksum in metadata
-        metadata["file"]["checksum_md5"] = md5
+        metadata["file"]["checksum_md5"] = export_file_compute_checksum_md5(
+            obj, outfile, outfile.suffix
+        )
 
         export_metadata_file(metafile, metadata, savefmt=self.meta_format)
         logger.info("Actual file is:   %s", outfile)
