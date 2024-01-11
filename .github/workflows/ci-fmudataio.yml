@@ -1,7 +1,4 @@
-# build and test some end points
 name: Build and test fmu-dataio
-
-# on: [push, pull_request]
 
 on:
   pull_request:
@@ -13,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         os: [ubuntu-latest]
 
     steps:
@@ -25,10 +22,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install fmu-dataio
-        run: >
-          pip install pip -U &&
+        run: |
+          pip install pip -U
           pip install .[dev]
 
       - name: Full test
-        run: >
-          pytest --disable-warnings -x
+        run: pytest --disable-warnings -x
