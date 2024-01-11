@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 import pytest
 import yaml
@@ -133,3 +134,69 @@ def test_invalid_dict(globalconfig2, drogon_summary, drogon_volumes):
         print(exc_info)
         exd.export(in_dict, name="invalid")
         assert exc_info[1] == "Object of type Table is not JSON serializable"
+
+
+def test_read_parameters_txt():
+    with NamedTemporaryFile() as tf:
+        tf.write(
+            b"""SENSNAME rms_seed
+SENSCASE p10_p90
+RMS_SEED 1000
+KVKH_CHANNEL 0.6
+KVKH_CREVASSE 0.3
+GLOBVAR:VOLON_FLOODPLAIN_VOLFRAC 0.256355
+GLOBVAR:VOLON_PERMH_CHANNEL 1100
+GLOBVAR:VOLON_PORO_CHANNEL 0.2
+LOG10_GLOBVAR:FAULT_SEAL_SCALING 0.685516
+LOG10_MULTREGT:MULT_THERYS_VOLON -3.21365
+LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
+"""
+        )
+        tf.flush()
+        assert read_parameters_txt(tf.name) == {
+            "SENSNAME": "rms_seed",
+            "SENSCASE": "p10_p90",
+            "RMS_SEED": 1000,
+            "KVKH_CHANNEL": 0.6,
+            "KVKH_CREVASSE": 0.3,
+            "GLOBVAR:VOLON_FLOODPLAIN_VOLFRAC": 0.256355,
+            "GLOBVAR:VOLON_PERMH_CHANNEL": 1100,
+            "GLOBVAR:VOLON_PORO_CHANNEL": 0.2,
+            "LOG10_GLOBVAR:FAULT_SEAL_SCALING": 0.685516,
+            "LOG10_MULTREGT:MULT_THERYS_VOLON": -3.21365,
+            "LOG10_MULTREGT:MULT_VALYSAR_THERYS": -3.2582,
+        }
+
+
+def test_nested_parameters_dict():
+    assert nested_parameters_dict(
+        {
+            "SENSNAME": "rms_seed",
+            "SENSCASE": "p10_p90",
+            "RMS_SEED": 1000,
+            "KVKH_CHANNEL": 0.6,
+            "KVKH_CREVASSE": 0.3,
+            "GLOBVAR:VOLON_FLOODPLAIN_VOLFRAC": 0.256355,
+            "GLOBVAR:VOLON_PERMH_CHANNEL": 1100,
+            "GLOBVAR:VOLON_PORO_CHANNEL": 0.2,
+            "LOG10_GLOBVAR:FAULT_SEAL_SCALING": 0.685516,
+            "LOG10_MULTREGT:MULT_THERYS_VOLON": -3.21365,
+            "LOG10_MULTREGT:MULT_VALYSAR_THERYS": -3.2582,
+        }
+    ) == {
+        "SENSNAME": "rms_seed",
+        "SENSCASE": "p10_p90",
+        "RMS_SEED": 1000,
+        "KVKH_CHANNEL": 0.6,
+        "KVKH_CREVASSE": 0.3,
+        "GLOBVAR": {
+            "VOLON_FLOODPLAIN_VOLFRAC": 0.256355,
+            "VOLON_PERMH_CHANNEL": 1100,
+            "VOLON_PORO_CHANNEL": 0.2,
+        },
+        "LOG10_GLOBVAR": {"FAULT_SEAL_SCALING": 0.685516},
+        "LOG10_MULTREGT": {
+            "MULT_THERYS_VOLON": -3.21365,
+            "MULT_VALYSAR_THERYS": -3.2582,
+        },
+    }
