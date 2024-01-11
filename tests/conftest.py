@@ -1,4 +1,5 @@
 """The conftest.py, providing magical fixtures to tests."""
+import contextlib
 import datetime
 import inspect
 import json
@@ -45,15 +46,39 @@ def pytest_configure():
         cprint(80 * "=", "red", attrs=["blink"])
 
 
+@contextlib.contextmanager
+def set_export_data_inside_rms_flag():
+    old = ExportData._inside_rms
+    ExportData._inside_rms = True
+    try:
+        yield
+    finally:
+        ExportData._inside_rms = old
+
+
+@contextlib.contextmanager
+def set_environ_inside_rms_flag():
+    unset = object()
+    old = os.environ.get("INSIDE_RMS", unset)
+    os.environ["INSIDE_RMS"] = "1"
+    try:
+        yield
+    finally:
+        if old is unset:
+            del os.environ["INSIDE_RMS"]
+        else:
+            os.environ["INSIDE_RMS"] = old
+
+
 def inside_rms(func):
     """Decorator for being inside RMS"""
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        ExportData._inside_rms = True
-        retval = func(*args, **kwargs)
-        ExportData._inside_rms = False
-        return retval
+        with contextlib.ExitStack() as exitstack:
+            exitstack.enter_context(set_environ_inside_rms_flag())
+            exitstack.enter_context(set_export_data_inside_rms_flag())
+            return func(*args, **kwargs)
 
     return wrapper
 

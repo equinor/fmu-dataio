@@ -41,21 +41,15 @@ def detect_inside_rms() -> bool:
     when using the Roxar API python, so that unit test outside of RMS behaves
     properly
     """
-    inside_rms = False
-    try:
+    with contextlib.suppress(ModuleNotFoundError):
         import roxar
 
-        inside_rms = True
         logger.info("Roxar version is %s", roxar.__version__)
-    except ModuleNotFoundError:
-        pass
+        return True
 
     # a special solution for testing mostly
-    if os.environ.get("INSIDE_RMS", 1) == "0":
-        inside_rms = False
-
+    inside_rms = os.environ.get("INSIDE_RMS", "0") != "0"
     logger.info("Running truly in RMS GUI status: %s", inside_rms)
-
     return inside_rms
 
 
@@ -82,31 +76,38 @@ def drop_nones(dinput: dict) -> dict:
 
 
 def export_metadata_file(
-    yfile: Path,
+    file: Path,
     metadata: dict,
     savefmt: Literal["yaml", "json"] = "yaml",
     verbosity: str = "WARNING",
 ) -> None:
     """Export genericly and ordered to the complementary metadata file."""
     logger.setLevel(level=verbosity)
-    if metadata:
-        xdata = drop_nones(metadata)
-
-        if savefmt == "yaml":
-            yamlblock = oyaml.safe_dump(xdata, allow_unicode=True)  # type: ignore
-            with open(yfile, "w", encoding="utf8") as stream:
-                stream.write(yamlblock)
-        else:
-            jfile = str(yfile).replace(".yml", ".json")
-            jsonblock = json.dumps(xdata, default=str, indent=2, ensure_ascii=False)
-            with open(jfile, "w") as stream:
-                stream.write(jsonblock)
-
-    else:
+    if not metadata:
         raise RuntimeError(
             "Export of metadata was requested, but no metadata are present."
         )
-    logger.info("Yaml file on: %s", yfile)
+
+    if savefmt == "yaml":
+        with open(file, "w", encoding="utf8") as stream:
+            stream.write(
+                oyaml.safe_dump(  # type: ignore
+                    drop_nones(metadata),
+                    allow_unicode=True,
+                )
+            )
+    else:
+        with open(file.replace(file.with_suffix(".json")), "w") as stream:
+            stream.write(
+                json.dumps(
+                    drop_nones(metadata),
+                    default=str,
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+
+    logger.info("Yaml file on: %s", file)
 
 
 def export_file(
