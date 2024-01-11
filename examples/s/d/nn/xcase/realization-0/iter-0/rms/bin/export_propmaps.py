@@ -34,11 +34,10 @@ NAMETRANSLATE = {
 
 INPUT_FOLDER = Path("../output/maps/grid_averages")
 
-dataio.ExportData._inside_rms = True
-
 
 def main():
     """Exporting maps from clipboard"""
+    dataio.ExportData._inside_rms = True
 
     files = INPUT_FOLDER.glob("*.gri")
 

@@ -53,6 +53,11 @@ def detect_inside_rms() -> bool:
     return inside_rms
 
 
+def dataio_examples() -> bool:
+    # This flag is set when the `run-exmaples.sh` script runs.
+    return "RUN_DATAIO_EXAMPLES" in os.environ
+
+
 def drop_nones(dinput: dict) -> dict:
     """Recursively drop Nones in dict dinput and return a new dict."""
     # https://stackoverflow.com/a/65379092

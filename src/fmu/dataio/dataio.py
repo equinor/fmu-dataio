@@ -25,6 +25,7 @@ from ._definitions import (
 )
 from ._utils import (
     create_symlink,
+    dataio_examples,
     detect_inside_rms,
     drop_nones,
     export_file_compute_checksum_md5,
@@ -37,6 +38,7 @@ from ._utils import (
     uuid_from_string,
 )
 
+DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
 
 
@@ -748,7 +750,7 @@ class ExportData:
         """
         logger.info(
             "Establish pwd and actual casepath, inside RMS flag is %s (actual: %s))",
-            self._inside_rms,
+            ExportData._inside_rms,
             INSIDE_RMS,
         )
         self._pwd = Path().absolute()
@@ -763,11 +765,16 @@ class ExportData:
             logger.info("The casepath is hard set as %s", self._rootpath)
 
         else:
-            if self._inside_rms or INSIDE_RMS or "RUN_DATAIO_EXAMPLES" in os.environ:
+            if ExportData._inside_rms or INSIDE_RMS or DATAIO_EXAMPLES:
+                logger.info(
+                    "Run from inside RMS: ExportData._inside_rms=%s, "
+                    "INSIDE_RMS=%s, DATAIO_EXAMPLES=%s",
+                    ExportData._inside_rms,
+                    INSIDE_RMS,
+                    DATAIO_EXAMPLES,
+                )
                 self._rootpath = (self._pwd / "../../.").absolute().resolve()
-                logger.info("Run from inside RMS (or pretend)")
-                # BUG(?): Should be ExportData._inside_rms ?
-                self._inside_rms = True  # type: ignore[misc]
+                ExportData._inside_rms = True
         self._usecontext = self.fmu_context  # may change later!
 
         logger.info("pwd:        %s", str(self._pwd))
