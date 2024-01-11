@@ -24,37 +24,3 @@ including post- and pre-processing jobs and as part of ERT `FORWARD_MODEL`, both
 
 The metadata standard is defined by a [JSON schema](https://json-schema.org/). Within Equinor,
 the schema is available on a Radix-hosted endpoint ⚡
-
-
-## Installation
-
-Install a specific version (e.g. 1.2.3) directly from github through:
-
-```console
-pip install git+ssh://git@github.com/equinor/fmu-dataio@1.2.3
-```
-
-Local development and testing:
-
-Make your own fork of fmu-dataio and then clone it locally on unix.
-Create a virtual environment:
-```console
-python -m venv my_venv
-```
-Activate the venv: 
-```console
-source my_venv/bin/activate
-```
-Upgrade pip and install fmu-dataio from the source:
-```console
-pip install --upgrade pip
-pip install -e .
-```
-Install requirements for running tests:
-```console
-pip install -e .[dev,docs]
-```
-Then run the command:
-```console
-pytest
-```

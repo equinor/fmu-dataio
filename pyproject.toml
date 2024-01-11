@@ -63,6 +63,7 @@ dev = [
 ]
 docs = [
     "autoapi",
+    "myst-parser",
     "pydocstyle",
     "sphinx-autodoc-typehints<1.23",
     "sphinx-rtd-theme",
