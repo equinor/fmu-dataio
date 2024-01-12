@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python Module Index &mdash; fmu.dataio 0.1.dev1+ga8485ad documentation</title>
+  <title>Installation &mdash; fmu.dataio 0.1.dev1+ga8485ad documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
@@ -26,9 +27,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
- 
-
-
+    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="Welcome to FMU-dataio’s documentation" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,8 +51,14 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">About</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#from-pip">From pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stable-release-in-equinor">Stable release in Equinor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#from-github">From github</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#from-downloaded-sources">From downloaded sources</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User Guide and Reference</span></p>
@@ -79,8 +85,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Python Module Index</li>
+      <li class="breadcrumb-item active">Installation</li>
       <li class="wy-breadcrumbs-aside">
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -88,49 +95,56 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-
-   <h1>Python Module Index</h1>
-
-   <div class="modindex-jumpbox">
-   <a href="#cap-d"><strong>d</strong></a>
-   </div>
-
-   <table class="indextable modindextable">
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-d"><td></td><td>
-       <strong>d</strong></td><td></td></tr>
-     <tr>
-       <td><img src="_static/minus.png" class="toggler"
-              id="toggle-1" style="display: none" alt="-" /></td>
-       <td>
-       <a href="apiref/dataio.html#module-dataio"><code class="xref">dataio</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="apiref/dataio.dataio.html#module-dataio.dataio"><code class="xref">dataio.dataio</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="apiref/dataio.scripts.html#module-dataio.scripts"><code class="xref">dataio.scripts</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="apiref/dataio.scripts.create_case_metadata.html#module-dataio.scripts.create_case_metadata"><code class="xref">dataio.scripts.create_case_metadata</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="apiref/dataio.version.html#module-dataio.version"><code class="xref">dataio.version</code></a></td><td>
-       <em></em></td></tr>
-   </table>
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
+<section id="from-pip">
+<h2>From pip<a class="headerlink" href="#from-pip" title="Permalink to this heading"></a></h2>
+<p>For a selection of platforms (Linux/Windows/MacOS; all 64bit) and Python versions:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>fmu-dataio
+</pre></div>
+</div>
+</section>
+<section id="stable-release-in-equinor">
+<h2>Stable release in Equinor<a class="headerlink" href="#stable-release-in-equinor" title="Permalink to this heading"></a></h2>
+<p>Within Equinor, the stable release is pre-installed, so all you have
+to do is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fmu.dataio</span>
+</pre></div>
+</div>
+</section>
+<section id="from-github">
+<h2>From github<a class="headerlink" href="#from-github" title="Permalink to this heading"></a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/equinor/fmu-dataio
+</pre></div>
+</div>
+</section>
+<section id="from-downloaded-sources">
+<h2>From downloaded sources<a class="headerlink" href="#from-downloaded-sources" title="Permalink to this heading"></a></h2>
+<p>The sources for FMU-dataio can be downloaded from the <a class="reference external" href="https://github.com/equinor/fmu-dataio">Equinor Github repo</a>.</p>
+<p>You can either clone the public repository:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:equinor/fmu-dataio
+</pre></div>
+</div>
+<p>For required python packages, see the pyproject.toml file in the root folder.</p>
+<p>Once you have a copy of the source, and you have a <a class="reference external" href="http://docs.python-guide.org/en/latest/dev/virtualenvs/">virtual environment</a>,
+then always run tests (run first compile and install with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.</span></code>):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pytest
+</pre></div>
+</div>
+<p>Next you can install it with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+</section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to FMU-dataio’s documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributing &mdash; fmu.dataio 0.1.dev1+ga8485ad documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script>let toggleHintShow = 'Expand';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview" href="overview.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #C0C0C0" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            fmu.dataio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#types-of-contributions">Types of Contributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#report-bugs">Report Bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fix-bugs">Fix Bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implement-features">Implement Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#write-documentation">Write Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#submit-feedback">Submit Feedback</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-started">Get Started!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-commit-messages">Writing commit messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#type-hints">Type Hints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#style-guidelines">Style Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preparations.html">Prepare FMU workflow to produce rich metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apiref/modules.html">API reference for fmu.dataio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datamodel.html">The FMU results data model</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #C0C0C0" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fmu.dataio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Contributing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/contributing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading"></a></h1>
+<p>Contributions are welcome, and they are greatly appreciated! Every
+little bit helps, and credit will always be given.</p>
+<p>You can contribute in many ways:</p>
+<section id="types-of-contributions">
+<h2>Types of Contributions<a class="headerlink" href="#types-of-contributions" title="Permalink to this heading"></a></h2>
+<section id="report-bugs">
+<h3>Report Bugs<a class="headerlink" href="#report-bugs" title="Permalink to this heading"></a></h3>
+<p>Report bugs at https://github.com/equinor/fmu-dataio/issues.</p>
+<p>If you are reporting a bug, please include:</p>
+<ul class="simple">
+<li><p>Your operating system name and version.</p></li>
+<li><p>Any details about your local setup that might be helpful in troubleshooting.</p></li>
+<li><p>Detailed steps to reproduce the bug.</p></li>
+</ul>
+</section>
+<section id="fix-bugs">
+<h3>Fix Bugs<a class="headerlink" href="#fix-bugs" title="Permalink to this heading"></a></h3>
+<p>Look through the Git issues for bugs. Anything tagged with “bug”
+and “help wanted” is open to whoever wants to implement it.</p>
+</section>
+<section id="implement-features">
+<h3>Implement Features<a class="headerlink" href="#implement-features" title="Permalink to this heading"></a></h3>
+<p>Look through the Git issues for features. Anything tagged with “enhancement”
+and “help wanted” is open to whoever wants to implement it.</p>
+</section>
+<section id="write-documentation">
+<h3>Write Documentation<a class="headerlink" href="#write-documentation" title="Permalink to this heading"></a></h3>
+<p>Yes, fmu-dataio could always use more documentation, whether as part of the
+official fmu-dataio docs, in docstrings, or even on the web in blog posts,
+articles, and such.</p>
+</section>
+<section id="submit-feedback">
+<h3>Submit Feedback<a class="headerlink" href="#submit-feedback" title="Permalink to this heading"></a></h3>
+<p>The best way to send feedback is to file an issue
+at https://github.com/equinor/fmu-dataio/issues.</p>
+<p>If you are proposing a feature:</p>
+<ul class="simple">
+<li><p>Explain in detail how it would work.</p></li>
+<li><p>Keep the scope as narrow as possible, to make it easier to implement.</p></li>
+</ul>
+</section>
+<section id="get-started">
+<h3>Get Started!<a class="headerlink" href="#get-started" title="Permalink to this heading"></a></h3>
+<p>Ready to contribute? Here’s how to set up <code class="docutils literal notranslate"><span class="pre">fmu-dataio</span></code> for local development.</p>
+<ol class="arabic simple">
+<li><p>Fork the <code class="docutils literal notranslate"><span class="pre">fmu-dataio</span></code> repo on Github equinor to your personal user</p></li>
+<li><p>Clone your fork locally:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:your_name_here/fmu-dataio
+<span class="w">    </span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>fmu-dataio
+<span class="w">    </span>$<span class="w"> </span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span>git@github.com:equinor/fmu-dataio
+<span class="w">    </span>$<span class="w"> </span>git<span class="w"> </span>remote<span class="w"> </span>-v
+<span class="w">    </span>origin<span class="w">  </span>git@github.com:your_name_here/fmu-dataio<span class="w"> </span><span class="o">(</span>fetch<span class="o">)</span>
+<span class="w">    </span>origin<span class="w">  </span>git@github.com:your_name_here/fmu-dataio<span class="w"> </span><span class="o">(</span>push<span class="o">)</span>
+<span class="w">    </span>upstream<span class="w">    </span>git@github.com:equinor/fmu-dataio<span class="w"> </span><span class="o">(</span>fetch<span class="o">)</span>
+<span class="w">    </span>upstream<span class="w">    </span>git@github.com:equinor/fmu-dataio<span class="w"> </span><span class="o">(</span>push<span class="o">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Install your local copy into a virtualenv. Using python 3, this is how you set
+up your fork for local development (first time):</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;fmu-dataio&gt;
+<span class="w">    </span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.
+<span class="w">    </span>$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>bin/activate
+<span class="w">    </span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pip<span class="w"> </span>-U
+<span class="w">    </span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;.[dev,docs]&quot;</span>
+<span class="w">    </span>$<span class="w"> </span>pytest<span class="w">  </span><span class="c1"># No tests should fail. (exit code 0)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Create a branch for local development:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>$<span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>name-of-your-bugfix-or-feature
+</pre></div>
+</div>
+<p>Now you can make your changes locally.</p>
+<ol class="arabic simple" start="5">
+<li><p>When you’re done making changes, check that your changes pass ruff and the tests:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>$<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.
+<span class="w">    </span>$<span class="w"> </span>pytest
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Commit your changes (see below) and push your branch to GitHub:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>$<span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>.
+<span class="w">    </span>$<span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;AAA: Your detailed description of your changes.&quot;</span>
+<span class="w">    </span>$<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>name-of-your-bugfix-or-feature
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li><p>Submit a pull request through the Github website.</p></li>
+</ol>
+</section>
+<section id="writing-commit-messages">
+<h3>Writing commit messages<a class="headerlink" href="#writing-commit-messages" title="Permalink to this heading"></a></h3>
+<p>The following takes effect from year 2021.</p>
+<p>Commit messages should be clear and follow a few basic rules. Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">ENH</span><span class="p">:</span> <span class="n">add</span> <span class="n">functionality</span> <span class="n">X</span> <span class="n">to</span> <span class="n">numpy</span><span class="o">.&lt;</span><span class="n">submodule</span><span class="o">&gt;.</span>
+</pre></div>
+</div>
+<p>The first line of the commit message starts with a capitalized acronym
+(options listed below) indicating what type of commit this is.  Then a blank
+line, then more text if needed.  Lines shouldn’t be longer than 72
+characters.  If the commit is related to a ticket, indicate that with
+<code class="docutils literal notranslate"><span class="pre">&quot;See</span> <span class="pre">#3456&quot;,</span> <span class="pre">&quot;Cf.</span> <span class="pre">#3344,</span> <span class="pre">&quot;See</span> <span class="pre">ticket</span> <span class="pre">3456&quot;,</span> <span class="pre">&quot;Closes</span> <span class="pre">#3456&quot;</span></code> or similar.</p>
+<p>Read <code class="docutils literal notranslate"><span class="pre">Chris</span> <span class="pre">Beams</span> <span class="pre">hints</span> <span class="pre">on</span> <span class="pre">commit</span> <span class="pre">messages</span> <span class="pre">&lt;https://chris.beams.io/posts/git-commit/&gt;</span></code>_.</p>
+<p>Describing the motivation for a change, the nature of a bug for bug fixes or
+some details on what an enhancement does are also good to include in a commit message.
+Messages should be understandable without looking at the code changes.
+A commit message like FIX: fix another one is an example of what not to do;
+the reader has to go look for context elsewhere.</p>
+<p>Standard acronyms to start the commit message with are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">API</span><span class="p">:</span> <span class="n">an</span> <span class="p">(</span><span class="n">incompatible</span><span class="p">)</span> <span class="n">API</span> <span class="n">change</span> <span class="p">(</span><span class="n">will</span> <span class="n">be</span> <span class="n">rare</span><span class="p">)</span>
+    <span class="n">BLD</span><span class="p">:</span> <span class="n">change</span> <span class="n">related</span> <span class="n">to</span> <span class="n">building</span> <span class="n">fmu</span><span class="o">-</span><span class="n">dataio</span>
+    <span class="n">BUG</span><span class="p">:</span> <span class="n">bug</span> <span class="n">fix</span>
+    <span class="n">CLN</span><span class="p">:</span> <span class="n">code</span> <span class="n">cleanup</span><span class="p">,</span> <span class="n">maintenance</span> <span class="n">commit</span> <span class="p">(</span><span class="n">refactoring</span><span class="p">,</span> <span class="n">typos</span><span class="p">,</span> <span class="n">PEP</span><span class="p">,</span> <span class="n">etc</span><span class="o">.</span><span class="p">)</span>
+    <span class="n">DEP</span><span class="p">:</span> <span class="n">deprecate</span> <span class="n">something</span><span class="p">,</span> <span class="ow">or</span> <span class="n">remove</span> <span class="n">a</span> <span class="n">deprecated</span> <span class="nb">object</span>
+    <span class="n">DOC</span><span class="p">:</span> <span class="n">documentation</span><span class="p">,</span> <span class="n">addition</span><span class="p">,</span> <span class="n">updates</span>
+    <span class="n">ENH</span><span class="p">:</span> <span class="n">enhancement</span><span class="p">,</span> <span class="n">new</span> <span class="n">functionality</span>
+    <span class="n">FIX</span><span class="p">:</span> <span class="n">fixes</span> <span class="n">wrt</span> <span class="n">to</span> <span class="n">technical</span> <span class="n">issues</span>
+    <span class="n">PERF</span><span class="p">:</span> <span class="n">performance</span> <span class="ow">or</span> <span class="n">bench</span><span class="o">-</span><span class="n">marking</span>
+    <span class="n">REL</span><span class="p">:</span> <span class="n">related</span> <span class="n">to</span> <span class="n">releasing</span> <span class="n">fmu</span><span class="o">-</span><span class="n">dataio</span>
+    <span class="n">REV</span><span class="p">:</span> <span class="n">revert</span> <span class="n">an</span> <span class="n">earlier</span> <span class="n">commit</span>
+    <span class="n">TST</span><span class="p">:</span> <span class="n">addition</span> <span class="ow">or</span> <span class="n">modification</span> <span class="n">of</span> <span class="n">tests</span>
+</pre></div>
+</div>
+</section>
+<section id="type-hints">
+<h3>Type Hints<a class="headerlink" href="#type-hints" title="Permalink to this heading"></a></h3>
+<p>As of 2024, fmu-dataio requires the use of type annotations in all new feature
+developments, incorporating Python 3.10’s enhanced syntax for type hints.
+This facilitates a more concise and readable style.</p>
+</section>
+<section id="style-guidelines">
+<h3>Style Guidelines<a class="headerlink" href="#style-guidelines" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>For Python versions prior to 3.10, include the following import for compatibility:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Use Python’s built-in generics (e.g., <code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">tuple</span></code>) directly. This approach is preferred over importing types like <code class="docutils literal notranslate"><span class="pre">List</span></code> or <code class="docutils literal notranslate"><span class="pre">Tuple</span></code> from the <code class="docutils literal notranslate"><span class="pre">typing</span></code> module.</p></li>
+<li><p>Apply the new union type syntax using the pipe (<code class="docutils literal notranslate"><span class="pre">|</span></code>) for clarity and simplicity. For example:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="n">primes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>For optional types, use <code class="docutils literal notranslate"><span class="pre">None</span></code> with the pipe (<code class="docutils literal notranslate"><span class="pre">|</span></code>) instead of <code class="docutils literal notranslate"><span class="pre">Optional</span></code>. For instance:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="n">maybe_primes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+</div>
+<p>Note: These guidelines align with PEP 604 and are preferred for all new code submissions and when
+updating existing code.</p>
+</section>
+<section id="pull-request-guidelines">
+<h3>Pull Request Guidelines<a class="headerlink" href="#pull-request-guidelines" title="Permalink to this heading"></a></h3>
+<p>Before you submit a pull request: Ensure that your feature includes a test.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+ga8485ad).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
