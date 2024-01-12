@@ -306,12 +306,16 @@ class _MetaData:
             self.meta_file["absolute_path_symlink"] = fdata.absolute_path_symlink
 
         if self.compute_md5:
-            with NamedTemporaryFile(buffering=0) as tf:
+            if not self.objdata.extension.startswith("."):
+                raise ValueError("A extension must start with '.'")
+            with NamedTemporaryFile(
+                buffering=0,
+                suffix=self.objdata.extension,
+            ) as tf:
                 logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
                 self.meta_file["checksum_md5"] = export_file_compute_checksum_md5(
                     self.obj,
                     Path(tf.name),
-                    self.objdata.extension,
                     flag=self.dataio._usefmtflag,
                 )
         else:
