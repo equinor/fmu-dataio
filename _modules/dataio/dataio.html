@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+ga8485ad documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+ge78a04c documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
@@ -114,6 +114,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">create_symlink</span><span class="p">,</span>
+    <span class="n">dataio_examples</span><span class="p">,</span>
     <span class="n">detect_inside_rms</span><span class="p">,</span>
     <span class="n">drop_nones</span><span class="p">,</span>
     <span class="n">export_file_compute_checksum_md5</span><span class="p">,</span>
@@ -126,6 +127,7 @@
     <span class="n">uuid_from_string</span><span class="p">,</span>
 <span class="p">)</span>
 
+<span class="n">DATAIO_EXAMPLES</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">dataio_examples</span><span class="p">()</span>
 <span class="n">INSIDE_RMS</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">detect_inside_rms</span><span class="p">()</span>
 
 
@@ -837,7 +839,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="s2">&quot;Establish pwd and actual casepath, inside RMS flag is </span><span class="si">%s</span><span class="s2"> (actual: </span><span class="si">%s</span><span class="s2">))&quot;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_inside_rms</span><span class="p">,</span>
+            <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span><span class="p">,</span>
             <span class="n">INSIDE_RMS</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
@@ -852,11 +854,16 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The casepath is hard set as </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="ow">or</span> <span class="n">INSIDE_RMS</span> <span class="ow">or</span> <span class="s2">&quot;RUN_DATAIO_EXAMPLES&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="ow">or</span> <span class="n">INSIDE_RMS</span> <span class="ow">or</span> <span class="n">DATAIO_EXAMPLES</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Run from inside RMS: ExportData._inside_rms=</span><span class="si">%s</span><span class="s2">, &quot;</span>
+                    <span class="s2">&quot;INSIDE_RMS=</span><span class="si">%s</span><span class="s2">, DATAIO_EXAMPLES=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span><span class="p">,</span>
+                    <span class="n">INSIDE_RMS</span><span class="p">,</span>
+                    <span class="n">DATAIO_EXAMPLES</span><span class="p">,</span>
+                <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">/</span> <span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Run from inside RMS (or pretend)&quot;</span><span class="p">)</span>
-                <span class="c1"># BUG(?): Should be ExportData._inside_rms ?</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># type: ignore[misc]</span>
+                <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_usecontext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span>  <span class="c1"># may change later!</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;pwd:        </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
@@ -1617,7 +1624,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+ga8485ad).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+ge78a04c).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
