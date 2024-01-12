@@ -21,6 +21,7 @@ import fmu.dataio.dataio
 release = fmu.dataio.__version__
 
 extensions = [
+    "myst_parser",
     "sphinxcontrib.apidoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
@@ -52,7 +53,7 @@ master_doc = "index"
 # General information about the project.
 project = "fmu.dataio"
 current_year = date.today().year
-copyright = "Equinor " + str(current_year) + f" (fmu-dataio release {release})"
+copyright = f"Equinor {current_year} (fmu-dataio release {release})"
 
 
 # Sort members by input order in classes
