@@ -66,19 +66,15 @@ class Root(BaseModel):
     rms: RMS
 
 
-pp(
-    safe_load(
-        open(
-            "examples/s/d/nn/xcase/realization-1/iter-0/fmuconfig/output/global_variables.yml"
-        )
-    )
-)
+with open(
+    "examples/s/d/nn/xcase/realization-1/iter-0/fmuconfig/output/global_variables.yml"
+) as f:
+    pp(safe_load(f))
 
-m = Root.model_validate(
-    safe_load(
-        open(
-            "examples/s/d/nn/xcase/realization-1/iter-0/fmuconfig/output/global_variables.yml"
-        )
-    )
-)
-pp(m.rms)
+print("-" * 100)
+
+with open(
+    "examples/s/d/nn/xcase/realization-1/iter-0/fmuconfig/output/global_variables.yml"
+) as f:
+    m = Root.model_validate(safe_load(f))
+    print(m.rms)

@@ -5,9 +5,10 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, List, Literal, Union
 
 from pydantic import BaseModel, Field, RootModel
+from typing_extensions import Annotated
 
 
 class Generic(RootModel[Any]):
@@ -197,7 +198,10 @@ class File(BaseModel):
 class Name(RootModel[str]):
     root: str = Field(
         ...,
-        description="Name of the surface. If stratigraphic, match the entry in the stratigraphic column",
+        description=(
+            "Name of the surface. If stratigraphic, match "
+            "the entry in the stratigraphic column"
+        ),
         examples=["VIKING GP. Top"],
     )
 
@@ -238,7 +242,7 @@ class Workflow(RootModel[Any]):
     root: Any
 
 
-class FieldDescription(RootModel[list[str]]):
+class FieldDescription(RootModel[List[str]]):
     root: list[str]
 
 
@@ -296,7 +300,7 @@ class FMUTimeObjectItem(BaseModel):
     label: str | None = Field(default=None, examples=["Label for time stamp"])
 
 
-class FMUTimeObject(RootModel[list[FMUTimeObjectItem]]):
+class FMUTimeObject(RootModel[List[FMUTimeObjectItem]]):
     """
     List of time stamps referring to simulated time
     """
@@ -315,7 +319,7 @@ class TracklogEvent(BaseModel):
     event: str | None = Field(default=None, examples=["created", "updated"])
 
 
-class Tracklog(RootModel[list[TracklogEvent]]):
+class Tracklog(RootModel[List[TracklogEvent]]):
     root: list[TracklogEvent]
 
 
@@ -334,7 +338,10 @@ class Base(BaseModel):
 class TheDataBlock(BaseModel):
     name: str = Field(
         ...,
-        description="Name of the surface. If stratigraphic, match the entry in the stratigraphic column",
+        description=(
+            "Name of the surface. If stratigraphic, match the entry "
+            "in the stratigraphic column"
+        ),
         examples=["VIKING GP. Top"],
     )
     stratigraphic: bool = Field(
@@ -421,7 +428,10 @@ class Case1(BaseModel):
     user: User = Field(..., description="The user name used in ERT")
     restart_from: str | None = Field(
         default=None,
-        description="A reference to another case/iteration that this iteration was restarted from",
+        description=(
+            "A reference to another case/iteration that this "
+            "iteration was restarted from"
+        ),
     )
     description: FieldDescription | None = None
 
@@ -434,7 +444,10 @@ class Iteration1(BaseModel):
     )
     id: int = Field(
         ...,
-        description="The internal identification of this iteration, e.g. the iteration number",
+        description=(
+            "The internal identification of this "
+            "iteration, e.g. the iteration number"
+        ),
         examples=[0],
     )
     uuid: Uuid
@@ -457,7 +470,9 @@ class Realization1(BaseModel):
     )
     jobs: dict[str, Any] | None = Field(
         default=None,
-        description="Content directly taken from the ERT jobs.json file for this realization",
+        description=(
+            "Content directly taken from the ERT jobs.json " "file for this realization"
+        ),
     )
 
 
@@ -497,5 +512,81 @@ class DataObject(BaseModel):
     file: File
 
 
-class ModelModel(RootModel[CaseModel | DataObject]):
+class ModelModel(RootModel[Union[CaseModel, DataObject]]):
     root: CaseModel | DataObject
+
+
+### V3?
+
+
+class GeologicalModel(BaseModel):
+    type: Literal["Structural", "Rock"]
+
+
+class RockGeologicalModel(GeologicalModel):
+    type: Literal["Rock"] = "Rock"
+
+
+class StructuralGeologicalModel(GeologicalModel):
+    type: Literal["Structural"] = "Structural"
+
+
+class Shape(BaseModel):
+    ncol: int = Field(ge=0)
+    nrow: int = Field(ge=0)
+    nlay: int = Field(ge=0)
+
+
+class Orientation(BaseModel):
+    x: float
+    y: float
+    z: float
+
+
+class Grid(BaseModel):
+    coordinate_system: CoordinateSystem
+    orientation: Orientation
+    shape: Shape
+    undef: float | None
+
+
+class Range(BaseModel):
+    start: float
+    stop: float
+
+
+class BoundingBox(BaseModel):
+    x: Range
+    y: Range
+    z: Range
+
+
+class Header(BaseModel):
+    asset: str
+    created_at: Datetime
+    created_by: str
+    version: int
+
+
+class Payland(BaseModel):
+    type: Literal["fmu.everest", "fmu.ert"]
+
+
+class FMUEverest(Payland):
+    type: Literal["fmu.everest"] = "fmu.everest"
+
+
+class FMUErt(BaseModel):
+    type: Literal["fmu.ert"] = "fmu.ert"
+    model: Annotated[
+        StructuralGeologicalModel | RockGeologicalModel,
+        Field(discriminator="type"),
+    ]
+
+
+class Export(BaseModel):
+    header: Header
+    payload: Annotated[
+        FMUEverest | FMUErt,
+        Field(discriminator="type"),
+    ]
