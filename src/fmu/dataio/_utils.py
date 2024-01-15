@@ -29,7 +29,7 @@ else:
 
 import xtgeo
 
-from . import _design_kw, _oyaml as oyaml
+from . import _design_kw
 
 logger: Final = logging.getLogger(__name__)
 
@@ -96,7 +96,7 @@ def export_metadata_file(
     if savefmt == "yaml":
         with open(file, "w", encoding="utf8") as stream:
             stream.write(
-                oyaml.safe_dump(  # type: ignore
+                yaml.safe_dump(
                     drop_nones(metadata),
                     allow_unicode=True,
                 )
