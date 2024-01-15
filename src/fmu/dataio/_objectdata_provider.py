@@ -382,7 +382,9 @@ class _ObjectDataProvider:
         specs = {}
         bbox = {}
         # number of polygons:
-        specs["npolys"] = np.unique(poly.dataframe[poly.pname].values).size
+        specs["npolys"] = np.unique(
+            poly.get_dataframe(copy=False)[poly.pname].values
+        ).size
         xmin, xmax, ymin, ymax, zmin, zmax = poly.get_boundary()
 
         bbox["xmin"] = float(xmin)
@@ -402,17 +404,17 @@ class _ObjectDataProvider:
 
         bbox: dict[str, Any] = {}
 
-        if len(pnts.dataframe.columns) > 3:
-            attrnames = pnts.dataframe.columns[3:]
+        if len(pnts.get_dataframe(copy=False).columns) > 3:
+            attrnames = pnts.get_dataframe(copy=False).columns[3:]
             specs["attributes"] = list(attrnames)
-        specs["size"] = int(pnts.dataframe.size)
+        specs["size"] = int(pnts.get_dataframe(copy=False).size)
 
-        bbox["xmin"] = float(pnts.dataframe[pnts.xname].min())
-        bbox["xmax"] = float(pnts.dataframe[pnts.xname].max())
-        bbox["ymax"] = float(pnts.dataframe[pnts.yname].min())
-        bbox["ymin"] = float(pnts.dataframe[pnts.yname].max())
-        bbox["zmin"] = float(pnts.dataframe[pnts.zname].min())
-        bbox["zmax"] = float(pnts.dataframe[pnts.zname].max())
+        bbox["xmin"] = float(pnts.get_dataframe(copy=False)[pnts.xname].min())
+        bbox["xmax"] = float(pnts.get_dataframe(copy=False)[pnts.xname].max())
+        bbox["ymax"] = float(pnts.get_dataframe(copy=False)[pnts.yname].min())
+        bbox["ymin"] = float(pnts.get_dataframe(copy=False)[pnts.yname].max())
+        bbox["zmin"] = float(pnts.get_dataframe(copy=False)[pnts.zname].min())
+        bbox["zmax"] = float(pnts.get_dataframe(copy=False)[pnts.zname].max())
 
         return specs, bbox
 
