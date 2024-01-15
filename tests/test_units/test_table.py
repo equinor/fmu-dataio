@@ -2,7 +2,6 @@
 """
 from pathlib import Path
 
-import pyarrow as pa
 import pytest
 from fmu.config.utilities import yaml_load
 from fmu.dataio import ExportData
@@ -83,9 +82,11 @@ def test_derive_summary_index_pyarrow(mock_summary, globalconfig2):
         mock_summary (pd.DataFrame): summary "like" dataframe
         globalconfig2 (dict): global variables dict
     """
+    from pyarrow import Table
+
     answer = ["DATE"]
     exd = ExportData(config=globalconfig2, content="timeseries")
-    path = exd.export(pa.Table.from_pandas(mock_summary), name="baretull")
+    path = exd.export(Table.from_pandas(mock_summary), name="baretull")
     assert_correct_table_index(path, answer)
 
 

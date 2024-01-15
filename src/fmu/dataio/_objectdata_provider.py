@@ -99,13 +99,6 @@ import xtgeo
 from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, _ValidFormats
 from ._utils import generate_description, parse_timedata
 
-try:
-    import pyarrow as pa
-except ImportError:
-    HAS_PYARROW = False
-else:
-    HAS_PYARROW = True
-
 logger: Final = logging.getLogger(__name__)
 
 
@@ -304,21 +297,6 @@ class _ObjectDataProvider:
             )
             result["spec"], result["bbox"] = self._derive_spec_bbox_dataframe()
 
-        elif HAS_PYARROW and isinstance(self.obj, pa.Table):
-            result["table_index"] = self._derive_index()
-
-            result["subtype"] = "ArrowTable"
-            result["classname"] = "table"
-            result["layout"] = "table"
-            result["efolder"] = "tables"
-            result["fmt"] = self.dataio.arrow_fformat
-            result["extension"] = self._validate_get_ext(
-                result["fmt"],
-                result["subtype"],
-                _ValidFormats().table,
-            )
-            result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
-
         elif isinstance(self.obj, dict):
             result["subtype"] = "JSON"
             result["classname"] = "dictionary"
@@ -333,9 +311,26 @@ class _ObjectDataProvider:
             result["spec"], result["bbox"] = self._derive_spec_bbox_dict()
 
         else:
-            raise NotImplementedError(
-                "This data type is not (yet) supported: ", type(self.obj)
-            )
+            from pyarrow import Table
+
+            if isinstance(self.obj, Table):
+                result["table_index"] = self._derive_index()
+
+                result["subtype"] = "ArrowTable"
+                result["classname"] = "table"
+                result["layout"] = "table"
+                result["efolder"] = "tables"
+                result["fmt"] = self.dataio.arrow_fformat
+                result["extension"] = self._validate_get_ext(
+                    result["fmt"],
+                    result["subtype"],
+                    _ValidFormats().table,
+                )
+                result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
+            else:
+                raise NotImplementedError(
+                    "This data type is not (yet) supported: ", type(self.obj)
+                )
 
         # override efolder with forcefolder as exception!
         if self.dataio.forcefolder and not self.dataio.forcefolder.startswith("/"):
