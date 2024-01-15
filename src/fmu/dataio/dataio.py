@@ -564,9 +564,9 @@ class ExportData:
     # input keys (alphabetic)
     access_ssdl: dict = field(default_factory=dict)
     aggregation: bool = False
-    casepath: Union[str, Path, None] = None
+    casepath: Optional[Union[str, Path]] = None
     config: dict = field(default_factory=dict)
-    content: Union[dict, str, None] = None
+    content: Optional[Union[dict, str]] = None
     depth_reference: str = "msl"
     description: Union[str, list] = ""
     display_name: Optional[str] = None
@@ -580,7 +580,7 @@ class ExportData:
     parent: str = ""
     realization: int = -999
     reuse_metadata_rule: Optional[str] = None
-    runpath: Union[str, Path, None] = None
+    runpath: Optional[Union[str, Path]] = None
     subfolder: str = ""
     tagname: str = ""
     timedata: Optional[List[list]] = None
@@ -982,11 +982,11 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
     # instance
     config: dict
-    rootfolder: Union[str, Path, None] = None
+    rootfolder: Optional[Union[str, Path]] = None
     casename: Optional[str] = None
     caseuser: Optional[str] = None
     restart_from: Optional[str] = None
-    description: Union[str, list, None] = None
+    description: Optional[Union[str, list]] = None
     verbosity: str = "CRITICAL"
 
     _metadata: dict = field(default_factory=dict, init=False)
@@ -1215,7 +1215,7 @@ class AggregatedData:
 
     # instance
     aggregation_id: Optional[str] = None
-    casepath: Union[str, Path, None] = None
+    casepath: Optional[Union[str, Path]] = None
     source_metadata: list = field(default_factory=list)
     name: str = ""
     operation: str = ""
