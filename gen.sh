@@ -3,10 +3,9 @@
 datamodel-codegen \
   --disable-timestamp \
   --enable-version-header \
-  --enum-field-as-literal one \
   --field-constraints \
   --input $1 \
-  --input-file-type "jsonschema" \
+  --input-file-type "json" \
   --output-model-type pydantic_v2.BaseModel \
   --snake-case-field \
   --strict-nullable \
