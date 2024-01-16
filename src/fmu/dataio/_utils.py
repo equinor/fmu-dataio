@@ -15,19 +15,10 @@ from pathlib import Path
 from typing import Any, Final, Literal
 
 import pandas as pd
+import xtgeo
 import yaml
 
 from fmu.config import utilities as ut
-
-try:
-    import pyarrow as pa
-except ImportError:
-    HAS_PYARROW = False
-else:
-    HAS_PYARROW = True
-    from pyarrow import feather
-
-import xtgeo
 
 from . import _design_kw
 
@@ -151,15 +142,19 @@ def export_file(
     elif filename.suffix == ".csv" and isinstance(obj, pd.DataFrame):
         includeindex = flag == "include_index"
         obj.to_csv(filename, index=includeindex)
-    elif filename.suffix == ".arrow" and HAS_PYARROW and isinstance(obj, pa.Table):
-        # comment taken from equinor/webviz_subsurface/smry2arrow.py
+    elif filename.suffix == ".arrow":
+        from pyarrow import Table
 
-        # Writing here is done through the feather import, but could also be done using
-        # pa.RecordBatchFileWriter.write_table() with a few pa.ipc.IpcWriteOptions(). It
-        # is convenient to use feather since it has ready configured defaults and the
-        # actual file format is the same
-        # (https://arrow.apache.org/docs/python/feather.html)
-        feather.write_feather(obj, dest=filename)
+        if isinstance(obj, Table):
+            from pyarrow import feather
+            # comment taken from equinor/webviz_subsurface/smry2arrow.py
+
+            # Writing here is done through the feather import, but could also be
+            # done using pa.RecordBatchFileWriter.write_table() with a few
+            # pa.ipc.IpcWriteOptions(). It is convenient to use feather since it
+            # has ready configured defaults and the actual file format is the same
+            # (https://arrow.apache.org/docs/python/feather.html)
+            feather.write_feather(obj, dest=filename)
     elif filename.suffix == ".json":
         with open(filename, "w") as stream:
             json.dump(obj, stream)

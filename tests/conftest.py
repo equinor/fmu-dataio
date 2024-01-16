@@ -9,22 +9,14 @@ import shutil
 from functools import wraps
 from pathlib import Path
 
+import fmu.dataio as dio
 import pandas as pd
 import pytest
 import xtgeo
 import yaml
 from fmu.config import utilities as ut
-from termcolor import cprint
-
-try:
-    import pyarrow as pa
-except ImportError:
-    HAS_PYARROW = False
-else:
-    HAS_PYARROW = True
-
-import fmu.dataio as dio
 from fmu.dataio.dataio import ExportData, read_metadata
+from termcolor import cprint
 
 logger = logging.getLogger(__name__)
 
@@ -478,12 +470,19 @@ def fixture_wellpicks():
 @pytest.fixture(name="arrowtable", scope="module", autouse=True)
 def fixture_arrowtable():
     """Create an arrow table instance."""
-    table = None
-    if HAS_PYARROW:
-        logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-        dfr = pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
-        table = pa.Table.from_pandas(dfr)
-    return table
+    try:
+        from pyarrow import Table
+
+        return Table.from_pandas(
+            pd.DataFrame(
+                {
+                    "COL1": [1, 2, 3, 4],
+                    "COL2": [99.0, 98.0, 97.0, 96.0],
+                }
+            )
+        )
+    except ImportError:
+        return None
 
 
 @pytest.fixture(name="aggr_surfs_mean", scope="module", autouse=True)
@@ -554,8 +553,10 @@ def fixture_drogon_sum():
     Returns:
         pa.Table: table with summary data
     """
+    from pyarrow import feather
+
     path = ROOTPWD / "tests/data/drogon/tabular/summary.arrow"
-    return pa.feather.read_table(path)
+    return feather.read_table(path)
 
 
 @pytest.fixture(name="mock_volumes")
@@ -582,8 +583,13 @@ def fixture_drogon_volumes():
     Returns:
         pa.Table: table with summary data
     """
-    path = ROOTPWD / "tests/data/drogon/tabular/geogrid--vol.csv"
-    return pa.Table.from_pandas(pd.read_csv(path))
+    from pyarrow import Table
+
+    return Table.from_pandas(
+        pd.read_csv(
+            ROOTPWD / "tests/data/drogon/tabular/geogrid--vol.csv",
+        )
+    )
 
 
 # ======================================================================================
