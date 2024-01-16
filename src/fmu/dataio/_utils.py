@@ -136,8 +136,10 @@ def export_file(
             out.zname = "Z"
             if isinstance(out, xtgeo.Polygons):
                 # out.pname = "ID"  not working
-                out.dataframe.rename(columns={out.pname: "ID"}, inplace=True)
-        out.dataframe.to_csv(filename, index=False)
+                out.get_dataframe(copy=False).rename(
+                    columns={out.pname: "ID"}, inplace=True
+                )
+        out.get_dataframe(copy=False).to_csv(filename, index=False)
     elif filename.suffix == ".pol" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
         obj.to_file(filename)
     elif filename.suffix == ".segy" and isinstance(obj, xtgeo.Cube):
