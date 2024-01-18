@@ -4,10 +4,12 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, RootModel
+from pydantic.json_schema import GenerateJsonSchema
 
 
 class UUID(RootModel[str]):
@@ -32,7 +34,10 @@ class Ssdl(BaseModel):
 
 class Access(BaseModel):
     asset: Asset
-    classification: Literal["internal", "restricted"] = Field(
+    classification: Literal[
+        "internal",
+        "restricted",
+    ] = Field(
         default="internal",
         examples=["internal", "restricted"],
     )
@@ -41,19 +46,6 @@ class Access(BaseModel):
             access_level="internal",
             rep_include=False,
         )
-    )
-
-
-class Property(BaseModel):
-    attribute: str = Field(
-        examples=["MyAttributeName"],
-    )
-    is_discrete: bool = Field(
-        default=False,
-        examples=[True, False],
-    )
-    name: str = Field(
-        examples=["MyPropertyName"],
     )
 
 
@@ -76,6 +68,7 @@ class Spec(BaseModel):
         default=0,
         examples=[333],
     )
+
     xori: Optional[float] = Field(
         default=None,
         examples=[461499.9997558594],
@@ -261,7 +254,10 @@ class User(BaseModel):
 
 class Layer(BaseModel):
     name: str = Field(
-        description="Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+        description=(
+            "Name of the data object. If stratigraphic, "
+            "match the entry in the stratigraphic column"
+        ),
         examples=["VIKING GP. Top"],
     )
     offset: float = Field(
@@ -270,7 +266,9 @@ class Layer(BaseModel):
     )
     stratigraphic: bool = Field(
         default=False,
-        description="True if data object represents an entity in the stratigraphic column",
+        description=(
+            "True if data object represents an entity in the stratigraphic colum"
+        ),
         examples=[True],
     )
 
@@ -290,7 +288,9 @@ class Case(BaseModel):
 class Iteration(BaseModel):
     id: Optional[int] = Field(
         default=None,
-        description="The internal identification of this iteration, e.g. the iteration number",
+        description=(
+            "The internal identification of this iteration, e.g. the iteration number"
+        ),
         examples=[0],
     )
     name: str = Field(
@@ -299,7 +299,10 @@ class Iteration(BaseModel):
     )
     restart_from: Optional[UUID] = Field(
         default=None,
-        description="A uuid reference to another iteration that this iteration was restarted from",
+        description=(
+            "A uuid reference to another iteration that this "
+            "iteration was restarted from"
+        ),
     )
 
     uuid: UUID = Field(
@@ -329,7 +332,9 @@ class Realization(BaseModel):
     )
     jobs: Optional[dict[str, Any]] = Field(
         default=None,
-        description="Content directly taken from the ERT jobs.json file for this realization",
+        description=(
+            "Content directly taken from the ERT jobs.json file for this realization",
+        ),
     )
     name: str = Field(
         description="The convential name of this iteration, e.g. iter-0 or pred",
@@ -458,7 +463,9 @@ class TheDataBlock(BaseModel):
         default=None,
         examples=["msl"],
     )
-    description: Optional[list[str]] = None
+    description: list[str] = Field(
+        default_factory=list,
+    )
     field_outline: Optional[FieldOutline] = Field(
         default=None,
         description="Conditional field",
@@ -488,16 +495,15 @@ class TheDataBlock(BaseModel):
         examples=["regular"],
     )
     name: str = Field(
-        description="Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+        description=(
+            "Name of the data object. If stratigraphic, "
+            "match the entry in the stratigraphic column"
+        ),
         examples=["VIKING GP. Top"],
     )
-    offset: Optional[float] = Field(
-        default=None,
+    offset: float = Field(
+        default=0.0,
         examples=[11.2],
-    )
-    properties: Optional[list[Property]] = Field(
-        default=None,
-        description="data.properties is an array of property objects, representing the properties present in the data object.",
     )
     seismic: Optional[Seismic] = Field(
         default=None,
@@ -506,7 +512,9 @@ class TheDataBlock(BaseModel):
     spec: Optional[Spec] = None
     stratigraphic_alias: Optional[list[str]] = None
     stratigraphic: bool = Field(
-        description="True if data object represents an entity in the stratigraphic column",
+        description=(
+            "True if data object represents an entity " "in the stratigraphic column"
+        ),
         examples=[True],
     )
     tagname: Optional[str] = Field(
@@ -521,7 +529,10 @@ class TheDataBlock(BaseModel):
         description="Flag if undefined values are to be interpreted as zero",
         examples=["True"],
     )
-    unit: Optional[str] = Field(default=None, examples=["m"],)
+    unit: str = Field(
+        default="",
+        examples=["m"],
+    )
     vertical_domain: Optional[Literal["depth", "time"]] = Field(
         default=None,
         examples=["depth"],
@@ -561,6 +572,59 @@ class Meta(BaseModel):
     )
 
 
-
 if __name__ == "__main__":
-    print()
+    sg = GenerateJsonSchema
+    sg.schema_dialect = "http://json-schema.org/draft-07/schema"
+    dumped = Meta.model_json_schema(
+        by_alias=True,
+        schema_generator=sg,
+    )
+    dumped = {
+        "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json",
+        "$schema": sg.schema_dialect,
+        "$contractual": [
+            "class",
+            "source",
+            "version",
+            "tracklog",
+            "data.format",
+            "data.name",
+            "data.stratigraphic",
+            "data.alias",
+            "data.stratigraphic_alias",
+            "data.offset",
+            "data.content",
+            "data.tagname",
+            "data.vertical_domain",
+            "data.grid_model",
+            "data.bbox",
+            "data.time",
+            "data.is_prediction",
+            "data.is_observation",
+            "data.seismic.attribute",
+            "data.spec.columns",
+            "access",
+            "masterdata",
+            "fmu.model",
+            "fmu.workflow",
+            "fmu.case",
+            "fmu.iteration.name",
+            "fmu.iteration.uuid",
+            "fmu.realization.name",
+            "fmu.realization.id",
+            "fmu.realization.uuid",
+            "fmu.aggregation.operation",
+            "fmu.aggregation.realization_ids",
+            "fmu.context.stage",
+            "file.relative_path",
+            "file.checksum_md5",
+            "file.size_bytes",
+        ],
+    } | dumped
+
+    print(
+        json.dumps(
+            dumped,
+            indent=2,
+        )
+    )
