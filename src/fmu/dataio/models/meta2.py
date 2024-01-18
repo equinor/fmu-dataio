@@ -4,76 +4,137 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, RootModel
 
 
-class Properties(RootModel[Any]):
-    root: Any
-
-
-class Subschemas(RootModel[Any]):
-    root: Any
+class UUID(RootModel[str]):
+    root: str = Field(
+        examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
+        pattern="^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
+    )
 
 
 class Asset(BaseModel):
-    name: str = Field(..., examples=["Drogon"])
+    name: str = Field(
+        examples=["Drogon"],
+    )
 
 
 class Ssdl(BaseModel):
     access_level: Literal["internal", "restricted", "asset"]
-    rep_include: bool = Field(..., examples=[True, False])
+    rep_include: bool = Field(
+        examples=[True, False],
+    )
 
 
 class Access(BaseModel):
-    asset: Optional[Asset] = None
-    ssdl: Optional[Ssdl] = None
-    classification: Optional[Literal["internal", "restricted"]] = Field(
-        default=None, examples=["internal", "restricted"]
+    asset: Asset
+    classification: Literal["internal", "restricted"] = Field(
+        default="internal",
+        examples=["internal", "restricted"],
+    )
+    ssdl: Ssdl = Field(
+        default_factory=lambda: Ssdl(
+            access_level="internal",
+            rep_include=False,
+        )
     )
 
 
 class Property(BaseModel):
-    name: Optional[str] = Field(default=None, examples=["MyPropertyName"])
-    attribute: Optional[str] = Field(default=None, examples=["MyAttributeName"])
-    is_discrete: Optional[bool] = Field(default=None, examples=[True, False])
+    attribute: str = Field(
+        examples=["MyAttributeName"],
+    )
+    is_discrete: bool = Field(
+        default=False,
+        examples=[True, False],
+    )
+    name: str = Field(
+        examples=["MyPropertyName"],
+    )
 
 
 class GridModel(BaseModel):
-    name: Optional[str] = Field(default=None, examples=["MyGrid"])
+    name: str = Field(
+        examples=["MyGrid"],
+    )
 
 
 class Spec(BaseModel):
-    ncol: Optional[int] = Field(default=None, examples=[281])
-    nrow: Optional[int] = Field(default=None, examples=[441])
-    nlay: Optional[int] = Field(default=None, examples=[333])
-    xori: Optional[float] = Field(default=None, examples=[461499.9997558594])
-    yori: Optional[float] = Field(default=None, examples=[5926500.224123242])
-    xinc: Optional[float] = Field(default=None, examples=[25.0])
-    yflip: Optional[Literal[-1, 1]] = Field(default=None, examples=[-1, 1])
-    rotation: Optional[float] = Field(default=None, examples=["30.00000000231"])
-    undef: Optional[float] = Field(default=None, examples=[1e33])
-    npolys: Optional[int] = Field(
+    ncol: int = Field(
+        default=0,
+        examples=[281],
+    )
+    nrow: int = Field(
+        default=0,
+        examples=[441],
+    )
+    nlay: int = Field(
+        default=0,
+        examples=[333],
+    )
+    xori: Optional[float] = Field(
         default=None,
+        examples=[461499.9997558594],
+    )
+    yori: Optional[float] = Field(
+        default=None,
+        examples=[5926500.224123242],
+    )
+    xinc: Optional[float] = Field(
+        default=None,
+        examples=[25.0],
+    )
+    yflip: Optional[Literal[-1, 1]] = Field(
+        default=None,
+        examples=[-1, 1],
+    )
+    rotation: float = Field(
+        default=0.0,
+        examples=["30.00000000231"],
+    )
+    undef: Optional[float] = Field(
+        default=None,
+        examples=[1e33],
+    )
+    npolys: int = Field(
+        default=0,
         description="The number of individual polygons in the data object",
         examples=[1],
     )
-    size: Optional[int] = Field(
-        default=None, description="Size of data object.", examples=[1, 9999]
+    size: int = Field(
+        default=0,
+        description="Size of data object.",
+        examples=[1, 9999],
     )
-    columns: Optional[list[str]] = Field(
-        default=None, description="List of columns present in a table."
+    columns: list[str] = Field(
+        default_factory=list,
+        description="List of columns present in a table.",
     )
 
 
 class Bbox(BaseModel):
-    xmin: float = Field(..., examples=[456012.5003497944])
-    xmax: float = Field(..., examples=[467540.52762886323])
-    ymin: float = Field(..., examples=[5926499.999511719])
-    ymax: float = Field(..., examples=[5939492.128326312])
-    zmin: Optional[float] = Field(default=None, examples=[1244.039, None])
-    zmax: Optional[float] = Field(default=None, examples=[2302.683, None])
+    xmin: float = Field(
+        examples=[456012.5003497944],
+    )
+    xmax: float = Field(
+        examples=[467540.52762886323],
+    )
+    ymin: float = Field(
+        examples=[5926499.999511719],
+    )
+    ymax: float = Field(
+        examples=[5939492.128326312],
+    )
+    zmin: float = Field(
+        examples=[1244.039],
+    )
+    zmax: float = Field(
+        examples=[2302.683],
+    )
 
 
 class FluidContact(BaseModel):
@@ -81,10 +142,13 @@ class FluidContact(BaseModel):
     Conditional field
     """
 
-    contact: Optional[Literal["owc", "fwl", "goc", "fgl"]] = Field(
-        default=None, examples=["owc", "fwl"]
+    contact: Literal["owc", "fwl", "goc", "fgl"] = Field(
+        examples=["owc", "fwl"],
     )
-    truncated: Optional[bool] = Field(default=None, examples=[True])
+    truncated: bool = Field(
+        default=False,
+        examples=[True],
+    )
 
 
 class FieldOutline(BaseModel):
@@ -100,7 +164,9 @@ class FieldRegion(BaseModel):
     Conditional field
     """
 
-    id: int = Field(..., description="The ID of the region")
+    id: int = Field(
+        description="The ID of the region",
+    )
 
 
 class Seismic(BaseModel):
@@ -108,12 +174,30 @@ class Seismic(BaseModel):
     Conditional field
     """
 
-    attribute: Optional[str] = Field(default=None, examples=["amplitude_timeshifted"])
-    calculation: Optional[str] = Field(default=None, examples=["mean"])
-    zrange: Optional[float] = Field(default=None, examples=[12.0])
-    filter_size: Optional[float] = Field(default=None, examples=[1.0])
-    scaling_factor: Optional[float] = Field(default=None, examples=[1.0])
-    stacking_offset: Optional[str] = Field(default=None, examples=["0-15"])
+    attribute: Optional[str] = Field(
+        default=None,
+        examples=["amplitude_timeshifted"],
+    )
+    calculation: Optional[str] = Field(
+        default=None,
+        examples=["mean"],
+    )
+    filter_size: Optional[float] = Field(
+        default=None,
+        examples=[1.0],
+    )
+    scaling_factor: Optional[float] = Field(
+        default=None,
+        examples=[1.0],
+    )
+    stacking_offset: Optional[str] = Field(
+        default=None,
+        examples=["0-15"],
+    )
+    zrange: Optional[float] = Field(
+        default=None,
+        examples=[12.0],
+    )
 
 
 class File(BaseModel):
@@ -121,23 +205,22 @@ class File(BaseModel):
     Block describing the file as the data appear in FMU context
     """
 
-    relative_path: str = Field(
-        ...,
-        description="The file path relative to RUNPATH",
-        examples=["share/results/maps/volantis_gp_base--depth.gri"],
-    )
-    absolute_path: Optional[str] = Field(
-        default=None,
+    absolute_path: Path = Field(
         description="The absolute file path",
         examples=["/abs/path/share/results/maps/volantis_gp_base--depth.gri"],
     )
     checksum_md5: str = Field(
-        ...,
         description="md5 checksum of the file or bytestring",
         examples=["kjhsdfvsdlfk23knerknvk23"],
     )
-    size_bytes: Optional[int] = Field(
-        default=None, description="Size of file object in bytes", examples=[123]
+    relative_path: Path = Field(
+        description="The file path relative to RUNPATH",
+        examples=["share/results/maps/volantis_gp_base--depth.gri"],
+    )
+    size_bytes: int = Field(
+        default=-1,
+        description="Size of file object in bytes",
+        examples=[123],
     )
 
 
@@ -148,177 +231,169 @@ class Parameters(BaseModel):
 
 
 class Aggregation(BaseModel):
-    operation: str = Field(..., description="The aggregation performed")
-    realization_ids: list[int] = Field(
-        ..., description="Array of realization ids included in this aggregation"
+    id: str = Field(
+        description="The ID of this aggregation",
+        examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
+    )
+    operation: str = Field(
+        description="The aggregation performed",
     )
     parameters: Optional[Union[list[dict[str, Any]], Parameters]] = Field(
         default=None, description="Parameters for this realization"
     )
-    id: Optional[str] = Field(
-        default=None,
-        description="The ID of this aggregation",
-        examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
+    realization_ids: list[int] = Field(
+        description="Array of realization ids included in this aggregation"
     )
 
 
 class Workflow(BaseModel):
-    reference: Optional[str] = Field(
-        default=None,
-        description="Reference to the part of the FMU workflow that produced this",
+    reference: str = Field(
+        description="Reference to the part of the FMU workflow that produced this"
     )
 
 
 class User(BaseModel):
-    id: str = Field(..., examples=["peesv"], title="User ID")
+    id: str = Field(
+        examples=["peesv"],
+        title="User ID",
+    )
 
 
-class Top(BaseModel):
-    name: Optional[str] = Field(
-        default=None,
+class Layer(BaseModel):
+    name: str = Field(
         description="Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
         examples=["VIKING GP. Top"],
     )
-    stratigraphic: Optional[bool] = Field(
-        default=None,
+    offset: float = Field(
+        default=0,
+        examples=[11.2],
+    )
+    stratigraphic: bool = Field(
+        default=False,
         description="True if data object represents an entity in the stratigraphic column",
         examples=[True],
     )
-    offset: Optional[float] = Field(default=None, examples=[11.2])
-
-
-class Base(BaseModel):
-    name: Optional[str] = Field(
-        default=None,
-        description="Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
-        examples=["VIKING GP. Top"],
-    )
-    stratigraphic: Optional[bool] = Field(
-        default=None,
-        description="True if data object represents an entity in the stratigraphic column",
-        examples=[True],
-    )
-    offset: Optional[float] = Field(default=None, examples=[11.2])
 
 
 class Case(BaseModel):
-    name: str = Field(..., description="The case name", examples=["MyCaseName"])
-    uuid: str = Field(
-        ...,
-        examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
-        pattern="^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
-    )
-    user: User = Field(..., description="The user name used in ERT")
     description: Optional[list[str]] = None
+    name: str = Field(
+        description="The case name",
+        examples=["MyCaseName"],
+    )
+    user: User = Field(
+        description="The user name used in ERT",
+    )
+    uuid: UUID
 
 
 class Iteration(BaseModel):
-    name: str = Field(
-        ...,
-        description="The convential name of this iteration, e.g. iter-0 or pred",
-        examples=["iter-0"],
-    )
     id: Optional[int] = Field(
         default=None,
         description="The internal identification of this iteration, e.g. the iteration number",
         examples=[0],
     )
-    uuid: str = Field(
-        ...,
-        examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
-        pattern="^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
+    name: str = Field(
+        description="The convential name of this iteration, e.g. iter-0 or pred",
+        examples=["iter-0"],
     )
-    restart_from: Optional[str] = Field(
+    restart_from: Optional[UUID] = Field(
         default=None,
         description="A uuid reference to another iteration that this iteration was restarted from",
+    )
+
+    uuid: UUID = Field(
         examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
-        pattern="^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
     )
 
 
 class Model(BaseModel):
-    name: Optional[str] = Field(default=None, examples=["Drogon"])
-    revision: Optional[str] = Field(default=None, examples=["21.0.0.dev"])
     description: Optional[list[str]] = Field(
-        default=None, description="This is a free text description of the model setup"
+        default=None,
+        description="This is a free text description of the model setup",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        examples=["Drogon"],
+    )
+    revision: Optional[str] = Field(
+        default=None,
+        examples=["21.0.0.dev"],
     )
 
 
 class Realization(BaseModel):
-    name: str = Field(
-        ...,
-        description="The convential name of this iteration, e.g. iter-0 or pred",
-        examples=["iter-0"],
-    )
     id: int = Field(
-        ...,
         description="The unique number of this realization as used in FMU",
         examples=[33],
-    )
-    uuid: str = Field(
-        ...,
-        examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
-        pattern="^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
-    )
-    parameters: Optional[Union[list[dict[str, Any]], Parameters]] = Field(
-        default=None, description="Parameters for this realization"
     )
     jobs: Optional[dict[str, Any]] = Field(
         default=None,
         description="Content directly taken from the ERT jobs.json file for this realization",
     )
+    name: str = Field(
+        description="The convential name of this iteration, e.g. iter-0 or pred",
+        examples=["iter-0"],
+    )
+    parameters: Optional[Union[list[dict[str, Any]], Parameters]] = Field(
+        default=None,
+        description="Parameters for this realization",
+    )
+    uuid: UUID = Field(
+        examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
+    )
 
 
 class CountryItem(BaseModel):
-    identifier: str = Field(..., examples=["Norway"])
-    uuid: str = Field(
-        ...,
+    identifier: str = Field(
+        examples=["Norway"],
+    )
+    uuid: UUID = Field(
         examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
-        pattern="^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
     )
 
 
 class DiscoveryItem(BaseModel):
-    short_identifier: str = Field(..., examples=["SomeDiscovery"])
-    uuid: str = Field(
-        ...,
+    short_identifier: str = Field(
+        examples=["SomeDiscovery"],
+    )
+    uuid: UUID = Field(
         examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
-        pattern="^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
     )
 
 
 class FieldItem(BaseModel):
-    identifier: str = Field(..., examples=["OseFax"])
-    uuid: str = Field(
-        ...,
+    identifier: str = Field(
+        examples=["OseFax"],
+    )
+    uuid: UUID = Field(
         examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
-        pattern="^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
     )
 
 
 class CoordinateSystem(BaseModel):
-    identifier: str = Field(..., examples=["ST_WGS84_UTM37N_P32637"])
-    uuid: str = Field(
-        ...,
+    identifier: str = Field(
+        examples=["ST_WGS84_UTM37N_P32637"],
+    )
+    uuid: UUID = Field(
         examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
-        pattern="^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
     )
 
 
 class StratigraphicColumn(BaseModel):
-    identifier: str = Field(..., examples=["DROGON_2020"])
-    uuid: str = Field(
-        ...,
+    identifier: str = Field(
+        examples=["DROGON_2020"],
+    )
+    uuid: UUID = Field(
         examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
-        pattern="^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
     )
 
 
 class Smda(BaseModel):
+    coordinate_system: CoordinateSystem
     country: list[CountryItem]
     discovery: list[DiscoveryItem]
     field: list[FieldItem]
-    coordinate_system: CoordinateSystem
     stratigraphic_column: StratigraphicColumn
 
 
@@ -331,14 +406,26 @@ class FMUTimeObject(BaseModel):
     Time stamp for data object.
     """
 
-    value: Optional[str] = Field(default=None, examples=["2020-10-28T14:28:02"])
-    label: Optional[str] = Field(default=None, examples=["base", "monitor", "mylabel"])
+    label: Optional[str] = Field(
+        default=None,
+        examples=["base", "monitor", "mylabel"],
+    )
+    value: Optional[str] = Field(
+        default=None,
+        examples=["2020-10-28T14:28:02"],
+    )
 
 
 class TracklogEvent(BaseModel):
-    datetime: Optional[str] = Field(default=None, examples=["2020-10-28T14:28:02"])
+    datetime: Optional[str] = Field(
+        default=None,
+        examples=["2020-10-28T14:28:02"],
+    )
+    event: Optional[str] = Field(
+        default=None,
+        examples=["created", "updated"],
+    )
     user: Optional[User] = None
-    event: Optional[str] = Field(default=None, examples=["created", "updated"])
 
 
 class Fmu(BaseModel):
@@ -346,12 +433,12 @@ class Fmu(BaseModel):
     The FMU block records properties that are specific to FMU
     """
 
-    model: Model
+    aggregation: Optional[Aggregation] = None
     case: Case
     iteration: Optional[Iteration] = None
+    model: Model
     realization: Optional[Realization] = None
     workflow: Optional[Workflow] = None
-    aggregation: Optional[Aggregation] = None
 
 
 class Time(BaseModel):
@@ -360,77 +447,89 @@ class Time(BaseModel):
 
 
 class TheDataBlock(BaseModel):
+    alias: Optional[list[str]] = None
+    base: Optional[Layer] = None
+    bbox: Optional[Bbox] = None
+    content: str = Field(
+        description="The contents of this data object",
+        examples=["depth"],
+    )
+    depth_reference: Optional[Literal["msl", "sb", "rkb"]] = Field(
+        default=None,
+        examples=["msl"],
+    )
+    description: Optional[list[str]] = None
+    field_outline: Optional[FieldOutline] = Field(
+        default=None,
+        description="Conditional field",
+    )
+    field_region: Optional[FieldRegion] = Field(
+        default=None,
+        description="Conditional field",
+    )
+    fluid_contact: Optional[FluidContact] = Field(
+        default=None,
+        description="Conditional field",
+    )
+    format: str = Field(
+        examples=["irap_binary"],
+    )
+    grid_model: Optional[GridModel] = None
+    is_observation: bool = Field(
+        examples=[True],
+        title="Is observation flag",
+    )
+    is_prediction: bool = Field(
+        examples=[True],
+        title="Is prediction flag",
+    )
+    layout: Optional[str] = Field(
+        default=None,
+        examples=["regular"],
+    )
     name: str = Field(
-        ...,
         description="Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
         examples=["VIKING GP. Top"],
     )
+    offset: Optional[float] = Field(
+        default=None,
+        examples=[11.2],
+    )
+    properties: Optional[list[Property]] = Field(
+        default=None,
+        description="data.properties is an array of property objects, representing the properties present in the data object.",
+    )
+    seismic: Optional[Seismic] = Field(
+        default=None,
+        description="Conditional field",
+    )
+    spec: Optional[Spec] = None
+    stratigraphic_alias: Optional[list[str]] = None
     stratigraphic: bool = Field(
-        ...,
         description="True if data object represents an entity in the stratigraphic column",
         examples=[True],
-    )
-    alias: Optional[list[str]] = None
-    stratigraphic_alias: Optional[list[str]] = None
-    offset: Optional[float] = Field(default=None, examples=[11.2])
-    top: Optional[Top] = None
-    base: Optional[Base] = None
-    content: str = Field(
-        ..., description="The contents of this data object", examples=["depth"]
     )
     tagname: Optional[str] = Field(
         default=None,
         description="A semi-human readable tag for internal usage and uniqueness",
         examples=["ds_extract_geogrid", "ds_post_strucmod"],
     )
-    properties: Optional[list[Property]] = Field(
-        default=None,
-        description="data.properties is an array of property objects, representing the properties present in the data object.",
-    )
-    format: str = Field(..., examples=["irap_binary"])
-    layout: Optional[str] = Field(default=None, examples=["regular"])
-    unit: Optional[str] = Field(default=None, examples=["m"])
-    vertical_domain: Optional[Literal["depth", "time"]] = Field(
-        default=None, examples=["depth"]
-    )
-    depth_reference: Optional[Literal["msl", "sb", "rkb"]] = Field(
-        default=None, examples=["msl"]
-    )
+    time: Optional[Time] = None
+    top: Optional[Layer] = None
     undef_is_zero: Optional[bool] = Field(
         default=None,
         description="Flag if undefined values are to be interpreted as zero",
         examples=["True"],
     )
-    grid_model: Optional[GridModel] = None
-    spec: Optional[Spec] = None
-    bbox: Optional[Bbox] = None
-    time: Optional[Time] = None
-    is_prediction: bool = Field(..., examples=[True], title="Is prediction flag")
-    is_observation: bool = Field(..., examples=[True], title="Is observation flag")
-    fluid_contact: Optional[FluidContact] = Field(
-        default=None, description="Conditional field"
+    unit: Optional[str] = Field(default=None, examples=["m"],)
+    vertical_domain: Optional[Literal["depth", "time"]] = Field(
+        default=None,
+        examples=["depth"],
     )
-    field_outline: Optional[FieldOutline] = Field(
-        default=None, description="Conditional field"
-    )
-    field_region: Optional[FieldRegion] = Field(
-        default=None, description="Conditional field"
-    )
-    description: Optional[list[str]] = None
-    seismic: Optional[Seismic] = Field(default=None, description="Conditional field")
 
 
-class DataObject(BaseModel):
-    fmu: Fmu = Field(
-        ..., description="The FMU block records properties that are specific to FMU"
-    )
-    file: File
-    data: TheDataBlock
+class Meta(BaseModel):
     access: Access
-    source: Literal["fmu"] = Field(..., description="Data source (FMU)")
-    version: Literal["0.9.0"] = Field(
-        ..., examples=["1.2.3"], title="FMU results metadata version"
-    )
     class_: Literal[
         "case",
         "surface",
@@ -443,16 +542,25 @@ class DataObject(BaseModel):
         "points",
         "dictionary",
     ] = Field(
-        ...,
         alias="class",
         examples=["surface", "table", "points"],
         title="Metadata class",
     )
-    tracklog: list[TracklogEvent]
-    masterdata: Masterdata
-
-
-class CaseObject(RootModel[DataObject]):
-    root: DataObject = Field(
-        ..., description="Validation of a case object.", title="Case object"
+    data: Optional[TheDataBlock] = None
+    file: Optional[File] = None
+    fmu: Fmu = Field(
+        description="The FMU block records properties that are specific to FMU",
     )
+    masterdata: Masterdata
+    source: Literal["fmu"] = Field(
+        description="Data source (FMU)",
+    )
+    tracklog: list[TracklogEvent]
+    version: Literal["0.8.0"] = Field(
+        title="FMU results metadata version",
+    )
+
+
+
+if __name__ == "__main__":
+    print()
