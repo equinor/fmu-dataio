@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gc1f8ae6 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g382393b documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
@@ -93,7 +93,6 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
@@ -112,6 +111,7 @@
     <span class="n">CONTENTS_REQUIRED</span><span class="p">,</span>
     <span class="n">DEPRECATED_CONTENTS</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">._logging</span> <span class="kn">import</span> <span class="n">null_logger</span>
 <span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">create_symlink</span><span class="p">,</span>
     <span class="n">dataio_examples</span><span class="p">,</span>
@@ -134,8 +134,7 @@
 <span class="n">GLOBAL_ENVNAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;FMU_GLOBAL_CONFIG&quot;</span>
 <span class="n">SETTINGS_ENVNAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;FMU_DATAIO_CONFIG&quot;</span>  <span class="c1"># input settings from a spesific file!</span>
 
-<span class="n">logger</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">captureWarnings</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">null_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ValidationError"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ValidationError">[docs]</a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
@@ -568,10 +567,6 @@
 <span class="sd">            [[20200101, &quot;monitor&quot;], [20180101, &quot;base&quot;]] or just [[2021010]]. The output</span>
 <span class="sd">            to metadata will from version 0.9 be different (API change)</span>
 
-<span class="sd">        verbosity: Is logging/message level for this module. Input as</span>
-<span class="sd">            in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;, &quot;DEBUG&quot;. Default is</span>
-<span class="sd">            &quot;CRITICAL&quot;.</span>
-
 <span class="sd">        vertical_domain: This is dictionary with a key and a reference e.g.</span>
 <span class="sd">            {&quot;depth&quot;: &quot;msl&quot;} which is default if missing.</span>
 
@@ -674,7 +669,7 @@
     <span class="n">tagname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">timedata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CRITICAL&quot;</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DEPRECATED&quot;</span>  <span class="c1"># remove in version 2</span>
     <span class="n">vertical_domain</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">workflow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">table_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -693,7 +688,14 @@
     <span class="n">_rootpath</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">!=</span> <span class="s2">&quot;DEPRECATED&quot;</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Using the &#39;verbosity&#39; key is now deprecated and will have no &quot;</span>
+                <span class="s2">&quot;effect and will be removed in near future. Please remove it from the &quot;</span>
+                <span class="s2">&quot;argument list. Set logging level from client script in the standard &quot;</span>
+                <span class="s2">&quot;manner instead.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running __post_init__ ExportData&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Global config is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">prettyprint_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
 
@@ -714,8 +716,6 @@
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">external_input</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">_validate_variable</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">):</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;verbosity&quot;</span><span class="p">:</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">_check_global_config</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span>
@@ -800,8 +800,6 @@
         <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">_validate_variable</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">):</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">setting</span> <span class="o">==</span> <span class="s2">&quot;verbosity&quot;</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New setting OK for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_show_deprecations_or_notimplemented</span><span class="p">()</span>
@@ -950,9 +948,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_fmt_flag</span><span class="p">()</span>
 
-        <span class="n">metaobj</span> <span class="o">=</span> <span class="n">_metadata</span><span class="o">.</span><span class="n">_MetaData</span><span class="p">(</span>
-            <span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
-        <span class="p">)</span>
+        <span class="n">metaobj</span> <span class="o">=</span> <span class="n">_metadata</span><span class="o">.</span><span class="n">_MetaData</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metaobj</span><span class="o">.</span><span class="n">generate_export_metadata</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">metaobj</span><span class="o">.</span><span class="n">rootpath</span><span class="p">)</span>
@@ -1062,8 +1058,6 @@
 <span class="sd">        caseuser: Username provided</span>
 <span class="sd">        restart_from: ID of eventual restart (deprecated)</span>
 <span class="sd">        description: Description text as string or list of strings.</span>
-<span class="sd">        verbosity: Is logging/message level for this module. Input as</span>
-<span class="sd">            in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># class variables</span>
@@ -1076,7 +1070,7 @@
     <span class="n">caseuser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">restart_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CRITICAL&quot;</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DEPRECATED&quot;</span>
 
     <span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">_metafile</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1084,7 +1078,14 @@
     <span class="n">_casepath</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">!=</span> <span class="s2">&quot;DEPRECATED&quot;</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Using the &#39;verbosity&#39; key is now deprecated and will have no &quot;</span>
+                <span class="s2">&quot;effect and will be removed in near future. Please remove it from the &quot;</span>
+                <span class="s2">&quot;argument list. Set logging level from client script in the standard &quot;</span>
+                <span class="s2">&quot;manner instead.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">or</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
             <span class="n">cnf</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
@@ -1114,8 +1115,6 @@
                 <span class="p">)</span>
             <span class="k">if</span> <span class="n">_validate_variable</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">):</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">setting</span> <span class="o">==</span> <span class="s2">&quot;verbosity&quot;</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New setting OK for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_establish_pwd_casepath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1294,8 +1293,6 @@
 <span class="sd">            valid metadata per input element that forms the aggregation.</span>
 <span class="sd">        operation: A string that describes the operation, e.g. &quot;mean&quot;. This is</span>
 <span class="sd">            mandatory and there is no default.</span>
-<span class="sd">        verbosity: Is logging/message level for this module. Input as</span>
-<span class="sd">            in standard python logging; e.g. &quot;WARNING&quot;, &quot;INFO&quot;.</span>
 <span class="sd">        tagname: Additional name, as part of file name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1309,13 +1306,20 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">tagname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CRITICAL&quot;</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DEPRECATED&quot;</span>  <span class="c1"># keep for while</span>
 
     <span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">_metafile</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">!=</span> <span class="s2">&quot;DEPRECATED&quot;</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Using the &#39;verbosity&#39; key is now deprecated and will have no &quot;</span>
+                <span class="s2">&quot;effect and will be removed in near future. Please remove it from the &quot;</span>
+                <span class="s2">&quot;argument list. Set logging level from client script in the standard &quot;</span>
+                <span class="s2">&quot;manner instead.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_generate_aggr_uuid</span><span class="p">(</span><span class="n">uuids</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1338,8 +1342,6 @@
         <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">_validate_variable</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">):</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">setting</span> <span class="o">==</span> <span class="s2">&quot;verbosity&quot;</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New setting OK for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_construct_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
@@ -1623,7 +1625,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gc1f8ae6).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g382393b).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

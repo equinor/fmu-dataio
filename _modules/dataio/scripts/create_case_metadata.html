@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.scripts.create_case_metadata &mdash; fmu.dataio 0.1.dev1+gc1f8ae6 documentation</title>
+  <title>dataio.scripts.create_case_metadata &mdash; fmu.dataio 0.1.dev1+g382393b documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
@@ -177,8 +177,8 @@
 <div class="viewcode-block" id="create_case_metadata_main"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.create_case_metadata_main">[docs]</a><span class="k">def</span> <span class="nf">create_case_metadata_main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the case metadata and register case on Sumo.&quot;&quot;&quot;</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
     <span class="n">check_arguments</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
     <span class="n">case_metadata_path</span> <span class="o">=</span> <span class="n">create_metadata</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">case_metadata_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="n">register_on_sumo</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">case_metadata_path</span><span class="p">)</span>
@@ -188,6 +188,8 @@
 
 <div class="viewcode-block" id="create_metadata"><a class="viewcode-back" href="../../../apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.create_metadata">[docs]</a><span class="k">def</span> <span class="nf">create_metadata</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the case metadata and print them to the disk&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">verbosity</span><span class="p">)</span>
+
     <span class="n">_global_variables_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ert_config_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">global_variables_path</span><span class="p">)</span>
     <span class="n">global_variables</span> <span class="o">=</span> <span class="n">_parse_yaml</span><span class="p">(</span><span class="n">_global_variables_path</span><span class="p">)</span>
 
@@ -308,7 +310,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gc1f8ae6).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g382393b).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
