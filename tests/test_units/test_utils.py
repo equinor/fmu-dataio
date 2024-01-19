@@ -1,5 +1,6 @@
 """Test the utils module"""
 
+import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -184,3 +185,10 @@ def test_generate_description():
 
     with pytest.raises(ValueError):
         utils.generate_description(object())
+
+
+def test_read_named_envvar():
+    assert utils.read_named_envvar("DONTEXIST") is None
+
+    os.environ["MYTESTENV"] = "mytestvalue"
+    assert utils.read_named_envvar("MYTESTENV") == "mytestvalue"

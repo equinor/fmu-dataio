@@ -358,6 +358,11 @@ def some_config_from_env(envvar: str = "FMU_GLOBAL_CONFIG") -> dict | None:
     return ut.yaml_load(cfg_path, loader="fmu")
 
 
+def read_named_envvar(envvar: str) -> str | None:
+    """Read a specific (named) environment variable."""
+    return os.environ.get(envvar, None)
+
+
 def filter_validate_metadata(metadata_in: dict) -> dict:
     """Validate metadatadict at topmost_level and strip away any alien keys."""
 
