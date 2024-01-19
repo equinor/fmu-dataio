@@ -5,6 +5,8 @@
 from __future__ import annotations
 
 import json
+from collections import ChainMap
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal, Optional, Union
 
@@ -25,7 +27,7 @@ class Asset(BaseModel):
     )
 
 
-class Ssdl(BaseModel):
+class SSDL(BaseModel):
     access_level: Literal["internal", "restricted", "asset"]
     rep_include: bool = Field(
         examples=[True, False],
@@ -41,8 +43,8 @@ class Access(BaseModel):
         default="internal",
         examples=["internal", "restricted"],
     )
-    ssdl: Ssdl = Field(
-        default_factory=lambda: Ssdl(
+    ssdl: SSDL = Field(
+        default_factory=lambda: SSDL(
             access_level="internal",
             rep_include=False,
         )
@@ -55,61 +57,167 @@ class GridModel(BaseModel):
     )
 
 
-class Spec(BaseModel):
+class CaseSpec(BaseModel):
+    ...
+
+
+class SurfaceSpec(BaseModel):
     ncol: int = Field(
-        default=0,
         examples=[281],
     )
-    nrow: int = Field(
-        default=0,
-        examples=[441],
-    )
     nlay: int = Field(
-        default=0,
         examples=[333],
     )
-
-    xori: Optional[float] = Field(
-        default=None,
-        examples=[461499.9997558594],
-    )
-    yori: Optional[float] = Field(
-        default=None,
-        examples=[5926500.224123242],
-    )
-    xinc: Optional[float] = Field(
-        default=None,
-        examples=[25.0],
-    )
-    yflip: Optional[Literal[-1, 1]] = Field(
-        default=None,
-        examples=[-1, 1],
+    nrow: int = Field(
+        examples=[441],
     )
     rotation: float = Field(
-        default=0.0,
         examples=["30.00000000231"],
     )
-    undef: Optional[float] = Field(
-        default=None,
+    undef: float = Field(
         examples=[1e33],
     )
-    npolys: int = Field(
-        default=0,
-        description="The number of individual polygons in the data object",
-        examples=[1],
+    xinc: float = Field(
+        examples=[25.0],
+    )
+    xori: float = Field(
+        examples=[461499.9997558594],
+    )
+    yflip: Literal[-1, 1] = Field(
+        examples=[-1, 1],
+    )
+    yori: float = Field(
+        examples=[5926500.224123242],
+    )
+
+
+class TableSpec(BaseModel):
+    columns: list[str] = Field(
+        description="List of columns present in a table.",
     )
     size: int = Field(
-        default=0,
         description="Size of data object.",
         examples=[1, 9999],
     )
-    columns: list[str] = Field(
-        default_factory=list,
-        description="List of columns present in a table.",
+
+
+class CPGridSpec(BaseModel):
+    """Corner point grid"""
+
+    ncol: int = Field(
+        examples=[281],
+    )
+    nlay: int = Field(
+        examples=[333],
+    )
+    nrow: int = Field(
+        examples=[441],
+    )
+
+    # Shift
+    xshift: float = Field(
+        examples=[1234],
+    )
+    yshift: float = Field(
+        examples=[1234],
+    )
+    zshift: float = Field(
+        examples=[1234],
+    )
+
+    # Scaling
+    xscale: float = Field(
+        examples=[1234],
+    )
+    yscale: float = Field(
+        examples=[1234],
+    )
+    zscale: float = Field(
+        examples=[1234],
     )
 
 
-class Bbox(BaseModel):
+class CPGridPropertySpec(BaseModel):
+    ncol: int = Field(
+        examples=[281],
+    )
+    nlay: int = Field(
+        examples=[333],
+    )
+    nrow: int = Field(
+        examples=[441],
+    )
+
+
+class PolygonsSpec(BaseModel):
+    npolys: int = Field(
+        description="The number of individual polygons in the data object",
+        examples=[1],
+    )
+
+
+class CubeSpec(SurfaceSpec):
+    # Shape
+    ncol: int = Field(
+        examples=[281],
+    )
+    nlay: int = Field(
+        examples=[333],
+    )
+    nrow: int = Field(
+        examples=[441],
+    )
+
+    # inc.
+    xinc: float = Field(
+        examples=[25.0],
+    )
+    yinc: float = Field(
+        examples=[1.1],
+    )
+    zinc: float = Field(
+        examples=[1.1],
+    )
+
+    # Ori.
+    xori: float = Field(
+        examples=[461499.9997558594],
+    )
+    yori: float = Field(
+        examples=[461499.9997558594],
+    )
+    zori: float = Field(
+        examples=[461499.9997558594],
+    )
+
+    # Misc.
+    yflip: Literal[-1, 1] = Field(
+        examples=[-1, 1],
+    )
+    zflip: Literal[-1, 1] = Field(
+        examples=[-1, 1],
+    )
+    rotation: float = Field(
+        examples=["30.00000000231"],
+    )
+    undef: float = Field(
+        examples=[1e33],
+    )
+
+
+class WellSpec(BaseModel):
+    ...
+
+
+class PointsSpec(BaseModel):
+    ...
+
+
+class DictionarySpec(BaseModel):
+    ...
+
+
+class BoundingBox(BaseModel):
     xmin: float = Field(
         examples=[456012.5003497944],
     )
@@ -333,7 +441,7 @@ class Realization(BaseModel):
     jobs: Optional[dict[str, Any]] = Field(
         default=None,
         description=(
-            "Content directly taken from the ERT jobs.json file for this realization",
+            "Content directly taken from the ERT jobs.json file for this realization"
         ),
     )
     name: str = Field(
@@ -422,15 +530,13 @@ class FMUTimeObject(BaseModel):
 
 
 class TracklogEvent(BaseModel):
-    datetime: Optional[str] = Field(
-        default=None,
+    datetime: datetime = Field(
         examples=["2020-10-28T14:28:02"],
     )
-    event: Optional[str] = Field(
-        default=None,
+    event: str = Field(
         examples=["created", "updated"],
     )
-    user: Optional[User] = None
+    user: User
 
 
 class Fmu(BaseModel):
@@ -451,48 +557,37 @@ class Time(BaseModel):
     t1: Optional[FMUTimeObject] = None
 
 
-class TheDataBlock(BaseModel):
-    alias: Optional[list[str]] = None
-    base: Optional[Layer] = None
-    bbox: Optional[Bbox] = None
-    content: str = Field(
+class Content(BaseModel):
+    # From schema
+    content: Literal[
+        "depth",
+        "time",
+        "thickness",
+        "property",
+        "seismic",
+        "fluid_contact",
+        "field_outline",
+        "field_region",
+        "regions",
+        "pinchout",
+        "subcrop",
+        "fault_lines",
+        "velocity",
+        "volumes",
+        "volumetrics",
+        "inplace_volumes",
+        "khproduct",
+        "timeseries",
+        "wellpicks",
+        "parameters",
+        "relperm",
+        "rft",
+        "pvt",
+        "lift_curves",
+        "transmissibilities",
+    ] = Field(
         description="The contents of this data object",
         examples=["depth"],
-    )
-    depth_reference: Optional[Literal["msl", "sb", "rkb"]] = Field(
-        default=None,
-        examples=["msl"],
-    )
-    description: list[str] = Field(
-        default_factory=list,
-    )
-    field_outline: Optional[FieldOutline] = Field(
-        default=None,
-        description="Conditional field",
-    )
-    field_region: Optional[FieldRegion] = Field(
-        default=None,
-        description="Conditional field",
-    )
-    fluid_contact: Optional[FluidContact] = Field(
-        default=None,
-        description="Conditional field",
-    )
-    format: str = Field(
-        examples=["irap_binary"],
-    )
-    grid_model: Optional[GridModel] = None
-    is_observation: bool = Field(
-        examples=[True],
-        title="Is observation flag",
-    )
-    is_prediction: bool = Field(
-        examples=[True],
-        title="Is prediction flag",
-    )
-    layout: Optional[str] = Field(
-        default=None,
-        examples=["regular"],
     )
     name: str = Field(
         description=(
@@ -500,6 +595,76 @@ class TheDataBlock(BaseModel):
             "match the entry in the stratigraphic column"
         ),
         examples=["VIKING GP. Top"],
+    )
+    format: str = Field(
+        examples=["irap_binary"],
+    )
+    stratigraphic: bool = Field(
+        description=(
+            "True if data object represents an entity in the stratigraphic column"
+        ),
+        examples=[True],
+    )
+    is_prediction: bool = Field(
+        examples=[True],
+        title="Is prediction flag",
+    )
+    is_observation: bool = Field(
+        examples=[True],
+        title="Is observation flag",
+    )
+    # end
+
+
+class DepthContent(Content):
+    content: Literal["depth"]
+    depth_reference: Literal["msl", "sb", "rkb"] = Field(
+        examples=["msl"],
+    )
+
+
+class FieldOutlineContent(Content):
+    content: Literal["field_outline"]
+    field_outline: FieldOutline = Field(
+        description="Conditional field",
+    )
+
+
+class FieldRegionContent(Content):
+    content: Literal["field_region"]
+    field_region: FieldRegion = Field(
+        description="Conditional field",
+    )
+
+
+class FluidContactContent(Content):
+    content: Literal["fluid_contact"]
+    fluid_contact: FluidContact = Field(
+        description="Conditional field",
+    )
+
+
+class SeismicContent(Content):
+    content: Literal["fluid_contact"]
+    seismic: Seismic = Field(
+        description="Conditional field",
+    )
+
+
+class TheDataBlock(BaseModel):
+    # From schema
+
+    # end
+    alias: Optional[list[str]] = None
+    base: Optional[Layer] = None
+    bbox: Optional[BoundingBox] = None
+    description: list[str] = Field(
+        default_factory=list,
+    )
+    grid_model: Optional[GridModel] = None
+    layout: Optional[str] = Field(
+        default=None,
+        examples=["regular"],
     )
     offset: float = Field(
         default=0.0,
@@ -511,12 +676,6 @@ class TheDataBlock(BaseModel):
     )
     spec: Optional[Spec] = None
     stratigraphic_alias: Optional[list[str]] = None
-    stratigraphic: bool = Field(
-        description=(
-            "True if data object represents an entity " "in the stratigraphic column"
-        ),
-        examples=[True],
-    )
     tagname: Optional[str] = Field(
         default=None,
         description="A semi-human readable tag for internal usage and uniqueness",
@@ -539,8 +698,7 @@ class TheDataBlock(BaseModel):
     )
 
 
-class Meta(BaseModel):
-    access: Access
+class ClassMeta(BaseModel):
     class_: Literal[
         "case",
         "surface",
@@ -557,6 +715,14 @@ class Meta(BaseModel):
         examples=["surface", "table", "points"],
         title="Metadata class",
     )
+
+
+class CaseMeta(ClassMeta):
+    class_: Literal["case"]
+
+
+class Meta(BaseModel):
+    access: Access
     data: Optional[TheDataBlock] = None
     file: Optional[File] = None
     fmu: Fmu = Field(
@@ -573,58 +739,57 @@ class Meta(BaseModel):
 
 
 if __name__ == "__main__":
-    sg = GenerateJsonSchema
-    sg.schema_dialect = "http://json-schema.org/draft-07/schema"
-    dumped = Meta.model_json_schema(
-        by_alias=True,
-        schema_generator=sg,
+    dumped = ChainMap(
+        {
+            "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json",
+            "$schema": GenerateJsonSchema.schema_dialect,
+            "$contractual": [
+                "class",
+                "source",
+                "version",
+                "tracklog",
+                "data.format",
+                "data.name",
+                "data.stratigraphic",
+                "data.alias",
+                "data.stratigraphic_alias",
+                "data.offset",
+                "data.content",
+                "data.tagname",
+                "data.vertical_domain",
+                "data.grid_model",
+                "data.bbox",
+                "data.time",
+                "data.is_prediction",
+                "data.is_observation",
+                "data.seismic.attribute",
+                "data.spec.columns",
+                "access",
+                "masterdata",
+                "fmu.model",
+                "fmu.workflow",
+                "fmu.case",
+                "fmu.iteration.name",
+                "fmu.iteration.uuid",
+                "fmu.realization.name",
+                "fmu.realization.id",
+                "fmu.realization.uuid",
+                "fmu.aggregation.operation",
+                "fmu.aggregation.realization_ids",
+                "fmu.context.stage",
+                "file.relative_path",
+                "file.checksum_md5",
+                "file.size_bytes",
+            ],
+        },
+        Meta.model_json_schema(
+            by_alias=True,
+        ),
     )
-    dumped = {
-        "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json",
-        "$schema": sg.schema_dialect,
-        "$contractual": [
-            "class",
-            "source",
-            "version",
-            "tracklog",
-            "data.format",
-            "data.name",
-            "data.stratigraphic",
-            "data.alias",
-            "data.stratigraphic_alias",
-            "data.offset",
-            "data.content",
-            "data.tagname",
-            "data.vertical_domain",
-            "data.grid_model",
-            "data.bbox",
-            "data.time",
-            "data.is_prediction",
-            "data.is_observation",
-            "data.seismic.attribute",
-            "data.spec.columns",
-            "access",
-            "masterdata",
-            "fmu.model",
-            "fmu.workflow",
-            "fmu.case",
-            "fmu.iteration.name",
-            "fmu.iteration.uuid",
-            "fmu.realization.name",
-            "fmu.realization.id",
-            "fmu.realization.uuid",
-            "fmu.aggregation.operation",
-            "fmu.aggregation.realization_ids",
-            "fmu.context.stage",
-            "file.relative_path",
-            "file.checksum_md5",
-            "file.size_bytes",
-        ],
-    } | dumped
 
     print(
         json.dumps(
-            dumped,
+            dict(dumped),
             indent=2,
         )
     )
