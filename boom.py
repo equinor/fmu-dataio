@@ -48,6 +48,7 @@ if __name__ == "__main__":
             root_classes.add(Meta.model_validate(m).class_)
         except Exception:
             from pprint import pp
+
             pp(m)
             raise
 
