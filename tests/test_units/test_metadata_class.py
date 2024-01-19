@@ -6,7 +6,7 @@ import fmu.dataio as dio
 import pytest
 from dateutil.parser import isoparse
 from fmu.dataio._metadata import SCHEMA, SOURCE, VERSION, ConfigurationError, _MetaData
-from fmu.dataio._utils import prettyprint_dict
+from fmu.dataio._utils import prettyprint_dict, read_named_envvar
 
 # pylint: disable=no-member
 
@@ -43,6 +43,20 @@ def test_generate_meta_tracklog(edataobj1):
     assert "event" in logentry and logentry["event"] == "created"
     assert "user" in logentry and "id" in logentry["user"]
     assert "datetime" in logentry
+
+    # sysinfo contains versions of components used, for debugging purposes
+    assert "sysinfo" in logentry
+    assert "fmu-dataio" in logentry["sysinfo"]
+    assert "version" in logentry["sysinfo"]["fmu-dataio"]
+
+    _vrs = logentry["sysinfo"]["fmu-dataio"]["version"]
+    assert _vrs
+    assert isinstance(_vrs, str)
+
+    _kmd = read_named_envvar("KOMODO_RELEASE")
+    if _kmd:  # test shall run only when in a Komodo environment
+        assert "komodo" in logentry["sysinfo"]
+        assert logentry["sysinfo"]["komodo"]["version"] == _kmd
 
     # datetime in tracklog shall include time zone offset
     assert isoparse(logentry["datetime"]).tzinfo is not None

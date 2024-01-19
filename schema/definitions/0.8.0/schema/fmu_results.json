@@ -154,6 +154,33 @@
                         "created",
                         "updated"
                     ]
+                },
+                "sysinfo": {
+                    "type": "object",
+                    "properties": {
+                        "fmu-dataio": {
+                            "type": "object",
+                            "properties": {
+                                "version": {
+                                    "type": "string",
+                                    "examples": [
+                                        "1.2.3"
+                                    ]
+                                }
+                            }
+                        },
+                        "komodo": {
+                            "type": "object",
+                            "properties": {
+                                "version": {
+                                    "type": "string",
+                                    "examples": [
+                                        "2023.12.05-py38"
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },

@@ -16,6 +16,7 @@ from tempfile import NamedTemporaryFile
 from typing import Any, Final
 from warnings import warn
 
+from fmu import dataio
 from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataio._filedata_provider import _FileDataProvider
 from fmu.dataio._fmu_provider import _FmuProvider
@@ -25,6 +26,7 @@ from fmu.dataio._utils import (
     export_file_compute_checksum_md5,
     glue_metadata_preprocessed,
     read_metadata,
+    read_named_envvar,
 )
 
 logger: Final = logging.getLogger(__name__)
@@ -46,13 +48,25 @@ def default_meta_dollars() -> dict:
 
 
 def generate_meta_tracklog() -> list[dict]:
-    """Create the tracklog metadata, which here assumes 'created' only."""
-    meta = []
+    """Initialize the tracklog with the 'created' event only."""
 
     dtime = datetime.datetime.now(timezone.utc).isoformat()
     user = getpass.getuser()
-    meta.append({"datetime": dtime, "user": {"id": user}, "event": "created"})
-    return meta
+    sysinfo = {
+        "fmu-dataio": {"version": dataio.__version__},
+    }
+    _kmd = read_named_envvar("KOMODO_RELEASE")
+    if _kmd is not None:
+        sysinfo["komodo"] = {"version": _kmd}
+
+    return [
+        {
+            "datetime": dtime,
+            "user": {"id": user},
+            "event": "created",
+            "sysinfo": sysinfo,
+        }
+    ]
 
 
 def generate_meta_masterdata(config: dict) -> dict | None:
