@@ -4,7 +4,6 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
-import logging
 import os
 import shutil
 import uuid
@@ -21,8 +20,9 @@ import yaml
 from fmu.config import utilities as ut
 
 from . import _design_kw
+from ._logging import null_logger
 
-logger: Final = logging.getLogger(__name__)
+logger: Final = null_logger(__name__)
 
 
 def detect_inside_rms() -> bool:
@@ -75,10 +75,8 @@ def export_metadata_file(
     file: Path,
     metadata: dict,
     savefmt: Literal["yaml", "json"] = "yaml",
-    verbosity: str = "WARNING",
 ) -> None:
     """Export genericly and ordered to the complementary metadata file."""
-    logger.setLevel(level=verbosity)
     if not metadata:
         raise RuntimeError(
             "Export of metadata was requested, but no metadata are present."

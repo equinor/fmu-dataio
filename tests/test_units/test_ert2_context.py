@@ -19,7 +19,7 @@ def test_regsurf_generate_metadata(fmurun_w_casemetadata, rmsglobalconfig, regsu
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     os.chdir(fmurun_w_casemetadata)
 
-    edata = dataio.ExportData(config=rmsglobalconfig, verbosity="INFO", content="depth")
+    edata = dataio.ExportData(config=rmsglobalconfig, content="depth")
 
     meta = edata.generate_metadata(regsurf)
     assert str(edata._pwd) == str(fmurun_w_casemetadata)
@@ -42,7 +42,6 @@ def test_regsurf_generate_metadata_incl_jobs(
     edata = dataio.ExportData(
         config=rmsglobalconfig,
         content="depth",
-        verbosity="INFO",
     )
 
     meta = edata.generate_metadata(regsurf)
@@ -61,14 +60,12 @@ def test_regsurf_metadata_with_timedata(
     edata = dataio.ExportData(
         config=rmsglobalconfig,
         content="depth",
-        verbosity="INFO",
     )
 
     meta1 = edata.generate_metadata(
         regsurf,
         name="TopVolantis",
         timedata=[[20300101, "moni"], [20100203, "base"]],
-        verbosity="INFO",
     )
     assert meta1["data"]["time"]["t0"]["value"] == "2010-02-03T00:00:00"
     assert meta1["data"]["time"]["t0"]["label"] == "base"
@@ -79,7 +76,6 @@ def test_regsurf_metadata_with_timedata(
         regsurf,
         name="TopVolantis",
         timedata=[[20300123, "one"]],
-        verbosity="INFO",
     )
 
     assert meta1["data"]["time"]["t0"]["value"] == "2030-01-23T00:00:00"
@@ -100,7 +96,6 @@ def test_regsurf_export_file_fmurun(fmurun_w_casemetadata, rmsglobalconfig, regs
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
-        verbosity="INFO",
         workflow="My test workflow",
         unit="myunit",
         content="depth",
@@ -191,7 +186,7 @@ def test_points_export_file_set_name_xtgeoheaders(
 
     dataio.ExportData.points_fformat = "csv"
     edata = dataio.ExportData(
-        config=rmsglobalconfig, verbosity="INFO", content="depth"
+        config=rmsglobalconfig, content="depth"
     )  # read from global config
     edata.points_fformat = "csv|xtgeo"  # override
 

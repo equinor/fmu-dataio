@@ -7,14 +7,15 @@ along all dependencies of semeio"""
 
 from __future__ import annotations
 
-import logging
 import re
 import shlex
 from typing import Any, Final, Iterable
 
+from ._logging import null_logger
+
 _STATUS_FILE_NAME: Final = "DESIGN_KW.OK"
 
-_logger: Final = logging.getLogger(__name__)
+_logger: Final = null_logger(__name__)
 
 
 def run(

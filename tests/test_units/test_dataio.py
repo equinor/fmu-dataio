@@ -294,7 +294,6 @@ def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
                     "offset": "0-15",
                 }
             },
-            verbosity="DEBUG",
         )
         mymeta = eobj.generate_metadata(regsurf)
 
@@ -347,9 +346,7 @@ def test_settings_config_from_env(tmp_path, rmsglobalconfig, regsurf):
         yaml.dump(settings, stream)
 
     os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
-    edata = ExportData(
-        content="depth", verbosity="INFO"
-    )  # the env variable will override this
+    edata = ExportData(content="depth")  # the env variable will override this
     assert edata.name == "MyFancyName"
 
     meta = edata.generate_metadata(regsurf)
@@ -376,9 +373,7 @@ def test_settings_and_global_config_from_env(tmp_path, rmsglobalconfig, regsurf)
     os.environ["FMU_GLOBAL_CONFIG"] = str(tmp_path / "global_variables.yml")
     os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
 
-    edata = ExportData(
-        content="depth", verbosity="INFO"
-    )  # the env variable will override this
+    edata = ExportData(content="depth")  # the env variable will override this
     assert edata.name == "MyFancyName"
 
     meta = edata.generate_metadata(regsurf)
@@ -401,7 +396,7 @@ def test_settings_config_from_env_invalid(tmp_path, rmsglobalconfig):
 
     os.environ["FMU_DATAIO_CONFIG"] = str(tmp_path / "mysettings.yml")
     with pytest.raises(ValidationError):
-        _ = ExportData(content="depth", verbosity="INFO")
+        _ = ExportData(content="depth")
 
     del os.environ["FMU_DATAIO_CONFIG"]
 
@@ -515,3 +510,8 @@ def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsu
     )
     ExportData.allow_forcefolder_absolute = False  # reset
     ExportData._inside_rms = False
+
+
+def test_deprecated_verbosity(globalconfig1):
+    with pytest.warns(UserWarning, match="Using the 'verbosity' key is now deprecated"):
+        ExportData(config=globalconfig1, verbosity="INFO")

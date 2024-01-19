@@ -15,12 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 def test_inicase_barebone(globalconfig2):
-    icase = InitializeCase(config=globalconfig2, verbosity="INFO")
+    icase = InitializeCase(config=globalconfig2)
     assert "Drogon" in str(icase.config)
 
 
 def test_inicase_barebone_with_export(globalconfig2, fmurun):
-    icase = InitializeCase(config=globalconfig2, verbosity="INFO")
+    icase = InitializeCase(config=globalconfig2)
     assert "Drogon" in str(icase.config)
 
     globalconfig2["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"
@@ -57,7 +57,7 @@ def test_inicase_pwd_basepath(fmurun, globalconfig2):
     logger.info("Active folder is %s", fmurun)
     os.chdir(fmurun)
 
-    icase = InitializeCase(config=globalconfig2, verbosity="INFO")
+    icase = InitializeCase(config=globalconfig2)
     with pytest.warns(UserWarning):
         icase._establish_pwd_casepath()
 
@@ -74,9 +74,7 @@ def test_inicase_pwd_basepath_explicit(fmurun, globalconfig2):
 
     myroot = fmurun
 
-    icase = InitializeCase(
-        config=globalconfig2, verbosity="INFO", rootfolder=myroot, casename="mycase"
-    )
+    icase = InitializeCase(config=globalconfig2, rootfolder=myroot, casename="mycase")
     icase._establish_pwd_casepath()
 
     logger.info("Casepath is %s", icase._casepath)
@@ -91,7 +89,7 @@ def test_inicase_update_settings(fmurun, globalconfig2):
     os.chdir(fmurun)
     myroot = fmurun / "mycase"
 
-    icase = InitializeCase(config=globalconfig2, verbosity="INFO", rootfolder=myroot)
+    icase = InitializeCase(config=globalconfig2, rootfolder=myroot)
     kwargs = {"rootfolder": "/tmp"}
     icase._update_settings(newsettings=kwargs)
 
@@ -109,7 +107,7 @@ def test_inicase_update_settings_correct_key_wrong_type(fmurun, globalconfig2):
     os.chdir(fmurun)
     myroot = fmurun / "mycase"
 
-    icase = InitializeCase(config=globalconfig2, verbosity="INFO", rootfolder=myroot)
+    icase = InitializeCase(config=globalconfig2, rootfolder=myroot)
     kwargs = {"rootfolder": 1234567}
     with pytest.raises(ValueError, match=r"The value of '"):
         icase._update_settings(newsettings=kwargs)
@@ -121,7 +119,7 @@ def test_inicase_update_settings_shall_fail(fmurun, globalconfig2):
     os.chdir(fmurun)
     myroot = fmurun / "mycase"
 
-    icase = InitializeCase(config=globalconfig2, verbosity="INFO", rootfolder=myroot)
+    icase = InitializeCase(config=globalconfig2, rootfolder=myroot)
     kwargs = {"invalidfolder": "/tmp"}
     with pytest.raises(KeyError):
         icase._update_settings(newsettings=kwargs)
@@ -133,7 +131,7 @@ def test_inicase_generate_case_metadata(fmurun, globalconfig2):
     myroot = fmurun.parent.parent.parent / "mycase"
     logger.info("Case folder is now %s", myroot)
 
-    icase = InitializeCase(globalconfig2, verbosity="INFO")
+    icase = InitializeCase(globalconfig2)
     with pytest.warns(UserWarning, match="The rootfolder is defaulted"):
         icase.generate_case_metadata()
 
@@ -146,7 +144,7 @@ def test_inicase_generate_case_metadata_exists_so_fails(
     logger.info("Folder is %s", fmurun_w_casemetadata)
     casemetafolder = fmurun_w_casemetadata.parent.parent
 
-    icase = InitializeCase(globalconfig2, verbosity="INFO")
+    icase = InitializeCase(globalconfig2)
     with pytest.warns(UserWarning, match=r"The metadata file already exist!"):
         icase.generate_case_metadata(rootfolder=casemetafolder)
 
@@ -163,7 +161,7 @@ def test_inicase_generate_case_metadata_exists_but_force(
     with open(old_metafile, encoding="utf-8") as stream:
         old_content = yaml.safe_load(stream)
 
-    icase = InitializeCase(globalconfig2, verbosity="INFO")
+    icase = InitializeCase(globalconfig2)
     icase.export(
         rootfolder=casemetafolder,
         force=True,
@@ -184,7 +182,7 @@ def test_inicase_generate_case_metadata_exists_but_force(
 
 
 def test_inicase_deprecated_restart_from(fmurun_w_casemetadata, globalconfig2):
-    icase = InitializeCase(globalconfig2, verbosity="INFO")
+    icase = InitializeCase(globalconfig2)
     with pytest.warns(
         DeprecationWarning,
         match="The 'restart_from' argument is deprecated and will be removed in a "

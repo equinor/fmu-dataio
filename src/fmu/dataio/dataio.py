@@ -4,7 +4,6 @@ The metadata spec is documented as a JSON schema, stored under schema/.
 """
 from __future__ import annotations
 
-import logging
 import os
 import uuid
 import warnings
@@ -23,6 +22,7 @@ from ._definitions import (
     CONTENTS_REQUIRED,
     DEPRECATED_CONTENTS,
 )
+from ._logging import null_logger
 from ._utils import (
     create_symlink,
     dataio_examples,
@@ -45,8 +45,7 @@ INSIDE_RMS: Final = detect_inside_rms()
 GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
 SETTINGS_ENVNAME: Final = "FMU_DATAIO_CONFIG"  # input settings from a spesific file!
 
-logger: Final = logging.getLogger(__name__)
-logging.captureWarnings(True)
+logger: Final = null_logger(__name__)
 
 
 class ValidationError(ValueError, KeyError):
@@ -479,10 +478,6 @@ class ExportData:
             [[20200101, "monitor"], [20180101, "base"]] or just [[2021010]]. The output
             to metadata will from version 0.9 be different (API change)
 
-        verbosity: Is logging/message level for this module. Input as
-            in standard python logging; e.g. "WARNING", "INFO", "DEBUG". Default is
-            "CRITICAL".
-
         vertical_domain: This is dictionary with a key and a reference e.g.
             {"depth": "msl"} which is default if missing.
 
@@ -585,7 +580,7 @@ class ExportData:
     tagname: str = ""
     timedata: Optional[List[list]] = None
     unit: str = ""
-    verbosity: str = "CRITICAL"
+    verbosity: str = "DEPRECATED"  # remove in version 2
     vertical_domain: dict = field(default_factory=dict)
     workflow: str = ""
     table_index: Optional[list] = None
@@ -604,7 +599,14 @@ class ExportData:
     _rootpath: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self) -> None:
-        logger.setLevel(level=self.verbosity)
+        if self.verbosity != "DEPRECATED":
+            warn(
+                "Using the 'verbosity' key is now deprecated and will have no "
+                "effect and will be removed in near future. Please remove it from the "
+                "argument list. Set logging level from client script in the standard "
+                "manner instead.",
+                UserWarning,
+            )
         logger.info("Running __post_init__ ExportData")
         logger.debug("Global config is %s", prettyprint_dict(self.config))
 
@@ -625,8 +627,6 @@ class ExportData:
                 for key, value in external_input.items():
                     if _validate_variable(key, value, legals):
                         setattr(self, key, value)
-                        if key == "verbosity":
-                            logger.setLevel(level=self.verbosity)
 
         self._config_is_valid = _check_global_config(
             self.config, strict=False, action="warn"
@@ -711,8 +711,6 @@ class ExportData:
         for setting, value in newsettings.items():
             if _validate_variable(setting, value, legals):
                 setattr(self, setting, value)
-                if setting == "verbosity":
-                    logger.setLevel(level=self.verbosity)
                 logger.info("New setting OK for %s", setting)
 
         self._show_deprecations_or_notimplemented()
@@ -861,9 +859,7 @@ class ExportData:
         self._validate_content_key()
         self._update_fmt_flag()
 
-        metaobj = _metadata._MetaData(
-            obj, self, compute_md5=compute_md5, verbosity=self.verbosity
-        )
+        metaobj = _metadata._MetaData(obj, self, compute_md5=compute_md5)
         self._metadata = metaobj.generate_export_metadata()
 
         self._rootpath = Path(metaobj.rootpath)
@@ -973,8 +969,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         caseuser: Username provided
         restart_from: ID of eventual restart (deprecated)
         description: Description text as string or list of strings.
-        verbosity: Is logging/message level for this module. Input as
-            in standard python logging; e.g. "WARNING", "INFO".
     """
 
     # class variables
@@ -987,7 +981,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     caseuser: Optional[str] = None
     restart_from: Optional[str] = None
     description: Optional[Union[str, list]] = None
-    verbosity: str = "CRITICAL"
+    verbosity: str = "DEPRECATED"
 
     _metadata: dict = field(default_factory=dict, init=False)
     _metafile: Path = field(default_factory=Path, init=False)
@@ -995,7 +989,14 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     _casepath: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self) -> None:
-        logger.setLevel(level=self.verbosity)
+        if self.verbosity != "DEPRECATED":
+            warn(
+                "Using the 'verbosity' key is now deprecated and will have no "
+                "effect and will be removed in near future. Please remove it from the "
+                "argument list. Set logging level from client script in the standard "
+                "manner instead.",
+                UserWarning,
+            )
 
         if not self.config or GLOBAL_ENVNAME in os.environ:
             cnf = some_config_from_env(GLOBAL_ENVNAME)
@@ -1025,8 +1026,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
                 )
             if _validate_variable(setting, value, legals):
                 setattr(self, setting, value)
-                if setting == "verbosity":
-                    logger.setLevel(level=self.verbosity)
                 logger.info("New setting OK for %s", setting)
 
     def _establish_pwd_casepath(self) -> None:
@@ -1205,8 +1204,6 @@ class AggregatedData:
             valid metadata per input element that forms the aggregation.
         operation: A string that describes the operation, e.g. "mean". This is
             mandatory and there is no default.
-        verbosity: Is logging/message level for this module. Input as
-            in standard python logging; e.g. "WARNING", "INFO".
         tagname: Additional name, as part of file name
     """
 
@@ -1220,13 +1217,20 @@ class AggregatedData:
     name: str = ""
     operation: str = ""
     tagname: str = ""
-    verbosity: str = "CRITICAL"
+    verbosity: str = "DEPRECATED"  # keep for while
 
     _metadata: dict = field(default_factory=dict, init=False)
     _metafile: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self) -> None:
-        logger.setLevel(level=self.verbosity)
+        if self.verbosity != "DEPRECATED":
+            warn(
+                "Using the 'verbosity' key is now deprecated and will have no "
+                "effect and will be removed in near future. Please remove it from the "
+                "argument list. Set logging level from client script in the standard "
+                "manner instead.",
+                UserWarning,
+            )
 
     @staticmethod
     def _generate_aggr_uuid(uuids: list) -> str:
@@ -1249,8 +1253,6 @@ class AggregatedData:
         for setting, value in newsettings.items():
             if _validate_variable(setting, value, legals):
                 setattr(self, setting, value)
-                if setting == "verbosity":
-                    logger.setLevel(level=self.verbosity)
                 logger.info("New setting OK for %s", setting)
 
     def _construct_filename(self, template: dict) -> tuple[Path, Path | None]:

@@ -5,14 +5,15 @@ as this is convinient to populate later, on demand)
 """
 from __future__ import annotations
 
-import logging
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Final, Optional
 from warnings import warn
 
-logger: Final = logging.getLogger(__name__)
+from ._logging import null_logger
+
+logger: Final = null_logger(__name__)
 
 
 @dataclass
@@ -33,7 +34,6 @@ class _FileDataProvider:
     rootpath: Path = field(default_factory=Path)
     itername: str = ""
     realname: str = ""
-    verbosity: str = "CRITICAL"
 
     # storing results in these variables
     relative_path: Optional[str] = field(default="", init=False)
@@ -43,8 +43,6 @@ class _FileDataProvider:
     checksum_md5: Optional[str] = field(default="", init=False)
 
     def __post_init__(self) -> None:
-        logger.setLevel(level=self.verbosity)
-
         if self.dataio.name:
             self.name = self.dataio.name
         else:

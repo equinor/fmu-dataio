@@ -496,7 +496,6 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     edata = dio.ExportData(
         config=rmsglobalconfig,  # read from global config
         content="depth",
-        verbosity="INFO",
     )
 
     aggs = []
