@@ -72,7 +72,7 @@ def test_fmuprovider_arbitrary_iter_name(edataobj1, fmurun_w_casemetadata_pred):
 
     edataobj1._rootpath = fmurun_w_casemetadata_pred
     os.chdir(fmurun_w_casemetadata_pred)
-    myfmu = _FmuProvider(edataobj1, verbosity="DEBUG")
+    myfmu = _FmuProvider(edataobj1)
     myfmu.detect_provider()
     assert myfmu.case_name == "ertrun1"
     assert myfmu.real_name == "realization-0"
@@ -95,7 +95,7 @@ def test_fmuprovider_prehook_case(globalconfig2, tmp_path):
     key casepath is given explicitly!.
     """
 
-    icase = dio.InitializeCase(config=globalconfig2, verbosity="INFO")
+    icase = dio.InitializeCase(config=globalconfig2)
 
     caseroot = tmp_path / "prehook"
     caseroot.mkdir(parents=True)
@@ -122,7 +122,7 @@ def test_fmuprovider_prehook_case(globalconfig2, tmp_path):
         casepath=caseroot,
     )
 
-    myfmu = _FmuProvider(eobj, verbosity="INFO")
+    myfmu = _FmuProvider(eobj)
     myfmu.detect_provider()
     assert myfmu.case_name == "prehook"
     assert myfmu.real_name is None

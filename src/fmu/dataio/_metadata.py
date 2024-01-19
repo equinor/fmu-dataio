@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import datetime
 import getpass
-import logging
 from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
@@ -29,7 +28,9 @@ from fmu.dataio._utils import (
     read_named_envvar,
 )
 
-logger: Final = logging.getLogger(__name__)
+from ._logging import null_logger
+
+logger: Final = null_logger(__name__)
 
 
 class ConfigurationError(ValueError):
@@ -214,7 +215,6 @@ class _MetaData:
     # input variables
     obj: Any
     dataio: Any
-    verbosity: str = "CRITICAL"
     compute_md5: bool = True
 
     # storage state variables
@@ -238,7 +238,6 @@ class _MetaData:
     meta_existing: dict = field(default_factory=dict, init=False)
 
     def __post_init__(self) -> None:
-        logger.setLevel(level=self.verbosity)
         logger.info("Initialize _MetaData instance.")
 
         # one special case is that obj is a file path, and dataio.reuse_metadata_rule is
@@ -268,7 +267,7 @@ class _MetaData:
 
         The _FmuDataProvider is ran first -> self.fmudata
         """
-        self.fmudata = _FmuProvider(self.dataio, verbosity=self.verbosity)
+        self.fmudata = _FmuProvider(self.dataio)
         self.fmudata.detect_provider()
         logger.info("FMU provider is %s", self.fmudata.provider)
         return self.fmudata.case_metadata
@@ -281,7 +280,7 @@ class _MetaData:
 
         The _FmuDataProvider is ran first -> self.fmudata
         """
-        self.fmudata = _FmuProvider(self.dataio, verbosity=self.verbosity)
+        self.fmudata = _FmuProvider(self.dataio)
         self.fmudata.detect_provider()
         logger.info("FMU provider is %s", self.fmudata.provider)
         self.meta_fmu = self.fmudata.metadata
@@ -309,7 +308,6 @@ class _MetaData:
             Path(self.rootpath),
             self.fmudata.iter_name,
             self.fmudata.real_name,
-            self.verbosity,
         )
         fdata.derive_filedata()
 

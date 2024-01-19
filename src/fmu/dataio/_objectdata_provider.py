@@ -85,7 +85,6 @@ data:
 """
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 from pathlib import Path
@@ -97,9 +96,10 @@ import pandas as pd
 import xtgeo
 
 from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, _ValidFormats
+from ._logging import null_logger
 from ._utils import generate_description, parse_timedata
 
-logger: Final = logging.getLogger(__name__)
+logger: Final = null_logger(__name__)
 
 
 class ConfigurationError(ValueError):

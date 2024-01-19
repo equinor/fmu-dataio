@@ -23,7 +23,6 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, aggr_surfs_mean):
         source_metadata=metas,
         operation="mean",
         name="myaggrd",
-        verbosity="INFO",
         aggregation_id="1234",
     )
     newmeta = aggdata.generate_metadata(aggr_mean)
@@ -50,7 +49,6 @@ def test_regsurf_aggregated_export(fmurun_w_casemetadata, aggr_surfs_mean):
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        verbosity="INFO",
         aggregation_id="1234",
     )
 
@@ -79,7 +77,6 @@ def test_regsurf_aggregated_alt_keys(fmurun_w_casemetadata, aggr_surfs_mean):
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        verbosity="INFO",
         aggregation_id="1234",
     ).generate_metadata(aggr_mean)
 
@@ -90,7 +87,6 @@ def test_regsurf_aggregated_alt_keys(fmurun_w_casemetadata, aggr_surfs_mean):
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        verbosity="INFO",
         aggregation_id="1234",
     )
 
@@ -102,7 +98,6 @@ def test_regsurf_aggregated_alt_keys(fmurun_w_casemetadata, aggr_surfs_mean):
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        verbosity="INFO",
         aggregation_id="1234",
     )
     meta3 = aggdata3._metadata
@@ -136,7 +131,6 @@ def test_regsurf_aggr_export_give_casepath(fmurun_w_casemetadata, aggr_surfs_mea
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        verbosity="INFO",
         aggregation_id="1234abcd",
     )
 
@@ -168,7 +162,6 @@ def test_regsurf_aggr_export_give_casepath_noex(fmurun_w_casemetadata, aggr_surf
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        verbosity="INFO",
         aggregation_id="1234abcd",
     )
 
@@ -195,7 +188,6 @@ def test_regsurf_aggr_export_abspath_none(fmurun_w_casemetadata, aggr_surfs_mean
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        verbosity="INFO",
         aggregation_id="1234abcd",
     )
 
@@ -221,7 +213,6 @@ def test_regsurf_aggregated_aggregation_id(fmurun_w_casemetadata, aggr_surfs_mea
         source_metadata=metas,
         operation="mean",
         name="myaggrd2",
-        verbosity="INFO",
     )
     newmeta = aggdata.generate_metadata(aggr_mean)
     logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
@@ -232,7 +223,6 @@ def test_regsurf_aggregated_aggregation_id(fmurun_w_casemetadata, aggr_surfs_mea
         source_metadata=metas,
         operation="mean",
         name="myaggrd2",
-        verbosity="INFO",
         aggregation_id=None,
     )
     newmeta = aggdata.generate_metadata(aggr_mean)
@@ -245,7 +235,6 @@ def test_regsurf_aggregated_aggregation_id(fmurun_w_casemetadata, aggr_surfs_mea
         source_metadata=metas,
         operation="mean",
         name="myaggrd2",
-        verbosity="INFO",
         aggregation_id="1234",
     )
     newmeta = aggdata.generate_metadata(aggr_mean)
@@ -258,7 +247,6 @@ def test_regsurf_aggregated_aggregation_id(fmurun_w_casemetadata, aggr_surfs_mea
             source_metadata=metas,
             operation="mean",
             name="myaggrd2",
-            verbosity="INFO",
             aggregation_id=True,
         )
         newmeta = aggdata.generate_metadata(aggr_mean)
@@ -269,7 +257,6 @@ def test_regsurf_aggregated_aggregation_id(fmurun_w_casemetadata, aggr_surfs_mea
             source_metadata=metas,
             operation="mean",
             name="myaggrd2",
-            verbosity="INFO",
         )
         newmeta = aggdata.generate_metadata(aggr_mean, aggregation_id=True)
 
@@ -288,7 +275,6 @@ def test_generate_aggr_uuid(fmurun_w_casemetadata, aggr_surfs_mean):
         source_metadata=metas,
         operation="mean",
         name="myaggrd2",
-        verbosity="INFO",
     )
 
     # Sorting shall be ignored
@@ -347,7 +333,6 @@ def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, reg
         source_metadata=metas,
         operation="mean",
         name="myaggrd",
-        verbosity="INFO",
         aggregation_id="789politipoliti",
     )
     newmeta = aggdata.generate_metadata(aggregated["mean"])

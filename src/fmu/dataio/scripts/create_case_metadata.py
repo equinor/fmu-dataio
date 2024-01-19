@@ -88,8 +88,8 @@ class WfCreateCaseMetadata(ErtScript):
 def create_case_metadata_main(args: argparse.Namespace) -> None:
     """Create the case metadata and register case on Sumo."""
 
-    logger.setLevel(level=args.verbosity)
     check_arguments(args)
+
     case_metadata_path = create_metadata(args)
     assert case_metadata_path is not None
     register_on_sumo(args, case_metadata_path)
@@ -99,6 +99,8 @@ def create_case_metadata_main(args: argparse.Namespace) -> None:
 
 def create_metadata(args: argparse.Namespace) -> str | None:
     """Create the case metadata and print them to the disk"""
+    logger.setLevel(args.verbosity)
+
     _global_variables_path = Path(args.ert_config_path, args.global_variables_path)
     global_variables = _parse_yaml(_global_variables_path)
 

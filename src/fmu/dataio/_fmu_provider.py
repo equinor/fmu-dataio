@@ -9,7 +9,6 @@ or it can detect that no providers are present (e.g. just ran from RMS interacti
 from __future__ import annotations
 
 import json
-import logging
 import pathlib
 import re
 from copy import deepcopy
@@ -22,12 +21,13 @@ from warnings import warn
 from fmu.config import utilities as ut
 
 from . import _utils
+from ._logging import null_logger
 
 # case metadata relative to rootpath
 ERT2_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
 RESTART_PATH_ENVNAME: Final = "RESTART_FROM_PATH"
 
-logger: Final = logging.getLogger(__name__)
+logger: Final = null_logger(__name__)
 
 
 def _get_folderlist(current: Path) -> list:
@@ -49,7 +49,6 @@ class _FmuProvider:
     """Class for detecting the run environment (e.g. an ERT2) and provide metadata."""
 
     dataio: Any
-    verbosity: str = "CRITICAL"
 
     provider: Optional[str] = field(default=None, init=False)
     is_fmurun: Optional[bool] = field(default=False, init=False)
@@ -68,8 +67,6 @@ class _FmuProvider:
     rootpath: Optional[Path] = field(default=None, init=False)
 
     def __post_init__(self) -> None:
-        logger.setLevel(level=self.verbosity)
-
         self.rootpath = Path(self.dataio._rootpath.absolute())
 
         self.rootpath_initial = self.rootpath

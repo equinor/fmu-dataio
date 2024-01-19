@@ -117,14 +117,12 @@ def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
     edata = dataio.ExportData(
         config=rmsglobalconfig,
         content="depth",
-        verbosity="INFO",
     )  # read from global config
     meta1 = edata.generate_metadata(
         regsurf,
         name="TopVolantis",
         content="depth",
         timedata=[[20300101, "moni"], [20100203, "base"]],
-        verbosity="INFO",
     )
     assert meta1["data"]["time"]["t0"]["value"] == "2010-02-03T00:00:00"
     assert meta1["data"]["time"]["t0"]["label"] == "base"
@@ -135,7 +133,6 @@ def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
         regsurf,
         name="TopVolantis",
         timedata=[[20300123, "one"]],
-        verbosity="INFO",
     )
 
     assert meta1["data"]["time"]["t0"]["value"] == "2030-01-23T00:00:00"
@@ -154,14 +151,12 @@ def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsur
     dataio.ExportData.legacy_time_format = True
     edata = dataio.ExportData(
         config=rmsglobalconfig,
-        verbosity="INFO",
         content="depth",
     )  # read from global config
     meta1 = edata.generate_metadata(
         regsurf,
         name="TopVolantis",
         timedata=[[20300101, "moni"], [20100203, "base"]],
-        verbosity="INFO",
     )
     logger.debug(prettyprint_dict(meta1))
     assert "topvolantis--20300101_20100203" in meta1["file"]["relative_path"]
@@ -176,7 +171,6 @@ def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsur
         name="TopVolantis",
         content="depth",
         timedata=[[20300123, "one"]],
-        verbosity="INFO",
     )
 
     logger.debug(prettyprint_dict(meta1))
@@ -203,7 +197,6 @@ def test_regsurf_export_file_fmurun(
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
-        verbosity="INFO",
         content="depth",
         workflow="My test workflow",
         unit="myunit",
@@ -285,7 +278,7 @@ def test_points_export_file_set_name_xtgeoheaders(rmssetup, rmsglobalconfig, poi
     dataio.ExportData.points_fformat = "csv|xtgeo"
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig, verbosity="INFO", content="depth"
+        config=rmsglobalconfig, content="depth"
     )  # read from global config
 
     output = edata.export(points, name="TopVolantiz")
