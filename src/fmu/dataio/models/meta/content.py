@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, Optional, Union
+from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, Field
+from typing_extensions import Annotated
 
 
 class FMUTimeObject(BaseModel):
@@ -117,30 +118,30 @@ class BoundingBox(BaseModel):
 class Content(BaseModel):
     content: Literal[
         "depth",
-        "time",
-        "thickness",
-        "property",
-        "seismic",
-        "fluid_contact",
+        "fault_lines",
         "field_outline",
         "field_region",
-        "regions",
+        "fluid_contact",
+        "inplace_volumes",
+        "khproduct",
+        "lift_curves",
+        "parameters",
         "pinchout",
+        "property",
+        "pvt",
+        "regions",
+        "relperm",
+        "rft",
+        "seismic",
         "subcrop",
-        "fault_lines",
+        "thickness",
+        "time",
+        "timeseries",
+        "transmissibilities",
         "velocity",
         "volumes",
         "volumetrics",
-        "inplace_volumes",
-        "khproduct",
-        "timeseries",
         "wellpicks",
-        "parameters",
-        "relperm",
-        "rft",
-        "pvt",
-        "lift_curves",
-        "transmissibilities",
     ] = Field(
         description="The contents of this data object",
         examples=["depth"],

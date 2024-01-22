@@ -129,9 +129,10 @@
       "const": "fmu"
     },
     "version": {
-      "$comment": "Must always be on root level. This is 0.8.0, so require version to be == 0.8.0",
+      "$comment": "Must always be on root level.",
       "title": "FMU results metadata version",
       "type": "string",
+      "$comment": "This is 0.8.0, so require version to be == 0.8.0",
       "enum": [
         "0.8.0"
       ],
@@ -214,7 +215,8 @@
           }
         },
         "offset": {
-          "$comment": "To be used if data represents an offset from the specified name e.g. a surface representing an offset from a known horizon",
+          "$comment": "To be used if data represents an offset from the specified name",
+          "$comment": "e.g. a surface representing an offset from a known horizon",
           "type": "number",
           "example": 11.2
         },
@@ -1095,7 +1097,11 @@
           "id": {
             "type": "string",
             "description": "The ID of this aggregation",
-            "$comment": "Used for tying together representations of the same entity Example: Statistics for various time steps of the same surface Not used in Drogon but widely used on e.g. Johan Sverdrup Used for enabling common display and joint visual settings. A unique uuid is currently used, and included as example but any ID should be sufficient",
+            "$comment": "Used for tying together representations of the same entity",
+            "$comment": "Example: Statistics for various time steps of the same surface",
+            "$comment": "Not used in Drogon but widely used on e.g. Johan Sverdrup",
+            "$comment": "Used for enabling common display and joint visual settings",
+            "$comment": "A unique uuid is currently used, and included as example but any ID should be sufficient",
             "examples": [
               "15ce3b84-766f-4c93-9050-b154861f9100"
             ]
@@ -1122,7 +1128,8 @@
     },
     "file": {
       "description": "Block describing the file as the data appear in FMU context",
-      "$comment": "While the file may seize to exist, the concept is still useful. A lot of logic exists on top of the file name now, legacy but not likely to disappear soon",
+      "$comment": "While the file may seize to exist, the concept is still useful",
+      "$comment": "A lot of logic exists on top of the file name now, legacy but not likely to disappear soon",
       "type": "object",
       "required": [
         "relative_path",
@@ -1160,7 +1167,10 @@
       }
     }
   },
-  "$comment": "DEFINITIONS END HERE oneOf below reflects different structures depending on type The fmu-block is different for cases and data objects, and the data block is only present for data objects.",
+  "$comment": "DEFINITIONS END HERE",
+  "$comment": "oneOf below reflects different structures depending on type",
+  "$comment": "The fmu-block is different for cases and data objects,",
+  "$comment": "and the data block is only present for data objects.",
   "required": [
     "source",
     "version",
@@ -1242,7 +1252,7 @@
         },
         "fmu": {
           "description": "The FMU block records properties that are specific to FMU",
-          "$comment": "This is the fmu block as it appears in data objects implementation below allows realization or aggregation or none of them, never both",
+          "$comment": "This is the fmu block as it appears in data objects",
           "required": [
             "model",
             "case"
@@ -1267,6 +1277,7 @@
               "$ref": "#/definitions/fmu/aggregation"
             }
           },
+          "$comment": "implementation below allows realization or aggregation or none of them, never both",
           "dependencies": {
             "aggregation": {
               "not": {

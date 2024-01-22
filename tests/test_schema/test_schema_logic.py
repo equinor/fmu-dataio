@@ -36,7 +36,21 @@ def test_schema_080_validate_examples_as_is(schema_080, metadata_examples):
     """Confirm that examples are valid against the schema"""
 
     for i, (name, metadata) in enumerate(metadata_examples.items()):
-        jsonschema.validate(instance=metadata, schema=schema_080)
+        try:
+            jsonschema.validate(instance=metadata, schema=schema_080)
+        except jsonschema.exceptions.ValidationError:
+            logger.error("Failed validating existing example: %s", name)
+            if i == 0:
+                logger.error(
+                    "This was the first example attempted."
+                    "Error is most likely int he schema."
+                )
+            else:
+                logger.error(
+                    "This was not the first example attemted."
+                    "Error is most likely in the example."
+                )
+            raise
 
 
 def test_schema_080_file_block(schema_080, metadata_examples):

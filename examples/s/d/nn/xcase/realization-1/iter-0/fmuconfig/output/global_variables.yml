@@ -17,7 +17,7 @@ masterdata:
       uuid: ad214d85-dac7-19da-e053-c918a4889309
     stratigraphic_column:
       identifier: DROGON_2020
-      uuid: ad214d85-dac7-19da-e053-c918a4889308
+      uuid: some-unique-id-to-be-provided-by-smda
 access:
   asset:
     name: Drogon

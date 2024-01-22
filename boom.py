@@ -3,10 +3,9 @@ from __future__ import annotations
 from contextlib import suppress
 from random import sample
 
+from fmu.dataio.models.meta.model import Root
 from fmu.sumo.explorer import Explorer
 from tqdm import tqdm
-
-from src.fmu.dataio.models.meta2 import Meta
 
 
 def lazy_sampler(x, lenx, k=100):
@@ -45,7 +44,7 @@ if __name__ == "__main__":
     root_classes = set()
     for m in tqdm(gen(), ascii=True, position=1):
         try:
-            root_classes.add(Meta.model_validate(m).class_)
+            root_classes.add(Root.model_validate(m))
         except Exception:
             from pprint import pp
 
