@@ -3,9 +3,9 @@ from __future__ import annotations
 import json
 from collections import ChainMap
 from pathlib import Path
-from typing import Dict, Literal, Optional, Union
+from typing import Dict, Literal, Optional, Union, Annotated
 
-from pydantic import BaseModel, ByteSize, Field, NaiveDatetime, RootModel
+from pydantic import BaseModel, Field, NaiveDatetime, RootModel, Discriminator
 from pydantic.json_schema import GenerateJsonSchema
 
 
@@ -21,20 +21,27 @@ class Asset(BaseModel):
 
 
 class Ssdl(BaseModel):
+    """
+    Sub-Surface Data Lake
+    """
+
     access_level: Literal["internal", "restricted", "asset"]
     rep_include: bool
 
 
 class Access(BaseModel):
     asset: Asset
-    classification: Literal["internal", "restricted"] | None = Field(default=None)
-    ssdl: Ssdl | None = Field(default=None)
+    classification: Literal["internal", "restricted", "asset"] | None = Field(
+        default=None
+    )
+
+
+class SsdlAccess(Access):
+    ssdl: Ssdl
 
 
 class GridModel(BaseModel):
-    name: str = Field(
-        examples=["MyGrid"],
-    )
+    name: str = Field(examples=["MyGrid"])
 
 
 class Shape(BaseModel):
@@ -201,7 +208,7 @@ class File(BaseModel):
         description="md5 checksum of the file or bytestring",
         examples=["kjhsdfvsdlfk23knerknvk23"],
     )
-    size_bytes: ByteSize | None = Field(
+    size_bytes: int | None = Field(
         default=None,
         description="Size of file object in bytes",
     )
@@ -419,6 +426,8 @@ class FMUTimeObject(BaseModel):
 
 
 class TracklogEvent(BaseModel):
+    # TODO: Update ex. to inc. timezone
+    # update NaiveDatetime ->  AwareDateime
     datetime: NaiveDatetime = Field(
         examples=["2020-10-28T14:28:02"],
     )
@@ -428,17 +437,30 @@ class TracklogEvent(BaseModel):
     user: User
 
 
-class Fmu(BaseModel):
+class FMUCase(BaseModel):
+    case: Case
+    model: Model
+
+
+class FMUDataObj(FMUCase):
+    iteration: Optional[Iteration] = None
+    workflow: Optional[Workflow] = None
+
+
+class FmuAggregation(FMUDataObj):
     """
     The FMU block records properties that are specific to FMU
     """
 
-    aggregation: Optional[Aggregation] = None
-    case: Case
-    iteration: Optional[Iteration] = None
-    model: Model
-    realization: Optional[Realization] = None
-    workflow: Optional[Workflow] = None
+    aggregation: Aggregation
+
+
+class FmuRealization(FMUDataObj):
+    """
+    The FMU block records properties that are specific to FMU
+    """
+
+    realization: Realization
 
 
 class Time(BaseModel):
@@ -447,7 +469,6 @@ class Time(BaseModel):
 
 
 class Content(BaseModel):
-    # From schema
     content: Literal[
         "depth",
         "time",
@@ -478,6 +499,31 @@ class Content(BaseModel):
         description="The contents of this data object",
         examples=["depth"],
     )
+
+    alias: Optional[list[str]] = Field(default=None)
+    base: Optional[Layer] = None
+
+    # Only valid for cooridate based meta.
+    bbox: Optional[BoundingBox] = Field(default=None)
+
+    description: Optional[list[str]] = Field(
+        default=None,
+    )
+    format: str = Field(
+        examples=["irap_binary"],
+    )
+
+    grid_model: Optional[GridModel] = Field(default=None)
+    is_observation: bool = Field(
+        title="Is observation flag",
+    )
+    is_prediction: bool = Field(
+        title="Is prediction flag",
+    )
+    layout: Optional[str] = Field(
+        default=None,
+        examples=["regular"],
+    )
     name: str = Field(
         description=(
             "Name of the data object. If stratigraphic, "
@@ -485,29 +531,49 @@ class Content(BaseModel):
         ),
         examples=["VIKING GP. Top"],
     )
-    format: str = Field(
-        examples=["irap_binary"],
+    offset: float = Field(
+        default=0.0,
     )
+    # spec: Optional[TableSpec | CPGridSpec, ...] = None
+    stratigraphic_alias: Optional[list[str]] = Field(default=None)
     stratigraphic: bool = Field(
         description=(
             "True if data object represents an entity in the stratigraphic column"
         ),
     )
-    is_prediction: bool = Field(
-        title="Is prediction flag",
+    tagname: Optional[str] = Field(
+        default=None,
+        description="A semi-human readable tag for internal usage and uniqueness",
+        examples=["ds_extract_geogrid", "ds_post_strucmod"],
     )
-    is_observation: bool = Field(
-        title="Is observation flag",
-    )
-    # end
-
-    base: Optional[Layer] = None
+    time: Optional[Time] = Field(default=None)
     top: Optional[Layer] = None
+
+    undef_is_zero: Optional[bool] = Field(
+        default=None,
+        description="Flag if undefined values are to be interpreted as zero",
+    )
+    unit: str = Field(
+        default="",
+        examples=["m"],
+    )
+    vertical_domain: Optional[Literal["depth", "time"]] = Field(
+        default=None,
+        examples=["depth"],
+    )
 
 
 class DepthContent(Content):
     content: Literal["depth"]
     depth_reference: Literal["msl", "sb", "rkb"]
+
+
+class FaultLinesContent(Content):
+    content: Literal["fault_lines"]
+
+
+class Field_regionContent(Content):
+    content: Literal["field_region"]
 
 
 class FieldOutlineContent(Content):
@@ -531,51 +597,87 @@ class FluidContactContent(Content):
     )
 
 
-class SeismicContent(Content):
+class InplaceVolumesContent(Content):
+    content: Literal["inplace_volumes"]
+
+
+class KPProductContent(Content):
+    content: Literal["khproduct"]
+
+
+class LiftCurvesContent(Content):
+    content: Literal["lift_curves"]
+
+
+class ParametersContent(Content):
+    content: Literal["parameters"]
+
+
+class PinchoutContent(Content):
+    content: Literal["pinchout"]
+
+
+class PropertyContent(Content):
+    content: Literal["property"]
+
+
+class PTVContent(Content):
+    content: Literal["pvt"]
+
+
+class RegionsContent(Content):
+    content: Literal["regions"]
+
+
+class RelpermContent(Content):
+    content: Literal["relperm"]
+
+
+class RFTContent(Content):
+    content: Literal["rft"]
+
+
+class SeismicContent(Content):  # TheDatablock w/seismic
     content: Literal["seismic"]
     seismic: Seismic = Field(
         description="Conditional field",
     )
 
 
-class TheDataBlock(BaseModel):
-    alias: Optional[list[str]] = None
-    bbox: Optional[BoundingBox] = None
-    description: list[str] = Field(
-        default_factory=list,
-    )
-    grid_model: Optional[GridModel] = None
-    layout: Optional[str] = Field(
-        default=None,
-        examples=["regular"],
-    )
-    offset: float = Field(
-        default=0.0,
-    )
-    seismic: Optional[Seismic] = Field(
-        default=None,
-        description="Conditional field",
-    )
-    # spec: Optional[Spec] = None
-    stratigraphic_alias: Optional[list[str]] = None
-    tagname: Optional[str] = Field(
-        default=None,
-        description="A semi-human readable tag for internal usage and uniqueness",
-        examples=["ds_extract_geogrid", "ds_post_strucmod"],
-    )
-    time: Optional[Time] = None
-    undef_is_zero: Optional[bool] = Field(
-        default=None,
-        description="Flag if undefined values are to be interpreted as zero",
-    )
-    unit: str = Field(
-        default="",
-        examples=["m"],
-    )
-    vertical_domain: Optional[Literal["depth", "time"]] = Field(
-        default=None,
-        examples=["depth"],
-    )
+class SubcropContent(Content):
+    content: Literal["subcrop"]
+
+
+class ThicknessContent(Content):
+    content: Literal["thickness"]
+
+
+class TimeContent(Content):
+    content: Literal["time"]
+
+
+class TimeSeriesContent(Content):
+    content: Literal["timeseries"]
+
+
+class TransmissibilitiesContent(Content):
+    content: Literal["transmissibilities"]
+
+
+class VelocityContent(Content):
+    content: Literal["velocity"]
+
+
+class VolumesContent(Content):
+    content: Literal["volumes"]
+
+
+class VolumetricsContent(Content):
+    content: Literal["volumetrics"]
+
+
+class WellPicksContent(Content):
+    content: Literal["wellpicks"]
 
 
 class ClassMeta(BaseModel):
@@ -597,75 +699,115 @@ class ClassMeta(BaseModel):
     )
 
 
-class Meta(BaseModel):
+class FMUCaseClassMeta(ClassMeta):
+    class_: Literal["case"]
+    fmu: FMUCase
     access: Access
-    data: Optional[TheDataBlock] = None
-    file: Optional[File] = None
-    fmu: Fmu = Field(
-        description="The FMU block records properties that are specific to FMU",
-    )
     masterdata: Masterdata
+    tracklog: list[TracklogEvent]
     source: Literal["fmu"] = Field(
         description="Data source (FMU)",
     )
-    tracklog: list[TracklogEvent]
     version: Literal["0.8.0"] = Field(
         title="FMU results metadata version",
     )
 
 
-if __name__ == "__main__":
-    dumped = ChainMap(
-        {
-            "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json",
-            "$schema": GenerateJsonSchema.schema_dialect,
-            "$contractual": [
-                "class",
-                "source",
-                "version",
-                "tracklog",
-                "data.format",
-                "data.name",
-                "data.stratigraphic",
-                "data.alias",
-                "data.stratigraphic_alias",
-                "data.offset",
-                "data.content",
-                "data.tagname",
-                "data.vertical_domain",
-                "data.grid_model",
-                "data.bbox",
-                "data.time",
-                "data.is_prediction",
-                "data.is_observation",
-                "data.seismic.attribute",
-                "data.spec.columns",
-                "access",
-                "masterdata",
-                "fmu.model",
-                "fmu.workflow",
-                "fmu.case",
-                "fmu.iteration.name",
-                "fmu.iteration.uuid",
-                "fmu.realization.name",
-                "fmu.realization.id",
-                "fmu.realization.uuid",
-                "fmu.aggregation.operation",
-                "fmu.aggregation.realization_ids",
-                "fmu.context.stage",
-                "file.relative_path",
-                "file.checksum_md5",
-                "file.size_bytes",
-            ],
-        },
-        Meta.model_json_schema(
-            by_alias=True,
-        ),
+class FMUDataClassMeta(ClassMeta):
+    class_: Literal[
+        "surface",
+        "table",
+        "cpgrid",
+        "cpgrid_property",
+        "polygons",
+        "cube",
+        "well",
+        "points",
+        "dictionary",
+    ]
+    fmu: Union[FmuAggregation, FmuRealization]  # Hmmmmmmm.....?
+    access: SsdlAccess
+    data: Union[
+        FieldOutlineContent,
+        SeismicContent,
+        FieldRegionContent,
+    ]
+    file: File  # Case will not have a file obj.
+
+    masterdata: Masterdata
+
+    tracklog: list[TracklogEvent]
+
+    source: Literal["fmu"] = Field(
+        description="Data source (FMU)",
+    )
+    version: Literal["0.8.0"] = Field(
+        description="FMU results metadata version",
     )
 
-    print(
-        json.dumps(
-            dict(dumped),
-            indent=2,
+
+class Root(
+    RootModel[
+        Union[
+            FMUCaseClassMeta,
+            FMUDataClassMeta,
+        ],
+    ]
+):
+    ...
+
+
+def dump() -> dict:
+    return dict(
+        ChainMap(
+            {
+                "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json",
+                "$schema": GenerateJsonSchema.schema_dialect,
+                "$contractual": [
+                    "class",
+                    "source",
+                    "version",
+                    "tracklog",
+                    "data.format",
+                    "data.name",
+                    "data.stratigraphic",
+                    "data.alias",
+                    "data.stratigraphic_alias",
+                    "data.offset",
+                    "data.content",
+                    "data.tagname",
+                    "data.vertical_domain",
+                    "data.grid_model",
+                    "data.bbox",
+                    "data.time",
+                    "data.is_prediction",
+                    "data.is_observation",
+                    "data.seismic.attribute",
+                    "data.spec.columns",
+                    "access",
+                    "masterdata",
+                    "fmu.model",
+                    "fmu.workflow",
+                    "fmu.case",
+                    "fmu.iteration.name",
+                    "fmu.iteration.uuid",
+                    "fmu.realization.name",
+                    "fmu.realization.id",
+                    "fmu.realization.uuid",
+                    "fmu.aggregation.operation",
+                    "fmu.aggregation.realization_ids",
+                    "fmu.context.stage",
+                    "file.relative_path",
+                    "file.checksum_md5",
+                    "file.size_bytes",
+                ],
+            },
+            Root.model_json_schema(
+                by_alias=True,
+            ),
         )
     )
+
+
+if __name__ == "__main__":
+    print(json.dumps(dump(), indent=2))

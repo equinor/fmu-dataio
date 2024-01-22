@@ -11,6 +11,7 @@ def read(file):
     with open(file) as f:
         return f.read()
 
+
 for file in (f.strip() for f in sys.stdin.readlines()):
     print(file)
     try:
