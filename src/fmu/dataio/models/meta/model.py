@@ -361,7 +361,6 @@ class FMURealization(FMUDataObj):
     realization: Realization
 
 
-
 class ClassMeta(BaseModel):
     class_: enums.FMUClassEnum = Field(
         alias="class",
@@ -397,7 +396,7 @@ class FMUDataClassMeta(ClassMeta):
         alias="class",
         title="Metadata class",
     )
-    fmu: Union[FMUAggregation, FMURealization]
+    fmu: Union[FMUAggregation, FMURealization, FMUCase]
     access: SsdlAccess
     data: content.AnyContent
     file: File

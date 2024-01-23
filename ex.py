@@ -12,4 +12,10 @@ def read(file):
 
 for file in (f.strip() for f in sys.stdin.readlines()):
     print(file)
-    Root.model_validate_json(dumps(safe_load(read(file))))
+    try:
+        Root.model_validate_json(dumps(safe_load(read(file))))
+    except ValueError:
+        from pprint import pp
+
+        pp(safe_load(read(file)))
+        raise
