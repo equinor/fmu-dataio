@@ -5,7 +5,7 @@ from copy import deepcopy
 import jsonschema
 import pytest
 from fmu.dataio._definitions import ALLOWED_CONTENTS
-from fmu.dataio.models.meta2 import dump
+from fmu.dataio.models.meta import dump
 
 # pylint: disable=no-member
 

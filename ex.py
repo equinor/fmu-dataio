@@ -1,3 +1,5 @@
+# type: ignore
+
 import sys
 
 from fmu.dataio.models.meta.model import Root

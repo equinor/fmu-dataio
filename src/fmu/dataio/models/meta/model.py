@@ -4,11 +4,11 @@ from collections import ChainMap
 from pathlib import Path
 from typing import Dict, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, NaiveDatetime, RootModel
+from pydantic import BaseModel, Discriminator, Field, NaiveDatetime, RootModel, Tag
 from pydantic.json_schema import GenerateJsonSchema
 from typing_extensions import Annotated
 
-from . import content, enums
+from . import content, discriminator, enums
 
 
 class UUID(RootModel[str]):
@@ -396,7 +396,19 @@ class FMUDataClassMeta(ClassMeta):
         alias="class",
         title="Metadata class",
     )
-    fmu: Union[FMUAggregation, FMURealization, FMUCase]
+
+    # The presence of the a feild controlls what kind of
+    # FMUObj it is. The fmu_discriminator will inspects
+    # the obj. and returns a tag that tells pydantic
+    # what model to use.
+    fmu: Annotated[
+        Union[
+            Annotated[FMUAggregation, Tag("FMUAggregation")],
+            Annotated[FMURealization, Tag("FMURealization")],
+            Annotated[FMUCase, Tag("FMUCase")],
+        ],
+        Discriminator(discriminator.fmu_discriminator),
+    ]
     access: SsdlAccess
     data: content.AnyContent
     file: File

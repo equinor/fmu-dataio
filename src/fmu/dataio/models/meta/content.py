@@ -302,6 +302,7 @@ AnyContent = Annotated[
         FaultLinesContent,
         FieldOutlineContent,
         FieldRegionContent,
+        FluidContactContent,
         InplaceVolumesContent,
         KPProductContent,
         LiftCurvesContent,

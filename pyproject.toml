@@ -82,10 +82,6 @@ write_to = "src/fmu/dataio/version.py"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--verbose"
-log_cli = "False"
-log_cli_format = "%(levelname)8s (%(relativeCreated)6.0fms) %(filename)44s [%(funcName)40s()] %(lineno)4d >>   %(message)s"
-log_cli_level = "INFO"
 testpaths = "tests"
 markers = ["integration: marks a test as an integration test"]
 xfail_strict = true
