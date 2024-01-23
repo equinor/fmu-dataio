@@ -380,7 +380,7 @@ class ExportData:
 
     Args:
         access_ssdl: Optional. A dictionary that will overwrite or append
-             to the default ssdl settings read from the config. Example:
+            to the default ssdl settings read from the config. Example:
             ``{"access_level": "restricted", "rep_include": False}``
 
         casepath: To override the automatic and actual ``rootpath``. Absolute path to
