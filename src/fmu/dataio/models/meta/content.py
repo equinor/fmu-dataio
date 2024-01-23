@@ -5,6 +5,8 @@ from typing import Literal, Optional, Union
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated
 
+from . import enums
+
 
 class FMUTimeObject(BaseModel):
     """
@@ -116,36 +118,7 @@ class BoundingBox(BaseModel):
 
 
 class Content(BaseModel):
-    content: Literal[
-        "depth",
-        "fault_lines",
-        "field_outline",
-        "field_region",
-        "fluid_contact",
-        "inplace_volumes",
-        "khproduct",
-        "lift_curves",
-        "parameters",
-        "pinchout",
-        "property",
-        "pvt",
-        "regions",
-        "relperm",
-        "rft",
-        "seismic",
-        "subcrop",
-        "thickness",
-        "time",
-        "timeseries",
-        "transmissibilities",
-        "velocity",
-        "volumes",
-        "volumetrics",
-        "wellpicks",
-    ] = Field(
-        description="The contents of this data object",
-        examples=["depth"],
-    )
+    content: enums.ContentEnum = Field(description="The contents of this data object")
 
     alias: Optional[list[str]] = Field(default=None)
     base: Optional[Layer] = None
@@ -211,122 +184,123 @@ class Content(BaseModel):
 
 
 class DepthContent(Content):
-    content: Literal["depth"]
+    content: Literal[enums.ContentEnum.depth]
     depth_reference: Literal["msl", "sb", "rkb"]
 
 
 class FaultLinesContent(Content):
-    content: Literal["fault_lines"]
+    content: Literal[enums.ContentEnum.fault_lines]
 
 
 class FieldOutlineContent(Content):
-    content: Literal["field_outline"]
+    content: Literal[enums.ContentEnum.field_outline]
     field_outline: FieldOutline = Field(
         description="Conditional field",
     )
 
 
 class FieldRegionContent(Content):
-    content: Literal["field_region"]
+    content: Literal[enums.ContentEnum.field_region]
     field_region: FieldRegion = Field(
         description="Conditional field",
     )
 
 
 class FluidContactContent(Content):
-    content: Literal["fluid_contact"]
+    content: Literal[enums.ContentEnum.fluid_contact]
     fluid_contact: FluidContact = Field(
         description="Conditional field",
     )
 
 
 class InplaceVolumesContent(Content):
-    content: Literal["inplace_volumes"]
+    content: Literal[enums.ContentEnum.inplace_volumes]
 
 
 class KPProductContent(Content):
-    content: Literal["khproduct"]
+    content: Literal[enums.ContentEnum.khproduct]
 
 
 class LiftCurvesContent(Content):
-    content: Literal["lift_curves"]
+    content: Literal[enums.ContentEnum.lift_curves]
 
 
 class ParametersContent(Content):
-    content: Literal["parameters"]
+    content: Literal[enums.ContentEnum.parameters]
 
 
 class PinchoutContent(Content):
-    content: Literal["pinchout"]
+    content: Literal[enums.ContentEnum.pinchout]
 
 
 class PropertyContent(Content):
-    content: Literal["property"]
+    content: Literal[enums.ContentEnum.property]
 
 
 class PTVContent(Content):
-    content: Literal["pvt"]
+    content: Literal[enums.ContentEnum.pvt]
 
 
 class RegionsContent(Content):
-    content: Literal["regions"]
+    content: Literal[enums.ContentEnum.regions]
 
 
 class RelpermContent(Content):
-    content: Literal["relperm"]
+    content: Literal[enums.ContentEnum.relperm]
 
 
 class RFTContent(Content):
-    content: Literal["rft"]
+    content: Literal[enums.ContentEnum.rft]
 
 
 class SeismicContent(Content):
-    content: Literal["seismic"]
+    content: Literal[enums.ContentEnum.seismic]
     seismic: Seismic = Field(
         description="Conditional field",
     )
 
 
 class SubcropContent(Content):
-    content: Literal["subcrop"]
+    content: Literal[enums.ContentEnum.subcrop]
 
 
 class ThicknessContent(Content):
-    content: Literal["thickness"]
+    content: Literal[enums.ContentEnum.thickness]
 
 
 class TimeContent(Content):
-    content: Literal["time"]
+    content: Literal[enums.ContentEnum.time]
 
 
 class TimeSeriesContent(Content):
-    content: Literal["timeseries"]
+    content: Literal[enums.ContentEnum.timeseries]
 
 
 class TransmissibilitiesContent(Content):
-    content: Literal["transmissibilities"]
+    content: Literal[enums.ContentEnum.transmissibilities]
 
 
 class VelocityContent(Content):
-    content: Literal["velocity"]
+    content: Literal[enums.ContentEnum.velocity]
 
 
 class VolumesContent(Content):
-    content: Literal["volumes"]
+    content: Literal[enums.ContentEnum.volumes]
 
 
 class VolumetricsContent(Content):
-    content: Literal["volumetrics"]
+    content: Literal[enums.ContentEnum.volumetrics]
 
 
 class WellPicksContent(Content):
-    content: Literal["wellpicks"]
+    content: Literal[enums.ContentEnum.wellpicks]
 
 
 AnyContent = Annotated[
     Union[
         DepthContent,
         FaultLinesContent,
+        FieldOutlineContent,
         FieldRegionContent,
         InplaceVolumesContent,
         KPProductContent,

@@ -6,8 +6,9 @@ from typing import Dict, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, NaiveDatetime, RootModel
 from pydantic.json_schema import GenerateJsonSchema
+from typing_extensions import Annotated
 
-from . import content
+from . import content, enums
 
 
 class UUID(RootModel[str]):
@@ -145,7 +146,7 @@ class File(BaseModel):
     )
 
 
-class Parameters(RootModel[Dict[str, Union[int, float, str, "Parameters"]]]):
+class Parameters(RootModel[Dict[str, Union[int, float, str, dict]]]):
     ...
 
 
@@ -324,7 +325,7 @@ class Masterdata(BaseModel):
 
 class TracklogEvent(BaseModel):
     # TODO: Update ex. to inc. timezone
-    # update NaiveDatetime ->  AwareDateime
+    # update NaiveDatetime ->  AwareDatetime
     datetime: NaiveDatetime = Field(
         examples=["2020-10-28T14:28:02"],
     )
@@ -344,7 +345,7 @@ class FMUDataObj(FMUCase):
     workflow: Optional[Workflow] = None
 
 
-class FmuAggregation(FMUDataObj):
+class FMUAggregation(FMUDataObj):
     """
     The FMU block records properties that are specific to FMU
     """
@@ -352,7 +353,7 @@ class FmuAggregation(FMUDataObj):
     aggregation: Aggregation
 
 
-class FmuRealization(FMUDataObj):
+class FMURealization(FMUDataObj):
     """
     The FMU block records properties that are specific to FMU
     """
@@ -360,67 +361,57 @@ class FmuRealization(FMUDataObj):
     realization: Realization
 
 
+
 class ClassMeta(BaseModel):
-    class_: Literal[
-        "case",
-        "surface",
-        "table",
-        "cpgrid",
-        "cpgrid_property",
-        "polygons",
-        "cube",
-        "well",
-        "points",
-        "dictionary",
-    ] = Field(
+    class_: enums.FMUClassEnum = Field(
         alias="class",
-        examples=["surface", "table", "points"],
         title="Metadata class",
     )
+    masterdata: Masterdata
+    tracklog: list[TracklogEvent]
+    source: Literal["fmu"] = Field(description="Data source (FMU)")
+    version: Literal["0.8.0"] = Field(title="FMU results metadata version")
 
 
 class FMUCaseClassMeta(ClassMeta):
-    class_: Literal["case"]
+    class_: Literal[enums.FMUClassEnum.case] = Field(
+        alias="class",
+        title="Metadata class",
+    )
     fmu: FMUCase
     access: Access
-    masterdata: Masterdata
-    tracklog: list[TracklogEvent]
-    source: Literal["fmu"] = Field(
-        description="Data source (FMU)",
-    )
-    version: Literal["0.8.0"] = Field(
-        title="FMU results metadata version",
-    )
 
 
 class FMUDataClassMeta(ClassMeta):
     class_: Literal[
-        "surface",
-        "table",
-        "cpgrid",
-        "cpgrid_property",
-        "polygons",
-        "cube",
-        "well",
-        "points",
-        "dictionary",
-    ]
-    fmu: Union[FmuAggregation, FmuRealization]  # Hmmmmmmm.....?
+        enums.FMUClassEnum.surface,
+        enums.FMUClassEnum.table,
+        enums.FMUClassEnum.cpgrid,
+        enums.FMUClassEnum.cpgrid_property,
+        enums.FMUClassEnum.polygons,
+        enums.FMUClassEnum.cube,
+        enums.FMUClassEnum.well,
+        enums.FMUClassEnum.points,
+        enums.FMUClassEnum.dictionary,
+    ] = Field(
+        alias="class",
+        title="Metadata class",
+    )
+    fmu: Union[FMUAggregation, FMURealization]
     access: SsdlAccess
     data: content.AnyContent
-    file: File  # Case will not have a file obj.
-    masterdata: Masterdata
-    tracklog: list[TracklogEvent]
-    source: Literal["fmu"] = Field(description="Data source (FMU)")
-    version: Literal["0.8.0"] = Field(description="FMU results metadata version")
+    file: File
 
 
 class Root(
     RootModel[
-        Union[
-            FMUCaseClassMeta,
-            FMUDataClassMeta,
-        ],
+        Annotated[
+            Union[
+                FMUCaseClassMeta,
+                FMUDataClassMeta,
+            ],
+            Field(discriminator="class_"),
+        ]
     ]
 ):
     ...
