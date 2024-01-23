@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prepare FMU workflow to produce rich metadata &mdash; fmu.dataio 0.1.dev1+g382393b documentation</title>
+  <title>Prepare FMU workflow to produce rich metadata &mdash; fmu.dataio 0.1.dev1+g3f1e507 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
@@ -62,7 +62,10 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Prepare FMU workflow to produce rich metadata</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#insert-key-model-metadata-into-global-variables-yml">Insert key model metadata into global_variables.yml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#workflow-for-creating-case-metadata">Workflow for creating case metadata</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#include-a-data-export-job">Include a data export job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#include-a-data-export-job">Include a data export job</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-about-sumo">What about Sumo?</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
@@ -98,10 +101,14 @@
 <h1>Prepare FMU workflow to produce rich metadata<a class="headerlink" href="#prepare-fmu-workflow-to-produce-rich-metadata" title="Permalink to this heading"></a></h1>
 <p>In order to start using fmu-dataio and produce valid metadata for FMU output, some
 preparations are necessary to your workflow. Expected time consumption is less than an hour.</p>
-<p>You will do the following:
-- Find and enter some key model metadata into <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code>
-- Include an ERT workflow for establishing case metadata
-- Include one script for data export</p>
+<p>You will do the following:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Find and enter some key model metadata into <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code></p></li>
+<li><p>Include an ERT workflow for establishing case metadata</p></li>
+<li><p>Include one script for data export</p></li>
+</ul>
+</div></blockquote>
 <p>You may also find it helpful to look at the Drogon tutorial project for this. This is
 in the category “really easy when you know how to do it” so don’t hesitate to ask for help!</p>
 <section id="insert-key-model-metadata-into-global-variables-yml">
@@ -109,7 +116,7 @@ in the category “really easy when you know how to do it” so don’t hesitate
 <p>In <code class="docutils literal notranslate"><span class="pre">fmuconfig/input/</span></code>, create <code class="docutils literal notranslate"><span class="pre">_masterdata.yml</span></code>. The content of this file shall be
 references to master data. We get our master data from SMDA, so you need to do some
 lookups there to find your masterdata references. In the FMU metadata, we currently use
-4 master data entries: country, discovery, field, coordinate_system and stratigraphic_column.</p>
+5 master data entries: country, discovery, field, coordinate_system and stratigraphic_column.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Master data are “data about the business entities that provide context for business
@@ -120,27 +127,27 @@ and we need to record those definitions in a way that makes us certain that we a
 fact, referring to the same thing. An example is the country of Norway. Simply saying
 “Norway” is not enough. We can also refer to Norway as “Norge”, “Noreg”, “Norga”,
 “Vuodna” or “Nöörje”. So, we define a universally unique identifier for the entity of
-Norway, and we refer to this instead. And all that various names are <em>properties</em> on
+Norway, and we refer to this instead. And all those various names are <em>properties</em> on
 this commonly defined entity. These definitions, we store as <em>master data</em> because no
 single applications shall own this definition.</p>
 </div>
 <p>This is the content of <code class="docutils literal notranslate"><span class="pre">_masterdata.yml</span></code> from the Drogon example. Adjust to your needs:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">smda</span><span class="p">:</span>
-<span class="nt">country</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Norway</span>
-<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
-<span class="nt">discovery</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">short_identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span>
-<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
-<span class="nt">field</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+<span class="w">  </span><span class="nt">country</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Norway</span>
+<span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+<span class="w">  </span><span class="nt">discovery</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">short_identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+<span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+<span class="w">  </span><span class="nt">field</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span>
+<span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+<span class="w">  </span><span class="nt">coordinate_system</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span>
+<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span>
+<span class="w">  </span><span class="nt">stratigraphic_column</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON_HAS_NO_STRATCOLUMN</span>
 <span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
-<span class="nt">coordinate_system</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span>
-<span class="w">  </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span>
-<span class="nt">stratigraphic_column</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON_HAS_NO_STRATCOLUMN</span>
-<span class="w">  </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
 </pre></div>
 </div>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">country</span></code>, <code class="docutils literal notranslate"><span class="pre">discovery</span></code> and <code class="docutils literal notranslate"><span class="pre">field</span></code> are lists. Most of us will only need one
@@ -183,9 +190,17 @@ values: <code class="docutils literal notranslate"><span class="pre">name</span>
 <code class="docutils literal notranslate"><span class="pre">stratigraphic</span></code> (True if stratigraphic level is listed in the stratigraphic columns, False if not).</p>
 <p>In example below, observe that “TopVolantis” is a home-made name for <code class="docutils literal notranslate"><span class="pre">VOLANTIS</span> <span class="pre">GP.</span> <span class="pre">Top</span></code>
 and is in the stratigraphic column, while “Seabed” is not.</p>
-<p>In addition, you may want to use some of the <em>optional</em> values:
-- <cite>alias</cite> is a list of known aliases for this stratigraphic entity.
-- <cite>stratigraphic_alias</cite> is a list of valid <em>stratigraphic</em> aliases for this entry, e.g. when a specific horizon is the top of both a formation and a group, or similar.</p>
+<p>In addition, you may want to use some of the <em>optional</em> values:</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">alias</span></code> is a list of known aliases for this stratigraphic entity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stratigraphic_alias</span></code> is a list of valid <em>stratigraphic</em> aliases for this entry, e.g. when a</p></li>
+<li><div class="line-block">
+<div class="line">specific horizon is the top of both a formation and a group, or similar.</div>
+</div>
+</li>
+</ul>
+</div></blockquote>
 <p>From the Drogon tutorial:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># HORIZONS</span>
 <span class="nt">Seabed</span><span class="p">:</span>
@@ -306,12 +321,14 @@ case metadata appear in <code class="docutils literal notranslate"><span class="
 <p>To verify that data export now works, add one job to your workflow. Pick something simple,
 such as depth surfaces from the structural model or similar. Use one of the examples on
 the next page to get going, and/or have a look at the Drogon tutorial project.</p>
-<p><strong>What about Sumo</strong>
-Odds are that you are implementing rich metadata export so that you can start utilizing
+<section id="what-about-sumo">
+<h3>What about Sumo?<a class="headerlink" href="#what-about-sumo" title="Permalink to this heading"></a></h3>
+<p>Odds are that you are implementing rich metadata export so that you can start utilizing
 Sumo. Producing metadata with exported data is a pre-requisite for using Sumo. When you
 have undertaken the steps above, you are good to go! Head to the
 <a class="reference external" href="https://fmu-sumo.app.radix.equinor.com/documentation">Sumo</a> documentation to
 get going 👍</p>
+</section>
 </section>
 </section>
 
@@ -326,7 +343,7 @@ get going 👍</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g382393b).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g3f1e507).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overview &mdash; fmu.dataio 0.1.dev1+g382393b documentation</title>
+  <title>Overview &mdash; fmu.dataio 0.1.dev1+g3f1e507 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
@@ -103,8 +103,8 @@ like this makes workflows simpler and less prone to break when changes are made.
 <h2>Static and object-specific metadata<a class="headerlink" href="#static-and-object-specific-metadata" title="Permalink to this heading"></a></h2>
 <p>Metadata are in general “data about the data”. For instance a pure surface
 export file (e.g. irap binary) will have information about data itself (like
-values in the map, and bounding box) but the file have no idea of which FMU run it
-belongs to, or which field it comes from or what horizon is represents.</p>
+values in the map, and bounding box) but the file has no idea of which FMU run it
+belongs to, or which field it comes from or what horizon it represents.</p>
 <p>Some metadata contents are <em>static for the model</em>, meaning that they will be
 the same for all runs of a specific model setup. Examples are masterdata relations
 (<strong>field</strong>, <strong>country</strong>, etc).</p>
@@ -113,7 +113,7 @@ for all data belonging to a specific case. Example: Metadata about the case itse
 <p>Other metadata are object-specific, i.e. they will vary per item which is exported. For
 instance, content metadata are object-specific as some surfaces are in depth domain, some in
 time and other represents e.g. an average property.</p>
-<p>Basicly it works like this in a FMU run:</p>
+<p>Basically it works like this in a FMU run:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><em>Metadata static for the model</em> comes from the fmu-config YAML file.</p></li>
@@ -128,9 +128,9 @@ called <cite>my_surface.gri</cite> there will be a corresponding .yaml file call
 static data will be repeated across many data objects. Example: Each exported data object contains
 basic information about the FMU case it belongs to, such as a unique ID for this case,
 its name, the user that made it, which model template was used, etc. This information
-if stored in <em>every</em> exported .yml file. This may seem counter-intuitive and differs
+is stored in <em>every</em> exported .yml file. This may seem counter-intuitive and differs
 from a relational database (where this information would typically be stored once, and
-refered to when needed).</p>
+referred to when needed).</p>
 <p>The FMU results data model is further documented <a class="reference external" href="./datamodel.html">here</a></p>
 </section>
 </section>
@@ -151,7 +151,7 @@ described <a class="reference external" href="./preparations.html">here</a></p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g382393b).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g3f1e507).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

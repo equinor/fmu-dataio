@@ -5,9 +5,10 @@ In order to start using fmu-dataio and produce valid metadata for FMU output, so
 preparations are necessary to your workflow. Expected time consumption is less than an hour.
 
 You will do the following:
-- Find and enter some key model metadata into ``global_variables.yml``
-- Include an ERT workflow for establishing case metadata
-- Include one script for data export
+
+    * Find and enter some key model metadata into ``global_variables.yml``
+    * Include an ERT workflow for establishing case metadata
+    * Include one script for data export
 
 You may also find it helpful to look at the Drogon tutorial project for this. This is
 in the category "really easy when you know how to do it" so don't hesitate to ask for help!
@@ -18,7 +19,7 @@ Insert key model metadata into global_variables.yml
 In ``fmuconfig/input/``, create ``_masterdata.yml``. The content of this file shall be
 references to master data. We get our master data from SMDA, so you need to do some
 lookups there to find your masterdata references. In the FMU metadata, we currently use
-4 master data entries: country, discovery, field, coordinate_system and stratigraphic_column.
+5 master data entries: country, discovery, field, coordinate_system and stratigraphic_column.
 
 .. note:: 
   Master data are "data about the business entities that provide context for business
@@ -29,7 +30,7 @@ lookups there to find your masterdata references. In the FMU metadata, we curren
   fact, referring to the same thing. An example is the country of Norway. Simply saying
   "Norway" is not enough. We can also refer to Norway as "Norge", "Noreg", "Norga",
   "Vuodna" or "Nöörje". So, we define a universally unique identifier for the entity of
-  Norway, and we refer to this instead. And all that various names are *properties* on
+  Norway, and we refer to this instead. And all those various names are *properties* on
   this commonly defined entity. These definitions, we store as *master data* because no
   single applications shall own this definition.
 
@@ -39,21 +40,21 @@ This is the content of ``_masterdata.yml`` from the Drogon example. Adjust to yo
 .. code-block:: yaml
 
     smda:
-    country:
-      - identifier: Norway
-        uuid: ad214d85-8a1d-19da-e053-c918a4889309
-    discovery:
-      - short_identifier: DROGON
-        uuid: ad214d85-8a1d-19da-e053-c918a4889309
-    field:
-      - identifier: DROGON
+      country:
+        - identifier: Norway
+          uuid: ad214d85-8a1d-19da-e053-c918a4889309
+      discovery:
+        - short_identifier: DROGON
+          uuid: ad214d85-8a1d-19da-e053-c918a4889309
+      field:
+        - identifier: DROGON
+          uuid: 00000000-0000-0000-0000-000000000000
+      coordinate_system:
+        identifier: ST_WGS84_UTM37N_P32637
+        uuid: ad214d85-dac7-19da-e053-c918a4889309
+      stratigraphic_column:
+        identifier: DROGON_HAS_NO_STRATCOLUMN
         uuid: 00000000-0000-0000-0000-000000000000
-    coordinate_system:
-      identifier: ST_WGS84_UTM37N_P32637
-      uuid: ad214d85-dac7-19da-e053-c918a4889309
-    stratigraphic_column:
-      identifier: DROGON_HAS_NO_STRATCOLUMN
-      uuid: 00000000-0000-0000-0000-000000000000
 
 Note that ``country``, ``discovery`` and ``field`` are lists. Most of us will only need one
 entry in the list, but in some cases, more will be required. E.g. if a model is covering
@@ -111,8 +112,10 @@ In example below, observe that "TopVolantis" is a home-made name for ``VOLANTIS 
 and is in the stratigraphic column, while "Seabed" is not.
 
 In addition, you may want to use some of the *optional* values:
-- `alias` is a list of known aliases for this stratigraphic entity.
-- `stratigraphic_alias` is a list of valid *stratigraphic* aliases for this entry, e.g. when a specific horizon is the top of both a formation and a group, or similar.
+
+    * ``alias`` is a list of known aliases for this stratigraphic entity.
+    * ``stratigraphic_alias`` is a list of valid *stratigraphic* aliases for this entry, e.g. when a 
+    * | specific horizon is the top of both a formation and a group, or similar.
 
 From the Drogon tutorial:
 
@@ -250,7 +253,9 @@ To verify that data export now works, add one job to your workflow. Pick somethi
 such as depth surfaces from the structural model or similar. Use one of the examples on
 the next page to get going, and/or have a look at the Drogon tutorial project.
 
-**What about Sumo**
+What about Sumo?
+~~~~~~~~~~~~~~~~
+
 Odds are that you are implementing rich metadata export so that you can start utilizing
 Sumo. Producing metadata with exported data is a pre-requisite for using Sumo. When you
 have undertaken the steps above, you are good to go! Head to the 
