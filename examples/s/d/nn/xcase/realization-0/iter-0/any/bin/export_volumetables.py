@@ -5,11 +5,15 @@ RMS (to demostrate how volume tables can be fetched via Roxar API).
 
 For the file case, CSV files are read from disk. The dataio function is the same.
 """
+import logging
 import pathlib
 
 import fmu.dataio
 import pandas as pd
 from fmu.config import utilities as ut
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
@@ -25,7 +29,6 @@ else:
 
 
 TAGNAME = "volumes"
-VERBOSITY = "WARNING"
 
 # renaming columns from RMS to FMU standard
 RENAMING = {
@@ -86,7 +89,6 @@ def export_dataio(df, gridname):
         is_prediction=True,
         is_observation=False,
         tagname=TAGNAME,
-        verbosity=VERBOSITY,
         workflow="Volume calculation",
     )
 
