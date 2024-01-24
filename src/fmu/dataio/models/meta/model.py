@@ -3,19 +3,12 @@ from __future__ import annotations
 from collections import ChainMap
 from pathlib import Path
 from typing import Dict, Literal, Optional, Union
+from uuid import UUID
 
 from pydantic import BaseModel, Discriminator, Field, NaiveDatetime, RootModel, Tag
-from pydantic.json_schema import GenerateJsonSchema
 from typing_extensions import Annotated
 
 from . import content, discriminator, enums
-
-
-class UUID(RootModel[str]):
-    root: str = Field(
-        examples=["ad214d85-8a1d-19da-e053-c918a4889309"],
-        pattern=r"^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$",
-    )
 
 
 class Asset(BaseModel):
@@ -27,15 +20,13 @@ class Ssdl(BaseModel):
     Sub-Surface Data Lake
     """
 
-    access_level: Literal["internal", "restricted", "asset"]
+    access_level: enums.AccessLevel
     rep_include: bool
 
 
 class Access(BaseModel):
     asset: Asset
-    classification: Literal["internal", "restricted", "asset"] | None = Field(
-        default=None
-    )
+    classification: Optional[enums.AccessLevel] = Field(default=None)
 
 
 class SsdlAccess(Access):
@@ -57,7 +48,7 @@ class SurfaceSpec(Shape):
     undef: float = Field(description="Value representing undefined data")
     xinc: float = Field(description="Increment along the x-axis")
     xori: float = Field(description="Origin along the x-axis")
-    yflip: Literal[-1, 1] = Field(description="Flip along the y-axis, -1 or 1")
+    yflip: enums.AxisOrientation = Field(description="Flip along the y-axis, -1 or 1")
     yori: float = Field(description="Origin along the y-axis")
 
 
@@ -105,8 +96,8 @@ class CubeSpec(SurfaceSpec):
     zori: float = Field(description="Origin along the z-axis")
 
     # Miscellaneous
-    yflip: Literal[-1, 1] = Field(description="Flip along the y-axis, -1 or 1")
-    zflip: Literal[-1, 1] = Field(description="Flip along the z-axis, -1 or 1")
+    yflip: enums.AxisOrientation = Field(description="Flip along the y-axis, -1 or 1")
+    zflip: enums.AxisOrientation = Field(description="Flip along the z-axis, -1 or 1")
     rotation: float = Field(description="Rotation angle")
     undef: float = Field(description="Value representing undefined data")
 
@@ -188,7 +179,9 @@ class Case(BaseModel):
     user: User = Field(
         description="The user name used in ERT",
     )
-    uuid: UUID
+    uuid: UUID = Field(
+        examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
+    )
 
 
 class Iteration(BaseModel):
@@ -207,9 +200,12 @@ class Iteration(BaseModel):
             "A uuid reference to another iteration that this "
             "iteration was restarted from"
         ),
+        examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
     )
 
-    uuid: UUID
+    uuid: UUID = Field(
+        examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
+    )
 
 
 class Model(BaseModel):
@@ -273,42 +269,42 @@ class Realization(BaseModel):
         default=None,
         description="Parameters for this realization",
     )
-    uuid: UUID
+    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
 
 
 class CountryItem(BaseModel):
     identifier: str = Field(
         examples=["Norway"],
     )
-    uuid: UUID
+    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
 
 
 class DiscoveryItem(BaseModel):
     short_identifier: str = Field(
         examples=["SomeDiscovery"],
     )
-    uuid: UUID
+    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
 
 
 class FieldItem(BaseModel):
     identifier: str = Field(
         examples=["OseFax"],
     )
-    uuid: UUID
+    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
 
 
 class CoordinateSystem(BaseModel):
     identifier: str = Field(
         examples=["ST_WGS84_UTM37N_P32637"],
     )
-    uuid: UUID
+    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
 
 
 class StratigraphicColumn(BaseModel):
     identifier: str = Field(
         examples=["DROGON_2020"],
     )
-    uuid: UUID
+    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
 
 
 class Smda(BaseModel):
@@ -432,8 +428,6 @@ def dump() -> dict:
     return dict(
         ChainMap(
             {
-                "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json",
-                "$schema": GenerateJsonSchema.schema_dialect,
                 "$contractual": [
                     "class",
                     "source",

@@ -42,3 +42,14 @@ class FMUClassEnum(str, Enum):
     well = "well"
     points = "points"
     dictionary = "dictionary"
+
+
+class AccessLevel(str, Enum):
+    asset = "asset"
+    internal = "internal"
+    restricted = "restricted"
+
+
+class AxisOrientation(int, Enum):
+    normal = 1
+    flipped = -1
