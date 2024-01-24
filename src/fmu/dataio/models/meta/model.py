@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import Dict, Literal, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Discriminator, Field, NaiveDatetime, RootModel, Tag
+from pydantic import BaseModel, Field, NaiveDatetime, RootModel
 from typing_extensions import Annotated
 
-from . import content, discriminator, enums
+from . import content, enums
 
 
 class Asset(BaseModel):
@@ -119,7 +119,8 @@ class File(BaseModel):
     Block describing the file as the data appear in FMU context
     """
 
-    absolute_path: Path = Field(
+    absolute_path: Optional[Path] = Field(
+        default=None,
         description="The absolute file path",
         examples=["/abs/path/share/results/maps/volantis_gp_base--depth.gri"],
     )
@@ -131,14 +132,14 @@ class File(BaseModel):
         description="md5 checksum of the file or bytestring",
         examples=["kjhsdfvsdlfk23knerknvk23"],
     )
-    size_bytes: int | None = Field(
+    size_bytes: Optional[int] = Field(
         default=None,
         description="Size of file object in bytes",
     )
 
 
-class Parameters(RootModel[Dict[str, Union[int, float, str, dict]]]):
-    ...
+class Parameters(RootModel):
+    root: Dict[str, Union[Parameters, int, float, str, Parameters]]
 
 
 class Aggregation(BaseModel):
@@ -149,11 +150,12 @@ class Aggregation(BaseModel):
     operation: str = Field(
         description="The aggregation performed",
     )
-    parameters: Parameters = Field(
-        description="Parameters for this realization",
-    )
     realization_ids: list[int] = Field(
         description="Array of realization ids included in this aggregation"
+    )
+    parameters: Optional[Parameters] = Field(
+        default=None,
+        description="Parameters for this realization",
     )
 
 
@@ -171,7 +173,6 @@ class User(BaseModel):
 
 
 class Case(BaseModel):
-    description: Optional[list[str]] = None
     name: str = Field(
         description="The case name",
         examples=["MyCaseName"],
@@ -181,6 +182,9 @@ class Case(BaseModel):
     )
     uuid: UUID = Field(
         examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
+    )
+    description: Optional[list[str]] = Field(
+        default=None,
     )
 
 
@@ -194,16 +198,15 @@ class Iteration(BaseModel):
         description="The convential name of this iteration, e.g. iter-0 or pred",
         examples=["iter-0"],
     )
-    restart_from: UUID | None = Field(
+    uuid: UUID = Field(
+        examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
+    )
+    restart_from: Optional[UUID] = Field(
         default=None,
         description=(
             "A uuid reference to another iteration that this "
             "iteration was restarted from"
         ),
-        examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
-    )
-
-    uuid: UUID = Field(
         examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
     )
 
@@ -255,19 +258,19 @@ class Realization(BaseModel):
     id: int = Field(
         description="The unique number of this realization as used in FMU",
     )
+    name: str = Field(
+        description="The convential name of this iteration, e.g. iter-0 or pred",
+        examples=["iter-0"],
+    )
+    parameters: Optional[Parameters] = Field(
+        default=None,
+        description="Parameters for this realization",
+    )
     jobs: Optional[RealizationJobs] = Field(
         default=None,
         description=(
             "Content directly taken from the ERT jobs.json file for this realization"
         ),
-    )
-    name: str = Field(
-        description="The convential name of this iteration, e.g. iter-0 or pred",
-        examples=["iter-0"],
-    )
-    parameters: Parameters | None = Field(
-        default=None,
-        description="Parameters for this realization",
     )
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
 
@@ -332,29 +335,16 @@ class TracklogEvent(BaseModel):
 
 
 class FMUCase(BaseModel):
+    """
+    The FMU block records properties that are specific to FMU
+    """
+
     case: Case
     model: Model
-
-
-class FMUDataObj(FMUCase):
-    iteration: Optional[Iteration] = None
-    workflow: Optional[Workflow] = None
-
-
-class FMUAggregation(FMUDataObj):
-    """
-    The FMU block records properties that are specific to FMU
-    """
-
-    aggregation: Aggregation
-
-
-class FMURealization(FMUDataObj):
-    """
-    The FMU block records properties that are specific to FMU
-    """
-
-    realization: Realization
+    iteration: Optional[Iteration] = Field(default=None)
+    workflow: Optional[Workflow] = Field(default=None)
+    aggregation: Optional[Aggregation] = Field(default=None)
+    realization: Optional[Realization] = Field(default=None)
 
 
 class ClassMeta(BaseModel):
@@ -397,14 +387,7 @@ class FMUDataClassMeta(ClassMeta):
     # FMUObj it is. The fmu_discriminator will inspects
     # the obj. and returns a tag that tells pydantic
     # what model to use.
-    fmu: Annotated[
-        Union[
-            Annotated[FMUAggregation, Tag("FMUAggregation")],
-            Annotated[FMURealization, Tag("FMURealization")],
-            Annotated[FMUCase, Tag("FMUCase")],
-        ],
-        Discriminator(discriminator.fmu_discriminator),
-    ]
+    fmu: FMUCase
     access: SsdlAccess
     data: content.AnyContent
     file: File

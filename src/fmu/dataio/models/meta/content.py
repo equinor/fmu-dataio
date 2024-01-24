@@ -121,7 +121,6 @@ class Content(BaseModel):
     content: enums.ContentEnum = Field(description="The contents of this data object")
 
     alias: Optional[list[str]] = Field(default=None)
-    base: Optional[Layer] = None
 
     # Only valid for cooridate based meta.
     bbox: Optional[BoundingBox] = Field(default=None)
@@ -167,6 +166,8 @@ class Content(BaseModel):
         examples=["ds_extract_geogrid", "ds_post_strucmod"],
     )
     time: Optional[Time] = Field(default=None)
+
+    base: Optional[Layer] = None
     top: Optional[Layer] = None
 
     undef_is_zero: Optional[bool] = Field(

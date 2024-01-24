@@ -350,8 +350,7 @@ def fixture_schema_080():
     return _parse_json(ROOTPWD / "schema/definitions/0.8.0/schema/fmu_results.json")
 
 
-@pytest.fixture(name="metadata_examples", scope="session")
-def fixture_metadata_examples():
+def metadata_examples():
     """Parse all metadata examples.
 
     Returns:
@@ -364,6 +363,17 @@ def fixture_metadata_examples():
         path.name: _isoformat_all_datetimes(_parse_yaml(str(path)))
         for path in ROOTPWD.glob("schema/definitions/0.8.0/examples/*.yml")
     }
+
+
+@pytest.fixture(name="metadata_examples", scope="session")
+def fixture_metadata_examples():
+    """Parse all metadata examples.
+
+    Returns:
+        Dict: Dictionary with filename as key, file contents as value.
+
+    """
+    return metadata_examples()
 
 
 # ======================================================================================
