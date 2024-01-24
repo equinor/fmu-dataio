@@ -4,11 +4,15 @@ I.e. what we do is actually add metadata and store in the right place
 
 The input maps is poro_average.grid
 """
+import logging
 from pathlib import Path
 
 import fmu.dataio as dataio
 import xtgeo
 from fmu.config import utilities as ut
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 

@@ -1,10 +1,13 @@
 """Export 3D griddata with properties."""
-
+import logging
 import pathlib
 
 import fmu.dataio as dataio
 import xtgeo
 from fmu.config import utilities as ut
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
@@ -13,7 +16,6 @@ GFILE = "gg"
 GNAME = "geogrid"
 PROPS_SEISMIC = ["phit", "sw"]
 PROPS_OTHER = ["klogh", "facies"]
-VERBOSITY = "WARNING"
 
 
 def export_geogrid_geometry():
@@ -30,7 +32,6 @@ def export_geogrid_geometry():
         is_prediction=True,
         is_observation=False,
         tagname="",
-        verbosity=VERBOSITY,
         workflow="rms structural model",
     )
 
@@ -57,7 +58,6 @@ def export_geogrid_parameters():
             timedata=None,
             is_prediction=True,
             is_observation=False,
-            verbosity=VERBOSITY,
             workflow="rms property model",
         )
 

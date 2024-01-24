@@ -10,11 +10,15 @@ We wan to use the file names here to extract some data (like name of formation,
 e.g. Therys).
 
 """
+import logging
 from pathlib import Path
 
 import fmu.dataio as dataio
 import xtgeo
 from fmu.config import utilities as ut
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
@@ -64,7 +68,6 @@ def main():
             is_prediction=True,
             is_observation=False,
             tagname="average_" + attribute,
-            verbosity="INFO",
             workflow="rms property model",
         )
         fname = ed.export(surf)
