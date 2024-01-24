@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Examples &mdash; fmu.dataio 0.1.dev1+g3f1e507 documentation</title>
+  <title>Examples &mdash; fmu.dataio 0.1.dev1+g624d693 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
@@ -227,11 +227,15 @@ can comment it out in your code.</p>
 <section id="python-script">
 <h3>Python script<a class="headerlink" href="#python-script" title="Permalink to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Export faultpolygons via dataio with metadata.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
 <span class="kn">import</span> <span class="nn">xtgeo</span>
 <span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">utils</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
 
 <span class="n">CFG</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
 
@@ -256,7 +260,6 @@ can comment it out in your code.</p>
         <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">tagname</span><span class="o">=</span><span class="s2">&quot;faultlines&quot;</span><span class="p">,</span>
-        <span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
         <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms structural model&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -274,7 +277,7 @@ can comment it out in your code.</p>
         <span class="c1"># xtgeo column names as-is while &quot;csv&quot; will force column names to &quot;X Y Z ID&quot;</span>
         <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;csv|xtgeo&quot;</span><span class="p">,</span> <span class="s2">&quot;irap_ascii&quot;</span><span class="p">]:</span>
             <span class="n">ed</span><span class="o">.</span><span class="n">polygons_fformat</span> <span class="o">=</span> <span class="n">fmt</span>
-            <span class="n">ed</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
+            <span class="n">ed</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -287,13 +290,13 @@ can comment it out in your code.</p>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-23T12:54:19.752900+00:00&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-24T09:22:58.204536+00:00&#39;</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runner</span>
 <span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
 <span class="w">  </span><span class="nt">sysinfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">fmu-dataio</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.dev1+g3f1e507</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.dev1+g624d693</span>
 <span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">polygons</span>
 <span class="nt">fmu</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">model</span><span class="p">:</span>
@@ -406,11 +409,15 @@ can comment it out in your code.</p>
 <span class="sd">e.g. Therys).</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
 <span class="kn">import</span> <span class="nn">xtgeo</span>
 <span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">ut</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
 
 <span class="n">CFG</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
 
@@ -460,7 +467,6 @@ can comment it out in your code.</p>
             <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">tagname</span><span class="o">=</span><span class="s2">&quot;average_&quot;</span> <span class="o">+</span> <span class="n">attribute</span><span class="p">,</span>
-            <span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
             <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms property model&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">surf</span><span class="p">)</span>
@@ -478,13 +484,13 @@ can comment it out in your code.</p>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-23T12:54:20.583033+00:00&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-24T09:22:59.047759+00:00&#39;</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runner</span>
 <span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
 <span class="w">  </span><span class="nt">sysinfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">fmu-dataio</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.dev1+g3f1e507</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.dev1+g624d693</span>
 <span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">surface</span>
 <span class="nt">fmu</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">model</span><span class="p">:</span>
@@ -594,12 +600,15 @@ can comment it out in your code.</p>
 <section id="id2">
 <h3>Python script<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Export 3D griddata with properties.&quot;&quot;&quot;</span>
-
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 
 <span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dataio</span>
 <span class="kn">import</span> <span class="nn">xtgeo</span>
 <span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">ut</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
 
 <span class="n">CFG</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
 
@@ -608,7 +617,6 @@ can comment it out in your code.</p>
 <span class="n">GNAME</span> <span class="o">=</span> <span class="s2">&quot;geogrid&quot;</span>
 <span class="n">PROPS_SEISMIC</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;phit&quot;</span><span class="p">,</span> <span class="s2">&quot;sw&quot;</span><span class="p">]</span>
 <span class="n">PROPS_OTHER</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;klogh&quot;</span><span class="p">,</span> <span class="s2">&quot;facies&quot;</span><span class="p">]</span>
-<span class="n">VERBOSITY</span> <span class="o">=</span> <span class="s2">&quot;WARNING&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">export_geogrid_geometry</span><span class="p">():</span>
@@ -625,7 +633,6 @@ can comment it out in your code.</p>
         <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">tagname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="n">verbosity</span><span class="o">=</span><span class="n">VERBOSITY</span><span class="p">,</span>
         <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms structural model&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -652,7 +659,6 @@ can comment it out in your code.</p>
             <span class="n">timedata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">verbosity</span><span class="o">=</span><span class="n">VERBOSITY</span><span class="p">,</span>
             <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms property model&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -672,13 +678,13 @@ can comment it out in your code.</p>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-23T12:54:21.400049+00:00&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-24T09:22:59.851435+00:00&#39;</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runner</span>
 <span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
 <span class="w">  </span><span class="nt">sysinfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">fmu-dataio</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.dev1+g3f1e507</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.dev1+g624d693</span>
 <span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cpgrid</span>
 <span class="nt">fmu</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">model</span><span class="p">:</span>
@@ -713,7 +719,7 @@ can comment it out in your code.</p>
 <span class="nt">file</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">relative_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/grids/geogrid.roff</span>
 <span class="w">  </span><span class="nt">absolute_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/geogrid.roff</span>
-<span class="w">  </span><span class="nt">checksum_md5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aefb07619f6761de44b81658c0491c4c</span>
+<span class="w">  </span><span class="nt">checksum_md5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">933954b6f3eecebf7af998c14f97b47e</span>
 <span class="nt">data</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">geogrid</span>
 <span class="w">  </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
@@ -782,13 +788,13 @@ can comment it out in your code.</p>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-23T12:54:21.704699+00:00&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-24T09:23:00.148351+00:00&#39;</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runner</span>
 <span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
 <span class="w">  </span><span class="nt">sysinfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">fmu-dataio</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.dev1+g3f1e507</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.dev1+g624d693</span>
 <span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cpgrid_property</span>
 <span class="nt">fmu</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">model</span><span class="p">:</span>
@@ -823,7 +829,7 @@ can comment it out in your code.</p>
 <span class="nt">file</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">relative_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">realization-0/iter-0/share/results/grids/facies.roff</span>
 <span class="w">  </span><span class="nt">absolute_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/runner/work/fmu-dataio/fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/facies.roff</span>
-<span class="w">  </span><span class="nt">checksum_md5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ba56a7bd811f23510fe015cbba92f735</span>
+<span class="w">  </span><span class="nt">checksum_md5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fe9d68c7ef8e73e87b4478dc77935d9a</span>
 <span class="nt">data</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">facies</span>
 <span class="w">  </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
@@ -886,11 +892,15 @@ can comment it out in your code.</p>
 
 <span class="sd">For the file case, CSV files are read from disk. The dataio function is the same.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 
 <span class="kn">import</span> <span class="nn">fmu.dataio</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">fmu.config</span> <span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">ut</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
 
 <span class="n">CFG</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">yaml_load</span><span class="p">(</span><span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">)</span>
 
@@ -906,7 +916,6 @@ can comment it out in your code.</p>
 
 
 <span class="n">TAGNAME</span> <span class="o">=</span> <span class="s2">&quot;volumes&quot;</span>
-<span class="n">VERBOSITY</span> <span class="o">=</span> <span class="s2">&quot;WARNING&quot;</span>
 
 <span class="c1"># renaming columns from RMS to FMU standard</span>
 <span class="n">RENAMING</span> <span class="o">=</span> <span class="p">{</span>
@@ -967,7 +976,6 @@ can comment it out in your code.</p>
         <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">tagname</span><span class="o">=</span><span class="n">TAGNAME</span><span class="p">,</span>
-        <span class="n">verbosity</span><span class="o">=</span><span class="n">VERBOSITY</span><span class="p">,</span>
         <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;Volume calculation&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -990,13 +998,13 @@ can comment it out in your code.</p>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8.0</span>
 <span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fmu</span>
 <span class="nt">tracklog</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-23T12:54:22.434851+00:00&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">datetime</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2024-01-24T09:23:00.900541+00:00&#39;</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runner</span>
 <span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
 <span class="w">  </span><span class="nt">sysinfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">fmu-dataio</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.dev1+g3f1e507</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.dev1+g624d693</span>
 <span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span>
 <span class="nt">fmu</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">model</span><span class="p">:</span>
@@ -1353,7 +1361,7 @@ surface that they should handle <cite>UNDEF</cite> as zero.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g3f1e507).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g624d693).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
