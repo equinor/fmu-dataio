@@ -5,7 +5,7 @@ from typing import Literal, Optional, Union
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated
 
-from . import enums
+from . import enums, specification
 
 
 class FMUTimeObject(BaseModel):
@@ -176,7 +176,7 @@ class Content(BaseModel):
         default=0.0,
         allow_inf_nan=False,
     )
-    # spec: Optional[TableSpec | CPGridSpec, ...] = None
+    spec: Optional[specification.AnySpecification] = Field(default=None)
     stratigraphic_alias: Optional[list[str]] = Field(default=None)
     stratigraphic: bool = Field(
         description=(
