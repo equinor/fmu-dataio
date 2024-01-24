@@ -44,12 +44,29 @@ class CaseSpec(BaseModel):
 
 
 class SurfaceSpec(Shape):
-    rotation: float = Field(description="Rotation angle")
-    undef: float = Field(description="Value representing undefined data")
-    xinc: float = Field(description="Increment along the x-axis")
-    xori: float = Field(description="Origin along the x-axis")
-    yflip: enums.AxisOrientation = Field(description="Flip along the y-axis, -1 or 1")
-    yori: float = Field(description="Origin along the y-axis")
+    rotation: float = Field(
+        description="Rotation angle",
+        allow_inf_nan=False,
+    )
+    undef: float = Field(
+        description="Value representing undefined data",
+        allow_inf_nan=False,
+    )
+    xinc: float = Field(
+        description="Increment along the x-axis",
+        allow_inf_nan=False,
+    )
+    xori: float = Field(
+        description="Origin along the x-axis",
+        allow_inf_nan=False,
+    )
+    yflip: enums.AxisOrientation = Field(
+        description="Flip along the y-axis, -1 or 1",
+    )
+    yori: float = Field(
+        description="Origin along the y-axis",
+        allow_inf_nan=False,
+    )
 
 
 class TableSpec(BaseModel):
@@ -65,13 +82,31 @@ class TableSpec(BaseModel):
 class CPGridSpec(Shape):
     """Corner point grid"""
 
-    xshift: float = Field(description="Shift along the x-axis")
-    yshift: float = Field(description="Shift along the y-axis")
-    zshift: float = Field(description="Shift along the z-axis")
+    xshift: float = Field(
+        description="Shift along the x-axis",
+        allow_inf_nan=False,
+    )
+    yshift: float = Field(
+        description="Shift along the y-axis",
+        allow_inf_nan=False,
+    )
+    zshift: float = Field(
+        description="Shift along the z-axis",
+        allow_inf_nan=False,
+    )
 
-    xscale: float = Field(description="Scaling factor for the x-axis")
-    yscale: float = Field(description="Scaling factor for the y-axis")
-    zscale: float = Field(description="Scaling factor for the z-axis")
+    xscale: float = Field(
+        description="Scaling factor for the x-axis",
+        allow_inf_nan=False,
+    )
+    yscale: float = Field(
+        description="Scaling factor for the y-axis",
+        allow_inf_nan=False,
+    )
+    zscale: float = Field(
+        description="Scaling factor for the z-axis",
+        allow_inf_nan=False,
+    )
 
 
 class CPGridPropertySpec(Shape):
@@ -86,19 +121,40 @@ class PolygonsSpec(BaseModel):
 
 class CubeSpec(SurfaceSpec):
     # Increment
-    xinc: float = Field(description="Increment along the x-axis")
-    yinc: float = Field(description="Increment along the y-axis")
-    zinc: float = Field(description="Increment along the z-axis")
+    xinc: float = Field(
+        description="Increment along the x-axis",
+        allow_inf_nan=False,
+    )
+    yinc: float = Field(
+        description="Increment along the y-axis",
+        allow_inf_nan=False,
+    )
+    zinc: float = Field(
+        description="Increment along the z-axis",
+        allow_inf_nan=False,
+    )
 
     # Origin
-    xori: float = Field(description="Origin along the x-axis")
-    yori: float = Field(description="Origin along the y-axis")
-    zori: float = Field(description="Origin along the z-axis")
+    xori: float = Field(
+        description="Origin along the x-axis",
+        allow_inf_nan=False,
+    )
+    yori: float = Field(
+        description="Origin along the y-axis",
+        allow_inf_nan=False,
+    )
+    zori: float = Field(
+        description="Origin along the z-axis",
+        allow_inf_nan=False,
+    )
 
     # Miscellaneous
     yflip: enums.AxisOrientation = Field(description="Flip along the y-axis, -1 or 1")
     zflip: enums.AxisOrientation = Field(description="Flip along the z-axis, -1 or 1")
-    rotation: float = Field(description="Rotation angle")
+    rotation: float = Field(
+        description="Rotation angle",
+        allow_inf_nan=False,
+    )
     undef: float = Field(description="Value representing undefined data")
 
 

@@ -42,9 +42,11 @@ class Seismic(BaseModel):
         examples=["mean"],
     )
     filter_size: Optional[float] = Field(
+        allow_inf_nan=False,
         default=None,
     )
     scaling_factor: Optional[float] = Field(
+        allow_inf_nan=False,
         default=None,
     )
     stacking_offset: Optional[str] = Field(
@@ -52,6 +54,7 @@ class Seismic(BaseModel):
         examples=["0-15"],
     )
     zrange: Optional[float] = Field(
+        allow_inf_nan=False,
         default=None,
     )
 
@@ -98,6 +101,7 @@ class Layer(BaseModel):
         examples=["VIKING GP. Top"],
     )
     offset: float = Field(
+        allow_inf_nan=False,
         default=0,
     )
     stratigraphic: bool = Field(
@@ -109,12 +113,30 @@ class Layer(BaseModel):
 
 
 class BoundingBox(BaseModel):
-    xmin: float = Field(description="Minimum x-coordinate")
-    xmax: float = Field(description="Maximum x-coordinate")
-    ymin: float = Field(description="Minimum y-coordinate")
-    ymax: float = Field(description="Maximum y-coordinate")
-    zmin: float = Field(description="Minimum z-coordinate")
-    zmax: float = Field(description="Maximum z-coordinate")
+    xmin: float = Field(
+        description="Minimum x-coordinate",
+        allow_inf_nan=False,
+    )
+    xmax: float = Field(
+        description="Maximum x-coordinate",
+        allow_inf_nan=False,
+    )
+    ymin: float = Field(
+        description="Minimum y-coordinate",
+        allow_inf_nan=False,
+    )
+    ymax: float = Field(
+        description="Maximum y-coordinate",
+        allow_inf_nan=False,
+    )
+    zmin: float = Field(
+        description="Minimum z-coordinate",
+        allow_inf_nan=False,
+    )
+    zmax: float = Field(
+        description="Maximum z-coordinate",
+        allow_inf_nan=False,
+    )
 
 
 class Content(BaseModel):
@@ -152,6 +174,7 @@ class Content(BaseModel):
     )
     offset: float = Field(
         default=0.0,
+        allow_inf_nan=False,
     )
     # spec: Optional[TableSpec | CPGridSpec, ...] = None
     stratigraphic_alias: Optional[list[str]] = Field(default=None)
