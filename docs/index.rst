@@ -23,6 +23,7 @@ For further details, visit the official documentation: `fmu-dataio documentation
    examples
    apiref/modules
    datamodel
+   datastructure
 
 Indices and tables
 ==================
