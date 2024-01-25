@@ -75,12 +75,12 @@ def inside_rms(func):
     return wrapper
 
 
-@pytest.fixture(name="testroot", scope="session", autouse=True)
+@pytest.fixture(name="testroot", scope="session")
 def fixture_testroot():
     return ROOTPWD
 
 
-@pytest.fixture(name="fmurun", scope="session", autouse=True)
+@pytest.fixture(name="fmurun", scope="session")
 def fixture_fmurun(tmp_path_factory):
     """Create a tmp folder structure for testing; here a new fmurun."""
     tmppath = tmp_path_factory.mktemp("data")
@@ -90,7 +90,7 @@ def fixture_fmurun(tmp_path_factory):
     return newpath
 
 
-@pytest.fixture(name="fmurun_w_casemetadata", scope="session", autouse=True)
+@pytest.fixture(name="fmurun_w_casemetadata", scope="session")
 def fixture_fmurun_w_casemetadata(tmp_path_factory):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
     tmppath = tmp_path_factory.mktemp("data3")
@@ -101,7 +101,7 @@ def fixture_fmurun_w_casemetadata(tmp_path_factory):
     return rootpath
 
 
-@pytest.fixture(name="fmurun_w_casemetadata_pred", scope="session", autouse=True)
+@pytest.fixture(name="fmurun_w_casemetadata_pred", scope="session")
 def fixture_fmurun_w_casemetadata_pred(tmp_path_factory):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
     tmppath = tmp_path_factory.mktemp("data3")
@@ -112,7 +112,7 @@ def fixture_fmurun_w_casemetadata_pred(tmp_path_factory):
     return rootpath
 
 
-@pytest.fixture(name="fmurun_pred", scope="session", autouse=True)
+@pytest.fixture(name="fmurun_pred", scope="session")
 def fixture_fmurun_pred(tmp_path_factory):
     """Create a tmp folder structure for testing; here a new fmurun for prediction."""
     tmppath = tmp_path_factory.mktemp("data_pred")
@@ -122,7 +122,7 @@ def fixture_fmurun_pred(tmp_path_factory):
     return newpath
 
 
-@pytest.fixture(name="rmsrun_fmu_w_casemetadata", scope="session", autouse=True)
+@pytest.fixture(name="rmsrun_fmu_w_casemetadata", scope="session")
 def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!
 
@@ -139,7 +139,7 @@ def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory):
     return rmspath
 
 
-@pytest.fixture(name="rmssetup", scope="module", autouse=True)
+@pytest.fixture(name="rmssetup", scope="module")
 def fixture_rmssetup(tmp_path_factory):
     """Create the folder structure to mimic RMS project."""
 
@@ -157,7 +157,7 @@ def fixture_rmssetup(tmp_path_factory):
     return rmspath
 
 
-@pytest.fixture(name="rmsglobalconfig", scope="module", autouse=True)
+@pytest.fixture(name="rmsglobalconfig", scope="module")
 def fixture_rmsglobalconfig(rmssetup):
     """Read global config."""
     # read the global config
@@ -171,7 +171,7 @@ def fixture_rmsglobalconfig(rmssetup):
     return global_cfg
 
 
-@pytest.fixture(name="globalvars_norw_letters", scope="module", autouse=True)
+@pytest.fixture(name="globalvars_norw_letters", scope="module")
 def fixture_globalvars_norw_letters(tmp_path_factory):
     """Read a global config with norwegian special letters w/ fmu.config utilities."""
 
@@ -193,7 +193,7 @@ def fixture_globalvars_norw_letters(tmp_path_factory):
     return (rmspath, cfg, gname)
 
 
-@pytest.fixture(name="casesetup", scope="module", autouse=True)
+@pytest.fixture(name="casesetup", scope="module")
 def fixture_casesetup(tmp_path_factory):
     """Create the folder structure to mimic a fmu run"""
 
@@ -206,7 +206,7 @@ def fixture_casesetup(tmp_path_factory):
     return tmppath
 
 
-@pytest.fixture(name="caseglobalconfig", scope="module", autouse=True)
+@pytest.fixture(name="caseglobalconfig", scope="module")
 def fixture_caseglobalconfig():
     """Create as global config for case testing."""
     gconfig = {}
@@ -343,15 +343,14 @@ def fixture_edataobj2(globalconfig2):
 # ======================================================================================
 
 
-@pytest.fixture(name="schema_080", scope="session", autouse=True)
+@pytest.fixture(name="schema_080", scope="session")
 def fixture_schema_080():
     """Return 0.8.0 version of schema as json."""
 
     return _parse_json(ROOTPWD / "schema/definitions/0.8.0/schema/fmu_results.json")
 
 
-@pytest.fixture(name="metadata_examples", scope="session", autouse=True)
-def fixture_metadata_examples():
+def metadata_examples():
     """Parse all metadata examples.
 
     Returns:
@@ -366,19 +365,30 @@ def fixture_metadata_examples():
     }
 
 
+@pytest.fixture(name="metadata_examples", scope="session")
+def fixture_metadata_examples():
+    """Parse all metadata examples.
+
+    Returns:
+        Dict: Dictionary with filename as key, file contents as value.
+
+    """
+    return metadata_examples()
+
+
 # ======================================================================================
 # Various objects
 # ======================================================================================
 
 
-@pytest.fixture(name="regsurf", scope="module", autouse=True)
+@pytest.fixture(name="regsurf", scope="module")
 def fixture_regsurf():
     """Create an xtgeo surface."""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
 
 
-@pytest.fixture(name="polygons", scope="module", autouse=True)
+@pytest.fixture(name="polygons", scope="module")
 def fixture_polygons():
     """Create an xtgeo polygons."""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
@@ -392,7 +402,7 @@ def fixture_polygons():
     )
 
 
-@pytest.fixture(name="points", scope="module", autouse=True)
+@pytest.fixture(name="points", scope="module")
 def fixture_points():
     """Create an xtgeo points instance."""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
@@ -407,35 +417,35 @@ def fixture_points():
     )
 
 
-@pytest.fixture(name="cube", scope="module", autouse=True)
+@pytest.fixture(name="cube", scope="module")
 def fixture_cube():
     """Create an xtgeo cube instance."""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return xtgeo.Cube(ncol=3, nrow=4, nlay=5, xinc=12, yinc=12, zinc=4, rotation=30)
 
 
-@pytest.fixture(name="grid", scope="module", autouse=True)
+@pytest.fixture(name="grid", scope="module")
 def fixture_grid():
     """Create an xtgeo grid instance."""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return xtgeo.create_box_grid((3, 4, 5))
 
 
-@pytest.fixture(name="gridproperty", scope="module", autouse=True)
+@pytest.fixture(name="gridproperty", scope="module")
 def fixture_gridproperty():
     """Create an xtgeo gridproperty instance."""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return xtgeo.GridProperty(ncol=3, nrow=7, nlay=3, values=123.0)
 
 
-@pytest.fixture(name="dataframe", scope="module", autouse=True)
+@pytest.fixture(name="dataframe", scope="module")
 def fixture_dataframe():
     """Create an pandas dataframe instance."""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
 
 
-@pytest.fixture(name="wellpicks", scope="module", autouse=True)
+@pytest.fixture(name="wellpicks", scope="module")
 def fixture_wellpicks():
     """Create a pandas dataframe containing wellpicks"""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
@@ -467,7 +477,7 @@ def fixture_wellpicks():
     )
 
 
-@pytest.fixture(name="arrowtable", scope="module", autouse=True)
+@pytest.fixture(name="arrowtable", scope="module")
 def fixture_arrowtable():
     """Create an arrow table instance."""
     try:
@@ -485,7 +495,7 @@ def fixture_arrowtable():
         return None
 
 
-@pytest.fixture(name="aggr_surfs_mean", scope="module", autouse=True)
+@pytest.fixture(name="aggr_surfs_mean", scope="module")
 def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
     logger.info("Ran %s", inspect.currentframe().f_code.co_name)
