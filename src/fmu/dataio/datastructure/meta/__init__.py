@@ -1,4 +1,4 @@
-from .model import Root, dump
+from .meta import Root, dump
 
 __all__ = [
     "dump",

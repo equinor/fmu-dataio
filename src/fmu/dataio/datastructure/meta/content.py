@@ -263,7 +263,7 @@ class PropertyContent(Content):
     content: Literal[enums.ContentEnum.property]
 
 
-class PTVContent(Content):
+class PVTContent(Content):
     content: Literal[enums.ContentEnum.pvt]
 
 
@@ -336,7 +336,7 @@ class AnyContent(RootModel):
             ParametersContent,
             PinchoutContent,
             PropertyContent,
-            PTVContent,
+            PVTContent,
             RegionsContent,
             RelpermContent,
             RFTContent,

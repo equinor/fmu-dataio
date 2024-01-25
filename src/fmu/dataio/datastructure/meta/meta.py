@@ -6,6 +6,7 @@ from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import (
+    AwareDatetime,
     BaseModel,
     Field,
     GetJsonSchemaHandler,
@@ -252,7 +253,9 @@ class Masterdata(BaseModel):
 class TracklogEvent(BaseModel):
     # TODO: Update ex. to inc. timezone
     # update NaiveDatetime ->  AwareDatetime
-    datetime: NaiveDatetime = Field(
+    # On upload, sumo adds timezone if its lacking.
+    # For roundtripping i need an Union here.
+    datetime: Union[NaiveDatetime, AwareDatetime] = Field(
         examples=["2020-10-28T14:28:02"],
     )
     event: str = Field(

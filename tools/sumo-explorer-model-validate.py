@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from contextlib import suppress
+from pprint import pp
 from random import sample
 
-from fmu.dataio.models.meta.model import Root
+from fmu.dataio.datastructure.meta import Root
 from fmu.sumo.explorer import Explorer
 from tqdm import tqdm
 
@@ -23,7 +25,7 @@ def lazy_sampler(x, lenx, k=100):
 
 def gen():
     e = Explorer(env="dev")
-    for c in tqdm(sample(tuple(e.cases), 3), ascii=True, position=0):
+    for c in sample(tuple(e.cases), 25):
         yield c.metadata
 
         for cube in lazy_sampler(c.cubes, len(c.cubes)):
@@ -43,15 +45,22 @@ def gen():
 
 
 if __name__ == "__main__":
-    root_classes = set()
-    for m in tqdm(gen(), ascii=True, position=1):
-        try:
-            root_classes.add(Root.model_validate(m))
-        except Exception:
-            from pprint import pp
-
-            pp(m)
-            raise
-
-    print("-->>> All good in da hood.")
-    print(root_classes)
+    tally = Counter()
+    with tqdm(ascii=True, position=1) as pbar:
+        for m in gen():
+            pbar.update()
+            try:
+                parsed = Root.model_validate(m)
+                content = (
+                    parsed.root.data.root.content
+                    if hasattr(parsed.root, "data")
+                    else None
+                )
+                tally.update([(parsed.root.class_, content)])
+                if sum(tally.values()) % 25 == 0:
+                    pbar.write("-" * 100)
+                    pbar.write("\n".join(str(v) for v in tally.items()))
+            except Exception as e:
+                print(str(e))
+                pp(m)
+                raise

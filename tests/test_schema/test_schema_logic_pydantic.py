@@ -6,8 +6,8 @@ import jsonschema
 import pytest
 from conftest import metadata_examples
 from fmu.dataio._definitions import ALLOWED_CONTENTS
-from fmu.dataio.models.meta import Root, dump
-from fmu.dataio.models.meta.enums import ContentEnum
+from fmu.dataio.datastructure.meta import Root, dump
+from fmu.dataio.datastructure.meta.enums import ContentEnum
 
 # pylint: disable=no-member
 
