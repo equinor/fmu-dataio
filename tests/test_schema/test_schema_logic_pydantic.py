@@ -6,7 +6,7 @@ import jsonschema
 import pytest
 from conftest import metadata_examples
 from fmu.dataio._definitions import ALLOWED_CONTENTS
-from fmu.dataio.models.meta import dump
+from fmu.dataio.models.meta import Root, dump
 from fmu.dataio.models.meta.enums import ContentEnum
 
 # pylint: disable=no-member
@@ -14,7 +14,7 @@ from fmu.dataio.models.meta.enums import ContentEnum
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def pydantic_schema():
     return dump()
 
@@ -31,9 +31,15 @@ def test_schema_example_filenames(file, example):
 
 
 @pytest.mark.parametrize("file, example", metadata_examples().items())
-def test_pydantic_schema_validate_examples_as_is(pydantic_schema, file, example):
+def test_jsonschema_validate(pydantic_schema, file, example):
     """Confirm that examples are valid against the schema"""
     jsonschema.validate(instance=example, schema=pydantic_schema)
+
+
+@pytest.mark.parametrize("file, example", metadata_examples().items())
+def test_pydantic_model_validate(pydantic_schema, file, example):
+    """Confirm that examples are valid against the schema"""
+    Root.model_validate(example)
 
 
 def test_pydantic_schema_file_block(pydantic_schema, metadata_examples):
@@ -55,8 +61,6 @@ def test_pydantic_schema_file_block(pydantic_schema, metadata_examples):
     _example["file"]["checksum_md5"] = 123.4
     with pytest.raises(jsonschema.exceptions.ValidationError):
         jsonschema.validate(instance=_example, schema=pydantic_schema)
-
-    return
 
     # shall not validate without checksum_md5
     del _example["file"]["checksum_md5"]

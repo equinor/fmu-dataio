@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from enum import Enum
+from enum import Enum, IntEnum
 
 
 class ContentEnum(str, Enum):
@@ -50,6 +50,6 @@ class AccessLevel(str, Enum):
     restricted = "restricted"
 
 
-class AxisOrientation(int, Enum):
+class AxisOrientation(IntEnum):
     normal = 1
     flipped = -1

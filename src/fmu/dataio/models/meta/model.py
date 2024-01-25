@@ -2,10 +2,18 @@ from __future__ import annotations
 
 from collections import ChainMap
 from pathlib import Path
-from typing import Dict, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field, NaiveDatetime, RootModel
+from pydantic import (
+    BaseModel,
+    Field,
+    GetJsonSchemaHandler,
+    NaiveDatetime,
+    RootModel,
+    model_validator,
+)
+from pydantic_core import CoreSchema
 from typing_extensions import Annotated
 
 from . import content, enums
@@ -58,7 +66,7 @@ class File(BaseModel):
 
 
 class Parameters(RootModel):
-    root: Dict[str, Union[Parameters, int, float, str, Parameters]]
+    root: Dict[str, Union[Parameters, int, float, str]]
 
 
 class Aggregation(BaseModel):
@@ -69,7 +77,7 @@ class Aggregation(BaseModel):
     operation: str = Field(
         description="The aggregation performed",
     )
-    realization_ids: list[int] = Field(
+    realization_ids: List[int] = Field(
         description="Array of realization ids included in this aggregation"
     )
     parameters: Optional[Parameters] = Field(
@@ -91,7 +99,7 @@ class User(BaseModel):
     )
 
 
-class Case(BaseModel):
+class FMUCase(BaseModel):
     name: str = Field(
         description="The case name",
         examples=["MyCaseName"],
@@ -102,7 +110,7 @@ class Case(BaseModel):
     uuid: UUID = Field(
         examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
     )
-    description: Optional[list[str]] = Field(
+    description: Optional[List[str]] = Field(
         default=None,
     )
 
@@ -130,8 +138,8 @@ class Iteration(BaseModel):
     )
 
 
-class Model(BaseModel):
-    description: Optional[list[str]] = Field(
+class FMUModel(BaseModel):
+    description: Optional[List[str]] = Field(
         default=None,
         description="This is a free text description of the model setup",
     )
@@ -146,8 +154,8 @@ class Model(BaseModel):
 
 
 class RealizationJobListing(BaseModel):
-    arg_types: list[str]
-    argList: list[Path]
+    arg_types: List[str]
+    argList: List[Path]
     error_file: Optional[Path]
     executable: Path
     license_path: Optional[Path]
@@ -166,9 +174,9 @@ class RealizationJobListing(BaseModel):
 class RealizationJobs(BaseModel):
     data_root: Path = Field(alias="DATA_ROOT")
     ert_pid: str
-    global_environment: dict[str, str]
+    global_environment: Dict[str, str]
     global_update_path: dict
-    job_list: list[RealizationJobListing] = Field(alias="jobList")
+    job_list: List[RealizationJobListing] = Field(alias="jobList")
     run_id: str
     umask: str
 
@@ -231,9 +239,9 @@ class StratigraphicColumn(BaseModel):
 
 class Smda(BaseModel):
     coordinate_system: CoordinateSystem
-    country: list[CountryItem]
-    discovery: list[DiscoveryItem]
-    field: list[FieldItem]
+    country: List[CountryItem]
+    discovery: List[DiscoveryItem]
+    field: List[FieldItem]
     stratigraphic_column: StratigraphicColumn
 
 
@@ -253,17 +261,46 @@ class TracklogEvent(BaseModel):
     user: User
 
 
-class FMUCase(BaseModel):
+class FMU(BaseModel):
     """
     The FMU block records properties that are specific to FMU
     """
 
-    case: Case
-    model: Model
+    case: FMUCase
+    model: FMUModel
     iteration: Optional[Iteration] = Field(default=None)
     workflow: Optional[Workflow] = Field(default=None)
     aggregation: Optional[Aggregation] = Field(default=None)
     realization: Optional[Realization] = Field(default=None)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _dependencies_aggregation_realization(cls, values: Dict) -> Dict:
+        aggregation, realization = values.get("aggregation"), values.get("realization")
+        if aggregation and realization:
+            raise ValueError(
+                "Both 'aggregation' and 'realization' cannot be set "
+                "at the same time. Please set only one."
+            )
+        return values
+
+    @classmethod
+    def __get_pydantic_json_schema__(
+        cls,
+        core_schema: CoreSchema,
+        handler: GetJsonSchemaHandler,
+    ) -> Dict[str, object]:
+        json_schema = super().__get_pydantic_json_schema__(core_schema, handler)
+        json_schema = handler.resolve_ref_schema(json_schema)
+        json_schema.update(
+            {
+                "dependencies": {
+                    "aggregation": {"not": {"required": ["realization"]}},
+                    "realization": {"not": {"required": ["aggregation"]}},
+                }
+            }
+        )
+        return json_schema
 
 
 class ClassMeta(BaseModel):
@@ -272,7 +309,7 @@ class ClassMeta(BaseModel):
         title="Metadata class",
     )
     masterdata: Masterdata
-    tracklog: list[TracklogEvent]
+    tracklog: List[TracklogEvent]
     source: Literal["fmu"] = Field(description="Data source (FMU)")
     version: Literal["0.8.0"] = Field(title="FMU results metadata version")
 
@@ -282,7 +319,7 @@ class FMUCaseClassMeta(ClassMeta):
         alias="class",
         title="Metadata class",
     )
-    fmu: FMUCase
+    fmu: FMU
     access: Access
 
 
@@ -306,7 +343,7 @@ class FMUDataClassMeta(ClassMeta):
     # FMUObj it is. The fmu_discriminator will inspects
     # the obj. and returns a tag that tells pydantic
     # what model to use.
-    fmu: FMUCase
+    fmu: FMU
     access: SsdlAccess
     data: content.AnyContent
     file: File
@@ -323,7 +360,34 @@ class Root(
         ]
     ]
 ):
-    ...
+    @model_validator(mode="before")
+    @classmethod
+    def _check_class_data_spec(cls, values: Dict) -> Dict:
+        class_ = values.get("class_")
+        data = values.get("data")
+
+        if class_ in ["table", "surface"] and (data is None or "spec" not in data):
+            raise ValueError(
+                "When 'class' is 'table' or 'surface', "
+                "'data' must contain the 'spec' field."
+            )
+        return values
+
+    @classmethod
+    def __get_pydantic_json_schema__(
+        cls,
+        core_schema: CoreSchema,
+        handler: GetJsonSchemaHandler,
+    ) -> Dict[str, object]:
+        json_schema = super().__get_pydantic_json_schema__(core_schema, handler)
+        json_schema = handler.resolve_ref_schema(json_schema)
+        json_schema.update(
+            {
+                "if": {"properties": {"class": {"enum": ["table", "surface"]}}},
+                "then": {"properties": {"data": {"required": ["spec"]}}},
+            }
+        )
+        return json_schema
 
 
 def dump() -> dict:
@@ -368,9 +432,9 @@ def dump() -> dict:
                     "file.checksum_md5",
                     "file.size_bytes",
                 ],
+                # schema must be present for "dependencies" key to work.
+                "$schema": "http://json-schema.org/draft-07/schema",
             },
-            Root.model_json_schema(
-                by_alias=True,
-            ),
+            Root.model_json_schema(),
         )
     )

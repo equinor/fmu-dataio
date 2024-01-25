@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, GetJsonSchemaHandler, RootModel, model_validator
+from pydantic_core import CoreSchema
 from typing_extensions import Annotated
 
 from . import enums, specification
@@ -142,12 +143,12 @@ class BoundingBox(BaseModel):
 class Content(BaseModel):
     content: enums.ContentEnum = Field(description="The contents of this data object")
 
-    alias: Optional[list[str]] = Field(default=None)
+    alias: Optional[List[str]] = Field(default=None)
 
     # Only valid for cooridate based meta.
     bbox: Optional[BoundingBox] = Field(default=None)
 
-    description: Optional[list[str]] = Field(
+    description: Optional[List[str]] = Field(
         default=None,
     )
     format: str = Field(
@@ -177,7 +178,7 @@ class Content(BaseModel):
         allow_inf_nan=False,
     )
     spec: Optional[specification.AnySpecification] = Field(default=None)
-    stratigraphic_alias: Optional[list[str]] = Field(default=None)
+    stratigraphic_alias: Optional[List[str]] = Field(default=None)
     stratigraphic: bool = Field(
         description=(
             "True if data object represents an entity in the stratigraphic column"
@@ -189,9 +190,6 @@ class Content(BaseModel):
         examples=["ds_extract_geogrid", "ds_post_strucmod"],
     )
     time: Optional[Time] = Field(default=None)
-
-    base: Optional[Layer] = None
-    top: Optional[Layer] = None
 
     undef_is_zero: Optional[bool] = Field(
         default=None,
@@ -205,6 +203,10 @@ class Content(BaseModel):
         default=None,
         examples=["depth"],
     )
+
+    # Both must be set, or none.
+    base: Optional[Layer] = None
+    top: Optional[Layer] = None
 
 
 class DepthContent(Content):
@@ -320,32 +322,61 @@ class WellPicksContent(Content):
     content: Literal[enums.ContentEnum.wellpicks]
 
 
-AnyContent = Annotated[
-    Union[
-        DepthContent,
-        FaultLinesContent,
-        FieldOutlineContent,
-        FieldRegionContent,
-        FluidContactContent,
-        InplaceVolumesContent,
-        KPProductContent,
-        LiftCurvesContent,
-        ParametersContent,
-        PinchoutContent,
-        PropertyContent,
-        PTVContent,
-        RegionsContent,
-        RelpermContent,
-        RFTContent,
-        SeismicContent,
-        SubcropContent,
-        ThicknessContent,
-        TimeContent,
-        TimeSeriesContent,
-        VelocityContent,
-        VolumesContent,
-        VolumetricsContent,
-        WellPicksContent,
-    ],
-    Field(discriminator="content"),
-]
+class AnyContent(RootModel):
+    root: Annotated[
+        Union[
+            DepthContent,
+            FaultLinesContent,
+            FieldOutlineContent,
+            FieldRegionContent,
+            FluidContactContent,
+            InplaceVolumesContent,
+            KPProductContent,
+            LiftCurvesContent,
+            ParametersContent,
+            PinchoutContent,
+            PropertyContent,
+            PTVContent,
+            RegionsContent,
+            RelpermContent,
+            RFTContent,
+            SeismicContent,
+            SubcropContent,
+            ThicknessContent,
+            TimeContent,
+            TimeSeriesContent,
+            VelocityContent,
+            VolumesContent,
+            VolumetricsContent,
+            WellPicksContent,
+        ],
+        Field(discriminator="content"),
+    ]
+
+    @model_validator(mode="before")
+    @classmethod
+    def _top_and_base_(cls, values: Dict) -> Dict:
+        top, base = values.get("top"), values.get("base")
+        if top is None and base is None:
+            return values
+        if top is not None and base is not None:
+            return values
+        raise ValueError("Both 'top' and 'base' must be set together or both be unset")
+
+    @classmethod
+    def __get_pydantic_json_schema__(
+        cls,
+        core_schema: CoreSchema,
+        handler: GetJsonSchemaHandler,
+    ) -> Dict[str, Any]:
+        json_schema = super().__get_pydantic_json_schema__(core_schema, handler)
+        json_schema = handler.resolve_ref_schema(json_schema)
+        json_schema.update(
+            {
+                "dependencies": {
+                    "top": {"required": ["base"]},
+                    "base": {"required": ["top"]},
+                }
+            }
+        )
+        return json_schema

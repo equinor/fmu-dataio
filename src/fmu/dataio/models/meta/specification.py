@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union
+from typing import List, Union
 
 from pydantic import BaseModel, Field
 
@@ -46,7 +46,7 @@ class SurfaceSpecification(Shape):
 
 
 class TableSpecification(BaseModel):
-    columns: list[str] = Field(
+    columns: List[str] = Field(
         description="List of columns present in a table.",
     )
     size: int = Field(
