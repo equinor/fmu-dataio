@@ -1,0 +1,7956 @@
+{
+  "$defs": {
+    "Access": {
+      "properties": {
+        "asset": {
+          "$ref": "#/$defs/Asset"
+        },
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AccessLevel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "asset"
+      ],
+      "title": "Access",
+      "type": "object"
+    },
+    "AccessLevel": {
+      "enum": [
+        "asset",
+        "internal",
+        "restricted"
+      ],
+      "title": "AccessLevel",
+      "type": "string"
+    },
+    "Aggregation": {
+      "properties": {
+        "id": {
+          "description": "The ID of this aggregation",
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "operation": {
+          "description": "The aggregation performed",
+          "title": "Operation",
+          "type": "string"
+        },
+        "realization_ids": {
+          "description": "Array of realization ids included in this aggregation",
+          "items": {
+            "type": "integer"
+          },
+          "title": "Realization Ids",
+          "type": "array"
+        },
+        "parameters": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Parameters"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Parameters for this realization"
+        }
+      },
+      "required": [
+        "id",
+        "operation",
+        "realization_ids"
+      ],
+      "title": "Aggregation",
+      "type": "object"
+    },
+    "AnyContent": {
+      "dependencies": {
+        "base": {
+          "required": [
+            "top"
+          ]
+        },
+        "top": {
+          "required": [
+            "base"
+          ]
+        }
+      },
+      "discriminator": {
+        "mapping": {
+          "depth": "#/$defs/DepthContent",
+          "fault_lines": "#/$defs/FaultLinesContent",
+          "field_outline": "#/$defs/FieldOutlineContent",
+          "field_region": "#/$defs/FieldRegionContent",
+          "fluid_contact": "#/$defs/FluidContactContent",
+          "inplace_volumes": "#/$defs/InplaceVolumesContent",
+          "khproduct": "#/$defs/KPProductContent",
+          "lift_curves": "#/$defs/LiftCurvesContent",
+          "parameters": "#/$defs/ParametersContent",
+          "pinchout": "#/$defs/PinchoutContent",
+          "property": "#/$defs/PropertyContent",
+          "pvt": "#/$defs/PVTContent",
+          "regions": "#/$defs/RegionsContent",
+          "relperm": "#/$defs/RelpermContent",
+          "rft": "#/$defs/RFTContent",
+          "seismic": "#/$defs/SeismicContent",
+          "subcrop": "#/$defs/SubcropContent",
+          "thickness": "#/$defs/ThicknessContent",
+          "time": "#/$defs/TimeContent",
+          "timeseries": "#/$defs/TimeSeriesContent",
+          "velocity": "#/$defs/VelocityContent",
+          "volumes": "#/$defs/VolumesContent",
+          "volumetrics": "#/$defs/VolumetricsContent",
+          "wellpicks": "#/$defs/WellPicksContent"
+        },
+        "propertyName": "content"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/DepthContent"
+        },
+        {
+          "$ref": "#/$defs/FaultLinesContent"
+        },
+        {
+          "$ref": "#/$defs/FieldOutlineContent"
+        },
+        {
+          "$ref": "#/$defs/FieldRegionContent"
+        },
+        {
+          "$ref": "#/$defs/FluidContactContent"
+        },
+        {
+          "$ref": "#/$defs/InplaceVolumesContent"
+        },
+        {
+          "$ref": "#/$defs/KPProductContent"
+        },
+        {
+          "$ref": "#/$defs/LiftCurvesContent"
+        },
+        {
+          "$ref": "#/$defs/ParametersContent"
+        },
+        {
+          "$ref": "#/$defs/PinchoutContent"
+        },
+        {
+          "$ref": "#/$defs/PropertyContent"
+        },
+        {
+          "$ref": "#/$defs/PVTContent"
+        },
+        {
+          "$ref": "#/$defs/RegionsContent"
+        },
+        {
+          "$ref": "#/$defs/RelpermContent"
+        },
+        {
+          "$ref": "#/$defs/RFTContent"
+        },
+        {
+          "$ref": "#/$defs/SeismicContent"
+        },
+        {
+          "$ref": "#/$defs/SubcropContent"
+        },
+        {
+          "$ref": "#/$defs/ThicknessContent"
+        },
+        {
+          "$ref": "#/$defs/TimeContent"
+        },
+        {
+          "$ref": "#/$defs/TimeSeriesContent"
+        },
+        {
+          "$ref": "#/$defs/VelocityContent"
+        },
+        {
+          "$ref": "#/$defs/VolumesContent"
+        },
+        {
+          "$ref": "#/$defs/VolumetricsContent"
+        },
+        {
+          "$ref": "#/$defs/WellPicksContent"
+        }
+      ],
+      "title": "AnyContent"
+    },
+    "Asset": {
+      "properties": {
+        "name": {
+          "examples": [
+            "Drogon"
+          ],
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Asset",
+      "type": "object"
+    },
+    "AxisOrientation": {
+      "enum": [
+        1,
+        -1
+      ],
+      "title": "AxisOrientation",
+      "type": "integer"
+    },
+    "BoundingBox": {
+      "properties": {
+        "xmin": {
+          "description": "Minimum x-coordinate",
+          "title": "Xmin",
+          "type": "number"
+        },
+        "xmax": {
+          "description": "Maximum x-coordinate",
+          "title": "Xmax",
+          "type": "number"
+        },
+        "ymin": {
+          "description": "Minimum y-coordinate",
+          "title": "Ymin",
+          "type": "number"
+        },
+        "ymax": {
+          "description": "Maximum y-coordinate",
+          "title": "Ymax",
+          "type": "number"
+        },
+        "zmin": {
+          "description": "Minimum z-coordinate",
+          "title": "Zmin",
+          "type": "number"
+        },
+        "zmax": {
+          "description": "Maximum z-coordinate",
+          "title": "Zmax",
+          "type": "number"
+        }
+      },
+      "required": [
+        "xmin",
+        "xmax",
+        "ymin",
+        "ymax",
+        "zmin",
+        "zmax"
+      ],
+      "title": "BoundingBox",
+      "type": "object"
+    },
+    "CPGridPropertySpecification": {
+      "properties": {
+        "nrow": {
+          "description": "The number of rows",
+          "title": "Nrow",
+          "type": "integer"
+        },
+        "ncol": {
+          "description": "The number of columns",
+          "title": "Ncol",
+          "type": "integer"
+        },
+        "nlay": {
+          "description": "The number of layers",
+          "title": "Nlay",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "nrow",
+        "ncol",
+        "nlay"
+      ],
+      "title": "CPGridPropertySpecification",
+      "type": "object"
+    },
+    "CPGridSpecification": {
+      "description": "Corner point grid",
+      "properties": {
+        "nrow": {
+          "description": "The number of rows",
+          "title": "Nrow",
+          "type": "integer"
+        },
+        "ncol": {
+          "description": "The number of columns",
+          "title": "Ncol",
+          "type": "integer"
+        },
+        "nlay": {
+          "description": "The number of layers",
+          "title": "Nlay",
+          "type": "integer"
+        },
+        "xshift": {
+          "description": "Shift along the x-axis",
+          "title": "Xshift",
+          "type": "number"
+        },
+        "yshift": {
+          "description": "Shift along the y-axis",
+          "title": "Yshift",
+          "type": "number"
+        },
+        "zshift": {
+          "description": "Shift along the z-axis",
+          "title": "Zshift",
+          "type": "number"
+        },
+        "xscale": {
+          "description": "Scaling factor for the x-axis",
+          "title": "Xscale",
+          "type": "number"
+        },
+        "yscale": {
+          "description": "Scaling factor for the y-axis",
+          "title": "Yscale",
+          "type": "number"
+        },
+        "zscale": {
+          "description": "Scaling factor for the z-axis",
+          "title": "Zscale",
+          "type": "number"
+        }
+      },
+      "required": [
+        "nrow",
+        "ncol",
+        "nlay",
+        "xshift",
+        "yshift",
+        "zshift",
+        "xscale",
+        "yscale",
+        "zscale"
+      ],
+      "title": "CPGridSpecification",
+      "type": "object"
+    },
+    "CoordinateSystem": {
+      "properties": {
+        "identifier": {
+          "examples": [
+            "ST_WGS84_UTM37N_P32637"
+          ],
+          "title": "Identifier",
+          "type": "string"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier",
+        "uuid"
+      ],
+      "title": "CoordinateSystem",
+      "type": "object"
+    },
+    "CountryItem": {
+      "properties": {
+        "identifier": {
+          "examples": [
+            "Norway"
+          ],
+          "title": "Identifier",
+          "type": "string"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier",
+        "uuid"
+      ],
+      "title": "CountryItem",
+      "type": "object"
+    },
+    "CubeSpecification": {
+      "properties": {
+        "nrow": {
+          "description": "The number of rows",
+          "title": "Nrow",
+          "type": "integer"
+        },
+        "ncol": {
+          "description": "The number of columns",
+          "title": "Ncol",
+          "type": "integer"
+        },
+        "nlay": {
+          "description": "The number of layers",
+          "title": "Nlay",
+          "type": "integer"
+        },
+        "rotation": {
+          "description": "Rotation angle",
+          "title": "Rotation",
+          "type": "number"
+        },
+        "undef": {
+          "description": "Value representing undefined data",
+          "title": "Undef",
+          "type": "number"
+        },
+        "xinc": {
+          "description": "Increment along the x-axis",
+          "title": "Xinc",
+          "type": "number"
+        },
+        "xori": {
+          "description": "Origin along the x-axis",
+          "title": "Xori",
+          "type": "number"
+        },
+        "yflip": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/AxisOrientation"
+            }
+          ],
+          "description": "Flip along the y-axis, -1 or 1"
+        },
+        "yori": {
+          "description": "Origin along the y-axis",
+          "title": "Yori",
+          "type": "number"
+        },
+        "yinc": {
+          "description": "Increment along the y-axis",
+          "title": "Yinc",
+          "type": "number"
+        },
+        "zinc": {
+          "description": "Increment along the z-axis",
+          "title": "Zinc",
+          "type": "number"
+        },
+        "zori": {
+          "description": "Origin along the z-axis",
+          "title": "Zori",
+          "type": "number"
+        },
+        "zflip": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/AxisOrientation"
+            }
+          ],
+          "description": "Flip along the z-axis, -1 or 1"
+        }
+      },
+      "required": [
+        "nrow",
+        "ncol",
+        "nlay",
+        "rotation",
+        "undef",
+        "xinc",
+        "xori",
+        "yflip",
+        "yori",
+        "yinc",
+        "zinc",
+        "zori",
+        "zflip"
+      ],
+      "title": "CubeSpecification",
+      "type": "object"
+    },
+    "DepthContent": {
+      "properties": {
+        "content": {
+          "const": "depth",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "depth_reference": {
+          "enum": [
+            "msl",
+            "sb",
+            "rkb"
+          ],
+          "title": "Depth Reference",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic",
+        "depth_reference"
+      ],
+      "title": "DepthContent",
+      "type": "object"
+    },
+    "DiscoveryItem": {
+      "properties": {
+        "short_identifier": {
+          "examples": [
+            "SomeDiscovery"
+          ],
+          "title": "Short Identifier",
+          "type": "string"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "short_identifier",
+        "uuid"
+      ],
+      "title": "DiscoveryItem",
+      "type": "object"
+    },
+    "FMU": {
+      "dependencies": {
+        "aggregation": {
+          "not": {
+            "required": [
+              "realization"
+            ]
+          }
+        },
+        "realization": {
+          "not": {
+            "required": [
+              "aggregation"
+            ]
+          }
+        }
+      },
+      "description": "The FMU block records properties that are specific to FMU",
+      "properties": {
+        "case": {
+          "$ref": "#/$defs/FMUCase"
+        },
+        "model": {
+          "$ref": "#/$defs/FMUModel"
+        },
+        "iteration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Iteration"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "workflow": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Workflow"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "aggregation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Aggregation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "realization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Realization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "case",
+        "model"
+      ],
+      "title": "FMU",
+      "type": "object"
+    },
+    "FMUCase": {
+      "properties": {
+        "name": {
+          "description": "The case name",
+          "examples": [
+            "MyCaseName"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "user": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/User"
+            }
+          ],
+          "description": "The user name used in ERT"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        }
+      },
+      "required": [
+        "name",
+        "user",
+        "uuid"
+      ],
+      "title": "FMUCase",
+      "type": "object"
+    },
+    "FMUCaseClassMeta": {
+      "properties": {
+        "class": {
+          "const": "case",
+          "title": "Metadata class"
+        },
+        "masterdata": {
+          "$ref": "#/$defs/Masterdata"
+        },
+        "tracklog": {
+          "items": {
+            "$ref": "#/$defs/TracklogEvent"
+          },
+          "title": "Tracklog",
+          "type": "array"
+        },
+        "source": {
+          "const": "fmu",
+          "description": "Data source (FMU)",
+          "title": "Source"
+        },
+        "version": {
+          "const": "0.8.0",
+          "title": "FMU results metadata version"
+        },
+        "fmu": {
+          "$ref": "#/$defs/FMU"
+        },
+        "access": {
+          "$ref": "#/$defs/Access"
+        }
+      },
+      "required": [
+        "class",
+        "masterdata",
+        "tracklog",
+        "source",
+        "version",
+        "fmu",
+        "access"
+      ],
+      "title": "FMUCaseClassMeta",
+      "type": "object"
+    },
+    "FMUDataClassMeta": {
+      "properties": {
+        "class": {
+          "enum": [
+            "surface",
+            "table",
+            "cpgrid",
+            "cpgrid_property",
+            "polygons",
+            "cube",
+            "well",
+            "points",
+            "dictionary"
+          ],
+          "title": "Metadata class",
+          "type": "string"
+        },
+        "masterdata": {
+          "$ref": "#/$defs/Masterdata"
+        },
+        "tracklog": {
+          "items": {
+            "$ref": "#/$defs/TracklogEvent"
+          },
+          "title": "Tracklog",
+          "type": "array"
+        },
+        "source": {
+          "const": "fmu",
+          "description": "Data source (FMU)",
+          "title": "Source"
+        },
+        "version": {
+          "const": "0.8.0",
+          "title": "FMU results metadata version"
+        },
+        "fmu": {
+          "$ref": "#/$defs/FMU"
+        },
+        "access": {
+          "$ref": "#/$defs/SsdlAccess"
+        },
+        "data": {
+          "$ref": "#/$defs/AnyContent"
+        },
+        "file": {
+          "$ref": "#/$defs/File"
+        }
+      },
+      "required": [
+        "class",
+        "masterdata",
+        "tracklog",
+        "source",
+        "version",
+        "fmu",
+        "access",
+        "data",
+        "file"
+      ],
+      "title": "FMUDataClassMeta",
+      "type": "object"
+    },
+    "FMUModel": {
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "This is a free text description of the model setup",
+          "title": "Description"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "Drogon"
+          ],
+          "title": "Name"
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "21.0.0.dev"
+          ],
+          "title": "Revision"
+        }
+      },
+      "title": "FMUModel",
+      "type": "object"
+    },
+    "FMUTimeObject": {
+      "description": "Time stamp for data object.",
+      "properties": {
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "base",
+            "monitor",
+            "mylabel"
+          ],
+          "title": "Label"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "2020-10-28T14:28:02"
+          ],
+          "title": "Value"
+        }
+      },
+      "title": "FMUTimeObject",
+      "type": "object"
+    },
+    "FaultLinesContent": {
+      "properties": {
+        "content": {
+          "const": "fault_lines",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "FaultLinesContent",
+      "type": "object"
+    },
+    "FieldItem": {
+      "properties": {
+        "identifier": {
+          "examples": [
+            "OseFax"
+          ],
+          "title": "Identifier",
+          "type": "string"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier",
+        "uuid"
+      ],
+      "title": "FieldItem",
+      "type": "object"
+    },
+    "FieldOutline": {
+      "description": "Conditional field",
+      "properties": {
+        "contact": {
+          "title": "Contact",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contact"
+      ],
+      "title": "FieldOutline",
+      "type": "object"
+    },
+    "FieldOutlineContent": {
+      "properties": {
+        "content": {
+          "const": "field_outline",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "field_outline": {
+          "$ref": "#/$defs/FieldOutline"
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic",
+        "field_outline"
+      ],
+      "title": "FieldOutlineContent",
+      "type": "object"
+    },
+    "FieldRegion": {
+      "description": "Conditional field",
+      "properties": {
+        "id": {
+          "description": "The ID of the region",
+          "title": "Id",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "FieldRegion",
+      "type": "object"
+    },
+    "FieldRegionContent": {
+      "properties": {
+        "content": {
+          "const": "field_region",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "field_region": {
+          "$ref": "#/$defs/FieldRegion"
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic",
+        "field_region"
+      ],
+      "title": "FieldRegionContent",
+      "type": "object"
+    },
+    "File": {
+      "description": "Block describing the file as the data appear in FMU context",
+      "properties": {
+        "absolute_path": {
+          "anyOf": [
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The absolute file path",
+          "examples": [
+            "/abs/path/share/results/maps/volantis_gp_base--depth.gri"
+          ],
+          "title": "Absolute Path"
+        },
+        "relative_path": {
+          "description": "The file path relative to RUNPATH",
+          "examples": [
+            "share/results/maps/volantis_gp_base--depth.gri"
+          ],
+          "format": "path",
+          "title": "Relative Path",
+          "type": "string"
+        },
+        "checksum_md5": {
+          "description": "md5 checksum of the file or bytestring",
+          "examples": [
+            "kjhsdfvsdlfk23knerknvk23"
+          ],
+          "title": "Checksum Md5",
+          "type": "string"
+        },
+        "size_bytes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Size of file object in bytes",
+          "title": "Size Bytes"
+        }
+      },
+      "required": [
+        "relative_path",
+        "checksum_md5"
+      ],
+      "title": "File",
+      "type": "object"
+    },
+    "FluidContact": {
+      "description": "Conditional field",
+      "properties": {
+        "contact": {
+          "enum": [
+            "owc",
+            "fwl",
+            "goc",
+            "fgl"
+          ],
+          "examples": [
+            "owc",
+            "fwl"
+          ],
+          "title": "Contact",
+          "type": "string"
+        },
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "contact"
+      ],
+      "title": "FluidContact",
+      "type": "object"
+    },
+    "FluidContactContent": {
+      "properties": {
+        "content": {
+          "const": "fluid_contact",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "fluid_contact": {
+          "$ref": "#/$defs/FluidContact"
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic",
+        "fluid_contact"
+      ],
+      "title": "FluidContactContent",
+      "type": "object"
+    },
+    "GridModel": {
+      "properties": {
+        "name": {
+          "examples": [
+            "MyGrid"
+          ],
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "GridModel",
+      "type": "object"
+    },
+    "InplaceVolumesContent": {
+      "properties": {
+        "content": {
+          "const": "inplace_volumes",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "InplaceVolumesContent",
+      "type": "object"
+    },
+    "Iteration": {
+      "properties": {
+        "id": {
+          "description": "The internal identification of this iteration, e.g. the iteration number",
+          "title": "Id",
+          "type": "integer"
+        },
+        "name": {
+          "description": "The convential name of this iteration, e.g. iter-0 or pred",
+          "examples": [
+            "iter-0"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
+        "restart_from": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A uuid reference to another iteration that this iteration was restarted from",
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "title": "Restart From"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "uuid"
+      ],
+      "title": "Iteration",
+      "type": "object"
+    },
+    "KPProductContent": {
+      "properties": {
+        "content": {
+          "const": "khproduct",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "KPProductContent",
+      "type": "object"
+    },
+    "Layer": {
+      "properties": {
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "stratigraphic": {
+          "default": false,
+          "description": "True if data object represents an entity in the stratigraphic colum",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Layer",
+      "type": "object"
+    },
+    "LiftCurvesContent": {
+      "properties": {
+        "content": {
+          "const": "lift_curves",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "LiftCurvesContent",
+      "type": "object"
+    },
+    "Masterdata": {
+      "properties": {
+        "smda": {
+          "$ref": "#/$defs/Smda"
+        }
+      },
+      "required": [
+        "smda"
+      ],
+      "title": "Masterdata",
+      "type": "object"
+    },
+    "PVTContent": {
+      "properties": {
+        "content": {
+          "const": "pvt",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "PVTContent",
+      "type": "object"
+    },
+    "Parameters": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Parameters"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "title": "Parameters",
+      "type": "object"
+    },
+    "ParametersContent": {
+      "properties": {
+        "content": {
+          "const": "parameters",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "ParametersContent",
+      "type": "object"
+    },
+    "PinchoutContent": {
+      "properties": {
+        "content": {
+          "const": "pinchout",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "PinchoutContent",
+      "type": "object"
+    },
+    "PolygonsSpecification": {
+      "properties": {
+        "npolys": {
+          "description": "The number of individual polygons in the data object",
+          "title": "Npolys",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "npolys"
+      ],
+      "title": "PolygonsSpecification",
+      "type": "object"
+    },
+    "PropertyContent": {
+      "properties": {
+        "content": {
+          "const": "property",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "PropertyContent",
+      "type": "object"
+    },
+    "RFTContent": {
+      "properties": {
+        "content": {
+          "const": "rft",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "RFTContent",
+      "type": "object"
+    },
+    "Realization": {
+      "properties": {
+        "id": {
+          "description": "The unique number of this realization as used in FMU",
+          "title": "Id",
+          "type": "integer"
+        },
+        "name": {
+          "description": "The convential name of this iteration, e.g. iter-0 or pred",
+          "examples": [
+            "iter-0"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "parameters": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Parameters"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Parameters for this realization"
+        },
+        "jobs": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RealizationJobs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Content directly taken from the ERT jobs.json file for this realization"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "uuid"
+      ],
+      "title": "Realization",
+      "type": "object"
+    },
+    "RealizationJobListing": {
+      "properties": {
+        "arg_types": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Arg Types",
+          "type": "array"
+        },
+        "argList": {
+          "items": {
+            "format": "path",
+            "type": "string"
+          },
+          "title": "Arglist",
+          "type": "array"
+        },
+        "error_file": {
+          "anyOf": [
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error File"
+        },
+        "executable": {
+          "format": "path",
+          "title": "Executable",
+          "type": "string"
+        },
+        "license_path": {
+          "anyOf": [
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "License Path"
+        },
+        "max_arg": {
+          "title": "Max Arg",
+          "type": "integer"
+        },
+        "max_running_minutes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Running Minutes"
+        },
+        "max_running": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Running"
+        },
+        "min_arg": {
+          "title": "Min Arg",
+          "type": "integer"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "start_file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Start File"
+        },
+        "stderr": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stderr"
+        },
+        "stdin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stdin"
+        },
+        "stdout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stdout"
+        },
+        "target_file": {
+          "anyOf": [
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Target File"
+        }
+      },
+      "required": [
+        "arg_types",
+        "argList",
+        "error_file",
+        "executable",
+        "license_path",
+        "max_arg",
+        "max_running_minutes",
+        "max_running",
+        "min_arg",
+        "name",
+        "start_file",
+        "stderr",
+        "stdin",
+        "stdout",
+        "target_file"
+      ],
+      "title": "RealizationJobListing",
+      "type": "object"
+    },
+    "RealizationJobs": {
+      "properties": {
+        "DATA_ROOT": {
+          "format": "path",
+          "title": "Data Root",
+          "type": "string"
+        },
+        "ert_pid": {
+          "title": "Ert Pid",
+          "type": "string"
+        },
+        "global_environment": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Global Environment",
+          "type": "object"
+        },
+        "global_update_path": {
+          "title": "Global Update Path",
+          "type": "object"
+        },
+        "jobList": {
+          "items": {
+            "$ref": "#/$defs/RealizationJobListing"
+          },
+          "title": "Joblist",
+          "type": "array"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "umask": {
+          "title": "Umask",
+          "type": "string"
+        }
+      },
+      "required": [
+        "DATA_ROOT",
+        "ert_pid",
+        "global_environment",
+        "global_update_path",
+        "jobList",
+        "run_id",
+        "umask"
+      ],
+      "title": "RealizationJobs",
+      "type": "object"
+    },
+    "RegionsContent": {
+      "properties": {
+        "content": {
+          "const": "regions",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "RegionsContent",
+      "type": "object"
+    },
+    "RelpermContent": {
+      "properties": {
+        "content": {
+          "const": "relperm",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "RelpermContent",
+      "type": "object"
+    },
+    "Seismic": {
+      "description": "Conditional field",
+      "properties": {
+        "attribute": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "amplitude_timeshifted"
+          ],
+          "title": "Attribute"
+        },
+        "calculation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "mean"
+          ],
+          "title": "Calculation"
+        },
+        "filter_size": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Filter Size"
+        },
+        "scaling_factor": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scaling Factor"
+        },
+        "stacking_offset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "0-15"
+          ],
+          "title": "Stacking Offset"
+        },
+        "zrange": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Zrange"
+        }
+      },
+      "title": "Seismic",
+      "type": "object"
+    },
+    "SeismicContent": {
+      "properties": {
+        "content": {
+          "const": "seismic",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "seismic": {
+          "$ref": "#/$defs/Seismic"
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic",
+        "seismic"
+      ],
+      "title": "SeismicContent",
+      "type": "object"
+    },
+    "Smda": {
+      "properties": {
+        "coordinate_system": {
+          "$ref": "#/$defs/CoordinateSystem"
+        },
+        "country": {
+          "items": {
+            "$ref": "#/$defs/CountryItem"
+          },
+          "title": "Country",
+          "type": "array"
+        },
+        "discovery": {
+          "items": {
+            "$ref": "#/$defs/DiscoveryItem"
+          },
+          "title": "Discovery",
+          "type": "array"
+        },
+        "field": {
+          "items": {
+            "$ref": "#/$defs/FieldItem"
+          },
+          "title": "Field",
+          "type": "array"
+        },
+        "stratigraphic_column": {
+          "$ref": "#/$defs/StratigraphicColumn"
+        }
+      },
+      "required": [
+        "coordinate_system",
+        "country",
+        "discovery",
+        "field",
+        "stratigraphic_column"
+      ],
+      "title": "Smda",
+      "type": "object"
+    },
+    "Ssdl": {
+      "description": "Sub-Surface Data Lake",
+      "properties": {
+        "access_level": {
+          "$ref": "#/$defs/AccessLevel"
+        },
+        "rep_include": {
+          "title": "Rep Include",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "access_level",
+        "rep_include"
+      ],
+      "title": "Ssdl",
+      "type": "object"
+    },
+    "SsdlAccess": {
+      "properties": {
+        "asset": {
+          "$ref": "#/$defs/Asset"
+        },
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AccessLevel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "ssdl": {
+          "$ref": "#/$defs/Ssdl"
+        }
+      },
+      "required": [
+        "asset",
+        "ssdl"
+      ],
+      "title": "SsdlAccess",
+      "type": "object"
+    },
+    "StratigraphicColumn": {
+      "properties": {
+        "identifier": {
+          "examples": [
+            "DROGON_2020"
+          ],
+          "title": "Identifier",
+          "type": "string"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier",
+        "uuid"
+      ],
+      "title": "StratigraphicColumn",
+      "type": "object"
+    },
+    "SubcropContent": {
+      "properties": {
+        "content": {
+          "const": "subcrop",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "SubcropContent",
+      "type": "object"
+    },
+    "SurfaceSpecification": {
+      "properties": {
+        "nrow": {
+          "description": "The number of rows",
+          "title": "Nrow",
+          "type": "integer"
+        },
+        "ncol": {
+          "description": "The number of columns",
+          "title": "Ncol",
+          "type": "integer"
+        },
+        "nlay": {
+          "description": "The number of layers",
+          "title": "Nlay",
+          "type": "integer"
+        },
+        "rotation": {
+          "description": "Rotation angle",
+          "title": "Rotation",
+          "type": "number"
+        },
+        "undef": {
+          "description": "Value representing undefined data",
+          "title": "Undef",
+          "type": "number"
+        },
+        "xinc": {
+          "description": "Increment along the x-axis",
+          "title": "Xinc",
+          "type": "number"
+        },
+        "xori": {
+          "description": "Origin along the x-axis",
+          "title": "Xori",
+          "type": "number"
+        },
+        "yflip": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/AxisOrientation"
+            }
+          ],
+          "description": "Flip along the y-axis, -1 or 1"
+        },
+        "yori": {
+          "description": "Origin along the y-axis",
+          "title": "Yori",
+          "type": "number"
+        }
+      },
+      "required": [
+        "nrow",
+        "ncol",
+        "nlay",
+        "rotation",
+        "undef",
+        "xinc",
+        "xori",
+        "yflip",
+        "yori"
+      ],
+      "title": "SurfaceSpecification",
+      "type": "object"
+    },
+    "TableSpecification": {
+      "properties": {
+        "columns": {
+          "description": "List of columns present in a table.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "size": {
+          "description": "Size of data object.",
+          "examples": [
+            1,
+            9999
+          ],
+          "title": "Size",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "columns",
+        "size"
+      ],
+      "title": "TableSpecification",
+      "type": "object"
+    },
+    "ThicknessContent": {
+      "properties": {
+        "content": {
+          "const": "thickness",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "ThicknessContent",
+      "type": "object"
+    },
+    "Time": {
+      "properties": {
+        "t0": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FMUTimeObject"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "t1": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FMUTimeObject"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Time",
+      "type": "object"
+    },
+    "TimeContent": {
+      "properties": {
+        "content": {
+          "const": "time",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "TimeContent",
+      "type": "object"
+    },
+    "TimeSeriesContent": {
+      "properties": {
+        "content": {
+          "const": "timeseries",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "TimeSeriesContent",
+      "type": "object"
+    },
+    "TracklogEvent": {
+      "properties": {
+        "datetime": {
+          "examples": [
+            "2020-10-28T14:28:02"
+          ],
+          "format": "date-time",
+          "title": "Datetime",
+          "type": "string"
+        },
+        "event": {
+          "examples": [
+            "created",
+            "updated"
+          ],
+          "title": "Event",
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/$defs/User"
+        }
+      },
+      "required": [
+        "datetime",
+        "event",
+        "user"
+      ],
+      "title": "TracklogEvent",
+      "type": "object"
+    },
+    "User": {
+      "properties": {
+        "id": {
+          "examples": [
+            "peesv",
+            "jlov"
+          ],
+          "title": "User ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "User",
+      "type": "object"
+    },
+    "VelocityContent": {
+      "properties": {
+        "content": {
+          "const": "velocity",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "VelocityContent",
+      "type": "object"
+    },
+    "VolumesContent": {
+      "properties": {
+        "content": {
+          "const": "volumes",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "VolumesContent",
+      "type": "object"
+    },
+    "VolumetricsContent": {
+      "properties": {
+        "content": {
+          "const": "volumetrics",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "VolumetricsContent",
+      "type": "object"
+    },
+    "WellPicksContent": {
+      "properties": {
+        "content": {
+          "const": "wellpicks",
+          "title": "Content"
+        },
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "WellPicksContent",
+      "type": "object"
+    },
+    "WellPointsDictionaryCaseSpecification": {
+      "properties": {},
+      "title": "WellPointsDictionaryCaseSpecification",
+      "type": "object"
+    },
+    "Workflow": {
+      "properties": {
+        "reference": {
+          "description": "Reference to the part of the FMU workflow that produced this",
+          "title": "Reference",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reference"
+      ],
+      "title": "Workflow",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "mapping": {
+      "case": "#/$defs/FMUCaseClassMeta",
+      "cpgrid": "#/$defs/FMUDataClassMeta",
+      "cpgrid_property": "#/$defs/FMUDataClassMeta",
+      "cube": "#/$defs/FMUDataClassMeta",
+      "dictionary": "#/$defs/FMUDataClassMeta",
+      "points": "#/$defs/FMUDataClassMeta",
+      "polygons": "#/$defs/FMUDataClassMeta",
+      "surface": "#/$defs/FMUDataClassMeta",
+      "table": "#/$defs/FMUDataClassMeta",
+      "well": "#/$defs/FMUDataClassMeta"
+    },
+    "propertyName": "class"
+  },
+  "if": {
+    "properties": {
+      "class": {
+        "enum": [
+          "table",
+          "surface"
+        ]
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/FMUCaseClassMeta"
+    },
+    {
+      "$ref": "#/$defs/FMUDataClassMeta"
+    }
+  ],
+  "then": {
+    "properties": {
+      "data": {
+        "required": [
+          "spec"
+        ]
+      }
+    }
+  },
+  "title": "Root",
+  "$contractual": [
+    "class",
+    "source",
+    "version",
+    "tracklog",
+    "data.format",
+    "data.name",
+    "data.stratigraphic",
+    "data.alias",
+    "data.stratigraphic_alias",
+    "data.offset",
+    "data.content",
+    "data.tagname",
+    "data.vertical_domain",
+    "data.grid_model",
+    "data.bbox",
+    "data.time",
+    "data.is_prediction",
+    "data.is_observation",
+    "data.seismic.attribute",
+    "data.spec.columns",
+    "access",
+    "masterdata",
+    "fmu.model",
+    "fmu.workflow",
+    "fmu.case",
+    "fmu.iteration.name",
+    "fmu.iteration.uuid",
+    "fmu.realization.name",
+    "fmu.realization.id",
+    "fmu.realization.uuid",
+    "fmu.aggregation.operation",
+    "fmu.aggregation.realization_ids",
+    "fmu.context.stage",
+    "file.relative_path",
+    "file.checksum_md5",
+    "file.size_bytes"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "fmu_meta.json"
+}

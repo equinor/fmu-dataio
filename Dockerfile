@@ -20,8 +20,10 @@ COPY schema/app/fmu-schemas.conf /etc/nginx/conf.d
 
 RUN rm /etc/nginx/conf.d/default.conf
 
-EXPOSE 8080
-USER 101
-CMD ["nginx", "-g", "daemon off;"]
+# See https://radix.equinor.com/docs/topic-docker/#running-as-non-root
+RUN addgroup -S -g 1001 radix-non-root-group
+RUN adduser -S -u 1001 -G radix-non-root-group radix-non-root-user
+USER 1001
 
-# CMD "/bin/sh"
+EXPOSE 8080
+CMD ["nginx", "-g", "daemon off;"]
