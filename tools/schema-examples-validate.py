@@ -1,4 +1,5 @@
 # type: ignore
+# Ex. usage: time (find schema -name "*.yml" | python3 tools/validate-schema-example.py)
 
 import sys
 
