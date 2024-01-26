@@ -64,6 +64,7 @@ dev = [
 ]
 docs = [
     "autoapi",
+    "autodoc-pydantic>=2.0.0",
     "myst-parser",
     "pydocstyle",
     "sphinx-autodoc-typehints<1.23",

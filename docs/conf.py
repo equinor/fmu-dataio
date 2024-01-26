@@ -25,11 +25,15 @@ extensions = [
     "sphinxcontrib.apidoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
     "sphinx.ext.mathjax",
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
+    "sphinxcontrib.autodoc_pydantic",
     "sphinx_togglebutton",
 ]
+
+autosummary_generate = True
 
 togglebutton_hint = "Expand"
 
