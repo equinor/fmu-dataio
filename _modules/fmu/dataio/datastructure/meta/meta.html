@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+gbdf5291 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/togglebutton.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/sphinx_highlight.js"></script>
+        <script>let toggleHintShow = 'Expand';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../../../../../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #C0C0C0" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            fmu.dataio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing.html">Contributing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../overview.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../preparations.html">Prepare FMU workflow to produce rich metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../apiref/modules.html">API reference for fmu.dataio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../datamodel.html">The FMU results data model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../datastructure.html">Meta export datastructure</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #C0C0C0" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">fmu.dataio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">fmu.dataio.datastructure.meta.meta</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for fmu.dataio.datastructure.meta.meta</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">ChainMap</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AwareDatetime</span><span class="p">,</span>
+    <span class="n">BaseModel</span><span class="p">,</span>
+    <span class="n">Field</span><span class="p">,</span>
+    <span class="n">GetJsonSchemaHandler</span><span class="p">,</span>
+    <span class="n">NaiveDatetime</span><span class="p">,</span>
+    <span class="n">RootModel</span><span class="p">,</span>
+    <span class="n">model_validator</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pydantic_core</span> <span class="kn">import</span> <span class="n">CoreSchema</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Annotated</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">content</span><span class="p">,</span> <span class="n">enums</span>
+
+
+<div class="viewcode-block" id="Asset"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Asset">[docs]</a><span class="k">class</span> <span class="nc">Asset</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Drogon&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Ssdl"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Ssdl">[docs]</a><span class="k">class</span> <span class="nc">Ssdl</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sub-Surface Data Lake</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">access_level</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span>
+    <span class="n">rep_include</span><span class="p">:</span> <span class="nb">bool</span></div>
+
+
+<div class="viewcode-block" id="Access"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Access">[docs]</a><span class="k">class</span> <span class="nc">Access</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">asset</span><span class="p">:</span> <span class="n">Asset</span>
+    <span class="n">classification</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SsdlAccess"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.SsdlAccess">[docs]</a><span class="k">class</span> <span class="nc">SsdlAccess</span><span class="p">(</span><span class="n">Access</span><span class="p">):</span>
+    <span class="n">ssdl</span><span class="p">:</span> <span class="n">Ssdl</span></div>
+
+
+<div class="viewcode-block" id="File"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.File">[docs]</a><span class="k">class</span> <span class="nc">File</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Block describing the file as the data appear in FMU context</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">absolute_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The absolute file path&quot;</span><span class="p">,</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;/abs/path/share/results/maps/volantis_gp_base--depth.gri&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">relative_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The file path relative to RUNPATH&quot;</span><span class="p">,</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;share/results/maps/volantis_gp_base--depth.gri&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">checksum_md5</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;md5 checksum of the file or bytestring&quot;</span><span class="p">,</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;kjhsdfvsdlfk23knerknvk23&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">size_bytes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Size of file object in bytes&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Parameters"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Parameters">[docs]</a><span class="k">class</span> <span class="nc">Parameters</span><span class="p">(</span><span class="n">RootModel</span><span class="p">):</span>
+    <span class="n">root</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">Parameters</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="Aggregation"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Aggregation">[docs]</a><span class="k">class</span> <span class="nc">Aggregation</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="n">UUID</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The ID of this aggregation&quot;</span><span class="p">,</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;15ce3b84-766f-4c93-9050-b154861f9100&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The aggregation performed&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">realization_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Array of realization ids included in this aggregation&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Parameters</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Parameters for this realization&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Workflow"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Workflow">[docs]</a><span class="k">class</span> <span class="nc">Workflow</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Reference to the part of the FMU workflow that produced this&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="User"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.User">[docs]</a><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;peesv&quot;</span><span class="p">,</span> <span class="s2">&quot;jlov&quot;</span><span class="p">],</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;User ID&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FMUCase"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.FMUCase">[docs]</a><span class="k">class</span> <span class="nc">FMUCase</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The case name&quot;</span><span class="p">,</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;MyCaseName&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The user name used in ERT&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">uuid</span><span class="p">:</span> <span class="n">UUID</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;15ce3b84-766f-4c93-9050-b154861f9100&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Iteration"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Iteration">[docs]</a><span class="k">class</span> <span class="nc">Iteration</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;The internal identification of this iteration, e.g. the iteration number&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The convential name of this iteration, e.g. iter-0 or pred&quot;</span><span class="p">,</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;iter-0&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">uuid</span><span class="p">:</span> <span class="n">UUID</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;15ce3b84-766f-4c93-9050-b154861f9100&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">restart_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">UUID</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;A uuid reference to another iteration that this &quot;</span>
+            <span class="s2">&quot;iteration was restarted from&quot;</span>
+        <span class="p">),</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;15ce3b84-766f-4c93-9050-b154861f9100&quot;</span><span class="p">],</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FMUModel"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.FMUModel">[docs]</a><span class="k">class</span> <span class="nc">FMUModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This is a free text description of the model setup&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Drogon&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">revision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;21.0.0.dev&quot;</span><span class="p">],</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RealizationJobListing"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.RealizationJobListing">[docs]</a><span class="k">class</span> <span class="nc">RealizationJobListing</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">arg_types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">argList</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+    <span class="n">error_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+    <span class="n">executable</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">license_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+    <span class="n">max_arg</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">max_running_minutes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">max_running</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">min_arg</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">start_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">stdin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">target_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="RealizationJobs"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.RealizationJobs">[docs]</a><span class="k">class</span> <span class="nc">RealizationJobs</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">data_root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;DATA_ROOT&quot;</span><span class="p">)</span>
+    <span class="n">ert_pid</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">global_environment</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="n">global_update_path</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">job_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RealizationJobListing</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;jobList&quot;</span><span class="p">)</span>
+    <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">umask</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="Realization"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Realization">[docs]</a><span class="k">class</span> <span class="nc">Realization</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The unique number of this realization as used in FMU&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The convential name of this iteration, e.g. iter-0 or pred&quot;</span><span class="p">,</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;iter-0&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Parameters</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Parameters for this realization&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">jobs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RealizationJobs</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Content directly taken from the ERT jobs.json file for this realization&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">uuid</span><span class="p">:</span> <span class="n">UUID</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;15ce3b84-766f-4c93-9050-b154861f9100&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="CountryItem"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.CountryItem">[docs]</a><span class="k">class</span> <span class="nc">CountryItem</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Norway&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">uuid</span><span class="p">:</span> <span class="n">UUID</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;15ce3b84-766f-4c93-9050-b154861f9100&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="DiscoveryItem"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.DiscoveryItem">[docs]</a><span class="k">class</span> <span class="nc">DiscoveryItem</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">short_identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;SomeDiscovery&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">uuid</span><span class="p">:</span> <span class="n">UUID</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;15ce3b84-766f-4c93-9050-b154861f9100&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="FieldItem"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.FieldItem">[docs]</a><span class="k">class</span> <span class="nc">FieldItem</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;OseFax&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">uuid</span><span class="p">:</span> <span class="n">UUID</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;15ce3b84-766f-4c93-9050-b154861f9100&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="CoordinateSystem"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.CoordinateSystem">[docs]</a><span class="k">class</span> <span class="nc">CoordinateSystem</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ST_WGS84_UTM37N_P32637&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">uuid</span><span class="p">:</span> <span class="n">UUID</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;15ce3b84-766f-4c93-9050-b154861f9100&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="StratigraphicColumn"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.StratigraphicColumn">[docs]</a><span class="k">class</span> <span class="nc">StratigraphicColumn</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;DROGON_2020&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">uuid</span><span class="p">:</span> <span class="n">UUID</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;15ce3b84-766f-4c93-9050-b154861f9100&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Smda"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Smda">[docs]</a><span class="k">class</span> <span class="nc">Smda</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">coordinate_system</span><span class="p">:</span> <span class="n">CoordinateSystem</span>
+    <span class="n">country</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">CountryItem</span><span class="p">]</span>
+    <span class="n">discovery</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DiscoveryItem</span><span class="p">]</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">FieldItem</span><span class="p">]</span>
+    <span class="n">stratigraphic_column</span><span class="p">:</span> <span class="n">StratigraphicColumn</span></div>
+
+
+<div class="viewcode-block" id="Masterdata"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Masterdata">[docs]</a><span class="k">class</span> <span class="nc">Masterdata</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">smda</span><span class="p">:</span> <span class="n">Smda</span></div>
+
+
+<div class="viewcode-block" id="TracklogEvent"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.TracklogEvent">[docs]</a><span class="k">class</span> <span class="nc">TracklogEvent</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="c1"># TODO: Update ex. to inc. timezone</span>
+    <span class="c1"># update NaiveDatetime -&gt;  AwareDatetime</span>
+    <span class="c1"># On upload, sumo adds timezone if its lacking.</span>
+    <span class="c1"># For roundtripping i need an Union here.</span>
+    <span class="n">datetime</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">NaiveDatetime</span><span class="p">,</span> <span class="n">AwareDatetime</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;2020-10-28T14:28:02&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">event</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;created&quot;</span><span class="p">,</span> <span class="s2">&quot;updated&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">User</span></div>
+
+
+<div class="viewcode-block" id="FMU"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.FMU">[docs]</a><span class="k">class</span> <span class="nc">FMU</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The FMU block records properties that are specific to FMU</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">case</span><span class="p">:</span> <span class="n">FMUCase</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">FMUModel</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iteration</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">workflow</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Workflow</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">aggregation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Aggregation</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">realization</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Realization</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_dependencies_aggregation_realization</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="n">aggregation</span><span class="p">,</span> <span class="n">realization</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;aggregation&quot;</span><span class="p">),</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;realization&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">aggregation</span> <span class="ow">and</span> <span class="n">realization</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Both &#39;aggregation&#39; and &#39;realization&#39; cannot be set &quot;</span>
+                <span class="s2">&quot;at the same time. Please set only one.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">values</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__get_pydantic_json_schema__</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">core_schema</span><span class="p">:</span> <span class="n">CoreSchema</span><span class="p">,</span>
+        <span class="n">handler</span><span class="p">:</span> <span class="n">GetJsonSchemaHandler</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+        <span class="n">json_schema</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__get_pydantic_json_schema__</span><span class="p">(</span><span class="n">core_schema</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+        <span class="n">json_schema</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">resolve_ref_schema</span><span class="p">(</span><span class="n">json_schema</span><span class="p">)</span>
+        <span class="n">json_schema</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;aggregation&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;not&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;realization&quot;</span><span class="p">]}},</span>
+                    <span class="s2">&quot;realization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;not&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation&quot;</span><span class="p">]}},</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">json_schema</span></div>
+
+
+<div class="viewcode-block" id="ClassMeta"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.ClassMeta">[docs]</a><span class="k">class</span> <span class="nc">ClassMeta</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">class_</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Metadata class&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">masterdata</span><span class="p">:</span> <span class="n">Masterdata</span>
+    <span class="n">tracklog</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TracklogEvent</span><span class="p">]</span>
+    <span class="n">source</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Data source (FMU)&quot;</span><span class="p">)</span>
+    <span class="n">version</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;0.8.0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;FMU results metadata version&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FMUCaseClassMeta"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.FMUCaseClassMeta">[docs]</a><span class="k">class</span> <span class="nc">FMUCaseClassMeta</span><span class="p">(</span><span class="n">ClassMeta</span><span class="p">):</span>
+    <span class="n">class_</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span><span class="o">.</span><span class="n">case</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Metadata class&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fmu</span><span class="p">:</span> <span class="n">FMU</span>
+    <span class="n">access</span><span class="p">:</span> <span class="n">Access</span></div>
+
+
+<div class="viewcode-block" id="FMUDataClassMeta"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta">[docs]</a><span class="k">class</span> <span class="nc">FMUDataClassMeta</span><span class="p">(</span><span class="n">ClassMeta</span><span class="p">):</span>
+    <span class="n">class_</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
+        <span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span><span class="o">.</span><span class="n">surface</span><span class="p">,</span>
+        <span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span><span class="o">.</span><span class="n">table</span><span class="p">,</span>
+        <span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span><span class="o">.</span><span class="n">cpgrid</span><span class="p">,</span>
+        <span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span><span class="o">.</span><span class="n">cpgrid_property</span><span class="p">,</span>
+        <span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span><span class="o">.</span><span class="n">polygons</span><span class="p">,</span>
+        <span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span><span class="o">.</span><span class="n">cube</span><span class="p">,</span>
+        <span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span><span class="o">.</span><span class="n">well</span><span class="p">,</span>
+        <span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span><span class="o">.</span><span class="n">points</span><span class="p">,</span>
+        <span class="n">enums</span><span class="o">.</span><span class="n">FMUClassEnum</span><span class="o">.</span><span class="n">dictionary</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Metadata class&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># The presence of the a feild controlls what kind of</span>
+    <span class="c1"># FMUObj it is. The fmu_discriminator will inspects</span>
+    <span class="c1"># the obj. and returns a tag that tells pydantic</span>
+    <span class="c1"># what model to use.</span>
+    <span class="n">fmu</span><span class="p">:</span> <span class="n">FMU</span>
+    <span class="n">access</span><span class="p">:</span> <span class="n">SsdlAccess</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">content</span><span class="o">.</span><span class="n">AnyContent</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">File</span></div>
+
+
+<div class="viewcode-block" id="Root"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Root">[docs]</a><span class="k">class</span> <span class="nc">Root</span><span class="p">(</span>
+    <span class="n">RootModel</span><span class="p">[</span>
+        <span class="n">Annotated</span><span class="p">[</span>
+            <span class="n">Union</span><span class="p">[</span>
+                <span class="n">FMUCaseClassMeta</span><span class="p">,</span>
+                <span class="n">FMUDataClassMeta</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">Field</span><span class="p">(</span><span class="n">discriminator</span><span class="o">=</span><span class="s2">&quot;class_&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">):</span>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_class_data_spec</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="n">class_</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;class_&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">class_</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s2">&quot;spec&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;When &#39;class&#39; is &#39;table&#39; or &#39;surface&#39;, &quot;</span>
+                <span class="s2">&quot;&#39;data&#39; must contain the &#39;spec&#39; field.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">values</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__get_pydantic_json_schema__</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">core_schema</span><span class="p">:</span> <span class="n">CoreSchema</span><span class="p">,</span>
+        <span class="n">handler</span><span class="p">:</span> <span class="n">GetJsonSchemaHandler</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+        <span class="n">json_schema</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__get_pydantic_json_schema__</span><span class="p">(</span><span class="n">core_schema</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+        <span class="n">json_schema</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">resolve_ref_schema</span><span class="p">(</span><span class="n">json_schema</span><span class="p">)</span>
+        <span class="n">json_schema</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;if&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">]}}},</span>
+                <span class="s2">&quot;then&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;spec&quot;</span><span class="p">]}}},</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">json_schema</span></div>
+
+
+<span class="k">def</span> <span class="nf">dump</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">ChainMap</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;$contractual&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;class&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;source&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;version&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tracklog&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.format&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.stratigraphic&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.alias&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.stratigraphic_alias&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.offset&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.content&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.tagname&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.vertical_domain&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.grid_model&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.bbox&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.time&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.is_prediction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.is_observation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.seismic.attribute&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data.spec.columns&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;access&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;masterdata&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.model&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.workflow&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.case&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.iteration.name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.iteration.uuid&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.realization.name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.realization.id&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.realization.uuid&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.aggregation.operation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.aggregation.realization_ids&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fmu.context.stage&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;file.relative_path&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;file.checksum_md5&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;file.size_bytes&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="c1"># schema must be present for &quot;dependencies&quot; key to work.</span>
+                <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;http://json-schema.org/draft-07/schema&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;$id&quot;</span><span class="p">:</span> <span class="s2">&quot;fmu_meta.json&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">Root</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">(),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gbdf5291).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

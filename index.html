@@ -4,9 +4,10 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to FMU-dataio’s documentation &mdash; fmu.dataio 0.1.dev1+gc788bdd documentation</title>
+  <title>Welcome to FMU-dataio’s documentation &mdash; fmu.dataio 0.1.dev1+gbdf5291 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
       <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
 
   
@@ -62,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apiref/modules.html">API reference for fmu.dataio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="datamodel.html">The FMU results data model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Meta export datastructure</a></li>
 </ul>
 
         </div>
@@ -144,6 +146,81 @@
 <li class="toctree-l2"><a class="reference internal" href="datamodel.html#faq">FAQ</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Meta export datastructure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Access"><code class="docutils literal notranslate"><span class="pre">Access</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Aggregation"><code class="docutils literal notranslate"><span class="pre">Aggregation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Asset"><code class="docutils literal notranslate"><span class="pre">Asset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.ClassMeta"><code class="docutils literal notranslate"><span class="pre">ClassMeta</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.CoordinateSystem"><code class="docutils literal notranslate"><span class="pre">CoordinateSystem</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.CountryItem"><code class="docutils literal notranslate"><span class="pre">CountryItem</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.DiscoveryItem"><code class="docutils literal notranslate"><span class="pre">DiscoveryItem</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.FMU"><code class="docutils literal notranslate"><span class="pre">FMU</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.FMUCase"><code class="docutils literal notranslate"><span class="pre">FMUCase</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.FMUCaseClassMeta"><code class="docutils literal notranslate"><span class="pre">FMUCaseClassMeta</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta"><code class="docutils literal notranslate"><span class="pre">FMUDataClassMeta</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.FMUModel"><code class="docutils literal notranslate"><span class="pre">FMUModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.FieldItem"><code class="docutils literal notranslate"><span class="pre">FieldItem</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.File"><code class="docutils literal notranslate"><span class="pre">File</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Iteration"><code class="docutils literal notranslate"><span class="pre">Iteration</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Masterdata"><code class="docutils literal notranslate"><span class="pre">Masterdata</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Parameters"><code class="docutils literal notranslate"><span class="pre">Parameters</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Realization"><code class="docutils literal notranslate"><span class="pre">Realization</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.RealizationJobListing"><code class="docutils literal notranslate"><span class="pre">RealizationJobListing</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.RealizationJobs"><code class="docutils literal notranslate"><span class="pre">RealizationJobs</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Root"><code class="docutils literal notranslate"><span class="pre">Root</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Smda"><code class="docutils literal notranslate"><span class="pre">Smda</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Ssdl"><code class="docutils literal notranslate"><span class="pre">Ssdl</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.SsdlAccess"><code class="docutils literal notranslate"><span class="pre">SsdlAccess</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.StratigraphicColumn"><code class="docutils literal notranslate"><span class="pre">StratigraphicColumn</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.TracklogEvent"><code class="docutils literal notranslate"><span class="pre">TracklogEvent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.User"><code class="docutils literal notranslate"><span class="pre">User</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.meta.Workflow"><code class="docutils literal notranslate"><span class="pre">Workflow</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.AnyContent"><code class="docutils literal notranslate"><span class="pre">AnyContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.BoundingBox"><code class="docutils literal notranslate"><span class="pre">BoundingBox</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.Content"><code class="docutils literal notranslate"><span class="pre">Content</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.DepthContent"><code class="docutils literal notranslate"><span class="pre">DepthContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.FMUTimeObject"><code class="docutils literal notranslate"><span class="pre">FMUTimeObject</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.FaultLinesContent"><code class="docutils literal notranslate"><span class="pre">FaultLinesContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.FieldOutline"><code class="docutils literal notranslate"><span class="pre">FieldOutline</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.FieldOutlineContent"><code class="docutils literal notranslate"><span class="pre">FieldOutlineContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.FieldRegion"><code class="docutils literal notranslate"><span class="pre">FieldRegion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.FieldRegionContent"><code class="docutils literal notranslate"><span class="pre">FieldRegionContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.FluidContact"><code class="docutils literal notranslate"><span class="pre">FluidContact</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.FluidContactContent"><code class="docutils literal notranslate"><span class="pre">FluidContactContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.GridModel"><code class="docutils literal notranslate"><span class="pre">GridModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.InplaceVolumesContent"><code class="docutils literal notranslate"><span class="pre">InplaceVolumesContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.KPProductContent"><code class="docutils literal notranslate"><span class="pre">KPProductContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.Layer"><code class="docutils literal notranslate"><span class="pre">Layer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.LiftCurvesContent"><code class="docutils literal notranslate"><span class="pre">LiftCurvesContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.PVTContent"><code class="docutils literal notranslate"><span class="pre">PVTContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.ParametersContent"><code class="docutils literal notranslate"><span class="pre">ParametersContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.PinchoutContent"><code class="docutils literal notranslate"><span class="pre">PinchoutContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.PropertyContent"><code class="docutils literal notranslate"><span class="pre">PropertyContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.RFTContent"><code class="docutils literal notranslate"><span class="pre">RFTContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.RegionsContent"><code class="docutils literal notranslate"><span class="pre">RegionsContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.RelpermContent"><code class="docutils literal notranslate"><span class="pre">RelpermContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.Seismic"><code class="docutils literal notranslate"><span class="pre">Seismic</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.SeismicContent"><code class="docutils literal notranslate"><span class="pre">SeismicContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.SubcropContent"><code class="docutils literal notranslate"><span class="pre">SubcropContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.ThicknessContent"><code class="docutils literal notranslate"><span class="pre">ThicknessContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.Time"><code class="docutils literal notranslate"><span class="pre">Time</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.TimeContent"><code class="docutils literal notranslate"><span class="pre">TimeContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.TimeSeriesContent"><code class="docutils literal notranslate"><span class="pre">TimeSeriesContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.TransmissibilitiesContent"><code class="docutils literal notranslate"><span class="pre">TransmissibilitiesContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.VelocityContent"><code class="docutils literal notranslate"><span class="pre">VelocityContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.VolumesContent"><code class="docutils literal notranslate"><span class="pre">VolumesContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.VolumetricsContent"><code class="docutils literal notranslate"><span class="pre">VolumetricsContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.content.WellPicksContent"><code class="docutils literal notranslate"><span class="pre">WellPicksContent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification"><code class="docutils literal notranslate"><span class="pre">CPGridPropertySpecification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.specification.CPGridSpecification"><code class="docutils literal notranslate"><span class="pre">CPGridSpecification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.specification.CubeSpecification"><code class="docutils literal notranslate"><span class="pre">CubeSpecification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.specification.PolygonsSpecification"><code class="docutils literal notranslate"><span class="pre">PolygonsSpecification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.specification.Shape"><code class="docutils literal notranslate"><span class="pre">Shape</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.specification.SurfaceSpecification"><code class="docutils literal notranslate"><span class="pre">SurfaceSpecification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.specification.TableSpecification"><code class="docutils literal notranslate"><span class="pre">TableSpecification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#fmu.dataio.datastructure.meta.specification.WellPointsDictionaryCaseSpecification"><code class="docutils literal notranslate"><span class="pre">WellPointsDictionaryCaseSpecification</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
@@ -166,7 +243,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gc788bdd).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gbdf5291).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

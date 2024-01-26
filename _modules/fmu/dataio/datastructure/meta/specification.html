@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fmu.dataio.datastructure.meta.specification &mdash; fmu.dataio 0.1.dev1+gbdf5291 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/togglebutton.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/sphinx_highlight.js"></script>
+        <script>let toggleHintShow = 'Expand';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../../../../../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #C0C0C0" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            fmu.dataio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing.html">Contributing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../overview.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../preparations.html">Prepare FMU workflow to produce rich metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../apiref/modules.html">API reference for fmu.dataio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../datamodel.html">The FMU results data model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../datastructure.html">Meta export datastructure</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #C0C0C0" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">fmu.dataio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">fmu.dataio.datastructure.meta.specification</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for fmu.dataio.datastructure.meta.specification</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">enums</span>
+
+
+<div class="viewcode-block" id="Shape"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.Shape">[docs]</a><span class="k">class</span> <span class="nc">Shape</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">nrow</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of rows&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ncol</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of columns&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">nlay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of layers&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SurfaceSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.SurfaceSpecification">[docs]</a><span class="k">class</span> <span class="nc">SurfaceSpecification</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
+    <span class="n">rotation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Rotation angle&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">undef</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Value representing undefined data&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">xinc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Increment along the x-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">xori</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Origin along the x-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">yflip</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">AxisOrientation</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Flip along the y-axis, -1 or 1&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">yori</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Origin along the y-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TableSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.TableSpecification">[docs]</a><span class="k">class</span> <span class="nc">TableSpecification</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of columns present in a table.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Size of data object.&quot;</span><span class="p">,</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9999</span><span class="p">],</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CPGridSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.CPGridSpecification">[docs]</a><span class="k">class</span> <span class="nc">CPGridSpecification</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Corner point grid&quot;&quot;&quot;</span>
+
+    <span class="n">xshift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Shift along the x-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">yshift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Shift along the y-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">zshift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Shift along the z-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">xscale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Scaling factor for the x-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">yscale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Scaling factor for the y-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">zscale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Scaling factor for the z-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CPGridPropertySpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification">[docs]</a><span class="k">class</span> <span class="nc">CPGridPropertySpecification</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
+    <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="PolygonsSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.PolygonsSpecification">[docs]</a><span class="k">class</span> <span class="nc">PolygonsSpecification</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">npolys</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of individual polygons in the data object&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CubeSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.CubeSpecification">[docs]</a><span class="k">class</span> <span class="nc">CubeSpecification</span><span class="p">(</span><span class="n">SurfaceSpecification</span><span class="p">):</span>
+    <span class="c1"># Increment</span>
+    <span class="n">xinc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Increment along the x-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">yinc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Increment along the y-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">zinc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Increment along the z-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Origin</span>
+    <span class="n">xori</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Origin along the x-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">yori</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Origin along the y-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">zori</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Origin along the z-axis&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Miscellaneous</span>
+    <span class="n">yflip</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">AxisOrientation</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Flip along the y-axis, -1 or 1&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">zflip</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">AxisOrientation</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Flip along the z-axis, -1 or 1&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">rotation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Rotation angle&quot;</span><span class="p">,</span>
+        <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">undef</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Value representing undefined data&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WellPointsDictionaryCaseSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.WellPointsDictionaryCaseSpecification">[docs]</a><span class="k">class</span> <span class="nc">WellPointsDictionaryCaseSpecification</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="o">...</span></div>
+
+
+<span class="n">AnySpecification</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span>
+    <span class="n">CPGridPropertySpecification</span><span class="p">,</span>
+    <span class="n">CPGridSpecification</span><span class="p">,</span>
+    <span class="n">CubeSpecification</span><span class="p">,</span>
+    <span class="n">PolygonsSpecification</span><span class="p">,</span>
+    <span class="n">SurfaceSpecification</span><span class="p">,</span>
+    <span class="n">TableSpecification</span><span class="p">,</span>
+    <span class="n">WellPointsDictionaryCaseSpecification</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gbdf5291).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
