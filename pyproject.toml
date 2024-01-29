@@ -35,7 +35,7 @@ dependencies = [
     "numpy",
     "pandas",
     "pyarrow",
-    "pydantic>=2.5.0",
+    "pydantic>=2.5.0,<=2.6.0",
     "PyYAML",
     "xtgeo>=2.16",
 ]
@@ -114,3 +114,14 @@ select = [
 line-length = 88
 [tool.ruff.lint.isort]
 combine-as-imports = true
+
+[tool.mypy]
+disallow_untyped_defs = true
+exclude = "^((tests|docs|examples|build|tools)/|conftest.py?)"
+extra_checks = true
+ignore_missing_imports = true
+python_version = 3.8
+strict_equality = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unused_ignores = true
