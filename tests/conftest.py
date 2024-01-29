@@ -1,9 +1,7 @@
 """The conftest.py, providing magical fixtures to tests."""
 import contextlib
 import datetime
-import inspect
 import json
-import logging
 import os
 import shutil
 from functools import wraps
@@ -17,8 +15,6 @@ import yaml
 from fmu.config import utilities as ut
 from fmu.dataio.dataio import ExportData, read_metadata
 from termcolor import cprint
-
-logger = logging.getLogger(__name__)
 
 ROOTPWD = Path(".").absolute()
 RUN1 = "tests/data/drogon/ertrun1/realization-0/iter-0"
@@ -86,7 +82,7 @@ def fixture_fmurun(tmp_path_factory):
     tmppath = tmp_path_factory.mktemp("data")
     newpath = tmppath / RUN1
     shutil.copytree(ROOTPWD / RUN1, newpath)
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return newpath
 
 
@@ -96,9 +92,7 @@ def fixture_fmurun_w_casemetadata(tmp_path_factory):
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / RUN2
     shutil.copytree(ROOTPWD / RUN2, newpath)
-    rootpath = newpath / "realization-0/iter-0"
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return rootpath
+    return newpath / "realization-0/iter-0"
 
 
 @pytest.fixture(name="fmurun_w_casemetadata_pred", scope="session")
@@ -107,9 +101,7 @@ def fixture_fmurun_w_casemetadata_pred(tmp_path_factory):
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / RUN2
     shutil.copytree(ROOTPWD / RUN2, newpath)
-    rootpath = newpath / "realization-0/pred"
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return rootpath
+    return newpath / "realization-0/pred"
 
 
 @pytest.fixture(name="fmurun_pred", scope="session")
@@ -118,7 +110,7 @@ def fixture_fmurun_pred(tmp_path_factory):
     tmppath = tmp_path_factory.mktemp("data_pred")
     newpath = tmppath / RUN_PRED
     shutil.copytree(ROOTPWD / RUN_PRED, newpath)
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return newpath
 
 
@@ -134,8 +126,7 @@ def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory):
     shutil.copytree(ROOTPWD / RUN2, newpath)
     rmspath = newpath / "realization-0/iter-0/rms/model"
     rmspath.mkdir(parents=True, exist_ok=True)
-    logger.info("Active folder is %s", rmspath)
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return rmspath
 
 
@@ -152,8 +143,6 @@ def fixture_rmssetup(tmp_path_factory):
         ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml", rmspath
     )
 
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-
     return rmspath
 
 
@@ -162,13 +151,9 @@ def fixture_rmsglobalconfig(rmssetup):
     """Read global config."""
     # read the global config
     os.chdir(rmssetup)
-    logger.info("Global config is %s", str(rmssetup / "global_variables.yml"))
-    with open("global_variables.yml", encoding="utf8") as stream:
-        global_cfg = yaml.safe_load(stream)
 
-    logger.info("Ran setup for %s", "rmsglobalconfig")
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return global_cfg
+    with open("global_variables.yml", encoding="utf8") as stream:
+        return yaml.safe_load(stream)
 
 
 @pytest.fixture(name="globalvars_norw_letters", scope="module")
@@ -201,8 +186,6 @@ def fixture_casesetup(tmp_path_factory):
     tmppath = tmppath / "realization-0/iter-0"
     tmppath.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-
     return tmppath
 
 
@@ -216,13 +199,18 @@ def fixture_caseglobalconfig():
             "country": [
                 {"identifier": "Norway", "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"}
             ],
-            "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
+            "discovery": [
+                {
+                    "short_identifier": "abdcef",
+                    "uuid": "ad214d85-8a1d-19da-e053-c918a4889311",
+                }
+            ],
         }
     }
     gconfig["stratigraphy"] = {"TopVolantis": {}}
     gconfig["model"] = {"revision": "0.99.0"}
     gconfig["access"] = {"asset": "Drogon", "ssdl": "internal"}
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return gconfig
 
 
@@ -246,7 +234,12 @@ def fixture_globalconfig1():
             "country": [
                 {"identifier": "Norway", "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"}
             ],
-            "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
+            "discovery": [
+                {
+                    "short_identifier": "abdcef",
+                    "uuid": "ad214d85-8a1d-19da-e053-c918a4889311",
+                }
+            ],
         }
     }
     cfg["access"] = {
@@ -258,24 +251,19 @@ def fixture_globalconfig1():
             "rep_include": False,
         },
     }
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return cfg
 
 
 @pytest.fixture(name="globalconfig_asfile", scope="module")
 def fixture_globalconfig_asfile() -> str:
     """Global config as file for use with environment variable"""
-
-    globalconfigfile = ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml"
-
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return str(globalconfigfile)
+    return str(ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml")
 
 
 @pytest.fixture(name="edataobj1", scope="module")
 def fixture_edataobj1(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
-    logger.info("Establish edataobj1")
 
     eobj = dio.ExportData(
         config=globalconfig1,
@@ -288,24 +276,17 @@ def fixture_edataobj1(globalconfig1):
     eobj.createfolder = False
     eobj.verifyfolder = False
 
-    logger.info(
-        "Ran %s returning %s", inspect.currentframe().f_code.co_name, type(eobj)
-    )
     return eobj
 
 
 @pytest.fixture(name="globalconfig2", scope="module")
 def fixture_globalconfig2() -> dict:
     """More advanced global config from file state variable in ExportData class."""
-    globvar = {}
     with open(
         ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml",
         encoding="utf-8",
     ) as stream:
-        globvar = yaml.safe_load(stream)
-
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return globvar
+        return yaml.safe_load(stream)
 
 
 @pytest.fixture(name="edataobj2", scope="function")
@@ -334,7 +315,6 @@ def fixture_edataobj2(globalconfig2):
     eobj._rootpath = Path(".")
     eobj._pwd = Path(".")
 
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
     return eobj
 
 
@@ -384,14 +364,14 @@ def fixture_metadata_examples():
 @pytest.fixture(name="regsurf", scope="module")
 def fixture_regsurf():
     """Create an xtgeo surface."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
 
 
 @pytest.fixture(name="polygons", scope="module")
 def fixture_polygons():
     """Create an xtgeo polygons."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return xtgeo.Polygons(
         [
             [1, 22, 3, 0],
@@ -405,7 +385,7 @@ def fixture_polygons():
 @pytest.fixture(name="points", scope="module")
 def fixture_points():
     """Create an xtgeo points instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return xtgeo.Points(
         [
             [1, 22, 3, "WELLA"],
@@ -420,35 +400,35 @@ def fixture_points():
 @pytest.fixture(name="cube", scope="module")
 def fixture_cube():
     """Create an xtgeo cube instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return xtgeo.Cube(ncol=3, nrow=4, nlay=5, xinc=12, yinc=12, zinc=4, rotation=30)
 
 
 @pytest.fixture(name="grid", scope="module")
 def fixture_grid():
     """Create an xtgeo grid instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return xtgeo.create_box_grid((3, 4, 5))
 
 
 @pytest.fixture(name="gridproperty", scope="module")
 def fixture_gridproperty():
     """Create an xtgeo gridproperty instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return xtgeo.GridProperty(ncol=3, nrow=7, nlay=3, values=123.0)
 
 
 @pytest.fixture(name="dataframe", scope="module")
 def fixture_dataframe():
     """Create an pandas dataframe instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
 
 
 @pytest.fixture(name="wellpicks", scope="module")
 def fixture_wellpicks():
     """Create a pandas dataframe containing wellpicks"""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
     return pd.DataFrame(
         {
             "X_UTME": [
@@ -498,7 +478,6 @@ def fixture_arrowtable():
 @pytest.fixture(name="aggr_surfs_mean", scope="module")
 def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
 
     origfolder = os.getcwd()
     os.chdir(fmurun_w_casemetadata)
@@ -528,7 +507,6 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
         surfs.append([surf])
 
     aggregated = surfs.statistics()
-    logger.info("Aggr. mean is %s", aggregated["mean"].values.mean())  # shall be 1238.5
 
     os.chdir(origfolder)
 
@@ -538,7 +516,7 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
 @pytest.fixture(name="edataobj3")
 def fixture_edataobj3(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
-    # logger.info("Establish edataobj1")
+    #
 
     return ExportData(
         config=globalconfig1, name="summary", content="timeseries", tagname=""
