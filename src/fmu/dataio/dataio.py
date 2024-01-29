@@ -14,6 +14,7 @@ from typing import Any, ClassVar, Final, List, Literal, Optional, Union
 from warnings import warn
 
 import pandas as pd
+from pydantic import ValidationError as PydanticValidationError
 
 from . import _metadata
 from ._definitions import (
@@ -37,6 +38,7 @@ from ._utils import (
     some_config_from_env,
     uuid_from_string,
 )
+from .datastructure.configuration import global_configuration
 
 DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
@@ -83,104 +85,6 @@ def _validate_variable(key: str, value: type, legals: dict[str, str | type]) -> 
             )
     else:
         logger.info("Skip type checking of complex types; '%s: %s'", key, validcheck)
-
-    return True
-
-
-def _check_global_config(
-    globalconfig: dict, strict: bool = True, action: str = "error"
-) -> bool:
-    """A minimum check/validation of the static global_config.
-
-    Currently far from a full validation. For now, just check that some required
-    keys are present in the config and warn/raise if not.
-
-    PS! Seems like a good job for pydantic, but the produced error message are not
-    informative enough to provide meaningful information to user when something is
-    wrong.
-    """
-
-    if not globalconfig and not strict:
-        logger.info(
-            "Empty global config, expect input from environment_variable instead"
-        )
-        return False
-
-    msg = ""
-    missing_keys = []
-
-    # check required key presence
-    config_required_keys = ["access", "masterdata", "model"]
-    for required_key in config_required_keys:
-        if required_key not in globalconfig:
-            missing_keys.append(required_key)
-
-    if missing_keys:
-        msg += (
-            "One or more keys required for valid metadata are not found: "
-            f"{missing_keys} (perhaps the config is empty?) "
-        )
-
-    # check "stratigraphy"
-    if "stratigraphy" in globalconfig:
-        # we currently allow (why?) stratigraphy key missing from config.
-        strat = globalconfig["stratigraphy"]
-        if not isinstance(strat, dict):
-            msg += "The 'stratigraphy' must be a dictionary.\n"
-
-        # Loop the entries in 'stratigraphy'
-        # These keys are custom, but we want error messages to point to the key when
-        # issues are discovered. This makes it tricky to use jsonschema. Pydantic might
-        # be an option. But for now, just go through all items and do defined checks.
-
-        for key, item in strat.items():
-            if "name" not in item:
-                msg += f"stratigraphy.{key}: 'name' is missing. \n"
-            elif not isinstance(item["name"], str):
-                msg += f"stratigraphy.{key}: 'name' must be a string.\n"
-
-            if "stratigraphic" not in item:
-                msg += f"stratigraphy.{key}: 'stratigraphic' is missing.\n"
-            elif not isinstance(item["stratigraphic"], bool):
-                msg += f"stratigraphy.{key}: 'stratigraphic' must be a boolean.\n"
-
-            if "alias" in item:
-                if not isinstance(item["alias"], list):
-                    msg += f"stratigraphy.{key}: 'alias' must be a list.\n"
-                else:
-                    for alias in item["alias"]:
-                        if not isinstance(alias, str):
-                            msg += (
-                                f"stratigraphy.{key}: 'alias' items must be strings\n"
-                            )
-
-                    # After checking and warning, remove empty entries
-                    item["alias"] = list(filter(lambda i: i is not None, item["alias"]))
-
-            if "stratigraphic_alias" in item:
-                if not isinstance(item["stratigraphic_alias"], list):
-                    msg += f"stratigraphy.{key}: 'stratigraphic_alias' must be list.\n"
-                else:
-                    for alias in item["stratigraphic_alias"]:
-                        if not isinstance(alias, str):
-                            msg += f"stratigraphy.{key}: 'stratigraphic_alias' items "
-                            msg += "must be strings.\n"
-
-                    # After checking and warning, remove empty entries
-                    item["stratigraphic_alias"] = list(
-                        filter(lambda i: i is not None, item["stratigraphic_alias"])
-                    )
-
-    if msg:
-        if "err" in action:
-            raise ValueError(msg)
-        msg += (
-            "The metadata may become invalid; hence no metadata file will be made, "
-            "but the data item may still be exported. Note: allowing these keys to "
-            "be missing is a temporary solution that may change in future versions!"
-        )
-        warnings.warn(msg, PendingDeprecationWarning)
-        return False
 
     return True
 
@@ -628,19 +532,19 @@ class ExportData:
                     if _validate_variable(key, value, legals):
                         setattr(self, key, value)
 
-        self._config_is_valid = _check_global_config(
-            self.config, strict=False, action="warn"
-        )
+        self._config_is_valid = global_configuration.is_valid(self.config)
+        if self._config_is_valid:
+            # TODO: This needs refinement: _config_is_valid should be removed
+            self.config = global_configuration.roundtrip(self.config)
 
         # global config which may be given as env variable -> a file; will override
         if GLOBAL_ENVNAME in os.environ:
             theconfig = some_config_from_env(GLOBAL_ENVNAME)
             assert theconfig is not None
-            self._config_is_valid = _check_global_config(
-                theconfig, strict=True, action="warn"
-            )
+            self._config_is_valid = global_configuration.is_valid(theconfig)
             if theconfig is not None:
-                self.config = theconfig
+                # TODO: This needs refinement: _config_is_valid should be removed
+                self.config = global_configuration.roundtrip(theconfig)
 
         self._validate_content_key()
         logger.info("Validate FMU context which is %s", self.fmu_context)
@@ -648,9 +552,10 @@ class ExportData:
         self._update_globalconfig_from_settings()
 
         # check state of global config
-        self._config_is_valid = _check_global_config(
-            self.config, strict=True, action="warn"
-        )
+        self._config_is_valid = global_configuration.is_valid(self.config)
+        if self._config_is_valid:
+            # TODO: This needs refinement: _config_is_valid should be removed
+            self.config = global_configuration.roundtrip(self.config)
 
         self._establish_pwd_rootpath()
         self._show_deprecations_or_notimplemented()
@@ -850,9 +755,10 @@ class ExportData:
         self._update_check_settings(kwargs)
         self._update_globalconfig_from_settings()
 
-        self._config_is_valid = _check_global_config(
-            self.config, strict=True, action="warn"
-        )
+        self._config_is_valid = global_configuration.is_valid(self.config)
+        if self._config_is_valid:
+            # TODO: This needs refinement: _config_is_valid should be removed
+            self.config = global_configuration.roundtrip(self.config)
 
         obj = self._check_obj_if_file(obj)
         self._establish_pwd_rootpath()
@@ -1004,7 +910,11 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             self.config = cnf
 
         # For this class, the global config must be valid; hence error if not
-        _check_global_config(self.config, strict=True, action="error")
+        try:
+            global_configuration.GlobalConfiguration.model_validate(self.config)
+        except PydanticValidationError as e:
+            global_configuration.validation_error_warning(e)
+            raise
         logger.info("Ran __post_init__ for InitializeCase")
 
     def _update_settings(self, newsettings: dict) -> None:
