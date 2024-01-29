@@ -96,12 +96,8 @@ class StratigraphyElement(BaseModel):
 
     name: str
     stratigraphic: bool
-    alias: Optional[List[str]] = Field(
-        default=None,
-    )
-    stratigraphic_alias: Optional[List[str]] = Field(
-        default=None,
-    )
+    alias: List[str] = Field(default_factory=list)
+    stratigraphic_alias: List[str] = Field(default_factory=list)
 
     @field_validator("alias", "stratigraphic_alias", mode="before")
     @classmethod

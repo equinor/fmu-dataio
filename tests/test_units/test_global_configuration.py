@@ -1,17 +1,26 @@
+from io import StringIO
+
+import pytest
+import yaml
 from fmu.dataio.datastructure.configuration import global_configuration
 from hypothesis import given, strategies
+from pydantic import ValidationError
 
 
 @given(
     name=strategies.text(min_size=1),
     stratigraphic=strategies.booleans(),
-    alias=strategies.one_of(
-        strategies.none(),
-        strategies.lists(strategies.one_of(strategies.text(), strategies.none())),
+    alias=strategies.lists(
+        strategies.one_of(
+            strategies.text(),
+            strategies.none(),
+        )
     ),
-    stratigraphic_alias=strategies.one_of(
-        strategies.none(),
-        strategies.lists(strategies.one_of(strategies.text(), strategies.none())),
+    stratigraphic_alias=strategies.lists(
+        strategies.one_of(
+            strategies.text(),
+            strategies.none(),
+        )
     ),
 )
 def test_drop_none(name, stratigraphic, alias, stratigraphic_alias):
@@ -53,3 +62,43 @@ def test_access_classification_mirrors():
             "ssdl": {"access_level": "asset"},
         }
     ).classification == "restricted"
+
+
+@pytest.mark.parametrize(
+    "obj",
+    (
+        StringIO(
+            """MSL:
+  stratigraphic: false
+  name: MSL
+Seabase:
+  stratigraphic: false
+  name: Seabase
+TopVolantis:
+  stratigraphic: true
+  name: VOLANTIS GP. Top
+  alias:
+  stratigraphic_alias:
+    - TopValysar
+    - Valysar Fm. Top
+"""
+        ),
+        StringIO(
+            """HorName:
+  name: Proper Name
+  alias:
+  stratigraphic: true
+"""
+        ),
+        StringIO(
+            """HorName:
+  name: Proper Name
+  stratigraphic_alias:
+  stratigraphic: true
+"""
+        ),
+    ),
+)
+def test_illformed_stratigraphic(obj: StringIO):
+    with pytest.raises(ValidationError):
+        print(global_configuration.Stratigraphy.model_validate(yaml.safe_load(obj)))
