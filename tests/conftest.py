@@ -540,6 +540,7 @@ def fixture_edataobj3(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
     # logger.info("Establish edataobj1")
 
+
     return ExportData(
         config=globalconfig1, name="summary", content="timeseries", tagname=""
     )

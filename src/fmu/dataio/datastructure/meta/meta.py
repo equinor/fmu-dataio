@@ -176,7 +176,7 @@ class RealizationJobs(BaseModel):
     data_root: Path = Field(alias="DATA_ROOT")
     ert_pid: str
     global_environment: Dict[str, str]
-    global_update_path: dict
+    global_update_path: Dict
     job_list: List[RealizationJobListing] = Field(alias="jobList")
     run_id: str
     umask: str
@@ -393,8 +393,8 @@ class Root(
         return json_schema
 
 
-def dump() -> dict:
-    return dict(
+def dump() -> Dict:
+    return Dict(
         ChainMap(
             {
                 "$contractual": [
