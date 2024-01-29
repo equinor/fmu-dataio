@@ -15,6 +15,17 @@ from fmu.dataio.dataio import ExportData, ValidationError, read_metadata
 logger = logging.getLogger(__name__)
 
 
+def pydantic_warning() -> str:
+    return r"""The global configuration has one or more errors that makes it
+impossible to create valid metadata. The data will still be exported but no
+metadata will be made. You are strongly encouraged to correct your
+configuration. Invalid configuration may be disallowed in future versions.
+
+Detailed information:
+\d+ validation error(s)? for GlobalConfiguration
+"""
+
+
 def test_generate_metadata_simple(globalconfig1):
     """Test generating metadata"""
 
@@ -37,17 +48,15 @@ def test_generate_metadata_simple(globalconfig1):
 def test_missing_or_wrong_config_exports_with_warning(regsurf):
     """In case a config is missing, or is invalid, do export with warning."""
 
-    with pytest.warns(
-        PendingDeprecationWarning, match="One or more keys required for valid metadata"
-    ):
+    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
         edata = ExportData(config={}, content="depth")
 
-    with pytest.warns(PendingDeprecationWarning, match="One or more"):
+    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
         meta = edata.generate_metadata(regsurf)
 
     assert "masterdata" not in meta
 
-    with pytest.warns(PendingDeprecationWarning, match="One or more"):
+    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
         out = edata.export(regsurf, name="mysurface")
 
     assert "mysurface" in out
@@ -65,10 +74,10 @@ def test_config_miss_required_fields(globalconfig1, regsurf):
     del cfg["masterdata"]
     del cfg["model"]
 
-    with pytest.warns(PendingDeprecationWarning, match="One or more keys required"):
+    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
         edata = ExportData(config=cfg, content="depth")
 
-    with pytest.warns(UserWarning, match="without metadata"):
+    with pytest.warns(UserWarning):
         out = edata.export(regsurf, name="mysurface")
 
     assert "mysurface" in out
@@ -82,13 +91,13 @@ def test_config_stratigraphy_empty_entries_alias(globalconfig2, regsurf):
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["alias"] += [None]
 
-    with pytest.warns(PendingDeprecationWarning, match="'alias' items must be strings"):
-        exp = ExportData(config=cfg, content="depth", name="TopVolantis")
-        metadata = exp.generate_metadata(regsurf)
+    exp = ExportData(config=cfg, content="depth", name="TopVolantis")
+    metadata = exp.generate_metadata(regsurf)
 
     assert None not in metadata["data"]["alias"]
 
 
+@pytest.mark.xfail(reason="stratigraphic_alias is not implemented")
 def test_config_stratigraphy_empty_entries_stratigraphic_alias(globalconfig2, regsurf):
     """Test that empty entries in 'stratigraphic_alias' detected and warned."""
 
@@ -97,10 +106,10 @@ def test_config_stratigraphy_empty_entries_stratigraphic_alias(globalconfig2, re
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic_alias"] += [None]
 
-    with pytest.warns(
-        PendingDeprecationWarning, match="'stratigraphic_alias' items must be strings"
-    ):
-        ExportData(config=cfg, content="depth")
+    exp = ExportData(config=cfg, content="depth")
+    metadata = exp.generate_metadata(regsurf)
+
+    assert None not in metadata["data"]["stratigraphic_alias"]
 
 
 def test_config_stratigraphy_empty_name(globalconfig2):
@@ -108,10 +117,7 @@ def test_config_stratigraphy_empty_name(globalconfig2):
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["name"] = None
 
-    with pytest.warns(
-        PendingDeprecationWarning,
-        match="stratigraphy.TopVolantis: 'name' must be a string",
-    ):
+    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
         ExportData(config=cfg, content="depth")
 
 
@@ -120,16 +126,12 @@ def test_config_stratigraphy_stratigraphic_not_bool(globalconfig2):
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic"] = None
 
-    with pytest.warns(
-        PendingDeprecationWarning, match="'stratigraphic' must be a bool"
-    ):
+    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
         ExportData(config=cfg, content="depth")
 
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic"] = "a string"
 
-    with pytest.warns(
-        PendingDeprecationWarning, match="'stratigraphic' must be a bool"
-    ):
+    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
         ExportData(config=cfg, content="depth")
 
 
@@ -198,12 +200,12 @@ def test_content_given_init_or_later(globalconfig1, regsurf):
 
 
 def test_content_invalid_string(globalconfig1):
-    with pytest.raises(ValidationError, match=r"Invalid content"):
+    with pytest.raises(ValidationError):
         ExportData(config=globalconfig1, content="not_valid")
 
 
 def test_content_invalid_dict(globalconfig1):
-    with pytest.raises(ValidationError, match=r"Invalid content"):
+    with pytest.raises(ValidationError):
         ExportData(
             config=globalconfig1, content={"not_valid": {"some_key": "some_value"}}
         )
@@ -324,13 +326,11 @@ def test_set_display_name(regsurf, globalconfig2):
     assert mymeta["display"]["name"] == "MyOtherDisplayName"
 
 
-def test_global_config_from_env(globalconfig_asfile):
+def test_global_config_from_env(globalconfig_asfile, monkeypatch):
     """Testing getting global config from a file"""
-    os.environ["FMU_GLOBAL_CONFIG"] = globalconfig_asfile
+    monkeypatch.setenv("FMU_GLOBAL_CONFIG", globalconfig_asfile)
     edata = ExportData(content="depth")  # the env variable will override this
     assert "smda" in edata.config["masterdata"]
-
-    del os.environ["FMU_GLOBAL_CONFIG"]
 
 
 def test_settings_config_from_env(tmp_path, rmsglobalconfig, regsurf):

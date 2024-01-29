@@ -163,6 +163,7 @@ def export_file(
 
 
 def md5sum(fname: Path) -> str:
+    """Calculate the MD5 checksum of a file."""
     hash_md5 = hashlib.md5()
     with open(fname, "rb") as fil:
         for chunk in iter(lambda: fil.read(4096), b""):
@@ -199,6 +200,7 @@ def create_symlink(source: str, target: str) -> None:
 
 
 def size(fname: str) -> int:
+    """Size of file, in bytes"""
     return Path(fname).stat().st_size
 
 
