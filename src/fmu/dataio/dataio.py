@@ -95,7 +95,7 @@ def _check_global_config(
     Currently far from a full validation. For now, just check that some required
     keys are present in the config and warn/raise if not.
 
-    PS! Seems like a good job for jsonschema, but the produced error message are not
+    PS! Seems like a good job for pydantic, but the produced error message are not
     informative enough to provide meaningful information to user when something is
     wrong.
     """

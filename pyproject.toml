@@ -50,7 +50,6 @@ Documentation = "https://fmu-dataio.readthedocs.io"
 dev = [
     "coverage>=4.1",
     "hypothesis",
-    "jsonschema",
     "mypy",
     "pydocstyle",
     "pytest-cov",
