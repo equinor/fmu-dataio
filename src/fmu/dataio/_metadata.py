@@ -54,7 +54,9 @@ def generate_meta_tracklog() -> list[dict]:
     dtime = datetime.datetime.now(timezone.utc).isoformat()
     user = getpass.getuser()
     sysinfo = {
-        "fmu-dataio": {"version": dataio.__version__},
+        "fmu-dataio": {
+            "version": dataio.__version__,
+        },
     }
     _kmd = read_named_envvar("KOMODO_RELEASE")
     if _kmd is not None:
