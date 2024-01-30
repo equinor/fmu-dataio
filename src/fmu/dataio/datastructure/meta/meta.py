@@ -176,7 +176,7 @@ class RealizationJobs(BaseModel):
     data_root: Path = Field(alias="DATA_ROOT")
     ert_pid: str
     global_environment: Dict[str, str]
-    global_update_path: dict
+    global_update_path: Dict
     job_list: List[RealizationJobListing] = Field(alias="jobList")
     run_id: str
     umask: str
@@ -363,18 +363,18 @@ class Root(
         ]
     ]
 ):
-    @model_validator(mode="before")
-    @classmethod
-    def _check_class_data_spec(cls, values: Dict) -> Dict:
-        class_ = values.get("class_")
-        data = values.get("data")
-
-        if class_ in ["table", "surface"] and (data is None or "spec" not in data):
+    @model_validator(mode="after")
+    def _check_class_data_spec(self) -> Root:
+        if (
+            self.root.class_ in (enums.FMUClassEnum.table, enums.FMUClassEnum.surface)
+            and hasattr(self.root, "data")
+            and self.root.data.root.spec is None
+        ):
             raise ValueError(
                 "When 'class' is 'table' or 'surface', "
                 "'data' must contain the 'spec' field."
             )
-        return values
+        return self
 
     @classmethod
     def __get_pydantic_json_schema__(
@@ -393,8 +393,8 @@ class Root(
         return json_schema
 
 
-def dump() -> dict:
-    return dict(
+def dump() -> Dict:
+    return Dict(
         ChainMap(
             {
                 "$contractual": [
