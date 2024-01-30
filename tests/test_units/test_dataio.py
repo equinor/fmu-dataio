@@ -48,15 +48,15 @@ def test_generate_metadata_simple(globalconfig1):
 def test_missing_or_wrong_config_exports_with_warning(regsurf):
     """In case a config is missing, or is invalid, do export with warning."""
 
-    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match=pydantic_warning()):
         edata = ExportData(config={}, content="depth")
 
-    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match=pydantic_warning()):
         meta = edata.generate_metadata(regsurf)
 
     assert "masterdata" not in meta
 
-    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match=pydantic_warning()):
         out = edata.export(regsurf, name="mysurface")
 
     assert "mysurface" in out
@@ -74,7 +74,7 @@ def test_config_miss_required_fields(globalconfig1, regsurf):
     del cfg["masterdata"]
     del cfg["model"]
 
-    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match=pydantic_warning()):
         edata = ExportData(config=cfg, content="depth")
 
     with pytest.warns(UserWarning):
@@ -117,7 +117,7 @@ def test_config_stratigraphy_empty_name(globalconfig2):
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["name"] = None
 
-    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match=pydantic_warning()):
         ExportData(config=cfg, content="depth")
 
 
@@ -126,12 +126,12 @@ def test_config_stratigraphy_stratigraphic_not_bool(globalconfig2):
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic"] = None
 
-    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match=pydantic_warning()):
         ExportData(config=cfg, content="depth")
 
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic"] = "a string"
 
-    with pytest.warns(PendingDeprecationWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match=pydantic_warning()):
         ExportData(config=cfg, content="depth")
 
 
@@ -147,32 +147,30 @@ def test_update_check_settings_shall_fail(globalconfig1):
 
 
 @pytest.mark.parametrize(
-    "key, value, wtype, expected_msg",
+    "key, value, expected_msg",
     [
         (
             "runpath",
             "some",
-            PendingDeprecationWarning,
             r"The 'runpath' key has currently no function",
         ),
         (
             "grid_model",
             "some",
-            PendingDeprecationWarning,
             r"The 'grid_model' key has currently no function",
         ),
     ],
 )
-def test_deprecated_keys(globalconfig1, regsurf, key, value, wtype, expected_msg):
+def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
     """Some keys shall raise a DeprecationWarning or similar."""
 
     # under primary initialisation
     kval = {key: value}
-    with pytest.warns(wtype, match=expected_msg):
-        _ = ExportData(config=globalconfig1, content="depth", **kval)
+    with pytest.warns(PendingDeprecationWarning, match=expected_msg):
+        ExportData(config=globalconfig1, content="depth", **kval)
 
     # under override
-    with pytest.warns(wtype, match=expected_msg):
+    with pytest.warns(PendingDeprecationWarning, match=expected_msg):
         edata = ExportData(config=globalconfig1, content="depth")
         edata.generate_metadata(regsurf, **kval)
 
