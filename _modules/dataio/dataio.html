@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+ge5e02f9 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g55a4eaf documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -105,6 +105,7 @@
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">PydanticValidationError</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_metadata</span>
 <span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="p">(</span>
@@ -128,6 +129,7 @@
     <span class="n">some_config_from_env</span><span class="p">,</span>
     <span class="n">uuid_from_string</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.datastructure.configuration</span> <span class="kn">import</span> <span class="n">global_configuration</span>
 
 <span class="n">DATAIO_EXAMPLES</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">dataio_examples</span><span class="p">()</span>
 <span class="n">INSIDE_RMS</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">detect_inside_rms</span><span class="p">()</span>
@@ -174,104 +176,6 @@
             <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skip type checking of complex types; &#39;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">validcheck</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="kc">True</span>
-
-
-<span class="k">def</span> <span class="nf">_check_global_config</span><span class="p">(</span>
-    <span class="n">globalconfig</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A minimum check/validation of the static global_config.</span>
-
-<span class="sd">    Currently far from a full validation. For now, just check that some required</span>
-<span class="sd">    keys are present in the config and warn/raise if not.</span>
-
-<span class="sd">    PS! Seems like a good job for pydantic, but the produced error message are not</span>
-<span class="sd">    informative enough to provide meaningful information to user when something is</span>
-<span class="sd">    wrong.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">globalconfig</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">strict</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Empty global config, expect input from environment_variable instead&quot;</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">missing_keys</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="c1"># check required key presence</span>
-    <span class="n">config_required_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">,</span> <span class="s2">&quot;masterdata&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">required_key</span> <span class="ow">in</span> <span class="n">config_required_keys</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">required_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">globalconfig</span><span class="p">:</span>
-            <span class="n">missing_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">required_key</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">missing_keys</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
-            <span class="s2">&quot;One or more keys required for valid metadata are not found: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">missing_keys</span><span class="si">}</span><span class="s2"> (perhaps the config is empty?) &quot;</span>
-        <span class="p">)</span>
-
-    <span class="c1"># check &quot;stratigraphy&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;stratigraphy&quot;</span> <span class="ow">in</span> <span class="n">globalconfig</span><span class="p">:</span>
-        <span class="c1"># we currently allow (why?) stratigraphy key missing from config.</span>
-        <span class="n">strat</span> <span class="o">=</span> <span class="n">globalconfig</span><span class="p">[</span><span class="s2">&quot;stratigraphy&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strat</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;The &#39;stratigraphy&#39; must be a dictionary.</span><span class="se">\n</span><span class="s2">&quot;</span>
-
-        <span class="c1"># Loop the entries in &#39;stratigraphy&#39;</span>
-        <span class="c1"># These keys are custom, but we want error messages to point to the key when</span>
-        <span class="c1"># issues are discovered. This makes it tricky to use jsonschema. Pydantic might</span>
-        <span class="c1"># be an option. But for now, just go through all items and do defined checks.</span>
-
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">strat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;name&#39; is missing. </span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;name&#39; must be a string.</span><span class="se">\n</span><span class="s2">&quot;</span>
-
-            <span class="k">if</span> <span class="s2">&quot;stratigraphic&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;stratigraphic&#39; is missing.</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;stratigraphic&quot;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">):</span>
-                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;stratigraphic&#39; must be a boolean.</span><span class="se">\n</span><span class="s2">&quot;</span>
-
-            <span class="k">if</span> <span class="s2">&quot;alias&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;alias&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
-                    <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;alias&#39; must be a list.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;alias&quot;</span><span class="p">]:</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alias</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                            <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;alias&#39; items must be strings</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="p">)</span>
-
-                    <span class="c1"># After checking and warning, remove empty entries</span>
-                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;alias&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;alias&quot;</span><span class="p">]))</span>
-
-            <span class="k">if</span> <span class="s2">&quot;stratigraphic_alias&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;stratigraphic_alias&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
-                    <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;stratigraphic_alias&#39; must be list.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;stratigraphic_alias&quot;</span><span class="p">]:</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alias</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;stratigraphy.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &#39;stratigraphic_alias&#39; items &quot;</span>
-                            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;must be strings.</span><span class="se">\n</span><span class="s2">&quot;</span>
-
-                    <span class="c1"># After checking and warning, remove empty entries</span>
-                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;stratigraphic_alias&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-                        <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;stratigraphic_alias&quot;</span><span class="p">])</span>
-                    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">msg</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;err&quot;</span> <span class="ow">in</span> <span class="n">action</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
-            <span class="s2">&quot;The metadata may become invalid; hence no metadata file will be made, &quot;</span>
-            <span class="s2">&quot;but the data item may still be exported. Note: allowing these keys to &quot;</span>
-            <span class="s2">&quot;be missing is a temporary solution that may change in future versions!&quot;</span>
-        <span class="p">)</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">PendingDeprecationWarning</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">return</span> <span class="kc">True</span>
 
@@ -719,19 +623,19 @@
                     <span class="k">if</span> <span class="n">_validate_variable</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">):</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">_check_global_config</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span><span class="p">:</span>
+            <span class="c1"># TODO: This needs refinement: _config_is_valid should be removed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">roundtrip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
         <span class="c1"># global config which may be given as env variable -&gt; a file; will override</span>
         <span class="k">if</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
             <span class="n">theconfig</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">theconfig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">_check_global_config</span><span class="p">(</span>
-                <span class="n">theconfig</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">theconfig</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">theconfig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">theconfig</span>
+                <span class="c1"># TODO: This needs refinement: _config_is_valid should be removed</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">roundtrip</span><span class="p">(</span><span class="n">theconfig</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Validate FMU context which is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">)</span>
@@ -739,9 +643,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_globalconfig_from_settings</span><span class="p">()</span>
 
         <span class="c1"># check state of global config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">_check_global_config</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span><span class="p">:</span>
+            <span class="c1"># TODO: This needs refinement: _config_is_valid should be removed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">roundtrip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_show_deprecations_or_notimplemented</span><span class="p">()</span>
@@ -941,9 +846,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_check_settings</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_globalconfig_from_settings</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">_check_global_config</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span><span class="p">:</span>
+            <span class="c1"># TODO: This needs refinement: _config_is_valid should be removed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">roundtrip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
         <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_obj_if_file</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
@@ -1095,7 +1001,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">cnf</span>
 
         <span class="c1"># For this class, the global config must be valid; hence error if not</span>
-        <span class="n">_check_global_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">global_configuration</span><span class="o">.</span><span class="n">GlobalConfiguration</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">PydanticValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">global_configuration</span><span class="o">.</span><span class="n">validation_error_warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">raise</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ran __post_init__ for InitializeCase&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1627,7 +1537,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+ge5e02f9).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g55a4eaf).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
