@@ -250,6 +250,19 @@ class Masterdata(BaseModel):
     smda: Smda
 
 
+class VersionInformation(BaseModel):
+    version: str
+
+
+class SystemInformation(BaseModel):
+    fmu_dataio: Optional[VersionInformation] = Field(
+        alias="fmu-dataio", default=None, examples=["1.2.3"]
+    )
+    komodo: Optional[VersionInformation] = Field(
+        alias="fmu-dataio", default=None, examples=["2023.12.05-py38"]
+    )
+
+
 class TracklogEvent(BaseModel):
     # TODO: Update ex. to inc. timezone
     # update NaiveDatetime ->  AwareDatetime
@@ -259,9 +272,12 @@ class TracklogEvent(BaseModel):
         examples=["2020-10-28T14:28:02"],
     )
     event: str = Field(
-        examples=["created", "updated"],
+        examples=["created", "updated", "merged"],
     )
     user: User
+    sysinfo: Optional[SystemInformation] = Field(
+        default=None,
+    )
 
 
 class FMU(BaseModel):
