@@ -7,7 +7,7 @@ are defined and maintained consistently.
 from __future__ import annotations
 
 import warnings
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional
 
 from fmu.dataio.datastructure.meta import enums, meta
 from pydantic import (
@@ -20,10 +20,7 @@ from pydantic import (
 )
 
 
-def validation_error_warning(
-    err: ValidationError,
-    category: Type[Warning] = PendingDeprecationWarning,
-) -> None:
+def validation_error_warning(err: ValidationError) -> None:
     """
     Emits a warning when a ValidationError is encountered in global configuration.
     """
@@ -37,7 +34,6 @@ configuration. Invalid configuration may be disallowed in future versions.
 Detailed information:
 {str(err)}
 """,
-        category,
         stacklevel=2,
     )
 
