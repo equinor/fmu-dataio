@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+g26535ff documentation</title>
+  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+g81c337d documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -255,6 +255,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent"><code class="docutils literal notranslate"><span class="pre">TracklogEvent</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.datetime"><code class="docutils literal notranslate"><span class="pre">TracklogEvent.datetime</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.event"><code class="docutils literal notranslate"><span class="pre">TracklogEvent.event</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.sysinfo"><code class="docutils literal notranslate"><span class="pre">TracklogEvent.sysinfo</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.user"><code class="docutils literal notranslate"><span class="pre">TracklogEvent.user</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">TracklogEvent.model_computed_fields</span></code></a></li>
 </ul>
@@ -1716,6 +1717,7 @@ validated to form a valid model.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.datetime" title="fmu.dataio.datastructure.meta.meta.TracklogEvent.datetime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datetime</span> <span class="pre">(pydantic.types.NaiveDatetime</span> <span class="pre">|</span> <span class="pre">pydantic.types.AwareDatetime)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.event" title="fmu.dataio.datastructure.meta.meta.TracklogEvent.event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event</span> <span class="pre">(str)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.sysinfo" title="fmu.dataio.datastructure.meta.meta.TracklogEvent.sysinfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sysinfo</span> <span class="pre">(fmu.dataio.datastructure.meta.meta.SystemInformation</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.user" title="fmu.dataio.datastructure.meta.meta.TracklogEvent.user"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user</span> <span class="pre">(fmu.dataio.datastructure.meta.meta.User)</span></code></a></p></li>
 </ul>
 </dd>
@@ -1728,6 +1730,11 @@ validated to form a valid model.</p>
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.meta.TracklogEvent.event">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">event</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.event" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.meta.TracklogEvent.sysinfo">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sysinfo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[SystemInformation]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.meta.TracklogEvent.sysinfo" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -3617,7 +3624,7 @@ validated to form a valid model.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g26535ff).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g81c337d).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
