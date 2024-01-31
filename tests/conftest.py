@@ -216,7 +216,26 @@ def fixture_caseglobalconfig():
             "country": [
                 {"identifier": "Norway", "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"}
             ],
-            "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
+            "discovery": [
+                {
+                    "short_identifier": "abdcef",
+                    "uuid": "00000000-0000-0000-0000-000000000000",
+                }
+            ],
+            "field": [
+                {
+                    "identifier": "DROGON",
+                    "uuid": "00000000-0000-0000-0000-000000000000",
+                }
+            ],
+            "coordinate_system": {
+                "identifier": "MyCoordinateSystem",
+                "uuid": "00000000-0000-0000-0000-000000000000",
+            },
+            "stratigraphic_column": {
+                "identifier": "MyStratColumn",
+                "uuid": "00000000-0000-0000-0000-000000000000",
+            },
         }
     }
     gconfig["stratigraphy"] = {"TopVolantis": {}}
@@ -246,7 +265,26 @@ def fixture_globalconfig1():
             "country": [
                 {"identifier": "Norway", "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"}
             ],
-            "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
+            "discovery": [
+                {
+                    "short_identifier": "abdcef",
+                    "uuid": "00000000-0000-0000-0000-000000000000",
+                }
+            ],
+            "field": [
+                {
+                    "identifier": "DROGON",
+                    "uuid": "00000000-0000-0000-0000-000000000000",
+                }
+            ],
+            "coordinate_system": {
+                "identifier": "MyCoordinateSystem",
+                "uuid": "00000000-0000-0000-0000-000000000000",
+            },
+            "stratigraphic_column": {
+                "identifier": "MyStratColumn",
+                "uuid": "00000000-0000-0000-0000-000000000000",
+            },
         }
     }
     cfg["access"] = {
