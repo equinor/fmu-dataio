@@ -2,11 +2,44 @@ Overview
 ========
 
 ``fmu-dataio`` is a library for exporting data out of FMU workflows. In addition to making
-data export on the current (filename-based) standard easier, it also exports rich metadata
-making it possible to utilize cloud storage (Sumo). Further, centralizing export methods
-like this makes workflows simpler and less prone to break when changes are made.
+data export on the current (filename-based) standard easier, it also creates and attaches
+metadata to the exported data.
 
-The library works both inside RMS and outside RMS.
+In a Python script running somewhere in the FMU workflow, usage of ``fmu-dataio`` looks
+roughly like this (more detailed working examples are provided elsewhere in this documentation):
+
+.. code-block:: python
+
+    from fmu.dataio import ExportData
+
+    df = make_my_data() # how you create a data object is same as before
+    cfg = get_global_config() # how you read global config is same as before
+
+    exp = ExportData( # ExportData takes a number of arguments, these are examples.
+        config=cfg,
+        content="volumes",
+    )
+    exp.export(df) # this is the export.
+
+Although long-term intention is to discontinue this, exported data will still be stored
+to the underlying disk structure on which FMU is running (i.e. /scratch). When storing
+data to disk, ``fmu-dataio`` will store the data file according to the current filename-oriented
+FMU data standard. Next to it, with a corresponding file name, it will store the metadata according
+to the metadata-based FMU data standard.
+
+Example:
+
+.. code-block:: console
+
+    share/results/tables/mytable.csv
+    share/results/tables/.mytable.csv <-- New!
+
+
+Context on multiple levels are added to these metadata. First of all, references to
+Equinor master data is required, but also FMU-specific context such as which model was
+used to produce the data, which realization and iteration a specific file is produced in,
+and much more.
+
 
 Static and object-specific metadata
 -----------------------------------
@@ -14,28 +47,15 @@ Static and object-specific metadata
 Metadata are in general "data about the data". For instance a pure surface
 export file (e.g. irap binary) will have information about data itself (like
 values in the map, and bounding box) but the file has no idea of which FMU run it
-belongs to, or which field it comes from or what horizon it represents.
+belongs to, or which field it comes from or what data contents it is representing.
 
 Some metadata contents are *static for the model*, meaning that they will be
-the same for all runs of a specific model setup. Examples are masterdata relations
-(**field**, **country**, etc).
+the same for all runs of a specific model setup. Some metadata contents are *static to 
+the case*, meaning that they will be the same for all data belonging to a specific case.
+Other metadata are object-specific, i.e. they will vary per item which is exported.
 
-Some metadata contents are *static to the case*, meaning that they will be the same
-for all data belonging to a specific case. Example: Metadata about the case itself.
-
-Other metadata are object-specific, i.e. they will vary per item which is exported. For
-instance, content metadata are object-specific as some surfaces are in depth domain, some in
-time and other represents e.g. an average property.
-
-Basically it works like this in a FMU run:
-
-    * *Metadata static for the model* comes from the fmu-config YAML file.
-    * *Metadata static for the case* comes from ERT.
-    * *Object-specific metadata* must be provided in the export.
-
-The metadata is materialized as .yaml-files together with the actual data files, as
-described in the FMU standard. This means that for each file, e.g. an exported surface
-called `my_surface.gri` there will be a corresponding .yaml file called `.mysurface.gri.yml`.
+Given the amount of data produced by a single FMU run, it is impossible to contextualize
+the data manually on this granularity. Therefore, ``fmu-dataio`` automates this.
 
 The data model used for FMU results is a partly denormalized data model, meaning that some
 static data will be repeated across many data objects. Example: Each exported data object contains
