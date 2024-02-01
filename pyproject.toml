@@ -58,7 +58,6 @@ dev = [
     "pytest",
     "rstcheck",
     "ruff",
-    "termcolor",
     "types-PyYAML",
 ]
 docs = [
