@@ -9,6 +9,7 @@ For further details, visit the official documentation: `fmu-dataio documentation
 
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: About
 
    installation
@@ -16,6 +17,7 @@ For further details, visit the official documentation: `fmu-dataio documentation
 
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: User Guide and Reference
 
    overview
@@ -25,9 +27,4 @@ For further details, visit the official documentation: `fmu-dataio documentation
    datamodel
    datastructure
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
