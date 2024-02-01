@@ -27,4 +27,4 @@ jobs:
           pip install .[dev]
 
       - name: Full test
-        run: pytest --disable-warnings -x
+        run: pytest -v
