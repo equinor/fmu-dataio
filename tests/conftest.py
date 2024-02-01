@@ -16,7 +16,6 @@ import xtgeo
 import yaml
 from fmu.config import utilities as ut
 from fmu.dataio.dataio import ExportData, read_metadata
-from termcolor import cprint
 
 logger = logging.getLogger(__name__)
 
@@ -28,14 +27,9 @@ RUN_PRED = "tests/data/drogon/ertrun1/realization-0/pred"
 
 def pytest_configure():
     if "RMSVER" in os.environ and "INSIDE_RMS" not in os.environ:
-        cprint(80 * "=", "red", attrs=["blink"])
-        cprint(
-            "You run a RMS python somehow; need to set INSIDE_RMS=0 for pytest:",
-            "red",
-            attrs=["blink"],
+        logging.critical(
+            "You run a RMS python somehow; need to set INSIDE_RMS=0 for pytest:"
         )
-        cprint("INSIDE_RMS=0 pytest", "red", attrs=["blink"])
-        cprint(80 * "=", "red", attrs=["blink"])
 
 
 @contextlib.contextmanager
