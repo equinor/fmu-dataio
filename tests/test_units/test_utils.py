@@ -1,5 +1,6 @@
 """Test the utils module"""
 
+import logging
 import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -195,3 +196,20 @@ def test_read_named_envvar():
 
     os.environ["MYTESTENV"] = "mytestvalue"
     assert utils.read_named_envvar("MYTESTENV") == "mytestvalue"
+
+
+def test_export_metadata_file_illformed_warning(tmp_path, caplog, monkeypatch):
+    with caplog.at_level(logging.WARNING):
+        utils.export_metadata_file(
+            tmp_path / "tmp.yml",
+            metadata={"foo": "bar"},
+        )
+    assert "Unable to validate/roundtrip metadata" not in caplog.text
+
+    monkeypatch.setenv("_ERT_SIMULATION_MODE", "<TESTING_PLACEHOLER>")
+    with caplog.at_level(logging.WARNING):
+        utils.export_metadata_file(
+            tmp_path / "tmp.yml",
+            metadata={"foo": "bar"},
+        )
+    assert "Unable to validate/roundtrip metadata" in caplog.text

@@ -11,18 +11,27 @@ import warnings
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
+from pprint import pformat
 from typing import Any, Final, Literal
 
 import pandas as pd
 import xtgeo
 import yaml
+from pydantic import ValidationError
 
 from fmu.config import utilities as ut
 
-from . import _design_kw, types
+from . import _design_kw, _fmu_provider, types
 from ._logging import null_logger
+from .datastructure.meta import meta
 
 logger: Final = null_logger(__name__)
+
+
+def orchestrated_by_ert() -> bool:
+    """Check if the current FMU environment is orchestrated by ERT."""
+    # Ref. https://github.com/equinor/fmu-dataio/issues/368
+    return _fmu_provider.FmuEnv.SIMULATION_MODE.value is not None
 
 
 def detect_inside_rms() -> bool:
@@ -78,6 +87,20 @@ def export_metadata_file(
         raise RuntimeError(
             "Export of metadata was requested, but no metadata are present."
         )
+
+    try:
+        metadata = meta.Root.model_validate(metadata).root.model_dump(
+            by_alias=True,
+            exclude_none=True,
+            mode="json",
+        )
+    except ValidationError as e:
+        if orchestrated_by_ert():
+            logger.warning(
+                "Unable to validate/roundtrip metadata(%s)",
+                pformat(metadata, indent=2),
+                exc_info=e,
+            )
 
     if savefmt == "yaml":
         with open(file, "w", encoding="utf8") as stream:
