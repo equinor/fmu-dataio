@@ -11,8 +11,9 @@ and outside RMS.
 The purpose of ``fmu-dataio`` is to **simplify** data export and to add **context** to data
 produced by FMU workflows so that they can be used and understood also outside FMU. This
 is fundamental for enabling usage of the vast amounts of data produced by FMU without
-requiring significant manual intervention and repetitive work. Since filenames only gets
-us so far, context is materialized via richer metadata.
+requiring significant manual intervention and repetitive work. The amount of context required
+is not possible to fit in a filename alone. Hence, fmu-dataio produces and attaches rich metadata
+to exported files.
 
 In addition to the data export functions, ``fmu-dataio`` also contains the data model for
 FMU results.
