@@ -115,8 +115,6 @@ class Stratigraphy(RootModel[Dict[str, StratigraphyElement]]):
     A collection of StratigraphyElement instances, accessible by keys.
     """
 
-    ...
-
 
 class GlobalConfiguration(BaseModel):
     """
