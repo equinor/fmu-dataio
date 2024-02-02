@@ -1,5 +1,5 @@
 Use fmu-dataio in an FMU workflow
-=============================================
+=================================
 
 In order to start using fmu-dataio and produce rich metadata for FMU output, some
 preparations are necessary to your workflow. Expected time consumption is less than an hour.
@@ -64,10 +64,9 @@ Note that ``country``, ``discovery`` and ``field`` are lists (can have more than
 while ``coordinate_system`` and ``stratigraphic_column`` are not.
 
 To find the information for your model, use `SMDA Viewer <https://opus.smda.equinor.com/smda_viewer/>`_. 
-You will see a number of topics, such as "Wellheader", "Well data" and below each topic
-you will see several tiles. Direct links to the tiles you need will be provided further
-down, but clicking around a bit in SMDA is encouraged to get a feel for what our
-master data looks like.
+You will see a number of topics, and below each topic you will see several tiles.
+(Direct links to the tiles you need will be provided further down, but clicking around a
+bit in SMDA is encouraged to get a feel for what our master data looks like.)
 
 .. note::
   You can always use Ctrl+F to quickly search in the Viewer.

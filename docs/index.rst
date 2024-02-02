@@ -4,9 +4,9 @@ Welcome to FMU-dataio's documentation
 ``fmu-dataio`` is a specialized Python library for managing data in Fast Model Update (FMU) workflows. 
 It focuses on exporting data while adhering to the FMU standards, which include both file
 and folder conventions, and rich metadata integration for various data consumers. The
-library is designed for consistent usage across different stages of FMU workflows,
-such as pre- and post-processing jobs, and is compatible with Ensemble Reservoir Tool (ERT)
-FORWARD_MODEL, within and outside RMS.
+library is designed for consistent usage across all stages of FMU workflows, including
+ERT FORWARD_MODEL and pre-/post-processing jobs. ``fmu-dataio`` can be used both inside
+and outside RMS.
 
 The purpose of ``fmu-dataio`` is to **simplify** data export and to add **context** to data
 produced by FMU workflows so that they can be used and understood also outside FMU. This

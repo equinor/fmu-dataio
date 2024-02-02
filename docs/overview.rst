@@ -32,7 +32,7 @@ Example:
 .. code-block:: console
 
     share/results/tables/mytable.csv
-    share/results/tables/.mytable.csv <-- New!
+    share/results/tables/.mytable.csv.yml <-- metadata
 
 
 Context on multiple levels are added to these metadata. First of all, references to
