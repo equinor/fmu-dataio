@@ -89,7 +89,7 @@ Field
 ^^^^^
 Go back to the Viewer, click `Fields <https://opus.smda.equinor.com/smda_viewer/fields>`_
 (still under "Reference data") tile. Locate the line representing your field, locate the 
-``itentifier``and the ``UUID`` entries and insert those in ``_masterdata.yml``. Since a model
+``itentifier`` and the ``UUID`` entries and insert those in ``_masterdata.yml``. Since a model
 can cover multiple fields, this entry is a *list* and you can insert multiple fields if
 that applies to you.
 
