@@ -88,6 +88,8 @@ convention = "google"
 match = '(?!(test_|_)).*\.py'
 
 [tool.ruff]
+line-length = 88
+[tool.ruff.lint]
 ignore = [
     "C901",
 ]
@@ -107,7 +109,6 @@ select = [
     # "PD",
     # "PL",
 ]
-line-length = 88
 [tool.ruff.lint.isort]
 combine-as-imports = true
 

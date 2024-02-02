@@ -197,7 +197,7 @@ class _ObjectDataProvider:
                 f"Valid {subtype} formats are: {list(validator.keys())}",
             )
 
-        return validator.get(fmt, None)
+        return validator.get(fmt)
 
     def _derive_objectdata(self) -> dict:
         """Derive object spesific data."""
