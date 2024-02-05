@@ -3,6 +3,8 @@ name: Build and test fmu-dataio
 on:
   pull_request:
     branches: [main]
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   build_pywheels:
