@@ -1,5 +1,4 @@
 """The conftest.py, providing magical fixtures to tests."""
-import contextlib
 import datetime
 import inspect
 import json
@@ -32,39 +31,21 @@ def pytest_configure():
         )
 
 
-@contextlib.contextmanager
-def set_export_data_inside_rms_flag():
-    old = ExportData._inside_rms
-    ExportData._inside_rms = True
-    try:
-        yield
-    finally:
-        ExportData._inside_rms = old
+@pytest.fixture
+def set_export_data_inside_rms(monkeypatch):
+    monkeypatch.setattr(ExportData, "_inside_rms", True)
 
 
-@contextlib.contextmanager
-def set_environ_inside_rms_flag():
-    unset = object()
-    old = os.environ.get("INSIDE_RMS", unset)
-    os.environ["INSIDE_RMS"] = "1"
-    try:
-        yield
-    finally:
-        if old is unset:
-            del os.environ["INSIDE_RMS"]
-        else:
-            os.environ["INSIDE_RMS"] = old
+@pytest.fixture
+def set_environ_inside_rms(monkeypatch):
+    monkeypatch.setenv("INSIDE_RMS", "1")
 
 
 def inside_rms(func):
-    """Decorator for being inside RMS"""
-
+    @pytest.mark.usefixtures("set_export_data_inside_rms", "set_environ_inside_rms")
     @wraps(func)
     def wrapper(*args, **kwargs):
-        with contextlib.ExitStack() as exitstack:
-            exitstack.enter_context(set_environ_inside_rms_flag())
-            exitstack.enter_context(set_export_data_inside_rms_flag())
-            return func(*args, **kwargs)
+        return func(*args, **kwargs)
 
     return wrapper
 
