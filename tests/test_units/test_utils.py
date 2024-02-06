@@ -6,7 +6,7 @@ from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pytest
-from conftest import set_environ_inside_rms_flag
+from conftest import inside_rms
 from fmu.dataio import _utils as utils
 from xtgeo import Grid, Polygons, RegularSurface
 
@@ -129,10 +129,13 @@ def test_get_object_name():
     )
 
 
-def test_detect_inside_rms():
+@inside_rms
+def test_detect_inside_rms_decorator():
+    assert utils.detect_inside_rms()
+
+
+def test_detect_not_inside_rms():
     assert not utils.detect_inside_rms()
-    with set_environ_inside_rms_flag():
-        assert utils.detect_inside_rms()
 
 
 def test_non_metadata_export_metadata_file():
