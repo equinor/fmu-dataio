@@ -35,7 +35,7 @@ dependencies = [
     "numpy",
     "pandas",
     "pyarrow",
-    "pydantic>=2.5.0,<=2.6.0",
+    "pydantic>=2.5.0",
     "PyYAML",
     "xtgeo>=2.16",
 ]
