@@ -15,6 +15,7 @@ import xtgeo
 import yaml
 from fmu.config import utilities as ut
 from fmu.dataio.dataio import ExportData, read_metadata
+from fmu.dataio.datastructure.configuration import global_configuration
 
 logger = logging.getLogger(__name__)
 
@@ -146,8 +147,8 @@ def fixture_rmsglobalconfig(rmssetup):
     return global_cfg
 
 
-@pytest.fixture(name="globalvars_norw_letters", scope="module")
-def fixture_globalvars_norw_letters(tmp_path_factory):
+@pytest.fixture(name="globalvars_norwegian_letters", scope="module")
+def fixture_globalvars_norwegian_letters(tmp_path_factory):
     """Read a global config with norwegian special letters w/ fmu.config utilities."""
 
     tmppath = tmp_path_factory.mktemp("revisionxx")
@@ -181,70 +182,62 @@ def fixture_casesetup(tmp_path_factory):
     return tmppath
 
 
-@pytest.fixture(name="caseglobalconfig", scope="module")
-def fixture_caseglobalconfig():
-    """Create as global config for case testing."""
-    gconfig = {}
-    gconfig["model"] = {"name": "Test", "revision": "21.0.0"}
-    gconfig["masterdata"] = {
-        "smda": {
-            "country": [
-                {"identifier": "Norway", "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"}
-            ],
-            "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
-        }
-    }
-    gconfig["stratigraphy"] = {"TopVolantis": {}}
-    gconfig["model"] = {"revision": "0.99.0"}
-    gconfig["access"] = {"asset": "Drogon", "ssdl": "internal"}
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return gconfig
-
-
 @pytest.fixture(name="globalconfig1", scope="module")
 def fixture_globalconfig1():
     """Minimalistic global config variables no. 1 in ExportData class."""
-
-    cfg = {}
-
-    cfg = {}
-    cfg["model"] = {"name": "Test", "revision": "AUTO"}
-    cfg["stratigraphy"] = {
-        "TopWhatever": {
-            "stratigraphic": True,
-            "name": "Whatever Top",
-            "alias": ["TopDindong", "TopWhatever"],
-        },
-    }
-    cfg["masterdata"] = {
-        "smda": {
-            "country": [
-                {"identifier": "Norway", "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"}
-            ],
-            "discovery": [{"short_identifier": "abdcef", "uuid": "ghijk"}],
-        }
-    }
-    cfg["access"] = {
-        "asset": {
-            "name": "Test",
-        },
-        "ssdl": {
-            "access_level": "internal",
-            "rep_include": False,
-        },
-    }
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return cfg
+    return global_configuration.GlobalConfiguration(
+        masterdata=global_configuration.meta.Masterdata(
+            smda=global_configuration.meta.Smda(
+                coordinate_system=global_configuration.meta.CoordinateSystem(
+                    identifier="ST_WGS84_UTM37N_P32637",
+                    uuid="15ce3b84-766f-4c93-9050-b154861f9100",
+                ),
+                country=[
+                    global_configuration.meta.CountryItem(
+                        identifier="Norway",
+                        uuid="ad214d85-8a1d-19da-e053-c918a4889309",
+                    ),
+                ],
+                discovery=[
+                    global_configuration.meta.DiscoveryItem(
+                        short_identifier="abdcef",
+                        uuid="56c92484-8798-4f1f-9f14-d237a3e1a4ff",
+                    ),
+                ],
+                stratigraphic_column=global_configuration.meta.StratigraphicColumn(
+                    identifier="TestStratigraphicColumn",
+                    uuid="56c92484-8798-4f1f-9f14-d237a3e1a4ff",
+                ),
+                field=[],
+            )
+        ),
+        access=global_configuration.Access(
+            asset=global_configuration.Asset(name="Test"),
+            ssdl=global_configuration.Ssdl(
+                access_level=global_configuration.enums.AccessLevel.internal,
+                rep_include=False,
+            ),
+        ),
+        model=global_configuration.Model(
+            name="Test",
+            revision="AUTO",
+        ),
+        stratigraphy=global_configuration.Stratigraphy(
+            root={
+                "TopWhatever": global_configuration.StratigraphyElement(
+                    name="Whatever Top",
+                    stratigraphic=True,
+                    alias=["TopDindong", "TopWhatever"],
+                )
+            }
+        ),
+    ).model_dump()
 
 
 @pytest.fixture(name="globalconfig_asfile", scope="module")
 def fixture_globalconfig_asfile() -> str:
     """Global config as file for use with environment variable"""
-
-    globalconfigfile = ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml"
-
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
-    return str(globalconfigfile)
+    return ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml"
 
 
 @pytest.fixture(name="edataobj1", scope="module")
@@ -516,7 +509,10 @@ def fixture_edataobj3(globalconfig1):
     # logger.info("Establish edataobj1")
 
     return ExportData(
-        config=globalconfig1, name="summary", content="timeseries", tagname=""
+        config=globalconfig1,
+        name="summary",
+        content="timeseries",
+        tagname="",
     )
 
 

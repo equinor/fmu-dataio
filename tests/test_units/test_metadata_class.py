@@ -221,7 +221,9 @@ def test_metadata_populate_wrong_config(globalconfig1):
     _config = deepcopy(globalconfig1)
     _config["access"]["ssdl"]["access_level"] = "wrong"
 
-    edata = dio.ExportData(config=_config, content="depth")
+    with pytest.warns(UserWarning):
+        edata = dio.ExportData(config=_config, content="depth")
+
     mymeta = _MetaData("dummy", edata)
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
@@ -230,9 +232,12 @@ def test_metadata_populate_wrong_config(globalconfig1):
 def test_metadata_populate_wrong_argument(globalconfig1):
     """Test error in access_ssdl in arguments."""
 
-    edata = dio.ExportData(
-        config=globalconfig1, access_ssdl={"access_level": "wrong"}, content="depth"
-    )
+    with pytest.warns(UserWarning):
+        edata = dio.ExportData(
+            config=globalconfig1,
+            access_ssdl={"access_level": "wrong"},
+            content="depth",
+        )
     mymeta = _MetaData("dummy", edata)
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
@@ -286,17 +291,24 @@ def test_metadata_access_illegal_input(globalconfig1):
     """Test giving illegal input."""
 
     # Input is "secret". Not allowed, shall fail.
-    edata = dio.ExportData(
-        config=globalconfig1, access_ssdl={"access_level": "secret"}, content="depth"
-    )
+    with pytest.warns(UserWarning):
+        edata = dio.ExportData(
+            config=globalconfig1,
+            access_ssdl={"access_level": "secret"},
+            content="depth",
+        )
+
     mymeta = _MetaData("dummy", edata)
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
 
     # Input is "open". Not allowed, shall fail.
-    edata = dio.ExportData(
-        config=globalconfig1, access_ssdl={"access_level": "open"}, content="depth"
-    )
+    with pytest.warns(UserWarning):
+        edata = dio.ExportData(
+            config=globalconfig1,
+            access_ssdl={"access_level": "open"},
+            content="depth",
+        )
     mymeta = _MetaData("dummy", edata)
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
