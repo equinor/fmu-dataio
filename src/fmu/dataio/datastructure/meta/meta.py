@@ -410,7 +410,7 @@ class Root(
 
 
 def dump() -> Dict:
-    return Dict(
+    return dict(
         ChainMap(
             {
                 "$contractual": [
