@@ -256,10 +256,13 @@ class VersionInformation(BaseModel):
 
 class SystemInformation(BaseModel):
     fmu_dataio: Optional[VersionInformation] = Field(
-        alias="fmu-dataio", default=None, examples=["1.2.3"]
+        alias="fmu-dataio",
+        default=None,
+        examples=["1.2.3"],
     )
     komodo: Optional[VersionInformation] = Field(
-        alias="fmu-dataio", default=None, examples=["2023.12.05-py38"]
+        default=None,
+        examples=["2023.12.05-py38"],
     )
 
 
