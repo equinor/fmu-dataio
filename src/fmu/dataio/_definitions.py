@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum, unique
 from typing import Final
 
 SCHEMA: Final = (
@@ -9,6 +10,10 @@ SCHEMA: Final = (
 )
 VERSION: Final = "0.8.0"
 SOURCE: Final = "fmu"
+
+
+class ValidationError(ValueError, KeyError):
+    """Raise error while validating."""
 
 
 @dataclass
@@ -123,3 +128,39 @@ ALLOWED_FMU_CONTEXTS: Final = {
     "case_symlink_realization": "To case/share, with symlinks on realizations level",
     "preprocessed": "To share/preprocessed; from interactive runs but re-used later",
 }
+
+
+@unique
+class FmuContext(Enum):
+    """Use a Enum class for fmu_context entries."""
+
+    REALIZATION = "To realization-N/iter_M/share"
+    CASE = "To casename/share, but will also work on project disk"
+    CASE_SYMLINK_REALIZATION = "To case/share, with symlinks on realizations level"
+    PREPROCESSED = "To share/preprocessed; from interactive runs but re-used later"
+    NON_FMU = "Not ran in a FMU setting, e.g. interactive RMS"
+
+    @classmethod
+    def has_key(cls, key: str) -> bool:
+        return key.upper() in cls._member_names_
+
+    @classmethod
+    def list_valid(cls) -> dict:
+        return {member.name: member.value for member in cls}
+
+    @classmethod
+    def get(cls, key: FmuContext | str) -> FmuContext:
+        """Get the enum member with a case-insensitive key."""
+        if isinstance(key, cls):
+            key_upper = key.name
+        elif isinstance(key, str):
+            key_upper = key.upper()
+        else:
+            raise ValidationError("The input must be a str or FmuContext instance")
+
+        if not cls.has_key(key_upper):
+            raise ValidationError(
+                f"Invalid key <{key_upper}>. Valid keys: {cls.list_valid().keys()}"
+            )
+
+        return cls[key_upper]

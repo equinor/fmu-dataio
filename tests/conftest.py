@@ -14,6 +14,7 @@ import pytest
 import xtgeo
 import yaml
 from fmu.config import utilities as ut
+from fmu.dataio._fmu_provider import FmuEnv
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.datastructure.configuration import global_configuration
 
@@ -23,6 +24,25 @@ ROOTPWD = Path(".").absolute()
 RUN1 = "tests/data/drogon/ertrun1/realization-0/iter-0"
 RUN2 = "tests/data/drogon/ertrun1"
 RUN_PRED = "tests/data/drogon/ertrun1/realization-0/pred"
+
+RUN1_ENV_PREHOOK = {
+    f"_ERT_{FmuEnv.EXPERIMENT_ID.name}": "6a8e1e0f-9315-46bb-9648-8de87151f4c7",
+    f"_ERT_{FmuEnv.ENSEMBLE_ID.name}": "b027f225-c45d-477d-8f33-73695217ba14",
+    f"_ERT_{FmuEnv.SIMULATION_MODE.name}": "test_run",
+}
+RUN1_ENV_FORWARD = {
+    f"_ERT_{FmuEnv.ITERATION_NUMBER.name}": "0",
+    f"_ERT_{FmuEnv.REALIZATION_NUMBER.name}": "0",
+    f"_ERT_{FmuEnv.RUNPATH.name}": "---",  # set dynamically due to pytest tmp rotation
+}
+RUN1_ENV_FULLRUN = {**RUN1_ENV_PREHOOK, **RUN1_ENV_FORWARD}
+
+ERT_RUNPATH = f"_ERT_{FmuEnv.RUNPATH.name}"
+
+
+def _current_function_name():
+    """Helper to retrieve current function name, e.g. for logging"""
+    return inspect.currentframe().f_back.f_code.co_name
 
 
 def pytest_configure():
@@ -56,35 +76,70 @@ def fixture_testroot():
     return ROOTPWD
 
 
-@pytest.fixture(name="fmurun", scope="session")
-def fixture_fmurun(tmp_path_factory):
-    """Create a tmp folder structure for testing; here a new fmurun."""
+def _fmu_run1_env_variables(monkeypatch, usepath="", case_only=False):
+    """Helper function for fixtures below.
+
+    Will here monkeypatch the ENV variables, with a particular setting for RUNPATH
+    (trough `usepath`) which may vary dynamically due to pytest tmp area rotation.
+    """
+    env = RUN1_ENV_FULLRUN if not case_only else RUN1_ENV_PREHOOK
+    for key, value in env.items():
+        env_value = str(usepath) if "RUNPATH" in key else value
+        monkeypatch.setenv(key, env_value)
+        logger.debug("Setting env %s as %s", key, env_value)
+
+
+@pytest.fixture(name="fmurun", scope="function")
+def fixture_fmurun(tmp_path_factory, monkeypatch):
+    """A tmp folder structure for testing; here a new fmurun without case metadata."""
     tmppath = tmp_path_factory.mktemp("data")
     newpath = tmppath / RUN1
     shutil.copytree(ROOTPWD / RUN1, newpath)
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
+    _fmu_run1_env_variables(monkeypatch, usepath=newpath, case_only=False)
+
+    logger.debug("Ran %s", _current_function_name())
     return newpath
 
 
-@pytest.fixture(name="fmurun_w_casemetadata", scope="session")
-def fixture_fmurun_w_casemetadata(tmp_path_factory):
+@pytest.fixture(name="fmurun_prehook", scope="function")
+def fixture_fmurun_prehook(tmp_path_factory, monkeypatch):
+    """A tmp folder structure for testing; here a new fmurun without case metadata."""
+    tmppath = tmp_path_factory.mktemp("data")
+    newpath = tmppath / RUN2
+    shutil.copytree(ROOTPWD / RUN2, newpath)
+
+    _fmu_run1_env_variables(monkeypatch, usepath=newpath, case_only=True)
+
+    logger.debug("Ran %s", _current_function_name())
+    return newpath
+
+
+@pytest.fixture(name="fmurun_w_casemetadata", scope="function")
+def fixture_fmurun_w_casemetadata(tmp_path_factory, monkeypatch):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / RUN2
     shutil.copytree(ROOTPWD / RUN2, newpath)
     rootpath = newpath / "realization-0/iter-0"
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
+    _fmu_run1_env_variables(monkeypatch, usepath=rootpath, case_only=False)
+
+    logger.debug("Ran %s", _current_function_name())
     return rootpath
 
 
-@pytest.fixture(name="fmurun_w_casemetadata_pred", scope="session")
-def fixture_fmurun_w_casemetadata_pred(tmp_path_factory):
+@pytest.fixture(name="fmurun_w_casemetadata_pred", scope="function")
+def fixture_fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / RUN2
     shutil.copytree(ROOTPWD / RUN2, newpath)
     rootpath = newpath / "realization-0/pred"
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+
+    _fmu_run1_env_variables(monkeypatch, usepath=rootpath, case_only=False)
+
+    logger.debug("Ran %s", _current_function_name())
     return rootpath
 
 
@@ -94,7 +149,7 @@ def fixture_fmurun_pred(tmp_path_factory):
     tmppath = tmp_path_factory.mktemp("data_pred")
     newpath = tmppath / RUN_PRED
     shutil.copytree(ROOTPWD / RUN_PRED, newpath)
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return newpath
 
 
@@ -110,8 +165,8 @@ def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory):
     shutil.copytree(ROOTPWD / RUN2, newpath)
     rmspath = newpath / "realization-0/iter-0/rms/model"
     rmspath.mkdir(parents=True, exist_ok=True)
-    logger.info("Active folder is %s", rmspath)
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Active folder is %s", rmspath)
+    logger.debug("Ran %s", _current_function_name())
     return rmspath
 
 
@@ -128,7 +183,7 @@ def fixture_rmssetup(tmp_path_factory):
         ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml", rmspath
     )
 
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
 
     return rmspath
 
@@ -138,12 +193,12 @@ def fixture_rmsglobalconfig(rmssetup):
     """Read global config."""
     # read the global config
     os.chdir(rmssetup)
-    logger.info("Global config is %s", str(rmssetup / "global_variables.yml"))
+    logger.debug("Global config is %s", str(rmssetup / "global_variables.yml"))
     with open("global_variables.yml", encoding="utf8") as stream:
         global_cfg = yaml.safe_load(stream)
 
-    logger.info("Ran setup for %s", "rmsglobalconfig")
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran setup for %s", "rmsglobalconfig")
+    logger.debug("Ran %s", _current_function_name())
     return global_cfg
 
 
@@ -177,7 +232,7 @@ def fixture_casesetup(tmp_path_factory):
     tmppath = tmppath / "realization-0/iter-0"
     tmppath.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
 
     return tmppath
 
@@ -243,7 +298,7 @@ def fixture_globalconfig_asfile() -> str:
 @pytest.fixture(name="edataobj1", scope="module")
 def fixture_edataobj1(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
-    logger.info("Establish edataobj1")
+    logger.debug("Establish edataobj1")
 
     eobj = dio.ExportData(
         config=globalconfig1,
@@ -256,7 +311,7 @@ def fixture_edataobj1(globalconfig1):
     eobj.createfolder = False
     eobj.verifyfolder = False
 
-    logger.info(
+    logger.debug(
         "Ran %s returning %s", inspect.currentframe().f_code.co_name, type(eobj)
     )
     return eobj
@@ -272,7 +327,7 @@ def fixture_globalconfig2() -> dict:
     ) as stream:
         globvar = yaml.safe_load(stream)
 
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return globvar
 
 
@@ -302,7 +357,7 @@ def fixture_edataobj2(globalconfig2):
     eobj._rootpath = Path(".")
     eobj._pwd = Path(".")
 
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return eobj
 
 
@@ -352,14 +407,14 @@ def fixture_metadata_examples():
 @pytest.fixture(name="regsurf", scope="module")
 def fixture_regsurf():
     """Create an xtgeo surface."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
 
 
 @pytest.fixture(name="polygons", scope="module")
 def fixture_polygons():
     """Create an xtgeo polygons."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return xtgeo.Polygons(
         [
             [1, 22, 3, 0],
@@ -373,7 +428,7 @@ def fixture_polygons():
 @pytest.fixture(name="points", scope="module")
 def fixture_points():
     """Create an xtgeo points instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return xtgeo.Points(
         [
             [1, 22, 3, "WELLA"],
@@ -388,35 +443,35 @@ def fixture_points():
 @pytest.fixture(name="cube", scope="module")
 def fixture_cube():
     """Create an xtgeo cube instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return xtgeo.Cube(ncol=3, nrow=4, nlay=5, xinc=12, yinc=12, zinc=4, rotation=30)
 
 
 @pytest.fixture(name="grid", scope="module")
 def fixture_grid():
     """Create an xtgeo grid instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return xtgeo.create_box_grid((3, 4, 5))
 
 
 @pytest.fixture(name="gridproperty", scope="module")
 def fixture_gridproperty():
     """Create an xtgeo gridproperty instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return xtgeo.GridProperty(ncol=3, nrow=7, nlay=3, values=123.0)
 
 
 @pytest.fixture(name="dataframe", scope="module")
 def fixture_dataframe():
     """Create an pandas dataframe instance."""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
 
 
 @pytest.fixture(name="wellpicks", scope="module")
 def fixture_wellpicks():
     """Create a pandas dataframe containing wellpicks"""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
     return pd.DataFrame(
         {
             "X_UTME": [
@@ -463,10 +518,10 @@ def fixture_arrowtable():
         return None
 
 
-@pytest.fixture(name="aggr_surfs_mean", scope="module")
+@pytest.fixture(name="aggr_surfs_mean", scope="function")
 def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
-    logger.info("Ran %s", inspect.currentframe().f_code.co_name)
+    logger.debug("Ran %s", _current_function_name())
 
     origfolder = os.getcwd()
     os.chdir(fmurun_w_casemetadata)
@@ -496,7 +551,9 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
         surfs.append([surf])
 
     aggregated = surfs.statistics()
-    logger.info("Aggr. mean is %s", aggregated["mean"].values.mean())  # shall be 1238.5
+    logger.debug(
+        "Aggr. mean is %s", aggregated["mean"].values.mean()
+    )  # shall be 1238.5
 
     os.chdir(origfolder)
 
@@ -506,7 +563,7 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
 @pytest.fixture(name="edataobj3")
 def fixture_edataobj3(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
-    # logger.info("Establish edataobj1")
+    # logger.debug("Establish edataobj1")
 
     return ExportData(
         config=globalconfig1,

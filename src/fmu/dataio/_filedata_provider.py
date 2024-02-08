@@ -8,9 +8,10 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Final, Optional
+from typing import Any, Final, Literal, Optional
 from warnings import warn
 
+from ._definitions import FmuContext
 from ._logging import null_logger
 
 logger: Final = null_logger(__name__)
@@ -59,8 +60,6 @@ class _FileDataProvider:
         self.forcefolder = self.dataio.forcefolder
         self.forcefolder_is_absolute = False
         self.subfolder = self.dataio.subfolder
-
-        self.fmu_context = self.dataio._usecontext  # may be None!
 
         logger.info("Initialize %s", self.__class__)
 
@@ -161,17 +160,24 @@ class _FileDataProvider:
         """Construct and get the folder path(s)."""
         linkdest = None
 
-        dest = self._get_path_generic(mode=self.fmu_context, allow_forcefolder=True)
+        dest = self._get_path_generic(
+            mode=self.dataio.fmu_context, allow_forcefolder=True
+        )
 
-        if self.fmu_context == "case_symlink_realization":
+        if self.dataio.fmu_context == FmuContext.CASE_SYMLINK_REALIZATION:
             linkdest = self._get_path_generic(
-                mode="realization", allow_forcefolder=False, info=self.fmu_context
+                mode=FmuContext.REALIZATION,
+                allow_forcefolder=False,
+                info=self.dataio.fmu_context.name,
             )
 
         return dest, linkdest
 
     def _get_path_generic(
-        self, mode: str = "realization", allow_forcefolder: bool = True, info: str = ""
+        self,
+        mode: Literal[FmuContext.REALIZATION, FmuContext.PREPROCESSED],
+        allow_forcefolder: bool = True,
+        info: str = "",
     ) -> Path:
         """Generically construct and get the folder path and verify."""
         dest = None
@@ -179,7 +185,7 @@ class _FileDataProvider:
         outroot = deepcopy(self.rootpath)
 
         logger.info("FMU context is %s", mode)
-        if mode == "realization":
+        if mode == FmuContext.REALIZATION:
             if self.realname:
                 outroot = outroot / self.realname  # TODO: if missing self.realname?
 
@@ -188,14 +194,14 @@ class _FileDataProvider:
 
         outroot = outroot / "share"
 
-        if mode == "preprocessed":
+        if mode == FmuContext.PREPROCESSED:
             outroot = outroot / "preprocessed"
             if self.dataio.forcefolder and self.dataio.forcefolder.startswith("/"):
                 raise ValueError(
                     "Cannot use absolute path to 'forcefolder' with preprocessed data"
                 )
 
-        if mode != "preprocessed":
+        if mode != FmuContext.PREPROCESSED:
             if self.dataio.is_observation:
                 outroot = outroot / "observations"
             else:

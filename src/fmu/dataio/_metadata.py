@@ -19,16 +19,17 @@ from warnings import warn
 from fmu import dataio
 from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataio._filedata_provider import _FileDataProvider
-from fmu.dataio._fmu_provider import _FmuProvider
+from fmu.dataio._fmu_provider import FmuProvider
 from fmu.dataio._objectdata_provider import _ObjectDataProvider
 from fmu.dataio._utils import (
     drop_nones,
     export_file_compute_checksum_md5,
     glue_metadata_preprocessed,
-    read_metadata,
+    read_metadata_from_file,
 )
 from fmu.dataio.datastructure.meta import meta
 
+from ._definitions import FmuContext
 from ._logging import null_logger
 
 logger: Final = null_logger(__name__)
@@ -222,6 +223,9 @@ class _MetaData:
     # storage state variables
     objdata: Any = field(default=None, init=False)
     fmudata: Any = field(default=None, init=False)
+    iter_name: str = field(default="", init=False)
+    real_name: str = field(default="", init=False)
+
     meta_class: str = field(default="", init=False)
     meta_masterdata: dict = field(default_factory=dict, init=False)
     meta_objectdata: dict = field(default_factory=dict, init=False)
@@ -247,7 +251,9 @@ class _MetaData:
         # according to rule described in string self.reuse_metadata_rule!
         if isinstance(self.obj, (str, Path)) and self.dataio.reuse_metadata_rule:
             logger.info("Partially reuse existing metadata from %s", self.obj)
-            self.meta_existing = read_metadata(self.obj)
+            self.meta_existing = read_metadata_from_file(self.obj)
+
+        self.rootpath = str(self.dataio._rootpath.absolute())
 
     def _populate_meta_objectdata(self) -> None:
         """Analyze the actual object together with input settings.
@@ -261,32 +267,46 @@ class _MetaData:
         self.objdata.derive_metadata()
         self.meta_objectdata = self.objdata.metadata
 
-    def _get_case_metadata(self) -> object:
-        """Detect existing fmu CASE block in the metadata.
-
-        This block may be missing in case the client is not within a FMU run, e.g.
-        it runs from RMS interactive
-
-        The _FmuDataProvider is ran first -> self.fmudata
-        """
-        self.fmudata = _FmuProvider(self.dataio)
-        self.fmudata.detect_provider()
-        logger.info("FMU provider is %s", self.fmudata.provider)
-        return self.fmudata.case_metadata
-
     def _populate_meta_fmu(self) -> None:
         """Populate the fmu block in the metadata.
 
         This block may be missing in case the client is not within a FMU run, e.g.
         it runs from RMS interactive
 
-        The _FmuDataProvider is ran first -> self.fmudata
+        The _FmuDataProvider is ran to provide this information
         """
-        self.fmudata = _FmuProvider(self.dataio)
-        self.fmudata.detect_provider()
-        logger.info("FMU provider is %s", self.fmudata.provider)
-        self.meta_fmu = self.fmudata.metadata
-        self.rootpath = str(self.fmudata.rootpath if self.fmudata.rootpath else "")
+        fmudata = FmuProvider(
+            model=self.dataio.config.get("model", None),
+            fmu_context=self.dataio.fmu_context,
+            casepath_proposed=self.dataio.casepath,
+            include_ertjobs=self.dataio.include_ertjobs,
+            forced_realization=self.dataio.realization,
+            workflow=self.dataio.workflow,
+        )
+        logger.info("FMU provider is %s", fmudata.get_provider())
+
+        if not fmudata.get_provider():  # e.g. run from RMS not in a FMU run
+            actual_context = (
+                FmuContext.PREPROCESSED
+                if self.dataio.fmu_context == FmuContext.PREPROCESSED
+                else FmuContext.get("non_fmu")
+            )
+            if self.dataio.fmu_context != actual_context:
+                logger.warning(
+                    "Requested fmu_context is <%s> but since this is detected as a non "
+                    "FMU run, the actual context is force set to <%s>",
+                    self.dataio.fmu_context,
+                    actual_context,
+                )
+                self.dataio.fmu_context = actual_context
+
+        else:
+            self.meta_fmu = fmudata.get_metadata()
+            self.rootpath = fmudata.get_casepath()
+            self.iter_name = fmudata.get_iter_name()
+            self.real_name = fmudata.get_real_name()
+
+        logger.debug("Rootpath is now %s", self.rootpath)
 
     def _populate_meta_file(self) -> None:
         """Populate the file block in the metadata.
@@ -308,8 +328,8 @@ class _MetaData:
             self.dataio,
             self.objdata,
             Path(self.rootpath),
-            self.fmudata.iter_name,
-            self.fmudata.real_name,
+            self.iter_name,
+            self.real_name,
         )
         fdata.derive_filedata()
 
@@ -377,7 +397,7 @@ class _MetaData:
 
     def _populate_meta_xpreprocessed(self) -> None:
         """Populate a few necessary 'tmp' metadata needed for preprocessed data."""
-        if self.dataio.fmu_context == "preprocessed":
+        if self.dataio.fmu_context == FmuContext.PREPROCESSED:
             self.meta_xpreprocessed["name"] = self.dataio.name
             self.meta_xpreprocessed["tagname"] = self.dataio.tagname
             self.meta_xpreprocessed["subfolder"] = self.dataio.subfolder
@@ -428,7 +448,7 @@ class _MetaData:
         meta["access"] = self.meta_access
         meta["masterdata"] = self.meta_masterdata
 
-        if self.dataio.fmu_context == "preprocessed":
+        if self.dataio.fmu_context == FmuContext.PREPROCESSED:
             meta["_preprocessed"] = self.meta_xpreprocessed
 
         if skip_null:
