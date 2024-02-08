@@ -352,6 +352,25 @@
       "title": "CPGridSpecification",
       "type": "object"
     },
+    "Context": {
+      "description": "The internal FMU context in which this data object was produced",
+      "properties": {
+        "stage": {
+          "enum": [
+            "case",
+            "iteration",
+            "realization"
+          ],
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stage"
+      ],
+      "title": "Context",
+      "type": "object"
+    },
     "CoordinateSystem": {
       "properties": {
         "identifier": {
@@ -804,6 +823,9 @@
         "case": {
           "$ref": "#/$defs/FMUCase"
         },
+        "context": {
+          "$ref": "#/$defs/Context"
+        },
         "model": {
           "$ref": "#/$defs/FMUModel"
         },
@@ -854,6 +876,7 @@
       },
       "required": [
         "case",
+        "context",
         "model"
       ],
       "title": "FMU",
@@ -1641,7 +1664,12 @@
           "default": null
         },
         "field_outline": {
-          "$ref": "#/$defs/FieldOutline"
+          "allOf": [
+            {
+              "$ref": "#/$defs/FieldOutline"
+            }
+          ],
+          "description": "Conditional field"
         }
       },
       "required": [
@@ -1913,7 +1941,12 @@
           "default": null
         },
         "field_region": {
-          "$ref": "#/$defs/FieldRegion"
+          "allOf": [
+            {
+              "$ref": "#/$defs/FieldRegion"
+            }
+          ],
+          "description": "Conditional field"
         }
       },
       "required": [
@@ -2257,7 +2290,12 @@
           "default": null
         },
         "fluid_contact": {
-          "$ref": "#/$defs/FluidContact"
+          "allOf": [
+            {
+              "$ref": "#/$defs/FluidContact"
+            }
+          ],
+          "description": "Conditional field"
         }
       },
       "required": [
@@ -5534,7 +5572,12 @@
           "default": null
         },
         "seismic": {
-          "$ref": "#/$defs/Seismic"
+          "allOf": [
+            {
+              "$ref": "#/$defs/Seismic"
+            }
+          ],
+          "description": "Conditional field"
         }
       },
       "required": [
@@ -5975,6 +6018,40 @@
         "yori"
       ],
       "title": "SurfaceSpecification",
+      "type": "object"
+    },
+    "SystemInformation": {
+      "properties": {
+        "fmu-dataio": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VersionInformation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "1.2.3"
+          ]
+        },
+        "komodo": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VersionInformation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "2023.12.05-py38"
+          ]
+        }
+      },
+      "title": "SystemInformation",
       "type": "object"
     },
     "TableSpecification": {
@@ -6804,13 +6881,25 @@
         "event": {
           "examples": [
             "created",
-            "updated"
+            "updated",
+            "merged"
           ],
           "title": "Event",
           "type": "string"
         },
         "user": {
           "$ref": "#/$defs/User"
+        },
+        "sysinfo": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SystemInformation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -7089,6 +7178,19 @@
         "stratigraphic"
       ],
       "title": "VelocityContent",
+      "type": "object"
+    },
+    "VersionInformation": {
+      "properties": {
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "title": "VersionInformation",
       "type": "object"
     },
     "VolumesContent": {
