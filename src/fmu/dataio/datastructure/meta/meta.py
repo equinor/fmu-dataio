@@ -283,12 +283,23 @@ class TracklogEvent(BaseModel):
     )
 
 
+class Context(BaseModel):
+    """The internal FMU context in which this data object was produced"""
+
+    stage: Literal[
+        "case",
+        "iteration",
+        "realization",
+    ]
+
+
 class FMU(BaseModel):
     """
     The FMU block records properties that are specific to FMU
     """
 
     case: FMUCase
+    context: Context
     model: FMUModel
     iteration: Optional[Iteration] = Field(default=None)
     workflow: Optional[Workflow] = Field(default=None)
