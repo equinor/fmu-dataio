@@ -1,0 +1,7 @@
+dataio.types module
+===================
+
+.. automodule:: dataio.types
+   :members:
+   :undoc-members:
+   :show-inheritance:
