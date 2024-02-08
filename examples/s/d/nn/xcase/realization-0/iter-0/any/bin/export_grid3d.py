@@ -6,8 +6,8 @@ import fmu.dataio as dataio
 import xtgeo
 from fmu.config import utilities as ut
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
