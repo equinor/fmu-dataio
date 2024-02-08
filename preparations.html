@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prepare FMU workflow to produce rich metadata &mdash; fmu.dataio 0.1.dev1+g0ca6bc1 documentation</title>
+  <title>Use fmu-dataio in an FMU workflow &mdash; fmu.dataio 0.1.dev1+g3f52d9e documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -60,13 +60,22 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html#getting-started">Getting started</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Prepare FMU workflow to produce rich metadata</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#insert-key-model-metadata-into-global-variables-yml">Insert key model metadata into global_variables.yml</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#workflow-for-creating-case-metadata">Workflow for creating case metadata</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#include-a-data-export-job">Include a data export job</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#what-about-sumo">What about Sumo?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Use fmu-dataio in an FMU workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#global-variables-yml-masterdata">global_variables.yml | <strong>masterdata</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#country">Country</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#field">Field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#discovery">Discovery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#coordinate-reference-system">Coordinate Reference System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stratigraphic-column">Stratigraphic Column</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#global-variables-yml-access">global_variables.yml | <strong>access</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="#global-variables-yml-stratigraphy">global_variables.yml | <strong>stratigraphy</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="#global-variables-yml-model">global_variables.yml | <strong>model</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-for-creating-case-metadata">Workflow for creating case metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#include-a-data-export-job">Include a data export job</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
@@ -89,7 +98,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Prepare FMU workflow to produce rich metadata</li>
+      <li class="breadcrumb-item active">Use fmu-dataio in an FMU workflow</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/preparations.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -99,26 +108,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="prepare-fmu-workflow-to-produce-rich-metadata">
-<h1>Prepare FMU workflow to produce rich metadata<a class="headerlink" href="#prepare-fmu-workflow-to-produce-rich-metadata" title="Permalink to this heading"></a></h1>
-<p>In order to start using fmu-dataio and produce valid metadata for FMU output, some
+  <section id="use-fmu-dataio-in-an-fmu-workflow">
+<h1>Use fmu-dataio in an FMU workflow<a class="headerlink" href="#use-fmu-dataio-in-an-fmu-workflow" title="Permalink to this heading"></a></h1>
+<p>In order to start using fmu-dataio and produce rich metadata for FMU output, some
 preparations are necessary to your workflow. Expected time consumption is less than an hour.</p>
 <p>You will do the following:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Find and enter some key model metadata into <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code></p></li>
-<li><p>Include an ERT workflow for establishing case metadata</p></li>
+<li><p>Find and enter some key model metadata into <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code>, including references to Equinor masterdata.</p></li>
+<li><p>Include an ERT workflow for generating case metadata</p></li>
 <li><p>Include one script for data export</p></li>
 </ul>
 </div></blockquote>
 <p>You may also find it helpful to look at the Drogon tutorial project for this. This is
 in the category “really easy when you know how to do it” so don’t hesitate to ask for help!</p>
-<section id="insert-key-model-metadata-into-global-variables-yml">
-<h2>Insert key model metadata into global_variables.yml<a class="headerlink" href="#insert-key-model-metadata-into-global-variables-yml" title="Permalink to this heading"></a></h2>
+<section id="global-variables-yml-masterdata">
+<h2>global_variables.yml | <strong>masterdata</strong><a class="headerlink" href="#global-variables-yml-masterdata" title="Permalink to this heading"></a></h2>
+<p>References to the Equinor masterdata are essential context for enabling other systems to
+use FMU results.</p>
 <p>In <code class="docutils literal notranslate"><span class="pre">fmuconfig/input/</span></code>, create <code class="docutils literal notranslate"><span class="pre">_masterdata.yml</span></code>. The content of this file shall be
-references to master data. We get our master data from SMDA, so you need to do some
-lookups there to find your masterdata references. In the FMU metadata, we currently use
-5 master data entries: country, discovery, field, coordinate_system and stratigraphic_column.</p>
+references to Equinor master data. We get our master data from SMDA, so you need to do some
+lookups there to find your references.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Master data are “data about the business entities that provide context for business
@@ -133,31 +143,105 @@ Norway, and we refer to this instead. And all those various names are <em>proper
 this commonly defined entity. These definitions, we store as <em>master data</em> because no
 single applications shall own this definition.</p>
 </div>
-<p>This is the content of <code class="docutils literal notranslate"><span class="pre">_masterdata.yml</span></code> from the Drogon example. Adjust to your needs:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">smda</span><span class="p">:</span>
+<p>This is an example of <code class="docutils literal notranslate"><span class="pre">_masterdata.yml</span></code> from Drogon. Adjust to your needs:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note! Drogon is synthetic, so UUID&#39;s below are examples.</span>
+
+<span class="nt">smda</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">country</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Norway</span>
-<span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Westeros</span>
+<span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
 <span class="w">  </span><span class="nt">discovery</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">short_identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span>
-<span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-8a1d-19da-e053-c918a4889309</span>
+<span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
 <span class="w">  </span><span class="nt">field</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON</span>
 <span class="w">      </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
 <span class="w">  </span><span class="nt">coordinate_system</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P32637</span>
-<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad214d85-dac7-19da-e053-c918a4889309</span>
+<span class="w">    </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ST_WGS84_UTM37N_P12345</span>
+<span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
 <span class="w">  </span><span class="nt">stratigraphic_column</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON_HAS_NO_STRATCOLUMN</span>
+<span class="w">    </span><span class="nt">identifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DROGON_2008</span>
 <span class="w">    </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
 </pre></div>
 </div>
-<p>Note that <code class="docutils literal notranslate"><span class="pre">country</span></code>, <code class="docutils literal notranslate"><span class="pre">discovery</span></code> and <code class="docutils literal notranslate"><span class="pre">field</span></code> are lists. Most of us will only need one
-entry in the list, but in some cases, more will be required. E.g. if a model is covering
-more than one field, or more than one country.</p>
-<p>To find the unique identifiers, go to <a class="reference external" href="https://smda.equinor.com/">https://smda.equinor.com/</a> -&gt; viewer. You can usually
-use the <code class="docutils literal notranslate"><span class="pre">identifier</span></code> (often just the name) to identify the correct entity.</p>
-<p>Next, establish <code class="docutils literal notranslate"><span class="pre">_access.yml</span></code>. In this file, you will enter some information related
+<p>Note that <code class="docutils literal notranslate"><span class="pre">country</span></code>, <code class="docutils literal notranslate"><span class="pre">discovery</span></code> and <code class="docutils literal notranslate"><span class="pre">field</span></code> are lists (can have more than one),
+while <code class="docutils literal notranslate"><span class="pre">coordinate_system</span></code> and <code class="docutils literal notranslate"><span class="pre">stratigraphic_column</span></code> are not.</p>
+<p>To find the information for your model, use <a class="reference external" href="https://opus.smda.equinor.com/smda_viewer/">SMDA Viewer</a>.
+You will see a number of topics, and below each topic you will see several tiles.
+(Direct links to the tiles you need will be provided further down, but clicking around a
+bit in SMDA is encouraged to get a feel for what our master data looks like.)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can always use Ctrl+F to quickly search in the Viewer.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is a “hide map” button in the upper right toolbar, make a mental note - you will
+be looking for it soon.</p>
+</div>
+<p>Now we find and fill in the values we need:</p>
+<section id="country">
+<h3>Country<a class="headerlink" href="#country" title="Permalink to this heading"></a></h3>
+<p>Under “Reference data”, click the <a class="reference external" href="https://opus.smda.equinor.com/smda_viewer/countries">Country</a>
+tile. Each line in the table represents one country. Find yours directly or use the filters to narrow down.
+Once you find your country, locate the <code class="docutils literal notranslate"><span class="pre">UUID</span></code>. For <code class="docutils literal notranslate"><span class="pre">Norway</span></code>, the corresponding
+<code class="docutils literal notranslate"><span class="pre">UUID</span></code> is <code class="docutils literal notranslate"><span class="pre">ad214d85-8a1d-19da-e053-c918a4889309</span></code>.</p>
+</section>
+<section id="field">
+<h3>Field<a class="headerlink" href="#field" title="Permalink to this heading"></a></h3>
+<p>Go back to the Viewer, click <a class="reference external" href="https://opus.smda.equinor.com/smda_viewer/fields">Fields</a>
+(still under “Reference data”) tile. Locate the line representing your field, locate the
+<code class="docutils literal notranslate"><span class="pre">itentifier</span></code> and the <code class="docutils literal notranslate"><span class="pre">UUID</span></code> entries and insert those in <code class="docutils literal notranslate"><span class="pre">_masterdata.yml</span></code>. Since a model
+can cover multiple fields, this entry is a <em>list</em> and you can insert multiple fields if
+that applies to you.</p>
+</section>
+<section id="discovery">
+<h3>Discovery<a class="headerlink" href="#discovery" title="Permalink to this heading"></a></h3>
+<p>From the Viewer, click <a class="reference external" href="https://opus.smda.equinor.com/smda_viewer/discoveries">Discoveries</a>
+(still under “Reference data”) tile. The concept of “discovery” is likely not something
+you are familiar with, and it may not always be intuitive. First, find your <code class="docutils literal notranslate"><span class="pre">FIELD</span></code>.
+For most fields, there is only one discovery. However other fields may have more than
+one discovery. For each discovery your model is covering, find the <code class="docutils literal notranslate"><span class="pre">Short</span> <span class="pre">Identifier</span></code> +
+the <code class="docutils literal notranslate"><span class="pre">UUID</span></code> fields and insert those in your yaml. Since a model can cover multiple
+discoveries, this entry is a <em>list</em>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">discovery</span></code> also have an <code class="docutils literal notranslate"><span class="pre">identifier</span></code>. But this is related to the discovery
+well and we <em>do not use that</em>. For discovery, we use <code class="docutils literal notranslate"><span class="pre">Short</span> <span class="pre">identifier</span></code>.</p>
+</div>
+</section>
+<section id="coordinate-reference-system">
+<h3>Coordinate Reference System<a class="headerlink" href="#coordinate-reference-system" title="Permalink to this heading"></a></h3>
+<p>First, go to RMS and note which coordinate reference system you are using. From the main menu
+in RMS select <code class="docutils literal notranslate"><span class="pre">tools</span></code>, then select <code class="docutils literal notranslate"><span class="pre">Coordinate</span> <span class="pre">system</span></code>.
+From the Viewer, click <a class="reference external" href="https://opus.smda.equinor.com/smda_viewer/crs">Coordinate Reference System</a>,
+and locate your coordinate system. Find the <code class="docutils literal notranslate"><span class="pre">identifier</span></code> and the <code class="docutils literal notranslate"><span class="pre">UUID</span></code> fields, and insert
+those into your yaml. Note that there can only be one coordinate system, so unlike some of the
+other entries, this one is <em>not</em> a list.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The coordinate system entry in the yaml file will be used to tag your produced data with
+the coordinate system that was used when generating them. Therefore, the important thing
+here is to write the coordinate system <em>you are actually using</em>. Note also that systems
+may not have exactly identical names. The one you are using in RMS may be older, etc.</p>
+</div>
+</section>
+<section id="stratigraphic-column">
+<h3>Stratigraphic Column<a class="headerlink" href="#stratigraphic-column" title="Permalink to this heading"></a></h3>
+<p>From the viewer, click <a class="reference external" href="https://opus.smda.equinor.com/smda_viewer/strat-column">Stratigraphic Column</a>
+and locate your stratcolumn. Transfer the <code class="docutils literal notranslate"><span class="pre">identifier</span></code> and the <code class="docutils literal notranslate"><span class="pre">UUID</span></code> fields into your yaml. Note
+that there can be only one stratigraphic column, so this entry is <em>not</em> a list.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you do not know the name of the stratigraphic column used on your field, ask a geologist
+or someone else who normally do work within OpenWorks.</p>
+</div>
+</section>
+</section>
+</section>
+<section id="global-variables-yml-access">
+<h1>global_variables.yml | <strong>access</strong><a class="headerlink" href="#global-variables-yml-access" title="Permalink to this heading"></a></h1>
+<p>Next, create <code class="docutils literal notranslate"><span class="pre">_access.yml</span></code>. In this file, you will enter some information related
 to how FMU results from your workflow are to be governed when it comes to access rights.</p>
 <p>Example from Drogon:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">asset</span><span class="p">:</span>
@@ -167,26 +251,31 @@ to how FMU results from your workflow are to be governed when it comes to access
 <span class="w">  </span><span class="nt">rep_include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
-<p>Under <code class="docutils literal notranslate"><span class="pre">asset.name</span></code> you will put the name of your asset. This is only relevant if you plan
-to upload data to Sumo, and in that case, you will be told by the Sumo team what asset
-should be.</p>
+<p>Under <code class="docutils literal notranslate"><span class="pre">asset.name</span></code> you will put the name of your asset. If you plan to upload data to
+Sumo, you will be told by the Sumo team what asset should be.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>“I cannot find asset in SMDA, and why does asset not have a unique ID”?</p>
 <p>Currently, “asset” is not covered by master data/SMDA. However, it is a vitally important
 piece of information that governs both ownership and access to data when stored in the
-cloud. Often, asset is identical to “field” but not always.</p>
+cloud. Sometimes, asset is identical to “field” but frequently it is not.</p>
 </div>
 <p>Under <code class="docutils literal notranslate"><span class="pre">ssdl</span></code>, you will enter some defaults regarding data sharing with the Subsurface Data Lake.
-In the Drogon example, data are by default available to SSDL, but you may want to do differently.</p>
+In the Drogon example, data are by default available to SSDL, but you may want to do differently.
+Valid entries here are <code class="docutils literal notranslate"><span class="pre">internal</span></code> and <code class="docutils literal notranslate"><span class="pre">restricted</span></code>.</p>
 <p>Note that you can override this default setting at any point when exporting data, and also
-note that no data will be lifted to the lake without explicit action by the data owner.</p>
+note that no data will be lifted to the lake without explicit action by you.</p>
+</section>
+<section id="global-variables-yml-stratigraphy">
+<h1>global_variables.yml | <strong>stratigraphy</strong><a class="headerlink" href="#global-variables-yml-stratigraphy" title="Permalink to this heading"></a></h1>
 <p>Finally, establish <code class="docutils literal notranslate"><span class="pre">_stratigraphy.yml</span></code>. This is a bit more heavy, and relates to the
 <code class="docutils literal notranslate"><span class="pre">stratigraphic_column</span></code> referred to earlier. In short, when applicable, stratigraphic intervals
 used in the model setup must be mapped to their respective references in the stratigraphic column.
-We do this, by listing the names used inside the model (usually the names reflected in RMS).</p>
-<p><code class="docutils literal notranslate"><span class="pre">_stratigraphy.yml</span></code> contains a dictionary per stratigraphic entity in the model, with keys
-reflecting different properties of that stratigraphic level.</p>
+The stratigraphic elements do not (currently) have unique ID’s. Instead, they rely on their
+<em>name</em> as an identifier. For this reason, when exporting anything that needs to be linked
+to the stratigraphic column, fmu-dataio will <em>change the name</em> to the official name as it
+appears in the stratigraphic columns. The mechanism we use to do this, is a dictionary of all
+horizons and zones, which we place into <code class="docutils literal notranslate"><span class="pre">_stratigraphy.yml</span></code>.</p>
 <p>The <em>key</em> of each entry is identical to the name used in RMS. There are two required
 values: <code class="docutils literal notranslate"><span class="pre">name</span></code> (the official name as listed in the stratigraphic column) and
 <code class="docutils literal notranslate"><span class="pre">stratigraphic</span></code> (True if stratigraphic level is listed in the stratigraphic columns, False if not).</p>
@@ -208,7 +297,6 @@ and is in the stratigraphic column, while “Seabed” is not.</p>
 <span class="nt">Seabed</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Seabed</span>
-
 <span class="nt">TopVolantis</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VOLANTIS GP. Top</span>
@@ -218,7 +306,6 @@ and is in the stratigraphic column, while “Seabed” is not.</p>
 <span class="w">    </span><span class="nt">stratigraphic_alias</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TopValysar</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Valysar Fm. Top</span>
-
 <span class="nt">TopTherys</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">stratigraphic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Therys Fm. Top</span>
@@ -235,9 +322,29 @@ and is in the stratigraphic column, while “Seabed” is not.</p>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Valysar Fm.</span>
 </pre></div>
 </div>
-<p>Finally, in <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code> we will do 2 things. First, we will enter a <code class="docutils literal notranslate"><span class="pre">model</span></code>
-block which contains some information about the model setup. Then, we will include the
-3 files made above. Example from Drogon:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>fmu-dataio will do validation of this configuration, and report to you if there are
+errors of any kind. Later, you will create a first script for exporting data, and you
+might see validation errors then if you have made mistakes here.</p>
+</div>
+</section>
+<section id="global-variables-yml-model">
+<h1>global_variables.yml | <strong>model</strong><a class="headerlink" href="#global-variables-yml-model" title="Permalink to this heading"></a></h1>
+<p>Now we insert the <code class="docutils literal notranslate"><span class="pre">model</span></code> entry in <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">model</span></code> block contains basic information about the model. According to the FMU standard,
+all model setups should have a name and a revision. This is important information for
+any usage of model results, and other systems such as REP will actively use this information
+to render the data.</p>
+<p>In the example below, you see how this is inserted. You also see that we have included
+the three files we made above (<code class="docutils literal notranslate"><span class="pre">_masterdata.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">_access.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">_stratigraphy.yml</span></code>)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">!include</span></code> statement simply inserts contents from another file into the main
+yaml file. You could also put the contents directly into <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code>, but
+we encourage using <code class="docutils literal notranslate"><span class="pre">!include</span></code> to keep the main <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code> somewhat tidy.</p>
+</div>
+<p>The global_variables.yml now looks like this:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
 
 <span class="l l-Scalar l-Scalar-Plain">(rest of global_variables.yml)</span>
@@ -255,16 +362,20 @@ block which contains some information about the model setup. Then, we will inclu
 <span class="nt">stratigraphy</span><span class="p">:</span><span class="w"> </span><span class="kt">!include</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_stratigraphy.yml</span>
 </pre></div>
 </div>
-<p>You are done with the first part! This is to a large degree a one-off thing, and you
-should not expect to have to do this again and again.</p>
-</section>
+<p><strong>You are done with the first part!</strong> We know this was boring and probably somewhat
+confusing. The good news is that this is to a large degree a one-off thing, and you
+should not expect to have to do this again and again. Perhaps never again!</p>
 <section id="workflow-for-creating-case-metadata">
 <h2>Workflow for creating case metadata<a class="headerlink" href="#workflow-for-creating-case-metadata" title="Permalink to this heading"></a></h2>
-<p>For each FMU case, a set of metadata is generated and temporarily stored on
+<p>It is time to create the ERT workflow which will generate case metadata. <strong>Case metadata</strong>
+are metadata about the specific <em>case</em> you are running. A <em>case</em> in this context is a group
+of one or more ensembles, which will appear in the same folder structure on /scratch.
+Example: <code class="docutils literal notranslate"><span class="pre">/scratch/&lt;asset&gt;/&lt;user&gt;/&lt;CASE&gt;/...</span></code>.</p>
+<p>For each FMU case, a set of metadata is generated and stored on
 /scratch/&lt;case_directory&gt;/share/metadata/fmu_results.yml. The case metadata are read by
 individual export jobs, and, if you opt to upload data into Sumo, the case metadata are
-used to register the case.</p>
-<p>Case metadata are made by a hooked ERT workflow running <code class="docutils literal notranslate"><span class="pre">PRE_SIMULATION</span></code>.</p>
+used to register the case. Case metadata are made by a hooked (pre-sim) ERT workflow
+running <code class="docutils literal notranslate"><span class="pre">PRE_SIMULATION</span></code>.</p>
 <p>To make this, first create the workflow file in <code class="docutils literal notranslate"><span class="pre">ert/bin/workflows/xhook_create_case_metadata</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -300,7 +411,7 @@ WF_CREATE_CASE_METADATA  &lt;SCRATCH&gt;/&lt;USER&gt;/&lt;CASE_DIR&gt;  &lt;CONF
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Note that there are references to Sumo in the script above. You don’t have to worry
-about that for now, but we will return to this if applicable.</p>
+about that for now.</p>
 </div>
 <p>Now, load this workflow in your ERT config file and make it a HOOK workflow:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">--</span> <span class="n">Hook</span> <span class="n">workflow</span> <span class="k">for</span> <span class="n">creating</span> <span class="n">case</span> <span class="n">metadata</span> <span class="ow">and</span> <span class="p">(</span><span class="n">optional</span><span class="p">)</span> <span class="n">registering</span> <span class="n">case</span> <span class="n">on</span> <span class="n">Sumo</span>
@@ -322,14 +433,11 @@ case metadata appear in <code class="docutils literal notranslate"><span class="
 <p>To verify that data export now works, add one job to your workflow. Pick something simple,
 such as depth surfaces from the structural model or similar. Use one of the examples on
 the next page to get going, and/or have a look at the Drogon tutorial project.</p>
-<section id="what-about-sumo">
-<h3>What about Sumo?<a class="headerlink" href="#what-about-sumo" title="Permalink to this heading"></a></h3>
 <p>Odds are that you are implementing rich metadata export so that you can start utilizing
 Sumo. Producing metadata with exported data is a pre-requisite for using Sumo. When you
-have undertaken the steps above, you are good to go! Head to the
-<a class="reference external" href="https://fmu-sumo.app.radix.equinor.com/documentation">Sumo</a> documentation to
+have undertaken the steps above, you are good to go! Head to
+<a class="reference external" href="https://fmu-sumo.app.radix.equinor.com/">Sumo</a> and click “documentation” to
 get going 👍</p>
-</section>
 </section>
 </section>
 
@@ -344,7 +452,7 @@ get going 👍</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g0ca6bc1).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g3f52d9e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

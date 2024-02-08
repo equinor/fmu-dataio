@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overview &mdash; fmu.dataio 0.1.dev1+g0ca6bc1 documentation</title>
+  <title>Overview &mdash; fmu.dataio 0.1.dev1+g3f52d9e documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -28,7 +28,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Prepare FMU workflow to produce rich metadata" href="preparations.html" />
+    <link rel="next" title="Use fmu-dataio in an FMU workflow" href="preparations.html" />
     <link rel="prev" title="Contributing" href="contributing.html" /> 
 </head>
 
@@ -63,7 +63,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#getting-started">Getting started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preparations.html">Prepare FMU workflow to produce rich metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preparations.html">Use fmu-dataio in an FMU workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preparations.html#global-variables-yml-access">global_variables.yml | <strong>access</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="preparations.html#global-variables-yml-stratigraphy">global_variables.yml | <strong>stratigraphy</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="preparations.html#global-variables-yml-model">global_variables.yml | <strong>model</strong></a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apiref/modules.html">API reference for fmu.dataio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="datamodel.html">The FMU results data model</a></li>
@@ -97,35 +100,48 @@
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">fmu-dataio</span></code> is a library for exporting data out of FMU workflows. In addition to making
-data export on the current (filename-based) standard easier, it also exports rich metadata
-making it possible to utilize cloud storage (Sumo). Further, centralizing export methods
-like this makes workflows simpler and less prone to break when changes are made.</p>
-<p>The library works both inside RMS and outside RMS.</p>
+data export on the current (filename-based) standard easier, it also creates and attaches
+metadata to the exported data.</p>
+<p>In a Python script running somewhere in the FMU workflow, usage of <code class="docutils literal notranslate"><span class="pre">fmu-dataio</span></code> looks
+roughly like this (more detailed working examples are provided elsewhere in this documentation):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fmu.dataio</span> <span class="kn">import</span> <span class="n">ExportData</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">make_my_data</span><span class="p">()</span> <span class="c1"># how you create a data object is same as before</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">get_global_config</span><span class="p">()</span> <span class="c1"># how you read global config is same as before</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">ExportData</span><span class="p">(</span> <span class="c1"># ExportData takes a number of arguments, these are examples.</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
+    <span class="n">content</span><span class="o">=</span><span class="s2">&quot;volumes&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="c1"># this is the export.</span>
+</pre></div>
+</div>
+<p>Although long-term intention is to discontinue this, exported data will still be stored
+to the underlying disk structure on which FMU is running (i.e. /scratch). When storing
+data to disk, <code class="docutils literal notranslate"><span class="pre">fmu-dataio</span></code> will store the data file according to the current filename-oriented
+FMU data standard. Next to it, with a corresponding file name, it will store the metadata according
+to the metadata-based FMU data standard.</p>
+<p>Example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">share/results/tables/mytable.csv</span>
+<span class="go">share/results/tables/.mytable.csv.yml &lt;-- metadata</span>
+</pre></div>
+</div>
+<p>Context on multiple levels are added to these metadata. First of all, references to
+Equinor master data is required, but also FMU-specific context such as which model was
+used to produce the data, which realization and iteration a specific file is produced in,
+and much more.</p>
 <section id="static-and-object-specific-metadata">
 <h2>Static and object-specific metadata<a class="headerlink" href="#static-and-object-specific-metadata" title="Permalink to this heading"></a></h2>
 <p>Metadata are in general “data about the data”. For instance a pure surface
 export file (e.g. irap binary) will have information about data itself (like
 values in the map, and bounding box) but the file has no idea of which FMU run it
-belongs to, or which field it comes from or what horizon it represents.</p>
+belongs to, or which field it comes from or what data contents it is representing.</p>
 <p>Some metadata contents are <em>static for the model</em>, meaning that they will be
-the same for all runs of a specific model setup. Examples are masterdata relations
-(<strong>field</strong>, <strong>country</strong>, etc).</p>
-<p>Some metadata contents are <em>static to the case</em>, meaning that they will be the same
-for all data belonging to a specific case. Example: Metadata about the case itself.</p>
-<p>Other metadata are object-specific, i.e. they will vary per item which is exported. For
-instance, content metadata are object-specific as some surfaces are in depth domain, some in
-time and other represents e.g. an average property.</p>
-<p>Basically it works like this in a FMU run:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><em>Metadata static for the model</em> comes from the fmu-config YAML file.</p></li>
-<li><p><em>Metadata static for the case</em> comes from ERT.</p></li>
-<li><p><em>Object-specific metadata</em> must be provided in the export.</p></li>
-</ul>
-</div></blockquote>
-<p>The metadata is materialized as .yaml-files together with the actual data files, as
-described in the FMU standard. This means that for each file, e.g. an exported surface
-called <cite>my_surface.gri</cite> there will be a corresponding .yaml file called <cite>.mysurface.gri.yml</cite>.</p>
+the same for all runs of a specific model setup. Some metadata contents are <em>static to
+the case</em>, meaning that they will be the same for all data belonging to a specific case.
+Other metadata are object-specific, i.e. they will vary per item which is exported.</p>
+<p>Given the amount of data produced by a single FMU run, it is impossible to contextualize
+the data manually on this granularity. Therefore, <code class="docutils literal notranslate"><span class="pre">fmu-dataio</span></code> automates this.</p>
 <p>The data model used for FMU results is a partly denormalized data model, meaning that some
 static data will be repeated across many data objects. Example: Each exported data object contains
 basic information about the FMU case it belongs to, such as a unique ID for this case,
@@ -147,13 +163,13 @@ described <a class="reference external" href="./preparations.html">here</a></p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="contributing.html" class="btn btn-neutral float-left" title="Contributing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="preparations.html" class="btn btn-neutral float-right" title="Prepare FMU workflow to produce rich metadata" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="preparations.html" class="btn btn-neutral float-right" title="Use fmu-dataio in an FMU workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g0ca6bc1).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g3f52d9e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
