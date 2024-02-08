@@ -1,25 +1,27 @@
-Prepare FMU workflow to produce rich metadata
-=============================================
+Use fmu-dataio in an FMU workflow
+=================================
 
-In order to start using fmu-dataio and produce valid metadata for FMU output, some
+In order to start using fmu-dataio and produce rich metadata for FMU output, some
 preparations are necessary to your workflow. Expected time consumption is less than an hour.
 
 You will do the following:
 
-    * Find and enter some key model metadata into ``global_variables.yml``
-    * Include an ERT workflow for establishing case metadata
+    * Find and enter some key model metadata into ``global_variables.yml``, including references to Equinor masterdata.
+    * Include an ERT workflow for generating case metadata
     * Include one script for data export
 
 You may also find it helpful to look at the Drogon tutorial project for this. This is
 in the category "really easy when you know how to do it" so don't hesitate to ask for help!
 
-Insert key model metadata into global_variables.yml
----------------------------------------------------
+global_variables.yml | **masterdata**
+-------------------------------------
+
+References to the Equinor masterdata are essential context for enabling other systems to
+use FMU results.
 
 In ``fmuconfig/input/``, create ``_masterdata.yml``. The content of this file shall be
-references to master data. We get our master data from SMDA, so you need to do some
-lookups there to find your masterdata references. In the FMU metadata, we currently use
-5 master data entries: country, discovery, field, coordinate_system and stratigraphic_column.
+references to Equinor master data. We get our master data from SMDA, so you need to do some
+lookups there to find your references.
 
 .. note:: 
   Master data are "data about the business entities that provide context for business
@@ -35,35 +37,104 @@ lookups there to find your masterdata references. In the FMU metadata, we curren
   single applications shall own this definition.
 
 
-This is the content of ``_masterdata.yml`` from the Drogon example. Adjust to your needs:
+This is an example of ``_masterdata.yml`` from Drogon. Adjust to your needs:
 
 .. code-block:: yaml
 
+    # Note! Drogon is synthetic, so UUID's below are examples.
+
     smda:
       country:
-        - identifier: Norway
-          uuid: ad214d85-8a1d-19da-e053-c918a4889309
+        - identifier: Westeros
+          uuid: 00000000-0000-0000-0000-000000000000
       discovery:
         - short_identifier: DROGON
-          uuid: ad214d85-8a1d-19da-e053-c918a4889309
+          uuid: 00000000-0000-0000-0000-000000000000
       field:
         - identifier: DROGON
           uuid: 00000000-0000-0000-0000-000000000000
       coordinate_system:
-        identifier: ST_WGS84_UTM37N_P32637
-        uuid: ad214d85-dac7-19da-e053-c918a4889309
+        identifier: ST_WGS84_UTM37N_P12345
+        uuid: 00000000-0000-0000-0000-000000000000
       stratigraphic_column:
-        identifier: DROGON_HAS_NO_STRATCOLUMN
+        identifier: DROGON_2008
         uuid: 00000000-0000-0000-0000-000000000000
 
-Note that ``country``, ``discovery`` and ``field`` are lists. Most of us will only need one
-entry in the list, but in some cases, more will be required. E.g. if a model is covering
-more than one field, or more than one country.
+Note that ``country``, ``discovery`` and ``field`` are lists (can have more than one),
+while ``coordinate_system`` and ``stratigraphic_column`` are not.
 
-To find the unique identifiers, go to https://smda.equinor.com/ -> viewer. You can usually
-use the ``identifier`` (often just the name) to identify the correct entity.
+To find the information for your model, use `SMDA Viewer <https://opus.smda.equinor.com/smda_viewer/>`_. 
+You will see a number of topics, and below each topic you will see several tiles.
+(Direct links to the tiles you need will be provided further down, but clicking around a
+bit in SMDA is encouraged to get a feel for what our master data looks like.)
 
-Next, establish ``_access.yml``. In this file, you will enter some information related
+.. note::
+  You can always use Ctrl+F to quickly search in the Viewer.
+
+.. note::
+  There is a "hide map" button in the upper right toolbar, make a mental note - you will
+  be looking for it soon.
+
+Now we find and fill in the values we need:
+
+Country
+^^^^^^^
+Under "Reference data", click the `Country <https://opus.smda.equinor.com/smda_viewer/countries>`_
+tile. Each line in the table represents one country. Find yours directly or use the filters to narrow down.
+Once you find your country, locate the ``UUID``. For ``Norway``, the corresponding
+``UUID`` is ``ad214d85-8a1d-19da-e053-c918a4889309``.
+
+Field
+^^^^^
+Go back to the Viewer, click `Fields <https://opus.smda.equinor.com/smda_viewer/fields>`_
+(still under "Reference data") tile. Locate the line representing your field, locate the 
+``itentifier`` and the ``UUID`` entries and insert those in ``_masterdata.yml``. Since a model
+can cover multiple fields, this entry is a *list* and you can insert multiple fields if
+that applies to you.
+
+Discovery
+^^^^^^^^^
+From the Viewer, click `Discoveries <https://opus.smda.equinor.com/smda_viewer/discoveries>`_
+(still under "Reference data") tile. The concept of "discovery" is likely not something
+you are familiar with, and it may not always be intuitive. First, find your ``FIELD``. 
+For most fields, there is only one discovery. However other fields may have more than
+one discovery. For each discovery your model is covering, find the ``Short Identifier`` +
+the ``UUID`` fields and insert those in your yaml. Since a model can cover multiple
+discoveries, this entry is a *list*.
+
+.. note::
+  Note that ``discovery`` also have an ``identifier``. But this is related to the discovery
+  well and we *do not use that*. For discovery, we use ``Short identifier``.
+
+Coordinate Reference System
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+First, go to RMS and note which coordinate reference system you are using. From the main menu
+in RMS select ``tools``, then select ``Coordinate system``.
+From the Viewer, click `Coordinate Reference System <https://opus.smda.equinor.com/smda_viewer/crs>`_, 
+and locate your coordinate system. Find the ``identifier`` and the ``UUID`` fields, and insert
+those into your yaml. Note that there can only be one coordinate system, so unlike some of the
+other entries, this one is *not* a list.
+
+.. note::
+  The coordinate system entry in the yaml file will be used to tag your produced data with
+  the coordinate system that was used when generating them. Therefore, the important thing
+  here is to write the coordinate system *you are actually using*. Note also that systems
+  may not have exactly identical names. The one you are using in RMS may be older, etc.
+
+Stratigraphic Column
+^^^^^^^^^^^^^^^^^^^^
+From the viewer, click `Stratigraphic Column <https://opus.smda.equinor.com/smda_viewer/strat-column>`_
+and locate your stratcolumn. Transfer the ``identifier`` and the ``UUID`` fields into your yaml. Note
+that there can be only one stratigraphic column, so this entry is *not* a list.
+
+.. note::
+  If you do not know the name of the stratigraphic column used on your field, ask a geologist
+  or someone else who normally do work within OpenWorks.
+
+global_variables.yml | **access**
+=================================
+
+Next, create ``_access.yml``. In this file, you will enter some information related
 to how FMU results from your workflow are to be governed when it comes to access rights.
 
 
@@ -78,31 +149,34 @@ Example from Drogon:
       rep_include: true
 
 
-Under ``asset.name`` you will put the name of your asset. This is only relevant if you plan
-to upload data to Sumo, and in that case, you will be told by the Sumo team what asset
-should be.
+Under ``asset.name`` you will put the name of your asset. If you plan to upload data to
+Sumo, you will be told by the Sumo team what asset should be.
 
 .. note::
   "I cannot find asset in SMDA, and why does asset not have a unique ID"?
 
   Currently, "asset" is not covered by master data/SMDA. However, it is a vitally important
   piece of information that governs both ownership and access to data when stored in the
-  cloud. Often, asset is identical to "field" but not always.
+  cloud. Sometimes, asset is identical to "field" but frequently it is not.
 
 Under ``ssdl``, you will enter some defaults regarding data sharing with the Subsurface Data Lake.
 In the Drogon example, data are by default available to SSDL, but you may want to do differently.
+Valid entries here are ``internal`` and ``restricted``.
 
 Note that you can override this default setting at any point when exporting data, and also
-note that no data will be lifted to the lake without explicit action by the data owner.
+note that no data will be lifted to the lake without explicit action by you.
 
+global_variables.yml | **stratigraphy**
+=======================================
 
 Finally, establish ``_stratigraphy.yml``. This is a bit more heavy, and relates to the
 ``stratigraphic_column`` referred to earlier. In short, when applicable, stratigraphic intervals
 used in the model setup must be mapped to their respective references in the stratigraphic column.
-We do this, by listing the names used inside the model (usually the names reflected in RMS).
-
-``_stratigraphy.yml`` contains a dictionary per stratigraphic entity in the model, with keys
-reflecting different properties of that stratigraphic level.
+The stratigraphic elements do not (currently) have unique ID's. Instead, they rely on their
+*name* as an identifier. For this reason, when exporting anything that needs to be linked
+to the stratigraphic column, fmu-dataio will *change the name* to the official name as it
+appears in the stratigraphic columns. The mechanism we use to do this, is a dictionary of all
+horizons and zones, which we place into ``_stratigraphy.yml``.
 
 The *key* of each entry is identical to the name used in RMS. There are two required
 values: ``name`` (the official name as listed in the stratigraphic column) and 
@@ -117,6 +191,7 @@ In addition, you may want to use some of the *optional* values:
     * ``stratigraphic_alias`` is a list of valid *stratigraphic* aliases for this entry, e.g. when a 
     * | specific horizon is the top of both a formation and a group, or similar.
 
+
 From the Drogon tutorial:
 
 .. code-block:: yaml
@@ -125,7 +200,6 @@ From the Drogon tutorial:
     Seabed:
         stratigraphic: False
         name: Seabed
-
     TopVolantis:
         stratigraphic: True
         name: VOLANTIS GP. Top
@@ -135,7 +209,6 @@ From the Drogon tutorial:
         stratigraphic_alias:
         - TopValysar
         - Valysar Fm. Top
-
     TopTherys:
         stratigraphic: True
         name: Therys Fm. Top
@@ -151,10 +224,30 @@ From the Drogon tutorial:
         stratigraphic: True
         name: Valysar Fm.
 
+.. note::
+  fmu-dataio will do validation of this configuration, and report to you if there are
+  errors of any kind. Later, you will create a first script for exporting data, and you
+  might see validation errors then if you have made mistakes here.
 
-Finally, in ``global_variables.yml`` we will do 2 things. First, we will enter a ``model``
-block which contains some information about the model setup. Then, we will include the
-3 files made above. Example from Drogon:
+global_variables.yml | **model**
+================================
+Now we insert the ``model`` entry in ``global_variables.yml``.
+
+``model`` block contains basic information about the model. According to the FMU standard,
+all model setups should have a name and a revision. This is important information for
+any usage of model results, and other systems such as REP will actively use this information
+to render the data.
+
+In the example below, you see how this is inserted. You also see that we have included
+the three files we made above (``_masterdata.yml``, ``_access.yml`` and ``_stratigraphy.yml``)
+
+.. note::
+  The ``!include`` statement simply inserts contents from another file into the main
+  yaml file. You could also put the contents directly into ``global_variables.yml``, but
+  we encourage using ``!include`` to keep the main ``global_variables.yml`` somewhat tidy.
+
+
+The global_variables.yml now looks like this:
 
 .. code-block:: yaml
 
@@ -174,19 +267,25 @@ block which contains some information about the model setup. Then, we will inclu
     access: !include _access.yml
     stratigraphy: !include _stratigraphy.yml
 
-You are done with the first part! This is to a large degree a one-off thing, and you
-should not expect to have to do this again and again.
+
+**You are done with the first part!** We know this was boring and probably somewhat
+confusing. The good news is that this is to a large degree a one-off thing, and you
+should not expect to have to do this again and again. Perhaps never again!
 
 
 Workflow for creating case metadata
 -----------------------------------
 
-For each FMU case, a set of metadata is generated and temporarily stored on
+It is time to create the ERT workflow which will generate case metadata. **Case metadata**
+are metadata about the specific *case* you are running. A *case* in this context is a group
+of one or more ensembles, which will appear in the same folder structure on /scratch.
+Example: ``/scratch/<asset>/<user>/<CASE>/...``.
+
+For each FMU case, a set of metadata is generated and stored on
 /scratch/<case_directory>/share/metadata/fmu_results.yml. The case metadata are read by
 individual export jobs, and, if you opt to upload data into Sumo, the case metadata are
-used to register the case.
-
-Case metadata are made by a hooked ERT workflow running ``PRE_SIMULATION``.
+used to register the case. Case metadata are made by a hooked (pre-sim) ERT workflow
+running ``PRE_SIMULATION``.
 
 To make this, first create the workflow file in ``ert/bin/workflows/xhook_create_case_metadata``.
 
@@ -224,8 +323,7 @@ from the Drogon workflow:
 
 .. note::
     Note that there are references to Sumo in the script above. You don't have to worry
-    about that for now, but we will return to this if applicable.
-
+    about that for now.
 
 Now, load this workflow in your ERT config file and make it a HOOK workflow:
 
@@ -257,6 +355,6 @@ What about Sumo?
 
 Odds are that you are implementing rich metadata export so that you can start utilizing
 Sumo. Producing metadata with exported data is a pre-requisite for using Sumo. When you
-have undertaken the steps above, you are good to go! Head to the 
-`Sumo <https://fmu-sumo.app.radix.equinor.com/documentation>`__ documentation to
+have undertaken the steps above, you are good to go! Head to 
+`Sumo <https://fmu-sumo.app.radix.equinor.com/>`_ and click "documentation" to
 get going 👍

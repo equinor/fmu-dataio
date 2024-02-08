@@ -22,7 +22,7 @@ to do is:
 
 .. code-block:: python
 
-   import fmu.dataio
+   from fmu import dataio
 
 
 From github
@@ -62,4 +62,3 @@ Next you can install it with:
 
 .. _Equinor Github repo: https://github.com/equinor/fmu-dataio
 .. _virtual environment: http://docs.python-guide.org/en/latest/dev/virtualenvs/
-.. _manual install of Shapely: https://towardsdatascience.com/install-shapely-on-windows-72b6581bb46c
