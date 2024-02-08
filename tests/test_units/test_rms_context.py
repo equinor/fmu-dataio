@@ -187,7 +187,7 @@ def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsur
 def test_regsurf_export_file_fmurun(
     rmsrun_fmu_w_casemetadata, rmsglobalconfig, regsurf
 ):
-    """Being in RMS and in an active FMU ERT2 run with case metadata present.
+    """Being in RMS and in an active FMU ERT run with case metadata present.
 
     Export the regular surface to file with correct metadata and name.
     """

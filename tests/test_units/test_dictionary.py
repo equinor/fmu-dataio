@@ -36,7 +36,7 @@ def _fixture_json(fmurun_w_casemetadata):
         return json.load(stream)
 
 
-@pytest.fixture(name="simple_parameters", scope="session")
+@pytest.fixture(name="simple_parameters", scope="function")
 def _fixture_simple_parameters(fmurun_w_casemetadata):
     """Return dictionary read from parameters.txt
 

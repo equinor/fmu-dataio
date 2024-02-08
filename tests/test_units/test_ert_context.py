@@ -1,7 +1,9 @@
-"""Test the dataio running from ERT2 aka forward model as pretended context.
+"""Test the dataio running from ERT aka forward model as pretended context.
 
 In this case a user sits in ERT. Hence the rootpath will be ./
 """
+from __future__ import annotations
+
 import logging
 import os
 import sys
@@ -15,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def test_regsurf_generate_metadata(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
-    """Test generating metadata for a surface pretend ERT2 job"""
+    """Test generating metadata for a surface pretend ERT job"""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     os.chdir(fmurun_w_casemetadata)
 
@@ -37,7 +39,7 @@ def test_regsurf_generate_metadata_incl_jobs(
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     os.chdir(fmurun_w_casemetadata)
 
-    dataio.ExportData.include_ert2jobs = True
+    dataio.ExportData.include_ertjobs = True
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -47,7 +49,7 @@ def test_regsurf_generate_metadata_incl_jobs(
     meta = edata.generate_metadata(regsurf)
     assert meta["fmu"]["realization"]["jobs"]["umask"] == "0002"
 
-    dataio.ExportData.include_ert2jobs = False
+    dataio.ExportData.include_ertjobs = False
 
 
 def test_regsurf_metadata_with_timedata(
