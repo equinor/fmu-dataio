@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import datetime
 import getpass
+import os
 from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
@@ -25,8 +26,8 @@ from fmu.dataio._utils import (
     export_file_compute_checksum_md5,
     glue_metadata_preprocessed,
     read_metadata,
-    read_named_envvar,
 )
+from fmu.dataio.datastructure.meta import meta
 
 from ._logging import null_logger
 
@@ -50,25 +51,24 @@ def default_meta_dollars() -> dict:
 
 def generate_meta_tracklog() -> list[dict]:
     """Initialize the tracklog with the 'created' event only."""
-
-    dtime = datetime.datetime.now(timezone.utc).isoformat()
-    user = getpass.getuser()
-    sysinfo = {
-        "fmu-dataio": {
-            "version": dataio.__version__,
-        },
-    }
-    _kmd = read_named_envvar("KOMODO_RELEASE")
-    if _kmd is not None:
-        sysinfo["komodo"] = {"version": _kmd}
-
     return [
-        {
-            "datetime": dtime,
-            "user": {"id": user},
-            "event": "created",
-            "sysinfo": sysinfo,
-        }
+        meta.TracklogEvent.model_construct(
+            datetime=datetime.datetime.now(timezone.utc),
+            event="created",
+            user=meta.User.model_construct(id=getpass.getuser()),
+            sysinfo=meta.SystemInformation.model_construct(
+                fmu_dataio=meta.VersionInformation.model_construct(
+                    version=dataio.__version__,
+                ),
+                komodo=meta.VersionInformation.model_construct(version=kr)
+                if (kr := os.environ.get("KOMODO_RELEASE"))
+                else None,
+            ),
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
+            by_alias=True,
+        )
     ]
 
 
