@@ -19,7 +19,7 @@ import yaml
 
 from fmu.config import utilities as ut
 
-from . import _design_kw
+from . import _design_kw, types
 from ._logging import null_logger
 
 logger: Final = null_logger(__name__)
@@ -209,7 +209,7 @@ def uuid_from_string(string: str) -> str:
     return str(uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest()))
 
 
-def read_parameters_txt(pfile: Path | str) -> dict[str, str | float | int | None]:
+def read_parameters_txt(pfile: Path | str) -> types.Parameters:
     """Read the parameters.txt file and convert to a dict.
     The parameters.txt file has this structure::
       SENSNAME rms_seed
@@ -252,9 +252,7 @@ def read_parameters_txt(pfile: Path | str) -> dict[str, str | float | int | None
     return {key: check_if_number(value) for key, value in dict_str_to_str.items()}
 
 
-def nested_parameters_dict(
-    paramdict: dict[str, str | int | float],
-) -> dict[str, str | int | float | dict[str, str | int | float]]:
+def nested_parameters_dict(paramdict: dict[str, str | int | float]) -> types.Parameters:
     """Interpret a flat parameters dictionary into a nested dictionary, based on
     presence of colons in keys.
 
@@ -263,7 +261,7 @@ def nested_parameters_dict(
     In design_kw (semeio) this namespace identifier is actively ignored, meaning that
     the keys without the namespace must be unique.
     """
-    nested_dict: dict[str, str | int | float | dict[str, str | int | float]] = {}
+    nested_dict: types.Parameters = {}
     unique_keys: list[str] = []
     for key, value in paramdict.items():
         if ":" in key:
