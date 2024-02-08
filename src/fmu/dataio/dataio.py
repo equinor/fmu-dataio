@@ -10,7 +10,7 @@ import warnings
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, ClassVar, Final, List, Literal, Optional, Union
+from typing import Any, ClassVar, Dict, Final, List, Literal, Optional, Union
 from warnings import warn
 
 import pandas as pd
@@ -19,28 +19,27 @@ from pydantic import ValidationError as PydanticValidationError
 from . import _metadata
 from ._definitions import (
     ALLOWED_CONTENTS,
-    ALLOWED_FMU_CONTEXTS,
     CONTENTS_REQUIRED,
     DEPRECATED_CONTENTS,
+    FmuContext,
 )
 from ._logging import null_logger
 from ._utils import (
     create_symlink,
-    dataio_examples,
-    detect_inside_rms,
+    detect_inside_rms,  # dataio_examples,
     drop_nones,
     export_file_compute_checksum_md5,
     export_metadata_file,
     filter_validate_metadata,
     generate_description,
     prettyprint_dict,
-    read_metadata as _utils_read_metadata,
+    read_metadata_from_file,
     some_config_from_env,
     uuid_from_string,
 )
 from .datastructure.configuration import global_configuration
 
-DATAIO_EXAMPLES: Final = dataio_examples()
+# DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
 
 
@@ -214,7 +213,7 @@ def read_metadata(filename: str | Path) -> dict:
     Returns:
         A dictionary with metadata read from the assiated metadata file.
     """
-    return _utils_read_metadata(filename)
+    return read_metadata_from_file(filename)
 
 
 # ======================================================================================
@@ -261,7 +260,7 @@ class ExportData:
         /project/foo/resmod/ff/2022.1.0/share/results/maps/xx.gri   << example absolute
                                         share/results/maps/xx.gri   << example relative
 
-    When running an ERT2 forward job using a normal ERT job (e.g. a script)::
+    When running an ERT forward job using a normal ERT job (e.g. a script)::
 
         /scratch/nn/case/realization-44/iter-2                      << pwd
         /scratch/nn/case                                            << rootpath
@@ -271,7 +270,7 @@ class ExportData:
         /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  << absolute
                          realization-44/iter-2/share/results/maps/xx.gri  << relative
 
-    When running an ERT2 forward job but here executed from RMS::
+    When running an ERT forward job but here executed from RMS::
 
         /scratch/nn/case/realization-44/iter-2/rms/model            << pwd
         /scratch/nn/case                                            << rootpath
@@ -448,7 +447,7 @@ class ExportData:
     cube_fformat: ClassVar[str] = "segy"
     filename_timedata_reverse: ClassVar[bool] = False  # reverse order output file name
     grid_fformat: ClassVar[str] = "roff"
-    include_ert2jobs: ClassVar[bool] = False  # if True, include jobs.json from ERT2
+    include_ertjobs: ClassVar[bool] = False  # if True, include jobs.json from ERT
     legacy_time_format: ClassVar[bool] = False
     meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
     polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
@@ -469,7 +468,7 @@ class ExportData:
     depth_reference: str = "msl"
     description: Union[str, list] = ""
     display_name: Optional[str] = None
-    fmu_context: str = "realization"
+    fmu_context: Union[FmuContext, str] = "realization"
     forcefolder: str = ""
     grid_model: Optional[str] = None
     is_observation: bool = False
@@ -491,7 +490,6 @@ class ExportData:
 
     # some keys that are modified version of input, prepended with _use
     _usecontent: dict = field(default_factory=dict, init=False)
-    _usecontext: str = field(default="", init=False)
     _usefmtflag: str = field(default="", init=False)
 
     # storing resulting state variables for instance, non-public:
@@ -513,6 +511,8 @@ class ExportData:
             )
         logger.info("Running __post_init__ ExportData")
         logger.debug("Global config is %s", prettyprint_dict(self.config))
+
+        self.fmu_context = FmuContext.get(self.fmu_context)
 
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
@@ -547,10 +547,7 @@ class ExportData:
                 self.config = global_configuration.roundtrip(theconfig)
 
         self._validate_content_key()
-        logger.info("Validate FMU context which is %s", self.fmu_context)
-        self._validate_fmucontext_key()
         self._update_globalconfig_from_settings()
-
         # check state of global config
         self._config_is_valid = global_configuration.is_valid(self.config)
         if self._config_is_valid:
@@ -585,14 +582,8 @@ class ExportData:
 
     def _validate_fmucontext_key(self) -> None:
         """Validate the given 'fmu_context' input."""
-        if self.fmu_context not in ALLOWED_FMU_CONTEXTS:
-            msg = ""
-            for key, value in ALLOWED_FMU_CONTEXTS.items():
-                msg += f"{key}: {value}\n"
-            raise ValidationError(
-                "It seems like 'fmu_context' value is illegal! "
-                f"Allowed entries are: in list:\n{msg}"
-            )
+        if isinstance(self.fmu_context, str):
+            self.fmu_context = FmuContext.get(self.fmu_context)
 
     def _update_fmt_flag(self) -> None:
         # treat special handling of "xtgeo" in format name:
@@ -668,17 +659,14 @@ class ExportData:
             logger.info("The casepath is hard set as %s", self._rootpath)
 
         else:
-            if ExportData._inside_rms or INSIDE_RMS or DATAIO_EXAMPLES:
+            if ExportData._inside_rms or INSIDE_RMS:
                 logger.info(
-                    "Run from inside RMS: ExportData._inside_rms=%s, "
-                    "INSIDE_RMS=%s, DATAIO_EXAMPLES=%s",
+                    "Run from inside RMS: ExportData._inside_rms=%s, INSIDE_RMS=%s",
                     ExportData._inside_rms,
                     INSIDE_RMS,
-                    DATAIO_EXAMPLES,
                 )
                 self._rootpath = (self._pwd / "../../.").absolute().resolve()
                 ExportData._inside_rms = True
-        self._usecontext = self.fmu_context  # may change later!
 
         logger.info("pwd:        %s", str(self._pwd))
         logger.info("rootpath:   %s", str(self._rootpath))
@@ -1029,13 +1017,14 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         meta["fmu"] = {}
         meta["fmu"]["model"] = self.config["model"]
 
-        mcase = meta["fmu"]["case"] = {}
+        mcase: Dict[str, Any] = {}  # needed for python < 3.10
+        meta["fmu"]["case"] = mcase
+
         mcase["name"] = self.casename
         mcase["uuid"] = str(uuid.uuid4())
+        mcase["user"] = {"id": self.caseuser}
 
-        mcase["user"] = {"id": self.caseuser}  # type: ignore
-
-        mcase["description"] = generate_description(self.description)  # type: ignore
+        mcase["description"] = generate_description(self.description)
         mcase["restart_from"] = self.restart_from
 
         meta["tracklog"] = _metadata.generate_meta_tracklog()

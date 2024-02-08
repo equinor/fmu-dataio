@@ -145,8 +145,8 @@ def export_file(
 
         if isinstance(obj, Table):
             from pyarrow import feather
-            # comment taken from equinor/webviz_subsurface/smry2arrow.py
 
+            # comment taken from equinor/webviz_subsurface/smry2arrow.py
             # Writing here is done through the feather import, but could also be
             # done using pa.RecordBatchFileWriter.write_table() with a few
             # pa.ipc.IpcWriteOptions(). It is convenient to use feather since it
@@ -400,7 +400,7 @@ def generate_description(desc: str | list | None = None) -> list | None:
     raise ValueError("Description of wrong type, must be list of strings or string")
 
 
-def read_metadata(filename: str | Path) -> dict:
+def read_metadata_from_file(filename: str | Path) -> dict:
     """Read the metadata as a dictionary given a filename.
 
     If the filename is e.g. /some/path/mymap.gri, the assosiated metafile
