@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+g9701209 documentation</title>
+  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+g7ba2c3e documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -116,6 +116,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU"><code class="docutils literal notranslate"><span class="pre">FMU</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.aggregation"><code class="docutils literal notranslate"><span class="pre">FMU.aggregation</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.case"><code class="docutils literal notranslate"><span class="pre">FMU.case</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.context"><code class="docutils literal notranslate"><span class="pre">FMU.context</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.iteration"><code class="docutils literal notranslate"><span class="pre">FMU.iteration</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.model"><code class="docutils literal notranslate"><span class="pre">FMU.model</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.realization"><code class="docutils literal notranslate"><span class="pre">FMU.realization</span></code></a></li>
@@ -856,6 +857,7 @@ validated to form a valid model.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.aggregation" title="fmu.dataio.datastructure.meta.meta.FMU.aggregation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregation</span> <span class="pre">(fmu.dataio.datastructure.meta.meta.Aggregation</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.case" title="fmu.dataio.datastructure.meta.meta.FMU.case"><code class="xref py py-obj docutils literal notranslate"><span class="pre">case</span> <span class="pre">(fmu.dataio.datastructure.meta.meta.FMUCase)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.context" title="fmu.dataio.datastructure.meta.meta.FMU.context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">context</span> <span class="pre">(fmu.dataio.datastructure.meta.meta.Context)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.iteration" title="fmu.dataio.datastructure.meta.meta.FMU.iteration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iteration</span> <span class="pre">(fmu.dataio.datastructure.meta.meta.Iteration</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.model" title="fmu.dataio.datastructure.meta.meta.FMU.model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span> <span class="pre">(fmu.dataio.datastructure.meta.meta.FMUModel)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMU.realization" title="fmu.dataio.datastructure.meta.meta.FMU.realization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">realization</span> <span class="pre">(fmu.dataio.datastructure.meta.meta.Realization</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
@@ -883,6 +885,18 @@ validated to form a valid model.</p>
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.meta.FMU.case">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">case</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">FMUCase</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.meta.FMU.case" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Validated by<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_dependencies_aggregation_realization</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.meta.FMU.context">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Context</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.meta.FMU.context" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Validated by<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -3627,7 +3641,7 @@ validated to form a valid model.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g9701209).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g7ba2c3e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

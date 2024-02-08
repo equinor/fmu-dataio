@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g9701209 documentation</title>
+  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g7ba2c3e documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -377,12 +377,23 @@
     <span class="p">)</span></div>
 
 
+<span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The internal FMU context in which this data object was produced&quot;&quot;&quot;</span>
+
+    <span class="n">stage</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
+        <span class="s2">&quot;case&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;iteration&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;realization&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+
 <div class="viewcode-block" id="FMU"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.FMU">[docs]</a><span class="k">class</span> <span class="nc">FMU</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The FMU block records properties that are specific to FMU</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">case</span><span class="p">:</span> <span class="n">FMUCase</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">Context</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">FMUModel</span>
     <span class="n">iteration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iteration</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">workflow</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Workflow</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -564,7 +575,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g9701209).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g7ba2c3e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
