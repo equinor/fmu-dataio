@@ -45,13 +45,6 @@ def _current_function_name():
     return inspect.currentframe().f_back.f_code.co_name
 
 
-def pytest_configure():
-    if "RMSVER" in os.environ and "INSIDE_RMS" not in os.environ:
-        logging.critical(
-            "You run a RMS python somehow; need to set INSIDE_RMS=0 for pytest:"
-        )
-
-
 @pytest.fixture
 def set_export_data_inside_rms(monkeypatch):
     monkeypatch.setattr(ExportData, "_inside_rms", True)
@@ -59,7 +52,7 @@ def set_export_data_inside_rms(monkeypatch):
 
 @pytest.fixture
 def set_environ_inside_rms(monkeypatch):
-    monkeypatch.setenv("INSIDE_RMS", "1")
+    monkeypatch.setattr("fmu.dataio._utils.detect_inside_rms", lambda: True)
 
 
 def inside_rms(func):
