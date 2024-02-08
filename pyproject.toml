@@ -89,10 +89,9 @@ match = '(?!(test_|_)).*\.py'
 
 [tool.ruff]
 line-length = 88
+exclude = ["version.py"]
 [tool.ruff.lint]
-ignore = [
-    "C901",
-]
+ignore = ["C901"]
 select = [
     "C",
     "E",
