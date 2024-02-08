@@ -37,11 +37,8 @@ def detect_inside_rms() -> bool:
 
         logger.info("Roxar version is %s", roxar.__version__)
         return True
-
-    # a special solution for testing mostly
-    inside_rms = os.environ.get("INSIDE_RMS", "0") != "0"
-    logger.info("Running truly in RMS GUI status: %s", inside_rms)
-    return inside_rms
+    logger.info("Running truly in RMS GUI status: %s", False)
+    return False
 
 
 def dataio_examples() -> bool:
