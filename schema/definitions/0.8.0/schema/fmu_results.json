@@ -455,6 +455,12 @@
                                 25.0
                             ]
                         },
+                        "yinc": {
+                            "type": "number",
+                            "examples": [
+                                25.0
+                            ]
+                        },
                         "yflip": {
                             "type": "integer",
                             "$comment": "Orientation indicator of coordinate system",

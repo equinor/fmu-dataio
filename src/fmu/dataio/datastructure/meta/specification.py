@@ -7,13 +7,22 @@ from pydantic import BaseModel, Field
 from . import enums
 
 
-class SurfaceSpecification(BaseModel):
+class RowColumn(BaseModel):
     nrow: int = Field(
         description="The number of rows",
     )
     ncol: int = Field(
         description="The number of columns",
     )
+
+
+class RowColumnLayer(RowColumn):
+    nlay: int = Field(
+        description="The number of layers",
+    )
+
+
+class SurfaceSpecification(RowColumn):
     rotation: float = Field(
         description="Rotation angle",
         allow_inf_nan=False,
@@ -64,18 +73,8 @@ class TableSpecification(BaseModel):
     )
 
 
-class CPGridSpecification(BaseModel):
+class CPGridSpecification(RowColumnLayer):
     """Corner point grid"""
-
-    nrow: int = Field(
-        description="The number of rows",
-    )
-    ncol: int = Field(
-        description="The number of columns",
-    )
-    nlay: int = Field(
-        description="The number of layers",
-    )
 
     xshift: float = Field(
         description="Shift along the x-axis",
@@ -104,16 +103,8 @@ class CPGridSpecification(BaseModel):
     )
 
 
-class CPGridPropertySpecification(BaseModel):
-    nrow: int = Field(
-        description="The number of rows",
-    )
-    ncol: int = Field(
-        description="The number of columns",
-    )
-    nlay: int = Field(
-        description="The number of layers",
-    )
+class CPGridPropertySpecification(RowColumnLayer):
+    ...
 
 
 class PolygonsSpecification(BaseModel):
