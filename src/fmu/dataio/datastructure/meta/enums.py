@@ -5,6 +5,7 @@ from enum import Enum, IntEnum
 
 class ContentEnum(str, Enum):
     depth = "depth"
+    facies_thickness = "facies_thickness"
     fault_lines = "fault_lines"
     field_outline = "field_outline"
     field_region = "field_region"
