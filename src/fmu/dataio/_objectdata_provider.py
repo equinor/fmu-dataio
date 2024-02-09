@@ -88,7 +88,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 from pathlib import Path
-from typing import Any, Final, Optional
+from typing import TYPE_CHECKING, Any, Dict, Final, NamedTuple, Optional
 from warnings import warn
 
 import numpy as np
@@ -98,13 +98,25 @@ import xtgeo
 from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, _ValidFormats
 from ._logging import null_logger
 from ._utils import generate_description, parse_timedata
-from .datastructure.meta import meta
+from .datastructure.meta import meta, specification
 
 logger: Final = null_logger(__name__)
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 class ConfigurationError(ValueError):
     pass
+
+
+class SpecificationAndBoundingBox(NamedTuple):
+    spec: Dict[str, Any]
+    bbox: Dict[str, Any]
+
+
+def npfloat_to_float(v: Any) -> Any:
+    return float(v) if isinstance(v, (np.float64, np.float32)) else v
 
 
 @dataclass
@@ -346,199 +358,238 @@ class _ObjectDataProvider:
 
         return result
 
-    def _derive_spec_bbox_regularsurface(self) -> tuple[dict, dict]:
+    def _derive_spec_bbox_regularsurface(self) -> SpecificationAndBoundingBox:
         """Process/collect the data.spec and data.bbox for RegularSurface"""
         logger.info("Derive bbox and specs for RegularSurface")
-        regsurf = self.obj
+        regsurf: xtgeo.RegularSurface = self.obj
+        required = regsurf.metadata.required
 
-        specs = {}
-
-        xtgeo_specs = regsurf.metadata.required
-        for spec, val in xtgeo_specs.items():
-            if isinstance(val, (np.float32, np.float64)):
-                val = float(val)
-            specs[spec] = val
-        specs["undef"] = 1.0e30  # irap binary undef
-
-        return specs, meta.content.BoundingBox(
-            xmin=float(regsurf.xmin),
-            xmax=float(regsurf.xmax),
-            ymin=float(regsurf.ymin),
-            ymax=float(regsurf.ymax),
-            zmin=float(regsurf.values.min()),
-            zmax=float(regsurf.values.max()),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
+        return SpecificationAndBoundingBox(
+            spec=specification.SurfaceSpecification(
+                ncol=npfloat_to_float(required["ncol"]),
+                nrow=npfloat_to_float(required["nrow"]),
+                xori=npfloat_to_float(required["xori"]),
+                yori=npfloat_to_float(required["yori"]),
+                xinc=npfloat_to_float(required["xinc"]),
+                yinc=npfloat_to_float(required["yinc"]),
+                yflip=npfloat_to_float(required["yflip"]),
+                rotation=npfloat_to_float(required["rotation"]),
+                undef=1.0e30,
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
+            bbox=meta.content.BoundingBox(
+                xmin=float(regsurf.xmin),
+                xmax=float(regsurf.xmax),
+                ymin=float(regsurf.ymin),
+                ymax=float(regsurf.ymax),
+                zmin=float(regsurf.values.min()),
+                zmax=float(regsurf.values.max()),
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
         )
 
-    def _derive_spec_bbox_polygons(self) -> tuple[dict, dict]:
+    def _derive_spec_bbox_polygons(self) -> SpecificationAndBoundingBox:
         """Process/collect the data.spec and data.bbox for Polygons"""
         logger.info("Derive bbox and specs for Polygons")
-        poly = self.obj
-
-        specs = {}
-        # number of polygons:
-        specs["npolys"] = np.unique(
-            poly.get_dataframe(copy=False)[poly.pname].values
-        ).size
+        poly: xtgeo.Polygons = self.obj
         xmin, xmax, ymin, ymax, zmin, zmax = poly.get_boundary()
 
-        return specs, meta.content.BoundingBox(
-            xmin=float(xmin),
-            xmax=float(xmax),
-            ymin=float(ymin),
-            ymax=float(ymax),
-            zmin=float(zmin),
-            zmax=float(zmax),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
+        return SpecificationAndBoundingBox(
+            spec=specification.PolygonsSpecification(
+                npolys=np.unique(poly.get_dataframe(copy=False)[poly.pname].values).size
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
+            bbox=meta.content.BoundingBox(
+                xmin=float(xmin),
+                xmax=float(xmax),
+                ymin=float(ymin),
+                ymax=float(ymax),
+                zmin=float(zmin),
+                zmax=float(zmax),
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
         )
 
-    def _derive_spec_bbox_points(self) -> tuple[dict[str, Any], dict[str, Any]]:
+    def _derive_spec_bbox_points(self) -> SpecificationAndBoundingBox:
         """Process/collect the data.spec and data.bbox for Points"""
         logger.info("Derive bbox and specs for Points")
-        pnts = self.obj
+        pnts: xtgeo.Points = self.obj
+        df: pd.DataFrame = pnts.get_dataframe(copy=False)
 
-        specs: dict[str, Any] = {}
-
-        if len(pnts.get_dataframe(copy=False).columns) > 3:
-            attrnames = pnts.get_dataframe(copy=False).columns[3:]
-            specs["attributes"] = list(attrnames)
-        specs["size"] = int(pnts.get_dataframe(copy=False).size)
-
-        return specs, meta.content.BoundingBox(
-            xmin=float(pnts.get_dataframe(copy=False)[pnts.xname].min()),
-            xmax=float(pnts.get_dataframe(copy=False)[pnts.xname].max()),
-            ymax=float(pnts.get_dataframe(copy=False)[pnts.yname].min()),
-            ymin=float(pnts.get_dataframe(copy=False)[pnts.yname].max()),
-            zmin=float(pnts.get_dataframe(copy=False)[pnts.zname].min()),
-            zmax=float(pnts.get_dataframe(copy=False)[pnts.zname].max()),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
+        return SpecificationAndBoundingBox(
+            spec=specification.PointSpecification(
+                attributes=list(df.columns[3:]) if len(df.columns) > 3 else None,
+                size=int(df.size),
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
+            bbox=meta.content.BoundingBox(
+                xmin=float(df[pnts.xname].min()),
+                xmax=float(df[pnts.xname].max()),
+                ymax=float(df[pnts.yname].min()),
+                ymin=float(df[pnts.yname].max()),
+                zmin=float(df[pnts.zname].min()),
+                zmax=float(df[pnts.zname].max()),
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
         )
 
-    def _derive_spec_bbox_cube(self) -> tuple[dict, dict]:
+    def _derive_spec_bbox_cube(self) -> SpecificationAndBoundingBox:
         """Process/collect the data.spec and data.bbox Cube"""
         logger.info("Derive bbox and specs for Cube")
-        cube = self.obj
-
-        specs = {}
-
-        xtgeo_specs = cube.metadata.required
-        for spec, val in xtgeo_specs.items():
-            if isinstance(val, (np.float32, np.float64)):
-                val = float(val)
-            specs[spec] = val
+        cube: xtgeo.Cube = self.obj
+        required = cube.metadata.required
 
         # current xtgeo is missing xmin, xmax etc attributes for cube, so need
         # to compute (simplify when xtgeo has this):
-        xmin = 1.0e23
-        ymin = xmin
-        xmax = -1 * xmin
-        ymax = -1 * ymin
+        xmin, ymin = 1.0e23, 1.0e23
+        xmax, ymax = -xmin, -ymin
 
         for corner in ((1, 1), (1, cube.nrow), (cube.ncol, 1), (cube.ncol, cube.nrow)):
             xco, yco = cube.get_xy_value_from_ij(*corner)
-            xmin = xco if xco < xmin else xmin
-            xmax = xco if xco > xmax else xmax
-            ymin = yco if yco < ymin else ymin
-            ymax = yco if yco > ymax else ymax
+            xmin = min(xmin, xco)
+            xmax = max(xmax, xco)
+            ymin = min(ymin, yco)
+            ymax = max(ymax, yco)
 
-        return specs, meta.content.BoundingBox(
-            xmin=float(xmin),
-            xmax=float(xmax),
-            ymin=float(ymin),
-            ymax=float(ymax),
-            zmin=float(cube.zori),
-            zmax=float(cube.zori + cube.zinc * (cube.nlay - 1)),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
+        return SpecificationAndBoundingBox(
+            spec=specification.CubeSpecification(
+                ncol=npfloat_to_float(required["ncol"]),
+                nrow=npfloat_to_float(required["nrow"]),
+                nlay=npfloat_to_float(required["nlay"]),
+                xori=npfloat_to_float(required["xori"]),
+                yori=npfloat_to_float(required["yori"]),
+                zori=npfloat_to_float(required["zori"]),
+                xinc=npfloat_to_float(required["xinc"]),
+                yinc=npfloat_to_float(required["yinc"]),
+                zinc=npfloat_to_float(required["zinc"]),
+                yflip=npfloat_to_float(required["yflip"]),
+                zflip=npfloat_to_float(required["zflip"]),
+                rotation=npfloat_to_float(required["rotation"]),
+                undef=npfloat_to_float(required["undef"]),
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
+            bbox=meta.content.BoundingBox(
+                xmin=float(xmin),
+                xmax=float(xmax),
+                ymin=float(ymin),
+                ymax=float(ymax),
+                zmin=float(cube.zori),
+                zmax=float(cube.zori + cube.zinc * (cube.nlay - 1)),
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
         )
 
-    def _derive_spec_bbox_cpgrid(self) -> tuple[dict, dict]:
+    def _derive_spec_bbox_cpgrid(self) -> SpecificationAndBoundingBox:
         """Process/collect the data.spec and data.bbox CornerPoint Grid geometry"""
         logger.info("Derive bbox and specs for Gride (geometry)")
-        grid = self.obj
+        grid: xtgeo.Grid = self.obj
+        required = grid.metadata.required
 
-        specs = {}
-
-        xtgeo_specs = grid.metadata.required
-        for spec, val in xtgeo_specs.items():
-            if isinstance(val, (np.float32, np.float64)):
-                val = float(val)
-            specs[spec] = val
-
-        geox = grid.get_geometrics(cellcenter=False, allcells=True, return_dict=True)
-
-        return specs, meta.content.BoundingBox(
-            xmin=round(float(geox["xmin"]), 4),
-            xmax=round(float(geox["xmax"]), 4),
-            ymin=round(float(geox["ymin"]), 4),
-            ymax=round(float(geox["ymax"]), 4),
-            zmin=round(float(geox["zmin"]), 4),
-            zmax=round(float(geox["zmax"]), 4),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
+        geox: dict = grid.get_geometrics(
+            cellcenter=False,
+            allcells=True,
+            return_dict=True,
         )
 
-    def _derive_spec_bbox_cpgridproperty(self) -> tuple[dict, dict]:
+        return SpecificationAndBoundingBox(
+            spec=specification.CPGridSpecification(
+                ncol=npfloat_to_float(required["ncol"]),
+                nrow=npfloat_to_float(required["nrow"]),
+                nlay=npfloat_to_float(required["nlay"]),
+                xshift=npfloat_to_float(required["xshift"]),
+                yshift=npfloat_to_float(required["yshift"]),
+                zshift=npfloat_to_float(required["zshift"]),
+                xscale=npfloat_to_float(required["xscale"]),
+                yscale=npfloat_to_float(required["yscale"]),
+                zscale=npfloat_to_float(required["zscale"]),
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
+            bbox=meta.content.BoundingBox(
+                xmin=round(float(geox["xmin"]), 4),
+                xmax=round(float(geox["xmax"]), 4),
+                ymin=round(float(geox["ymin"]), 4),
+                ymax=round(float(geox["ymax"]), 4),
+                zmin=round(float(geox["zmin"]), 4),
+                zmax=round(float(geox["zmax"]), 4),
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
+        )
+
+    def _derive_spec_bbox_cpgridproperty(self) -> SpecificationAndBoundingBox:
         """Process/collect the data.spec and data.bbox GridProperty"""
         logger.info("Derive bbox and specs for GridProperty")
-        gridprop = self.obj
+        gridprop: xtgeo.GridProperty = self.obj
 
-        specs: dict[str, Any] = {}
-        bbox: dict[str, Any] = {}
-
-        specs["ncol"] = gridprop.ncol
-        specs["nrow"] = gridprop.nrow
-        specs["nlay"] = gridprop.nlay
-        return specs, bbox
+        return SpecificationAndBoundingBox(
+            spec=specification.CPGridPropertySpecification(
+                nrow=gridprop.nrow,
+                ncol=gridprop.ncol,
+                nlay=gridprop.nlay,
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
+            bbox={},
+        )
 
     def _derive_spec_bbox_dataframe(
         self,
-    ) -> tuple[
-        dict[str, Any],
-        dict[str, Any],
-    ]:
+    ) -> SpecificationAndBoundingBox:
         """Process/collect the data items for DataFrame."""
         logger.info("Process data metadata for DataFrame (tables)")
-        dfr = self.obj
-
-        specs: dict[str, Any] = {}
-        bbox: dict[str, Any] = {}
-
-        specs["columns"] = list(dfr.columns)
-        specs["size"] = int(dfr.size)
-
-        return specs, bbox
+        df: pd.DataFrame = self.obj
+        return SpecificationAndBoundingBox(
+            spec=specification.TableSpecification(
+                columns=list(df.columns),
+                size=int(df.size),
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
+            bbox={},
+        )
 
     def _derive_spec_bbox_arrowtable(
         self,
-    ) -> tuple[
-        dict[str, Any],
-        dict[str, Any],
-    ]:
+    ) -> SpecificationAndBoundingBox:
         """Process/collect the data items for Arrow table."""
         logger.info("Process data metadata for arrow (tables)")
         table = self.obj
+        return SpecificationAndBoundingBox(
+            spec=specification.TableSpecification(
+                columns=list(table.column_names),
+                size=table.num_columns * table.num_rows,
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
+            bbox={},
+        )
 
-        specs: dict[str, Any] = {}
-        bbox: dict[str, Any] = {}
-
-        specs["columns"] = list(table.column_names)
-        specs["size"] = table.num_columns * table.num_rows
-
-        return specs, bbox
-
-    def _derive_spec_bbox_dict(self) -> tuple[dict[str, Any], dict[str, Any]]:
+    def _derive_spec_bbox_dict(self) -> SpecificationAndBoundingBox:
         """Process/collect the data items for dictionary."""
         logger.info("Process data metadata for dictionary")
-        return {}, {}
+        return SpecificationAndBoundingBox({}, {})
 
     def _get_columns(self) -> list[str]:
         """Get the columns from table"""

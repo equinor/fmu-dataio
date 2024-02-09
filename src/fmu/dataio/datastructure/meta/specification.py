@@ -1,25 +1,19 @@
 from __future__ import annotations
 
-from typing import List, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
 
 from . import enums
 
 
-class Shape(BaseModel):
+class SurfaceSpecification(BaseModel):
     nrow: int = Field(
         description="The number of rows",
     )
     ncol: int = Field(
         description="The number of columns",
     )
-    nlay: int = Field(
-        description="The number of layers",
-    )
-
-
-class SurfaceSpecification(Shape):
     rotation: float = Field(
         description="Rotation angle",
         allow_inf_nan=False,
@@ -30,6 +24,11 @@ class SurfaceSpecification(Shape):
     )
     xinc: float = Field(
         description="Increment along the x-axis",
+        allow_inf_nan=False,
+    )
+    # ok to add yinc?
+    yinc: float = Field(
+        description="Increment along the y-axis",
         allow_inf_nan=False,
     )
     xori: float = Field(
@@ -45,6 +44,16 @@ class SurfaceSpecification(Shape):
     )
 
 
+class PointSpecification(BaseModel):
+    attributes: Optional[List[str]] = Field(
+        description="List of columns present in a table.",
+    )
+    size: int = Field(
+        description="Size of data object.",
+        examples=[1, 9999],
+    )
+
+
 class TableSpecification(BaseModel):
     columns: List[str] = Field(
         description="List of columns present in a table.",
@@ -55,8 +64,18 @@ class TableSpecification(BaseModel):
     )
 
 
-class CPGridSpecification(Shape):
+class CPGridSpecification(BaseModel):
     """Corner point grid"""
+
+    nrow: int = Field(
+        description="The number of rows",
+    )
+    ncol: int = Field(
+        description="The number of columns",
+    )
+    nlay: int = Field(
+        description="The number of layers",
+    )
 
     xshift: float = Field(
         description="Shift along the x-axis",
@@ -85,8 +104,16 @@ class CPGridSpecification(Shape):
     )
 
 
-class CPGridPropertySpecification(Shape):
-    ...
+class CPGridPropertySpecification(BaseModel):
+    nrow: int = Field(
+        description="The number of rows",
+    )
+    ncol: int = Field(
+        description="The number of columns",
+    )
+    nlay: int = Field(
+        description="The number of layers",
+    )
 
 
 class PolygonsSpecification(BaseModel):
@@ -96,6 +123,10 @@ class PolygonsSpecification(BaseModel):
 
 
 class CubeSpecification(SurfaceSpecification):
+    nlay: int = Field(
+        description="The number of layers",
+    )
+
     # Increment
     xinc: float = Field(
         description="Increment along the x-axis",
@@ -147,6 +178,7 @@ class WellPointsDictionaryCaseSpecification(BaseModel):
 AnySpecification = Union[
     CPGridPropertySpecification,
     CPGridSpecification,
+    PointSpecification,
     CubeSpecification,
     PolygonsSpecification,
     SurfaceSpecification,
