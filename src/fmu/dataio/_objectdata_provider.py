@@ -98,6 +98,7 @@ import xtgeo
 from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, _ValidFormats
 from ._logging import null_logger
 from ._utils import generate_description, parse_timedata
+from .datastructure.meta import meta
 
 logger: Final = null_logger(__name__)
 
@@ -351,7 +352,6 @@ class _ObjectDataProvider:
         regsurf = self.obj
 
         specs = {}
-        bbox = {}
 
         xtgeo_specs = regsurf.metadata.required
         for spec, val in xtgeo_specs.items():
@@ -360,14 +360,17 @@ class _ObjectDataProvider:
             specs[spec] = val
         specs["undef"] = 1.0e30  # irap binary undef
 
-        bbox["xmin"] = float(regsurf.xmin)
-        bbox["xmax"] = float(regsurf.xmax)
-        bbox["ymin"] = float(regsurf.ymin)
-        bbox["ymax"] = float(regsurf.ymax)
-        bbox["zmin"] = float(regsurf.values.min())
-        bbox["zmax"] = float(regsurf.values.max())
-
-        return specs, bbox
+        return specs, meta.content.BoundingBox(
+            xmin=float(regsurf.xmin),
+            xmax=float(regsurf.xmax),
+            ymin=float(regsurf.ymin),
+            ymax=float(regsurf.ymax),
+            zmin=float(regsurf.values.min()),
+            zmax=float(regsurf.values.max()),
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
+        )
 
     def _derive_spec_bbox_polygons(self) -> tuple[dict, dict]:
         """Process/collect the data.spec and data.bbox for Polygons"""
@@ -375,20 +378,23 @@ class _ObjectDataProvider:
         poly = self.obj
 
         specs = {}
-        bbox = {}
         # number of polygons:
         specs["npolys"] = np.unique(
             poly.get_dataframe(copy=False)[poly.pname].values
         ).size
         xmin, xmax, ymin, ymax, zmin, zmax = poly.get_boundary()
 
-        bbox["xmin"] = float(xmin)
-        bbox["xmax"] = float(xmax)
-        bbox["ymin"] = float(ymin)
-        bbox["ymax"] = float(ymax)
-        bbox["zmin"] = float(zmin)
-        bbox["zmax"] = float(zmax)
-        return specs, bbox
+        return specs, meta.content.BoundingBox(
+            xmin=float(xmin),
+            xmax=float(xmax),
+            ymin=float(ymin),
+            ymax=float(ymax),
+            zmin=float(zmin),
+            zmax=float(zmax),
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
+        )
 
     def _derive_spec_bbox_points(self) -> tuple[dict[str, Any], dict[str, Any]]:
         """Process/collect the data.spec and data.bbox for Points"""
@@ -397,21 +403,22 @@ class _ObjectDataProvider:
 
         specs: dict[str, Any] = {}
 
-        bbox: dict[str, Any] = {}
-
         if len(pnts.get_dataframe(copy=False).columns) > 3:
             attrnames = pnts.get_dataframe(copy=False).columns[3:]
             specs["attributes"] = list(attrnames)
         specs["size"] = int(pnts.get_dataframe(copy=False).size)
 
-        bbox["xmin"] = float(pnts.get_dataframe(copy=False)[pnts.xname].min())
-        bbox["xmax"] = float(pnts.get_dataframe(copy=False)[pnts.xname].max())
-        bbox["ymax"] = float(pnts.get_dataframe(copy=False)[pnts.yname].min())
-        bbox["ymin"] = float(pnts.get_dataframe(copy=False)[pnts.yname].max())
-        bbox["zmin"] = float(pnts.get_dataframe(copy=False)[pnts.zname].min())
-        bbox["zmax"] = float(pnts.get_dataframe(copy=False)[pnts.zname].max())
-
-        return specs, bbox
+        return specs, meta.content.BoundingBox(
+            xmin=float(pnts.get_dataframe(copy=False)[pnts.xname].min()),
+            xmax=float(pnts.get_dataframe(copy=False)[pnts.xname].max()),
+            ymax=float(pnts.get_dataframe(copy=False)[pnts.yname].min()),
+            ymin=float(pnts.get_dataframe(copy=False)[pnts.yname].max()),
+            zmin=float(pnts.get_dataframe(copy=False)[pnts.zname].min()),
+            zmax=float(pnts.get_dataframe(copy=False)[pnts.zname].max()),
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
+        )
 
     def _derive_spec_bbox_cube(self) -> tuple[dict, dict]:
         """Process/collect the data.spec and data.bbox Cube"""
@@ -419,7 +426,6 @@ class _ObjectDataProvider:
         cube = self.obj
 
         specs = {}
-        bbox = {}
 
         xtgeo_specs = cube.metadata.required
         for spec, val in xtgeo_specs.items():
@@ -441,14 +447,17 @@ class _ObjectDataProvider:
             ymin = yco if yco < ymin else ymin
             ymax = yco if yco > ymax else ymax
 
-        bbox["xmin"] = float(xmin)
-        bbox["xmax"] = float(xmax)
-        bbox["ymin"] = float(ymin)
-        bbox["ymax"] = float(ymax)
-        bbox["zmin"] = float(cube.zori)
-        bbox["zmax"] = float(cube.zori + cube.zinc * (cube.nlay - 1))
-
-        return specs, bbox
+        return specs, meta.content.BoundingBox(
+            xmin=float(xmin),
+            xmax=float(xmax),
+            ymin=float(ymin),
+            ymax=float(ymax),
+            zmin=float(cube.zori),
+            zmax=float(cube.zori + cube.zinc * (cube.nlay - 1)),
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
+        )
 
     def _derive_spec_bbox_cpgrid(self) -> tuple[dict, dict]:
         """Process/collect the data.spec and data.bbox CornerPoint Grid geometry"""
@@ -456,7 +465,6 @@ class _ObjectDataProvider:
         grid = self.obj
 
         specs = {}
-        bbox = {}
 
         xtgeo_specs = grid.metadata.required
         for spec, val in xtgeo_specs.items():
@@ -466,13 +474,17 @@ class _ObjectDataProvider:
 
         geox = grid.get_geometrics(cellcenter=False, allcells=True, return_dict=True)
 
-        bbox["xmin"] = round(float(geox["xmin"]), 4)
-        bbox["xmax"] = round(float(geox["xmax"]), 4)
-        bbox["ymin"] = round(float(geox["ymin"]), 4)
-        bbox["ymax"] = round(float(geox["ymax"]), 4)
-        bbox["zmin"] = round(float(geox["zmin"]), 4)
-        bbox["zmax"] = round(float(geox["zmax"]), 4)
-        return specs, bbox
+        return specs, meta.content.BoundingBox(
+            xmin=round(float(geox["xmin"]), 4),
+            xmax=round(float(geox["xmax"]), 4),
+            ymin=round(float(geox["ymin"]), 4),
+            ymax=round(float(geox["ymax"]), 4),
+            zmin=round(float(geox["zmin"]), 4),
+            zmax=round(float(geox["zmax"]), 4),
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
+        )
 
     def _derive_spec_bbox_cpgridproperty(self) -> tuple[dict, dict]:
         """Process/collect the data.spec and data.bbox GridProperty"""
