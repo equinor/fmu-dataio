@@ -88,7 +88,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Final, NamedTuple, Optional
+from typing import Any, Dict, Final, NamedTuple, Optional
 from warnings import warn
 
 import numpy as np
@@ -101,9 +101,6 @@ from ._utils import generate_description, parse_timedata
 from .datastructure.meta import meta, specification
 
 logger: Final = null_logger(__name__)
-
-if TYPE_CHECKING:
-    import pandas as pd
 
 
 class ConfigurationError(ValueError):
