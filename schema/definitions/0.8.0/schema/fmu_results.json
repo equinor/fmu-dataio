@@ -280,6 +280,7 @@
                     "description": "The contents of this data object",
                     "enum": [
                         "depth",
+                        "facies_thickness",
                         "time",
                         "thickness",
                         "property",

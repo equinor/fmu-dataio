@@ -214,6 +214,10 @@ class DepthContent(Content):
     depth_reference: Literal["msl", "sb", "rkb"]
 
 
+class FaciesThicknessContent(Content):
+    content: Literal[enums.ContentEnum.facies_thickness]
+
+
 class FaultLinesContent(Content):
     content: Literal[enums.ContentEnum.fault_lines]
 
@@ -326,6 +330,7 @@ class AnyContent(RootModel):
     root: Annotated[
         Union[
             DepthContent,
+            FaciesThicknessContent,
             FaultLinesContent,
             FieldOutlineContent,
             FieldRegionContent,
