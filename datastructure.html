@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+gf4908a8 documentation</title>
+  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+g13a4dc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -509,6 +509,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification"><code class="docutils literal notranslate"><span class="pre">CubeSpecification</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification.nlay"><code class="docutils literal notranslate"><span class="pre">CubeSpecification.nlay</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification.rotation"><code class="docutils literal notranslate"><span class="pre">CubeSpecification.rotation</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification.undef"><code class="docutils literal notranslate"><span class="pre">CubeSpecification.undef</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification.xinc"><code class="docutils literal notranslate"><span class="pre">CubeSpecification.xinc</span></code></a></li>
@@ -527,19 +528,13 @@
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.PolygonsSpecification.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">PolygonsSpecification.model_computed_fields</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.Shape"><code class="docutils literal notranslate"><span class="pre">Shape</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.Shape.ncol"><code class="docutils literal notranslate"><span class="pre">Shape.ncol</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.Shape.nlay"><code class="docutils literal notranslate"><span class="pre">Shape.nlay</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.Shape.nrow"><code class="docutils literal notranslate"><span class="pre">Shape.nrow</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.Shape.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">Shape.model_computed_fields</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification"><code class="docutils literal notranslate"><span class="pre">SurfaceSpecification</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.rotation"><code class="docutils literal notranslate"><span class="pre">SurfaceSpecification.rotation</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.undef"><code class="docutils literal notranslate"><span class="pre">SurfaceSpecification.undef</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.xinc"><code class="docutils literal notranslate"><span class="pre">SurfaceSpecification.xinc</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.xori"><code class="docutils literal notranslate"><span class="pre">SurfaceSpecification.xori</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yflip"><code class="docutils literal notranslate"><span class="pre">SurfaceSpecification.yflip</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yinc"><code class="docutils literal notranslate"><span class="pre">SurfaceSpecification.yinc</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yori"><code class="docutils literal notranslate"><span class="pre">SurfaceSpecification.yori</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">SurfaceSpecification.model_computed_fields</span></code></a></li>
 </ul>
@@ -1988,7 +1983,7 @@ validated to form a valid model.</p>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.layout" title="fmu.dataio.datastructure.meta.content.Content.layout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.name" title="fmu.dataio.datastructure.meta.content.Content.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.offset" title="fmu.dataio.datastructure.meta.content.Content.offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset</span> <span class="pre">(float)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.spec" title="fmu.dataio.datastructure.meta.content.Content.spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec</span> <span class="pre">(fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.CPGridSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.CubeSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.PolygonsSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.SurfaceSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.TableSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.WellPointsDictionaryCaseSpecification</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.spec" title="fmu.dataio.datastructure.meta.content.Content.spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec</span> <span class="pre">(fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.CPGridSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.PointSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.CubeSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.PolygonsSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.SurfaceSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.TableSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.WellPointsDictionaryCaseSpecification</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.stratigraphic" title="fmu.dataio.datastructure.meta.content.Content.stratigraphic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stratigraphic</span> <span class="pre">(bool)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.stratigraphic_alias" title="fmu.dataio.datastructure.meta.content.Content.stratigraphic_alias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stratigraphic_alias</span> <span class="pre">(List[str]</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.tagname" title="fmu.dataio.datastructure.meta.content.Content.tagname"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tagname</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
@@ -3281,6 +3276,7 @@ validated to form a valid model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Fields<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification.nlay" title="fmu.dataio.datastructure.meta.specification.CubeSpecification.nlay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlay</span> <span class="pre">(int)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification.rotation" title="fmu.dataio.datastructure.meta.specification.CubeSpecification.rotation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotation</span> <span class="pre">(float)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification.undef" title="fmu.dataio.datastructure.meta.specification.CubeSpecification.undef"><code class="xref py py-obj docutils literal notranslate"><span class="pre">undef</span> <span class="pre">(float)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification.xinc" title="fmu.dataio.datastructure.meta.specification.CubeSpecification.xinc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">xinc</span> <span class="pre">(float)</span></code></a></p></li>
@@ -3294,6 +3290,12 @@ validated to form a valid model.</p>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.specification.CubeSpecification.nlay">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nlay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification.nlay" title="Permalink to this definition"></a></dt>
+<dd><p>The number of layers</p>
+</dd></dl>
+
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.specification.CubeSpecification.rotation">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rotation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.specification.CubeSpecification.rotation" title="Permalink to this definition"></a></dt>
@@ -3440,48 +3442,6 @@ validated to form a valid model.</p>
 </dd></dl>
 
 <dl class="py class pydantic_model">
-<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.specification.Shape">
-<em class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fmu.dataio.datastructure.meta.specification.</span></span><span class="sig-name descname"><span class="pre">Shape</span></span><a class="reference internal" href="_modules/fmu/dataio/datastructure/meta/specification.html#Shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fmu.dataio.datastructure.meta.specification.Shape" title="Permalink to this definition"></a></dt>
-<dd><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
-validated to form a valid model.</p>
-<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Fields<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.Shape.ncol" title="fmu.dataio.datastructure.meta.specification.Shape.ncol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ncol</span> <span class="pre">(int)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.Shape.nlay" title="fmu.dataio.datastructure.meta.specification.Shape.nlay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlay</span> <span class="pre">(int)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.Shape.nrow" title="fmu.dataio.datastructure.meta.specification.Shape.nrow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nrow</span> <span class="pre">(int)</span></code></a></p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.specification.Shape.ncol">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ncol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.specification.Shape.ncol" title="Permalink to this definition"></a></dt>
-<dd><p>The number of columns</p>
-</dd></dl>
-
-<dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.specification.Shape.nlay">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nlay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.specification.Shape.nlay" title="Permalink to this definition"></a></dt>
-<dd><p>The number of layers</p>
-</dd></dl>
-
-<dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.specification.Shape.nrow">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nrow</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.specification.Shape.nrow" title="Permalink to this definition"></a></dt>
-<dd><p>The number of rows</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.specification.Shape.model_computed_fields">
-<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar[dict[str,</span> <span class="pre">ComputedFieldInfo]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.specification.Shape.model_computed_fields" title="Permalink to this definition"></a></dt>
-<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class pydantic_model">
 <dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.specification.SurfaceSpecification">
 <em class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fmu.dataio.datastructure.meta.specification.</span></span><span class="sig-name descname"><span class="pre">SurfaceSpecification</span></span><a class="reference internal" href="_modules/fmu/dataio/datastructure/meta/specification.html#SurfaceSpecification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification" title="Permalink to this definition"></a></dt>
 <dd><p>Create a new model by parsing and validating input data from keyword arguments.</p>
@@ -3495,7 +3455,8 @@ validated to form a valid model.</p>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.undef" title="fmu.dataio.datastructure.meta.specification.SurfaceSpecification.undef"><code class="xref py py-obj docutils literal notranslate"><span class="pre">undef</span> <span class="pre">(float)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.xinc" title="fmu.dataio.datastructure.meta.specification.SurfaceSpecification.xinc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">xinc</span> <span class="pre">(float)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.xori" title="fmu.dataio.datastructure.meta.specification.SurfaceSpecification.xori"><code class="xref py py-obj docutils literal notranslate"><span class="pre">xori</span> <span class="pre">(float)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yflip" title="fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yflip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yflip</span> <span class="pre">(enums.AxisOrientation)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yflip" title="fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yflip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yflip</span> <span class="pre">(fmu.dataio.datastructure.meta.enums.AxisOrientation)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yinc" title="fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yinc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yinc</span> <span class="pre">(float)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yori" title="fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yori"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yori</span> <span class="pre">(float)</span></code></a></p></li>
 </ul>
 </dd>
@@ -3556,6 +3517,19 @@ validated to form a valid model.</p>
 <dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yflip">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">yflip</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">enums.AxisOrientation</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yflip" title="Permalink to this definition"></a></dt>
 <dd><p>Flip along the y-axis, -1 or 1</p>
+</dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yinc">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">yinc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.specification.SurfaceSpecification.yinc" title="Permalink to this definition"></a></dt>
+<dd><p>Increment along the y-axis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Constraints<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>allow_inf_nan</strong> = False</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -3641,7 +3615,7 @@ validated to form a valid model.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gf4908a8).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g13a4dc1).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
