@@ -1,0 +1,28 @@
+name: Schema up to date
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  check_schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install pip -U
+          pip install -e .
+
+      - name: Check schema
+        run: |
+          python3 -m fmu.dataio.datastructure.meta > schema/definitions/0.8.0/schema/fmu_meta.json
+          git diff --exit-code
