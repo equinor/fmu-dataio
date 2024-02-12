@@ -5,4 +5,10 @@ import json
 from . import dump
 
 if __name__ == "__main__":
-    print(json.dumps(dump(), indent=2))
+    print(
+        json.dumps(
+            dump(),
+            indent=2,
+            sort_keys=True,
+        )
+    )

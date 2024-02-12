@@ -1,4 +1,42 @@
 {
+  "$contractual": [
+    "class",
+    "source",
+    "version",
+    "tracklog",
+    "data.format",
+    "data.name",
+    "data.stratigraphic",
+    "data.alias",
+    "data.stratigraphic_alias",
+    "data.offset",
+    "data.content",
+    "data.tagname",
+    "data.vertical_domain",
+    "data.grid_model",
+    "data.bbox",
+    "data.time",
+    "data.is_prediction",
+    "data.is_observation",
+    "data.seismic.attribute",
+    "data.spec.columns",
+    "access",
+    "masterdata",
+    "fmu.model",
+    "fmu.workflow",
+    "fmu.case",
+    "fmu.iteration.name",
+    "fmu.iteration.uuid",
+    "fmu.realization.name",
+    "fmu.realization.id",
+    "fmu.realization.uuid",
+    "fmu.aggregation.operation",
+    "fmu.aggregation.realization_ids",
+    "fmu.context.stage",
+    "file.relative_path",
+    "file.checksum_md5",
+    "file.size_bytes"
+  ],
   "$defs": {
     "Access": {
       "properties": {
@@ -48,14 +86,6 @@
           "title": "Operation",
           "type": "string"
         },
-        "realization_ids": {
-          "description": "Array of realization ids included in this aggregation",
-          "items": {
-            "type": "integer"
-          },
-          "title": "Realization Ids",
-          "type": "array"
-        },
         "parameters": {
           "anyOf": [
             {
@@ -67,6 +97,14 @@
           ],
           "default": null,
           "description": "Parameters for this realization"
+        },
+        "realization_ids": {
+          "description": "Array of realization ids included in this aggregation",
+          "items": {
+            "type": "integer"
+          },
+          "title": "Realization Ids",
+          "type": "array"
         }
       },
       "required": [
@@ -225,19 +263,14 @@
     },
     "BoundingBox": {
       "properties": {
-        "xmin": {
-          "description": "Minimum x-coordinate",
-          "title": "Xmin",
-          "type": "number"
-        },
         "xmax": {
           "description": "Maximum x-coordinate",
           "title": "Xmax",
           "type": "number"
         },
-        "ymin": {
-          "description": "Minimum y-coordinate",
-          "title": "Ymin",
+        "xmin": {
+          "description": "Minimum x-coordinate",
+          "title": "Xmin",
           "type": "number"
         },
         "ymax": {
@@ -245,14 +278,19 @@
           "title": "Ymax",
           "type": "number"
         },
-        "zmin": {
-          "description": "Minimum z-coordinate",
-          "title": "Zmin",
+        "ymin": {
+          "description": "Minimum y-coordinate",
+          "title": "Ymin",
           "type": "number"
         },
         "zmax": {
           "description": "Maximum z-coordinate",
           "title": "Zmax",
+          "type": "number"
+        },
+        "zmin": {
+          "description": "Minimum z-coordinate",
+          "title": "Zmin",
           "type": "number"
         }
       },
@@ -269,11 +307,6 @@
     },
     "CPGridPropertySpecification": {
       "properties": {
-        "nrow": {
-          "description": "The number of rows",
-          "title": "Nrow",
-          "type": "integer"
-        },
         "ncol": {
           "description": "The number of columns",
           "title": "Ncol",
@@ -282,6 +315,11 @@
         "nlay": {
           "description": "The number of layers",
           "title": "Nlay",
+          "type": "integer"
+        },
+        "nrow": {
+          "description": "The number of rows",
+          "title": "Nrow",
           "type": "integer"
         }
       },
@@ -296,11 +334,6 @@
     "CPGridSpecification": {
       "description": "Corner point grid",
       "properties": {
-        "nrow": {
-          "description": "The number of rows",
-          "title": "Nrow",
-          "type": "integer"
-        },
         "ncol": {
           "description": "The number of columns",
           "title": "Ncol",
@@ -311,24 +344,19 @@
           "title": "Nlay",
           "type": "integer"
         },
-        "xshift": {
-          "description": "Shift along the x-axis",
-          "title": "Xshift",
-          "type": "number"
-        },
-        "yshift": {
-          "description": "Shift along the y-axis",
-          "title": "Yshift",
-          "type": "number"
-        },
-        "zshift": {
-          "description": "Shift along the z-axis",
-          "title": "Zshift",
-          "type": "number"
+        "nrow": {
+          "description": "The number of rows",
+          "title": "Nrow",
+          "type": "integer"
         },
         "xscale": {
           "description": "Scaling factor for the x-axis",
           "title": "Xscale",
+          "type": "number"
+        },
+        "xshift": {
+          "description": "Shift along the x-axis",
+          "title": "Xshift",
           "type": "number"
         },
         "yscale": {
@@ -336,9 +364,19 @@
           "title": "Yscale",
           "type": "number"
         },
+        "yshift": {
+          "description": "Shift along the y-axis",
+          "title": "Yshift",
+          "type": "number"
+        },
         "zscale": {
           "description": "Scaling factor for the z-axis",
           "title": "Zscale",
+          "type": "number"
+        },
+        "zshift": {
+          "description": "Shift along the z-axis",
+          "title": "Zshift",
           "type": "number"
         }
       },
@@ -427,11 +465,6 @@
     },
     "CubeSpecification": {
       "properties": {
-        "nrow": {
-          "description": "The number of rows",
-          "title": "Nrow",
-          "type": "integer"
-        },
         "ncol": {
           "description": "The number of columns",
           "title": "Ncol",
@@ -440,6 +473,11 @@
         "nlay": {
           "description": "The number of layers",
           "title": "Nlay",
+          "type": "integer"
+        },
+        "nrow": {
+          "description": "The number of rows",
+          "title": "Nrow",
           "type": "integer"
         },
         "rotation": {
@@ -470,15 +508,23 @@
           ],
           "description": "Flip along the y-axis, -1 or 1"
         },
+        "yinc": {
+          "description": "Increment along the y-axis",
+          "title": "Yinc",
+          "type": "number"
+        },
         "yori": {
           "description": "Origin along the y-axis",
           "title": "Yori",
           "type": "number"
         },
-        "yinc": {
-          "description": "Increment along the y-axis",
-          "title": "Yinc",
-          "type": "number"
+        "zflip": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/AxisOrientation"
+            }
+          ],
+          "description": "Flip along the z-axis, -1 or 1"
         },
         "zinc": {
           "description": "Increment along the z-axis",
@@ -489,27 +535,19 @@
           "description": "Origin along the z-axis",
           "title": "Zori",
           "type": "number"
-        },
-        "zflip": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/AxisOrientation"
-            }
-          ],
-          "description": "Flip along the z-axis, -1 or 1"
         }
       },
       "required": [
         "nrow",
         "ncol",
-        "nlay",
         "rotation",
         "undef",
         "xinc",
+        "yinc",
         "xori",
         "yflip",
         "yori",
-        "yinc",
+        "nlay",
         "zinc",
         "zori",
         "zflip"
@@ -519,10 +557,6 @@
     },
     "DepthContent": {
       "properties": {
-        "content": {
-          "const": "depth",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -538,6 +572,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -548,6 +593,19 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "depth",
+          "title": "Content"
+        },
+        "depth_reference": {
+          "enum": [
+            "msl",
+            "sb",
+            "rkb"
+          ],
+          "title": "Depth Reference",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -627,6 +685,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -648,6 +709,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -662,11 +728,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -689,6 +750,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -735,37 +807,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "depth_reference": {
-          "enum": [
-            "msl",
-            "sb",
-            "rkb"
-          ],
-          "title": "Depth Reference",
-          "type": "string"
         }
       },
       "required": [
@@ -824,14 +865,22 @@
       },
       "description": "The FMU block records properties that are specific to FMU",
       "properties": {
+        "aggregation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Aggregation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "case": {
           "$ref": "#/$defs/FMUCase"
         },
         "context": {
           "$ref": "#/$defs/Context"
-        },
-        "model": {
-          "$ref": "#/$defs/FMUModel"
         },
         "iteration": {
           "anyOf": [
@@ -844,32 +893,24 @@
           ],
           "default": null
         },
-        "workflow": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Workflow"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "aggregation": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Aggregation"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
+        "model": {
+          "$ref": "#/$defs/FMUModel"
         },
         "realization": {
           "anyOf": [
             {
               "$ref": "#/$defs/Realization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "workflow": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Workflow"
             },
             {
               "type": "null"
@@ -888,6 +929,21 @@
     },
     "FMUCase": {
       "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
         "name": {
           "description": "The case name",
           "examples": [
@@ -911,21 +967,6 @@
           "format": "uuid",
           "title": "Uuid",
           "type": "string"
-        },
-        "description": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Description"
         }
       },
       "required": [
@@ -938,12 +979,23 @@
     },
     "FMUCaseClassMeta": {
       "properties": {
+        "access": {
+          "$ref": "#/$defs/Access"
+        },
         "class": {
           "const": "case",
           "title": "Metadata class"
         },
+        "fmu": {
+          "$ref": "#/$defs/FMU"
+        },
         "masterdata": {
           "$ref": "#/$defs/Masterdata"
+        },
+        "source": {
+          "const": "fmu",
+          "description": "Data source (FMU)",
+          "title": "Source"
         },
         "tracklog": {
           "items": {
@@ -952,20 +1004,9 @@
           "title": "Tracklog",
           "type": "array"
         },
-        "source": {
-          "const": "fmu",
-          "description": "Data source (FMU)",
-          "title": "Source"
-        },
         "version": {
           "const": "0.8.0",
           "title": "FMU results metadata version"
-        },
-        "fmu": {
-          "$ref": "#/$defs/FMU"
-        },
-        "access": {
-          "$ref": "#/$defs/Access"
         }
       },
       "required": [
@@ -982,6 +1023,9 @@
     },
     "FMUDataClassMeta": {
       "properties": {
+        "access": {
+          "$ref": "#/$defs/SsdlAccess"
+        },
         "class": {
           "enum": [
             "surface",
@@ -997,8 +1041,22 @@
           "title": "Metadata class",
           "type": "string"
         },
+        "data": {
+          "$ref": "#/$defs/AnyContent"
+        },
+        "file": {
+          "$ref": "#/$defs/File"
+        },
+        "fmu": {
+          "$ref": "#/$defs/FMU"
+        },
         "masterdata": {
           "$ref": "#/$defs/Masterdata"
+        },
+        "source": {
+          "const": "fmu",
+          "description": "Data source (FMU)",
+          "title": "Source"
         },
         "tracklog": {
           "items": {
@@ -1007,26 +1065,9 @@
           "title": "Tracklog",
           "type": "array"
         },
-        "source": {
-          "const": "fmu",
-          "description": "Data source (FMU)",
-          "title": "Source"
-        },
         "version": {
           "const": "0.8.0",
           "title": "FMU results metadata version"
-        },
-        "fmu": {
-          "$ref": "#/$defs/FMU"
-        },
-        "access": {
-          "$ref": "#/$defs/SsdlAccess"
-        },
-        "data": {
-          "$ref": "#/$defs/AnyContent"
-        },
-        "file": {
-          "$ref": "#/$defs/File"
         }
       },
       "required": [
@@ -1136,10 +1177,6 @@
     },
     "FaciesThicknessContent": {
       "properties": {
-        "content": {
-          "const": "facies_thickness",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -1155,6 +1192,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -1165,6 +1213,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "facies_thickness",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -1244,6 +1296,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -1265,6 +1320,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -1279,11 +1339,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -1306,6 +1361,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -1352,28 +1418,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -1389,10 +1433,6 @@
     },
     "FaultLinesContent": {
       "properties": {
-        "content": {
-          "const": "fault_lines",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -1408,6 +1448,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -1418,6 +1469,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "fault_lines",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -1497,6 +1552,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -1518,6 +1576,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -1532,11 +1595,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -1559,6 +1617,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -1605,28 +1674,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -1681,10 +1728,6 @@
     },
     "FieldOutlineContent": {
       "properties": {
-        "content": {
-          "const": "field_outline",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -1700,6 +1743,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -1710,6 +1764,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "field_outline",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -1725,6 +1783,9 @@
           ],
           "default": null,
           "title": "Description"
+        },
+        "field_outline": {
+          "$ref": "#/$defs/FieldOutline"
         },
         "format": {
           "examples": [
@@ -1789,6 +1850,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -1810,6 +1874,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -1824,11 +1893,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -1851,6 +1915,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -1897,36 +1972,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "field_outline": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/FieldOutline"
-            }
-          ],
-          "description": "Conditional field"
         }
       },
       "required": [
@@ -1958,10 +2003,6 @@
     },
     "FieldRegionContent": {
       "properties": {
-        "content": {
-          "const": "field_region",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -1977,6 +2018,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -1987,6 +2039,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "field_region",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -2002,6 +2058,9 @@
           ],
           "default": null,
           "title": "Description"
+        },
+        "field_region": {
+          "$ref": "#/$defs/FieldRegion"
         },
         "format": {
           "examples": [
@@ -2066,6 +2125,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -2087,6 +2149,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -2101,11 +2168,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -2128,6 +2190,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -2174,36 +2247,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "field_region": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/FieldRegion"
-            }
-          ],
-          "description": "Conditional field"
         }
       },
       "required": [
@@ -2238,6 +2281,14 @@
           ],
           "title": "Absolute Path"
         },
+        "checksum_md5": {
+          "description": "md5 checksum of the file or bytestring",
+          "examples": [
+            "kjhsdfvsdlfk23knerknvk23"
+          ],
+          "title": "Checksum Md5",
+          "type": "string"
+        },
         "relative_path": {
           "description": "The file path relative to RUNPATH",
           "examples": [
@@ -2245,14 +2296,6 @@
           ],
           "format": "path",
           "title": "Relative Path",
-          "type": "string"
-        },
-        "checksum_md5": {
-          "description": "md5 checksum of the file or bytestring",
-          "examples": [
-            "kjhsdfvsdlfk23knerknvk23"
-          ],
-          "title": "Checksum Md5",
           "type": "string"
         },
         "size_bytes": {
@@ -2307,10 +2350,6 @@
     },
     "FluidContactContent": {
       "properties": {
-        "content": {
-          "const": "fluid_contact",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -2326,6 +2365,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -2336,6 +2386,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "fluid_contact",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -2351,6 +2405,9 @@
           ],
           "default": null,
           "title": "Description"
+        },
+        "fluid_contact": {
+          "$ref": "#/$defs/FluidContact"
         },
         "format": {
           "examples": [
@@ -2415,6 +2472,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -2436,6 +2496,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -2450,11 +2515,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -2477,6 +2537,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -2523,36 +2594,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "fluid_contact": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/FluidContact"
-            }
-          ],
-          "description": "Conditional field"
         }
       },
       "required": [
@@ -2585,10 +2626,6 @@
     },
     "InplaceVolumesContent": {
       "properties": {
-        "content": {
-          "const": "inplace_volumes",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -2604,6 +2641,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -2614,6 +2662,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "inplace_volumes",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -2693,6 +2745,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -2714,6 +2769,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -2728,11 +2788,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -2755,6 +2810,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -2801,28 +2867,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -2851,14 +2895,6 @@
           "title": "Name",
           "type": "string"
         },
-        "uuid": {
-          "examples": [
-            "15ce3b84-766f-4c93-9050-b154861f9100"
-          ],
-          "format": "uuid",
-          "title": "Uuid",
-          "type": "string"
-        },
         "restart_from": {
           "anyOf": [
             {
@@ -2875,6 +2911,14 @@
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
           "title": "Restart From"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
         }
       },
       "required": [
@@ -2887,10 +2931,6 @@
     },
     "KPProductContent": {
       "properties": {
-        "content": {
-          "const": "khproduct",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -2906,6 +2946,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -2916,6 +2967,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "khproduct",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -2995,6 +3050,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -3016,6 +3074,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -3030,11 +3093,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -3057,6 +3115,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -3103,28 +3172,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -3168,10 +3215,6 @@
     },
     "LiftCurvesContent": {
       "properties": {
-        "content": {
-          "const": "lift_curves",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -3187,6 +3230,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -3197,6 +3251,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "lift_curves",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -3276,6 +3334,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -3297,6 +3358,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -3311,11 +3377,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -3338,6 +3399,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -3384,28 +3456,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -3433,10 +3483,6 @@
     },
     "PVTContent": {
       "properties": {
-        "content": {
-          "const": "pvt",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -3452,6 +3498,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -3462,6 +3519,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "pvt",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -3541,6 +3602,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -3562,6 +3626,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -3576,11 +3645,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -3603,6 +3667,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -3649,28 +3724,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -3706,10 +3759,6 @@
     },
     "ParametersContent": {
       "properties": {
-        "content": {
-          "const": "parameters",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -3725,6 +3774,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -3735,6 +3795,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "parameters",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -3814,6 +3878,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -3835,6 +3902,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -3849,11 +3921,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -3876,6 +3943,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -3922,28 +4000,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -3959,10 +4015,6 @@
     },
     "PinchoutContent": {
       "properties": {
-        "content": {
-          "const": "pinchout",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -3978,6 +4030,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -3988,6 +4051,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "pinchout",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -4067,6 +4134,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -4088,6 +4158,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -4102,11 +4177,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -4129,6 +4199,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -4175,28 +4256,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -4208,6 +4267,40 @@
         "stratigraphic"
       ],
       "title": "PinchoutContent",
+      "type": "object"
+    },
+    "PointSpecification": {
+      "properties": {
+        "attributes": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "List of columns present in a table.",
+          "title": "Attributes"
+        },
+        "size": {
+          "description": "Size of data object.",
+          "examples": [
+            1,
+            9999
+          ],
+          "title": "Size",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "attributes",
+        "size"
+      ],
+      "title": "PointSpecification",
       "type": "object"
     },
     "PolygonsSpecification": {
@@ -4226,10 +4319,6 @@
     },
     "PropertyContent": {
       "properties": {
-        "content": {
-          "const": "property",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -4245,6 +4334,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -4255,6 +4355,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "property",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -4334,6 +4438,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -4355,6 +4462,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -4369,11 +4481,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -4396,6 +4503,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -4442,28 +4560,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -4479,10 +4575,6 @@
     },
     "RFTContent": {
       "properties": {
-        "content": {
-          "const": "rft",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -4498,6 +4590,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -4508,6 +4611,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "rft",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -4587,6 +4694,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -4608,6 +4718,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -4622,11 +4737,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -4649,6 +4759,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -4695,28 +4816,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -4736,6 +4835,18 @@
           "description": "The unique number of this realization as used in FMU",
           "title": "Id",
           "type": "integer"
+        },
+        "jobs": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RealizationJobs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Content directly taken from the ERT jobs.json file for this realization"
         },
         "name": {
           "description": "The convential name of this iteration, e.g. iter-0 or pred",
@@ -4757,18 +4868,6 @@
           "default": null,
           "description": "Parameters for this realization"
         },
-        "jobs": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/RealizationJobs"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Content directly taken from the ERT jobs.json file for this realization"
-        },
         "uuid": {
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
@@ -4788,19 +4887,19 @@
     },
     "RealizationJobListing": {
       "properties": {
-        "arg_types": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Arg Types",
-          "type": "array"
-        },
         "argList": {
           "items": {
             "format": "path",
             "type": "string"
           },
           "title": "Arglist",
+          "type": "array"
+        },
+        "arg_types": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Arg Types",
           "type": "array"
         },
         "error_file": {
@@ -4836,17 +4935,6 @@
           "title": "Max Arg",
           "type": "integer"
         },
-        "max_running_minutes": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Max Running Minutes"
-        },
         "max_running": {
           "anyOf": [
             {
@@ -4857,6 +4945,17 @@
             }
           ],
           "title": "Max Running"
+        },
+        "max_running_minutes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Running Minutes"
         },
         "min_arg": {
           "title": "Min Arg",
@@ -4995,10 +5094,6 @@
     },
     "RegionsContent": {
       "properties": {
-        "content": {
-          "const": "regions",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -5014,6 +5109,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -5024,6 +5130,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "regions",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -5103,6 +5213,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -5124,6 +5237,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -5138,11 +5256,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -5165,6 +5278,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -5211,28 +5335,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -5248,10 +5350,6 @@
     },
     "RelpermContent": {
       "properties": {
-        "content": {
-          "const": "relperm",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -5267,6 +5365,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -5277,6 +5386,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "relperm",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -5356,6 +5469,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -5377,6 +5493,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -5391,11 +5512,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -5418,6 +5534,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -5464,28 +5591,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -5589,10 +5694,6 @@
     },
     "SeismicContent": {
       "properties": {
-        "content": {
-          "const": "seismic",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -5608,6 +5709,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -5618,6 +5730,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "seismic",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -5688,6 +5804,9 @@
           "title": "Offset",
           "type": "number"
         },
+        "seismic": {
+          "$ref": "#/$defs/Seismic"
+        },
         "spec": {
           "anyOf": [
             {
@@ -5695,6 +5814,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/PointSpecification"
             },
             {
               "$ref": "#/$defs/CubeSpecification"
@@ -5718,6 +5840,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -5732,11 +5859,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -5759,6 +5881,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -5805,36 +5938,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "seismic": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/Seismic"
-            }
-          ],
-          "description": "Conditional field"
         }
       },
       "required": [
@@ -5961,10 +6064,6 @@
     },
     "SubcropContent": {
       "properties": {
-        "content": {
-          "const": "subcrop",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -5980,6 +6079,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -5990,6 +6100,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "subcrop",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -6069,6 +6183,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -6090,6 +6207,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -6104,11 +6226,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -6131,6 +6248,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -6177,28 +6305,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -6214,19 +6320,14 @@
     },
     "SurfaceSpecification": {
       "properties": {
-        "nrow": {
-          "description": "The number of rows",
-          "title": "Nrow",
-          "type": "integer"
-        },
         "ncol": {
           "description": "The number of columns",
           "title": "Ncol",
           "type": "integer"
         },
-        "nlay": {
-          "description": "The number of layers",
-          "title": "Nlay",
+        "nrow": {
+          "description": "The number of rows",
+          "title": "Nrow",
           "type": "integer"
         },
         "rotation": {
@@ -6257,6 +6358,11 @@
           ],
           "description": "Flip along the y-axis, -1 or 1"
         },
+        "yinc": {
+          "description": "Increment along the y-axis",
+          "title": "Yinc",
+          "type": "number"
+        },
         "yori": {
           "description": "Origin along the y-axis",
           "title": "Yori",
@@ -6266,10 +6372,10 @@
       "required": [
         "nrow",
         "ncol",
-        "nlay",
         "rotation",
         "undef",
         "xinc",
+        "yinc",
         "xori",
         "yflip",
         "yori"
@@ -6340,10 +6446,6 @@
     },
     "ThicknessContent": {
       "properties": {
-        "content": {
-          "const": "thickness",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -6359,6 +6461,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -6369,6 +6482,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "thickness",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -6448,6 +6565,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -6469,6 +6589,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -6483,11 +6608,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -6510,6 +6630,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -6556,28 +6687,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -6621,10 +6730,6 @@
     },
     "TimeContent": {
       "properties": {
-        "content": {
-          "const": "time",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -6640,6 +6745,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -6650,6 +6766,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "time",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -6729,6 +6849,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -6750,6 +6873,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -6764,11 +6892,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -6791,6 +6914,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -6837,28 +6971,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -6874,10 +6986,6 @@
     },
     "TimeSeriesContent": {
       "properties": {
-        "content": {
-          "const": "timeseries",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -6893,6 +7001,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -6903,6 +7022,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "timeseries",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -6982,6 +7105,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -7003,6 +7129,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -7017,11 +7148,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -7044,6 +7170,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -7090,28 +7227,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -7144,9 +7259,6 @@
           "title": "Event",
           "type": "string"
         },
-        "user": {
-          "$ref": "#/$defs/User"
-        },
         "sysinfo": {
           "anyOf": [
             {
@@ -7157,6 +7269,9 @@
             }
           ],
           "default": null
+        },
+        "user": {
+          "$ref": "#/$defs/User"
         }
       },
       "required": [
@@ -7186,10 +7301,6 @@
     },
     "VelocityContent": {
       "properties": {
-        "content": {
-          "const": "velocity",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -7205,6 +7316,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -7215,6 +7337,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "velocity",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -7294,6 +7420,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -7315,6 +7444,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -7329,11 +7463,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -7356,6 +7485,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -7402,28 +7542,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -7452,10 +7570,6 @@
     },
     "VolumesContent": {
       "properties": {
-        "content": {
-          "const": "volumes",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -7471,6 +7585,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -7481,6 +7606,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "volumes",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -7560,6 +7689,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -7581,6 +7713,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -7595,11 +7732,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -7622,6 +7754,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -7668,28 +7811,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -7705,10 +7826,6 @@
     },
     "VolumetricsContent": {
       "properties": {
-        "content": {
-          "const": "volumetrics",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -7724,6 +7841,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -7734,6 +7862,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "volumetrics",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -7813,6 +7945,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -7834,6 +7969,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -7848,11 +7988,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -7875,6 +8010,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -7921,28 +8067,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -7958,10 +8082,6 @@
     },
     "WellPicksContent": {
       "properties": {
-        "content": {
-          "const": "wellpicks",
-          "title": "Content"
-        },
         "alias": {
           "anyOf": [
             {
@@ -7977,6 +8097,17 @@
           "default": null,
           "title": "Alias"
         },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "bbox": {
           "anyOf": [
             {
@@ -7987,6 +8118,10 @@
             }
           ],
           "default": null
+        },
+        "content": {
+          "const": "wellpicks",
+          "title": "Content"
         },
         "description": {
           "anyOf": [
@@ -8066,6 +8201,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
               "$ref": "#/$defs/CubeSpecification"
             },
             {
@@ -8087,6 +8225,11 @@
           "default": null,
           "title": "Spec"
         },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
         "stratigraphic_alias": {
           "anyOf": [
             {
@@ -8101,11 +8244,6 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
-        },
-        "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
-          "title": "Stratigraphic",
-          "type": "boolean"
         },
         "tagname": {
           "anyOf": [
@@ -8128,6 +8266,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
             },
             {
               "type": "null"
@@ -8174,28 +8323,6 @@
             "depth"
           ],
           "title": "Vertical Domain"
-        },
-        "base": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "top": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Layer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -8229,6 +8356,8 @@
       "type": "object"
     }
   },
+  "$id": "fmu_meta.json",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "discriminator": {
     "mapping": {
       "case": "#/$defs/FMUCaseClassMeta",
@@ -8271,45 +8400,5 @@
       }
     }
   },
-  "title": "Root",
-  "$contractual": [
-    "class",
-    "source",
-    "version",
-    "tracklog",
-    "data.format",
-    "data.name",
-    "data.stratigraphic",
-    "data.alias",
-    "data.stratigraphic_alias",
-    "data.offset",
-    "data.content",
-    "data.tagname",
-    "data.vertical_domain",
-    "data.grid_model",
-    "data.bbox",
-    "data.time",
-    "data.is_prediction",
-    "data.is_observation",
-    "data.seismic.attribute",
-    "data.spec.columns",
-    "access",
-    "masterdata",
-    "fmu.model",
-    "fmu.workflow",
-    "fmu.case",
-    "fmu.iteration.name",
-    "fmu.iteration.uuid",
-    "fmu.realization.name",
-    "fmu.realization.id",
-    "fmu.realization.uuid",
-    "fmu.aggregation.operation",
-    "fmu.aggregation.realization_ids",
-    "fmu.context.stage",
-    "file.relative_path",
-    "file.checksum_md5",
-    "file.size_bytes"
-  ],
-  "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "fmu_meta.json"
+  "title": "Root"
 }
