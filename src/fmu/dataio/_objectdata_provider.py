@@ -88,7 +88,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Final, NamedTuple, Optional
+from typing import Any, Dict, Final, NamedTuple, Optional, TypeVar
 from warnings import warn
 
 import numpy as np
@@ -101,6 +101,8 @@ from ._utils import generate_description, parse_timedata
 from .datastructure.meta import meta, specification
 
 logger: Final = null_logger(__name__)
+
+V = TypeVar("V")
 
 
 class ConfigurationError(ValueError):
@@ -141,6 +143,19 @@ class TimedataFormat:
 
 
 @dataclass
+class DerivedNamedStratigraphy:
+    name: str
+    alias: list[str]
+
+    stratigraphic: bool
+    stratigraphic_alias: list[str]
+
+    offset: int | None
+    base: str | None
+    top: str | None
+
+
+@dataclass
 class _ObjectDataProvider:
     """Class for providing metadata for data objects in fmu-dataio, e.g. a surface.
 
@@ -155,27 +170,25 @@ class _ObjectDataProvider:
     # input fields
     obj: Any
     dataio: Any
-    meta_existing: Optional[dict] = None
+    meta_existing: dict = field(default_factory=dict)
 
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
     # as instance properties in addition (for simplicity in other classes/functions)
-    metadata: dict = field(default_factory=dict, init=False)
-    name: str = field(default="", init=False)
-    classname: str = field(default="", init=False)
-    efolder: str = field(default="", init=False)
-    fmt: str = field(default="", init=False)
-    extension: str = field(default="", init=False)
-    layout: str = field(default="", init=False)
-    bbox: dict = field(default_factory=dict, init=False)
-    specs: dict = field(default_factory=dict, init=False)
-    time0: str = field(default="", init=False)
-    time1: str = field(default="", init=False)
+    bbox: dict = field(default_factory=dict)
+    classname: str = field(default="")
+    efolder: str = field(default="")
+    extension: str = field(default="")
+    fmt: str = field(default="")
+    layout: str = field(default="")
+    metadata: dict = field(default_factory=dict)
+    name: str = field(default="")
+    specs: dict = field(default_factory=dict)
+    subtype: str = field(default="")
+    time0: str = field(default="")
+    time1: str = field(default="")
 
-    def __post_init__(self) -> None:
-        logger.info("Ran __post_init__")
-
-    def _derive_name_stratigraphy(self) -> dict:
+    def _derive_name_stratigraphy(self) -> DerivedNamedStratigraphy:
         """Derive the name and stratigraphy for the object; may have several sources.
 
         If not in input settings it is tried to be inferred from the xtgeo/pandas/...
@@ -183,11 +196,7 @@ class _ObjectDataProvider:
         replaced with official stratigraphic name if found in static metadata
         `stratigraphy`. For example, if "TopValysar" is the model name and the actual
         name is "Valysar Top Fm." that latter name will be used.
-
         """
-        logger.info("Evaluate data:name attribute and stratigraphy")
-        result: dict[str, Any] = {}
-
         name = self.dataio.name
 
         if not name:
@@ -197,41 +206,38 @@ class _ObjectDataProvider:
                 name = ""
 
         # next check if usename has a "truename" and/or aliases from the config
-        strat = self.dataio.config.get("stratigraphy", None)  # shortform
+        strat = self.dataio.config.get("stratigraphy")  # shortform
+        no_start_or_missing_name = strat is None or name not in strat
 
-        if strat is None or name not in strat:
-            logger.info("None of name not in strat")
-            result["stratigraphic"] = False
-            result["name"] = name
-        else:
-            logger.info("The name in strat...")
-            result["name"] = strat[name].get("name", name)
-            result["alias"] = strat[name].get("alias", [])
-            if result["name"] != "name":
-                result["alias"].append(name)
-            result["stratigraphic"] = strat[name].get("stratigraphic", False)
-            result["stratigraphic_alias"] = strat[name].get("stratigraphic_alias", None)
-            result["offset"] = strat[name].get("offset", None)
-            result["top"] = strat[name].get("top", None)
-            result["base"] = strat[name].get("base", None)
+        rv = DerivedNamedStratigraphy(
+            name=name if no_start_or_missing_name else strat[name].get("name", name),
+            alias=[] if no_start_or_missing_name else strat[name].get("alias", []),
+            stratigraphic=False
+            if no_start_or_missing_name
+            else strat[name].get("stratigraphic", False),
+            stratigraphic_alias=[]
+            if no_start_or_missing_name
+            else strat[name].get("stratigraphic_alias"),
+            offset=None if no_start_or_missing_name else strat[name].get("offset"),
+            top=None if no_start_or_missing_name else strat[name].get("top"),
+            base=None if no_start_or_missing_name else strat[name].get("base"),
+        )
 
-        logger.info("Evaluated data:name attribute, true name is <%s>", result["name"])
-        return result
+        if not no_start_or_missing_name and rv.name != "name":
+            rv.alias.append(name)
+
+        return rv
 
     @staticmethod
-    def _validate_get_ext(
-        fmt: str,
-        subtype: str,
-        validator: dict[str, Any],
-    ) -> object | None:
+    def _validate_get_ext(fmt: str, subtype: str, validator: dict[str, V]) -> V:
         """Validate that fmt (file format) matches data and return legal extension."""
-        if fmt not in validator:
+        try:
+            return validator[fmt]
+        except KeyError:
             raise ConfigurationError(
-                f"The file format {fmt} is not supported.",
+                f"The file format {fmt} is not supported. ",
                 f"Valid {subtype} formats are: {list(validator.keys())}",
             )
-
-        return validator.get(fmt)
 
     def _derive_objectdata(self) -> dict:
         """Derive object spesific data."""
@@ -716,7 +722,6 @@ class _ObjectDataProvider:
 
         # do not change any items in 'data' block, as it may ruin e.g. stratigrapical
         # setting (i.e. changing data.name is not allowed)
-        assert self.meta_existing is not None
         self.metadata = self.meta_existing["data"]
         self.name = self.meta_existing["data"]["name"]
 
@@ -772,17 +777,17 @@ class _ObjectDataProvider:
             self._derive_from_existing()
             return
 
-        nameres = self._derive_name_stratigraphy()
+        namedstratigraphy = self._derive_name_stratigraphy()
         objres = self._derive_objectdata()
 
         meta = self.metadata  # shortform
 
-        meta["name"] = nameres["name"]
-        meta["stratigraphic"] = nameres.get("stratigraphic", None)
-        meta["offset"] = nameres.get("offset", None)
-        meta["alias"] = nameres.get("alias", None)
-        meta["top"] = nameres.get("top", None)
-        meta["base"] = nameres.get("base", None)
+        meta["name"] = namedstratigraphy.name
+        meta["stratigraphic"] = namedstratigraphy.stratigraphic
+        meta["offset"] = namedstratigraphy.offset
+        meta["alias"] = namedstratigraphy.alias
+        meta["top"] = namedstratigraphy.top
+        meta["base"] = namedstratigraphy.base
 
         content, content_spesific = self._process_content()
         meta["content"] = content
