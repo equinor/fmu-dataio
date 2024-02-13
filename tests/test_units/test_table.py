@@ -139,7 +139,7 @@ def test_table_index_real_summary(edataobj3, drogon_summary):
     """
     objdata = _ObjectDataProvider(drogon_summary, edataobj3)
     res = objdata._derive_objectdata()
-    assert res["table_index"] == ["DATE"], "Incorrect table index "
+    assert res.table_index == ["DATE"], "Incorrect table index "
 
 
 def test_table_wellpicks(wellpicks, globalconfig1):

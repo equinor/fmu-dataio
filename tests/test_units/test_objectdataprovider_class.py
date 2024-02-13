@@ -68,9 +68,9 @@ def test_objectdata_regularsurface_derive_objectdata(regsurf, edataobj1):
 
     res = _ObjectDataProvider(regsurf, edataobj1)._derive_objectdata()
 
-    assert res["subtype"] == "RegularSurface"
-    assert res["classname"] == "surface"
-    assert res["extension"] == ".gri"
+    assert res.subtype == "RegularSurface"
+    assert res.classname == "surface"
+    assert res.extension == ".gri"
 
 
 def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):
