@@ -9,6 +9,7 @@ from __future__ import annotations
 import datetime
 import getpass
 import os
+import platform
 from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
@@ -64,6 +65,13 @@ def generate_meta_tracklog() -> list[dict]:
                 komodo=meta.VersionInformation.model_construct(version=kr)
                 if (kr := os.environ.get("KOMODO_RELEASE"))
                 else None,
+                operating_system=meta.SystemInformationOperatingSystem.model_construct(
+                    hostname=platform.node(),
+                    operating_system=platform.platform(),
+                    release=platform.release(),
+                    system=platform.system(),
+                    version=platform.version(),
+                ),
             ),
         ).model_dump(
             mode="json",

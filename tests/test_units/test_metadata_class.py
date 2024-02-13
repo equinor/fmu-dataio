@@ -6,7 +6,10 @@ import fmu.dataio as dio
 import pytest
 from fmu.dataio._metadata import SCHEMA, SOURCE, VERSION, ConfigurationError, _MetaData
 from fmu.dataio._utils import prettyprint_dict
-from fmu.dataio.datastructure.meta.meta import TracklogEvent
+from fmu.dataio.datastructure.meta.meta import (
+    SystemInformationOperatingSystem,
+    TracklogEvent,
+)
 
 # pylint: disable=no-member
 
@@ -75,6 +78,21 @@ def test_generate_meta_tracklog_komodo_version(edataobj1, monkeypatch):
 
     assert parsed.sysinfo.komodo is not None
     assert parsed.sysinfo.komodo.version == fake_komodo_release
+
+
+def test_generate_meta_tracklog_operating_system(edataobj1):
+    mymeta = _MetaData("dummy", edataobj1)
+    mymeta._populate_meta_tracklog()
+    tracklog = mymeta.meta_tracklog
+
+    assert isinstance(tracklog, list)
+    assert len(tracklog) == 1  # assume "created"
+
+    parsed = TracklogEvent.model_validate(tracklog[0])
+    assert isinstance(
+        parsed.sysinfo.operating_system,
+        SystemInformationOperatingSystem,
+    )
 
 
 # --------------------------------------------------------------------------------------

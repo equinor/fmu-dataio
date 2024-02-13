@@ -254,6 +254,48 @@ class VersionInformation(BaseModel):
     version: str
 
 
+class SystemInformationOperatingSystem(BaseModel):
+    """
+    This model encapsulates various pieces of
+    system-related information using Python's platform module. It provides a
+    structured way to access details about the system's hardware, operating
+    system, and interpreter version information.
+    """
+
+    hostname: str = Field(
+        title="Hostname",
+        description="The network name of the computer, possibly not fully qualified.",
+        examples=["Johns-MacBook-Pro.local"],
+    )
+
+    operating_system: str = Field(
+        title="Platform",
+        description=(
+            "A detailed string identifying the underlying platform "
+            "with as much useful information as possible."
+        ),
+        examples=["Darwin-18.7.0-x86_64-i386-64bit"],
+    )
+
+    release: str = Field(
+        title="Release",
+        description="The system's release version, such as a version number or a name.",
+        examples=["18.7.0"],
+    )
+
+    system: str = Field(
+        title="System",
+        description="The name of the operating system.",
+        examples=["Darwin"],
+    )
+
+    version: str = Field(
+        title="Version",
+        description="The specific release version of the system.",
+        examples=["#1 SMP Tue Aug 27 21:37:59 PDT 2019"],
+    )
+
+
 class SystemInformation(BaseModel):
     fmu_dataio: Optional[VersionInformation] = Field(
         alias="fmu-dataio",
@@ -261,8 +303,12 @@ class SystemInformation(BaseModel):
         examples=["1.2.3"],
     )
     komodo: Optional[VersionInformation] = Field(
+        alias="fmu-dataio",
         default=None,
         examples=["2023.12.05-py38"],
+    )
+    operating_system: Optional[SystemInformationOperatingSystem] = Field(
+        default=None,
     )
 
 
@@ -279,7 +325,7 @@ class TracklogEvent(BaseModel):
     )
     user: User
     sysinfo: Optional[SystemInformation] = Field(
-        default=None,
+        default_factory=SystemInformation,
     )
 
 

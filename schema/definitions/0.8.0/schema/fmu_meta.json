@@ -6396,25 +6396,76 @@
           ],
           "default": null,
           "examples": [
-            "1.2.3"
+            "2023.12.05-py38"
           ]
         },
-        "komodo": {
+        "operating_system": {
           "anyOf": [
             {
-              "$ref": "#/$defs/VersionInformation"
+              "$ref": "#/$defs/SystemInformationOperatingSystem"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "examples": [
-            "2023.12.05-py38"
-          ]
+          "default": null
         }
       },
       "title": "SystemInformation",
+      "type": "object"
+    },
+    "SystemInformationOperatingSystem": {
+      "description": "This model encapsulates various pieces of\nsystem-related information using Python's platform module. It provides a\nstructured way to access details about the system's hardware, operating\nsystem, and interpreter version information.",
+      "properties": {
+        "hostname": {
+          "description": "The network name of the computer, possibly not fully qualified.",
+          "examples": [
+            "Johns-MacBook-Pro.local"
+          ],
+          "title": "Hostname",
+          "type": "string"
+        },
+        "operating_system": {
+          "description": "A detailed string identifying the underlying platform with as much useful information as possible.",
+          "examples": [
+            "Darwin-18.7.0-x86_64-i386-64bit"
+          ],
+          "title": "Platform",
+          "type": "string"
+        },
+        "release": {
+          "description": "The system's release version, such as a version number or a name.",
+          "examples": [
+            "18.7.0"
+          ],
+          "title": "Release",
+          "type": "string"
+        },
+        "system": {
+          "description": "The name of the operating system.",
+          "examples": [
+            "Darwin"
+          ],
+          "title": "System",
+          "type": "string"
+        },
+        "version": {
+          "description": "The specific release version of the system.",
+          "examples": [
+            "#1 SMP Tue Aug 27 21:37:59 PDT 2019"
+          ],
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hostname",
+        "operating_system",
+        "release",
+        "system",
+        "version"
+      ],
+      "title": "SystemInformationOperatingSystem",
       "type": "object"
     },
     "TableSpecification": {
@@ -7267,8 +7318,7 @@
             {
               "type": "null"
             }
-          ],
-          "default": null
+          ]
         },
         "user": {
           "$ref": "#/$defs/User"
