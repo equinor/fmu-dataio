@@ -50,12 +50,12 @@ class _FileDataProvider:
             self.name = self.objdata.name
 
         self.tagname = self.dataio.tagname
-        self.time0 = self.objdata.time0
-        self.time1 = self.objdata.time1
+        self.time0 = self.objdata.derive_metadata().time
+        self.time1 = self.objdata.derive_metadata().time
 
         self.parentname = self.dataio.parent
-        self.extension = self.objdata.extension
-        self.efolder = self.objdata.efolder
+        self.extension = self.objdata.derive_metadata().extension
+        self.efolder = self.objdata.derive_metadata().efolder
 
         self.forcefolder = self.dataio.forcefolder
         self.forcefolder_is_absolute = False

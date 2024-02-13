@@ -272,8 +272,9 @@ class _MetaData:
         Hence this must be ran early or first.
         """
         self.objdata = _ObjectDataProvider(self.obj, self.dataio, self.meta_existing)
-        self.objdata.derive_metadata()
-        self.meta_objectdata = self.objdata.metadata
+        from dataclasses import asdict
+
+        self.meta_objectdata = asdict(self.objdata.derive_metadata())
 
     def _populate_meta_fmu(self) -> None:
         """Populate the fmu block in the metadata.
@@ -366,7 +367,7 @@ class _MetaData:
 
     def _populate_meta_class(self) -> None:
         """Get the general class which is a simple string."""
-        self.meta_class = self.objdata.classname
+        self.meta_class = self.objdata.derive_metadata().classname
 
     def _populate_meta_tracklog(self) -> None:
         """Create the tracklog metadata, which here assumes 'created' only."""

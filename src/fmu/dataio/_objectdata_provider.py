@@ -119,6 +119,72 @@ def npfloat_to_float(v: Any) -> Any:
 
 
 @dataclass
+class DerviedMetadata:
+    # Stratigraphy
+    name: str
+    stratigraphic: bool
+    offset: int | None
+    alias: list[str]
+    top: str | None
+    base: str | None
+
+    content: str
+
+    # TODO: Inv. this.
+    # if content_spesific:
+    #     self.metadata[self.dataio._usecontent] = content_spesific
+
+    tagname: str
+    format: str
+    layout: str
+    unit: str
+    vertical_domain: list[str]
+    depth_reference: list[str]
+    spec: dict | None
+    bbox: dict | None
+    table_index: list[str] | None
+    undef_is_zero: bool
+    time: dict | list[dict]
+
+    is_prediction: bool
+    is_observation: bool
+    description: list[str] | None
+
+    subtype: Literal[
+        "RegularSurface",
+        "Polygons",
+        "Points",
+        "RegularCube",
+        "CPGrid",
+        "CPGridProperty",
+        "DataFrame",
+        "JSON",
+        "ArrowTable",
+    ]
+    classname: Literal[
+        "surface",
+        "polygons",
+        "points",
+        "cube",
+        "cpgrid",
+        "cpgrid_property",
+        "table",
+        "dictionary",
+    ]
+    efolder: Literal[
+        "maps",
+        "polygons",
+        "points",
+        "cubes",
+        "grids",
+        "tables",
+        "dictionaries",
+    ]
+    fmt: str
+    extension: str
+
+
+@dataclass
 class DerivedObjectDescriptor:
     subtype: Literal[
         "RegularSurface",
@@ -221,18 +287,18 @@ class _ObjectDataProvider:
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
     # as instance properties in addition (for simplicity in other classes/functions)
-    bbox: dict = field(default_factory=dict)
-    classname: str = field(default="")
-    efolder: str = field(default="")
-    extension: str = field(default="")
-    fmt: str = field(default="")
-    layout: str = field(default="")
-    metadata: dict = field(default_factory=dict)
-    name: str = field(default="")
-    specs: dict = field(default_factory=dict)
-    subtype: str = field(default="")
-    time0: str = field(default="")
-    time1: str = field(default="")
+    # bbox: dict = field(default_factory=dict)
+    # classname: str = field(default="")
+    # efolder: str = field(default="")
+    # extension: str = field(default="")
+    # fmt: str = field(default="")
+    # layout: str = field(default="")
+    # metadata: dict = field(default_factory=dict)
+    # name: str = field(default="")
+    # specs: dict = field(default_factory=dict)
+    # subtype: str = field(default="")
+    # time0: str = field(default="")
+    # time1: str = field(default="")
 
     def _derive_name_stratigraphy(self) -> DerivedNamedStratigraphy:
         """Derive the name and stratigraphy for the object; may have several sources.
@@ -794,74 +860,72 @@ class _ObjectDataProvider:
 
         return content, content_spesific
 
-    def derive_metadata(self) -> None:
+    def derive_metadata(self) -> DerviedMetadata:
         """Main function here, will populate the metadata block for 'data'."""
         logger.info("Derive all metadata for data object...")
 
         if self.meta_existing:
             self._derive_from_existing()
-            return
+            return {}
 
         namedstratigraphy = self._derive_name_stratigraphy()
-        self.metadata["name"] = namedstratigraphy.name
-        self.metadata["stratigraphic"] = namedstratigraphy.stratigraphic
-        self.metadata["offset"] = namedstratigraphy.offset
-        self.metadata["alias"] = namedstratigraphy.alias
-        self.metadata["top"] = namedstratigraphy.top
-        self.metadata["base"] = namedstratigraphy.base
-
         content, content_spesific = self._process_content()
-        self.metadata["content"] = content
-        if content_spesific:
-            self.metadata[self.dataio._usecontent] = content_spesific
-
         objres = self._derive_objectdata()
-        self.metadata["tagname"] = self.dataio.tagname
-        self.metadata["format"] = objres.fmt
-        self.metadata["layout"] = objres.layout
-        self.metadata["unit"] = self.dataio.unit
-        self.metadata["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
-        self.metadata["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
-        self.metadata["spec"] = (
-            objres.spec.model_dump(mode="json", exclude_none=True)
-            if objres.spec
-            else None
-        )
-        self.metadata["bbox"] = (
-            objres.bbox.model_dump(mode="json", exclude_none=True)
-            if objres.bbox
-            else None
-        )
-        self.metadata["table_index"] = objres.table_index
-        self.metadata["undef_is_zero"] = self.dataio.undef_is_zero
-
-        # timedata:
         dt = self._derive_timedata()
-        if isinstance(dt, TimedataLegacyFormat) and dt.time:
-            self.metadata["time"] = [asdict(v) for v in dt.time]
-        elif isinstance(dt, TimedataFormat):
-            if dt.t0 or dt.t1:
-                self.metadata["time"] = {}
-            if t0 := dt.t0:
-                self.metadata["time"]["t0"] = asdict(t0)
-            if t1 := dt.t1:
-                self.metadata["time"]["t1"] = asdict(t1)
 
-        self.metadata["is_prediction"] = self.dataio.is_prediction
-        self.metadata["is_observation"] = self.dataio.is_observation
-        self.metadata["description"] = generate_description(self.dataio.description)
+        if isinstance(dt, TimedataLegacyFormat) and dt.time:
+            time = [asdict(v) for v in dt.time]
+        elif isinstance(dt, TimedataFormat):
+            time = {}
+            if t0 := dt.t0:
+                time["t0"] = asdict(t0)
+            if t1 := dt.t1:
+                time["t1"] = asdict(t1)
+        else:
+            time = {}
+
+        dmd = DerviedMetadata(
+            name=namedstratigraphy.name,
+            stratigraphic=namedstratigraphy.stratigraphic,
+            offset=namedstratigraphy.offset,
+            alias=namedstratigraphy.alias,
+            top=namedstratigraphy.top,
+            base=namedstratigraphy.base,
+            content=content,
+            tagname=self.dataio.tagname,
+            format=objres.fmt,
+            layout=objres.layout,
+            unit=self.dataio.unit,
+            vertical_domain=list(self.dataio.vertical_domain.keys())[0],
+            depth_reference=list(self.dataio.vertical_domain.values())[0],
+            spec=objres.spec.model_dump(mode="json", exclude_none=True)
+            if objres.spec
+            else None,
+            bbox=(
+                objres.bbox.model_dump(mode="json", exclude_none=True)
+                if objres.bbox
+                else None
+            ),
+            table_index=objres.table_index,
+            undef_is_zero=self.dataio.undef_is_zero,
+            # timedata:
+            is_prediction=self.dataio.is_prediction,
+            is_observation=self.dataio.is_observation,
+            description=generate_description(self.dataio.description),
+            time=time,
+            subtype=objres.subtype,
+            classname=objres.classname,
+            efolder=objres.efolder,
+            fmt=objres.fmt,
+            extension=objres.extension,
+        )
 
         # the next is to give addition state variables identical values, and for
         # consistency these are derived after all eventual validation and directly from
         # the self.metadata fields:
 
-        self.name = self.metadata["name"]
+        self.name = dmd.name
 
         # then there are a few settings that are not in the ``data`` metadata, but
         # needed as data/variables in other classes:
-
-        self.efolder = objres.efolder
-        self.classname = objres.classname
-        self.extension = objres.extension
-        self.fmt = objres.fmt
-        logger.info("Derive all metadata for data object... DONE")
+        return dmd
