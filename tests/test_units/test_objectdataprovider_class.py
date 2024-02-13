@@ -58,9 +58,12 @@ def test_objectdata_regularsurface_spec_bbox(regsurf, edataobj1):
         regsurf, edataobj1
     )._derive_spec_bbox_regularsurface()
 
-    assert specs["ncol"] == regsurf.ncol
-    assert bbox["xmin"] == 0.0
-    assert bbox["zmin"] == 1234.0
+    assert specs is not None
+    assert bbox is not None
+
+    assert specs.ncol == regsurf.ncol
+    assert bbox.xmin == 0.0
+    assert bbox.zmin == 1234.0
 
 
 def test_objectdata_regularsurface_derive_objectdata(regsurf, edataobj1):

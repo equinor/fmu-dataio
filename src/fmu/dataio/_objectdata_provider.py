@@ -110,8 +110,8 @@ class ConfigurationError(ValueError):
 
 
 class SpecificationAndBoundingBox(NamedTuple):
-    spec: Dict[str, Any]
-    bbox: Dict[str, Any]
+    spec: specification.AnySpecification | None
+    bbox: meta.content.BoundingBox | None
 
 
 def npfloat_to_float(v: Any) -> Any:
@@ -159,8 +159,8 @@ class DerivedObjectDescriptor:
     ]
     fmt: str
     extension: str
-    spec: Dict[str, Any]
-    bbox: Dict[str, Any]
+    spec: specification.AnySpecification | None
+    bbox: meta.content.BoundingBox | None
     table_index: Optional[list[str]]
 
 
@@ -466,9 +466,6 @@ class _ObjectDataProvider:
                 yflip=npfloat_to_float(required["yflip"]),
                 rotation=npfloat_to_float(required["rotation"]),
                 undef=1.0e30,
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
             bbox=meta.content.BoundingBox(
                 xmin=float(regsurf.xmin),
@@ -477,9 +474,6 @@ class _ObjectDataProvider:
                 ymax=float(regsurf.ymax),
                 zmin=float(regsurf.values.min()),
                 zmax=float(regsurf.values.max()),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
         )
 
@@ -492,9 +486,6 @@ class _ObjectDataProvider:
         return SpecificationAndBoundingBox(
             spec=specification.PolygonsSpecification(
                 npolys=np.unique(poly.get_dataframe(copy=False)[poly.pname].values).size
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
             bbox=meta.content.BoundingBox(
                 xmin=float(xmin),
@@ -503,9 +494,6 @@ class _ObjectDataProvider:
                 ymax=float(ymax),
                 zmin=float(zmin),
                 zmax=float(zmax),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
         )
 
@@ -519,9 +507,6 @@ class _ObjectDataProvider:
             spec=specification.PointSpecification(
                 attributes=list(df.columns[3:]) if len(df.columns) > 3 else None,
                 size=int(df.size),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
             bbox=meta.content.BoundingBox(
                 xmin=float(df[pnts.xname].min()),
@@ -530,9 +515,6 @@ class _ObjectDataProvider:
                 ymin=float(df[pnts.yname].max()),
                 zmin=float(df[pnts.zname].min()),
                 zmax=float(df[pnts.zname].max()),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
         )
 
@@ -569,9 +551,6 @@ class _ObjectDataProvider:
                 zflip=npfloat_to_float(required["zflip"]),
                 rotation=npfloat_to_float(required["rotation"]),
                 undef=npfloat_to_float(required["undef"]),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
             bbox=meta.content.BoundingBox(
                 xmin=float(xmin),
@@ -580,9 +559,6 @@ class _ObjectDataProvider:
                 ymax=float(ymax),
                 zmin=float(cube.zori),
                 zmax=float(cube.zori + cube.zinc * (cube.nlay - 1)),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
         )
 
@@ -609,9 +585,6 @@ class _ObjectDataProvider:
                 xscale=npfloat_to_float(required["xscale"]),
                 yscale=npfloat_to_float(required["yscale"]),
                 zscale=npfloat_to_float(required["zscale"]),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
             bbox=meta.content.BoundingBox(
                 xmin=round(float(geox["xmin"]), 4),
@@ -620,9 +593,6 @@ class _ObjectDataProvider:
                 ymax=round(float(geox["ymax"]), 4),
                 zmin=round(float(geox["zmin"]), 4),
                 zmax=round(float(geox["zmax"]), 4),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
         )
 
@@ -636,11 +606,8 @@ class _ObjectDataProvider:
                 nrow=gridprop.nrow,
                 ncol=gridprop.ncol,
                 nlay=gridprop.nlay,
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
-            bbox={},
+            bbox=None,
         )
 
     def _derive_spec_bbox_dataframe(
@@ -653,11 +620,8 @@ class _ObjectDataProvider:
             spec=specification.TableSpecification(
                 columns=list(df.columns),
                 size=int(df.size),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
-            bbox={},
+            bbox=None,
         )
 
     def _derive_spec_bbox_arrowtable(
@@ -670,17 +634,14 @@ class _ObjectDataProvider:
             spec=specification.TableSpecification(
                 columns=list(table.column_names),
                 size=table.num_columns * table.num_rows,
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
             ),
-            bbox={},
+            bbox=None,
         )
 
     def _derive_spec_bbox_dict(self) -> SpecificationAndBoundingBox:
         """Process/collect the data items for dictionary."""
         logger.info("Process data metadata for dictionary")
-        return SpecificationAndBoundingBox({}, {})
+        return SpecificationAndBoundingBox(None, None)
 
     def _get_columns(self) -> list[str]:
         """Get the columns from table"""
@@ -842,54 +803,59 @@ class _ObjectDataProvider:
             return
 
         namedstratigraphy = self._derive_name_stratigraphy()
-        objres = self._derive_objectdata()
-
-        meta = self.metadata  # shortform
-
-        meta["name"] = namedstratigraphy.name
-        meta["stratigraphic"] = namedstratigraphy.stratigraphic
-        meta["offset"] = namedstratigraphy.offset
-        meta["alias"] = namedstratigraphy.alias
-        meta["top"] = namedstratigraphy.top
-        meta["base"] = namedstratigraphy.base
+        self.metadata["name"] = namedstratigraphy.name
+        self.metadata["stratigraphic"] = namedstratigraphy.stratigraphic
+        self.metadata["offset"] = namedstratigraphy.offset
+        self.metadata["alias"] = namedstratigraphy.alias
+        self.metadata["top"] = namedstratigraphy.top
+        self.metadata["base"] = namedstratigraphy.base
 
         content, content_spesific = self._process_content()
-        meta["content"] = content
+        self.metadata["content"] = content
         if content_spesific:
-            meta[self.dataio._usecontent] = content_spesific
+            self.metadata[self.dataio._usecontent] = content_spesific
 
-        meta["tagname"] = self.dataio.tagname
-        meta["format"] = objres.fmt
-        meta["layout"] = objres.layout
-        meta["unit"] = self.dataio.unit
-        meta["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
-        meta["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
-        meta["spec"] = objres.spec
-        meta["bbox"] = objres.bbox
-        meta["table_index"] = objres.table_index
-        meta["undef_is_zero"] = self.dataio.undef_is_zero
+        objres = self._derive_objectdata()
+        self.metadata["tagname"] = self.dataio.tagname
+        self.metadata["format"] = objres.fmt
+        self.metadata["layout"] = objres.layout
+        self.metadata["unit"] = self.dataio.unit
+        self.metadata["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
+        self.metadata["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
+        self.metadata["spec"] = (
+            objres.spec.model_dump(mode="json", exclude_none=True)
+            if objres.spec
+            else None
+        )
+        self.metadata["bbox"] = (
+            objres.bbox.model_dump(mode="json", exclude_none=True)
+            if objres.bbox
+            else None
+        )
+        self.metadata["table_index"] = objres.table_index
+        self.metadata["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:
         dt = self._derive_timedata()
         if isinstance(dt, TimedataLegacyFormat) and dt.time:
-            meta["time"] = [asdict(v) for v in dt.time]
+            self.metadata["time"] = [asdict(v) for v in dt.time]
         elif isinstance(dt, TimedataFormat):
             if dt.t0 or dt.t1:
-                meta["time"] = {}
+                self.metadata["time"] = {}
             if t0 := dt.t0:
-                meta["time"]["t0"] = asdict(t0)
+                self.metadata["time"]["t0"] = asdict(t0)
             if t1 := dt.t1:
-                meta["time"]["t1"] = asdict(t1)
+                self.metadata["time"]["t1"] = asdict(t1)
 
-        meta["is_prediction"] = self.dataio.is_prediction
-        meta["is_observation"] = self.dataio.is_observation
-        meta["description"] = generate_description(self.dataio.description)
+        self.metadata["is_prediction"] = self.dataio.is_prediction
+        self.metadata["is_observation"] = self.dataio.is_observation
+        self.metadata["description"] = generate_description(self.dataio.description)
 
         # the next is to give addition state variables identical values, and for
         # consistency these are derived after all eventual validation and directly from
         # the self.metadata fields:
 
-        self.name = meta["name"]
+        self.name = self.metadata["name"]
 
         # then there are a few settings that are not in the ``data`` metadata, but
         # needed as data/variables in other classes:
