@@ -18,30 +18,30 @@ class ValidationError(ValueError, KeyError):
 
 @dataclass
 class _ValidFormats:
-    surface: dict = field(
+    surface: dict[str, str] = field(
         default_factory=lambda: {
             "irap_binary": ".gri",
         }
     )
-    grid: dict = field(
+    grid: dict[str, str] = field(
         default_factory=lambda: {
             "hdf": ".hdf",
             "roff": ".roff",
         }
     )
-    cube: dict = field(
+    cube: dict[str, str] = field(
         default_factory=lambda: {
             "segy": ".segy",
         }
     )
-    table: dict = field(
+    table: dict[str, str] = field(
         default_factory=lambda: {
             "hdf": ".hdf",
             "csv": ".csv",
             "arrow": ".arrow",
         }
     )
-    polygons: dict = field(
+    polygons: dict[str, str] = field(
         default_factory=lambda: {
             "hdf": ".hdf",
             "csv": ".csv",  # columns will be X Y Z, ID
@@ -49,7 +49,7 @@ class _ValidFormats:
             "irap_ascii": ".pol",
         }
     )
-    points: dict = field(
+    points: dict[str, str] = field(
         default_factory=lambda: {
             "hdf": ".hdf",
             "csv": ".csv",  # columns will be X Y Z
@@ -57,7 +57,7 @@ class _ValidFormats:
             "irap_ascii": ".poi",
         }
     )
-    dictionary: dict = field(
+    dictionary: dict[str, str] = field(
         default_factory=lambda: {
             "json": ".json",
         }
