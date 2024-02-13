@@ -88,7 +88,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Final, NamedTuple, Optional, TypeVar
+from typing import Any, Dict, Final, Literal, NamedTuple, Optional, TypeVar
 from warnings import warn
 
 import numpy as np
@@ -116,6 +116,52 @@ class SpecificationAndBoundingBox(NamedTuple):
 
 def npfloat_to_float(v: Any) -> Any:
     return float(v) if isinstance(v, (np.float64, np.float32)) else v
+
+
+@dataclass
+class DerivedObjectDescriptor:
+    subtype: Literal[
+        "RegularSurface",
+        "Polygons",
+        "Points",
+        "RegularCube",
+        "CPGrid",
+        "CPGridProperty",
+        "DataFrame",
+        "JSON",
+        "ArrowTable",
+    ]
+    classname: Literal[
+        "surface",
+        "polygons",
+        "points",
+        "cube",
+        "cpgrid",
+        "cpgrid_property",
+        "table",
+        "dictionary",
+    ]
+    layout: Literal[
+        "regular",
+        "unset",
+        "cornerpoint",
+        "table",
+        "dictionary",
+    ]
+    efolder: Literal[
+        "maps",
+        "polygons",
+        "points",
+        "cubes",
+        "grids",
+        "tables",
+        "dictionaries",
+    ]
+    fmt: str
+    extension: str
+    spec: Dict[str, Any]
+    bbox: Dict[str, Any]
+    table_index: Optional[list[str]]
 
 
 @dataclass
@@ -239,134 +285,153 @@ class _ObjectDataProvider:
                 f"Valid {subtype} formats are: {list(validator.keys())}",
             )
 
-    def _derive_objectdata(self) -> dict:
+    def _derive_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object spesific data."""
         logger.info("Evaluate data settings for object")
-        result: dict[str, Any] = {}
 
         if isinstance(self.obj, xtgeo.RegularSurface):
-            result["subtype"] = "RegularSurface"
-            result["classname"] = "surface"
-            result["layout"] = "regular"
-            result["efolder"] = "maps"
-            result["fmt"] = self.dataio.surface_fformat
-            result["extension"] = self._validate_get_ext(
-                result["fmt"],
-                result["subtype"],
-                _ValidFormats().surface,
+            spec, bbox = self._derive_spec_bbox_regularsurface()
+            dod = DerivedObjectDescriptor(
+                subtype="RegularSurface",
+                classname="surface",
+                layout="regular",
+                efolder="maps",
+                fmt=(fmt := self.dataio.surface_fformat),
+                spec=spec,
+                bbox=bbox,
+                extension=self._validate_get_ext(
+                    fmt, "RegularSurface", _ValidFormats().surface
+                ),
+                table_index=None,
             )
-            result["spec"], result["bbox"] = self._derive_spec_bbox_regularsurface()
 
         elif isinstance(self.obj, xtgeo.Polygons):
-            result["subtype"] = "Polygons"
-            result["classname"] = "polygons"
-            result["layout"] = "unset"
-            result["efolder"] = "polygons"
-            result["fmt"] = self.dataio.polygons_fformat
-            result["extension"] = self._validate_get_ext(
-                result["fmt"],
-                result["subtype"],
-                _ValidFormats().polygons,
+            spec, bbox = self._derive_spec_bbox_polygons()
+            dod = DerivedObjectDescriptor(
+                subtype="Polygons",
+                classname="polygons",
+                layout="unset",
+                efolder="polygons",
+                fmt=(fmt := self.dataio.polygons_fformat),
+                extension=self._validate_get_ext(
+                    fmt, "Polygons", _ValidFormats().polygons
+                ),
+                spec=spec,
+                bbox=bbox,
+                table_index=None,
             )
-            result["spec"], result["bbox"] = self._derive_spec_bbox_polygons()
 
         elif isinstance(self.obj, xtgeo.Points):
-            result["subtype"] = "Points"
-            result["classname"] = "points"
-            result["layout"] = "unset"
-            result["efolder"] = "points"
-            result["fmt"] = self.dataio.points_fformat
-            result["extension"] = self._validate_get_ext(
-                result["fmt"],
-                result["subtype"],
-                _ValidFormats().points,
+            spec, bbox = self._derive_spec_bbox_points()
+            dod = DerivedObjectDescriptor(
+                subtype="Points",
+                classname="points",
+                layout="unset",
+                efolder="points",
+                fmt=(fmt := self.dataio.points_fformat),
+                extension=self._validate_get_ext(fmt, "Points", _ValidFormats().points),
+                spec=spec,
+                bbox=bbox,
+                table_index=None,
             )
-            result["spec"], result["bbox"] = self._derive_spec_bbox_points()
 
         elif isinstance(self.obj, xtgeo.Cube):
-            result["subtype"] = "RegularCube"
-            result["classname"] = "cube"
-            result["layout"] = "regular"
-            result["efolder"] = "cubes"
-            result["fmt"] = self.dataio.cube_fformat
-            result["extension"] = self._validate_get_ext(
-                result["fmt"],
-                result["subtype"],
-                _ValidFormats().cube,
+            spec, bbox = self._derive_spec_bbox_cube()
+            dod = DerivedObjectDescriptor(
+                subtype="RegularCube",
+                classname="cube",
+                layout="regular",
+                efolder="cubes",
+                fmt=(fmt := self.dataio.cube_fformat),
+                extension=self._validate_get_ext(
+                    fmt, "RegularCube", _ValidFormats().cube
+                ),
+                spec=spec,
+                bbox=bbox,
+                table_index=None,
             )
-            result["spec"], result["bbox"] = self._derive_spec_bbox_cube()
 
         elif isinstance(self.obj, xtgeo.Grid):
-            result["subtype"] = "CPGrid"
-            result["classname"] = "cpgrid"
-            result["layout"] = "cornerpoint"
-            result["efolder"] = "grids"
-            result["fmt"] = self.dataio.grid_fformat
-            result["extension"] = self._validate_get_ext(
-                result["fmt"],
-                result["subtype"],
-                _ValidFormats().grid,
+            spec, bbox = self._derive_spec_bbox_cpgrid()
+            dod = DerivedObjectDescriptor(
+                subtype="CPGrid",
+                classname="cpgrid",
+                layout="cornerpoint",
+                efolder="grids",
+                fmt=(fmt := self.dataio.grid_fformat),
+                extension=self._validate_get_ext(fmt, "CPGrid", _ValidFormats().grid),
+                spec=spec,
+                bbox=bbox,
+                table_index=None,
             )
-            result["spec"], result["bbox"] = self._derive_spec_bbox_cpgrid()
 
         elif isinstance(self.obj, xtgeo.GridProperty):
-            result["subtype"] = "CPGridProperty"
-            result["classname"] = "cpgrid_property"
-            result["layout"] = "cornerpoint"
-            result["efolder"] = "grids"
-            result["fmt"] = self.dataio.grid_fformat
-            result["extension"] = self._validate_get_ext(
-                result["fmt"],
-                result["subtype"],
-                _ValidFormats().grid,
+            spec, bbox = self._derive_spec_bbox_cpgridproperty()
+            dod = DerivedObjectDescriptor(
+                subtype="CPGridProperty",
+                classname="cpgrid_property",
+                layout="cornerpoint",
+                efolder="grids",
+                fmt=(fmt := self.dataio.grid_fformat),
+                extension=self._validate_get_ext(
+                    fmt, "CPGridProperty", _ValidFormats().grid
+                ),
+                spec=spec,
+                bbox=bbox,
+                table_index=None,
             )
-            result["spec"], result["bbox"] = self._derive_spec_bbox_cpgridproperty()
 
         elif isinstance(self.obj, pd.DataFrame):
-            result["table_index"] = self._derive_index()
-
-            result["subtype"] = "DataFrame"
-            result["classname"] = "table"
-            result["layout"] = "table"
-            result["efolder"] = "tables"
-            result["fmt"] = self.dataio.table_fformat
-            result["extension"] = self._validate_get_ext(
-                result["fmt"],
-                result["subtype"],
-                _ValidFormats().table,
+            spec, bbox = self._derive_spec_bbox_dataframe()
+            dod = DerivedObjectDescriptor(
+                subtype="DataFrame",
+                classname="table",
+                layout="table",
+                efolder="tables",
+                fmt=(fmt := self.dataio.table_fformat),
+                extension=self._validate_get_ext(
+                    fmt, "DataFrame", _ValidFormats().table
+                ),
+                spec=spec,
+                bbox=bbox,
+                table_index=self._derive_index(),
             )
-            result["spec"], result["bbox"] = self._derive_spec_bbox_dataframe()
 
         elif isinstance(self.obj, dict):
-            result["subtype"] = "JSON"
-            result["classname"] = "dictionary"
-            result["layout"] = "dictionary"
-            result["efolder"] = "dictionaries"
-            result["fmt"] = self.dataio.dict_fformat
-            result["extension"] = self._validate_get_ext(
-                result["fmt"],
-                result["subtype"],
-                _ValidFormats().dictionary,
+            spec, bbox = self._derive_spec_bbox_dict()
+            dod = DerivedObjectDescriptor(
+                subtype="JSON",
+                classname="dictionary",
+                layout="dictionary",
+                efolder="dictionaries",
+                fmt=(fmt := self.dataio.dict_fformat),
+                extension=self._validate_get_ext(
+                    fmt, "JSON", _ValidFormats().dictionary
+                ),
+                spec=spec,
+                bbox=bbox,
+                table_index=None,
             )
-            result["spec"], result["bbox"] = self._derive_spec_bbox_dict()
 
         else:
             from pyarrow import Table
 
             if isinstance(self.obj, Table):
-                result["table_index"] = self._derive_index()
-
-                result["subtype"] = "ArrowTable"
-                result["classname"] = "table"
-                result["layout"] = "table"
-                result["efolder"] = "tables"
-                result["fmt"] = self.dataio.arrow_fformat
-                result["extension"] = self._validate_get_ext(
-                    result["fmt"],
-                    result["subtype"],
-                    _ValidFormats().table,
+                spec, bbox = self._derive_spec_bbox_arrowtable()
+                dod = DerivedObjectDescriptor(
+                    table_index=self._derive_index(),
+                    subtype="ArrowTable",
+                    classname="table",
+                    layout="table",
+                    efolder="tables",
+                    fmt=(fmt := self.dataio.arrow_fformat),
+                    extension=self._validate_get_ext(
+                        fmt, "ArrowTable", _ValidFormats().table
+                    ),
+                    spec=spec,
+                    bbox=bbox,
                 )
-                result["spec"], result["bbox"] = self._derive_spec_bbox_arrowtable()
+
             else:
                 raise NotImplementedError(
                     "This data type is not (yet) supported: ", type(self.obj)
@@ -374,16 +439,15 @@ class _ObjectDataProvider:
 
         # override efolder with forcefolder as exception!
         if self.dataio.forcefolder and not self.dataio.forcefolder.startswith("/"):
-            ewas = result["efolder"]
-            result["efolder"] = self.dataio.forcefolder
             msg = (
-                f"The standard folder name is overrided from {ewas} to "
+                f"The standard folder name is overrided from {dod.efolder} to "
                 f"{self.dataio.forcefolder}"
             )
+            dod.efolder = self.dataio.forcefolder
             logger.info(msg)
             warn(msg, UserWarning)
 
-        return result
+        return dod
 
     def _derive_spec_bbox_regularsurface(self) -> SpecificationAndBoundingBox:
         """Process/collect the data.spec and data.bbox for RegularSurface"""
@@ -795,14 +859,14 @@ class _ObjectDataProvider:
             meta[self.dataio._usecontent] = content_spesific
 
         meta["tagname"] = self.dataio.tagname
-        meta["format"] = objres["fmt"]
-        meta["layout"] = objres["layout"]
+        meta["format"] = objres.fmt
+        meta["layout"] = objres.layout
         meta["unit"] = self.dataio.unit
         meta["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
         meta["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
-        meta["spec"] = objres["spec"]
-        meta["bbox"] = objres["bbox"]
-        meta["table_index"] = objres.get("table_index")
+        meta["spec"] = objres.spec
+        meta["bbox"] = objres.bbox
+        meta["table_index"] = objres.table_index
         meta["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:
@@ -830,8 +894,8 @@ class _ObjectDataProvider:
         # then there are a few settings that are not in the ``data`` metadata, but
         # needed as data/variables in other classes:
 
-        self.efolder = objres["efolder"]
-        self.classname = objres["classname"]
-        self.extension = objres["extension"]
-        self.fmt = objres["fmt"]
+        self.efolder = objres.efolder
+        self.classname = objres.classname
+        self.extension = objres.extension
+        self.fmt = objres.fmt
         logger.info("Derive all metadata for data object... DONE")
