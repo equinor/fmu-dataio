@@ -8,13 +8,18 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Final, Literal, Optional
+from typing import TYPE_CHECKING, Final, Optional
 from warnings import warn
 
 from ._definitions import FmuContext
 from ._logging import null_logger
 
 logger: Final = null_logger(__name__)
+
+
+if TYPE_CHECKING:
+    from ._objectdata_provider import ObjectDataProvider
+    from .dataio import ExportData
 
 
 @dataclass
@@ -30,8 +35,8 @@ class FileDataProvider:
     """
 
     # input
-    dataio: Any
-    objdata: Any
+    dataio: ExportData
+    objdata: ObjectDataProvider
     rootpath: Path = field(default_factory=Path)
     itername: str = ""
     realname: str = ""
@@ -160,8 +165,15 @@ class FileDataProvider:
         """Construct and get the folder path(s)."""
         linkdest = None
 
+        mode = (
+            self.dataio.fmu_context
+            if isinstance(self.dataio.fmu_context, FmuContext)
+            else FmuContext.get(self.dataio.fmu_context)
+        )
+
         dest = self._get_path_generic(
-            mode=self.dataio.fmu_context, allow_forcefolder=True
+            mode=mode,
+            allow_forcefolder=True,
         )
 
         if self.dataio.fmu_context == FmuContext.CASE_SYMLINK_REALIZATION:
@@ -175,7 +187,7 @@ class FileDataProvider:
 
     def _get_path_generic(
         self,
-        mode: Literal[FmuContext.REALIZATION, FmuContext.PREPROCESSED],
+        mode: FmuContext,
         allow_forcefolder: bool = True,
         info: str = "",
     ) -> Path:

@@ -426,7 +426,7 @@ class ExportData:
     description: Union[str, list] = ""
     display_name: Optional[str] = None
     fmu_context: Union[FmuContext, str] = "realization"
-    forcefolder: str = ""
+    forcefolder: Optional[types.Efolder] = None
     grid_model: Optional[str] = None
     is_observation: bool = False
     is_prediction: bool = True

@@ -1,7 +1,14 @@
 """Test the _ObjectData class from the _objectdata.py module"""
 import pytest
+from fmu.dataio import ExportData
 from fmu.dataio._definitions import ValidFormats
-from fmu.dataio._objectdata_provider import ConfigurationError, ObjectDataProvider
+from fmu.dataio._objectdata_provider import (
+    ConfigurationError,
+    ObjectDataProvider,
+    derive_name,
+)
+from xtgeo.cube import Cube
+from xtgeo.surface import RegularSurface
 
 # --------------------------------------------------------------------------------------
 # RegularSurface
@@ -82,3 +89,58 @@ def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):
     assert res["content"] == "depth"
 
     assert res["alias"]
+
+
+@pytest.mark.parametrize(
+    "exportdata, obj, expected_name",
+    (
+        (
+            ExportData(),
+            Cube(
+                ncol=1,
+                nrow=1,
+                nlay=1,
+                xinc=25.0,
+                yinc=25.0,
+                zinc=2.0,
+            ),
+            "",
+        ),
+        (
+            ExportData(name="NamedExportData"),
+            Cube(
+                ncol=1,
+                nrow=1,
+                nlay=1,
+                xinc=25.0,
+                yinc=25.0,
+                zinc=2.0,
+            ),
+            "NamedExportData",
+        ),
+        (
+            ExportData(),
+            RegularSurface(
+                name="NamedRegularSurface",
+                ncol=25,
+                nrow=25,
+                xinc=1,
+                yinc=1,
+            ),
+            "NamedRegularSurface",
+        ),
+        (
+            ExportData(name="NamedExportData"),
+            RegularSurface(
+                name="NamedRegularSurface",
+                ncol=25,
+                nrow=25,
+                xinc=1,
+                yinc=1,
+            ),
+            "NamedExportData",
+        ),
+    ),
+)
+def test_derive_name(exportdata, obj, expected_name) -> None:
+    assert derive_name(exportdata, obj) == expected_name

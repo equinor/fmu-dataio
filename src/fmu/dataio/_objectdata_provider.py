@@ -88,7 +88,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Final, Literal, NamedTuple, Optional, TypeVar
+from typing import Any, Dict, Final, NamedTuple, Optional, TypeVar
 from warnings import warn
 
 import numpy as np
@@ -118,43 +118,10 @@ def npfloat_to_float(v: Any) -> Any:
 
 @dataclass
 class DerivedObjectDescriptor:
-    subtype: Literal[
-        "RegularSurface",
-        "Polygons",
-        "Points",
-        "RegularCube",
-        "CPGrid",
-        "CPGridProperty",
-        "DataFrame",
-        "JSON",
-        "ArrowTable",
-    ]
-    classname: Literal[
-        "surface",
-        "polygons",
-        "points",
-        "cube",
-        "cpgrid",
-        "cpgrid_property",
-        "table",
-        "dictionary",
-    ]
-    layout: Literal[
-        "regular",
-        "unset",
-        "cornerpoint",
-        "table",
-        "dictionary",
-    ]
-    efolder: Literal[
-        "maps",
-        "polygons",
-        "points",
-        "cubes",
-        "grids",
-        "tables",
-        "dictionaries",
-    ]
+    subtype: types.Subtype
+    classname: types.Classname
+    layout: types.Layout
+    efolder: types.Efolder
     fmt: str
     extension: str
     spec: Dict[str, Any]
@@ -229,8 +196,8 @@ class ObjectDataProvider:
     """
 
     # input fields
-    obj: Any
-    dataio: Any
+    obj: types.Inferrable
+    dataio: dataio.ExportData
     meta_existing: dict = field(default_factory=dict)
 
     # result properties; the most important is metadata which IS the 'data' part in
@@ -261,24 +228,20 @@ class ObjectDataProvider:
         name = derive_name(self.dataio, self.obj)
 
         # next check if usename has a "truename" and/or aliases from the config
-        strat = self.dataio.config.get("stratigraphy")  # shortform
-        no_start_or_missing_name = strat is None or name not in strat
+        strat = self.dataio.config.get("stratigraphy", {})
+        named_strat = strat.get(name, {})
 
         rv = DerivedNamedStratigraphy(
-            name=name if no_start_or_missing_name else strat[name].get("name", name),
-            alias=[] if no_start_or_missing_name else strat[name].get("alias", []),
-            stratigraphic=False
-            if no_start_or_missing_name
-            else strat[name].get("stratigraphic", False),
-            stratigraphic_alias=[]
-            if no_start_or_missing_name
-            else strat[name].get("stratigraphic_alias"),
-            offset=None if no_start_or_missing_name else strat[name].get("offset"),
-            top=None if no_start_or_missing_name else strat[name].get("top"),
-            base=None if no_start_or_missing_name else strat[name].get("base"),
+            name=named_strat.get("name", name),
+            alias=named_strat.get("alias", []),
+            stratigraphic=named_strat.get("stratigraphic", False),
+            stratigraphic_alias=named_strat.get("stratigraphic_alias", []),
+            offset=named_strat.get("offset"),
+            top=named_strat.get("top"),
+            base=named_strat.get("base"),
         )
 
-        if not no_start_or_missing_name and rv.name != "name":
+        if "stratigraphy" not in strat and rv.name != "name":
             rv.alias.append(name)
 
         return rv
@@ -657,11 +620,11 @@ class ObjectDataProvider:
     ) -> SpecificationAndBoundingBox:
         """Process/collect the data items for DataFrame."""
         logger.info("Process data metadata for DataFrame (tables)")
-        df: pd.DataFrame = self.obj
+        assert isinstance(self.obj, pd.DataFrame)
         return SpecificationAndBoundingBox(
             spec=specification.TableSpecification(
-                columns=list(df.columns),
-                size=int(df.size),
+                columns=list(self.obj.columns),
+                size=int(self.obj.size),
             ).model_dump(
                 mode="json",
                 exclude_none=True,
@@ -674,11 +637,13 @@ class ObjectDataProvider:
     ) -> SpecificationAndBoundingBox:
         """Process/collect the data items for Arrow table."""
         logger.info("Process data metadata for arrow (tables)")
-        table = self.obj
+        from pyarrow import Table
+
+        assert isinstance(self.obj, Table)
         return SpecificationAndBoundingBox(
             spec=specification.TableSpecification(
-                columns=list(table.column_names),
-                size=table.num_columns * table.num_rows,
+                columns=list(self.obj.column_names),
+                size=self.obj.num_columns * self.obj.num_rows,
             ).model_dump(
                 mode="json",
                 exclude_none=True,
@@ -697,6 +662,9 @@ class ObjectDataProvider:
             logger.debug("pandas")
             columns = list(self.obj.columns)
         else:
+            from pyarrow import Table
+
+            assert isinstance(self.obj, Table)
             logger.debug("arrow")
             columns = self.obj.column_names
         logger.debug("Available columns in table %s ", columns)
@@ -812,13 +780,13 @@ class ObjectDataProvider:
         # TODO: Clean up types below.
         self.time0, self.time1 = parse_timedata(self.meta_existing["data"])  # type: ignore
 
-    def _process_content(self) -> tuple[str, dict | None]:
+    def _process_content(self) -> tuple[str | dict, dict | None]:
         """Work with the `content` metadata"""
 
         # content == "unset" is not wanted, but in case metadata has been produced while
         # doing a preprocessing step first, and this step is re-using metadata, the
         # check is not done.
-        if self.dataio._usecontent == "unset" and (
+        if self.dataio._usecontent == "unset" and (  # type: ignore[comparison-overlap]
             self.dataio.reuse_metadata_rule is None
             or self.dataio.reuse_metadata_rule != "preprocessed"
         ):
