@@ -16,7 +16,7 @@ from warnings import warn
 import pandas as pd
 from pydantic import ValidationError as PydanticValidationError
 
-from . import _metadata
+from . import _metadata, types
 from ._definitions import (
     ALLOWED_CONTENTS,
     CONTENTS_REQUIRED,
@@ -469,7 +469,7 @@ class ExportData:
     description: Union[str, list] = ""
     display_name: Optional[str] = None
     fmu_context: Union[FmuContext, str] = "realization"
-    forcefolder: str = ""
+    forcefolder: Optional[types.Efolder] = None
     grid_model: Optional[str] = None
     is_observation: bool = False
     is_prediction: bool = True
@@ -710,7 +710,10 @@ class ExportData:
     # ==================================================================================
 
     def generate_metadata(
-        self, obj: object, compute_md5: bool = True, **kwargs: object
+        self,
+        obj: types.Sniffable,
+        compute_md5: bool = True,
+        **kwargs: object,
     ) -> dict:
         """Generate and return the complete metadata for a provided object.
 
@@ -764,7 +767,7 @@ class ExportData:
 
     def export(
         self,
-        obj: object,
+        obj: types.Sniffable,
         return_symlink: bool = False,
         **kwargs: Any,
     ) -> str:
@@ -1257,7 +1260,7 @@ class AggregatedData:
 
     def _generate_aggrd_metadata(
         self,
-        obj: object,
+        obj: types.Sniffable,
         real_ids: list[int],
         uuids: list[str],
         compute_md5: bool = True,
@@ -1329,7 +1332,7 @@ class AggregatedData:
 
     def generate_metadata(
         self,
-        obj: object,
+        obj: types.Sniffable,
         compute_md5: bool = True,
         skip_null: bool = True,
         **kwargs: object,
@@ -1375,20 +1378,24 @@ class AggregatedData:
 
         return deepcopy(self._metadata)
 
-    # alias method
-    def generate_aggregation_metadata(
-        self,
-        obj: object,
-        compute_md5: bool = True,
-        skip_null: bool = True,
-        **kwargs: object,
-    ) -> dict:
-        """Alias method name, see ``generate_metadata``"""
-        return self.generate_metadata(
-            obj, compute_md5=compute_md5, skip_null=skip_null, **kwargs
-        )
+    # # alias method
+    # def generate_aggregation_metadata(
+    #     self,
+    #     obj: object,
+    #     compute_md5: bool = True,
+    #     skip_null: bool = True,
+    #     **kwargs: object,
+    # ) -> dict:
+    #     """Alias method name, see ``generate_metadata``"""
+    #     return self.generate_metadata(
+    #         obj, compute_md5=compute_md5, skip_null=skip_null, **kwargs
+    #     )
 
-    def export(self, obj: object, **kwargs: object) -> str:
+    def export(
+        self,
+        obj: types.Sniffable,
+        **kwargs: object,
+    ) -> str:
         """Export aggregated file with metadata to file.
 
         Args:

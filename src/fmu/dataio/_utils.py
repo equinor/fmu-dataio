@@ -149,7 +149,7 @@ def export_file(
             # pa.ipc.IpcWriteOptions(). It is convenient to use feather since it
             # has ready configured defaults and the actual file format is the same
             # (https://arrow.apache.org/docs/python/feather.html)
-            feather.write_feather(obj, dest=filename)
+            feather.write_feather(obj, dest=str(filename))
     elif filename.suffix == ".json":
         with open(filename, "w") as stream:
             json.dump(obj, stream)

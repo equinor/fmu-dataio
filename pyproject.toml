@@ -51,6 +51,8 @@ dev = [
     "coverage>=4.1",
     "hypothesis",
     "mypy",
+    "pandas-stubs",
+    "pyarrow-stubs",
     "pydocstyle",
     "pytest-cov",
     "pytest-mock",

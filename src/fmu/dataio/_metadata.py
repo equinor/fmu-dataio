@@ -2,7 +2,6 @@
 
 This contains the _MetaData class which collects and holds all relevant metadata
 """
-# https://realpython.com/python-data-classes/#basic-data-classes
 
 from __future__ import annotations
 
@@ -14,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Final
+from typing import TYPE_CHECKING, Any, Final
 from warnings import warn
 
 from fmu import dataio
@@ -32,6 +31,10 @@ from fmu.dataio.datastructure.meta import meta
 
 from ._definitions import FmuContext
 from ._logging import null_logger
+
+if TYPE_CHECKING:
+    from . import types
+    from .dataio import ExportData
 
 logger: Final = null_logger(__name__)
 
@@ -224,8 +227,8 @@ class MetaData:
     """
 
     # input variables
-    obj: Any
-    dataio: Any
+    obj: types.Sniffable
+    dataio: ExportData
     compute_md5: bool = True
 
     # storage state variables
@@ -285,8 +288,8 @@ class MetaData:
         """
         fmudata = FmuProvider(
             model=self.dataio.config.get("model", None),
-            fmu_context=self.dataio.fmu_context,
-            casepath_proposed=self.dataio.casepath,
+            fmu_context=FmuContext(self.dataio.fmu_context),
+            casepath_proposed=self.dataio.casepath or "",
             include_ertjobs=self.dataio.include_ertjobs,
             forced_realization=self.dataio.realization,
             workflow=self.dataio.workflow,

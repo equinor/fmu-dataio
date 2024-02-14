@@ -88,17 +88,30 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Final, Literal, NamedTuple, Optional, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Final,
+    NamedTuple,
+    Optional,
+    TypeVar,
+)
 from warnings import warn
 
 import numpy as np
 import pandas as pd
 import xtgeo
 
+from . import types
 from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
 from ._logging import null_logger
 from ._utils import generate_description, parse_timedata
 from .datastructure.meta import meta, specification
+
+if TYPE_CHECKING:
+    from . import types
+    from .dataio import ExportData
 
 logger: Final = null_logger(__name__)
 
@@ -120,43 +133,10 @@ def npfloat_to_float(v: Any) -> Any:
 
 @dataclass
 class DerivedObjectDescriptor:
-    subtype: Literal[
-        "RegularSurface",
-        "Polygons",
-        "Points",
-        "RegularCube",
-        "CPGrid",
-        "CPGridProperty",
-        "DataFrame",
-        "JSON",
-        "ArrowTable",
-    ]
-    classname: Literal[
-        "surface",
-        "polygons",
-        "points",
-        "cube",
-        "cpgrid",
-        "cpgrid_property",
-        "table",
-        "dictionary",
-    ]
-    layout: Literal[
-        "regular",
-        "unset",
-        "cornerpoint",
-        "table",
-        "dictionary",
-    ]
-    efolder: Literal[
-        "maps",
-        "polygons",
-        "points",
-        "cubes",
-        "grids",
-        "tables",
-        "dictionaries",
-    ]
+    subtype: types.Subtype
+    classname: types.Classname
+    layout: types.Layout
+    efolder: types.Efolder
     fmt: str
     extension: str
     spec: Dict[str, Any]
@@ -201,6 +181,20 @@ class DerivedNamedStratigraphy:
     top: str | None
 
 
+def derive_name(export: ExportData, obj: types.Sniffable) -> str:
+    """
+    Derives and returns a name for an export operation based on the
+    provided ExportData instance and a 'sniffable' object.
+    """
+    if name := export.name:
+        return name
+
+    if hasattr(obj, "name") and isinstance(obj.name, str):
+        return obj.name
+
+    return ""
+
+
 @dataclass
 class ObjectDataProvider:
     """Class for providing metadata for data objects in fmu-dataio, e.g. a surface.
@@ -214,8 +208,8 @@ class ObjectDataProvider:
     """
 
     # input fields
-    obj: Any
-    dataio: Any
+    obj: types.Sniffable
+    dataio: ExportData
     meta_existing: dict = field(default_factory=dict)
 
     # result properties; the most important is metadata which IS the 'data' part in
@@ -243,33 +237,23 @@ class ObjectDataProvider:
         `stratigraphy`. For example, if "TopValysar" is the model name and the actual
         name is "Valysar Top Fm." that latter name will be used.
         """
-        name = self.dataio.name
-
-        if not name:
-            try:
-                name = self.obj.name
-            except AttributeError:
-                name = ""
+        name = derive_name(self.dataio, self.obj)
 
         # next check if usename has a "truename" and/or aliases from the config
-        strat = self.dataio.config.get("stratigraphy")  # shortform
-        no_start_or_missing_name = strat is None or name not in strat
+        strat = self.dataio.config.get("stratigraphy", {})
+        named_strat = strat.get(name, {})
 
         rv = DerivedNamedStratigraphy(
-            name=name if no_start_or_missing_name else strat[name].get("name", name),
-            alias=[] if no_start_or_missing_name else strat[name].get("alias", []),
-            stratigraphic=False
-            if no_start_or_missing_name
-            else strat[name].get("stratigraphic", False),
-            stratigraphic_alias=[]
-            if no_start_or_missing_name
-            else strat[name].get("stratigraphic_alias"),
-            offset=None if no_start_or_missing_name else strat[name].get("offset"),
-            top=None if no_start_or_missing_name else strat[name].get("top"),
-            base=None if no_start_or_missing_name else strat[name].get("base"),
+            name=named_strat.get("name", name),
+            alias=named_strat.get("alias", []),
+            stratigraphic=named_strat.get("stratigraphic", False),
+            stratigraphic_alias=named_strat.get("stratigraphic_alias", []),
+            offset=named_strat.get("offset"),
+            top=named_strat.get("top"),
+            base=named_strat.get("base"),
         )
 
-        if not no_start_or_missing_name and rv.name != "name":
+        if "stratigraphy" not in strat and rv.name != "name":
             rv.alias.append(name)
 
         return rv
