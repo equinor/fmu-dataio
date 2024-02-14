@@ -3,8 +3,8 @@ import os
 from pathlib import Path
 
 import pytest
-from fmu.dataio._filedata_provider import _FileDataProvider
-from fmu.dataio._objectdata_provider import _ObjectDataProvider
+from fmu.dataio._filedata_provider import FileDataProvider
+from fmu.dataio._objectdata_provider import ObjectDataProvider
 
 
 @pytest.mark.parametrize(
@@ -95,7 +95,7 @@ def test_get_filestem(
     expected,
 ):
     """Testing the private _get_filestem method."""
-    objdata = _ObjectDataProvider(regsurf, edataobj1)
+    objdata = ObjectDataProvider(regsurf, edataobj1)
     objdata.name = name
     # time0 is always the oldest
     objdata.time0 = time0
@@ -105,7 +105,7 @@ def test_get_filestem(
     edataobj1.parent = parentname
     edataobj1.name = ""
 
-    fdata = _FileDataProvider(
+    fdata = FileDataProvider(
         edataobj1,
         objdata,
     )
@@ -146,7 +146,7 @@ def test_get_filestem_shall_fail(
     message,
 ):
     """Testing the private _get_filestem method when it shall fail."""
-    objdata = _ObjectDataProvider(regsurf, edataobj1)
+    objdata = ObjectDataProvider(regsurf, edataobj1)
     objdata.name = name
     objdata.time0 = time0
     objdata.time1 = time1
@@ -155,7 +155,7 @@ def test_get_filestem_shall_fail(
     edataobj1.parent = parentname
     edataobj1.name = ""
 
-    fdata = _FileDataProvider(edataobj1, objdata)
+    fdata = FileDataProvider(edataobj1, objdata)
 
     with pytest.raises(ValueError) as msg:
         _ = fdata._get_filestem()
@@ -171,11 +171,11 @@ def test_get_paths_path_exists_already(regsurf, edataobj1, tmp_path):
 
     edataobj1.name = "some"
 
-    objdata = _ObjectDataProvider(regsurf, edataobj1)
+    objdata = ObjectDataProvider(regsurf, edataobj1)
     objdata.name = "some"
     objdata.efolder = "efolder"
 
-    fdata = _FileDataProvider(edataobj1, objdata)
+    fdata = FileDataProvider(edataobj1, objdata)
 
     path, linkpath = fdata._get_path()
     assert str(path) == "share/results/efolder"
@@ -187,7 +187,7 @@ def test_get_paths_not_exists_so_create(regsurf, edataobj1, tmp_path):
 
     os.chdir(tmp_path)
 
-    objdata = _ObjectDataProvider(regsurf, edataobj1)
+    objdata = ObjectDataProvider(regsurf, edataobj1)
     objdata.name = "some"
     objdata.efolder = "efolder"
     cfg = edataobj1
@@ -195,7 +195,7 @@ def test_get_paths_not_exists_so_create(regsurf, edataobj1, tmp_path):
     cfg.createfolder = True
     cfg._rootpath = Path(".")
 
-    fdata = _FileDataProvider(cfg, objdata)
+    fdata = FileDataProvider(cfg, objdata)
 
     path, _ = fdata._get_path()
     assert str(path) == "share/results/efolder"
@@ -211,14 +211,14 @@ def test_filedata_provider(regsurf, edataobj1, tmp_path):
     cfg._rootpath = Path(".")
     cfg.name = ""
 
-    objdata = _ObjectDataProvider(regsurf, edataobj1)
+    objdata = ObjectDataProvider(regsurf, edataobj1)
     objdata.name = "name"
     objdata.efolder = "efolder"
     objdata.extension = ".ext"
     objdata.time0 = "t1"
     objdata.time1 = "t2"
 
-    fdata = _FileDataProvider(cfg, objdata)
+    fdata = FileDataProvider(cfg, objdata)
     fdata.derive_filedata()
 
     print(fdata.relative_path)
@@ -237,13 +237,13 @@ def test_filedata_has_nonascii_letters(regsurf, edataobj1, tmp_path):
     cfg._rootpath = Path(".")
     cfg.name = "mynõme"
 
-    objdata = _ObjectDataProvider(regsurf, edataobj1)
+    objdata = ObjectDataProvider(regsurf, edataobj1)
     objdata.name = "anynõme"
     objdata.efolder = "efolder"
     objdata.extension = ".ext"
     objdata.time0 = "t1"
     objdata.time1 = "t2"
 
-    fdata = _FileDataProvider(cfg, objdata)
+    fdata = FileDataProvider(cfg, objdata)
     with pytest.raises(UnicodeEncodeError, match=r"codec can't encode character"):
         fdata.derive_filedata()

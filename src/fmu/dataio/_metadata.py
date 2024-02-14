@@ -19,9 +19,9 @@ from warnings import warn
 
 from fmu import dataio
 from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
-from fmu.dataio._filedata_provider import _FileDataProvider
+from fmu.dataio._filedata_provider import FileDataProvider
 from fmu.dataio._fmu_provider import FmuProvider
-from fmu.dataio._objectdata_provider import _ObjectDataProvider
+from fmu.dataio._objectdata_provider import ObjectDataProvider
 from fmu.dataio._utils import (
     drop_nones,
     export_file_compute_checksum_md5,
@@ -196,7 +196,7 @@ def generate_meta_access(config: dict) -> dict | None:
 
 
 @dataclass
-class _MetaData:
+class MetaData:
     """Class for sampling, process and holding all metadata in an ExportData instance.
 
     Metadata has basically these different providers:
@@ -271,7 +271,7 @@ class _MetaData:
 
         Hence this must be ran early or first.
         """
-        self.objdata = _ObjectDataProvider(self.obj, self.dataio, self.meta_existing)
+        self.objdata = ObjectDataProvider(self.obj, self.dataio, self.meta_existing)
         self.objdata.derive_metadata()
         self.meta_objectdata = self.objdata.metadata
 
@@ -332,7 +332,7 @@ class _MetaData:
         - absolute_path_symlink, as above but full path
         """
 
-        fdata = _FileDataProvider(
+        fdata = FileDataProvider(
             self.dataio,
             self.objdata,
             Path(self.rootpath),

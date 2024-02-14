@@ -753,7 +753,7 @@ class ExportData:
         self._validate_content_key()
         self._update_fmt_flag()
 
-        metaobj = _metadata._MetaData(obj, self, compute_md5=compute_md5)
+        metaobj = _metadata.MetaData(obj, self, compute_md5=compute_md5)
         self._metadata = metaobj.generate_export_metadata()
 
         self._rootpath = Path(metaobj.rootpath)

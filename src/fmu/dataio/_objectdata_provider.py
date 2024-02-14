@@ -95,7 +95,7 @@ import numpy as np
 import pandas as pd
 import xtgeo
 
-from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, _ValidFormats
+from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
 from ._logging import null_logger
 from ._utils import generate_description, parse_timedata
 from .datastructure.meta import meta, specification
@@ -202,7 +202,7 @@ class DerivedNamedStratigraphy:
 
 
 @dataclass
-class _ObjectDataProvider:
+class ObjectDataProvider:
     """Class for providing metadata for data objects in fmu-dataio, e.g. a surface.
 
     The metadata for the 'data' are constructed by:
@@ -300,7 +300,7 @@ class _ObjectDataProvider:
                 spec=spec,
                 bbox=bbox,
                 extension=self._validate_get_ext(
-                    fmt, "RegularSurface", _ValidFormats().surface
+                    fmt, "RegularSurface", ValidFormats().surface
                 ),
                 table_index=None,
             )
@@ -314,7 +314,7 @@ class _ObjectDataProvider:
                 efolder="polygons",
                 fmt=(fmt := self.dataio.polygons_fformat),
                 extension=self._validate_get_ext(
-                    fmt, "Polygons", _ValidFormats().polygons
+                    fmt, "Polygons", ValidFormats().polygons
                 ),
                 spec=spec,
                 bbox=bbox,
@@ -329,7 +329,7 @@ class _ObjectDataProvider:
                 layout="unset",
                 efolder="points",
                 fmt=(fmt := self.dataio.points_fformat),
-                extension=self._validate_get_ext(fmt, "Points", _ValidFormats().points),
+                extension=self._validate_get_ext(fmt, "Points", ValidFormats().points),
                 spec=spec,
                 bbox=bbox,
                 table_index=None,
@@ -344,7 +344,7 @@ class _ObjectDataProvider:
                 efolder="cubes",
                 fmt=(fmt := self.dataio.cube_fformat),
                 extension=self._validate_get_ext(
-                    fmt, "RegularCube", _ValidFormats().cube
+                    fmt, "RegularCube", ValidFormats().cube
                 ),
                 spec=spec,
                 bbox=bbox,
@@ -359,7 +359,7 @@ class _ObjectDataProvider:
                 layout="cornerpoint",
                 efolder="grids",
                 fmt=(fmt := self.dataio.grid_fformat),
-                extension=self._validate_get_ext(fmt, "CPGrid", _ValidFormats().grid),
+                extension=self._validate_get_ext(fmt, "CPGrid", ValidFormats().grid),
                 spec=spec,
                 bbox=bbox,
                 table_index=None,
@@ -374,7 +374,7 @@ class _ObjectDataProvider:
                 efolder="grids",
                 fmt=(fmt := self.dataio.grid_fformat),
                 extension=self._validate_get_ext(
-                    fmt, "CPGridProperty", _ValidFormats().grid
+                    fmt, "CPGridProperty", ValidFormats().grid
                 ),
                 spec=spec,
                 bbox=bbox,
@@ -390,7 +390,7 @@ class _ObjectDataProvider:
                 efolder="tables",
                 fmt=(fmt := self.dataio.table_fformat),
                 extension=self._validate_get_ext(
-                    fmt, "DataFrame", _ValidFormats().table
+                    fmt, "DataFrame", ValidFormats().table
                 ),
                 spec=spec,
                 bbox=bbox,
@@ -406,7 +406,7 @@ class _ObjectDataProvider:
                 efolder="dictionaries",
                 fmt=(fmt := self.dataio.dict_fformat),
                 extension=self._validate_get_ext(
-                    fmt, "JSON", _ValidFormats().dictionary
+                    fmt, "JSON", ValidFormats().dictionary
                 ),
                 spec=spec,
                 bbox=bbox,
@@ -426,7 +426,7 @@ class _ObjectDataProvider:
                     efolder="tables",
                     fmt=(fmt := self.dataio.arrow_fformat),
                     extension=self._validate_get_ext(
-                        fmt, "ArrowTable", _ValidFormats().table
+                        fmt, "ArrowTable", ValidFormats().table
                     ),
                     spec=spec,
                     bbox=bbox,

@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from fmu.config.utilities import yaml_load
 from fmu.dataio import ExportData
-from fmu.dataio._objectdata_provider import _ObjectDataProvider
+from fmu.dataio._objectdata_provider import ObjectDataProvider
 
 
 def _read_dict(file_path):
@@ -137,7 +137,7 @@ def test_table_index_real_summary(edataobj3, drogon_summary):
         edataobj3 (dict): metadata
         drogon_summary (pd.Dataframe): dataframe with summary data from sumo
     """
-    objdata = _ObjectDataProvider(drogon_summary, edataobj3)
+    objdata = ObjectDataProvider(drogon_summary, edataobj3)
     res = objdata._derive_objectdata()
     assert res.table_index == ["DATE"], "Incorrect table index "
 

@@ -17,7 +17,7 @@ class ValidationError(ValueError, KeyError):
 
 
 @dataclass
-class _ValidFormats:
+class ValidFormats:
     surface: dict[str, str] = field(
         default_factory=lambda: {
             "irap_binary": ".gri",

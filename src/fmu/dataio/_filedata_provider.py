@@ -18,7 +18,7 @@ logger: Final = null_logger(__name__)
 
 
 @dataclass
-class _FileDataProvider:
+class FileDataProvider:
     """Class for providing metadata for the 'files' block in fmu-dataio.
 
     Example::
