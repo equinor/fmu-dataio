@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import MutableMapping
-from typing import TYPE_CHECKING, Literal, Union
+import pathlib
+from typing import TYPE_CHECKING, Literal, MutableMapping, Union
 
 from typing_extensions import Annotated, TypeAlias
 
@@ -47,6 +47,12 @@ if TYPE_CHECKING:
             Table,
         ],
         "Collection of 'sniffable' objects with metadata deduction capabilities",
+    ]
+
+    SniffableOrPathlike: TypeAlias = Union[
+        Sniffable,
+        pathlib.Path,
+        str,
     ]
 
 Parameters: TypeAlias = Annotated[

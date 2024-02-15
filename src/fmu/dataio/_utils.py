@@ -102,13 +102,13 @@ def export_metadata_file(
 
 
 def export_file(
-    obj: object,
+    obj: types.SniffableOrPathlike,
     filename: Path,
     flag: str | None = None,
 ) -> str:
     """Export a valid object to file"""
 
-    if isinstance(obj, Path):
+    if isinstance(obj, (Path, str)):
         # special case when processing data which already has metadata
         shutil.copy(obj, filename)
     elif filename.suffix == ".gri" and isinstance(obj, xtgeo.RegularSurface):
@@ -135,8 +135,7 @@ def export_file(
     ):
         obj.to_file(filename, fformat="roff")
     elif filename.suffix == ".csv" and isinstance(obj, pd.DataFrame):
-        includeindex = flag == "include_index"
-        obj.to_csv(filename, index=includeindex)
+        obj.to_csv(filename, index=flag == "include_index")
     elif filename.suffix == ".arrow":
         from pyarrow import Table
 
@@ -169,7 +168,7 @@ def md5sum(fname: Path) -> str:
 
 
 def export_file_compute_checksum_md5(
-    obj: object,
+    obj: types.SniffableOrPathlike,
     filename: Path,
     flag: str | None = None,
 ) -> str:

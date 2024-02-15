@@ -21,7 +21,9 @@ from ._definitions import (
     ALLOWED_CONTENTS,
     CONTENTS_REQUIRED,
     DEPRECATED_CONTENTS,
+    UNSET,
     FmuContext,
+    Unset,
 )
 from ._logging import null_logger
 from ._utils import (
@@ -89,7 +91,7 @@ def _validate_variable(key: str, value: type, legals: dict[str, str | type]) -> 
 
 
 # the two next content key related function may require refactoring/simplification
-def _check_content(proposed: str | dict | None) -> Any:
+def _check_content(proposed: str | dict | None) -> tuple[str | None, dict | None]:
     """Check content and return a validated version."""
     logger.info("Evaluate content")
 
@@ -97,7 +99,7 @@ def _check_content(proposed: str | dict | None) -> Any:
     content_specific = None
     logger.debug("content is %s of type %s", str(content), type(content))
     if content is None:
-        usecontent = "unset"  # user warnings on this will in _objectdata_provider
+        usecontent = UNSET  # user warnings on this will in _objectdata_provider
 
     elif isinstance(content, str):
         logger.debug("content is a string")
@@ -114,6 +116,8 @@ def _check_content(proposed: str | dict | None) -> Any:
         content_specific = content[usecontent]
         logger.debug("content_specific is %s", content_specific)
         if not isinstance(content_specific, dict):
+            # TODO: Users will have written the content in YAML, the warning
+            # below gives an JSON/pythonic ex. might confuse end-users.
             raise ValueError(
                 "Content is incorrectly formatted. When giving content as a dict, "
                 "it must be formatted as:"
@@ -124,11 +128,11 @@ def _check_content(proposed: str | dict | None) -> Any:
     else:
         raise ValidationError("The 'content' must be string or dict")
 
-    if usecontent != "unset" and usecontent not in ALLOWED_CONTENTS:
-        raise ValidationError(
-            f"Invalid content: <{usecontent}>! "
-            f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
-        )
+    # if usecontent is UNSET:
+    #     raise ValidationError(
+    #         f"Invalid content: <{usecontent}>! "
+    #         f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
+    #     )
 
     logger.debug("outgoing content is set to %s", usecontent)
     if content_specific:
@@ -489,7 +493,7 @@ class ExportData:
     table_index: Optional[list] = None
 
     # some keys that are modified version of input, prepended with _use
-    _usecontent: dict = field(default_factory=dict, init=False)
+    _usecontent: Union[dict, Unset] = field(default=UNSET, init=False)
     _usefmtflag: str = field(default="", init=False)
 
     # storing resulting state variables for instance, non-public:
@@ -671,7 +675,10 @@ class ExportData:
         logger.info("pwd:        %s", str(self._pwd))
         logger.info("rootpath:   %s", str(self._rootpath))
 
-    def _check_obj_if_file(self, obj: Any) -> Any:
+    def _check_obj_if_file(
+        self,
+        obj: types.Sniffable | Path | str,
+    ) -> types.Sniffable | Path:
         """When obj is file-like, it must be checked + assume preprocessed.
 
         In addition, if preprocessed, derive the name, tagname, subfolder if present and
@@ -711,7 +718,7 @@ class ExportData:
 
     def generate_metadata(
         self,
-        obj: types.Sniffable,
+        obj: types.Sniffable | Path | str,
         compute_md5: bool = True,
         **kwargs: object,
     ) -> dict:
@@ -767,7 +774,7 @@ class ExportData:
 
     def export(
         self,
-        obj: types.Sniffable,
+        obj: types.SniffableOrPathlike | str,
         return_symlink: bool = False,
         **kwargs: Any,
     ) -> str:
@@ -1378,18 +1385,8 @@ class AggregatedData:
 
         return deepcopy(self._metadata)
 
-    # # alias method
-    # def generate_aggregation_metadata(
-    #     self,
-    #     obj: object,
-    #     compute_md5: bool = True,
-    #     skip_null: bool = True,
-    #     **kwargs: object,
-    # ) -> dict:
-    #     """Alias method name, see ``generate_metadata``"""
-    #     return self.generate_metadata(
-    #         obj, compute_md5=compute_md5, skip_null=skip_null, **kwargs
-    #     )
+    # alias method
+    generate_aggregation_metadata = generate_metadata
 
     def export(
         self,

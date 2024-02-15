@@ -8,7 +8,6 @@ from fmu.dataio._objectdata_provider import (
     derive_name,
 )
 from xtgeo.cube import Cube
-from xtgeo.grid3d import Grid
 from xtgeo.surface import RegularSurface
 
 # --------------------------------------------------------------------------------------

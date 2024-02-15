@@ -89,7 +89,6 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
     Any,
     Dict,
     Final,
@@ -103,15 +102,16 @@ import numpy as np
 import pandas as pd
 import xtgeo
 
-from . import types
-from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
+from . import dataio, types
+from ._definitions import (
+    ALLOWED_CONTENTS,
+    STANDARD_TABLE_INDEX_COLUMNS,
+    UNSET,
+    ValidFormats,
+)
 from ._logging import null_logger
 from ._utils import generate_description, parse_timedata
 from .datastructure.meta import meta, specification
-
-if TYPE_CHECKING:
-    from . import types
-    from .dataio import ExportData
 
 logger: Final = null_logger(__name__)
 
@@ -181,7 +181,7 @@ class DerivedNamedStratigraphy:
     top: str | None
 
 
-def derive_name(export: ExportData, obj: types.Sniffable) -> str:
+def derive_name(export: dataio.ExportData, obj: types.Sniffable) -> str:
     """
     Derives and returns a name for an export operation based on the
     provided ExportData instance and a 'sniffable' object.
@@ -189,8 +189,8 @@ def derive_name(export: ExportData, obj: types.Sniffable) -> str:
     if name := export.name:
         return name
 
-    if hasattr(obj, "name") and isinstance(obj.name, str):
-        return obj.name
+    if isinstance(name := getattr(obj, "name", ""), str):
+        return name
 
     return ""
 
@@ -209,7 +209,7 @@ class ObjectDataProvider:
 
     # input fields
     obj: types.Sniffable
-    dataio: ExportData
+    dataio: dataio.ExportData
     meta_existing: dict = field(default_factory=dict)
 
     # result properties; the most important is metadata which IS the 'data' part in
@@ -632,11 +632,11 @@ class ObjectDataProvider:
     ) -> SpecificationAndBoundingBox:
         """Process/collect the data items for DataFrame."""
         logger.info("Process data metadata for DataFrame (tables)")
-        df: pd.DataFrame = self.obj
+        assert isinstance(self.obj, pd.DataFrame)
         return SpecificationAndBoundingBox(
             spec=specification.TableSpecification(
-                columns=list(df.columns),
-                size=int(df.size),
+                columns=list(self.obj.columns),
+                size=int(self.obj.size),
             ).model_dump(
                 mode="json",
                 exclude_none=True,
@@ -649,11 +649,13 @@ class ObjectDataProvider:
     ) -> SpecificationAndBoundingBox:
         """Process/collect the data items for Arrow table."""
         logger.info("Process data metadata for arrow (tables)")
-        table = self.obj
+        from pyarrow import Table
+
+        assert isinstance(self.obj, Table)
         return SpecificationAndBoundingBox(
             spec=specification.TableSpecification(
-                columns=list(table.column_names),
-                size=table.num_columns * table.num_rows,
+                columns=list(self.obj.column_names),
+                size=self.obj.num_columns * self.obj.num_rows,
             ).model_dump(
                 mode="json",
                 exclude_none=True,
@@ -672,6 +674,9 @@ class ObjectDataProvider:
             logger.debug("pandas")
             columns = list(self.obj.columns)
         else:
+            from pyarrow import Table
+
+            assert isinstance(self.obj, Table)
             logger.debug("arrow")
             columns = self.obj.column_names
         logger.debug("Available columns in table %s ", columns)
@@ -793,7 +798,7 @@ class ObjectDataProvider:
         # content == "unset" is not wanted, but in case metadata has been produced while
         # doing a preprocessing step first, and this step is re-using metadata, the
         # check is not done.
-        if self.dataio._usecontent == "unset" and (
+        if self.dataio._usecontent is UNSET and (
             self.dataio.reuse_metadata_rule is None
             or self.dataio.reuse_metadata_rule != "preprocessed"
         ):

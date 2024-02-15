@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Any, Final
+from typing import Any, Final
 from warnings import warn
 
 from fmu import dataio
@@ -29,12 +29,9 @@ from fmu.dataio._utils import (
 )
 from fmu.dataio.datastructure.meta import meta
 
+from . import types
 from ._definitions import FmuContext
 from ._logging import null_logger
-
-if TYPE_CHECKING:
-    from . import types
-    from .dataio import ExportData
 
 logger: Final = null_logger(__name__)
 
@@ -227,8 +224,8 @@ class MetaData:
     """
 
     # input variables
-    obj: types.Sniffable
-    dataio: ExportData
+    obj: types.SniffableOrPathlike
+    dataio: dataio.ExportData
     compute_md5: bool = True
 
     # storage state variables
@@ -288,12 +285,13 @@ class MetaData:
         """
         fmudata = FmuProvider(
             model=self.dataio.config.get("model", None),
-            fmu_context=FmuContext(self.dataio.fmu_context),
+            fmu_context=FmuContext.get(self.dataio.fmu_context),
             casepath_proposed=self.dataio.casepath or "",
             include_ertjobs=self.dataio.include_ertjobs,
             forced_realization=self.dataio.realization,
             workflow=self.dataio.workflow,
         )
+
         logger.info("FMU provider is %s", fmudata.get_provider())
 
         if not fmudata.get_provider():  # e.g. run from RMS not in a FMU run
@@ -427,7 +425,8 @@ class MetaData:
         return meta
 
     def generate_export_metadata(
-        self, skip_null: bool = True
+        self,
+        skip_null: bool = True,
     ) -> dict:  # TODO! -> skip_null?
         """Main function to generate the full metadata"""
 

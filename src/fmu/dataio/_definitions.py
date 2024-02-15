@@ -5,6 +5,12 @@ from dataclasses import dataclass, field
 from enum import Enum, unique
 from typing import Final
 
+
+class Unset:
+    ...
+
+
+UNSET: Final = Unset()
 SCHEMA: Final = (
     "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json"
 )
