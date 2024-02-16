@@ -441,7 +441,6 @@ def test_norwegian_letters_globalconfig_as_json(
     globalvars_norwegian_letters,
     regsurf,
 ):
-    return
     """Testing using norwegian letters in global config, with json output."""
 
     path, cfg, _ = globalvars_norwegian_letters
