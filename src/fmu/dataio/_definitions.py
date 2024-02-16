@@ -64,28 +64,11 @@ class ValidFormats:
     )
 
 
-STANDARD_TABLE_INDEX_COLUMNS: Final = {
+STANDARD_TABLE_INDEX_COLUMNS: Final[dict[str, list[str]]] = {
     "inplace_volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
-    "timeseries": ["DATE"],  # summary
     "rft": ["measured_depth", "well", "time"],
+    "timeseries": ["DATE"],  # summary
     "wellpicks": ["WELL", "HORIZON"],
-}
-
-# This setting will set if subkeys is required or not. If not found in list then
-# assume False.
-CONTENTS_REQUIRED: Final = {
-    "fluid_contact": {"contact": True},
-    "field_outline": {"contact": False},
-    "field_region": {"id": True},
-}
-
-# This setting sets the FMU context for the output. If detected as a non-fmu run,
-# the code will internally set actual_context=None
-ALLOWED_FMU_CONTEXTS: Final = {
-    "realization": "To realization-N/iter_M/share",
-    "case": "To casename/share, but will also work on project disk",
-    "case_symlink_realization": "To case/share, with symlinks on realizations level",
-    "preprocessed": "To share/preprocessed; from interactive runs but re-used later",
 }
 
 

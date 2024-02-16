@@ -18,7 +18,6 @@ from pydantic import ValidationError as PydanticValidationError
 
 from . import _metadata
 from ._definitions import (
-    CONTENTS_REQUIRED,
     FmuContext,
 )
 from ._logging import null_logger
@@ -100,7 +99,7 @@ def _check_content(proposed: str | dict | None) -> Any:
 
     elif isinstance(content, str):
         logger.debug("content is a string")
-        if content in CONTENTS_REQUIRED:
+        if AllowedContent.requires_additional_input(content):
             raise ValidationError(f"content {content} requires additional input")
         usecontent = content
         content_specific = None  # not relevant when content is a string

@@ -7,8 +7,10 @@ from copy import deepcopy
 
 import pytest
 import yaml
+from fmu.dataio._definitions import ValidationError
 from fmu.dataio._utils import prettyprint_dict
-from fmu.dataio.dataio import ExportData, ValidationError, read_metadata
+from fmu.dataio.dataio import ExportData, read_metadata
+from fmu.dataio.datastructure.export.content import AllowedContent
 
 # pylint: disable=no-member
 
@@ -205,15 +207,11 @@ def test_content_invalid_string(globalconfig1):
 def test_content_invalid_dict(globalconfig1):
     with pytest.raises(ValidationError):
         ExportData(
-            config=globalconfig1, content={"not_valid": {"some_key": "some_value"}}
+            config=globalconfig1,
+            content={
+                "not_valid": {"some_key": "some_value"},
+            },
         )
-
-
-def test_content_valid_string(regsurf, globalconfig2):
-    eobj = ExportData(config=globalconfig2, name="TopVolantis", content="seismic")
-    mymeta = eobj.generate_metadata(regsurf)
-    assert mymeta["data"]["content"] == "seismic"
-    assert "seismic" not in mymeta["data"]
 
 
 def test_content_valid_dict(regsurf, globalconfig2):
@@ -532,3 +530,28 @@ def test_norwegian_letters(encoding, mode, tmp_path):
 
     with open(tmp_path / "no-letters.yml", encoding=encoding) as f:
         assert yaml.safe_load(f) == {"æøå": "æøå"}
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        field
+        for field, fieldinfo in AllowedContent.model_fields.items()
+        if fieldinfo.annotation is not type(None)
+    ],
+)
+def test_extra_contents_required(content):
+    with pytest.raises(ValidationError):
+        ExportData(content=content)
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        field
+        for field, fieldinfo in AllowedContent.model_fields.items()
+        if fieldinfo.annotation is type(None)
+    ],
+)
+def test_no_extra_contents_required(content):
+    ExportData(content=content)

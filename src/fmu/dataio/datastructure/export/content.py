@@ -30,21 +30,21 @@ class AllowedContentSeismic(BaseModel):
 
 
 class AllowedContentProperty(BaseModel):
-    attribute: str
-    is_discrete: bool
+    attribute: Optional[str] = Field(default=None)
+    is_discrete: Optional[bool] = Field(default=None)
 
 
 class AllowedContentFluidContact(BaseModel):
-    contact: str
-    truncated: bool
+    contact: Optional[str] = Field(default=None)
+    truncated: Optional[bool] = Field(default=None)
 
 
 class AllowedContentFieldOutline(BaseModel):
-    contact: str
+    contact: Optional[str] = Field(default=None)
 
 
 class AllowedContentFieldRegion(BaseModel):
-    id: int
+    id: Optional[int] = Field(default=None)
 
 
 class AllowedContent(BaseModel):
@@ -71,3 +71,9 @@ class AllowedContent(BaseModel):
     relperm: None = Field(default=None)
     lift_curves: None = Field(default=None)
     transmissibilities: None = Field(default=None)
+
+    @staticmethod
+    def requires_additional_input(field: str) -> bool:
+        if fieldinfo := AllowedContent.model_fields.get(field):
+            return fieldinfo.annotation is not type(None)
+        return False
