@@ -64,52 +64,11 @@ class ValidFormats:
     )
 
 
-ALLOWED_CONTENTS: Final = {
-    "depth": None,
-    "time": None,
-    "thickness": None,
-    "property": {"attribute": str, "is_discrete": bool},
-    "seismic": {
-        "attribute": str,  # e.g. amplitude
-        "calculation": str,  # e.g. mean
-        "zrange": float,
-        "filter_size": float,
-        "scaling_factor": float,
-        "stacking_offset": str,
-    },
-    "fluid_contact": {"contact": str, "truncated": bool},
-    "field_outline": {"contact": str},
-    "field_region": {"id": int},
-    "regions": None,
-    "pinchout": None,
-    "subcrop": None,
-    "fault_lines": None,
-    "velocity": None,
-    "volumes": None,
-    "khproduct": None,
-    "timeseries": None,
-    "wellpicks": None,
-    "parameters": None,
-    "rft": None,
-    "pvt": None,
-    "relperm": None,
-    "lift_curves": None,
-    "transmissibilities": None,
-}
-
 STANDARD_TABLE_INDEX_COLUMNS: Final = {
     "inplace_volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
     "timeseries": ["DATE"],  # summary
     "rft": ["measured_depth", "well", "time"],
     "wellpicks": ["WELL", "HORIZON"],
-}
-
-DEPRECATED_CONTENTS: Final = {
-    "seismic": {
-        "offset": {
-            "replaced_by": "stacking_offset",
-        }
-    }
 }
 
 # This setting will set if subkeys is required or not. If not found in list then

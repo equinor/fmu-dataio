@@ -95,9 +95,10 @@ import numpy as np
 import pandas as pd
 import xtgeo
 
-from ._definitions import ALLOWED_CONTENTS, STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
+from ._definitions import STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
 from ._logging import null_logger
 from ._utils import generate_description, parse_timedata
+from .datastructure.export.content import AllowedContent
 from .datastructure.meta import meta, specification
 
 logger: Final = null_logger(__name__)
@@ -813,10 +814,11 @@ class ObjectDataProvider:
             self.dataio.reuse_metadata_rule is None
             or self.dataio.reuse_metadata_rule != "preprocessed"
         ):
+            allowed_fields = ", ".join(AllowedContent.model_fields.keys())
             warn(
                 "The <content> is not provided which defaults to 'unset'. "
                 "It is strongly recommended that content is given explicitly! "
-                f"\n\nValid contents are: {', '.join(ALLOWED_CONTENTS.keys())} "
+                f"\n\nValid contents are: {allowed_fields} "
                 "\n\nThis list can be extended upon request and need.",
                 UserWarning,
             )
