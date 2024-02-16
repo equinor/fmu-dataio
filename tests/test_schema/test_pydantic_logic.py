@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import conftest
 import pytest
-from fmu.dataio._definitions import ALLOWED_CONTENTS
+from fmu.dataio.datastructure.export.content import AllowedContent
 from fmu.dataio.datastructure.meta import Root
 from fmu.dataio.datastructure.meta.enums import ContentEnum
 from pydantic import ValidationError
@@ -379,7 +379,7 @@ def test_content_whitelist(metadata_examples):
         Root.model_validate(example_surface)
 
 
-@pytest.mark.parametrize("allowed_content", ALLOWED_CONTENTS.keys())
+@pytest.mark.parametrize("allowed_content", AllowedContent.model_fields.keys())
 def test_schema_content_synch_with_code(allowed_content):
     """Currently, the whitelist for content is maintained both in the schema
     and in the code. This test asserts that list used in the code is in synch

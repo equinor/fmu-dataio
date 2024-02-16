@@ -18,9 +18,7 @@ from pydantic import ValidationError as PydanticValidationError
 
 from . import _metadata
 from ._definitions import (
-    ALLOWED_CONTENTS,
     CONTENTS_REQUIRED,
-    DEPRECATED_CONTENTS,
     FmuContext,
 )
 from ._logging import null_logger
@@ -38,6 +36,7 @@ from ._utils import (
     uuid_from_string,
 )
 from .datastructure.configuration import global_configuration
+from .datastructure.export.content import AllowedContent
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
@@ -124,76 +123,38 @@ def _check_content(proposed: str | dict | None) -> Any:
     else:
         raise ValidationError("The 'content' must be string or dict")
 
-    if usecontent != "unset" and usecontent not in ALLOWED_CONTENTS:
+    if usecontent != "unset" and usecontent not in AllowedContent.model_fields:
         raise ValidationError(
             f"Invalid content: <{usecontent}>! "
-            f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
+            f"Valid content: {', '.join(AllowedContent.model_fields.keys())}"
         )
 
     logger.debug("outgoing content is set to %s", usecontent)
     if content_specific:
-        _content_validate(usecontent, content_specific)
+        content_specific = _content_validate(usecontent, content_specific)
     else:
         logger.debug("content has no extra information")
 
     return usecontent, content_specific
 
 
-def _content_validate(name: str, fields: dict[str, type]) -> None:
-    logger.debug("starting staticmethod _data_process_content_validate")
-    valid = ALLOWED_CONTENTS.get(name, None)
-    if valid is None:
-        raise ValidationError(f"Cannot validate content for <{name}>")
+def _content_validate(name: str, fields: dict[str, object]) -> dict:
+    try:
+        return AllowedContent.model_validate({name: fields}).model_dump(
+            exclude_none=True,
+            mode="json",
+        )[name]
+    except PydanticValidationError as e:
+        raise ValidationError(
+            f"""The field {name} has one or more errors that makes it
+impossible to create valid content. The data will still be exported but no
+metadata will be made. You are strongly encouraged to correct your
+configuration. Invalid configuration may be disallowed in future versions.
 
-    logger.info("name: %s", name)
-
-    replace_deprecated = {}
-
-    for key, dtype in fields.items():
-        if key in valid:
-            wanted_type = valid[key]
-            if not isinstance(dtype, wanted_type):
-                raise ValidationError(
-                    f"Invalid type for <{key}> with value <{dtype}>, not of "
-                    f"type <{wanted_type}>"
-                )
-        elif DEPRECATED_CONTENTS.get(name, {}).get(key, None) is not None:
-            logger.debug("%s/%s is deprecated, issue warning", name, key)
-            replaced_by = DEPRECATED_CONTENTS[name][key].get("replaced_by", None)
-
-            message = f"Content {name}.{key} is deprecated. "
-
-            if replaced_by is not None:
-                message += f"Please use {replaced_by}. "
-                replace_deprecated.update({key: replaced_by})
-
-            warn(
-                message,
-                DeprecationWarning,
-            )
-
-        else:
-            raise ValidationError(f"Key <{key}> is not valid for <{name}>")
-
-    for key, replaced_by in replace_deprecated.items():
-        logger.debug("Replacing deprecated %s.%s with %s", name, key, replaced_by)
-        fields[replaced_by] = fields.pop(key)
-        logger.debug("Updated fields is: %s", fields)
-
-    required = CONTENTS_REQUIRED.get(name, None)
-    if isinstance(required, dict):
-        rlist = list(required.items())
-        logger.info("rlist is %s", rlist)
-        logger.info("fields is %s", fields)
-        rkey, status = rlist.pop()
-        logger.info("rkey not in fields.keys(): %s", str(rkey not in fields))
-        logger.info("rkey: %s", rkey)
-        logger.info("fields.keys(): %s", str(fields.keys()))
-        if rkey not in fields and status is True:
-            raise ValidationError(
-                f"The subkey <{rkey}> is required for content <{name}> ",
-                "but is not found",
-            )
+Detailed information:
+{str(e)}
+"""
+        )
 
 
 # ======================================================================================
