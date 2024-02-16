@@ -38,7 +38,7 @@ def main():
         name="noname_here",
         unit="fraction",
         vertical_domain={"depth": "msl"},
-        content="property",
+        content={"property": {"is_discrete": False}},
         timedata=None,
         is_prediction=True,
         is_observation=False,

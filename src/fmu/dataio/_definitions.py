@@ -16,6 +16,10 @@ class ValidationError(ValueError, KeyError):
     """Raise error while validating."""
 
 
+class ConfigurationError(ValueError):
+    pass
+
+
 @dataclass
 class ValidFormats:
     surface: dict[str, str] = field(

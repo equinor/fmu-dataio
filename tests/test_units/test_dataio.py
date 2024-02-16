@@ -7,9 +7,8 @@ from copy import deepcopy
 
 import pytest
 import yaml
-from fmu.dataio._definitions import ValidationError
 from fmu.dataio._utils import prettyprint_dict
-from fmu.dataio.dataio import ExportData, read_metadata
+from fmu.dataio.dataio import ExportData, ValidationError, read_metadata
 from fmu.dataio.datastructure.export.content import AllowedContent
 
 # pylint: disable=no-member
@@ -202,6 +201,9 @@ def test_content_given_init_or_later(globalconfig1, regsurf):
 def test_content_invalid_string(globalconfig1):
     with pytest.raises(ValidationError):
         ExportData(config=globalconfig1, content="not_valid")
+
+    with pytest.raises(ValidationError):
+        ExportData(content="not_valid")
 
 
 def test_content_invalid_dict(globalconfig1):

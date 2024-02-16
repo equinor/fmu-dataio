@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -51,8 +51,8 @@ class AllowedContent(BaseModel):
     depth: None = Field(default=None)
     time: None = Field(default=None)
     thickness: None = Field(default=None)
-    property: Optional[AllowedContentProperty] = Field(default=None)
-    seismic: Optional[AllowedContentSeismic] = Field(default=None)
+    property: Optional[Union[AllowedContentProperty, str]] = Field(default=None)
+    seismic: Optional[Union[AllowedContentSeismic, str]] = Field(default=None)
     fluid_contact: Optional[AllowedContentFluidContact] = Field(default=None)
     field_outline: Optional[AllowedContentFieldOutline] = Field(default=None)
     field_region: Optional[AllowedContentFieldRegion] = Field(default=None)
@@ -77,3 +77,18 @@ class AllowedContent(BaseModel):
         if fieldinfo := AllowedContent.model_fields.get(field):
             return fieldinfo.annotation is not type(None)
         return False
+
+    @model_validator(mode="after")
+    def _future_warning_property_seismic(self) -> AllowedContent:
+        # TODO: Can we create a nice looking fields string from the pydanic models.
+        if isinstance(self.property, str):
+            warnings.warn(
+                "In future versions 'property' must be given as (<fields>).",
+                FutureWarning,
+            )
+        if isinstance(self.seismic, str):
+            warnings.warn(
+                "In future versions 'seismic' must be given as (<fields>).",
+                FutureWarning,
+            )
+        return self

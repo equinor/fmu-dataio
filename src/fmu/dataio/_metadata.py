@@ -18,7 +18,7 @@ from typing import Any, Final
 from warnings import warn
 
 from fmu import dataio
-from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
+from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION, ConfigurationError
 from fmu.dataio._filedata_provider import FileDataProvider
 from fmu.dataio._fmu_provider import FmuProvider
 from fmu.dataio._objectdata_provider import ObjectDataProvider
@@ -34,10 +34,6 @@ from ._definitions import FmuContext
 from ._logging import null_logger
 
 logger: Final = null_logger(__name__)
-
-
-class ConfigurationError(ValueError):
-    pass
 
 
 # Generic, being resused several places:
