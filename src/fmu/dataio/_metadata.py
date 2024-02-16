@@ -224,7 +224,7 @@ class MetaData:
     """
 
     # input variables
-    obj: types.SniffableOrPathlike
+    obj: types.Sniffable
     dataio: dataio.ExportData
     compute_md5: bool = True
 

@@ -102,7 +102,7 @@ def export_metadata_file(
 
 
 def export_file(
-    obj: types.SniffableOrPathlike,
+    obj: types.Sniffable,
     filename: Path,
     flag: str | None = None,
 ) -> str:
@@ -168,7 +168,7 @@ def md5sum(fname: Path) -> str:
 
 
 def export_file_compute_checksum_md5(
-    obj: types.SniffableOrPathlike,
+    obj: types.Sniffable,
     filename: Path,
     flag: str | None = None,
 ) -> str:

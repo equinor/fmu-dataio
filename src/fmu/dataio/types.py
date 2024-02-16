@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from xtgeo.xyz import Points, Polygons
 
     # Local proxies due to xtgeo at the time of writing
-    # does not have stubs or marked itself as a typed lib.
+    # not have stubs/marked itself as a typed library.
     # Ref.: https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-library-stubs-or-py-typed-marker
     class CubeProxy(Cube):
         ...
@@ -36,24 +36,23 @@ if TYPE_CHECKING:
 
     Sniffable: TypeAlias = Annotated[
         Union[
+            # XTGeo
             CubeProxy,
             GridPropertyProxy,
             GridProxy,
             PointsProxy,
             PolygonsProxy,
             RegularSurfaceProxy,
+            # Others
             DataFrame,
             MutableMapping,
             Table,
+            pathlib.Path,
+            str,
         ],
         "Collection of 'sniffable' objects with metadata deduction capabilities",
     ]
 
-    SniffableOrPathlike: TypeAlias = Union[
-        Sniffable,
-        pathlib.Path,
-        str,
-    ]
 
 Parameters: TypeAlias = Annotated[
     MutableMapping[str, Union[str, float, int, None, "Parameters"]],

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum, unique
-from typing import Final
+from typing import Final, Type
 
 
 class Unset:
@@ -70,11 +70,31 @@ class ValidFormats:
     )
 
 
-ALLOWED_CONTENTS: Final = {
+ALLOWED_CONTENTS: Final[dict[str, None | dict[str, Type]]] = {
     "depth": None,
-    "time": None,
-    "thickness": None,
-    "property": {"attribute": str, "is_discrete": bool},
+    "fault_lines": None,
+    "field_outline": {
+        "contact": str,
+    },
+    "field_region": {
+        "id": int,
+    },
+    "fluid_contact": {
+        "contact": str,
+        "truncated": bool,
+    },
+    "khproduct": None,
+    "lift_curves": None,
+    "parameters": None,
+    "pinchout": None,
+    "property": {
+        "attribute": str,
+        "is_discrete": bool,
+    },
+    "pvt": None,
+    "regions": None,
+    "relperm": None,
+    "rft": None,
     "seismic": {
         "attribute": str,  # e.g. amplitude
         "calculation": str,  # e.g. mean
@@ -83,24 +103,14 @@ ALLOWED_CONTENTS: Final = {
         "scaling_factor": float,
         "stacking_offset": str,
     },
-    "fluid_contact": {"contact": str, "truncated": bool},
-    "field_outline": {"contact": str},
-    "field_region": {"id": int},
-    "regions": None,
-    "pinchout": None,
     "subcrop": None,
-    "fault_lines": None,
+    "thickness": None,
+    "time": None,
+    "timeseries": None,
+    "transmissibilities": None,
     "velocity": None,
     "volumes": None,
-    "khproduct": None,
-    "timeseries": None,
     "wellpicks": None,
-    "parameters": None,
-    "rft": None,
-    "pvt": None,
-    "relperm": None,
-    "lift_curves": None,
-    "transmissibilities": None,
 }
 
 STANDARD_TABLE_INDEX_COLUMNS: Final = {

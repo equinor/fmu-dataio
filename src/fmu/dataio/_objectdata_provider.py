@@ -106,7 +106,7 @@ from . import dataio, types
 from ._definitions import (
     ALLOWED_CONTENTS,
     STANDARD_TABLE_INDEX_COLUMNS,
-    UNSET,
+    Unset,
     ValidFormats,
 )
 from ._logging import null_logger
@@ -792,13 +792,13 @@ class ObjectDataProvider:
         # TODO: Clean up types below.
         self.time0, self.time1 = parse_timedata(self.meta_existing["data"])  # type: ignore
 
-    def _process_content(self) -> tuple[str, dict | None]:
+    def _process_content(self) -> tuple[str | Unset, dict | None]:
         """Work with the `content` metadata"""
 
         # content == "unset" is not wanted, but in case metadata has been produced while
         # doing a preprocessing step first, and this step is re-using metadata, the
         # check is not done.
-        if self.dataio._usecontent is UNSET and (
+        if isinstance(self.dataio._usecontent, Unset) and (
             self.dataio.reuse_metadata_rule is None
             or self.dataio.reuse_metadata_rule != "preprocessed"
         ):
@@ -810,14 +810,13 @@ class ObjectDataProvider:
                 UserWarning,
             )
 
-        content = self.dataio._usecontent
-        content_spesific = None
+        content, content_spesific = self.dataio._usecontent, None
 
         # Outgoing content is always a string, but it can be given as a dict if content-
         # specific information is to be included in the metadata.
         # In that case, it shall be inserted in the data block as a key with name as the
         # content, e.g. "seismic" or "field_outline"
-        if self.dataio._content_specific is not None:
+        if isinstance(self.dataio._content_specific, Unset):
             content_spesific = self.dataio._content_specific
 
         return content, content_spesific

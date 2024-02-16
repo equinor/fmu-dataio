@@ -91,30 +91,27 @@ def _validate_variable(key: str, value: type, legals: dict[str, str | type]) -> 
 
 
 # the two next content key related function may require refactoring/simplification
-def _check_content(proposed: str | dict | None) -> tuple[str | None, dict | None]:
+def _check_content(
+    proposed: str | dict[str, dict] | None,
+) -> tuple[str | None, dict | None]:
     """Check content and return a validated version."""
     logger.info("Evaluate content")
 
     content = proposed
-    content_specific = None
-    logger.debug("content is %s of type %s", str(content), type(content))
+    content_specific: dict | None = None
+    usecontent: dict | str | Unset = UNSET
+
     if content is None:
         usecontent = UNSET  # user warnings on this will in _objectdata_provider
 
     elif isinstance(content, str):
-        logger.debug("content is a string")
         if content in CONTENTS_REQUIRED:
-            raise ValidationError(f"content {content} requires additional input")
-        usecontent = content
-        content_specific = None  # not relevant when content is a string
-        logger.debug("usecontent is %s", usecontent)
+            raise ValidationError(f"Content {content} requires additional input")
+        usecontent, content_specific = content, None
 
     elif isinstance(content, dict):
-        logger.debug("content is a dictionary")
-        usecontent = (list(content.keys()))[0]
-        logger.debug("usecontent is %s", usecontent)
+        usecontent = list(content.keys())[0]
         content_specific = content[usecontent]
-        logger.debug("content_specific is %s", content_specific)
         if not isinstance(content_specific, dict):
             # TODO: Users will have written the content in YAML, the warning
             # below gives an JSON/pythonic ex. might confuse end-users.
@@ -128,25 +125,21 @@ def _check_content(proposed: str | dict | None) -> tuple[str | None, dict | None
     else:
         raise ValidationError("The 'content' must be string or dict")
 
-    # if usecontent is UNSET:
-    #     raise ValidationError(
-    #         f"Invalid content: <{usecontent}>! "
-    #         f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
-    #     )
+    if isinstance(usecontent, Unset):
+        raise ValidationError(
+            f"Invalid content: <{usecontent}>! "
+            f"Valid content: {', '.join(ALLOWED_CONTENTS.keys())}"
+        )
 
-    logger.debug("outgoing content is set to %s", usecontent)
     if content_specific:
         _content_validate(usecontent, content_specific)
-    else:
-        logger.debug("content has no extra information")
 
     return usecontent, content_specific
 
 
 def _content_validate(name: str, fields: dict[str, type]) -> None:
     logger.debug("starting staticmethod _data_process_content_validate")
-    valid = ALLOWED_CONTENTS.get(name, None)
-    if valid is None:
+    if not (valid := ALLOWED_CONTENTS.get(name)):
         raise ValidationError(f"Cannot validate content for <{name}>")
 
     logger.info("name: %s", name)
@@ -677,8 +670,8 @@ class ExportData:
 
     def _check_obj_if_file(
         self,
-        obj: types.Sniffable | Path | str,
-    ) -> types.Sniffable | Path:
+        obj: types.Sniffable,
+    ) -> types.Sniffable:
         """When obj is file-like, it must be checked + assume preprocessed.
 
         In addition, if preprocessed, derive the name, tagname, subfolder if present and
@@ -718,7 +711,7 @@ class ExportData:
 
     def generate_metadata(
         self,
-        obj: types.Sniffable | Path | str,
+        obj: types.Sniffable,
         compute_md5: bool = True,
         **kwargs: object,
     ) -> dict:
@@ -774,7 +767,7 @@ class ExportData:
 
     def export(
         self,
-        obj: types.SniffableOrPathlike | str,
+        obj: types.Sniffable,
         return_symlink: bool = False,
         **kwargs: Any,
     ) -> str:
