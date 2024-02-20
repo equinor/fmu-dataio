@@ -66,9 +66,3 @@ from a relational database (where this information would typically be stored onc
 referred to when needed).
 
 The FMU results data model is further documented `here <./datamodel.html>`__
-
-Getting started
-===============
-
-To get started, your FMU workflow must be retrofitted with a few improvements further
-described `here <./preparations.html>`__
