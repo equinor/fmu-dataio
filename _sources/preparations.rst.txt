@@ -1,5 +1,5 @@
-Use fmu-dataio in an FMU workflow
-=================================
+Getting started
+===============
 
 In order to start using fmu-dataio and produce rich metadata for FMU output, some
 preparations are necessary to your workflow. Expected time consumption is less than an hour.
@@ -132,7 +132,7 @@ that there can be only one stratigraphic column, so this entry is *not* a list.
   or someone else who normally do work within OpenWorks.
 
 global_variables.yml | **access**
-=================================
+---------------------------------
 
 Next, create ``_access.yml``. In this file, you will enter some information related
 to how FMU results from your workflow are to be governed when it comes to access rights.
@@ -155,7 +155,7 @@ Sumo, you will be told by the Sumo team what asset should be.
 .. note::
   "I cannot find asset in SMDA, and why does asset not have a unique ID"?
 
-  Currently, "asset" is not covered by master data/SMDA. However, it is a vitally important
+  Currently, "asset" is not in our masterdata. However, it is an important
   piece of information that governs both ownership and access to data when stored in the
   cloud. Sometimes, asset is identical to "field" but frequently it is not.
 
@@ -167,7 +167,7 @@ Note that you can override this default setting at any point when exporting data
 note that no data will be lifted to the lake without explicit action by you.
 
 global_variables.yml | **stratigraphy**
-=======================================
+---------------------------------------
 
 Finally, establish ``_stratigraphy.yml``. This is a bit more heavy, and relates to the
 ``stratigraphic_column`` referred to earlier. In short, when applicable, stratigraphic intervals
@@ -230,7 +230,8 @@ From the Drogon tutorial:
   might see validation errors then if you have made mistakes here.
 
 global_variables.yml | **model**
-================================
+--------------------------------
+
 Now we insert the ``model`` entry in ``global_variables.yml``.
 
 ``model`` block contains basic information about the model. According to the FMU standard,

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Use fmu-dataio in an FMU workflow &mdash; fmu.dataio 0.1.dev1+gffc778d documentation</title>
+  <title>Getting started &mdash; fmu.dataio 0.1.dev1+g1082ad0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -59,8 +59,7 @@
 <p class="caption" role="heading"><span class="caption-text">User Guide and Reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview.html#getting-started">Getting started</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Use fmu-dataio in an FMU workflow</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#global-variables-yml-masterdata">global_variables.yml | <strong>masterdata</strong></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#country">Country</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#field">Field</a></li>
@@ -69,11 +68,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#stratigraphic-column">Stratigraphic Column</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#global-variables-yml-access">global_variables.yml | <strong>access</strong></a></li>
-<li class="toctree-l1"><a class="reference internal" href="#global-variables-yml-stratigraphy">global_variables.yml | <strong>stratigraphy</strong></a></li>
-<li class="toctree-l1"><a class="reference internal" href="#global-variables-yml-model">global_variables.yml | <strong>model</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#global-variables-yml-access">global_variables.yml | <strong>access</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#global-variables-yml-stratigraphy">global_variables.yml | <strong>stratigraphy</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#global-variables-yml-model">global_variables.yml | <strong>model</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#workflow-for-creating-case-metadata">Workflow for creating case metadata</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#include-a-data-export-job">Include a data export job</a></li>
 </ul>
@@ -98,7 +95,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Use fmu-dataio in an FMU workflow</li>
+      <li class="breadcrumb-item active">Getting started</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/preparations.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -108,8 +105,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="use-fmu-dataio-in-an-fmu-workflow">
-<h1>Use fmu-dataio in an FMU workflow<a class="headerlink" href="#use-fmu-dataio-in-an-fmu-workflow" title="Permalink to this heading"></a></h1>
+  <section id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
 <p>In order to start using fmu-dataio and produce rich metadata for FMU output, some
 preparations are necessary to your workflow. Expected time consumption is less than an hour.</p>
 <p>You will do the following:</p>
@@ -238,9 +235,8 @@ or someone else who normally do work within OpenWorks.</p>
 </div>
 </section>
 </section>
-</section>
 <section id="global-variables-yml-access">
-<h1>global_variables.yml | <strong>access</strong><a class="headerlink" href="#global-variables-yml-access" title="Permalink to this heading"></a></h1>
+<h2>global_variables.yml | <strong>access</strong><a class="headerlink" href="#global-variables-yml-access" title="Permalink to this heading"></a></h2>
 <p>Next, create <code class="docutils literal notranslate"><span class="pre">_access.yml</span></code>. In this file, you will enter some information related
 to how FMU results from your workflow are to be governed when it comes to access rights.</p>
 <p>Example from Drogon:</p>
@@ -256,7 +252,7 @@ Sumo, you will be told by the Sumo team what asset should be.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>“I cannot find asset in SMDA, and why does asset not have a unique ID”?</p>
-<p>Currently, “asset” is not covered by master data/SMDA. However, it is a vitally important
+<p>Currently, “asset” is not in our masterdata. However, it is an important
 piece of information that governs both ownership and access to data when stored in the
 cloud. Sometimes, asset is identical to “field” but frequently it is not.</p>
 </div>
@@ -267,7 +263,7 @@ Valid entries here are <code class="docutils literal notranslate"><span class="p
 note that no data will be lifted to the lake without explicit action by you.</p>
 </section>
 <section id="global-variables-yml-stratigraphy">
-<h1>global_variables.yml | <strong>stratigraphy</strong><a class="headerlink" href="#global-variables-yml-stratigraphy" title="Permalink to this heading"></a></h1>
+<h2>global_variables.yml | <strong>stratigraphy</strong><a class="headerlink" href="#global-variables-yml-stratigraphy" title="Permalink to this heading"></a></h2>
 <p>Finally, establish <code class="docutils literal notranslate"><span class="pre">_stratigraphy.yml</span></code>. This is a bit more heavy, and relates to the
 <code class="docutils literal notranslate"><span class="pre">stratigraphic_column</span></code> referred to earlier. In short, when applicable, stratigraphic intervals
 used in the model setup must be mapped to their respective references in the stratigraphic column.
@@ -330,7 +326,7 @@ might see validation errors then if you have made mistakes here.</p>
 </div>
 </section>
 <section id="global-variables-yml-model">
-<h1>global_variables.yml | <strong>model</strong><a class="headerlink" href="#global-variables-yml-model" title="Permalink to this heading"></a></h1>
+<h2>global_variables.yml | <strong>model</strong><a class="headerlink" href="#global-variables-yml-model" title="Permalink to this heading"></a></h2>
 <p>Now we insert the <code class="docutils literal notranslate"><span class="pre">model</span></code> entry in <code class="docutils literal notranslate"><span class="pre">global_variables.yml</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">model</span></code> block contains basic information about the model. According to the FMU standard,
 all model setups should have a name and a revision. This is important information for
@@ -365,6 +361,7 @@ we encourage using <code class="docutils literal notranslate"><span class="pre">
 <p><strong>You are done with the first part!</strong> We know this was boring and probably somewhat
 confusing. The good news is that this is to a large degree a one-off thing, and you
 should not expect to have to do this again and again. Perhaps never again!</p>
+</section>
 <section id="workflow-for-creating-case-metadata">
 <h2>Workflow for creating case metadata<a class="headerlink" href="#workflow-for-creating-case-metadata" title="Permalink to this heading"></a></h2>
 <p>It is time to create the ERT workflow which will generate case metadata. <strong>Case metadata</strong>
@@ -452,7 +449,7 @@ get going 👍</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gffc778d).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g1082ad0).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
