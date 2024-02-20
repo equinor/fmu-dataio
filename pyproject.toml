@@ -49,6 +49,7 @@ Documentation = "https://fmu-dataio.readthedocs.io"
 [project.optional-dependencies]
 dev = [
     "coverage>=4.1",
+    "ert",
     "hypothesis",
     "mypy",
     "pydocstyle",
