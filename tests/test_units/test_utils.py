@@ -6,9 +6,10 @@ from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pytest
-from conftest import inside_rms
 from fmu.dataio import _utils as utils
 from xtgeo import Grid, Polygons, RegularSurface
+
+from ..utils import inside_rms
 
 
 @pytest.mark.parametrize(

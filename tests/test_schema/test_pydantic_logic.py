@@ -2,19 +2,20 @@
 import logging
 from copy import deepcopy
 
-import conftest
 import pytest
 from fmu.dataio.datastructure.export.content import AllowedContent
 from fmu.dataio.datastructure.meta import Root
 from fmu.dataio.datastructure.meta.enums import ContentEnum
 from pydantic import ValidationError
 
+from ..utils import _metadata_examples
+
 # pylint: disable=no-member
 
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.parametrize("file, example", conftest.metadata_examples().items())
+@pytest.mark.parametrize("file, example", _metadata_examples().items())
 def test_schema_example_filenames(file, example):
     """Assert that all examples are .yml, not .yaml"""
     assert file.endswith(".yml")
@@ -25,7 +26,7 @@ def test_schema_example_filenames(file, example):
 # ======================================================================================
 
 
-@pytest.mark.parametrize("file, example", conftest.metadata_examples().items())
+@pytest.mark.parametrize("file, example", _metadata_examples().items())
 def test_validate(file, example):
     """Confirm that examples are valid against the schema"""
     Root.model_validate(example)
