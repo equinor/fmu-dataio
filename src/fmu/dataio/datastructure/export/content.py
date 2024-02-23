@@ -1,9 +1,40 @@
 from __future__ import annotations
 
 import warnings
+from textwrap import dedent
 from typing import Optional, Union
 
 from pydantic import BaseModel, Field, model_validator
+
+
+def seismic_warn() -> None:
+    warnings.warn(
+        dedent(
+            """
+            When using content "seismic", please use a dictionary form, as
+            more information is required. Example:
+                content={"seismic": {"attribute": "amplitude"}}
+
+            The use of "seismic" will be disallowed in future versions."
+            """
+        ),
+        FutureWarning,
+    )
+
+
+def property_warn() -> None:
+    warnings.warn(
+        dedent(
+            """
+            When using content "property", please use a dictionary form, as
+            more information is required. Example:
+                content={"property": {"is_discrete": False}}
+
+            The use of "property" will be disallowed in future versions."
+            """
+        ),
+        FutureWarning,
+    )
 
 
 class AllowedContentSeismic(BaseModel):
@@ -74,21 +105,25 @@ class AllowedContent(BaseModel):
 
     @staticmethod
     def requires_additional_input(field: str) -> bool:
-        if fieldinfo := AllowedContent.model_fields.get(field):
-            return fieldinfo.annotation is not type(None)
-        return False
+        # Ideally 'property' and 'seismic' should have been part of the below
+        # filds that requires additional input, but due to backwards compatibility
+        # they have to be excluted (for now).
+        if field == "property":
+            property_warn()
+        if field == "seismic":
+            seismic_warn()
+        return field in (
+            # "property",
+            # "seismic",
+            "fluid_contact",
+            "field_outline",
+            "field_region",
+        )
 
     @model_validator(mode="after")
     def _future_warning_property_seismic(self) -> AllowedContent:
-        # TODO: Can we create a nice looking fields string from the pydanic models.
         if isinstance(self.property, str):
-            warnings.warn(
-                "In future versions 'property' must be given as (<fields>).",
-                FutureWarning,
-            )
+            property_warn()
         if isinstance(self.seismic, str):
-            warnings.warn(
-                "In future versions 'seismic' must be given as (<fields>).",
-                FutureWarning,
-            )
+            seismic_warn()
         return self
