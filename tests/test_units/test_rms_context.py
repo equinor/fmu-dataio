@@ -9,9 +9,10 @@ import os
 import fmu.dataio.dataio as dataio
 import pandas as pd
 import pytest
-from conftest import inside_rms
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
+
+from ..utils import inside_rms
 
 logger = logging.getLogger(__name__)
 

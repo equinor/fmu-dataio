@@ -1,11 +1,9 @@
 """The conftest.py, providing magical fixtures to tests."""
-import datetime
 import inspect
 import json
 import logging
 import os
 import shutil
-from functools import wraps
 from pathlib import Path
 
 import fmu.dataio as dio
@@ -18,9 +16,10 @@ from fmu.dataio._fmu_provider import FmuEnv
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.datastructure.configuration import global_configuration
 
+from .utils import _metadata_examples
+
 logger = logging.getLogger(__name__)
 
-ROOTPWD = Path(".").absolute()
 RUN1 = "tests/data/drogon/ertrun1/realization-0/iter-0"
 RUN2 = "tests/data/drogon/ertrun1"
 RUN_PRED = "tests/data/drogon/ertrun1/realization-0/pred"
@@ -55,18 +54,9 @@ def set_environ_inside_rms(monkeypatch):
     monkeypatch.setattr("fmu.dataio._utils.detect_inside_rms", lambda: True)
 
 
-def inside_rms(func):
-    @pytest.mark.usefixtures("set_export_data_inside_rms", "set_environ_inside_rms")
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-@pytest.fixture(name="testroot", scope="session")
-def fixture_testroot():
-    return ROOTPWD
+@pytest.fixture(scope="session")
+def rootpath(request):
+    return request.config.rootpath
 
 
 def _fmu_run1_env_variables(monkeypatch, usepath="", case_only=False):
@@ -83,11 +73,11 @@ def _fmu_run1_env_variables(monkeypatch, usepath="", case_only=False):
 
 
 @pytest.fixture(name="fmurun", scope="function")
-def fixture_fmurun(tmp_path_factory, monkeypatch):
+def fixture_fmurun(tmp_path_factory, monkeypatch, rootpath):
     """A tmp folder structure for testing; here a new fmurun without case metadata."""
     tmppath = tmp_path_factory.mktemp("data")
     newpath = tmppath / RUN1
-    shutil.copytree(ROOTPWD / RUN1, newpath)
+    shutil.copytree(rootpath / RUN1, newpath)
 
     _fmu_run1_env_variables(monkeypatch, usepath=newpath, case_only=False)
 
@@ -96,11 +86,11 @@ def fixture_fmurun(tmp_path_factory, monkeypatch):
 
 
 @pytest.fixture(name="fmurun_prehook", scope="function")
-def fixture_fmurun_prehook(tmp_path_factory, monkeypatch):
+def fixture_fmurun_prehook(tmp_path_factory, monkeypatch, rootpath):
     """A tmp folder structure for testing; here a new fmurun without case metadata."""
     tmppath = tmp_path_factory.mktemp("data")
     newpath = tmppath / RUN2
-    shutil.copytree(ROOTPWD / RUN2, newpath)
+    shutil.copytree(rootpath / RUN2, newpath)
 
     _fmu_run1_env_variables(monkeypatch, usepath=newpath, case_only=True)
 
@@ -109,11 +99,11 @@ def fixture_fmurun_prehook(tmp_path_factory, monkeypatch):
 
 
 @pytest.fixture(name="fmurun_w_casemetadata", scope="function")
-def fixture_fmurun_w_casemetadata(tmp_path_factory, monkeypatch):
+def fixture_fmurun_w_casemetadata(tmp_path_factory, monkeypatch, rootpath):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / RUN2
-    shutil.copytree(ROOTPWD / RUN2, newpath)
+    shutil.copytree(rootpath / RUN2, newpath)
     rootpath = newpath / "realization-0/iter-0"
 
     _fmu_run1_env_variables(monkeypatch, usepath=rootpath, case_only=False)
@@ -123,11 +113,11 @@ def fixture_fmurun_w_casemetadata(tmp_path_factory, monkeypatch):
 
 
 @pytest.fixture(name="fmurun_w_casemetadata_pred", scope="function")
-def fixture_fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch):
+def fixture_fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch, rootpath):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / RUN2
-    shutil.copytree(ROOTPWD / RUN2, newpath)
+    shutil.copytree(rootpath / RUN2, newpath)
     rootpath = newpath / "realization-0/pred"
 
     _fmu_run1_env_variables(monkeypatch, usepath=rootpath, case_only=False)
@@ -137,17 +127,17 @@ def fixture_fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch):
 
 
 @pytest.fixture(name="fmurun_pred", scope="session")
-def fixture_fmurun_pred(tmp_path_factory):
+def fixture_fmurun_pred(tmp_path_factory, rootpath):
     """Create a tmp folder structure for testing; here a new fmurun for prediction."""
     tmppath = tmp_path_factory.mktemp("data_pred")
     newpath = tmppath / RUN_PRED
-    shutil.copytree(ROOTPWD / RUN_PRED, newpath)
+    shutil.copytree(rootpath / RUN_PRED, newpath)
     logger.debug("Ran %s", _current_function_name())
     return newpath
 
 
 @pytest.fixture(name="rmsrun_fmu_w_casemetadata", scope="session")
-def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory):
+def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory, rootpath):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!
 
     Then we locate the folder to the ...rms/model folder, pretending running RMS
@@ -155,7 +145,7 @@ def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory):
     """
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / RUN2
-    shutil.copytree(ROOTPWD / RUN2, newpath)
+    shutil.copytree(rootpath / RUN2, newpath)
     rmspath = newpath / "realization-0/iter-0/rms/model"
     rmspath.mkdir(parents=True, exist_ok=True)
     logger.debug("Active folder is %s", rmspath)
@@ -163,18 +153,14 @@ def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory):
     return rmspath
 
 
-@pytest.fixture(name="rmssetup", scope="module")
-def fixture_rmssetup(tmp_path_factory):
+@pytest.fixture(scope="module")
+def rmssetup(tmp_path_factory, global_config2_path):
     """Create the folder structure to mimic RMS project."""
 
     tmppath = tmp_path_factory.mktemp("revision")
     rmspath = tmppath / "rms/model"
     rmspath.mkdir(parents=True, exist_ok=True)
-
-    # copy a global config here
-    shutil.copy(
-        ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml", rmspath
-    )
+    shutil.copy(global_config2_path, rmspath)
 
     logger.debug("Ran %s", _current_function_name())
 
@@ -196,7 +182,7 @@ def fixture_rmsglobalconfig(rmssetup):
 
 
 @pytest.fixture(name="globalvars_norwegian_letters", scope="module")
-def fixture_globalvars_norwegian_letters(tmp_path_factory):
+def fixture_globalvars_norwegian_letters(tmp_path_factory, rootpath):
     """Read a global config with norwegian special letters w/ fmu.config utilities."""
 
     tmppath = tmp_path_factory.mktemp("revisionxx")
@@ -207,7 +193,7 @@ def fixture_globalvars_norwegian_letters(tmp_path_factory):
 
     # copy a global config with nowr letters here
     shutil.copy(
-        ROOTPWD / "tests/data/drogon/global_config2" / gname,
+        rootpath / "tests/data/drogon/global_config2" / gname,
         rmspath,
     )
 
@@ -282,10 +268,10 @@ def fixture_globalconfig1():
     ).model_dump()
 
 
-@pytest.fixture(name="globalconfig_asfile", scope="module")
-def fixture_globalconfig_asfile() -> str:
-    """Global config as file for use with environment variable"""
-    return ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml"
+@pytest.fixture(scope="module")
+def global_config2_path(rootpath) -> Path:
+    """The path to the second global config."""
+    return rootpath / "tests/data/drogon/global_config2/global_variables.yml"
 
 
 @pytest.fixture(name="edataobj1", scope="module")
@@ -310,18 +296,11 @@ def fixture_edataobj1(globalconfig1):
     return eobj
 
 
-@pytest.fixture(name="globalconfig2", scope="module")
-def fixture_globalconfig2() -> dict:
+@pytest.fixture(scope="module")
+def globalconfig2(global_config2_path) -> dict:
     """More advanced global config from file state variable in ExportData class."""
-    globvar = {}
-    with open(
-        ROOTPWD / "tests/data/drogon/global_config2/global_variables.yml",
-        encoding="utf-8",
-    ) as stream:
-        globvar = yaml.safe_load(stream)
-
-    logger.debug("Ran %s", _current_function_name())
-    return globvar
+    with open(global_config2_path, encoding="utf-8") as stream:
+        return yaml.safe_load(stream)
 
 
 @pytest.fixture(name="edataobj2", scope="function")
@@ -359,13 +338,16 @@ def fixture_edataobj2(globalconfig2):
 # ======================================================================================
 
 
-@pytest.fixture(name="schema_080", scope="session")
-def fixture_schema_080():
+@pytest.fixture(scope="session")
+def schema_080(rootpath):
     """Return 0.8.0 version of schema as json."""
+    with open(
+        rootpath / "schema/definitions/0.8.0/schema/fmu_results.json", encoding="utf-8"
+    ) as f:
+        return json.load(f)
 
-    return _parse_json(ROOTPWD / "schema/definitions/0.8.0/schema/fmu_results.json")
 
-
+@pytest.fixture(scope="session")
 def metadata_examples():
     """Parse all metadata examples.
 
@@ -373,23 +355,7 @@ def metadata_examples():
         Dict: Dictionary with filename as key, file contents as value.
 
     """
-
-    # hard code 0.8.0 for now
-    return {
-        path.name: _isoformat_all_datetimes(_parse_yaml(str(path)))
-        for path in ROOTPWD.glob("schema/definitions/0.8.0/examples/*.yml")
-    }
-
-
-@pytest.fixture(name="metadata_examples", scope="session")
-def fixture_metadata_examples():
-    """Parse all metadata examples.
-
-    Returns:
-        Dict: Dictionary with filename as key, file contents as value.
-
-    """
-    return metadata_examples()
+    return _metadata_examples()
 
 
 # ======================================================================================
@@ -577,7 +543,7 @@ def fixture_summary():
 
 
 @pytest.fixture(name="drogon_summary")
-def fixture_drogon_sum():
+def fixture_drogon_sum(rootpath):
     """Return pyarrow table
 
     Returns:
@@ -585,8 +551,7 @@ def fixture_drogon_sum():
     """
     from pyarrow import feather
 
-    path = ROOTPWD / "tests/data/drogon/tabular/summary.arrow"
-    return feather.read_table(path)
+    return feather.read_table(rootpath / "tests/data/drogon/tabular/summary.arrow")
 
 
 @pytest.fixture(name="mock_volumes")
@@ -607,7 +572,7 @@ def fixture_mock_volumes():
 
 
 @pytest.fixture(name="drogon_volumes")
-def fixture_drogon_volumes():
+def fixture_drogon_volumes(rootpath):
     """Return pyarrow table
 
     Returns:
@@ -617,40 +582,6 @@ def fixture_drogon_volumes():
 
     return Table.from_pandas(
         pd.read_csv(
-            ROOTPWD / "tests/data/drogon/tabular/geogrid--vol.csv",
+            rootpath / "tests/data/drogon/tabular/geogrid--vol.csv",
         )
     )
-
-
-# ======================================================================================
-# Utilities
-# ======================================================================================
-
-
-def _parse_json(schema_path):
-    """Parse the schema, return JSON"""
-    with open(schema_path, encoding="utf-8") as stream:
-        return json.load(stream)
-
-
-def _parse_yaml(yaml_path):
-    """Parse the filename as json, return data"""
-    with open(yaml_path, encoding="utf-8") as stream:
-        data = yaml.safe_load(stream)
-
-    return _isoformat_all_datetimes(data)
-
-
-def _isoformat_all_datetimes(indate):
-    """Recursive function to isoformat all datetimes in a dictionary"""
-
-    if isinstance(indate, list):
-        return [_isoformat_all_datetimes(i) for i in indate]
-
-    if isinstance(indate, dict):
-        return {key: _isoformat_all_datetimes(indate[key]) for key in indate}
-
-    if isinstance(indate, (datetime.datetime, datetime.date)):
-        return indate.isoformat()
-
-    return indate
