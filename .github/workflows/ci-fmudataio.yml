@@ -28,5 +28,11 @@ jobs:
           pip install pip -U
           pip install .[dev]
 
+      - name: Install fmu-sumo-uploader
+        if: matrix.python-version != '3.12'
+        run:
+          pip install \
+            "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
+
       - name: Full test
         run: pytest -v
