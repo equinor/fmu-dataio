@@ -1,7 +1,9 @@
+import contextlib
 import os
 import pathlib
 import shutil
 from textwrap import dedent
+from unittest.mock import patch
 
 import pytest
 
@@ -60,3 +62,21 @@ def fmu_snakeoil_project(tmp_path, monkeypatch, base_ert_config, global_config2_
     )
 
     return tmp_path
+
+
+@pytest.fixture
+def mock_sumo_uploader():
+    def register_side_effect(*args, **kwargs):
+        with open("sumo_case_id", "w", encoding="utf-8") as f:
+            f.write("1")
+        return 1
+
+    with contextlib.ExitStack() as stack:
+        stack.enter_context(patch("fmu.sumo.uploader.SumoConnection", spec=True))
+        stack.enter_context(
+            patch(
+                "fmu.sumo.uploader.CaseOnDisk.register",
+                side_effect=register_side_effect,
+            )
+        )
+        yield

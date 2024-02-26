@@ -145,7 +145,7 @@ def test_inicase_generate_case_metadata_exists_so_fails(
     casemetafolder = fmurun_w_casemetadata.parent.parent
 
     icase = InitializeCase(globalconfig2)
-    with pytest.warns(UserWarning, match=r"The metadata file already exist!"):
+    with pytest.warns(UserWarning, match=r"The case metadata file already exists"):
         icase.generate_case_metadata(rootfolder=casemetafolder)
 
 

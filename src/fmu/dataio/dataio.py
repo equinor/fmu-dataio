@@ -904,7 +904,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.info("Set PWD (case): %s", str(self._pwd))
         logger.info("Set rootpath (case): %s", str(self._casepath))
 
-    def _check_already_metadata_or_create_folder(self, force: bool = False) -> bool:
+    def _establish_new_case_metadata(self, force: bool = False) -> bool:
         if not self._casepath.exists():
             self._casepath.mkdir(parents=True, exist_ok=True)
             logger.info("Created rootpath (case) %s", self._casepath)
@@ -946,18 +946,16 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             A dictionary with case metadata or None
         """
         self._update_settings(kwargs)
-
         self._establish_pwd_casepath()
-        status = self._check_already_metadata_or_create_folder(force=force)
 
-        if status is False:
-            logger.warning("The metadatafile already exists!")
-            warn(
-                "The metadata file already exist! Keep this file instead! "
-                "To make a new case metadata file, delete the old case or use the "
-                "'force' option",
-                UserWarning,
+        if not self._establish_new_case_metadata(force=force):
+            exists_warning = (
+                "The case metadata file already exists and will not be overwritten."
+                "To make new case metadata delete the old case or run on a different "
+                "runpath."
             )
+            logger.warning(exists_warning)
+            warn(exists_warning, UserWarning)
             return None
 
         meta = _metadata.default_meta_dollars()
@@ -1020,12 +1018,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
                 self._metafile, self._metadata, savefmt=self.meta_format
             )
             logger.info("METAFILE %s", self._metafile)
-        else:
-            warn(
-                "The metadatafile exists already. use 'force' or delete the "
-                "current case folder if a new metadata are requested.",
-                UserWarning,
-            )
         return str(self._metafile)
 
 
