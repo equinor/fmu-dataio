@@ -13,9 +13,11 @@ from __future__ import annotations
 import argparse
 import logging
 from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 import yaml
+
+from fmu.dataio import InitializeCase
 
 try:
     from ert.shared.plugins.plugin_manager import hook_implementation
@@ -23,23 +25,24 @@ except ModuleNotFoundError:
     from ert_shared.plugins.plugin_manager import hook_implementation
 
 try:
-    from ert import ErtScript
+    from ert.config import ErtScript
 except ImportError:
     from res.job_queue import ErtScript
 
-from fmu.dataio import InitializeCase
+if TYPE_CHECKING:
+    from ert.shared.plugins.workflow_config import WorkflowConfigs
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
 
-# This documentation is for ERT workflow
+# This documentation is compiled into ert's internal docs
 DESCRIPTION = """
-WF_CREATE_CASE_METADATA will create case metadata with fmu-dataio and storing on disk
+WF_CREATE_CASE_METADATA will create case metadata with fmu-dataio for storing on disk
 and on Sumo.
 """
 
 EXAMPLES = """
-Create an ERT workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with the 
+Create an ERT workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with the
 contents::
   WF_CREATE_CASE_METADATA <caseroot> <casename> <username> <sumo> <sumo_env>
   ...where
@@ -51,18 +54,17 @@ contents::
     <sumo_env> (str) (optional): Sumo environment to use. Default: "prod"
     <global_variables_path> (str): Path to global_variables relative to config path
     <verbosity> (str): Set log level. Default: WARNING
-
-"""  # noqa
+"""
 
 
 def main() -> None:
-    """Entry point from command line"""
+    """Entry point from command line
 
-    # When script is called from an ERT workflow, it will be called through the 'run'
-    # method on the WfCreateCaseMetadata class. This context is the intended usage.
-    # The command line entry point is still included, to clarify the difference and
-    # for debugging purposes.
-
+    When script is called from an ERT workflow, it will be called through the 'run'
+    method on the WfCreateCaseMetadata class. This context is the intended usage.
+    The command line entry point is still included, to clarify the difference and
+    for debugging purposes.
+    """
     parser = get_parser()
     commandline_args = parser.parse_args()
     create_case_metadata_main(commandline_args)
@@ -71,10 +73,8 @@ def main() -> None:
 class WfCreateCaseMetadata(ErtScript):
     """A class with a run() function that can be registered as an ERT plugin.
 
-    This is used for the ERT workflow context."""
-
-    # the class is prefixed Wf to avoid collision with a potential identical class
-    # name in fmu-dataio
+    This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
+    potential naming collisions in fmu-dataio."""
 
     # pylint: disable=too-few-public-methods
     def run(self, *args: str) -> None:
@@ -87,25 +87,35 @@ class WfCreateCaseMetadata(ErtScript):
 
 def create_case_metadata_main(args: argparse.Namespace) -> None:
     """Create the case metadata and register case on Sumo."""
-
     check_arguments(args)
+    logger.setLevel(args.verbosity)
 
     case_metadata_path = create_metadata(args)
-    assert case_metadata_path is not None
-    register_on_sumo(args, case_metadata_path)
+    if args.sumo:
+        logger.info("Registering case on Sumo (%s)", args.sumo_env)
+        register_on_sumo(args.sumo_env, case_metadata_path)
 
     logger.debug("create_case_metadata.py has finished.")
 
 
-def create_metadata(args: argparse.Namespace) -> str | None:
-    """Create the case metadata and print them to the disk"""
-    logger.setLevel(args.verbosity)
+def check_arguments(args: argparse.Namespace) -> None:
+    """Do basic sanity checks of input"""
+    logger.debug("Checking input arguments")
+    logger.debug("Arguments: %s", args)
 
-    _global_variables_path = Path(args.ert_config_path, args.global_variables_path)
-    global_variables = _parse_yaml(_global_variables_path)
+    if not Path(args.ert_caseroot).is_absolute():
+        logger.debug("Argument ert_caseroot was not absolute: %s", args.ert_caseroot)
+        raise ValueError("ert_caseroot must be an absolute path")
+
+
+def create_metadata(args: argparse.Namespace) -> str:
+    """Create the case metadata and print them to the disk"""
+    with open(
+        Path(args.ert_config_path) / args.global_variables_path, encoding="utf-8"
+    ) as f:
+        global_variables = yaml.safe_load(f)
 
     # fmu.dataio.InitializeCase class is scheduled to be renamed.
-
     case = InitializeCase(config=global_variables)
     case_metadata_path = case.export(
         rootfolder=args.ert_caseroot,
@@ -116,58 +126,24 @@ def create_metadata(args: argparse.Namespace) -> str | None:
     )
 
     logger.info("Case metadata has been made: %s", case_metadata_path)
-
+    assert case_metadata_path is not None
     return case_metadata_path
 
 
 def register_on_sumo(
-    args: argparse.Namespace,
+    sumo_env: str,
     case_metadata_path: str,
-) -> str | None:
+) -> str:
     """Register the case on Sumo by sending the case metadata"""
-
-    env = args.sumo_env
-
-    if args.sumo:
-        logger.info("Registering case on Sumo (%s)", env)
-    else:
-        logger.info("Sumo registration has been deactivated through arguments")
-        return None
-
-    # lazy loading of Sumo dependencies
     from fmu.sumo.uploader import CaseOnDisk, SumoConnection
 
-    # establish connection
-    sumo_conn = SumoConnection(env=env)
+    sumo_conn = SumoConnection(sumo_env)
     logger.debug("Sumo connection established")
-
-    # initiate the case on disk object.
     case = CaseOnDisk(case_metadata_path=case_metadata_path, sumo_connection=sumo_conn)
-
-    # Register the case on Sumo
     sumo_id = case.register()
 
     logger.info("Case registered on Sumo with ID: %s", sumo_id)
-
     return sumo_id
-
-
-def _parse_yaml(path: Path) -> dict:
-    """Parse the global variables, return as dict"""
-
-    with open(path) as stream:
-        return yaml.safe_load(stream)
-
-
-def check_arguments(args: argparse.Namespace) -> None:
-    """Do basic sanity checks of input"""
-
-    logger.debug("Checking input arguments")
-    logger.debug("arguments: %s", args)
-
-    if not Path(args.ert_caseroot).is_absolute():
-        logger.debug("Argument ert_caseroot was not absolute: %s", args.ert_caseroot)
-        raise ValueError("ert_caseroot must be an absolute path")
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -198,12 +174,9 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 @hook_implementation
-def legacy_ertscript_workflow(config: object) -> None:
+def legacy_ertscript_workflow(config: WorkflowConfigs) -> None:
     """Hook the WfCreateCaseMetadata class with documentation into ERT."""
-    workflow = config.add_workflow(  # type: ignore
-        WfCreateCaseMetadata,
-        "WF_CREATE_CASE_METADATA",
-    )
+    workflow = config.add_workflow(WfCreateCaseMetadata, "WF_CREATE_CASE_METADATA")
     workflow.parser = get_parser
     workflow.description = DESCRIPTION
     workflow.examples = EXAMPLES

@@ -904,7 +904,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.info("Set PWD (case): %s", str(self._pwd))
         logger.info("Set rootpath (case): %s", str(self._casepath))
 
-    def _establish_new_case_metadata(self, force: bool = False) -> bool:
+    def _establish_case_metadata(self, force: bool = False) -> bool:
         if not self._casepath.exists():
             self._casepath.mkdir(parents=True, exist_ok=True)
             logger.info("Created rootpath (case) %s", self._casepath)
@@ -948,9 +948,9 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         self._update_settings(kwargs)
         self._establish_pwd_casepath()
 
-        if not self._establish_new_case_metadata(force=force):
+        if not self._establish_case_metadata(force=force):
             exists_warning = (
-                "The case metadata file already exists and will not be overwritten."
+                "The case metadata file already exists and will not be overwritten. "
                 "To make new case metadata delete the old case or run on a different "
                 "runpath."
             )
@@ -960,7 +960,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
         meta = _metadata.default_meta_dollars()
         meta["class"] = "case"
-
         meta["masterdata"] = _metadata.generate_meta_masterdata(self.config)
 
         # only asset, not ssdl
