@@ -18,8 +18,8 @@ from pydantic import ValidationError as PydanticValidationError
 
 from . import _metadata
 from ._definitions import (
-    CONTENTS_REQUIRED,
     FmuContext,
+    ValidationError,
 )
 from ._logging import null_logger
 from ._utils import (
@@ -46,10 +46,6 @@ GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
 SETTINGS_ENVNAME: Final = "FMU_DATAIO_CONFIG"  # input settings from a spesific file!
 
 logger: Final = null_logger(__name__)
-
-
-class ValidationError(ValueError, KeyError):
-    """Raise error while validating."""
 
 
 # ======================================================================================
@@ -100,7 +96,7 @@ def _check_content(proposed: str | dict | None) -> Any:
 
     elif isinstance(content, str):
         logger.debug("content is a string")
-        if content in CONTENTS_REQUIRED:
+        if AllowedContent.requires_additional_input(content):
             raise ValidationError(f"content {content} requires additional input")
         usecontent = content
         content_specific = None  # not relevant when content is a string
@@ -138,7 +134,7 @@ def _check_content(proposed: str | dict | None) -> Any:
     return usecontent, content_specific
 
 
-def _content_validate(name: str, fields: dict[str, object]) -> dict:
+def _content_validate(name: str, fields: dict[str, object] | None) -> dict | None:
     try:
         return AllowedContent.model_validate({name: fields}).model_dump(
             exclude_none=True,

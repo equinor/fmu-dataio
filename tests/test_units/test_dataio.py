@@ -532,3 +532,23 @@ def test_norwegian_letters(encoding, mode, tmp_path):
 
     with open(tmp_path / "no-letters.yml", encoding=encoding) as f:
         assert yaml.safe_load(f) == {"æøå": "æøå"}
+
+
+@pytest.mark.parametrize("content", ("seismic", "property"))
+def test_content_seismic_or_property_as_string_future_warning(content, globalconfig2):
+    with pytest.warns(FutureWarning):
+        ExportData(content=content, config=globalconfig2)
+
+
+@pytest.mark.parametrize(
+    "content",
+    (
+        {"seismic": {"attribute": "attribute-value"}},
+        {"property": {"attribute": "attribute-value"}},
+    ),
+)
+def test_content_seismic_or_property_as_composite_no_future_warning(
+    content, globalconfig2, recwarn
+):
+    ExportData(content=content, config=globalconfig2)
+    assert len(recwarn) == 0

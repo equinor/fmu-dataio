@@ -46,7 +46,7 @@ def test_objectdata_regularsurface_validate_extension_shall_fail(regsurf, edatao
     """Test an invalid extension for RegularSurface object."""
 
     with pytest.raises(ConfigurationError):
-        _ = ObjectDataProvider(regsurf, edataobj1)._validate_get_ext(
+        ObjectDataProvider(regsurf, edataobj1)._validate_get_ext(
             "some_invalid", "RegularSurface", ValidFormats().surface
         )
 
