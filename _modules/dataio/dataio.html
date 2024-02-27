@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g45d34af documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g0657ced documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -108,8 +108,8 @@
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_metadata</span>
 <span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">CONTENTS_REQUIRED</span><span class="p">,</span>
     <span class="n">FmuContext</span><span class="p">,</span>
+    <span class="n">ValidationError</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">._logging</span> <span class="kn">import</span> <span class="n">null_logger</span>
 <span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="p">(</span>
@@ -136,10 +136,6 @@
 <span class="n">SETTINGS_ENVNAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;FMU_DATAIO_CONFIG&quot;</span>  <span class="c1"># input settings from a spesific file!</span>
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">null_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="ValidationError"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ValidationError">[docs]</a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise error while validating.&quot;&quot;&quot;</span></div>
 
 
 <span class="c1"># ======================================================================================</span>
@@ -190,7 +186,7 @@
 
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content is a string&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">CONTENTS_REQUIRED</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">AllowedContent</span><span class="o">.</span><span class="n">requires_additional_input</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;content </span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2"> requires additional input&quot;</span><span class="p">)</span>
         <span class="n">usecontent</span> <span class="o">=</span> <span class="n">content</span>
         <span class="n">content_specific</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># not relevant when content is a string</span>
@@ -228,7 +224,7 @@
     <span class="k">return</span> <span class="n">usecontent</span><span class="p">,</span> <span class="n">content_specific</span>
 
 
-<span class="k">def</span> <span class="nf">_content_validate</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_content_validate</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">AllowedContent</span><span class="o">.</span><span class="n">model_validate</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">fields</span><span class="p">})</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span>
             <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1486,7 +1482,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g45d34af).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g0657ced).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
