@@ -796,13 +796,13 @@ class ExportData:
 #
 # The InitializeCase is used for making the case matadata prior to any other actions,
 # e.g. forward jobs. However, case metadata file may already exist, and in that case
-# this class should only emit a message or warning
+# this class should only emit a message or warning.
 # ######################################################################################
 
 
 @dataclass
 class InitializeCase:  # pylint: disable=too-few-public-methods
-    """Instantate InitializeCase object.
+    """Initialize metadata for an FMU Case.
 
     In ERT this is typically ran as an hook workflow in advance.
 
@@ -812,27 +812,21 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             some predefined main level keys. If config is None or the env variable
             FMU_GLOBAL_CONFIG pointing to a file is provided, then it will attempt to
             parse that file instead.
-        rootfolder: To override the automatic and actual ``rootpath``. Absolute path to
-            the case root, including case name. If not provided (which is not
-            recommended), the rootpath will be attempted parsed from the file structure
-            or by other means.
+        rootfolder: Absolute path to the case root, including case name.
         casename: Name of case (experiment)
         caseuser: Username provided
-        restart_from: ID of eventual restart (deprecated)
-        description: Description text as string or list of strings.
+        description (Optional): Description text as string or list of strings.
     """
 
     # class variables
     meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
 
-    # instance
     config: dict
-    rootfolder: Optional[Union[str, Path]] = None
-    casename: Optional[str] = None
-    caseuser: Optional[str] = None
-    restart_from: Optional[str] = None
+    rootfolder: str | Path
+    casename: str
+    caseuser: str
+
     description: Optional[Union[str, list]] = None
-    verbosity: str = "DEPRECATED"
 
     _metadata: dict = field(default_factory=dict, init=False)
     _metafile: Path = field(default_factory=Path, init=False)
@@ -840,19 +834,9 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
     _casepath: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self) -> None:
-        if self.verbosity != "DEPRECATED":
-            warn(
-                "Using the 'verbosity' key is now deprecated and will have no "
-                "effect and will be removed in near future. Please remove it from the "
-                "argument list. Set logging level from client script in the standard "
-                "manner instead.",
-                UserWarning,
-            )
-
-        if not self.config or GLOBAL_ENVNAME in os.environ:
-            cnf = some_config_from_env(GLOBAL_ENVNAME)
-            assert cnf is not None
-            self.config = cnf
+        self._pwd = Path().absolute()
+        self._casepath = Path(self.rootfolder)
+        self._metafile = self._casepath / "share/metadata/fmu_case.yml"
 
         # For this class, the global config must be valid; hence error if not
         try:
@@ -862,93 +846,31 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             raise
         logger.info("Ran __post_init__ for InitializeCase")
 
-    def _update_settings(self, newsettings: dict) -> None:
-        """Update instance settings (properties) from other routines."""
-        logger.info("Try new settings %s", newsettings)
+    def _establish_metadata_files(self) -> bool:
+        """Checks if the metadata files and directories are established and creates
+        relevant directories and files if not.
 
-        # derive legal input from dataclass signature
-        annots = getattr(self, "__annotations__", {})
-        legals = {key: val for key, val in annots.items() if not key.startswith("_")}
-
-        for setting, value in newsettings.items():
-            if setting == "restart_from":
-                warn(
-                    "The 'restart_from' argument is deprecated and will be removed in "
-                    "a future version. Please refer to the fmu-dataio documentation "
-                    "for information on how to record information about restart "
-                    "source.",
-                    DeprecationWarning,
-                )
-            if _validate_variable(setting, value, legals):
-                setattr(self, setting, value)
-                logger.info("New setting OK for %s", setting)
-
-    def _establish_pwd_casepath(self) -> None:
-        """Establish state variables pwd and casepath.
-
-        See ExportData's method but this is much simpler (e.g. no RMS context)
+        Returns:
+            False if fmu_case.yml exists (not established), True if it doesn't.
         """
-        self._pwd = Path().absolute()
-
-        if self.rootfolder:
-            self._casepath = Path(self.rootfolder)
-        else:
-            logger.info("Emit UserWarning")
-            warn(
-                "The rootfolder is defaulted, but it is strongly recommended to give "
-                "an explicit rootfolder",
-                UserWarning,
-            )
-            self._casepath = self._pwd.parent.parent
-
-        logger.info("Set PWD (case): %s", str(self._pwd))
-        logger.info("Set rootpath (case): %s", str(self._casepath))
-
-    def _establish_case_metadata(self, force: bool = False) -> bool:
-        if not self._casepath.exists():
-            self._casepath.mkdir(parents=True, exist_ok=True)
+        if not self._metafile.parent.exists():
+            self._metafile.parent.mkdir(parents=True, exist_ok=True)
             logger.info("Created rootpath (case) %s", self._casepath)
-
-        metadata_path = self._casepath / "share/metadata"
-        self._metafile = metadata_path / "fmu_case.yml"
         logger.info("The requested metafile is %s", self._metafile)
-
-        if force:
-            logger.info("Forcing a new metafile")
-
-        if not self._metafile.is_file() or force:
-            metadata_path.mkdir(parents=True, exist_ok=True)
-            return True
-
-        return False
+        return not self._metafile.exists()
 
     # ==================================================================================
     # Public methods:
     # ==================================================================================
 
-    def generate_metadata(
-        self,
-        force: bool = False,
-        skip_null: bool = True,
-        **kwargs: object,
-    ) -> dict | None:
+    def generate_metadata(self) -> dict:
         """Generate case metadata.
 
-        Args:
-            force: Overwrite existing case metadata if True. Default is False. If force
-                is False and case metadata already exists, a warning will issued and
-                None will be returned.
-            skip_null: Fields with None/missing values will be skipped if True (default)
-            **kwargs: See InitializeCase() arguments; initial will be overrided by
-                settings here.
-
         Returns:
-            A dictionary with case metadata or None
+            A dictionary with case metadata or an empty dictionary if the metadata
+            already exists.
         """
-        self._update_settings(kwargs)
-        self._establish_pwd_casepath()
-
-        if not self._establish_case_metadata(force=force):
+        if not self._establish_metadata_files():
             exists_warning = (
                 "The case metadata file already exists and will not be overwritten. "
                 "To make new case metadata delete the old case or run on a different "
@@ -956,7 +878,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             )
             logger.warning(exists_warning)
             warn(exists_warning, UserWarning)
-            return None
+            return {}
 
         meta = _metadata.default_meta_dollars()
         meta["class"] = "case"
@@ -979,40 +901,22 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         mcase["user"] = {"id": self.caseuser}
 
         mcase["description"] = generate_description(self.description)
-        mcase["restart_from"] = self.restart_from
 
         meta["tracklog"] = _metadata.generate_meta_tracklog()
-
-        if skip_null:
-            meta = drop_nones(meta)
+        meta = drop_nones(meta)
 
         self._metadata = meta
+
         logger.info("The case metadata are now ready!")
         return deepcopy(self._metadata)
 
-    # alias
-    generate_case_metadata = generate_metadata
-
-    def export(
-        self,
-        force: bool = False,
-        skip_null: bool = True,
-        **kwargs: dict[str, Any],
-    ) -> str | None:
+    def export(self) -> str:
         """Export case metadata to file.
 
-        Args:
-            force: Overwrite existing case metadata if True. Default is False. If force
-                is False and case metadata already exists, a warning will issued and
-                None will be returned.
-            skip_null: Fields with None/missing values will be skipped if True (default)
-            **kwargs: See InitializeCase() arguments; initial will be overrided by
-                settings here.
-
         Returns:
-            Full path of metadata file or None
+            Full path of metadata file.
         """
-        if self.generate_case_metadata(force=force, skip_null=skip_null, **kwargs):
+        if self.generate_metadata():
             export_metadata_file(
                 self._metafile, self._metadata, savefmt=self.meta_format
             )

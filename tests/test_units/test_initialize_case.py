@@ -4,41 +4,177 @@ In this case a user sits in RMS, which is in folder rms/model and runs
 interactive. Hence the basepath will be ../../
 """
 import logging
-import os
+from copy import deepcopy
+from pathlib import Path
 
 import pytest
 import yaml
 from fmu.dataio import InitializeCase
-from fmu.dataio._utils import prettyprint_dict
+from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
 
-def test_inicase_barebone(globalconfig2):
-    icase = InitializeCase(config=globalconfig2)
-    assert "Drogon" in str(icase.config)
+def test_initialize_case_barebone(globalconfig2):
+    icase = InitializeCase(
+        config=globalconfig2, rootfolder="", casename="", caseuser="MyUser"
+    )
+    assert icase.config == globalconfig2
+    assert icase.rootfolder == ""
+    assert icase.casename == ""
+    assert icase.caseuser == "MyUser"
+    assert not icase.description
 
 
-def test_inicase_barebone_with_export(globalconfig2, fmurun):
-    icase = InitializeCase(config=globalconfig2)
-    assert "Drogon" in str(icase.config)
+def test_initialize_case_post_init(monkeypatch, fmurun, globalconfig2):
+    monkeypatch.chdir(fmurun)
+    caseroot = fmurun.parent.parent
+    logger.info("Active folder is %s", fmurun)
 
-    globalconfig2["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"
+    icase = InitializeCase(
+        config=globalconfig2,
+        rootfolder=caseroot,
+        casename="mycase",
+        caseuser="user",
+        description="Some description",
+    )
+    logger.info("Casepath is %s", icase._casepath)
 
+    assert icase._casepath == caseroot
+    assert icase._pwd == fmurun
+    assert icase._metafile == caseroot / "share/metadata/fmu_case.yml"
+
+
+@pytest.mark.filterwarnings("ignore:The global configuration")
+def test_initialize_case_post_init_bad_globalconfig(monkeypatch, fmurun, globalconfig2):
+    monkeypatch.chdir(fmurun)
+    logger.info("Active folder is %s", fmurun)
+    caseroot = fmurun.parent.parent
+    logger.info("Case folder is now %s", caseroot)
+
+    config = deepcopy(globalconfig2)
+    del config["masterdata"]
+
+    with pytest.raises(ValidationError, match="masterdata"):
+        InitializeCase(
+            config=config,
+            rootfolder=caseroot,
+            casename="mycase",
+            caseuser="user",
+        )
+
+
+def test_initialize_case_establish_metadata_files(monkeypatch, fmurun, globalconfig2):
+    """Tests that the required directories are made when establishing the case"""
+    monkeypatch.chdir(fmurun)
+    logger.info("Active folder is %s", fmurun)
+    caseroot = fmurun.parent.parent
+    logger.info("Case folder is now %s", caseroot)
+
+    icase = InitializeCase(
+        config=globalconfig2, rootfolder=caseroot, casename="mycase", caseuser="user"
+    )
+    share_metadata = caseroot / "share/metadata"
+    assert not share_metadata.exists()
+    assert icase._establish_metadata_files()
+    assert share_metadata.exists()
+    assert not icase._metafile.exists()
+
+
+def test_initialize_case_establish_metadata_files_exists(
+    monkeypatch, fmurun, globalconfig2
+):
+    """Tests that _establish_metadata_files returns correctly if the share/metadata
+    directory already exists."""
+    monkeypatch.chdir(fmurun)
+    logger.info("Active folder is %s", fmurun)
+    caseroot = fmurun.parent.parent
+    logger.info("Case folder is now %s", caseroot)
+
+    icase = InitializeCase(
+        config=globalconfig2, rootfolder=caseroot, casename="mycase", caseuser="user"
+    )
+    (caseroot / "share/metadata").mkdir(parents=True, exist_ok=True)
+    assert icase._establish_metadata_files()
+    assert not icase._metafile.exists()
+    # Again but with fmu_case.yml created
+    icase._metafile.touch()
+    assert not icase._establish_metadata_files()
+    assert icase._metafile.exists()
+
+
+def test_initialize_case_generate_metadata(monkeypatch, fmurun, globalconfig2):
+    monkeypatch.chdir(fmurun)
+    logger.info("Active folder is %s", fmurun)
+    myroot = fmurun.parent.parent.parent / "mycase"
+    logger.info("Case folder is now %s", myroot)
+
+    icase = InitializeCase(
+        config=globalconfig2, rootfolder=myroot, casename="mycase", caseuser="user"
+    )
+    metadata = icase.generate_metadata()
+    assert metadata
+    assert metadata["fmu"]["case"]["name"] == "mycase"
+    assert metadata["fmu"]["case"]["user"]["id"] == "user"
+
+
+def test_initialize_case_generate_metadata_warn_if_exists(
+    monkeypatch, fmurun_w_casemetadata, globalconfig2
+):
+    monkeypatch.chdir(fmurun_w_casemetadata)
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    casemetafolder = fmurun_w_casemetadata.parent.parent
+
+    icase = InitializeCase(
+        config=globalconfig2,
+        rootfolder=casemetafolder,
+        casename="abc",
+        caseuser="user",
+    )
+    with pytest.warns(UserWarning, match=r"The case metadata file already exists"):
+        icase.generate_metadata()
+
+
+def test_initialize_case_with_export(monkeypatch, globalconfig2, fmurun):
+    monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
 
-    icase.export(
+    icase = InitializeCase(
+        config=globalconfig2,
         rootfolder=caseroot,
-        force=True,
-        casename="MyCaseName_with_Æ",
+        casename="MyCaseName",
         caseuser="MyUser",
         description="Some description",
     )
+    fmu_case_yml = Path(icase.export())
+    assert fmu_case_yml.exists()
+    assert fmu_case_yml == caseroot / "share/metadata/fmu_case.yml"
 
-    casemetafile = caseroot / "share/metadata/fmu_case.yml"
+    with open(fmu_case_yml) as stream:
+        metadata = yaml.safe_load(stream)
 
-    # check that special characters made it through
-    with open(casemetafile) as stream:
+    assert metadata["fmu"]["case"]["name"] == "MyCaseName"
+    assert metadata["masterdata"]["smda"]["field"][0]["identifier"] == "DROGON"
+
+
+def test_initialize_case_export_with_norsk_alphabet(monkeypatch, globalconfig2, fmurun):
+    monkeypatch.chdir(fmurun)
+    caseroot = fmurun.parent.parent
+
+    icase = InitializeCase(
+        config=globalconfig2,
+        rootfolder=caseroot,
+        casename="MyCaseName_with_Æ",
+        caseuser="MyUser",
+        description="Søme description",
+    )
+    globalconfig2["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"
+
+    fmu_case_yml = Path(icase.export())
+    assert fmu_case_yml.exists()
+    assert fmu_case_yml == caseroot / "share/metadata/fmu_case.yml"
+
+    with open(fmu_case_yml) as stream:
         metadata = yaml.safe_load(stream)
 
     assert metadata["fmu"]["case"]["name"] == "MyCaseName_with_Æ"
@@ -47,149 +183,7 @@ def test_inicase_barebone_with_export(globalconfig2, fmurun):
     # Check that special characters are encoded properly in stored metadatafile.
     # yaml.safe_load() seems to sort this out, but we want files on disk to be readable.
     # Therefore check by reading the raw file content.
-    with open(casemetafile) as stream:
+    with open(fmu_case_yml) as stream:
         metadata_string = stream.read()
 
     assert "æøå" in metadata_string
-
-
-def test_inicase_pwd_basepath(fmurun, globalconfig2):
-    logger.info("Active folder is %s", fmurun)
-    os.chdir(fmurun)
-
-    icase = InitializeCase(config=globalconfig2)
-    with pytest.warns(UserWarning):
-        icase._establish_pwd_casepath()
-
-    logger.info("Casepath is %s", icase._casepath)
-
-    assert icase._casepath == fmurun.parent.parent
-    assert icase._pwd == fmurun
-
-
-def test_inicase_pwd_basepath_explicit(fmurun, globalconfig2):
-    """The casepath should in general be explicit."""
-    logger.info("Active folder is %s", fmurun)
-    os.chdir(fmurun)
-
-    myroot = fmurun
-
-    icase = InitializeCase(config=globalconfig2, rootfolder=myroot, casename="mycase")
-    icase._establish_pwd_casepath()
-
-    logger.info("Casepath is %s", icase._casepath)
-
-    assert icase._casepath == myroot
-    assert icase._pwd == fmurun
-
-
-def test_inicase_update_settings(fmurun, globalconfig2):
-    """Update self attributes after init."""
-    logger.info("Active folder is %s", fmurun)
-    os.chdir(fmurun)
-    myroot = fmurun / "mycase"
-
-    icase = InitializeCase(config=globalconfig2, rootfolder=myroot)
-    kwargs = {"rootfolder": "/tmp"}
-    icase._update_settings(newsettings=kwargs)
-
-    assert icase.rootfolder == "/tmp"
-
-    kwargs = {"casename": "Here we go"}
-    icase._update_settings(newsettings=kwargs)
-
-    assert icase.casename == "Here we go"
-
-
-def test_inicase_update_settings_correct_key_wrong_type(fmurun, globalconfig2):
-    """Update self attributes after init, but with wrong type."""
-    logger.info("Active folder is %s", fmurun)
-    os.chdir(fmurun)
-    myroot = fmurun / "mycase"
-
-    icase = InitializeCase(config=globalconfig2, rootfolder=myroot)
-    kwargs = {"rootfolder": 1234567}
-    with pytest.raises(ValueError, match=r"The value of '"):
-        icase._update_settings(newsettings=kwargs)
-
-
-def test_inicase_update_settings_shall_fail(fmurun, globalconfig2):
-    """Update self attributes after init, but using an invalid key."""
-    logger.info("Active folder is %s", fmurun)
-    os.chdir(fmurun)
-    myroot = fmurun / "mycase"
-
-    icase = InitializeCase(config=globalconfig2, rootfolder=myroot)
-    kwargs = {"invalidfolder": "/tmp"}
-    with pytest.raises(KeyError):
-        icase._update_settings(newsettings=kwargs)
-
-
-def test_inicase_generate_case_metadata(fmurun, globalconfig2):
-    logger.info("Active folder is %s", fmurun)
-    os.chdir(fmurun)
-    myroot = fmurun.parent.parent.parent / "mycase"
-    logger.info("Case folder is now %s", myroot)
-
-    icase = InitializeCase(globalconfig2)
-    with pytest.warns(UserWarning, match="The rootfolder is defaulted"):
-        icase.generate_case_metadata()
-
-
-def test_inicase_generate_case_metadata_exists_so_fails(
-    fmurun_w_casemetadata, globalconfig2
-):
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
-    os.chdir(fmurun_w_casemetadata)
-    logger.info("Folder is %s", fmurun_w_casemetadata)
-    casemetafolder = fmurun_w_casemetadata.parent.parent
-
-    icase = InitializeCase(globalconfig2)
-    with pytest.warns(UserWarning, match=r"The case metadata file already exists"):
-        icase.generate_case_metadata(rootfolder=casemetafolder)
-
-
-def test_inicase_generate_case_metadata_exists_but_force(
-    fmurun_w_casemetadata, globalconfig2
-):
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
-    os.chdir(fmurun_w_casemetadata)
-    logger.info("Folder is %s", fmurun_w_casemetadata)
-    casemetafolder = fmurun_w_casemetadata.parent.parent
-    old_metafile = casemetafolder / "share/metadata/fmu_case.yml"
-
-    with open(old_metafile, encoding="utf-8") as stream:
-        old_content = yaml.safe_load(stream)
-
-    icase = InitializeCase(globalconfig2)
-    icase.export(
-        rootfolder=casemetafolder,
-        force=True,
-        casename="ertrun1",
-        caseuser="guffen",
-        description="My curious case",
-    )
-
-    new_metafile = casemetafolder / "share/metadata/fmu_case.yml"
-    with open(new_metafile, encoding="utf-8") as stream:
-        new_content = yaml.safe_load(stream)
-
-    logger.debug("\n%s\n", prettyprint_dict(old_content))
-    logger.debug("\n%s\n", prettyprint_dict(new_content))
-
-    assert old_content["class"] == new_content["class"]
-    assert old_content["fmu"]["case"]["uuid"] != new_content["fmu"]["case"]["uuid"]
-
-
-def test_inicase_deprecated_restart_from(fmurun_w_casemetadata, globalconfig2):
-    icase = InitializeCase(globalconfig2)
-    with pytest.warns(
-        DeprecationWarning,
-        match="The 'restart_from' argument is deprecated and will be removed in a "
-        "future version. Please refer to the fmu-dataio documentation for information "
-        "on how to record information about restart source.",
-    ):
-        icase.export(
-            rootfolder=fmurun_w_casemetadata.parent.parent,
-            restart_from="Jurassic era",
-        )

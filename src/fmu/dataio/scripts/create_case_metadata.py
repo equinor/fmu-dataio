@@ -115,19 +115,12 @@ def create_metadata(args: argparse.Namespace) -> str:
     ) as f:
         global_variables = yaml.safe_load(f)
 
-    # fmu.dataio.InitializeCase class is scheduled to be renamed.
-    case = InitializeCase(config=global_variables)
-    case_metadata_path = case.export(
+    return InitializeCase(
+        config=global_variables,
         rootfolder=args.ert_caseroot,
         casename=args.ert_casename,
         caseuser=args.ert_username,
-        description=None,  # type: ignore
-        # BUG(JB): description must be str accoring to dataclass
-    )
-
-    logger.info("Case metadata has been made: %s", case_metadata_path)
-    assert case_metadata_path is not None
-    return case_metadata_path
+    ).export()
 
 
 def register_on_sumo(
