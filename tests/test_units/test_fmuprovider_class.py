@@ -123,25 +123,25 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
     I *may* be that this behaviour can be removed in near future, since the ERT env
     variables now will tell us that this is an active ERT run.
     """
-
-    icase = dataio.InitializeCase(config=globalconfig2)
-
     caseroot = tmp_path / "prehook"
     caseroot.mkdir(parents=True)
-
     os.chdir(caseroot)
 
-    exp = icase.export(
+    icase = dataio.InitializeCase(
+        config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName",
         caseuser="MyUser",
         description="Some description",
     )
+    exp = icase.export()
+
     casemetafile = caseroot / "share/metadata/fmu_case.yml"
+
     assert casemetafile.is_file()
     assert exp == str(casemetafile.resolve())
-    os.chdir(fmurun_prehook)
 
+    os.chdir(fmurun_prehook)
     logger.debug("Case root proposed is: %s", caseroot)
     myfmu = FmuProvider(
         model="Model567",

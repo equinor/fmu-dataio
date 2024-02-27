@@ -20,21 +20,21 @@ from .utils import _metadata_examples
 
 logger = logging.getLogger(__name__)
 
-RUN1 = "tests/data/drogon/ertrun1/realization-0/iter-0"
-RUN2 = "tests/data/drogon/ertrun1"
-RUN_PRED = "tests/data/drogon/ertrun1/realization-0/pred"
+ERTRUN = "tests/data/drogon/ertrun1"
+ERTRUN_REAL0_ITER0 = f"{ERTRUN}/realization-0/iter-0"
+ERTRUN_PRED = f"{ERTRUN}/realization-0/pred"
 
-RUN1_ENV_PREHOOK = {
+ERTRUN_ENV_PREHOOK = {
     f"_ERT_{FmuEnv.EXPERIMENT_ID.name}": "6a8e1e0f-9315-46bb-9648-8de87151f4c7",
     f"_ERT_{FmuEnv.ENSEMBLE_ID.name}": "b027f225-c45d-477d-8f33-73695217ba14",
     f"_ERT_{FmuEnv.SIMULATION_MODE.name}": "test_run",
 }
-RUN1_ENV_FORWARD = {
+ERTRUN_ENV_FORWARD = {
     f"_ERT_{FmuEnv.ITERATION_NUMBER.name}": "0",
     f"_ERT_{FmuEnv.REALIZATION_NUMBER.name}": "0",
     f"_ERT_{FmuEnv.RUNPATH.name}": "---",  # set dynamically due to pytest tmp rotation
 }
-RUN1_ENV_FULLRUN = {**RUN1_ENV_PREHOOK, **RUN1_ENV_FORWARD}
+ERTRUN_ENV_FULLRUN = {**ERTRUN_ENV_PREHOOK, **ERTRUN_ENV_FORWARD}
 
 ERT_RUNPATH = f"_ERT_{FmuEnv.RUNPATH.name}"
 
@@ -65,19 +65,19 @@ def _fmu_run1_env_variables(monkeypatch, usepath="", case_only=False):
     Will here monkeypatch the ENV variables, with a particular setting for RUNPATH
     (trough `usepath`) which may vary dynamically due to pytest tmp area rotation.
     """
-    env = RUN1_ENV_FULLRUN if not case_only else RUN1_ENV_PREHOOK
+    env = ERTRUN_ENV_FULLRUN if not case_only else ERTRUN_ENV_PREHOOK
     for key, value in env.items():
         env_value = str(usepath) if "RUNPATH" in key else value
         monkeypatch.setenv(key, env_value)
         logger.debug("Setting env %s as %s", key, env_value)
 
 
-@pytest.fixture(name="fmurun", scope="function")
-def fixture_fmurun(tmp_path_factory, monkeypatch, rootpath):
+@pytest.fixture(scope="function")
+def fmurun(tmp_path_factory, monkeypatch, rootpath):
     """A tmp folder structure for testing; here a new fmurun without case metadata."""
     tmppath = tmp_path_factory.mktemp("data")
-    newpath = tmppath / RUN1
-    shutil.copytree(rootpath / RUN1, newpath)
+    newpath = tmppath / ERTRUN_REAL0_ITER0
+    shutil.copytree(rootpath / ERTRUN_REAL0_ITER0, newpath)
 
     _fmu_run1_env_variables(monkeypatch, usepath=newpath, case_only=False)
 
@@ -89,8 +89,8 @@ def fixture_fmurun(tmp_path_factory, monkeypatch, rootpath):
 def fixture_fmurun_prehook(tmp_path_factory, monkeypatch, rootpath):
     """A tmp folder structure for testing; here a new fmurun without case metadata."""
     tmppath = tmp_path_factory.mktemp("data")
-    newpath = tmppath / RUN2
-    shutil.copytree(rootpath / RUN2, newpath)
+    newpath = tmppath / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, newpath)
 
     _fmu_run1_env_variables(monkeypatch, usepath=newpath, case_only=True)
 
@@ -102,8 +102,8 @@ def fixture_fmurun_prehook(tmp_path_factory, monkeypatch, rootpath):
 def fixture_fmurun_w_casemetadata(tmp_path_factory, monkeypatch, rootpath):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
     tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / RUN2
-    shutil.copytree(rootpath / RUN2, newpath)
+    newpath = tmppath / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, newpath)
     rootpath = newpath / "realization-0/iter-0"
 
     _fmu_run1_env_variables(monkeypatch, usepath=rootpath, case_only=False)
@@ -116,8 +116,8 @@ def fixture_fmurun_w_casemetadata(tmp_path_factory, monkeypatch, rootpath):
 def fixture_fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch, rootpath):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
     tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / RUN2
-    shutil.copytree(rootpath / RUN2, newpath)
+    newpath = tmppath / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, newpath)
     rootpath = newpath / "realization-0/pred"
 
     _fmu_run1_env_variables(monkeypatch, usepath=rootpath, case_only=False)
@@ -130,8 +130,8 @@ def fixture_fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch, rootpath):
 def fixture_fmurun_pred(tmp_path_factory, rootpath):
     """Create a tmp folder structure for testing; here a new fmurun for prediction."""
     tmppath = tmp_path_factory.mktemp("data_pred")
-    newpath = tmppath / RUN_PRED
-    shutil.copytree(rootpath / RUN_PRED, newpath)
+    newpath = tmppath / ERTRUN_PRED
+    shutil.copytree(rootpath / ERTRUN_PRED, newpath)
     logger.debug("Ran %s", _current_function_name())
     return newpath
 
@@ -144,8 +144,8 @@ def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory, rootpath):
     in a FMU setup where case metadata are present
     """
     tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / RUN2
-    shutil.copytree(rootpath / RUN2, newpath)
+    newpath = tmppath / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, newpath)
     rmspath = newpath / "realization-0/iter-0/rms/model"
     rmspath.mkdir(parents=True, exist_ok=True)
     logger.debug("Active folder is %s", rmspath)
