@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g0657ced documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+ga24774b documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -994,7 +994,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set PWD (case): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set rootpath (case): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_check_already_metadata_or_create_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_establish_case_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Created rootpath (case) </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span><span class="p">)</span>
@@ -1036,23 +1036,20 @@
 <span class="sd">            A dictionary with case metadata or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_settings</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_casepath</span><span class="p">()</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_already_metadata_or_create_folder</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The metadatafile already exists!&quot;</span><span class="p">)</span>
-            <span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The metadata file already exist! Keep this file instead! &quot;</span>
-                <span class="s2">&quot;To make a new case metadata file, delete the old case or use the &quot;</span>
-                <span class="s2">&quot;&#39;force&#39; option&quot;</span><span class="p">,</span>
-                <span class="ne">UserWarning</span><span class="p">,</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_establish_case_metadata</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">):</span>
+            <span class="n">exists_warning</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;The case metadata file already exists and will not be overwritten. &quot;</span>
+                <span class="s2">&quot;To make new case metadata delete the old case or run on a different &quot;</span>
+                <span class="s2">&quot;runpath.&quot;</span>
             <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">exists_warning</span><span class="p">)</span>
+            <span class="n">warn</span><span class="p">(</span><span class="n">exists_warning</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="n">meta</span> <span class="o">=</span> <span class="n">_metadata</span><span class="o">.</span><span class="n">default_meta_dollars</span><span class="p">()</span>
         <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;case&quot;</span>
-
         <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;masterdata&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_metadata</span><span class="o">.</span><span class="n">generate_meta_masterdata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
         <span class="c1"># only asset, not ssdl</span>
@@ -1110,12 +1107,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">,</span> <span class="n">savefmt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_format</span>
             <span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;METAFILE </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The metadatafile exists already. use &#39;force&#39; or delete the &quot;</span>
-                <span class="s2">&quot;current case folder if a new metadata are requested.&quot;</span><span class="p">,</span>
-                <span class="ne">UserWarning</span><span class="p">,</span>
-            <span class="p">)</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span></div></div>
 
 
@@ -1482,7 +1473,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g0657ced).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+ga24774b).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
