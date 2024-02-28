@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+ga24774b documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gce8193e documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -886,13 +886,13 @@
 <span class="c1">#</span>
 <span class="c1"># The InitializeCase is used for making the case matadata prior to any other actions,</span>
 <span class="c1"># e.g. forward jobs. However, case metadata file may already exist, and in that case</span>
-<span class="c1"># this class should only emit a message or warning</span>
+<span class="c1"># this class should only emit a message or warning.</span>
 <span class="c1"># ######################################################################################</span>
 
 
 <div class="viewcode-block" id="InitializeCase"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">InitializeCase</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Instantate InitializeCase object.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize metadata for an FMU Case.</span>
 
 <span class="sd">    In ERT this is typically ran as an hook workflow in advance.</span>
 
@@ -902,27 +902,21 @@
 <span class="sd">            some predefined main level keys. If config is None or the env variable</span>
 <span class="sd">            FMU_GLOBAL_CONFIG pointing to a file is provided, then it will attempt to</span>
 <span class="sd">            parse that file instead.</span>
-<span class="sd">        rootfolder: To override the automatic and actual ``rootpath``. Absolute path to</span>
-<span class="sd">            the case root, including case name. If not provided (which is not</span>
-<span class="sd">            recommended), the rootpath will be attempted parsed from the file structure</span>
-<span class="sd">            or by other means.</span>
+<span class="sd">        rootfolder: Absolute path to the case root, including case name.</span>
 <span class="sd">        casename: Name of case (experiment)</span>
 <span class="sd">        caseuser: Username provided</span>
-<span class="sd">        restart_from: ID of eventual restart (deprecated)</span>
-<span class="sd">        description: Description text as string or list of strings.</span>
+<span class="sd">        description (Optional): Description text as string or list of strings.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># class variables</span>
     <span class="n">meta_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;yaml&quot;</span>
 
-    <span class="c1"># instance</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span>
-    <span class="n">rootfolder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">casename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">caseuser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">restart_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">rootfolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
+    <span class="n">casename</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">caseuser</span><span class="p">:</span> <span class="nb">str</span>
+
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DEPRECATED&quot;</span>
 
     <span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">_metafile</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -930,19 +924,9 @@
     <span class="n">_casepath</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">!=</span> <span class="s2">&quot;DEPRECATED&quot;</span><span class="p">:</span>
-            <span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Using the &#39;verbosity&#39; key is now deprecated and will have no &quot;</span>
-                <span class="s2">&quot;effect and will be removed in near future. Please remove it from the &quot;</span>
-                <span class="s2">&quot;argument list. Set logging level from client script in the standard &quot;</span>
-                <span class="s2">&quot;manner instead.&quot;</span><span class="p">,</span>
-                <span class="ne">UserWarning</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">or</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="n">cnf</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="n">cnf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">cnf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rootfolder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="o">/</span> <span class="s2">&quot;share/metadata/fmu_case.yml&quot;</span>
 
         <span class="c1"># For this class, the global config must be valid; hence error if not</span>
         <span class="k">try</span><span class="p">:</span>
@@ -952,93 +936,31 @@
             <span class="k">raise</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ran __post_init__ for InitializeCase&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_update_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update instance settings (properties) from other routines.&quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Try new settings </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newsettings</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_establish_metadata_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks if the metadata files and directories are established and creates</span>
+<span class="sd">        relevant directories and files if not.</span>
 
-        <span class="c1"># derive legal input from dataclass signature</span>
-        <span class="n">annots</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__annotations__&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">legals</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">annots</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)}</span>
-
-        <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">setting</span> <span class="o">==</span> <span class="s2">&quot;restart_from&quot;</span><span class="p">:</span>
-                <span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;The &#39;restart_from&#39; argument is deprecated and will be removed in &quot;</span>
-                    <span class="s2">&quot;a future version. Please refer to the fmu-dataio documentation &quot;</span>
-                    <span class="s2">&quot;for information on how to record information about restart &quot;</span>
-                    <span class="s2">&quot;source.&quot;</span><span class="p">,</span>
-                    <span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="n">_validate_variable</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">):</span>
-                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New setting OK for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_establish_pwd_casepath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Establish state variables pwd and casepath.</span>
-
-<span class="sd">        See ExportData&#39;s method but this is much simpler (e.g. no RMS context)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            False if fmu_case.yml exists (not established), True if it doesn&#39;t.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rootfolder</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rootfolder</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Emit UserWarning&quot;</span><span class="p">)</span>
-            <span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The rootfolder is defaulted, but it is strongly recommended to give &quot;</span>
-                <span class="s2">&quot;an explicit rootfolder&quot;</span><span class="p">,</span>
-                <span class="ne">UserWarning</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set PWD (case): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set rootpath (case): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">_establish_case_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Created rootpath (case) </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span><span class="p">)</span>
-
-        <span class="n">metadata_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="o">/</span> <span class="s2">&quot;share/metadata&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span> <span class="o">=</span> <span class="n">metadata_path</span> <span class="o">/</span> <span class="s2">&quot;fmu_case.yml&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The requested metafile is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">force</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Forcing a new metafile&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">or</span> <span class="n">force</span><span class="p">:</span>
-            <span class="n">metadata_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
     <span class="c1"># ==================================================================================</span>
     <span class="c1"># Public methods:</span>
     <span class="c1"># ==================================================================================</span>
 
-<div class="viewcode-block" id="InitializeCase.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">skip_null</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="InitializeCase.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate case metadata.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            force: Overwrite existing case metadata if True. Default is False. If force</span>
-<span class="sd">                is False and case metadata already exists, a warning will issued and</span>
-<span class="sd">                None will be returned.</span>
-<span class="sd">            skip_null: Fields with None/missing values will be skipped if True (default)</span>
-<span class="sd">            **kwargs: See InitializeCase() arguments; initial will be overrided by</span>
-<span class="sd">                settings here.</span>
-
 <span class="sd">        Returns:</span>
-<span class="sd">            A dictionary with case metadata or None</span>
+<span class="sd">            A dictionary with case metadata or an empty dictionary if the metadata</span>
+<span class="sd">            already exists.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_settings</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_casepath</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_establish_case_metadata</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_establish_metadata_files</span><span class="p">():</span>
             <span class="n">exists_warning</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="s2">&quot;The case metadata file already exists and will not be overwritten. &quot;</span>
                 <span class="s2">&quot;To make new case metadata delete the old case or run on a different &quot;</span>
@@ -1046,7 +968,7 @@
             <span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">exists_warning</span><span class="p">)</span>
             <span class="n">warn</span><span class="p">(</span><span class="n">exists_warning</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="p">{}</span>
 
         <span class="n">meta</span> <span class="o">=</span> <span class="n">_metadata</span><span class="o">.</span><span class="n">default_meta_dollars</span><span class="p">()</span>
         <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;case&quot;</span>
@@ -1069,40 +991,22 @@
         <span class="n">mcase</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">caseuser</span><span class="p">}</span>
 
         <span class="n">mcase</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_description</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
-        <span class="n">mcase</span><span class="p">[</span><span class="s2">&quot;restart_from&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart_from</span>
 
         <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;tracklog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_metadata</span><span class="o">.</span><span class="n">generate_meta_tracklog</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">skip_null</span><span class="p">:</span>
-            <span class="n">meta</span> <span class="o">=</span> <span class="n">drop_nones</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">drop_nones</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">meta</span>
+
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The case metadata are now ready!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
 
-    <span class="c1"># alias</span>
-    <span class="n">generate_case_metadata</span> <span class="o">=</span> <span class="n">generate_metadata</span>
-
-<div class="viewcode-block" id="InitializeCase.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">skip_null</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="InitializeCase.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.InitializeCase.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Export case metadata to file.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            force: Overwrite existing case metadata if True. Default is False. If force</span>
-<span class="sd">                is False and case metadata already exists, a warning will issued and</span>
-<span class="sd">                None will be returned.</span>
-<span class="sd">            skip_null: Fields with None/missing values will be skipped if True (default)</span>
-<span class="sd">            **kwargs: See InitializeCase() arguments; initial will be overrided by</span>
-<span class="sd">                settings here.</span>
-
 <span class="sd">        Returns:</span>
-<span class="sd">            Full path of metadata file or None</span>
+<span class="sd">            Full path of metadata file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_case_metadata</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">skip_null</span><span class="o">=</span><span class="n">skip_null</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">():</span>
             <span class="n">export_metadata_file</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">,</span> <span class="n">savefmt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_format</span>
             <span class="p">)</span>
@@ -1473,7 +1377,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+ga24774b).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gce8193e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
