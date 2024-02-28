@@ -95,7 +95,8 @@ import numpy as np
 import pandas as pd
 import xtgeo
 
-from ._definitions import STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
+from . import dataio, types
+from ._definitions import STANDARD_TABLE_INDEX_COLUMNS, ConfigurationError, ValidFormats
 from ._logging import null_logger
 from ._utils import generate_description, parse_timedata
 from .datastructure.export.content import AllowedContent
@@ -104,10 +105,6 @@ from .datastructure.meta import meta, specification
 logger: Final = null_logger(__name__)
 
 V = TypeVar("V")
-
-
-class ConfigurationError(ValueError):
-    pass
 
 
 class SpecificationAndBoundingBox(NamedTuple):
@@ -202,6 +199,23 @@ class DerivedNamedStratigraphy:
     top: str | None
 
 
+def derive_name(
+    export: dataio.ExportData,
+    obj: types.Inferrable,
+) -> str:
+    """
+    Derives and returns a name for an export operation based on the
+    provided ExportData instance and a 'sniffable' object.
+    """
+    if name := export.name:
+        return name
+
+    if isinstance(name := getattr(obj, "name", ""), str):
+        return name
+
+    return ""
+
+
 @dataclass
 class ObjectDataProvider:
     """Class for providing metadata for data objects in fmu-dataio, e.g. a surface.
@@ -244,13 +258,7 @@ class ObjectDataProvider:
         `stratigraphy`. For example, if "TopValysar" is the model name and the actual
         name is "Valysar Top Fm." that latter name will be used.
         """
-        name = self.dataio.name
-
-        if not name:
-            try:
-                name = self.obj.name
-            except AttributeError:
-                name = ""
+        name = derive_name(self.dataio, self.obj)
 
         # next check if usename has a "truename" and/or aliases from the config
         strat = self.dataio.config.get("stratigraphy")  # shortform

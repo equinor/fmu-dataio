@@ -16,7 +16,7 @@ from warnings import warn
 import pandas as pd
 from pydantic import ValidationError as PydanticValidationError
 
-from . import _metadata
+from . import _metadata, types
 from ._definitions import (
     FmuContext,
     ValidationError,
@@ -628,7 +628,7 @@ class ExportData:
         logger.info("pwd:        %s", str(self._pwd))
         logger.info("rootpath:   %s", str(self._rootpath))
 
-    def _check_obj_if_file(self, obj: Any) -> Any:
+    def _check_obj_if_file(self, obj: types.Inferrable) -> types.Inferrable:
         """When obj is file-like, it must be checked + assume preprocessed.
 
         In addition, if preprocessed, derive the name, tagname, subfolder if present and
@@ -667,7 +667,10 @@ class ExportData:
     # ==================================================================================
 
     def generate_metadata(
-        self, obj: object, compute_md5: bool = True, **kwargs: object
+        self,
+        obj: types.Inferrable,
+        compute_md5: bool = True,
+        **kwargs: object,
     ) -> dict:
         """Generate and return the complete metadata for a provided object.
 
@@ -721,7 +724,7 @@ class ExportData:
 
     def export(
         self,
-        obj: object,
+        obj: types.Inferrable,
         return_symlink: bool = False,
         **kwargs: Any,
     ) -> str:
@@ -1109,7 +1112,7 @@ class AggregatedData:
 
     def _generate_aggrd_metadata(
         self,
-        obj: object,
+        obj: types.Inferrable,
         real_ids: list[int],
         uuids: list[str],
         compute_md5: bool = True,
@@ -1181,7 +1184,7 @@ class AggregatedData:
 
     def generate_metadata(
         self,
-        obj: object,
+        obj: types.Inferrable,
         compute_md5: bool = True,
         skip_null: bool = True,
         **kwargs: object,
@@ -1230,7 +1233,7 @@ class AggregatedData:
     # alias method
     def generate_aggregation_metadata(
         self,
-        obj: object,
+        obj: types.Inferrable,
         compute_md5: bool = True,
         skip_null: bool = True,
         **kwargs: object,
@@ -1240,7 +1243,7 @@ class AggregatedData:
             obj, compute_md5=compute_md5, skip_null=skip_null, **kwargs
         )
 
-    def export(self, obj: object, **kwargs: object) -> str:
+    def export(self, obj: types.Inferrable, **kwargs: object) -> str:
         """Export aggregated file with metadata to file.
 
         Args:
