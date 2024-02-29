@@ -52,6 +52,8 @@ dev = [
     "ert",
     "hypothesis",
     "mypy",
+    "pandas-stubs",
+    "pyarrow-stubs",
     "pydocstyle",
     "pytest-cov",
     "pytest-mock",

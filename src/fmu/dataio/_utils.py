@@ -102,13 +102,13 @@ def export_metadata_file(
 
 
 def export_file(
-    obj: object,
+    obj: types.Inferrable,
     filename: Path,
     flag: str | None = None,
 ) -> str:
     """Export a valid object to file"""
 
-    if isinstance(obj, Path):
+    if isinstance(obj, (Path, str)):
         # special case when processing data which already has metadata
         shutil.copy(obj, filename)
     elif filename.suffix == ".gri" and isinstance(obj, xtgeo.RegularSurface):
@@ -135,8 +135,7 @@ def export_file(
     ):
         obj.to_file(filename, fformat="roff")
     elif filename.suffix == ".csv" and isinstance(obj, pd.DataFrame):
-        includeindex = flag == "include_index"
-        obj.to_csv(filename, index=includeindex)
+        obj.to_csv(filename, index=flag == "include_index")
     elif filename.suffix == ".arrow":
         from pyarrow import Table
 
@@ -149,7 +148,10 @@ def export_file(
             # pa.ipc.IpcWriteOptions(). It is convenient to use feather since it
             # has ready configured defaults and the actual file format is the same
             # (https://arrow.apache.org/docs/python/feather.html)
-            feather.write_feather(obj, dest=filename)
+
+            # Types in pyarrow-stubs package are wrong for the write_feather(...).
+            # https://arrow.apache.org/docs/python/generated/pyarrow.feather.write_feather.html#pyarrow.feather.write_feather
+            feather.write_feather(obj, dest=str(filename))  # type: ignore
     elif filename.suffix == ".json":
         with open(filename, "w") as stream:
             json.dump(obj, stream)
@@ -169,7 +171,7 @@ def md5sum(fname: Path) -> str:
 
 
 def export_file_compute_checksum_md5(
-    obj: object,
+    obj: types.Inferrable,
     filename: Path,
     flag: str | None = None,
 ) -> str:

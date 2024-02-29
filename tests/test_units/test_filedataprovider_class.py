@@ -3,8 +3,14 @@ import os
 from pathlib import Path
 
 import pytest
+from fmu.dataio import ExportData
 from fmu.dataio._filedata_provider import FileDataProvider
-from fmu.dataio._objectdata_provider import ObjectDataProvider
+from fmu.dataio._objectdata_provider import (
+    ObjectDataProvider,
+    derive_name,
+)
+from xtgeo.cube import Cube
+from xtgeo.surface import RegularSurface
 
 
 @pytest.mark.parametrize(
@@ -247,3 +253,58 @@ def test_filedata_has_nonascii_letters(regsurf, edataobj1, tmp_path):
     fdata = FileDataProvider(cfg, objdata)
     with pytest.raises(UnicodeEncodeError, match=r"codec can't encode character"):
         fdata.derive_filedata()
+
+
+@pytest.mark.parametrize(
+    "exportdata, obj, expected_name",
+    (
+        (
+            ExportData(),
+            Cube(
+                ncol=1,
+                nrow=1,
+                nlay=1,
+                xinc=25.0,
+                yinc=25.0,
+                zinc=2.0,
+            ),
+            "",
+        ),
+        (
+            ExportData(name="NamedExportData"),
+            Cube(
+                ncol=1,
+                nrow=1,
+                nlay=1,
+                xinc=25.0,
+                yinc=25.0,
+                zinc=2.0,
+            ),
+            "NamedExportData",
+        ),
+        (
+            ExportData(),
+            RegularSurface(
+                name="NamedRegularSurface",
+                ncol=25,
+                nrow=25,
+                xinc=1,
+                yinc=1,
+            ),
+            "NamedRegularSurface",
+        ),
+        (
+            ExportData(name="NamedExportData"),
+            RegularSurface(
+                name="NamedRegularSurface",
+                ncol=25,
+                nrow=25,
+                xinc=1,
+                yinc=1,
+            ),
+            "NamedExportData",
+        ),
+    ),
+)
+def test_derive_name(exportdata, obj, expected_name) -> None:
+    assert derive_name(exportdata, obj) == expected_name
