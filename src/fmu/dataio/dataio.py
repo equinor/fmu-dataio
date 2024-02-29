@@ -446,7 +446,7 @@ class ExportData:
     table_index: Optional[list] = None
 
     # some keys that are modified version of input, prepended with _use
-    _usecontent: dict = field(default_factory=dict, init=False)
+    _usecontent: dict | str = field(default="unset", init=False)
     _usefmtflag: str = field(default="", init=False)
 
     # storing resulting state variables for instance, non-public:
