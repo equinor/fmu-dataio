@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 0.1.dev1+gce8193e documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 0.1.dev1+g6ea6b19 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
@@ -546,17 +546,14 @@ also be a reference to a file with existing metadata which then will be re-used.
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – XTGeo instance, a Pandas Dataframe instance or other supported object.</p></li>
-<li><p><strong>compute_md5</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, compute a MD5 checksum for the exported file.</p></li>
-<li><p><strong>**kwargs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – For other arguments, see ExportData() input keys. If they
+<li><p><strong>obj</strong> – XTGeo instance, a Pandas Dataframe instance or other supported object.</p></li>
+<li><p><strong>compute_md5</strong> – If True, compute a MD5 checksum for the exported file.</p></li>
+<li><p><strong>**kwargs</strong> – For other arguments, see ExportData() input keys. If they
 exist both places, this function will override!</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A dictionary with all metadata.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary with all metadata.</p>
 </dd>
 </dl>
 <div class="admonition note">
@@ -581,11 +578,11 @@ data, but with a . in front and “yml” and suffix, e.g.:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – XTGeo instance, a Pandas Dataframe instance or other supported object.</p></li>
-<li><p><strong>return_symlink</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If fmu_context is ‘case_symlink_realization’ then the link
+<li><p><strong>obj</strong> – XTGeo instance, a Pandas Dataframe instance or other supported object.</p></li>
+<li><p><strong>return_symlink</strong> – If fmu_context is ‘case_symlink_realization’ then the link
 adress will be returned if this is True; otherwise the physical file
 path will be returned.</p></li>
-<li><p><strong>**kwargs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – For other arguments, see ExportData() input keys. If they
+<li><p><strong>**kwargs</strong> – For other arguments, see ExportData() input keys. If they
 exist both places, this function will override!</p></li>
 </ul>
 </dd>
@@ -754,17 +751,14 @@ the metadata for the first element in the input list is used as template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – The map, 3D grid, table, etc instance.</p></li>
-<li><p><strong>compute_md5</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, an md5 sum for the file will be created. This involves
+<li><p><strong>obj</strong> – The map, 3D grid, table, etc instance.</p></li>
+<li><p><strong>compute_md5</strong> – If True, an md5 sum for the file will be created. This involves
 a temporary export of the data, and may be time consuming for large
 data.</p></li>
-<li><p><strong>skip_null</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True (default), None values in putput will be skipped</p></li>
-<li><p><strong>**kwargs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – See AggregatedData() arguments; initial will be overridden by
+<li><p><strong>skip_null</strong> – If True (default), None values in putput will be skipped</p></li>
+<li><p><strong>**kwargs</strong> – See AggregatedData() arguments; initial will be overridden by
 settings here.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -773,11 +767,6 @@ settings here.</p></li>
 <dt class="sig sig-object py" id="dataio.dataio.AggregatedData.generate_aggregation_metadata">
 <span class="sig-name descname"><span class="pre">generate_aggregation_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_null</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#AggregatedData.generate_aggregation_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.AggregatedData.generate_aggregation_metadata" title="Permalink to this definition"></a></dt>
 <dd><p>Alias method name, see <code class="docutils literal notranslate"><span class="pre">generate_metadata</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -787,8 +776,8 @@ settings here.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – Aggregated object to export, e.g. a XTGeo RegularSurface</p></li>
-<li><p><strong>**kwargs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – See AggregatedData() arguments; initial will be overridden by
+<li><p><strong>obj</strong> – Aggregated object to export, e.g. a XTGeo RegularSurface</p></li>
+<li><p><strong>**kwargs</strong> – See AggregatedData() arguments; initial will be overridden by
 settings here.</p></li>
 </ul>
 </dd>
@@ -816,7 +805,7 @@ settings here.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gce8193e).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g6ea6b19).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

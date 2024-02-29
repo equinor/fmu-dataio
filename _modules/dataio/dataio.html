@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gce8193e documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g6ea6b19 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -106,7 +106,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">PydanticValidationError</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_metadata</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_metadata</span><span class="p">,</span> <span class="n">types</span>
 <span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">FmuContext</span><span class="p">,</span>
     <span class="n">ValidationError</span><span class="p">,</span>
@@ -718,7 +718,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;pwd:        </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rootpath:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_check_obj_if_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_check_obj_if_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;When obj is file-like, it must be checked + assume preprocessed.</span>
 
 <span class="sd">        In addition, if preprocessed, derive the name, tagname, subfolder if present and</span>
@@ -757,7 +757,10 @@
     <span class="c1"># ==================================================================================</span>
 
 <div class="viewcode-block" id="ExportData.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ExportData.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">,</span>
+        <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate and return the complete metadata for a provided object.</span>
 
@@ -811,7 +814,7 @@
 
 <div class="viewcode-block" id="ExportData.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.ExportData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">,</span>
         <span class="n">return_symlink</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1199,7 +1202,7 @@
 
     <span class="k">def</span> <span class="nf">_generate_aggrd_metadata</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">,</span>
         <span class="n">real_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">uuids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1271,7 +1274,7 @@
 
 <div class="viewcode-block" id="AggregatedData.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">,</span>
         <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">skip_null</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
@@ -1320,7 +1323,7 @@
     <span class="c1"># alias method</span>
 <div class="viewcode-block" id="AggregatedData.generate_aggregation_metadata"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.generate_aggregation_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_aggregation_metadata</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">,</span>
         <span class="n">compute_md5</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">skip_null</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
@@ -1330,7 +1333,7 @@
             <span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span><span class="p">,</span> <span class="n">skip_null</span><span class="o">=</span><span class="n">skip_null</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="AggregatedData.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="AggregatedData.export"><a class="viewcode-back" href="../../apiref/dataio.dataio.html#dataio.dataio.AggregatedData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Export aggregated file with metadata to file.</span>
 
 <span class="sd">        Args:</span>
@@ -1377,7 +1380,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gce8193e).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g6ea6b19).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
