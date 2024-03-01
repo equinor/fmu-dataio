@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The FMU results data model &mdash; fmu.dataio 0.1.dev1+gc98605f documentation</title>
+  <title>The FMU results data model &mdash; fmu.dataio 0.1.dev1+g85a49e4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -89,6 +89,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#validation-of-data">Validation of data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#changes-and-revisions">Changes and revisions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#contractual-attributes">Contractual attributes</a></li>
 </ul>
@@ -2150,6 +2151,20 @@ data lineage goes far beyond this, and this should not be read as the full linea
 </section>
 </section>
 </section>
+<section id="validation-of-data">
+<h2>Validation of data<a class="headerlink" href="#validation-of-data" title="Permalink to this heading"></a></h2>
+<p>When fmu-dataio exports data from FMU workflows, it produces a pair of data + metadata. The two are
+considered one entity. Data consumers who wish to validate the correct match of data and metadata can
+do so by verifying recreation of <code class="docutils literal notranslate"><span class="pre">file.checksum_md5</span></code> on the data object only. Metadata is not considered
+when generating the checksum.</p>
+<p>This checksum is the string representation of the hash created using RSA’s <code class="docutils literal notranslate"><span class="pre">MD5</span></code> algorithm. This hash
+was created from the _file_ that fmu-dataio exported. In most cases, this is the same file that are
+provided to consumer. However, there are some exceptions:</p>
+<ul class="simple">
+<li><p>Seismic data may be transformed to other formats when stored out of FMU context and the checksum may</p></li>
+</ul>
+<p>be invalid.</p>
+</section>
 <section id="changes-and-revisions">
 <h2>Changes and revisions<a class="headerlink" href="#changes-and-revisions" title="Permalink to this heading"></a></h2>
 <p>The only constant is change, as we know, and in the case of the FMU results data model - definitely so.
@@ -2432,7 +2447,7 @@ We don’t yet know <em>exactly</em> how this will be done in practice, but perh
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gc98605f).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g85a49e4).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
