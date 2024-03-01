@@ -1,4 +1,5 @@
 """Test the _MetaData class from the _metadata.py module"""
+
 import os
 from pathlib import Path
 

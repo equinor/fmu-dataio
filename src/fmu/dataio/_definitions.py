@@ -1,4 +1,5 @@
 """Various definitions and hard settings used in fmu-dataio."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

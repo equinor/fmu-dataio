@@ -3,6 +3,7 @@
 Populate and verify stuff in the 'file' block in fmu (partial excpetion is checksum_md5
 as this is convinient to populate later, on demand)
 """
+
 from __future__ import annotations
 
 from copy import deepcopy

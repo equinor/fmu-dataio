@@ -1,4 +1,5 @@
 """The conftest.py, providing magical fixtures to tests."""
+
 import inspect
 import json
 import logging

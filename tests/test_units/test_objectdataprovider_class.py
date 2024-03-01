@@ -1,4 +1,5 @@
 """Test the _ObjectData class from the _objectdata.py module"""
+
 import pytest
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._objectdata_provider import ConfigurationError, ObjectDataProvider

@@ -83,6 +83,7 @@ data:
         - Depth surfaces extracted from the structural model
 
 """
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field

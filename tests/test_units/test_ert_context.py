@@ -2,6 +2,7 @@
 
 In this case a user sits in ERT. Hence the rootpath will be ./
 """
+
 from __future__ import annotations
 
 import logging

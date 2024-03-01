@@ -5,6 +5,7 @@ RMS (to demostrate how volume tables can be fetched via Roxar API).
 
 For the file case, CSV files are read from disk. The dataio function is the same.
 """
+
 import logging
 import pathlib
 

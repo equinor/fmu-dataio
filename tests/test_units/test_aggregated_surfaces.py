@@ -1,4 +1,5 @@
 """Test the dataio running with aggregated surface."""
+
 import logging
 import os
 

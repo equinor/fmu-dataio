@@ -1,4 +1,5 @@
 """Test dictionary functionality"""
+
 import json
 import os
 from pathlib import Path

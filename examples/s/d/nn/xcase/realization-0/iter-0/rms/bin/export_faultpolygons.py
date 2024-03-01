@@ -1,4 +1,5 @@
 """Export faultpolygons via dataio with metadata."""
+
 import logging
 from pathlib import Path
 

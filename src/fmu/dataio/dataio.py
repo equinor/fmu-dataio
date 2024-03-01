@@ -2,6 +2,7 @@
 
 The metadata spec is documented as a JSON schema, stored under schema/.
 """
+
 from __future__ import annotations
 
 import os
