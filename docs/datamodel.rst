@@ -599,7 +599,20 @@ The tracklog is a list of *tracklog_events* with the following definition:
   The "tracklog" concept is included but considered heavily experimental for now. The concept of
   data lineage goes far beyond this, and this should not be read as the full lineage of these data.
 
+Validation of data
+==================
 
+When fmu-dataio exports data from FMU workflows, it produces a pair of data + metadata. The two are
+considered one entity. Data consumers who wish to validate the correct match of data and metadata can
+do so by verifying recreation of ``file.checksum_md5`` on the data object only. Metadata is not considered
+when generating the checksum.
+
+This checksum is the string representation of the hash created using RSA's ``MD5`` algorithm. This hash
+was created from the _file_ that fmu-dataio exported. In most cases, this is the same file that are
+provided to consumer. However, there are some exceptions:
+
+- Seismic data may be transformed to other formats when stored out of FMU context and the checksum may
+be invalid.
 
 Changes and revisions
 =====================
