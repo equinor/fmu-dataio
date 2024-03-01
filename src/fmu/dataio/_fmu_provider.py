@@ -25,6 +25,7 @@ _ERT_REALIZATION_NUMBER:   0
 _ERT_RUNPATH:   /scratch/fmu/jriv/01_drogon_ahm/realization-0/iter-0/
 
 """
+
 from __future__ import annotations
 
 import json

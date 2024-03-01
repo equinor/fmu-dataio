@@ -4,6 +4,7 @@ I.e. what we do is actually add metadata and store in the right place
 
 The input maps is poro_average.grid
 """
+
 import logging
 from pathlib import Path
 

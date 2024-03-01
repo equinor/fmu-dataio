@@ -1,5 +1,5 @@
-"""Tests for table index
-"""
+"""Tests for table index"""
+
 from pathlib import Path
 
 import pytest

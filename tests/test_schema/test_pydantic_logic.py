@@ -1,4 +1,5 @@
 """Test the schema"""
+
 import logging
 from copy import deepcopy
 

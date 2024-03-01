@@ -3,6 +3,7 @@
 In this case a user sits in RMS, which is in folder rms/model and runs
 interactive. Hence the basepath will be ../../
 """
+
 import logging
 from copy import deepcopy
 from pathlib import Path

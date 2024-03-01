@@ -1,4 +1,5 @@
 """Test the FmuProvider class applied the _metadata.py module"""
+
 import logging
 import os
 from pathlib import Path

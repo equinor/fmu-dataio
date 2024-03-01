@@ -3,6 +3,7 @@
 In this case a user sits in RMS, which is in folder rms/model and runs
 interactive or from ERT. Hence the rootpath will be ../../
 """
+
 import logging
 import os
 

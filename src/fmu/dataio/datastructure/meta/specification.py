@@ -103,8 +103,7 @@ class CPGridSpecification(RowColumnLayer):
     )
 
 
-class CPGridPropertySpecification(RowColumnLayer):
-    ...
+class CPGridPropertySpecification(RowColumnLayer): ...
 
 
 class PolygonsSpecification(BaseModel):
@@ -162,8 +161,7 @@ class CubeSpecification(SurfaceSpecification):
     )
 
 
-class WellPointsDictionaryCaseSpecification(BaseModel):
-    ...
+class WellPointsDictionaryCaseSpecification(BaseModel): ...
 
 
 AnySpecification = Union[

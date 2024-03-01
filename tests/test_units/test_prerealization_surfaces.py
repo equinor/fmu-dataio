@@ -9,6 +9,7 @@ folder and classification, but there are various ways to to this:
 These objects are normally made as hook workflows before ERT has ran any forward jobs
 and are typically used to compare results.
 """
+
 import logging
 import os
 from pathlib import Path

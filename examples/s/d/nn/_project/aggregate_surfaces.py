@@ -1,4 +1,5 @@
 """Use fmu-dataio for aggregated surfaces created by an aggregation service."""
+
 from __future__ import annotations
 
 from pathlib import Path
