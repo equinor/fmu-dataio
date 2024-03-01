@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Final
+from typing import Final
 from warnings import warn
 
 from fmu import dataio
@@ -30,6 +30,7 @@ from fmu.dataio._utils import (
 )
 from fmu.dataio.datastructure.meta import meta
 
+from . import types
 from ._definitions import FmuContext
 from ._logging import null_logger
 
@@ -220,13 +221,13 @@ class MetaData:
     """
 
     # input variables
-    obj: Any
-    dataio: Any
+    obj: types.Inferrable
+    dataio: dataio.ExportData
     compute_md5: bool = True
 
     # storage state variables
-    objdata: Any = field(default=None, init=False)
-    fmudata: Any = field(default=None, init=False)
+    objdata: ObjectDataProvider | None = field(default=None, init=False)
+    fmudata: FmuProvider | None = field(default=None, init=False)
     iter_name: str = field(default="", init=False)
     real_name: str = field(default="", init=False)
 
@@ -281,8 +282,8 @@ class MetaData:
         """
         fmudata = FmuProvider(
             model=self.dataio.config.get("model", None),
-            fmu_context=self.dataio.fmu_context,
-            casepath_proposed=self.dataio.casepath,
+            fmu_context=FmuContext.get(self.dataio.fmu_context),
+            casepath_proposed=self.dataio.casepath or "",
             include_ertjobs=self.dataio.include_ertjobs,
             forced_realization=self.dataio.realization,
             workflow=self.dataio.workflow,
@@ -328,6 +329,8 @@ class MetaData:
         - absolute_path_symlink, as above but full path
         """
 
+        assert self.objdata is not None
+
         fdata = FileDataProvider(
             self.dataio,
             self.objdata,
@@ -362,6 +365,7 @@ class MetaData:
 
     def _populate_meta_class(self) -> None:
         """Get the general class which is a simple string."""
+        assert self.objdata is not None
         self.meta_class = self.objdata.classname
 
     def _populate_meta_tracklog(self) -> None:
@@ -395,6 +399,7 @@ class MetaData:
         if self.dataio.display_name is not None:
             display_name = self.dataio.display_name
         else:
+            assert self.objdata is not None
             display_name = self.objdata.name
 
         self.meta_display = {"name": display_name}

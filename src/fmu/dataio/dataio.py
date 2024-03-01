@@ -426,7 +426,9 @@ class ExportData:
     depth_reference: str = "msl"
     description: Union[str, list] = ""
     display_name: Optional[str] = None
-    fmu_context: Union[FmuContext, str] = "realization"
+    fmu_context: Union[FmuContext, str] = (
+        FmuContext.REALIZATION
+    )  # post init converts to FmuContext
     forcefolder: str = ""
     grid_model: Optional[str] = None
     is_observation: bool = False
@@ -447,7 +449,7 @@ class ExportData:
     table_index: Optional[list] = None
 
     # some keys that are modified version of input, prepended with _use
-    _usecontent: dict = field(default_factory=dict, init=False)
+    _usecontent: dict | str = field(default_factory=dict, init=False)
     _usefmtflag: str = field(default="", init=False)
 
     # storing resulting state variables for instance, non-public:
