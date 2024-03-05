@@ -1,4 +1,5 @@
 import getpass
+import importlib
 import os
 import sys
 
@@ -76,6 +77,10 @@ def test_create_case_metadata_warns_without_overwriting(
 @pytest.mark.skipif(
     sys.version_info[:2] == (3, 12),
     reason="fmu-sumo-uploader not compatible with Python 3.12",
+)
+@pytest.mark.skipif(
+    not importlib.util.find_spec("fmu.sumo"),
+    reason="fmu-sumo-uploader is not installed",
 )
 def test_create_case_metadata_enable_mocked_sumo(
     fmu_snakeoil_project, monkeypatch, mocker, mock_sumo_uploader
