@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import ChainMap
-from pathlib import Path
+from pathlib import PosixPath
 from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
@@ -47,12 +47,12 @@ class File(BaseModel):
     Block describing the file as the data appear in FMU context
     """
 
-    absolute_path: Optional[Path] = Field(
+    absolute_path: Optional[PosixPath] = Field(
         default=None,
         description="The absolute file path",
         examples=["/abs/path/share/results/maps/volantis_gp_base--depth.gri"],
     )
-    relative_path: Path = Field(
+    relative_path: PosixPath = Field(
         description="The file path relative to RUNPATH",
         examples=["share/results/maps/volantis_gp_base--depth.gri"],
     )
@@ -156,10 +156,10 @@ class FMUModel(BaseModel):
 
 class RealizationJobListing(BaseModel):
     arg_types: List[str]
-    argList: List[Path]
-    error_file: Optional[Path]
-    executable: Path
-    license_path: Optional[Path]
+    argList: List[PosixPath]
+    error_file: Optional[PosixPath]
+    executable: PosixPath
+    license_path: Optional[PosixPath]
     max_arg: int
     max_running_minutes: Optional[int]
     max_running: Optional[int]
@@ -169,11 +169,11 @@ class RealizationJobListing(BaseModel):
     stderr: Optional[str]
     stdin: Optional[str]
     stdout: Optional[str]
-    target_file: Optional[Path]
+    target_file: Optional[PosixPath]
 
 
 class RealizationJobs(BaseModel):
-    data_root: Path = Field(alias="DATA_ROOT")
+    data_root: PosixPath = Field(alias="DATA_ROOT")
     ert_pid: str
     global_environment: Dict[str, str]
     global_update_path: Dict
