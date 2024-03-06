@@ -142,7 +142,7 @@ def export_file(
 
         if isinstance(obj, Table):
             from pyarrow import parquet
-            
+
             parquet.write_table(obj, where=str(filename))
     elif filename.suffix == ".json":
         with open(filename, "w") as stream:
