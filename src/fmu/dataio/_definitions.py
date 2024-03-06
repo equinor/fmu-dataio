@@ -43,7 +43,7 @@ class ValidFormats:
         default_factory=lambda: {
             "hdf": ".hdf",
             "csv": ".csv",
-            "arrow": ".arrow",
+            "arrow": ".parquet"
         }
     )
     polygons: dict[str, str] = field(

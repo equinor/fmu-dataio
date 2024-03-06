@@ -137,22 +137,13 @@ def export_file(
         obj.to_file(filename, fformat="roff")
     elif filename.suffix == ".csv" and isinstance(obj, pd.DataFrame):
         obj.to_csv(filename, index=flag == "include_index")
-    elif filename.suffix == ".arrow":
+    elif filename.suffix == ".parquet":
         from pyarrow import Table
 
         if isinstance(obj, Table):
-            from pyarrow import feather
-
-            # comment taken from equinor/webviz_subsurface/smry2arrow.py
-            # Writing here is done through the feather import, but could also be
-            # done using pa.RecordBatchFileWriter.write_table() with a few
-            # pa.ipc.IpcWriteOptions(). It is convenient to use feather since it
-            # has ready configured defaults and the actual file format is the same
-            # (https://arrow.apache.org/docs/python/feather.html)
-
-            # Types in pyarrow-stubs package are wrong for the write_feather(...).
-            # https://arrow.apache.org/docs/python/generated/pyarrow.feather.write_feather.html#pyarrow.feather.write_feather
-            feather.write_feather(obj, dest=str(filename))  # type: ignore
+            from pyarrow import parquet
+            
+            parquet.write_table(obj, where=str(filename))
     elif filename.suffix == ".json":
         with open(filename, "w") as stream:
             json.dump(obj, stream)
