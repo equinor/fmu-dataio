@@ -25,7 +25,7 @@ from ._definitions import (
 from ._logging import null_logger
 from ._utils import (
     create_symlink,
-    detect_inside_rms,  # dataio_examples,
+    detect_inside_rms,
     drop_nones,
     export_file_compute_checksum_md5,
     export_metadata_file,
@@ -38,10 +38,6 @@ from ._utils import (
 )
 from .datastructure.configuration import global_configuration
 from .datastructure.export.content import AllowedContent
-
-# DATAIO_EXAMPLES: Final = dataio_examples()
-INSIDE_RMS: Final = detect_inside_rms()
-
 
 GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
 SETTINGS_ENVNAME: Final = "FMU_DATAIO_CONFIG"  # input settings from a spesific file!
@@ -603,7 +599,7 @@ class ExportData:
         logger.info(
             "Establish pwd and actual casepath, inside RMS flag is %s (actual: %s))",
             ExportData._inside_rms,
-            INSIDE_RMS,
+            detect_inside_rms(),
         )
         self._pwd = Path().absolute()
 
@@ -617,11 +613,11 @@ class ExportData:
             logger.info("The casepath is hard set as %s", self._rootpath)
 
         else:
-            if ExportData._inside_rms or INSIDE_RMS:
+            if (inside_rms := detect_inside_rms()) or ExportData._inside_rms:
                 logger.info(
                     "Run from inside RMS: ExportData._inside_rms=%s, INSIDE_RMS=%s",
                     ExportData._inside_rms,
-                    INSIDE_RMS,
+                    inside_rms,
                 )
                 self._rootpath = (self._pwd / "../../.").absolute().resolve()
                 ExportData._inside_rms = True
