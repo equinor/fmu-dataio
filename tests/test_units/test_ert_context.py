@@ -441,7 +441,7 @@ def test_pyarrow_export_file_set_name(
         assert str(output) == str(
             (
                 edata._rootpath
-                / "realization-0/iter-0/share/results/tables/myarrowtable.arrow"
+                / "realization-0/iter-0/share/results/tables/myarrowtable.parquet"
             ).resolve()
         )
 

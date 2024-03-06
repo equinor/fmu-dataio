@@ -40,11 +40,7 @@ class ValidFormats:
         }
     )
     table: dict[str, str] = field(
-        default_factory=lambda: {
-            "hdf": ".hdf",
-            "csv": ".csv",
-            "arrow": ".parquet"
-        }
+        default_factory=lambda: {"hdf": ".hdf", "csv": ".csv", "parquet": ".parquet"}
     )
     polygons: dict[str, str] = field(
         default_factory=lambda: {
