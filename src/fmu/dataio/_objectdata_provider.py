@@ -147,15 +147,18 @@ class DerivedObjectDescriptor:
         "table",
         "dictionary",
     ]
-    efolder: Literal[
-        "maps",
-        "polygons",
-        "points",
-        "cubes",
-        "grids",
-        "tables",
-        "dictionaries",
-    ]
+    efolder: (
+        Literal[
+            "maps",
+            "polygons",
+            "points",
+            "cubes",
+            "grids",
+            "tables",
+            "dictionaries",
+        ]
+        | str
+    )
     fmt: str
     extension: str
     spec: Dict[str, Any]
@@ -230,8 +233,8 @@ class ObjectDataProvider:
     """
 
     # input fields
-    obj: Any
-    dataio: Any
+    obj: types.Inferrable
+    dataio: dataio.ExportData
     meta_existing: dict = field(default_factory=dict)
 
     # result properties; the most important is metadata which IS the 'data' part in
@@ -262,7 +265,7 @@ class ObjectDataProvider:
         name = derive_name(self.dataio, self.obj)
 
         # next check if usename has a "truename" and/or aliases from the config
-        strat = self.dataio.config.get("stratigraphy")  # shortform
+        strat = self.dataio.config.get("stratigraphy", {})
         no_start_or_missing_name = strat is None or name not in strat
 
         rv = DerivedNamedStratigraphy(
@@ -658,11 +661,11 @@ class ObjectDataProvider:
     ) -> SpecificationAndBoundingBox:
         """Process/collect the data items for DataFrame."""
         logger.info("Process data metadata for DataFrame (tables)")
-        df: pd.DataFrame = self.obj
+        assert isinstance(self.obj, pd.DataFrame)
         return SpecificationAndBoundingBox(
             spec=specification.TableSpecification(
-                columns=list(df.columns),
-                size=int(df.size),
+                columns=list(self.obj.columns),
+                size=int(self.obj.size),
             ).model_dump(
                 mode="json",
                 exclude_none=True,
@@ -675,11 +678,13 @@ class ObjectDataProvider:
     ) -> SpecificationAndBoundingBox:
         """Process/collect the data items for Arrow table."""
         logger.info("Process data metadata for arrow (tables)")
-        table = self.obj
+        from pyarrow import Table
+
+        assert isinstance(self.obj, Table)
         return SpecificationAndBoundingBox(
             spec=specification.TableSpecification(
-                columns=list(table.column_names),
-                size=table.num_columns * table.num_rows,
+                columns=list(self.obj.column_names),
+                size=self.obj.num_columns * self.obj.num_rows,
             ).model_dump(
                 mode="json",
                 exclude_none=True,
@@ -699,6 +704,9 @@ class ObjectDataProvider:
             columns = list(self.obj.columns)
         else:
             logger.debug("arrow")
+            from pyarrow import Table
+
+            assert isinstance(self.obj, Table)
             columns = self.obj.column_names
         logger.debug("Available columns in table %s ", columns)
         return columns
@@ -813,7 +821,7 @@ class ObjectDataProvider:
         # TODO: Clean up types below.
         self.time0, self.time1 = parse_timedata(self.meta_existing["data"])  # type: ignore
 
-    def _process_content(self) -> tuple[str, dict | None]:
+    def _process_content(self) -> tuple[str | dict, dict | None]:
         """Work with the `content` metadata"""
 
         # content == "unset" is not wanted, but in case metadata has been produced while
