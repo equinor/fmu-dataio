@@ -10,9 +10,14 @@ from __future__ import annotations
 
 import warnings
 from textwrap import dedent
-from typing import Optional, Union
+from typing import List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, model_validator
+from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
+from fmu.dataio.datastructure.configuration.global_configuration import (
+    Model as GlobalConfigurationModel,
+)
+from fmu.dataio.datastructure.meta.meta import Access, Masterdata, TracklogEvent, User
+from pydantic import AnyHttpUrl, BaseModel, Field, model_validator
 
 
 def seismic_warn() -> None:
@@ -135,3 +140,29 @@ class AllowedContent(BaseModel):
         if isinstance(self.seismic, str):
             seismic_warn()
         return self
+
+
+class JsonSchemaMetadata(BaseModel, populate_by_name=True):
+    schema_: AnyHttpUrl = Field(alias="$schema", default=SCHEMA)
+    version: str = Field(default=VERSION)
+    source: str = Field(default=SOURCE)
+
+
+class CaseMetadata(BaseModel):
+    name: str
+    uuid: str
+    user: User
+
+
+class FMUModel(BaseModel):
+    model: GlobalConfigurationModel
+    case: CaseMetadata
+
+
+class CaseSchema(JsonSchemaMetadata):
+    class_: Literal["case"] = Field(alias="class", default="case")
+    masterdata: Masterdata
+    access: Access
+    fmu: FMUModel
+    description: Optional[List[str]]
+    tracklog: List[TracklogEvent]
