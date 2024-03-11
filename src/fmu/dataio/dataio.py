@@ -36,8 +36,8 @@ from ._utils import (
     some_config_from_env,
     uuid_from_string,
 )
+from .datastructure._internal.content import AllowedContent
 from .datastructure.configuration import global_configuration
-from .datastructure.export.content import AllowedContent
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
