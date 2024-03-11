@@ -470,6 +470,23 @@ class Root(
 
 
 def dump() -> Dict:
+    # ruff: noqa: E501
+    """
+    Dumps the export root model to JSON format for schema validation and
+    usage in FMU data structures.
+
+    To update the schema:
+        1. Run the following CLI command to dump the updated schema:
+            `python3 -m fmu.dataio.datastructure.meta > schema/definitions/0.8.0/schema/fmu_meta.json`
+        2. Check the diff for changes. Adding fields usually indicates non-breaking
+            changes and is generally safe. However, if fields are removed, it could
+            indicate breaking changes that may affect dependent systems. Perform a
+            quality control (QC) check to ensure these changes do not break existing
+            implementations.
+            If changes are satisfactory and do not introduce issues, commit
+            them to maintain schema consistency.
+    """
+
     return dict(
         ChainMap(
             {
