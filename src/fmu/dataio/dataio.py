@@ -11,7 +11,7 @@ import warnings
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, ClassVar, Dict, Final, List, Literal, Optional, Union
+from typing import Any, ClassVar, Final, List, Literal, Optional, Union
 from warnings import warn
 
 import pandas as pd
@@ -36,8 +36,14 @@ from ._utils import (
     some_config_from_env,
     uuid_from_string,
 )
-from .datastructure._internal.content import AllowedContent
+from .datastructure._internal.internal import (
+    AllowedContent,
+    CaseMetadata,
+    CaseSchema,
+    FMUModel,
+)
 from .datastructure.configuration import global_configuration
+from .datastructure.meta.meta import Access, Masterdata, User
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
@@ -886,32 +892,28 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             warn(exists_warning, UserWarning)
             return {}
 
-        meta = _metadata.default_meta_dollars()
-        meta["class"] = "case"
-        meta["masterdata"] = _metadata.generate_meta_masterdata(self.config)
+        meta = CaseSchema(
+            masterdata=Masterdata.model_validate(self.config["masterdata"]),
+            access=Access.model_validate(_metadata.generate_meta_access(self.config)),
+            fmu=FMUModel(
+                model=global_configuration.Model.model_validate(
+                    self.config["model"],
+                ),
+                case=CaseMetadata(
+                    name=self.casename,
+                    uuid=str(uuid.uuid4()),
+                    user=User(id=self.caseuser),
+                ),
+            ),
+            tracklog=_metadata.generate_meta_tracklog(),
+            description=generate_description(self.description),
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
+            by_alias=True,
+        )
 
-        # only asset, not ssdl
-        access = _metadata.generate_meta_access(self.config)
-        assert access is not None
-        meta["access"] = {}
-        meta["access"]["asset"] = access["asset"]
-
-        meta["fmu"] = {}
-        meta["fmu"]["model"] = self.config["model"]
-
-        mcase: Dict[str, Any] = {}  # needed for python < 3.10
-        meta["fmu"]["case"] = mcase
-
-        mcase["name"] = self.casename
-        mcase["uuid"] = str(uuid.uuid4())
-        mcase["user"] = {"id": self.caseuser}
-
-        mcase["description"] = generate_description(self.description)
-
-        meta["tracklog"] = _metadata.generate_meta_tracklog()
-        meta = drop_nones(meta)
-
-        self._metadata = meta
+        self._metadata = drop_nones(meta)
 
         logger.info("The case metadata are now ready!")
         return deepcopy(self._metadata)

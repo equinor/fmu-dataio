@@ -17,6 +17,8 @@ from tempfile import NamedTemporaryFile
 from typing import Final
 from warnings import warn
 
+from pydantic import AnyHttpUrl, TypeAdapter
+
 from fmu import dataio
 from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION, ConfigurationError
 from fmu.dataio._filedata_provider import FileDataProvider
@@ -28,6 +30,7 @@ from fmu.dataio._utils import (
     glue_metadata_preprocessed,
     read_metadata_from_file,
 )
+from fmu.dataio.datastructure._internal import internal
 from fmu.dataio.datastructure.meta import meta
 
 from . import types
@@ -40,15 +43,18 @@ logger: Final = null_logger(__name__)
 # Generic, being resused several places:
 
 
-def default_meta_dollars() -> dict:
-    dollars = {}
-    dollars["$schema"] = SCHEMA
-    dollars["version"] = VERSION
-    dollars["source"] = SOURCE
-    return dollars
+def default_meta_dollars() -> dict[str, str]:
+    return internal.JsonSchemaMetadata(
+        schema_=TypeAdapter(AnyHttpUrl).validate_strings(SCHEMA),  # type: ignore[call-arg]
+        version=VERSION,
+        source=SOURCE,
+    ).model_dump(
+        mode="json",
+        by_alias=True,
+    )
 
 
-def generate_meta_tracklog() -> list[dict]:
+def generate_meta_tracklog() -> list[meta.TracklogEvent]:
     """Initialize the tracklog with the 'created' event only."""
     return [
         meta.TracklogEvent.model_construct(
@@ -70,10 +76,6 @@ def generate_meta_tracklog() -> list[dict]:
                     version=platform.version(),
                 ),
             ),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
-            by_alias=True,
         )
     ]
 
@@ -370,7 +372,10 @@ class MetaData:
 
     def _populate_meta_tracklog(self) -> None:
         """Create the tracklog metadata, which here assumes 'created' only."""
-        self.meta_tracklog = generate_meta_tracklog()
+        self.meta_tracklog = [
+            x.model_dump(mode="json", exclude_none=True, by_alias=True)
+            for x in generate_meta_tracklog()
+        ]
 
     def _populate_meta_masterdata(self) -> None:
         """Populate metadata from masterdata section in config."""

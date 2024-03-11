@@ -100,7 +100,7 @@ from . import dataio, types
 from ._definitions import STANDARD_TABLE_INDEX_COLUMNS, ConfigurationError, ValidFormats
 from ._logging import null_logger
 from ._utils import generate_description, parse_timedata
-from .datastructure._internal.content import AllowedContent
+from .datastructure._internal.internal import AllowedContent
 from .datastructure.meta import meta, specification
 
 logger: Final = null_logger(__name__)
