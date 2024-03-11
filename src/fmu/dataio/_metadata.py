@@ -342,12 +342,6 @@ class MetaData:
         )
         fdata.derive_filedata()
 
-        self.meta_file["relative_path"] = fdata.relative_path
-        self.meta_file["absolute_path"] = fdata.absolute_path
-        if fdata.absolute_path_symlink:
-            self.meta_file["relative_path_symlink"] = fdata.relative_path_symlink
-            self.meta_file["absolute_path_symlink"] = fdata.absolute_path_symlink
-
         if self.compute_md5:
             if not self.objdata.extension.startswith("."):
                 raise ValueError("A extension must start with '.'")
@@ -356,14 +350,30 @@ class MetaData:
                 suffix=self.objdata.extension,
             ) as tf:
                 logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
-                self.meta_file["checksum_md5"] = export_file_compute_checksum_md5(
+                checksum_md5 = export_file_compute_checksum_md5(
                     self.obj,
                     Path(tf.name),
                     flag=self.dataio._usefmtflag,
                 )
         else:
             logger.info("Do not compute MD5 sum at this stage!")
-            self.meta_file["checksum_md5"] = None
+            checksum_md5 = None
+
+        self.meta_file = meta.File(
+            absolute_path=Path(fdata.absolute_path),
+            relative_path=Path(fdata.relative_path),
+            checksum_md5=checksum_md5,
+            relative_path_symlink=Path(fdata.relative_path_symlink)
+            if fdata.relative_path_symlink
+            else None,
+            absolute_path_symlink=Path(fdata.absolute_path_symlink)
+            if fdata.absolute_path_symlink
+            else None,
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
+            by_alias=True,
+        )
 
     def _populate_meta_class(self) -> None:
         """Get the general class which is a simple string."""

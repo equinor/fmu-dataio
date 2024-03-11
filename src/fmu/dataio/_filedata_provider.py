@@ -42,10 +42,12 @@ class FileDataProvider:
     realname: str = ""
 
     # storing results in these variables
-    relative_path: Optional[str] = field(default="", init=False)
+    relative_path: str = field(default="", init=False)
     relative_path_symlink: Optional[str] = field(default="", init=False)
-    absolute_path: Optional[str] = field(default="", init=False)
+
+    absolute_path: str = field(default="", init=False)
     absolute_path_symlink: Optional[str] = field(default="", init=False)
+
     checksum_md5: Optional[str] = field(default="", init=False)
 
     def __post_init__(self) -> None:
