@@ -4,7 +4,7 @@ import logging
 from copy import deepcopy
 
 import pytest
-from fmu.dataio.datastructure.export.content import AllowedContent
+from fmu.dataio.datastructure._internal.content import AllowedContent
 from fmu.dataio.datastructure.meta import Root
 from fmu.dataio.datastructure.meta.enums import ContentEnum
 from pydantic import ValidationError
