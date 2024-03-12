@@ -528,8 +528,7 @@ def dump() -> Dict:
                     "file.checksum_md5",
                     "file.size_bytes",
                 ],
-                # schema must be present for "dependencies" key to work.
-                "$schema": "http://json-schema.org/draft-07/schema",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "$id": "fmu_meta.json",
             },
             Root.model_json_schema(),
