@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g31741bb documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g68dbed1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -961,6 +961,17 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The requested metafile is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
+    <span class="k">def</span> <span class="nf">_case_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and persists a unique UUID for a new case.</span>
+
+<span class="sd">        Upon initialization of a new case, this UUID is stored in case</span>
+<span class="sd">        metadata and written to disk, ensuring it remains constant for the case across</span>
+<span class="sd">        runs and exports. It is foundational for tracking cases and embedding</span>
+<span class="sd">        identifiers into file metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+
     <span class="c1"># ==================================================================================</span>
     <span class="c1"># Public methods:</span>
     <span class="c1"># ==================================================================================</span>
@@ -991,7 +1002,7 @@
                 <span class="p">),</span>
                 <span class="n">case</span><span class="o">=</span><span class="n">CaseMetadata</span><span class="p">(</span>
                     <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">casename</span><span class="p">,</span>
-                    <span class="n">uuid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()),</span>
+                    <span class="n">uuid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span><span class="p">()),</span>
                     <span class="n">user</span><span class="o">=</span><span class="n">User</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">caseuser</span><span class="p">),</span>
                 <span class="p">),</span>
             <span class="p">),</span>
@@ -1380,7 +1391,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g31741bb).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g68dbed1).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
