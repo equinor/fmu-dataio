@@ -129,33 +129,6 @@
         }
       },
       "discriminator": {
-        "mapping": {
-          "depth": "#/$defs/DepthContent",
-          "facies_thickness": "#/$defs/FaciesThicknessContent",
-          "fault_lines": "#/$defs/FaultLinesContent",
-          "field_outline": "#/$defs/FieldOutlineContent",
-          "field_region": "#/$defs/FieldRegionContent",
-          "fluid_contact": "#/$defs/FluidContactContent",
-          "inplace_volumes": "#/$defs/InplaceVolumesContent",
-          "khproduct": "#/$defs/KPProductContent",
-          "lift_curves": "#/$defs/LiftCurvesContent",
-          "parameters": "#/$defs/ParametersContent",
-          "pinchout": "#/$defs/PinchoutContent",
-          "property": "#/$defs/PropertyContent",
-          "pvt": "#/$defs/PVTContent",
-          "regions": "#/$defs/RegionsContent",
-          "relperm": "#/$defs/RelpermContent",
-          "rft": "#/$defs/RFTContent",
-          "seismic": "#/$defs/SeismicContent",
-          "subcrop": "#/$defs/SubcropContent",
-          "thickness": "#/$defs/ThicknessContent",
-          "time": "#/$defs/TimeContent",
-          "timeseries": "#/$defs/TimeSeriesContent",
-          "velocity": "#/$defs/VelocityContent",
-          "volumes": "#/$defs/VolumesContent",
-          "volumetrics": "#/$defs/VolumetricsContent",
-          "wellpicks": "#/$defs/WellPicksContent"
-        },
         "propertyName": "content"
       },
       "oneOf": [
@@ -8409,18 +8382,6 @@
   "$id": "fmu_meta.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "discriminator": {
-    "mapping": {
-      "case": "#/$defs/FMUCaseClassMeta",
-      "cpgrid": "#/$defs/FMUDataClassMeta",
-      "cpgrid_property": "#/$defs/FMUDataClassMeta",
-      "cube": "#/$defs/FMUDataClassMeta",
-      "dictionary": "#/$defs/FMUDataClassMeta",
-      "points": "#/$defs/FMUDataClassMeta",
-      "polygons": "#/$defs/FMUDataClassMeta",
-      "surface": "#/$defs/FMUDataClassMeta",
-      "table": "#/$defs/FMUDataClassMeta",
-      "well": "#/$defs/FMUDataClassMeta"
-    },
     "propertyName": "class"
   },
   "if": {

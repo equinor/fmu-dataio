@@ -469,6 +469,19 @@ class Root(
         return json_schema
 
 
+def _remove_discriminator_mapping(obj: Dict) -> Dict:
+    """
+    Modifies a provided JSON schema object by specifically
+    removing the `discriminator.mapping` fields. This alteration aims
+    to ensure compatibility with the AJV Validator by addressing and
+    resolving schema validation errors that previously led to startup
+    failures in applications like `sumo-core`.
+    """
+    del obj["discriminator"]["mapping"]
+    del obj["$defs"]["AnyContent"]["discriminator"]["mapping"]
+    return obj
+
+
 def dump() -> Dict:
     # ruff: noqa: E501
     """
@@ -487,50 +500,53 @@ def dump() -> Dict:
             them to maintain schema consistency.
     """
 
-    return dict(
-        ChainMap(
-            {
-                "$contractual": [
-                    "class",
-                    "source",
-                    "version",
-                    "tracklog",
-                    "data.format",
-                    "data.name",
-                    "data.stratigraphic",
-                    "data.alias",
-                    "data.stratigraphic_alias",
-                    "data.offset",
-                    "data.content",
-                    "data.tagname",
-                    "data.vertical_domain",
-                    "data.grid_model",
-                    "data.bbox",
-                    "data.time",
-                    "data.is_prediction",
-                    "data.is_observation",
-                    "data.seismic.attribute",
-                    "data.spec.columns",
-                    "access",
-                    "masterdata",
-                    "fmu.model",
-                    "fmu.workflow",
-                    "fmu.case",
-                    "fmu.iteration.name",
-                    "fmu.iteration.uuid",
-                    "fmu.realization.name",
-                    "fmu.realization.id",
-                    "fmu.realization.uuid",
-                    "fmu.aggregation.operation",
-                    "fmu.aggregation.realization_ids",
-                    "fmu.context.stage",
-                    "file.relative_path",
-                    "file.checksum_md5",
-                    "file.size_bytes",
-                ],
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "$id": "fmu_meta.json",
-            },
-            Root.model_json_schema(),
+    return _remove_discriminator_mapping(
+        dict(
+            ChainMap(
+                {
+                    "$contractual": [
+                        "class",
+                        "source",
+                        "version",
+                        "tracklog",
+                        "data.format",
+                        "data.name",
+                        "data.stratigraphic",
+                        "data.alias",
+                        "data.stratigraphic_alias",
+                        "data.offset",
+                        "data.content",
+                        "data.tagname",
+                        "data.vertical_domain",
+                        "data.grid_model",
+                        "data.bbox",
+                        "data.time",
+                        "data.is_prediction",
+                        "data.is_observation",
+                        "data.seismic.attribute",
+                        "data.spec.columns",
+                        "access",
+                        "masterdata",
+                        "fmu.model",
+                        "fmu.workflow",
+                        "fmu.case",
+                        "fmu.iteration.name",
+                        "fmu.iteration.uuid",
+                        "fmu.realization.name",
+                        "fmu.realization.id",
+                        "fmu.realization.uuid",
+                        "fmu.aggregation.operation",
+                        "fmu.aggregation.realization_ids",
+                        "fmu.context.stage",
+                        "file.relative_path",
+                        "file.checksum_md5",
+                        "file.size_bytes",
+                    ],
+                    # schema must be present for "dependencies" key to work.
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "fmu_meta.json",
+                },
+                Root.model_json_schema(),
+            )
         )
     )
