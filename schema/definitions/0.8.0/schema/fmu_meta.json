@@ -2254,13 +2254,33 @@
           ],
           "title": "Absolute Path"
         },
+        "absolute_path_symlink": {
+          "anyOf": [
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Absolute Path Symlink"
+        },
         "checksum_md5": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "md5 checksum of the file or bytestring",
           "examples": [
             "kjhsdfvsdlfk23knerknvk23"
           ],
-          "title": "Checksum Md5",
-          "type": "string"
+          "title": "Checksum Md5"
         },
         "relative_path": {
           "description": "The file path relative to RUNPATH",
@@ -2270,6 +2290,19 @@
           "format": "path",
           "title": "Relative Path",
           "type": "string"
+        },
+        "relative_path_symlink": {
+          "anyOf": [
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Relative Path Symlink"
         },
         "size_bytes": {
           "anyOf": [
