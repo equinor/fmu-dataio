@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g988d1b4 documentation</title>
+  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g31741bb documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -559,6 +559,19 @@
         <span class="k">return</span> <span class="n">json_schema</span></div>
 
 
+<span class="k">def</span> <span class="nf">_remove_discriminator_mapping</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modifies a provided JSON schema object by specifically</span>
+<span class="sd">    removing the `discriminator.mapping` fields. This alteration aims</span>
+<span class="sd">    to ensure compatibility with the AJV Validator by addressing and</span>
+<span class="sd">    resolving schema validation errors that previously led to startup</span>
+<span class="sd">    failures in applications like `sumo-core`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">del</span> <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;discriminator&quot;</span><span class="p">][</span><span class="s2">&quot;mapping&quot;</span><span class="p">]</span>
+    <span class="k">del</span> <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;$defs&quot;</span><span class="p">][</span><span class="s2">&quot;AnyContent&quot;</span><span class="p">][</span><span class="s2">&quot;discriminator&quot;</span><span class="p">][</span><span class="s2">&quot;mapping&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">obj</span>
+
+
 <span class="k">def</span> <span class="nf">dump</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
     <span class="c1"># ruff: noqa: E501</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -577,51 +590,54 @@
 <span class="sd">            them to maintain schema consistency.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
-        <span class="n">ChainMap</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;$contractual&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;class&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;source&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;version&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;tracklog&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.format&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.name&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.stratigraphic&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.alias&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.stratigraphic_alias&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.offset&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.content&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.tagname&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.vertical_domain&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.grid_model&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.bbox&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.time&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.is_prediction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.is_observation&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.seismic.attribute&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data.spec.columns&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;access&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;masterdata&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.model&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.workflow&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.case&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.iteration.name&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.iteration.uuid&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.realization.name&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.realization.id&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.realization.uuid&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.aggregation.operation&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.aggregation.realization_ids&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fmu.context.stage&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;file.relative_path&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;file.checksum_md5&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;file.size_bytes&quot;</span><span class="p">,</span>
-                <span class="p">],</span>
-                <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;https://json-schema.org/draft/2020-12/schema&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;$id&quot;</span><span class="p">:</span> <span class="s2">&quot;fmu_meta.json&quot;</span><span class="p">,</span>
-            <span class="p">},</span>
-            <span class="n">Root</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">(),</span>
+    <span class="k">return</span> <span class="n">_remove_discriminator_mapping</span><span class="p">(</span>
+        <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">ChainMap</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;$contractual&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="s2">&quot;class&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;source&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;version&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;tracklog&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.format&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.name&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.stratigraphic&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.alias&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.stratigraphic_alias&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.offset&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.content&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.tagname&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.vertical_domain&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.grid_model&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.bbox&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.time&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.is_prediction&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.is_observation&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.seismic.attribute&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;data.spec.columns&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;access&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;masterdata&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.model&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.workflow&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.case&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.iteration.name&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.iteration.uuid&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.realization.name&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.realization.id&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.realization.uuid&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.aggregation.operation&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.aggregation.realization_ids&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;fmu.context.stage&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;file.relative_path&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;file.checksum_md5&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;file.size_bytes&quot;</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="c1"># schema must be present for &quot;dependencies&quot; key to work.</span>
+                    <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;https://json-schema.org/draft/2020-12/schema&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;$id&quot;</span><span class="p">:</span> <span class="s2">&quot;fmu_meta.json&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="n">Root</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">(),</span>
+            <span class="p">)</span>
         <span class="p">)</span>
     <span class="p">)</span>
 </pre></div>
@@ -633,7 +649,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g988d1b4).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g31741bb).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
