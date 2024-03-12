@@ -871,6 +871,17 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         logger.info("The requested metafile is %s", self._metafile)
         return not self._metafile.exists()
 
+    def _case_uuid(self) -> uuid.UUID:
+        """
+        Generates and persists a unique UUID for a new case.
+
+        Upon initialization of a new case, this UUID is stored in case
+        metadata and written to disk, ensuring it remains constant for the case across
+        runs and exports. It is foundational for tracking cases and embedding
+        identifiers into file metadata.
+        """
+        return uuid.uuid4()
+
     # ==================================================================================
     # Public methods:
     # ==================================================================================
@@ -901,7 +912,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
                 ),
                 case=CaseMetadata(
                     name=self.casename,
-                    uuid=str(uuid.uuid4()),
+                    uuid=str(self._case_uuid()),
                     user=User(id=self.caseuser),
                 ),
             ),
