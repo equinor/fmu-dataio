@@ -498,22 +498,13 @@ class ExportData:
                     if _validate_variable(key, value, legals):
                         setattr(self, key, value)
 
-        self._config_is_valid = global_configuration.is_valid(self.config)
-        if self._config_is_valid:
-            # TODO: This needs refinement: _config_is_valid should be removed
-            self.config = global_configuration.roundtrip(self.config)
-
         # global config which may be given as env variable -> a file; will override
         if GLOBAL_ENVNAME in os.environ:
-            theconfig = some_config_from_env(GLOBAL_ENVNAME)
-            assert theconfig is not None
-            self._config_is_valid = global_configuration.is_valid(theconfig)
-            if theconfig is not None:
-                # TODO: This needs refinement: _config_is_valid should be removed
-                self.config = global_configuration.roundtrip(theconfig)
+            self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
 
         self._validate_content_key()
         self._update_globalconfig_from_settings()
+
         # check state of global config
         self._config_is_valid = global_configuration.is_valid(self.config)
         if self._config_is_valid:
