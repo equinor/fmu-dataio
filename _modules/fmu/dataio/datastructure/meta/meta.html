@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+gea9a800 documentation</title>
+  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+ga1d059f documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -146,14 +146,17 @@
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The file path relative to RUNPATH&quot;</span><span class="p">,</span>
         <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;share/results/maps/volantis_gp_base--depth.gri&quot;</span><span class="p">],</span>
     <span class="p">)</span>
-    <span class="n">checksum_md5</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+    <span class="n">checksum_md5</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;md5 checksum of the file or bytestring&quot;</span><span class="p">,</span>
         <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;kjhsdfvsdlfk23knerknvk23&quot;</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="n">size_bytes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Size of file object in bytes&quot;</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+
+    <span class="n">relative_path_symlink</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">absolute_path_symlink</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Parameters"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Parameters">[docs]</a><span class="k">class</span> <span class="nc">Parameters</span><span class="p">(</span><span class="n">RootModel</span><span class="p">):</span>
@@ -649,7 +652,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gea9a800).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+ga1d059f).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
