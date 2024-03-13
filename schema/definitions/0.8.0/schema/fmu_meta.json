@@ -2240,7 +2240,6 @@
         "absolute_path": {
           "anyOf": [
             {
-              "format": "path",
               "type": "string"
             },
             {
@@ -2257,7 +2256,6 @@
         "absolute_path_symlink": {
           "anyOf": [
             {
-              "format": "path",
               "type": "string"
             },
             {
@@ -2287,14 +2285,12 @@
           "examples": [
             "share/results/maps/volantis_gp_base--depth.gri"
           ],
-          "format": "path",
           "title": "Relative Path",
           "type": "string"
         },
         "relative_path_symlink": {
           "anyOf": [
             {
-              "format": "path",
               "type": "string"
             },
             {
@@ -4895,7 +4891,6 @@
       "properties": {
         "argList": {
           "items": {
-            "format": "path",
             "type": "string"
           },
           "title": "Arglist",
@@ -4911,7 +4906,6 @@
         "error_file": {
           "anyOf": [
             {
-              "format": "path",
               "type": "string"
             },
             {
@@ -4921,14 +4915,12 @@
           "title": "Error File"
         },
         "executable": {
-          "format": "path",
           "title": "Executable",
           "type": "string"
         },
         "license_path": {
           "anyOf": [
             {
-              "format": "path",
               "type": "string"
             },
             {
@@ -5018,7 +5010,6 @@
         "target_file": {
           "anyOf": [
             {
-              "format": "path",
               "type": "string"
             },
             {
@@ -5051,7 +5042,6 @@
     "RealizationJobs": {
       "properties": {
         "DATA_ROOT": {
-          "format": "path",
           "title": "Data Root",
           "type": "string"
         },
