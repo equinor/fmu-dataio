@@ -104,6 +104,7 @@ class AllowedContent(BaseModel):
     pinchout: None = Field(default=None)
     subcrop: None = Field(default=None)
     fault_lines: None = Field(default=None)
+    fault_properties: None = Field(default=None)
     velocity: None = Field(default=None)
     volumes: None = Field(default=None)
     khproduct: None = Field(default=None)

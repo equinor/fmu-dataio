@@ -102,6 +102,7 @@ from ._logging import null_logger
 from ._utils import generate_description, parse_timedata
 from .datastructure._internal.internal import AllowedContent
 from .datastructure.meta import meta, specification
+from .readers import FaultRoomSurface
 
 logger: Final = null_logger(__name__)
 
@@ -146,6 +147,7 @@ class DerivedObjectDescriptor:
         "cornerpoint",
         "table",
         "dictionary",
+        "faultroom_triangulated",
     ]
     efolder: (
         Literal[
@@ -263,7 +265,6 @@ class ObjectDataProvider:
         name is "Valysar Top Fm." that latter name will be used.
         """
         name = derive_name(self.dataio, self.obj)
-
         # next check if usename has a "truename" and/or aliases from the config
         strat = self.dataio.config.get("stratigraphy", {})
         no_start_or_missing_name = strat is None or name not in strat
@@ -409,6 +410,21 @@ class ObjectDataProvider:
                 bbox=bbox,
                 table_index=self._derive_index(),
             )
+        elif isinstance(self.obj, FaultRoomSurface):
+            spec, bbox = self._derive_spec_bbox_faultroom()
+            dod = DerivedObjectDescriptor(
+                subtype="JSON",
+                classname="surface",
+                layout="faultroom_triangulated",  # proprietary format
+                efolder="maps",
+                fmt=(fmt := self.dataio.dict_fformat),
+                extension=self._validate_get_ext(
+                    fmt, "JSON", ValidFormats().dictionary
+                ),
+                spec=spec,
+                bbox=bbox,
+                table_index=None,
+            )
 
         elif isinstance(self.obj, dict):
             spec, bbox = self._derive_spec_bbox_dict()
@@ -425,7 +441,6 @@ class ObjectDataProvider:
                 bbox=bbox,
                 table_index=None,
             )
-
         else:
             from pyarrow import Table
 
@@ -690,6 +705,37 @@ class ObjectDataProvider:
                 exclude_none=True,
             ),
             bbox={},
+        )
+
+    def _derive_spec_bbox_faultroom(self) -> SpecificationAndBoundingBox:
+        """Process/collect the data.spec and data.bbox faultroom maps."""
+        logger.info("Derive bbox and specs for FaultRoom special triangle maps")
+        assert isinstance(self.obj, FaultRoomSurface)  # for mypy
+        faultsurf = self.obj
+
+        return SpecificationAndBoundingBox(
+            spec=specification.FaultRoomSurfaceSpecification(
+                horizons=faultsurf.horizons,
+                faults=faultsurf.faults,
+                juxtaposition_hw=faultsurf.juxtaposition_hw,
+                juxtaposition_fw=faultsurf.juxtaposition_fw,
+                properties=faultsurf.properties,
+                name=faultsurf.name,
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
+            bbox=meta.content.BoundingBox(
+                xmin=float(faultsurf.bbox["xmin"]),
+                xmax=float(faultsurf.bbox["xmin"]),
+                ymin=float(faultsurf.bbox["ymin"]),
+                ymax=float(faultsurf.bbox["ymax"]),
+                zmin=float(faultsurf.bbox["zmin"]),
+                zmax=float(faultsurf.bbox["zmax"]),
+            ).model_dump(
+                mode="json",
+                exclude_none=True,
+            ),
         )
 
     def _derive_spec_bbox_dict(self) -> SpecificationAndBoundingBox:
