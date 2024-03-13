@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g68dbed1 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gea9a800 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -588,22 +588,13 @@
                     <span class="k">if</span> <span class="n">_validate_variable</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">):</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span><span class="p">:</span>
-            <span class="c1"># TODO: This needs refinement: _config_is_valid should be removed</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">roundtrip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-
         <span class="c1"># global config which may be given as env variable -&gt; a file; will override</span>
         <span class="k">if</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="n">theconfig</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="n">theconfig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">theconfig</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">theconfig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># TODO: This needs refinement: _config_is_valid should be removed</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">roundtrip</span><span class="p">(</span><span class="n">theconfig</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_globalconfig_from_settings</span><span class="p">()</span>
+
         <span class="c1"># check state of global config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span><span class="p">:</span>
@@ -1391,7 +1382,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g68dbed1).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gea9a800).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
