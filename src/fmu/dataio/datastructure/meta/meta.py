@@ -56,7 +56,7 @@ class File(BaseModel):
         description="The file path relative to RUNPATH",
         examples=["share/results/maps/volantis_gp_base--depth.gri"],
     )
-    checksum_md5: str = Field(
+    checksum_md5: Optional[str] = Field(
         description="md5 checksum of the file or bytestring",
         examples=["kjhsdfvsdlfk23knerknvk23"],
     )
@@ -64,6 +64,9 @@ class File(BaseModel):
         default=None,
         description="Size of file object in bytes",
     )
+
+    relative_path_symlink: Optional[Path] = Field(default=None)
+    absolute_path_symlink: Optional[Path] = Field(default=None)
 
 
 class Parameters(RootModel):
