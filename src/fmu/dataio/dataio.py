@@ -17,7 +17,7 @@ from warnings import warn
 import pandas as pd
 from pydantic import ValidationError as PydanticValidationError
 
-from . import _metadata, types
+from . import _fmu_provider, _metadata, types
 from ._definitions import (
     FmuContext,
     ValidationError,
@@ -713,7 +713,39 @@ class ExportData:
         self._validate_content_key()
         self._update_fmt_flag()
 
-        metaobj = _metadata.MetaData(obj, self, compute_md5=compute_md5)
+        fmudata = _fmu_provider.FmuProvider(
+            model=self.config.get("model", None),
+            fmu_context=FmuContext.get(self.fmu_context),
+            casepath_proposed=self.casepath or "",
+            include_ertjobs=self.include_ertjobs,
+            forced_realization=self.realization,
+            workflow=self.workflow,
+        )
+
+        logger.info("FMU provider is %s", fmudata.get_provider())
+
+        if not fmudata.get_provider():  # e.g. run from RMS not in a FMU run
+            actual_context = (
+                FmuContext.PREPROCESSED
+                if self.fmu_context == FmuContext.PREPROCESSED
+                else FmuContext.get("non_fmu")
+            )
+            if self.fmu_context != actual_context:
+                logger.warning(
+                    "Requested fmu_context is <%s> but since this is detected as a non "
+                    "FMU run, the actual context is force set to <%s>",
+                    self.fmu_context,
+                    actual_context,
+                )
+                self.fmu_context = actual_context
+
+        metaobj = _metadata.MetaData(
+            obj,
+            self,
+            fmudata=fmudata,
+            compute_md5=compute_md5,
+        )
+
         self._metadata = metaobj.generate_export_metadata()
 
         self._rootpath = Path(metaobj.rootpath)

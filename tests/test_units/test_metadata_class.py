@@ -5,7 +5,14 @@ from copy import deepcopy
 
 import fmu.dataio as dio
 import pytest
-from fmu.dataio._metadata import SCHEMA, SOURCE, VERSION, ConfigurationError, MetaData
+from fmu.dataio._metadata import (
+    SCHEMA,
+    SOURCE,
+    VERSION,
+    ConfigurationError,
+    FmuProvider,
+    MetaData,
+)
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.datastructure.meta.meta import (
     SystemInformationOperatingSystem,
@@ -24,7 +31,7 @@ logger = logging.getLogger(__name__)
 def test_metadata_dollars(edataobj1):
     """Testing the dollars part which is hard set."""
 
-    mymeta = MetaData("dummy", edataobj1)
+    mymeta = MetaData("dummy", edataobj1, FmuProvider())
 
     assert mymeta.meta_dollars["version"] == VERSION
     assert mymeta.meta_dollars["$schema"] == SCHEMA
@@ -37,7 +44,7 @@ def test_metadata_dollars(edataobj1):
 
 
 def test_generate_meta_tracklog_fmu_dataio_version(edataobj1):
-    mymeta = MetaData("dummy", edataobj1)
+    mymeta = MetaData("dummy", edataobj1, FmuProvider())
     mymeta._populate_meta_tracklog()
     tracklog = mymeta.meta_tracklog
 
@@ -61,7 +68,7 @@ def test_generate_meta_tracklog_komodo_version(edataobj1, monkeypatch):
     fake_komodo_release = "<FAKE_KOMODO_RELEASE_VERSION>"
     monkeypatch.setenv("KOMODO_RELEASE", fake_komodo_release)
 
-    mymeta = MetaData("dummy", edataobj1)
+    mymeta = MetaData("dummy", edataobj1, FmuProvider())
     mymeta._populate_meta_tracklog()
     tracklog = mymeta.meta_tracklog
 
@@ -82,7 +89,7 @@ def test_generate_meta_tracklog_komodo_version(edataobj1, monkeypatch):
 
 
 def test_generate_meta_tracklog_operating_system(edataobj1):
-    mymeta = MetaData("dummy", edataobj1)
+    mymeta = MetaData("dummy", edataobj1, FmuProvider())
     mymeta._populate_meta_tracklog()
     tracklog = mymeta.meta_tracklog
 
@@ -102,7 +109,7 @@ def test_generate_meta_tracklog_operating_system(edataobj1):
 
 
 def test_populate_meta_objectdata(regsurf, edataobj2):
-    mymeta = MetaData(regsurf, edataobj2)
+    mymeta = MetaData(regsurf, edataobj2, FmuProvider())
     mymeta._populate_meta_objectdata()
     assert mymeta.objdata.name == "VOLANTIS GP. Top"
 
@@ -146,7 +153,7 @@ def test_metadata_populate_masterdata_is_empty(globalconfig1):
     some = dio.ExportData(config=globalconfig1, content="depth")
     del some.config["masterdata"]  # to force missing masterdata
 
-    mymeta = MetaData("dummy", some)
+    mymeta = MetaData("dummy", some, FmuProvider())
 
     with pytest.raises(ValueError, match="A config exists, but 'masterdata' are not"):
         mymeta._populate_meta_masterdata()
@@ -155,11 +162,11 @@ def test_metadata_populate_masterdata_is_empty(globalconfig1):
 def test_metadata_populate_masterdata_is_present_ok(edataobj1, edataobj2):
     """Testing the masterdata part with OK metdata."""
 
-    mymeta = MetaData("dummy", edataobj1)
+    mymeta = MetaData("dummy", edataobj1, FmuProvider())
     mymeta._populate_meta_masterdata()
     assert mymeta.meta_masterdata == edataobj1.config["masterdata"]
 
-    mymeta = MetaData("dummy", edataobj2)
+    mymeta = MetaData("dummy", edataobj2, FmuProvider())
     mymeta._populate_meta_masterdata()
     assert mymeta.meta_masterdata == edataobj2.config["masterdata"]
 
@@ -175,7 +182,7 @@ def test_metadata_populate_access_miss_config_access(edataobj1):
     cfg1_edited = deepcopy(edataobj1)
     del cfg1_edited.config["access"]
 
-    mymeta = MetaData("dummy", cfg1_edited)
+    mymeta = MetaData("dummy", cfg1_edited, FmuProvider())
 
     with pytest.raises(ConfigurationError):
         mymeta._populate_meta_access()
@@ -184,7 +191,7 @@ def test_metadata_populate_access_miss_config_access(edataobj1):
 def test_metadata_populate_access_ok_config(edataobj2):
     """Testing the access part, now with config ok access."""
 
-    mymeta = MetaData("dummy", edataobj2)
+    mymeta = MetaData("dummy", edataobj2, FmuProvider())
 
     mymeta._populate_meta_access()
     assert mymeta.meta_access == {
@@ -205,7 +212,7 @@ def test_metadata_populate_from_argument(globalconfig1):
         access_ssdl={"access_level": "restricted", "rep_include": True},
         content="depth",
     )
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
 
     mymeta._populate_meta_access()
     assert mymeta.meta_access == {
@@ -224,9 +231,11 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1):
 
     # rep_include only, but in config
     edata = dio.ExportData(
-        config=globalconfig1, access_ssdl={"rep_include": True}, content="depth"
+        config=globalconfig1,
+        access_ssdl={"rep_include": True},
+        content="depth",
     )
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     mymeta._populate_meta_access()
     assert mymeta.meta_access["ssdl"]["rep_include"] is True
     assert mymeta.meta_access["ssdl"]["access_level"] == "internal"  # default
@@ -238,7 +247,7 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1):
         access_ssdl={"access_level": "restricted"},
         content="depth",
     )
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     mymeta._populate_meta_access()
     assert mymeta.meta_access["ssdl"]["rep_include"] is False  # default
     assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
@@ -255,7 +264,7 @@ def test_metadata_populate_wrong_config(globalconfig1):
     with pytest.warns(UserWarning):
         edata = dio.ExportData(config=_config, content="depth")
 
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
 
@@ -269,7 +278,7 @@ def test_metadata_populate_wrong_argument(globalconfig1):
             access_ssdl={"access_level": "wrong"},
             content="depth",
         )
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
 
@@ -282,7 +291,7 @@ def test_metadata_access_correct_input(globalconfig1):
         content="depth",
         access_ssdl={"access_level": "restricted", "rep_include": False},
     )
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     mymeta._populate_meta_access()
     assert mymeta.meta_access["ssdl"]["rep_include"] is False
     assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
@@ -294,7 +303,7 @@ def test_metadata_access_correct_input(globalconfig1):
         content="depth",
         access_ssdl={"access_level": "internal", "rep_include": True},
     )
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     mymeta._populate_meta_access()
     assert mymeta.meta_access["ssdl"]["rep_include"] is True
     assert mymeta.meta_access["ssdl"]["access_level"] == "internal"
@@ -308,7 +317,7 @@ def test_metadata_access_deprecated_input(globalconfig1):
     edata = dio.ExportData(
         config=globalconfig1, access_ssdl={"access_level": "asset"}, content="depth"
     )
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     with pytest.warns(
         UserWarning,
         match="The value 'asset' for access.ssdl.access_level is deprec",
@@ -329,7 +338,7 @@ def test_metadata_access_illegal_input(globalconfig1):
             content="depth",
         )
 
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
 
@@ -340,7 +349,7 @@ def test_metadata_access_illegal_input(globalconfig1):
             access_ssdl={"access_level": "open"},
             content="depth",
         )
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     with pytest.raises(ConfigurationError, match="Illegal value for access"):
         mymeta._populate_meta_access()
 
@@ -353,7 +362,7 @@ def test_metadata_access_no_input(globalconfig1):
     configcopy["access"]["ssdl"]["access_level"] = "restricted"
     configcopy["access"]["ssdl"]["rep_include"] = True
     edata = dio.ExportData(config=configcopy, content="depth")
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     mymeta._populate_meta_access()
     assert mymeta.meta_access["ssdl"]["rep_include"] is True
     assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
@@ -364,7 +373,7 @@ def test_metadata_access_no_input(globalconfig1):
     del configcopy["access"]["ssdl"]["access_level"]
     del configcopy["access"]["ssdl"]["rep_include"]
     edata = dio.ExportData(config=globalconfig1, content="depth")
-    mymeta = MetaData("dummy", edata)
+    mymeta = MetaData("dummy", edata, FmuProvider())
     mymeta._populate_meta_access()
     assert mymeta.meta_access["ssdl"]["rep_include"] is False  # default
     assert mymeta.meta_access["ssdl"]["access_level"] == "internal"  # default
@@ -379,7 +388,7 @@ def test_metadata_access_no_input(globalconfig1):
 def test_metadata_display_name_not_given(regsurf, edataobj2):
     """Test that display.name == data.name when not explicitly provided."""
 
-    mymeta = MetaData(regsurf, edataobj2)
+    mymeta = MetaData(regsurf, edataobj2, FmuProvider())
     mymeta._populate_meta_objectdata()
     mymeta._populate_meta_display()
 
@@ -390,7 +399,7 @@ def test_metadata_display_name_not_given(regsurf, edataobj2):
 def test_metadata_display_name_given(regsurf, edataobj2):
     """Test that display.name is set when explicitly given."""
 
-    mymeta = MetaData(regsurf, edataobj2)
+    mymeta = MetaData(regsurf, edataobj2, FmuProvider())
     edataobj2.display_name = "My Display Name"
     mymeta._populate_meta_objectdata()
     mymeta._populate_meta_display()
@@ -407,7 +416,7 @@ def test_metadata_display_name_given(regsurf, edataobj2):
 def test_generate_full_metadata(regsurf, edataobj2):
     """Generating the full metadata block for a xtgeo surface."""
 
-    mymeta = MetaData(regsurf, edataobj2)
+    mymeta = MetaData(regsurf, edataobj2, FmuProvider())
 
     metadata_result = mymeta.generate_export_metadata(
         skip_null=False

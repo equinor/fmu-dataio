@@ -225,11 +225,11 @@ class MetaData:
     # input variables
     obj: types.Inferrable
     dataio: dataio.ExportData
+    fmudata: FmuProvider
     compute_md5: bool = True
 
     # storage state variables
     objdata: ObjectDataProvider | None = field(default=None, init=False)
-    fmudata: FmuProvider | None = field(default=None, init=False)
     iter_name: str = field(default="", init=False)
     real_name: str = field(default="", init=False)
 
@@ -282,36 +282,14 @@ class MetaData:
 
         The _FmuDataProvider is ran to provide this information
         """
-        fmudata = FmuProvider(
-            model=self.dataio.config.get("model", None),
-            fmu_context=FmuContext.get(self.dataio.fmu_context),
-            casepath_proposed=self.dataio.casepath or "",
-            include_ertjobs=self.dataio.include_ertjobs,
-            forced_realization=self.dataio.realization,
-            workflow=self.dataio.workflow,
-        )
-        logger.info("FMU provider is %s", fmudata.get_provider())
+        logger.info("FMU provider is %s", self.fmudata.get_provider())
 
-        if not fmudata.get_provider():  # e.g. run from RMS not in a FMU run
-            actual_context = (
-                FmuContext.PREPROCESSED
-                if self.dataio.fmu_context == FmuContext.PREPROCESSED
-                else FmuContext.get("non_fmu")
-            )
-            if self.dataio.fmu_context != actual_context:
-                logger.warning(
-                    "Requested fmu_context is <%s> but since this is detected as a non "
-                    "FMU run, the actual context is force set to <%s>",
-                    self.dataio.fmu_context,
-                    actual_context,
-                )
-                self.dataio.fmu_context = actual_context
-
-        else:
-            self.meta_fmu = fmudata.get_metadata()
-            self.rootpath = fmudata.get_casepath()
-            self.iter_name = fmudata.get_iter_name()
-            self.real_name = fmudata.get_real_name()
+        if self.fmudata.get_provider():  # e.g. run from RMS not in a FMU run
+            # Run by ert
+            self.meta_fmu = self.fmudata.get_metadata()
+            self.rootpath = self.fmudata.get_casepath()
+            self.iter_name = self.fmudata.get_iter_name()
+            self.real_name = self.fmudata.get_real_name()
 
         logger.debug("Rootpath is now %s", self.rootpath)
 
