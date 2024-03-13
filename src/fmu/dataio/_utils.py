@@ -8,7 +8,6 @@ import json
 import os
 import shutil
 import uuid
-import warnings
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
@@ -336,24 +335,20 @@ def some_config_from_env(envvar: str = "FMU_GLOBAL_CONFIG") -> dict | None:
     """Get the config from environment variable.
 
     This function is only called if config SHALL be fetched from the environment
-    variable: Raise if the environment variable is not found.
+    variable.
     """
 
     logger.info("Getting config from file via environment %s", envvar)
-    if envvar in os.environ:
-        cfg_path = os.environ[envvar]
-    else:
-        warnings.warn(
-            "No config was received. "
-            "The config should be given explicitly as an input argument, or "
-            f"the environment variable {envvar} must point to a valid yaml file. "
-            "A missing config will still export a file, but without a metadata "
-            "file. Such exports may be disabled in a future version of fmu.dataio",
-            UserWarning,
-        )
+    try:
+        return ut.yaml_load(os.environ[envvar], loader="fmu")
+    except KeyError:
         return None
-
-    return ut.yaml_load(cfg_path, loader="fmu")
+    except Exception as e:
+        raise ValueError(
+            "Not able to load config from environment variable "
+            f"{envvar} = {os.environ[envvar]}. "
+            f"The environment variable {envvar} must point to a valid yaml file."
+        ) from e
 
 
 def read_named_envvar(envvar: str) -> str | None:
