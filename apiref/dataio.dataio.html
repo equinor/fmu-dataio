@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 0.1.dev1+g4dce80e documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 0.1.dev1+g71146b9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
@@ -296,22 +296,6 @@ shown as t0:</p>
 </pre></div>
 </div>
 <p>The output files will be on the form: somename–t1_t0.ext</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Using config from file</p>
-<p>Optionally, the keys can be stored in a yaml file as argument, and you can let
-the environment variable FMU_DATAIO_CONFIG point to that file. This can e.g.
-make it possible for ERT jobs to point to external input config’s. For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">FMU_DATAIO_CONFIG</span><span class="o">=</span><span class="s2">&quot;/path/to/mysettings.yml&quot;</span>
-<span class="n">export</span> <span class="n">FMU_GLOBAL_CONFIG</span><span class="o">=</span><span class="s2">&quot;/path/to/global_variables.yml&quot;</span>
-</pre></div>
-</div>
-<p>In python:</p>
-<blockquote>
-<div><p>eda = ExportData()
-eda.export(obj)</p>
-</div></blockquote>
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.allow_forcefolder_absolute">
@@ -805,7 +789,7 @@ settings here.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g4dce80e).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g71146b9).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

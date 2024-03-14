@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g4dce80e documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g71146b9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -140,7 +140,9 @@
 
 
 <span class="n">GLOBAL_ENVNAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;FMU_GLOBAL_CONFIG&quot;</span>
-<span class="n">SETTINGS_ENVNAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;FMU_DATAIO_CONFIG&quot;</span>  <span class="c1"># input settings from a spesific file!</span>
+<span class="n">SETTINGS_ENVNAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;FMU_DATAIO_CONFIG&quot;</span>  <span class="c1"># Feature deprecated, still used for user warning.</span>
+<span class="p">)</span>
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">null_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -465,21 +467,6 @@
 
 <span class="sd">        The output files will be on the form: somename--t1_t0.ext</span>
 
-<span class="sd">    .. note:: Using config from file</span>
-
-<span class="sd">        Optionally, the keys can be stored in a yaml file as argument, and you can let</span>
-<span class="sd">        the environment variable FMU_DATAIO_CONFIG point to that file. This can e.g.</span>
-<span class="sd">        make it possible for ERT jobs to point to external input config&#39;s. For example::</span>
-
-<span class="sd">            export FMU_DATAIO_CONFIG=&quot;/path/to/mysettings.yml&quot;</span>
-<span class="sd">            export FMU_GLOBAL_CONFIG=&quot;/path/to/global_variables.yml&quot;</span>
-
-<span class="sd">        In python:</span>
-
-<span class="sd">            eda = ExportData()</span>
-<span class="sd">            eda.export(obj)</span>
-
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># ----------------------------------------------------------------------------------</span>
@@ -575,18 +562,11 @@
 
         <span class="c1"># if input is provided as an ENV variable pointing to a YAML file; will override</span>
         <span class="k">if</span> <span class="n">SETTINGS_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="n">external_input</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">SETTINGS_ENVNAME</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">external_input</span><span class="p">:</span>
-                <span class="c1"># derive legal input from dataclass signature</span>
-                <span class="n">annots</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__annotations__&quot;</span><span class="p">,</span> <span class="p">{})</span>
-                <span class="n">legals</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">annots</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
-                <span class="p">}</span>
-
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">external_input</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">_validate_variable</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">):</span>
-                        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Providing input settings through environment variables is deprecated, &quot;</span>
+                <span class="s2">&quot;use ExportData(**yaml_load(&lt;your_file&gt;)) instead. To &quot;</span>
+                <span class="s2">&quot;disable this warning, remove the &#39;FMU_DATAIO_CONFIG&#39; env.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="c1"># global config which may be given as env variable -&gt; a file; will override</span>
         <span class="k">if</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
@@ -1382,7 +1362,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g4dce80e).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g71146b9).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
