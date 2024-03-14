@@ -50,7 +50,9 @@ INSIDE_RMS: Final = detect_inside_rms()
 
 
 GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
-SETTINGS_ENVNAME: Final = "FMU_DATAIO_CONFIG"  # input settings from a spesific file!
+SETTINGS_ENVNAME: Final = (
+    "FMU_DATAIO_CONFIG"  # Feature deprecated, still used for user warning.
+)
 
 logger: Final = null_logger(__name__)
 
@@ -375,21 +377,6 @@ class ExportData:
 
         The output files will be on the form: somename--t1_t0.ext
 
-    .. note:: Using config from file
-
-        Optionally, the keys can be stored in a yaml file as argument, and you can let
-        the environment variable FMU_DATAIO_CONFIG point to that file. This can e.g.
-        make it possible for ERT jobs to point to external input config's. For example::
-
-            export FMU_DATAIO_CONFIG="/path/to/mysettings.yml"
-            export FMU_GLOBAL_CONFIG="/path/to/global_variables.yml"
-
-        In python:
-
-            eda = ExportData()
-            eda.export(obj)
-
-
     """
 
     # ----------------------------------------------------------------------------------
@@ -485,18 +472,11 @@ class ExportData:
 
         # if input is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
-            external_input = some_config_from_env(SETTINGS_ENVNAME)
-
-            if external_input:
-                # derive legal input from dataclass signature
-                annots = getattr(self, "__annotations__", {})
-                legals = {
-                    key: val for key, val in annots.items() if not key.startswith("_")
-                }
-
-                for key, value in external_input.items():
-                    if _validate_variable(key, value, legals):
-                        setattr(self, key, value)
+            warnings.warn(
+                "Providing input settings through environment variables is deprecated, "
+                "use ExportData(**yaml_load(<your_file>)) instead. To "
+                "disable this warning, remove the 'FMU_DATAIO_CONFIG' env.",
+            )
 
         # global config which may be given as env variable -> a file; will override
         if GLOBAL_ENVNAME in os.environ:
