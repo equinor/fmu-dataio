@@ -17,7 +17,7 @@ from fmu.dataio.datastructure.configuration.global_configuration import (
     Model as GlobalConfigurationModel,
 )
 from fmu.dataio.datastructure.meta.meta import Access, Masterdata, TracklogEvent, User
-from pydantic import AnyHttpUrl, BaseModel, Field, model_validator
+from pydantic import AnyHttpUrl, BaseModel, Field, TypeAdapter, model_validator
 
 
 def seismic_warn() -> None:
@@ -143,7 +143,10 @@ class AllowedContent(BaseModel):
 
 
 class JsonSchemaMetadata(BaseModel, populate_by_name=True):
-    schema_: AnyHttpUrl = Field(alias="$schema", default=SCHEMA)
+    schema_: AnyHttpUrl = Field(
+        alias="$schema",
+        default=TypeAdapter(AnyHttpUrl).validate_python(SCHEMA),
+    )
     version: str = Field(default=VERSION)
     source: str = Field(default=SOURCE)
 
