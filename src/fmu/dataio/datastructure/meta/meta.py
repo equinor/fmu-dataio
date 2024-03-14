@@ -303,7 +303,6 @@ class SystemInformation(BaseModel):
         examples=["1.2.3"],
     )
     komodo: Optional[VersionInformation] = Field(
-        alias="fmu-dataio",
         default=None,
         examples=["2023.12.05-py38"],
     )
