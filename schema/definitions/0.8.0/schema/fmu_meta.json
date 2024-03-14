@@ -6402,6 +6402,20 @@
           ],
           "default": null,
           "examples": [
+            "1.2.3"
+          ]
+        },
+        "komodo": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VersionInformation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
             "2023.12.05-py38"
           ]
         },
