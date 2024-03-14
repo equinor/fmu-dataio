@@ -49,26 +49,11 @@ class FileDataProvider:
     absolute_path_symlink: Optional[str] = field(default="", init=False)
 
     checksum_md5: Optional[str] = field(default="", init=False)
+    forcefolder_is_absolute: bool = field(default=False, init=False)
 
-    def __post_init__(self) -> None:
-        if self.dataio.name:
-            self.name = self.dataio.name
-        else:
-            self.name = self.objdata.name
-
-        self.tagname = self.dataio.tagname
-        self.time0 = self.objdata.time0
-        self.time1 = self.objdata.time1
-
-        self.parentname = self.dataio.parent
-        self.extension = self.objdata.extension
-        self.efolder = self.objdata.efolder
-
-        self.forcefolder = self.dataio.forcefolder
-        self.forcefolder_is_absolute = False
-        self.subfolder = self.dataio.subfolder
-
-        logger.info("Initialize %s", self.__class__)
+    @property
+    def name(self) -> str:
+        return self.dataio.name or self.objdata.name
 
     def derive_filedata(self) -> None:
         relpath, symrelpath = self._get_path()
@@ -88,7 +73,7 @@ class FileDataProvider:
         stem = self._get_filestem()
 
         path = Path(inrelpath) / stem.lower()
-        path = path.with_suffix(path.suffix + self.extension)
+        path = path.with_suffix(path.suffix + self.objdata.extension)
 
         # resolve() will fix ".." e.g. change '/some/path/../other' to '/some/other'
         abspath = path.resolve()
@@ -126,21 +111,21 @@ class FileDataProvider:
 
         if not self.name:
             raise ValueError("The 'name' entry is missing for constructing a file name")
-        if not self.time0 and self.time1:
+        if not self.objdata.time0 and self.objdata.time1:
             raise ValueError("Not legal: 'time0' is missing while 'time1' is present")
 
         stem = self.name.lower()
-        if self.tagname:
-            stem += "--" + self.tagname.lower()
-        if self.parentname:
-            stem = self.parentname.lower() + "--" + stem
+        if self.dataio.tagname:
+            stem += "--" + self.dataio.tagname.lower()
+        if self.dataio.parent:
+            stem = self.dataio.parent.lower() + "--" + stem
 
-        if self.time0 and not self.time1:
-            stem += "--" + (str(self.time0)[0:10]).replace("-", "")
+        if self.objdata.time0 and not self.objdata.time1:
+            stem += "--" + (str(self.objdata.time0)[0:10]).replace("-", "")
 
-        elif self.time0 and self.time1:
-            monitor = (str(self.time1)[0:10]).replace("-", "")
-            base = (str(self.time0)[0:10]).replace("-", "")
+        elif self.objdata.time0 and self.objdata.time1:
+            monitor = (str(self.objdata.time1)[0:10]).replace("-", "")
+            base = (str(self.objdata.time0)[0:10]).replace("-", "")
             if monitor == base:
                 warn(
                     "The monitor date and base date are equal", UserWarning
@@ -219,7 +204,7 @@ class FileDataProvider:
             else:
                 outroot = outroot / "results"
 
-        dest = outroot / self.efolder  # e.g. "maps"
+        dest = outroot / self.objdata.efolder  # e.g. "maps"
 
         if self.dataio.forcefolder and self.dataio.forcefolder.startswith("/"):
             if not self.dataio.allow_forcefolder_absolute:
