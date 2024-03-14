@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import ChainMap
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, TypeVar, Union
 from uuid import UUID
 
 from pydantic import (
@@ -18,6 +18,8 @@ from pydantic_core import CoreSchema
 from typing_extensions import Annotated
 
 from . import content, enums
+
+T = TypeVar("T", Dict, List, object)
 
 
 class Asset(BaseModel):
@@ -484,6 +486,26 @@ def _remove_discriminator_mapping(obj: Dict) -> Dict:
     return obj
 
 
+def _remove_format_path(obj: T) -> T:
+    """
+    Removes entries with key "format" and value "path" from dictionaries. This adjustment
+    is necessary because JSON Schema does not recognize the "format": "path", while OpenAPI does.
+    This function is used in contexts where OpenAPI specifications are not applicable.
+    """
+
+    if isinstance(obj, dict):
+        return {
+            k: _remove_format_path(v)
+            for k, v in obj.items()
+            if not (k == "format" and v == "path")
+        }
+
+    if isinstance(obj, list):
+        return [_remove_format_path(element) for element in obj]
+
+    return obj
+
+
 def dump() -> Dict:
     # ruff: noqa: E501
     """
@@ -501,54 +523,57 @@ def dump() -> Dict:
             If changes are satisfactory and do not introduce issues, commit
             them to maintain schema consistency.
     """
-
-    return _remove_discriminator_mapping(
-        dict(
-            ChainMap(
-                {
-                    "$contractual": [
-                        "class",
-                        "source",
-                        "version",
-                        "tracklog",
-                        "data.format",
-                        "data.name",
-                        "data.stratigraphic",
-                        "data.alias",
-                        "data.stratigraphic_alias",
-                        "data.offset",
-                        "data.content",
-                        "data.tagname",
-                        "data.vertical_domain",
-                        "data.grid_model",
-                        "data.bbox",
-                        "data.time",
-                        "data.is_prediction",
-                        "data.is_observation",
-                        "data.seismic.attribute",
-                        "data.spec.columns",
-                        "access",
-                        "masterdata",
-                        "fmu.model",
-                        "fmu.workflow",
-                        "fmu.case",
-                        "fmu.iteration.name",
-                        "fmu.iteration.uuid",
-                        "fmu.realization.name",
-                        "fmu.realization.id",
-                        "fmu.realization.uuid",
-                        "fmu.aggregation.operation",
-                        "fmu.aggregation.realization_ids",
-                        "fmu.context.stage",
-                        "file.relative_path",
-                        "file.checksum_md5",
-                        "file.size_bytes",
-                    ],
-                    # schema must be present for "dependencies" key to work.
-                    "$schema": "https://json-schema.org/draft/2020-12/schema",
-                    "$id": "fmu_meta.json",
-                },
-                Root.model_json_schema(),
-            )
+    schema = dict(
+        ChainMap(
+            {
+                "$contractual": [
+                    "class",
+                    "source",
+                    "version",
+                    "tracklog",
+                    "data.format",
+                    "data.name",
+                    "data.stratigraphic",
+                    "data.alias",
+                    "data.stratigraphic_alias",
+                    "data.offset",
+                    "data.content",
+                    "data.tagname",
+                    "data.vertical_domain",
+                    "data.grid_model",
+                    "data.bbox",
+                    "data.time",
+                    "data.is_prediction",
+                    "data.is_observation",
+                    "data.seismic.attribute",
+                    "data.spec.columns",
+                    "access",
+                    "masterdata",
+                    "fmu.model",
+                    "fmu.workflow",
+                    "fmu.case",
+                    "fmu.iteration.name",
+                    "fmu.iteration.uuid",
+                    "fmu.realization.name",
+                    "fmu.realization.id",
+                    "fmu.realization.uuid",
+                    "fmu.aggregation.operation",
+                    "fmu.aggregation.realization_ids",
+                    "fmu.context.stage",
+                    "file.relative_path",
+                    "file.checksum_md5",
+                    "file.size_bytes",
+                ],
+                # schema must be present for "dependencies" key to work.
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": "fmu_meta.json",
+            },
+            Root.model_json_schema(),
         )
+    )
+
+    return _remove_format_path(
+        _remove_discriminator_mapping(
+            schema,
+        ),
     )
