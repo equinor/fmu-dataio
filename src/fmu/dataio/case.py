@@ -9,7 +9,7 @@ from typing import ClassVar, Final, Literal, Optional, Union
 
 from pydantic import ValidationError
 
-from . import _metadata, _utils, dataio
+from . import _metadata, _utils
 from ._logging import null_logger
 from .datastructure._internal import internal
 from .datastructure.configuration import global_configuration
@@ -139,7 +139,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             by_alias=True,
         )
 
-        self._metadata = dataio.drop_nones(meta)
+        self._metadata = _utils.drop_nones(meta)
 
         logger.info("The case metadata are now ready!")
         return copy.deepcopy(self._metadata)
