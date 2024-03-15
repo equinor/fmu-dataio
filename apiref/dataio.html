@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio package &mdash; fmu.dataio 0.1.dev1+g1cd7ab2 documentation</title>
+  <title>dataio package &mdash; fmu.dataio 0.1.dev1+g481714e documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
@@ -68,6 +68,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataio.aggregation.html">dataio.aggregation module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dataio.case.html">dataio.case module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dataio.dataio.html">dataio.dataio module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dataio.types.html">dataio.types module</a></li>
@@ -138,7 +139,21 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="dataio.case.html">dataio.case module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataio.aggregation.html">dataio.aggregation module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataio.case.html">dataio.case module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dataio.case.html#dataio.case.InitializeCase"><code class="docutils literal notranslate"><span class="pre">InitializeCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataio.case.html#dataio.case.InitializeCase.meta_format"><code class="docutils literal notranslate"><span class="pre">InitializeCase.meta_format</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.case.html#dataio.case.InitializeCase.config"><code class="docutils literal notranslate"><span class="pre">InitializeCase.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.case.html#dataio.case.InitializeCase.rootfolder"><code class="docutils literal notranslate"><span class="pre">InitializeCase.rootfolder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.case.html#dataio.case.InitializeCase.casename"><code class="docutils literal notranslate"><span class="pre">InitializeCase.casename</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.case.html#dataio.case.InitializeCase.caseuser"><code class="docutils literal notranslate"><span class="pre">InitializeCase.caseuser</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.case.html#dataio.case.InitializeCase.description"><code class="docutils literal notranslate"><span class="pre">InitializeCase.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.case.html#dataio.case.InitializeCase.generate_metadata"><code class="docutils literal notranslate"><span class="pre">InitializeCase.generate_metadata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.case.html#dataio.case.InitializeCase.export"><code class="docutils literal notranslate"><span class="pre">InitializeCase.export()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="dataio.dataio.html">dataio.dataio module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.read_metadata"><code class="docutils literal notranslate"><span class="pre">read_metadata()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.ExportData"><code class="docutils literal notranslate"><span class="pre">ExportData</span></code></a><ul>
@@ -190,20 +205,6 @@
 <li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.ExportData.export"><code class="docutils literal notranslate"><span class="pre">ExportData.export()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData"><code class="docutils literal notranslate"><span class="pre">AggregatedData</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.meta_format"><code class="docutils literal notranslate"><span class="pre">AggregatedData.meta_format</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.aggregation_id"><code class="docutils literal notranslate"><span class="pre">AggregatedData.aggregation_id</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.casepath"><code class="docutils literal notranslate"><span class="pre">AggregatedData.casepath</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.source_metadata"><code class="docutils literal notranslate"><span class="pre">AggregatedData.source_metadata</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.name"><code class="docutils literal notranslate"><span class="pre">AggregatedData.name</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.operation"><code class="docutils literal notranslate"><span class="pre">AggregatedData.operation</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.tagname"><code class="docutils literal notranslate"><span class="pre">AggregatedData.tagname</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.verbosity"><code class="docutils literal notranslate"><span class="pre">AggregatedData.verbosity</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.generate_metadata"><code class="docutils literal notranslate"><span class="pre">AggregatedData.generate_metadata()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.generate_aggregation_metadata"><code class="docutils literal notranslate"><span class="pre">AggregatedData.generate_aggregation_metadata()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="dataio.dataio.html#dataio.dataio.AggregatedData.export"><code class="docutils literal notranslate"><span class="pre">AggregatedData.export()</span></code></a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dataio.types.html">dataio.types module</a></li>
@@ -224,7 +225,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g1cd7ab2).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g481714e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

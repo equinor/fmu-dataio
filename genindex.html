@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; fmu.dataio 0.1.dev1+g1cd7ab2 documentation</title>
+  <title>Index &mdash; fmu.dataio 0.1.dev1+g481714e documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -132,8 +132,6 @@
 </li>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.access_ssdl">access_ssdl (dataio.dataio.ExportData attribute)</a>
 </li>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData">AggregatedData (class in dataio.dataio)</a>
-</li>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.aggregation">aggregation (dataio.dataio.ExportData attribute)</a>
 
       <ul>
@@ -142,8 +140,6 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.aggregation_id">aggregation_id (dataio.dataio.AggregatedData attribute)</a>
-</li>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.content.Content.alias">alias (fmu.dataio.datastructure.meta.content.Content attribute)</a>
 </li>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.allow_forcefolder_absolute">allow_forcefolder_absolute (dataio.dataio.ExportData attribute)</a>
@@ -182,12 +178,12 @@
 </li>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.case_folder">case_folder (dataio.dataio.ExportData attribute)</a>
 </li>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.casepath">casepath (dataio.dataio.AggregatedData attribute)</a>
-
-      <ul>
-        <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.casepath">(dataio.dataio.ExportData attribute)</a>
+      <li><a href="apiref/dataio.case.html#dataio.case.InitializeCase.casename">casename (dataio.case.InitializeCase attribute)</a>
 </li>
-      </ul></li>
+      <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.casepath">casepath (dataio.dataio.ExportData attribute)</a>
+</li>
+      <li><a href="apiref/dataio.case.html#dataio.case.InitializeCase.caseuser">caseuser (dataio.case.InitializeCase attribute)</a>
+</li>
       <li><a href="apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.check_arguments">check_arguments() (in module dataio.scripts.create_case_metadata)</a>
 </li>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.File.checksum_md5">checksum_md5 (fmu.dataio.datastructure.meta.meta.File attribute)</a>
@@ -204,8 +200,12 @@
 </li>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.specification.TableSpecification.columns">columns (fmu.dataio.datastructure.meta.specification.TableSpecification attribute)</a>
 </li>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.config">config (dataio.dataio.ExportData attribute)</a>
+      <li><a href="apiref/dataio.case.html#dataio.case.InitializeCase.config">config (dataio.case.InitializeCase attribute)</a>
+
+      <ul>
+        <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.config">(dataio.dataio.ExportData attribute)</a>
 </li>
+      </ul></li>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.content.FieldOutline.contact">contact (fmu.dataio.datastructure.meta.content.FieldOutline attribute)</a>
 
       <ul>
@@ -302,6 +302,13 @@
 </li>
       </ul></li>
       <li>
+    dataio.case
+
+      <ul>
+        <li><a href="apiref/dataio.case.html#module-dataio.case">module</a>
+</li>
+      </ul></li>
+      <li>
     dataio.dataio
 
       <ul>
@@ -346,9 +353,11 @@
         <li><a href="datastructure.html#fmu.dataio.datastructure.meta.content.DepthContent.depth_reference">(fmu.dataio.datastructure.meta.content.DepthContent attribute)</a>
 </li>
       </ul></li>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.description">description (dataio.dataio.ExportData attribute)</a>
+      <li><a href="apiref/dataio.case.html#dataio.case.InitializeCase.description">description (dataio.case.InitializeCase attribute)</a>
 
       <ul>
+        <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.description">(dataio.dataio.ExportData attribute)</a>
+</li>
         <li><a href="datastructure.html#fmu.dataio.datastructure.meta.content.Content.description">(fmu.dataio.datastructure.meta.content.Content attribute)</a>
 </li>
         <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.FMUCase.description">(fmu.dataio.datastructure.meta.meta.FMUCase attribute)</a>
@@ -378,7 +387,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.RealizationJobListing.executable">executable (fmu.dataio.datastructure.meta.meta.RealizationJobListing attribute)</a>
 </li>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.export">export() (dataio.dataio.AggregatedData method)</a>
+      <li><a href="apiref/dataio.case.html#dataio.case.InitializeCase.export">export() (dataio.case.InitializeCase method)</a>
 
       <ul>
         <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.export">(dataio.dataio.ExportData method)</a>
@@ -426,9 +435,7 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.generate_aggregation_metadata">generate_aggregation_metadata() (dataio.dataio.AggregatedData method)</a>
-</li>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.generate_metadata">generate_metadata() (dataio.dataio.AggregatedData method)</a>
+      <li><a href="apiref/dataio.case.html#dataio.case.InitializeCase.generate_metadata">generate_metadata() (dataio.case.InitializeCase method)</a>
 
       <ul>
         <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.generate_metadata">(dataio.dataio.ExportData method)</a>
@@ -436,10 +443,10 @@
       </ul></li>
       <li><a href="apiref/dataio.scripts.create_case_metadata.html#dataio.scripts.create_case_metadata.get_parser">get_parser() (in module dataio.scripts.create_case_metadata)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.RealizationJobs.global_environment">global_environment (fmu.dataio.datastructure.meta.meta.RealizationJobs attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.RealizationJobs.global_update_path">global_update_path (fmu.dataio.datastructure.meta.meta.RealizationJobs attribute)</a>
 </li>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.grid_fformat">grid_fformat (dataio.dataio.ExportData attribute)</a>
@@ -481,6 +488,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.include_ertjobs">include_ertjobs (dataio.dataio.ExportData attribute)</a>
+</li>
+      <li><a href="apiref/dataio.case.html#dataio.case.InitializeCase">InitializeCase (class in dataio.case)</a>
 </li>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.is_observation">is_observation (dataio.dataio.ExportData attribute)</a>
 
@@ -542,7 +551,7 @@
 </li>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.RealizationJobListing.max_running_minutes">max_running_minutes (fmu.dataio.datastructure.meta.meta.RealizationJobListing attribute)</a>
 </li>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.meta_format">meta_format (dataio.dataio.AggregatedData attribute)</a>
+      <li><a href="apiref/dataio.case.html#dataio.case.InitializeCase.meta_format">meta_format (dataio.case.InitializeCase attribute)</a>
 
       <ul>
         <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.meta_format">(dataio.dataio.ExportData attribute)</a>
@@ -704,6 +713,8 @@
       <ul>
         <li><a href="apiref/dataio.html#module-dataio">dataio</a>
 </li>
+        <li><a href="apiref/dataio.case.html#module-dataio.case">dataio.case</a>
+</li>
         <li><a href="apiref/dataio.dataio.html#module-dataio.dataio">dataio.dataio</a>
 </li>
         <li><a href="apiref/dataio.scripts.html#module-dataio.scripts">dataio.scripts</a>
@@ -721,11 +732,9 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.name">name (dataio.dataio.AggregatedData attribute)</a>
+      <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.name">name (dataio.dataio.ExportData attribute)</a>
 
       <ul>
-        <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.name">(dataio.dataio.ExportData attribute)</a>
-</li>
         <li><a href="datastructure.html#fmu.dataio.datastructure.meta.content.Content.name">(fmu.dataio.datastructure.meta.content.Content attribute)</a>
 </li>
         <li><a href="datastructure.html#fmu.dataio.datastructure.meta.content.GridModel.name">(fmu.dataio.datastructure.meta.content.GridModel attribute)</a>
@@ -765,12 +774,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.operation">operation (dataio.dataio.AggregatedData attribute)</a>
-
-      <ul>
-        <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.Aggregation.operation">(fmu.dataio.datastructure.meta.meta.Aggregation attribute)</a>
+      <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.Aggregation.operation">operation (fmu.dataio.datastructure.meta.meta.Aggregation attribute)</a>
 </li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -817,10 +822,10 @@
 </li>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.Ssdl.rep_include">rep_include (fmu.dataio.datastructure.meta.meta.Ssdl attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.Iteration.restart_from">restart_from (fmu.dataio.datastructure.meta.meta.Iteration attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.reuse_metadata_rule">reuse_metadata_rule (dataio.dataio.ExportData attribute)</a>
 </li>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.FMUModel.revision">revision (fmu.dataio.datastructure.meta.meta.FMUModel attribute)</a>
@@ -831,6 +836,8 @@
         <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.Parameters.root">(fmu.dataio.datastructure.meta.meta.Parameters attribute)</a>
 </li>
       </ul></li>
+      <li><a href="apiref/dataio.case.html#dataio.case.InitializeCase.rootfolder">rootfolder (dataio.case.InitializeCase attribute)</a>
+</li>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.specification.CubeSpecification.rotation">rotation (fmu.dataio.datastructure.meta.specification.CubeSpecification attribute)</a>
 
       <ul>
@@ -862,8 +869,6 @@
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.Masterdata.smda">smda (fmu.dataio.datastructure.meta.meta.Masterdata attribute)</a>
 </li>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.ClassMeta.source">source (fmu.dataio.datastructure.meta.meta.ClassMeta attribute)</a>
-</li>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.source_metadata">source_metadata (dataio.dataio.AggregatedData attribute)</a>
 </li>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.content.Content.spec">spec (fmu.dataio.datastructure.meta.content.Content attribute)</a>
 </li>
@@ -913,11 +918,9 @@
 </li>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.table_index">table_index (dataio.dataio.ExportData attribute)</a>
 </li>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.tagname">tagname (dataio.dataio.AggregatedData attribute)</a>
+      <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.tagname">tagname (dataio.dataio.ExportData attribute)</a>
 
       <ul>
-        <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.tagname">(dataio.dataio.ExportData attribute)</a>
-</li>
         <li><a href="datastructure.html#fmu.dataio.datastructure.meta.content.Content.tagname">(fmu.dataio.datastructure.meta.content.Content attribute)</a>
 </li>
       </ul></li>
@@ -995,16 +998,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.content.FMUTimeObject.value">value (fmu.dataio.datastructure.meta.content.FMUTimeObject attribute)</a>
 </li>
-      <li><a href="apiref/dataio.dataio.html#dataio.dataio.AggregatedData.verbosity">verbosity (dataio.dataio.AggregatedData attribute)</a>
-
-      <ul>
-        <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.verbosity">(dataio.dataio.ExportData attribute)</a>
+      <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.verbosity">verbosity (dataio.dataio.ExportData attribute)</a>
 </li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.verifyfolder">verifyfolder (dataio.dataio.ExportData attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="datastructure.html#fmu.dataio.datastructure.meta.meta.ClassMeta.version">version (fmu.dataio.datastructure.meta.meta.ClassMeta attribute)</a>
 </li>
       <li><a href="apiref/dataio.dataio.html#dataio.dataio.ExportData.vertical_domain">vertical_domain (dataio.dataio.ExportData attribute)</a>
@@ -1127,7 +1126,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g1cd7ab2).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g481714e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

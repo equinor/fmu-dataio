@@ -20,6 +20,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   dataio.aggregation
    dataio.case
    dataio.dataio
    dataio.types

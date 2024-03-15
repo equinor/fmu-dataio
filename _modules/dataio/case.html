@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dataio.case &mdash; fmu.dataio 0.1.dev1+g481714e documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script>let toggleHintShow = 'Expand';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #C0C0C0" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            fmu.dataio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../preparations.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apiref/modules.html">API reference for fmu.dataio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datamodel.html">The FMU results data model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datastructure.html">Meta export datastructure</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #C0C0C0" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fmu.dataio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dataio.case</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dataio.case</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_metadata</span><span class="p">,</span> <span class="n">_utils</span>
+<span class="kn">from</span> <span class="nn">._logging</span> <span class="kn">import</span> <span class="n">null_logger</span>
+<span class="kn">from</span> <span class="nn">.datastructure._internal</span> <span class="kn">import</span> <span class="n">internal</span>
+<span class="kn">from</span> <span class="nn">.datastructure.configuration</span> <span class="kn">import</span> <span class="n">global_configuration</span>
+
+<span class="n">logger</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">null_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># ######################################################################################</span>
+<span class="c1"># InitializeCase.</span>
+<span class="c1">#</span>
+<span class="c1"># The InitializeCase is used for making the case matadata prior to any other actions,</span>
+<span class="c1"># e.g. forward jobs. However, case metadata file may already exist, and in that case</span>
+<span class="c1"># this class should only emit a message or warning.</span>
+<span class="c1"># ######################################################################################</span>
+
+
+<div class="viewcode-block" id="InitializeCase"><a class="viewcode-back" href="../../apiref/dataio.case.html#dataio.case.InitializeCase">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">InitializeCase</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize metadata for an FMU Case.</span>
+
+<span class="sd">    In ERT this is typically ran as an hook workflow in advance.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: A configuration dictionary. In the standard case this is read</span>
+<span class="sd">            from FMU global variables (via fmuconfig). The dictionary must contain</span>
+<span class="sd">            some predefined main level keys. If config is None or the env variable</span>
+<span class="sd">            FMU_GLOBAL_CONFIG pointing to a file is provided, then it will attempt to</span>
+<span class="sd">            parse that file instead.</span>
+<span class="sd">        rootfolder: Absolute path to the case root, including case name.</span>
+<span class="sd">        casename: Name of case (experiment)</span>
+<span class="sd">        caseuser: Username provided</span>
+<span class="sd">        description (Optional): Description text as string or list of strings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># class variables</span>
+    <span class="n">meta_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;yaml&quot;</span>
+
+    <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">rootfolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
+    <span class="n">casename</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">caseuser</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_metafile</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_pwd</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_casepath</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rootfolder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span> <span class="o">/</span> <span class="s2">&quot;share/metadata/fmu_case.yml&quot;</span>
+
+        <span class="c1"># For this class, the global config must be valid; hence error if not</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">global_configuration</span><span class="o">.</span><span class="n">GlobalConfiguration</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">global_configuration</span><span class="o">.</span><span class="n">validation_error_warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">raise</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ran __post_init__ for InitializeCase&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_establish_metadata_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks if the metadata files and directories are established and creates</span>
+<span class="sd">        relevant directories and files if not.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            False if fmu_case.yml exists (not established), True if it doesn&#39;t.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Created rootpath (case) </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_casepath</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The requested metafile is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_case_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and persists a unique UUID for a new case.</span>
+
+<span class="sd">        Upon initialization of a new case, this UUID is stored in case</span>
+<span class="sd">        metadata and written to disk, ensuring it remains constant for the case across</span>
+<span class="sd">        runs and exports. It is foundational for tracking cases and embedding</span>
+<span class="sd">        identifiers into file metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+
+    <span class="c1"># ==================================================================================</span>
+    <span class="c1"># Public methods:</span>
+    <span class="c1"># ==================================================================================</span>
+
+<div class="viewcode-block" id="InitializeCase.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.case.html#dataio.case.InitializeCase.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate case metadata.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dictionary with case metadata or an empty dictionary if the metadata</span>
+<span class="sd">            already exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_establish_metadata_files</span><span class="p">():</span>
+            <span class="n">exists_warning</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;The case metadata file already exists and will not be overwritten. &quot;</span>
+                <span class="s2">&quot;To make new case metadata delete the old case or run on a different &quot;</span>
+                <span class="s2">&quot;runpath.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">exists_warning</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">exists_warning</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">internal</span><span class="o">.</span><span class="n">CaseSchema</span><span class="p">(</span>
+            <span class="n">masterdata</span><span class="o">=</span><span class="n">internal</span><span class="o">.</span><span class="n">Masterdata</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;masterdata&quot;</span><span class="p">]),</span>
+            <span class="n">access</span><span class="o">=</span><span class="n">internal</span><span class="o">.</span><span class="n">Access</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
+                <span class="n">_metadata</span><span class="o">.</span><span class="n">generate_meta_access</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">fmu</span><span class="o">=</span><span class="n">internal</span><span class="o">.</span><span class="n">FMUModel</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">global_configuration</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
+                <span class="p">),</span>
+                <span class="n">case</span><span class="o">=</span><span class="n">internal</span><span class="o">.</span><span class="n">CaseMetadata</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">casename</span><span class="p">,</span>
+                    <span class="n">uuid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span><span class="p">()),</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">internal</span><span class="o">.</span><span class="n">User</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">caseuser</span><span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">tracklog</span><span class="o">=</span><span class="n">_metadata</span><span class="o">.</span><span class="n">generate_meta_tracklog</span><span class="p">(),</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">_utils</span><span class="o">.</span><span class="n">generate_description</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+            <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">_utils</span><span class="o">.</span><span class="n">drop_nones</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The case metadata are now ready!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InitializeCase.export"><a class="viewcode-back" href="../../apiref/dataio.case.html#dataio.case.InitializeCase.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export case metadata to file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Full path of metadata file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">():</span>
+            <span class="n">_utils</span><span class="o">.</span><span class="n">export_metadata_file</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">,</span> <span class="n">savefmt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_format</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;METAFILE </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metafile</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g481714e).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
