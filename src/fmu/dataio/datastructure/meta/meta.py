@@ -343,13 +343,22 @@ class Context(BaseModel):
     ]
 
 
-class FMU(BaseModel):
+class FMUClassMetaCase(BaseModel):
     """
     The FMU block records properties that are specific to FMU
     """
 
     case: FMUCase
-    context: Context
+    model: FMUModel
+
+
+class FMUClassMetaData(BaseModel):
+    """
+    The FMU block records properties that are specific to FMU
+    """
+
+    case: FMUCase
+    context: Optional[Context] = Field(default=None)
     model: FMUModel
     iteration: Optional[Iteration] = Field(default=None)
     workflow: Optional[Workflow] = Field(default=None)
@@ -402,7 +411,7 @@ class FMUCaseClassMeta(ClassMeta):
         alias="class",
         title="Metadata class",
     )
-    fmu: FMU
+    fmu: FMUClassMetaCase
     access: Access
 
 
@@ -426,7 +435,7 @@ class FMUDataClassMeta(ClassMeta):
     # FMUObj it is. The fmu_discriminator will inspects
     # the obj. and returns a tag that tells pydantic
     # what model to use.
-    fmu: FMU
+    fmu: FMUClassMetaData
     access: SsdlAccess
     data: content.AnyContent
     file: File

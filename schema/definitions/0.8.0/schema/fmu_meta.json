@@ -819,87 +819,6 @@
       "title": "DiscoveryItem",
       "type": "object"
     },
-    "FMU": {
-      "dependencies": {
-        "aggregation": {
-          "not": {
-            "required": [
-              "realization"
-            ]
-          }
-        },
-        "realization": {
-          "not": {
-            "required": [
-              "aggregation"
-            ]
-          }
-        }
-      },
-      "description": "The FMU block records properties that are specific to FMU",
-      "properties": {
-        "aggregation": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Aggregation"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "case": {
-          "$ref": "#/$defs/FMUCase"
-        },
-        "context": {
-          "$ref": "#/$defs/Context"
-        },
-        "iteration": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Iteration"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "model": {
-          "$ref": "#/$defs/FMUModel"
-        },
-        "realization": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Realization"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "workflow": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Workflow"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        }
-      },
-      "required": [
-        "case",
-        "context",
-        "model"
-      ],
-      "title": "FMU",
-      "type": "object"
-    },
     "FMUCase": {
       "properties": {
         "description": {
@@ -960,7 +879,7 @@
           "title": "Metadata class"
         },
         "fmu": {
-          "$ref": "#/$defs/FMU"
+          "$ref": "#/$defs/FMUClassMetaCase"
         },
         "masterdata": {
           "$ref": "#/$defs/Masterdata"
@@ -994,6 +913,111 @@
       "title": "FMUCaseClassMeta",
       "type": "object"
     },
+    "FMUClassMetaCase": {
+      "description": "The FMU block records properties that are specific to FMU",
+      "properties": {
+        "case": {
+          "$ref": "#/$defs/FMUCase"
+        },
+        "model": {
+          "$ref": "#/$defs/FMUModel"
+        }
+      },
+      "required": [
+        "case",
+        "model"
+      ],
+      "title": "FMUClassMetaCase",
+      "type": "object"
+    },
+    "FMUClassMetaData": {
+      "dependencies": {
+        "aggregation": {
+          "not": {
+            "required": [
+              "realization"
+            ]
+          }
+        },
+        "realization": {
+          "not": {
+            "required": [
+              "aggregation"
+            ]
+          }
+        }
+      },
+      "description": "The FMU block records properties that are specific to FMU",
+      "properties": {
+        "aggregation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Aggregation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "case": {
+          "$ref": "#/$defs/FMUCase"
+        },
+        "context": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Context"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "iteration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Iteration"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "model": {
+          "$ref": "#/$defs/FMUModel"
+        },
+        "realization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Realization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "workflow": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Workflow"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "case",
+        "model"
+      ],
+      "title": "FMUClassMetaData",
+      "type": "object"
+    },
     "FMUDataClassMeta": {
       "properties": {
         "access": {
@@ -1021,7 +1045,7 @@
           "$ref": "#/$defs/File"
         },
         "fmu": {
-          "$ref": "#/$defs/FMU"
+          "$ref": "#/$defs/FMUClassMetaData"
         },
         "masterdata": {
           "$ref": "#/$defs/Masterdata"

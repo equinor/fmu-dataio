@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import Counter
 from contextlib import suppress
-from pprint import pp
+from pprint import pformat
 from random import sample
 
 from fmu.dataio.datastructure.meta import Root
@@ -61,6 +61,6 @@ if __name__ == "__main__":
                     pbar.write("-" * 100)
                     pbar.write("\n".join(str(v) for v in tally.items()))
             except Exception as e:
-                print(str(e))
-                pp(m)
-                raise
+                pbar.write(pformat(m))
+                pbar.write(str(e))
+                exit(1)

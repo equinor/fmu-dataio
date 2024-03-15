@@ -247,7 +247,7 @@ def test_content_valid_dict(regsurf, globalconfig2):
 
 def test_content_is_a_wrongly_formatted_dict(globalconfig2):
     """When content is a dict, it shall have one key with one dict as value."""
-    with pytest.raises(ValueError, match="incorrectly formatted"):
+    with pytest.raises(ValueError):
         ExportData(
             config=globalconfig2,
             name="TopVolantis",

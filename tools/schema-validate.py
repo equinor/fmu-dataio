@@ -3,7 +3,7 @@
 
 import sys
 
-from fmu.dataio.models.meta.model import Root
+from fmu.dataio.datastructure.meta.meta import Root
 from orjson import dumps
 from yaml import safe_load
 
