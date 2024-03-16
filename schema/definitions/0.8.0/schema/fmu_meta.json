@@ -964,15 +964,7 @@
           "$ref": "#/$defs/FMUCase"
         },
         "context": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Context"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
+          "$ref": "#/$defs/Context"
         },
         "iteration": {
           "anyOf": [
@@ -1013,6 +1005,7 @@
       },
       "required": [
         "case",
+        "context",
         "model"
       ],
       "title": "FMUClassMetaData",
@@ -4864,15 +4857,14 @@
         },
         "jobs": {
           "anyOf": [
-            {
-              "$ref": "#/$defs/RealizationJobs"
-            },
+            {},
             {
               "type": "null"
             }
           ],
           "default": null,
-          "description": "Content directly taken from the ERT jobs.json file for this realization"
+          "description": "Content directly taken from the ERT jobs.json file for this realization",
+          "title": "Jobs"
         },
         "name": {
           "description": "The convential name of this iteration, e.g. iter-0 or pred",
@@ -4909,207 +4901,6 @@
         "uuid"
       ],
       "title": "Realization",
-      "type": "object"
-    },
-    "RealizationJobListing": {
-      "properties": {
-        "argList": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Arglist",
-          "type": "array"
-        },
-        "arg_types": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Arg Types",
-          "type": "array"
-        },
-        "error_file": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Error File"
-        },
-        "executable": {
-          "title": "Executable",
-          "type": "string"
-        },
-        "license_path": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "License Path"
-        },
-        "max_arg": {
-          "title": "Max Arg",
-          "type": "integer"
-        },
-        "max_running": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Max Running"
-        },
-        "max_running_minutes": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Max Running Minutes"
-        },
-        "min_arg": {
-          "title": "Min Arg",
-          "type": "integer"
-        },
-        "name": {
-          "title": "Name",
-          "type": "string"
-        },
-        "start_file": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Start File"
-        },
-        "stderr": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Stderr"
-        },
-        "stdin": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Stdin"
-        },
-        "stdout": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Stdout"
-        },
-        "target_file": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Target File"
-        }
-      },
-      "required": [
-        "arg_types",
-        "argList",
-        "error_file",
-        "executable",
-        "license_path",
-        "max_arg",
-        "max_running_minutes",
-        "max_running",
-        "min_arg",
-        "name",
-        "start_file",
-        "stderr",
-        "stdin",
-        "stdout",
-        "target_file"
-      ],
-      "title": "RealizationJobListing",
-      "type": "object"
-    },
-    "RealizationJobs": {
-      "properties": {
-        "DATA_ROOT": {
-          "title": "Data Root",
-          "type": "string"
-        },
-        "ert_pid": {
-          "title": "Ert Pid",
-          "type": "string"
-        },
-        "global_environment": {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "title": "Global Environment",
-          "type": "object"
-        },
-        "global_update_path": {
-          "title": "Global Update Path",
-          "type": "object"
-        },
-        "jobList": {
-          "items": {
-            "$ref": "#/$defs/RealizationJobListing"
-          },
-          "title": "Joblist",
-          "type": "array"
-        },
-        "run_id": {
-          "title": "Run Id",
-          "type": "string"
-        },
-        "umask": {
-          "title": "Umask",
-          "type": "string"
-        }
-      },
-      "required": [
-        "DATA_ROOT",
-        "ert_pid",
-        "global_environment",
-        "global_update_path",
-        "jobList",
-        "run_id",
-        "umask"
-      ],
-      "title": "RealizationJobs",
       "type": "object"
     },
     "RegionsContent": {

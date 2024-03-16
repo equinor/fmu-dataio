@@ -177,16 +177,6 @@ class RealizationJobListing(BaseModel):
     target_file: Optional[Path]
 
 
-class RealizationJobs(BaseModel):
-    data_root: Path = Field(alias="DATA_ROOT")
-    ert_pid: str
-    global_environment: Dict[str, str]
-    global_update_path: Dict
-    job_list: List[RealizationJobListing] = Field(alias="jobList")
-    run_id: str
-    umask: str
-
-
 class Realization(BaseModel):
     id: int = Field(
         description="The unique number of this realization as used in FMU",
@@ -199,7 +189,7 @@ class Realization(BaseModel):
         default=None,
         description="Parameters for this realization",
     )
-    jobs: Optional[RealizationJobs] = Field(
+    jobs: Optional[object] = Field(
         default=None,
         description=(
             "Content directly taken from the ERT jobs.json file for this realization"
@@ -358,7 +348,7 @@ class FMUClassMetaData(BaseModel):
     """
 
     case: FMUCase
-    context: Optional[Context] = Field(default=None)
+    context: Context
     model: FMUModel
     iteration: Optional[Iteration] = Field(default=None)
     workflow: Optional[Workflow] = Field(default=None)
