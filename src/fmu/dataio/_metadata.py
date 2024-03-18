@@ -292,26 +292,10 @@ class MetaData:
         )
         logger.info("FMU provider is %s", fmudata.get_provider())
 
-        if not fmudata.get_provider():  # e.g. run from RMS not in a FMU run
-            actual_context = (
-                FmuContext.PREPROCESSED
-                if self.dataio.fmu_context == FmuContext.PREPROCESSED
-                else FmuContext.get("non_fmu")
-            )
-            if self.dataio.fmu_context != actual_context:
-                logger.warning(
-                    "Requested fmu_context is <%s> but since this is detected as a non "
-                    "FMU run, the actual context is force set to <%s>",
-                    self.dataio.fmu_context,
-                    actual_context,
-                )
-                self.dataio.fmu_context = actual_context
-
-        else:
-            self.meta_fmu = fmudata.get_metadata()
-            self.rootpath = fmudata.get_casepath()
-            self.iter_name = fmudata.get_iter_name()
-            self.real_name = fmudata.get_real_name()
+        self.meta_fmu = fmudata.get_metadata()
+        self.rootpath = fmudata.get_casepath()
+        self.iter_name = fmudata.get_iter_name()
+        self.real_name = fmudata.get_real_name()
 
         logger.debug("Rootpath is now %s", self.rootpath)
 
@@ -449,10 +433,12 @@ class MetaData:
             self._populate_meta_masterdata()
             self._populate_meta_access()
 
+        if self.dataio._fmurun:
+            self._populate_meta_fmu()
+
         self._populate_meta_tracklog()
         self._populate_meta_objectdata()
         self._populate_meta_class()
-        self._populate_meta_fmu()
         self._populate_meta_file()
         self._populate_meta_display()
         self._populate_meta_xpreprocessed()
