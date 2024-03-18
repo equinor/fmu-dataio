@@ -67,8 +67,8 @@ class DerivedObjectDescriptor:
     )
     fmt: str
     extension: str
-    spec: Dict[str, Any]
-    bbox: Dict[str, Any]
+    spec: Dict[str, Any] | None
+    bbox: Dict[str, Any] | None
     table_index: Optional[list[str]]
 
 
@@ -80,7 +80,7 @@ class DerivedNamedStratigraphy:
     stratigraphic: bool
     stratigraphic_alias: list[str]
 
-    offset: int | None
+    offset: int
     base: str | None
     top: str | None
 
@@ -178,7 +178,7 @@ class ObjectDataProvider(ABC):
             stratigraphic_alias=[]
             if no_start_or_missing_name
             else strat[name].get("stratigraphic_alias"),
-            offset=None if no_start_or_missing_name else strat[name].get("offset"),
+            offset=0.0 if no_start_or_missing_name else strat[name].get("offset", 0.0),
             top=None if no_start_or_missing_name else strat[name].get("top"),
             base=None if no_start_or_missing_name else strat[name].get("base"),
         )

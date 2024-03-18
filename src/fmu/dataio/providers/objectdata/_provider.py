@@ -213,7 +213,7 @@ class DictionaryDataProvider(ObjectDataProvider):
             efolder="dictionaries",
             fmt=(fmt := self.dataio.dict_fformat),
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
-            spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            spec=self.get_spec() or None,
+            bbox=self.get_bbox() or None,
             table_index=None,
         )

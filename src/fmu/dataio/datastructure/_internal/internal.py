@@ -16,7 +16,7 @@ from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataio.datastructure.configuration.global_configuration import (
     Model as GlobalConfigurationModel,
 )
-from fmu.dataio.datastructure.meta.meta import Access, Masterdata, TracklogEvent, User
+from fmu.dataio.datastructure.meta import meta
 from pydantic import AnyHttpUrl, BaseModel, Field, TypeAdapter, model_validator
 
 
@@ -154,7 +154,7 @@ class JsonSchemaMetadata(BaseModel, populate_by_name=True):
 class CaseMetadata(BaseModel):
     name: str
     uuid: str
-    user: User
+    user: meta.User
 
 
 class FMUModel(BaseModel):
@@ -162,10 +162,65 @@ class FMUModel(BaseModel):
     case: CaseMetadata
 
 
+class PreprocessedInfo(BaseModel):
+    name: str
+    tagname: str
+    subfolder: str
+
+
+class Context(BaseModel):
+    stage: Literal[
+        "realization",
+        "case",
+        "case_symlink_realization",
+        "preprocessed",
+        "non_fmu",
+    ]
+
+
+# Remove the two models below when content is required as input.
+class UnsetContent(meta.content.Content):
+    content: Literal["unset"]  # type: ignore
+
+
+class UnsetAnyContent(meta.content.AnyContent):
+    root: UnsetContent  # type: ignore
+
+
+class FMUClassMetaData(meta.FMUClassMetaData):
+    # This class is identical to the one used in the schema
+    # exept for more fmu context values beeing allowed internally
+    context: Context  # type: ignore
+
+
+class DataClassMeta(JsonSchemaMetadata):
+    # TODO: aim to use meta.FMUDataClassMeta as base
+    # class and disallow creating invalid metadata.
+    class_: Literal[
+        meta.enums.FMUClassEnum.surface,
+        meta.enums.FMUClassEnum.table,
+        meta.enums.FMUClassEnum.cpgrid,
+        meta.enums.FMUClassEnum.cpgrid_property,
+        meta.enums.FMUClassEnum.polygons,
+        meta.enums.FMUClassEnum.cube,
+        meta.enums.FMUClassEnum.well,
+        meta.enums.FMUClassEnum.points,
+        meta.enums.FMUClassEnum.dictionary,
+    ] = Field(alias="class")
+    fmu: Optional[FMUClassMetaData]
+    masterdata: Optional[meta.Masterdata]
+    access: Optional[meta.SsdlAccess]
+    data: Union[meta.content.AnyContent, UnsetAnyContent]
+    file: meta.File
+    display: meta.Display
+    tracklog: List[meta.TracklogEvent]
+    preprocessed: Optional[PreprocessedInfo] = Field(alias="_preprocessed")
+
+
 class CaseSchema(JsonSchemaMetadata):
     class_: Literal["case"] = Field(alias="class", default="case")
-    masterdata: Masterdata
-    access: Access
+    masterdata: meta.Masterdata
+    access: meta.Access
     fmu: FMUModel
     description: Optional[List[str]]
-    tracklog: List[TracklogEvent]
+    tracklog: List[meta.TracklogEvent]
