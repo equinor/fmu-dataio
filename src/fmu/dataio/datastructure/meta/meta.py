@@ -122,7 +122,8 @@ class FMUCase(BaseModel):
 
 
 class Iteration(BaseModel):
-    id: int = Field(
+    id: Optional[int] = Field(
+        default=None,
         description=(
             "The internal identification of this iteration, e.g. the iteration number"
         ),

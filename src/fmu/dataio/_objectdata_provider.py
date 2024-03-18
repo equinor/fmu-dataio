@@ -483,7 +483,7 @@ class ObjectDataProvider:
                 mode="json",
                 exclude_none=True,
             ),
-            bbox=meta.content.BoundingBox(
+            bbox=meta.content.BoundingBox3D(
                 xmin=float(regsurf.xmin),
                 xmax=float(regsurf.xmax),
                 ymin=float(regsurf.ymin),
@@ -509,7 +509,7 @@ class ObjectDataProvider:
                 mode="json",
                 exclude_none=True,
             ),
-            bbox=meta.content.BoundingBox(
+            bbox=meta.content.BoundingBox3D(
                 xmin=float(xmin),
                 xmax=float(xmax),
                 ymin=float(ymin),
@@ -536,7 +536,7 @@ class ObjectDataProvider:
                 mode="json",
                 exclude_none=True,
             ),
-            bbox=meta.content.BoundingBox(
+            bbox=meta.content.BoundingBox3D(
                 xmin=float(df[pnts.xname].min()),
                 xmax=float(df[pnts.xname].max()),
                 ymax=float(df[pnts.yname].min()),
@@ -586,7 +586,7 @@ class ObjectDataProvider:
                 mode="json",
                 exclude_none=True,
             ),
-            bbox=meta.content.BoundingBox(
+            bbox=meta.content.BoundingBox3D(
                 xmin=float(xmin),
                 xmax=float(xmax),
                 ymin=float(ymin),
@@ -626,7 +626,7 @@ class ObjectDataProvider:
                 mode="json",
                 exclude_none=True,
             ),
-            bbox=meta.content.BoundingBox(
+            bbox=meta.content.BoundingBox3D(
                 xmin=round(float(geox["xmin"]), 4),
                 xmax=round(float(geox["xmax"]), 4),
                 ymin=round(float(geox["ymin"]), 4),

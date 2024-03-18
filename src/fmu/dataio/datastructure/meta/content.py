@@ -113,7 +113,7 @@ class Layer(BaseModel):
     )
 
 
-class BoundingBox(BaseModel):
+class BoundingBox2D(BaseModel):
     xmin: float = Field(
         description="Minimum x-coordinate",
         allow_inf_nan=False,
@@ -130,6 +130,9 @@ class BoundingBox(BaseModel):
         description="Maximum y-coordinate",
         allow_inf_nan=False,
     )
+
+
+class BoundingBox3D(BoundingBox2D):
     zmin: float = Field(
         description="Minimum z-coordinate",
         allow_inf_nan=False,
@@ -146,7 +149,7 @@ class Content(BaseModel):
     alias: Optional[List[str]] = Field(default=None)
 
     # Only valid for cooridate based meta.
-    bbox: Optional[BoundingBox] = Field(default=None)
+    bbox: Optional[Union[BoundingBox2D, BoundingBox3D]] = Field(default=None)
 
     description: Optional[List[str]] = Field(
         default=None,
