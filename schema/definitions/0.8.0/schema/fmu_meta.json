@@ -234,7 +234,39 @@
       "title": "AxisOrientation",
       "type": "integer"
     },
-    "BoundingBox": {
+    "BoundingBox2D": {
+      "properties": {
+        "xmax": {
+          "description": "Maximum x-coordinate",
+          "title": "Xmax",
+          "type": "number"
+        },
+        "xmin": {
+          "description": "Minimum x-coordinate",
+          "title": "Xmin",
+          "type": "number"
+        },
+        "ymax": {
+          "description": "Maximum y-coordinate",
+          "title": "Ymax",
+          "type": "number"
+        },
+        "ymin": {
+          "description": "Minimum y-coordinate",
+          "title": "Ymin",
+          "type": "number"
+        }
+      },
+      "required": [
+        "xmin",
+        "xmax",
+        "ymin",
+        "ymax"
+      ],
+      "title": "BoundingBox2D",
+      "type": "object"
+    },
+    "BoundingBox3D": {
       "properties": {
         "xmax": {
           "description": "Maximum x-coordinate",
@@ -275,7 +307,7 @@
         "zmin",
         "zmax"
       ],
-      "title": "BoundingBox",
+      "title": "BoundingBox3D",
       "type": "object"
     },
     "CPGridPropertySpecification": {
@@ -559,13 +591,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "depth",
@@ -1196,13 +1232,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "facies_thickness",
@@ -1452,13 +1492,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "fault_lines",
@@ -1747,13 +1791,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "field_outline",
@@ -2022,13 +2070,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "field_region",
@@ -2398,13 +2450,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "fluid_contact",
@@ -2674,13 +2730,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "inplace_volumes",
@@ -2902,9 +2962,17 @@
     "Iteration": {
       "properties": {
         "id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
           "description": "The internal identification of this iteration, e.g. the iteration number",
-          "title": "Id",
-          "type": "integer"
+          "title": "Id"
         },
         "name": {
           "description": "The convential name of this iteration, e.g. iter-0 or pred",
@@ -2941,7 +3009,6 @@
         }
       },
       "required": [
-        "id",
         "name",
         "uuid"
       ],
@@ -2979,13 +3046,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "khproduct",
@@ -3263,13 +3334,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "lift_curves",
@@ -3531,13 +3606,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "pvt",
@@ -3807,13 +3886,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "parameters",
@@ -4063,13 +4146,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "pinchout",
@@ -4367,13 +4454,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "property",
@@ -4623,13 +4714,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "rft",
@@ -4934,13 +5029,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "regions",
@@ -5190,13 +5289,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "relperm",
@@ -5534,13 +5637,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "seismic",
@@ -5904,13 +6011,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "subcrop",
@@ -6351,13 +6462,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "thickness",
@@ -6635,13 +6750,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "time",
@@ -6891,13 +7010,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "timeseries",
@@ -7205,13 +7328,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "velocity",
@@ -7474,13 +7601,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "volumes",
@@ -7730,13 +7861,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "volumetrics",
@@ -7986,13 +8121,17 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox"
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Bbox"
         },
         "content": {
           "const": "wellpicks",
