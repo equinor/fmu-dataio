@@ -108,7 +108,7 @@ def test_regsurf_preprocessed_observation(
             == "share/preprocessed/maps/topvolantis--20240802_20200909.gri"
         )
         assert metadata["data"]["name"] == "VOLANTIS GP. Top"
-        assert "_preprocessed" in metadata
+        assert "preprocessed" in metadata
 
         return edata.export(regsurf)
 
@@ -147,7 +147,7 @@ def test_regsurf_preprocessed_observation(
         assert "merged" in metadata["tracklog"][-1]["event"]
         assert metadata["data"]["name"] == "VOLANTIS GP. Top"
         assert "TopVolantis" in metadata["data"]["alias"]
-        assert "_preprocessed" not in metadata
+        assert "preprocessed" not in metadata
 
         # do the actual export (which will copy data to case/share/observations/...)
         edata.export(

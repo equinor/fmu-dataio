@@ -431,8 +431,8 @@ def glue_metadata_preprocessed(
 
     meta = oldmeta.copy()
 
-    if "_preprocessed" in meta:
-        del meta["_preprocessed"]
+    if "preprocessed" in meta:
+        del meta["preprocessed"]
 
     meta["fmu"] = newmeta["fmu"]
     meta["file"] = newmeta["file"]

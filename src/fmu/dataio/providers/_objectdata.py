@@ -238,7 +238,7 @@ class DataFrameDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.table_fformat),
             extension=self._validate_get_ext(fmt, "DataFrame", ValidFormats().table),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox() or None,
             table_index=self._derive_index(),
         )
 
@@ -266,8 +266,8 @@ class DictionaryDataProvider(ObjectDataProvider):
             efolder="dictionaries",
             fmt=(fmt := self.dataio.dict_fformat),
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
-            spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            spec=self.get_spec() or None,
+            bbox=self.get_bbox() or None,
             table_index=None,
         )
 
@@ -339,7 +339,7 @@ class ArrowTableDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.arrow_fformat),
             extension=self._validate_get_ext(fmt, "ArrowTable", ValidFormats().table),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox() or None,
         )
 
 
