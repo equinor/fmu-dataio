@@ -21,6 +21,7 @@ from ._definitions import (
     FmuContext,
     ValidationError,
 )
+from ._fmu_provider import FmuEnv
 from ._logging import null_logger
 from ._utils import (
     create_symlink,
@@ -445,6 +446,7 @@ class ExportData:
     _metadata: dict = field(default_factory=dict, init=False)
     _pwd: Path = field(default_factory=Path, init=False)
     _config_is_valid: bool = field(default=True, init=False)
+    _fmurun: bool = field(default=False, init=False)
 
     # << NB! storing ACTUAL casepath:
     _rootpath: Path = field(default_factory=Path, init=False)
@@ -461,6 +463,7 @@ class ExportData:
         logger.info("Running __post_init__ ExportData")
         logger.debug("Global config is %s", prettyprint_dict(self.config))
 
+        self._fmurun = FmuEnv.ENSEMBLE_ID.value is not None
         self.fmu_context = FmuContext.get(self.fmu_context)
 
         # set defaults for mutable keys
@@ -479,6 +482,7 @@ class ExportData:
             self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
 
         self._validate_content_key()
+        self._validate_fmucontext_key()
         self._update_globalconfig_from_settings()
 
         # check state of global config
@@ -517,6 +521,16 @@ class ExportData:
         """Validate the given 'fmu_context' input."""
         if isinstance(self.fmu_context, str):
             self.fmu_context = FmuContext.get(self.fmu_context)
+
+        # fmu_context is only allowed to be preprocessed if not in a fmu run
+        if not self._fmurun and self.fmu_context != FmuContext.PREPROCESSED:
+            logger.warning(
+                "Requested fmu_context is <%s> but since this is detected as a non "
+                "FMU run, the actual context is force set to <%s>",
+                self.fmu_context,
+                FmuContext.get("non_fmu"),
+            )
+            self.fmu_context = FmuContext.get("non_fmu")
 
     def _update_fmt_flag(self) -> None:
         # treat special handling of "xtgeo" in format name:

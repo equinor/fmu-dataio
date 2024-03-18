@@ -8,6 +8,8 @@ from copy import deepcopy
 
 import pytest
 import yaml
+from fmu.dataio._definitions import FmuContext
+from fmu.dataio._fmu_provider import FmuEnv
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ExportData, ValidationError, read_metadata
 
@@ -330,6 +332,50 @@ def test_global_config_from_env(monkeypatch, global_config2_path):
     monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(global_config2_path))
     edata = ExportData(content="depth")  # the env variable will override this
     assert "smda" in edata.config["masterdata"]
+
+
+def test_fmurun_attribute_outside_fmu(rmsglobalconfig):
+    """Test that _fmurun attribute is True when in fmu"""
+
+    # check that ERT environment variable is not set
+    assert FmuEnv.ENSEMBLE_ID.value is None
+
+    edata = ExportData(config=rmsglobalconfig, content="depth")
+    assert edata._fmurun is False
+
+
+def test_fmurun_attribute_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig):
+    """Test that _fmurun attribute is True when in fmu"""
+
+    # check that ERT environment variable is not set
+    assert FmuEnv.ENSEMBLE_ID.value is not None
+
+    edata = ExportData(config=rmsglobalconfig, content="depth")
+    assert edata._fmurun is True
+
+
+def test_fmu_context_outside_fmu_input_overwrite(rmsglobalconfig):
+    """
+    For non-fmu run fmu_context should be overwritten when input
+    is not "preprocessed"
+    """
+    edata = ExportData(
+        config=rmsglobalconfig, content="depth", fmu_context="realization"
+    )
+    assert edata._fmurun is False
+    assert edata.fmu_context == FmuContext.NON_FMU
+
+
+def test_fmu_context_outside_fmu_no_input_overwrite(rmsglobalconfig):
+    """
+    For non-fmu run fmu_context should not be overwritten when input
+    is "preprocessed"
+    """
+    edata = ExportData(
+        config=rmsglobalconfig, content="depth", fmu_context="preprocessed"
+    )
+    assert edata._fmurun is False
+    assert edata.fmu_context == FmuContext.PREPROCESSED
 
 
 def test_norwegian_letters_globalconfig(

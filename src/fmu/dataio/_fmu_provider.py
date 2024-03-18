@@ -114,6 +114,9 @@ class FmuProvider:
         logger.debug("FMU context is <%s>...", self.fmu_context)
 
         if not FmuEnv.ENSEMBLE_ID.value:
+            logger.debug(
+                "No ERT environment variables detected, provider will be empty"
+            )
             return  # not an FMU run
 
         self._provider = "ERT"
