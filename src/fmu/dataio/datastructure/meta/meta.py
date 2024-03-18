@@ -177,16 +177,6 @@ class RealizationJobListing(BaseModel):
     target_file: Optional[Path]
 
 
-class RealizationJobs(BaseModel):
-    data_root: Path = Field(alias="DATA_ROOT")
-    ert_pid: str
-    global_environment: Dict[str, str]
-    global_update_path: Dict
-    job_list: List[RealizationJobListing] = Field(alias="jobList")
-    run_id: str
-    umask: str
-
-
 class Realization(BaseModel):
     id: int = Field(
         description="The unique number of this realization as used in FMU",
@@ -199,7 +189,7 @@ class Realization(BaseModel):
         default=None,
         description="Parameters for this realization",
     )
-    jobs: Optional[RealizationJobs] = Field(
+    jobs: Optional[object] = Field(
         default=None,
         description=(
             "Content directly taken from the ERT jobs.json file for this realization"
@@ -343,7 +333,16 @@ class Context(BaseModel):
     ]
 
 
-class FMU(BaseModel):
+class FMUClassMetaCase(BaseModel):
+    """
+    The FMU block records properties that are specific to FMU
+    """
+
+    case: FMUCase
+    model: FMUModel
+
+
+class FMUClassMetaData(BaseModel):
     """
     The FMU block records properties that are specific to FMU
     """
@@ -402,7 +401,7 @@ class FMUCaseClassMeta(ClassMeta):
         alias="class",
         title="Metadata class",
     )
-    fmu: FMU
+    fmu: FMUClassMetaCase
     access: Access
 
 
@@ -426,7 +425,7 @@ class FMUDataClassMeta(ClassMeta):
     # FMUObj it is. The fmu_discriminator will inspects
     # the obj. and returns a tag that tells pydantic
     # what model to use.
-    fmu: FMU
+    fmu: FMUClassMetaData
     access: SsdlAccess
     data: content.AnyContent
     file: File

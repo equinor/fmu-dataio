@@ -1,9 +1,9 @@
 # type: ignore
-# Ex. usage: time (find schema -name "*.yml" | python3 tools/validate-schema-example.py)
+# Ex. usage: time (find schema -name "*.yml" | python3 tools/schema-example-validate.py)
 
 import sys
 
-from fmu.dataio.models.meta.model import Root
+from fmu.dataio.datastructure.meta.meta import Root
 from orjson import dumps
 from yaml import safe_load
 

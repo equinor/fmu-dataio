@@ -819,7 +819,118 @@
       "title": "DiscoveryItem",
       "type": "object"
     },
-    "FMU": {
+    "FMUCase": {
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "name": {
+          "description": "The case name",
+          "examples": [
+            "MyCaseName"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "user": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/User"
+            }
+          ],
+          "description": "The user name used in ERT"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "user",
+        "uuid"
+      ],
+      "title": "FMUCase",
+      "type": "object"
+    },
+    "FMUCaseClassMeta": {
+      "properties": {
+        "access": {
+          "$ref": "#/$defs/Access"
+        },
+        "class": {
+          "const": "case",
+          "title": "Metadata class"
+        },
+        "fmu": {
+          "$ref": "#/$defs/FMUClassMetaCase"
+        },
+        "masterdata": {
+          "$ref": "#/$defs/Masterdata"
+        },
+        "source": {
+          "const": "fmu",
+          "description": "Data source (FMU)",
+          "title": "Source"
+        },
+        "tracklog": {
+          "items": {
+            "$ref": "#/$defs/TracklogEvent"
+          },
+          "title": "Tracklog",
+          "type": "array"
+        },
+        "version": {
+          "const": "0.8.0",
+          "title": "FMU results metadata version"
+        }
+      },
+      "required": [
+        "class",
+        "masterdata",
+        "tracklog",
+        "source",
+        "version",
+        "fmu",
+        "access"
+      ],
+      "title": "FMUCaseClassMeta",
+      "type": "object"
+    },
+    "FMUClassMetaCase": {
+      "description": "The FMU block records properties that are specific to FMU",
+      "properties": {
+        "case": {
+          "$ref": "#/$defs/FMUCase"
+        },
+        "model": {
+          "$ref": "#/$defs/FMUModel"
+        }
+      },
+      "required": [
+        "case",
+        "model"
+      ],
+      "title": "FMUClassMetaCase",
+      "type": "object"
+    },
+    "FMUClassMetaData": {
       "dependencies": {
         "aggregation": {
           "not": {
@@ -897,101 +1008,7 @@
         "context",
         "model"
       ],
-      "title": "FMU",
-      "type": "object"
-    },
-    "FMUCase": {
-      "properties": {
-        "description": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Description"
-        },
-        "name": {
-          "description": "The case name",
-          "examples": [
-            "MyCaseName"
-          ],
-          "title": "Name",
-          "type": "string"
-        },
-        "user": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/User"
-            }
-          ],
-          "description": "The user name used in ERT"
-        },
-        "uuid": {
-          "examples": [
-            "15ce3b84-766f-4c93-9050-b154861f9100"
-          ],
-          "format": "uuid",
-          "title": "Uuid",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "user",
-        "uuid"
-      ],
-      "title": "FMUCase",
-      "type": "object"
-    },
-    "FMUCaseClassMeta": {
-      "properties": {
-        "access": {
-          "$ref": "#/$defs/Access"
-        },
-        "class": {
-          "const": "case",
-          "title": "Metadata class"
-        },
-        "fmu": {
-          "$ref": "#/$defs/FMU"
-        },
-        "masterdata": {
-          "$ref": "#/$defs/Masterdata"
-        },
-        "source": {
-          "const": "fmu",
-          "description": "Data source (FMU)",
-          "title": "Source"
-        },
-        "tracklog": {
-          "items": {
-            "$ref": "#/$defs/TracklogEvent"
-          },
-          "title": "Tracklog",
-          "type": "array"
-        },
-        "version": {
-          "const": "0.8.0",
-          "title": "FMU results metadata version"
-        }
-      },
-      "required": [
-        "class",
-        "masterdata",
-        "tracklog",
-        "source",
-        "version",
-        "fmu",
-        "access"
-      ],
-      "title": "FMUCaseClassMeta",
+      "title": "FMUClassMetaData",
       "type": "object"
     },
     "FMUDataClassMeta": {
@@ -1021,7 +1038,7 @@
           "$ref": "#/$defs/File"
         },
         "fmu": {
-          "$ref": "#/$defs/FMU"
+          "$ref": "#/$defs/FMUClassMetaData"
         },
         "masterdata": {
           "$ref": "#/$defs/Masterdata"
@@ -4840,15 +4857,14 @@
         },
         "jobs": {
           "anyOf": [
-            {
-              "$ref": "#/$defs/RealizationJobs"
-            },
+            {},
             {
               "type": "null"
             }
           ],
           "default": null,
-          "description": "Content directly taken from the ERT jobs.json file for this realization"
+          "description": "Content directly taken from the ERT jobs.json file for this realization",
+          "title": "Jobs"
         },
         "name": {
           "description": "The convential name of this iteration, e.g. iter-0 or pred",
@@ -4885,207 +4901,6 @@
         "uuid"
       ],
       "title": "Realization",
-      "type": "object"
-    },
-    "RealizationJobListing": {
-      "properties": {
-        "argList": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Arglist",
-          "type": "array"
-        },
-        "arg_types": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Arg Types",
-          "type": "array"
-        },
-        "error_file": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Error File"
-        },
-        "executable": {
-          "title": "Executable",
-          "type": "string"
-        },
-        "license_path": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "License Path"
-        },
-        "max_arg": {
-          "title": "Max Arg",
-          "type": "integer"
-        },
-        "max_running": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Max Running"
-        },
-        "max_running_minutes": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Max Running Minutes"
-        },
-        "min_arg": {
-          "title": "Min Arg",
-          "type": "integer"
-        },
-        "name": {
-          "title": "Name",
-          "type": "string"
-        },
-        "start_file": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Start File"
-        },
-        "stderr": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Stderr"
-        },
-        "stdin": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Stdin"
-        },
-        "stdout": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Stdout"
-        },
-        "target_file": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Target File"
-        }
-      },
-      "required": [
-        "arg_types",
-        "argList",
-        "error_file",
-        "executable",
-        "license_path",
-        "max_arg",
-        "max_running_minutes",
-        "max_running",
-        "min_arg",
-        "name",
-        "start_file",
-        "stderr",
-        "stdin",
-        "stdout",
-        "target_file"
-      ],
-      "title": "RealizationJobListing",
-      "type": "object"
-    },
-    "RealizationJobs": {
-      "properties": {
-        "DATA_ROOT": {
-          "title": "Data Root",
-          "type": "string"
-        },
-        "ert_pid": {
-          "title": "Ert Pid",
-          "type": "string"
-        },
-        "global_environment": {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "title": "Global Environment",
-          "type": "object"
-        },
-        "global_update_path": {
-          "title": "Global Update Path",
-          "type": "object"
-        },
-        "jobList": {
-          "items": {
-            "$ref": "#/$defs/RealizationJobListing"
-          },
-          "title": "Joblist",
-          "type": "array"
-        },
-        "run_id": {
-          "title": "Run Id",
-          "type": "string"
-        },
-        "umask": {
-          "title": "Umask",
-          "type": "string"
-        }
-      },
-      "required": [
-        "DATA_ROOT",
-        "ert_pid",
-        "global_environment",
-        "global_update_path",
-        "jobList",
-        "run_id",
-        "umask"
-      ],
-      "title": "RealizationJobs",
       "type": "object"
     },
     "RegionsContent": {
