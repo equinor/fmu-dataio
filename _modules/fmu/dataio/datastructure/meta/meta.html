@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g481714e documentation</title>
+  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g66dc069 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -267,16 +267,6 @@
     <span class="n">target_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="RealizationJobs"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.RealizationJobs">[docs]</a><span class="k">class</span> <span class="nc">RealizationJobs</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-    <span class="n">data_root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;DATA_ROOT&quot;</span><span class="p">)</span>
-    <span class="n">ert_pid</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">global_environment</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
-    <span class="n">global_update_path</span><span class="p">:</span> <span class="n">Dict</span>
-    <span class="n">job_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RealizationJobListing</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;jobList&quot;</span><span class="p">)</span>
-    <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">umask</span><span class="p">:</span> <span class="nb">str</span></div>
-
-
 <div class="viewcode-block" id="Realization"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Realization">[docs]</a><span class="k">class</span> <span class="nc">Realization</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The unique number of this realization as used in FMU&quot;</span><span class="p">,</span>
@@ -289,7 +279,7 @@
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Parameters for this realization&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">jobs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RealizationJobs</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+    <span class="n">jobs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="p">(</span>
             <span class="s2">&quot;Content directly taken from the ERT jobs.json file for this realization&quot;</span>
@@ -433,7 +423,16 @@
     <span class="p">]</span>
 
 
-<div class="viewcode-block" id="FMU"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.FMU">[docs]</a><span class="k">class</span> <span class="nc">FMU</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">FMUClassMetaCase</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The FMU block records properties that are specific to FMU</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">case</span><span class="p">:</span> <span class="n">FMUCase</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">FMUModel</span>
+
+
+<span class="k">class</span> <span class="nc">FMUClassMetaData</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The FMU block records properties that are specific to FMU</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -473,7 +472,7 @@
                 <span class="p">}</span>
             <span class="p">}</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">json_schema</span></div>
+        <span class="k">return</span> <span class="n">json_schema</span>
 
 
 <div class="viewcode-block" id="ClassMeta"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.ClassMeta">[docs]</a><span class="k">class</span> <span class="nc">ClassMeta</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -492,7 +491,7 @@
         <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">,</span>
         <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Metadata class&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">fmu</span><span class="p">:</span> <span class="n">FMU</span>
+    <span class="n">fmu</span><span class="p">:</span> <span class="n">FMUClassMetaCase</span>
     <span class="n">access</span><span class="p">:</span> <span class="n">Access</span></div>
 
 
@@ -516,7 +515,7 @@
     <span class="c1"># FMUObj it is. The fmu_discriminator will inspects</span>
     <span class="c1"># the obj. and returns a tag that tells pydantic</span>
     <span class="c1"># what model to use.</span>
-    <span class="n">fmu</span><span class="p">:</span> <span class="n">FMU</span>
+    <span class="n">fmu</span><span class="p">:</span> <span class="n">FMUClassMetaData</span>
     <span class="n">access</span><span class="p">:</span> <span class="n">SsdlAccess</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">content</span><span class="o">.</span><span class="n">AnyContent</span>
     <span class="n">file</span><span class="p">:</span> <span class="n">File</span></div>
@@ -676,7 +675,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g481714e).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g66dc069).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
