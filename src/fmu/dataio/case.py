@@ -118,9 +118,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
 
         meta = internal.CaseSchema(
             masterdata=internal.Masterdata.model_validate(self.config["masterdata"]),
-            access=internal.Access.model_validate(
-                _metadata.generate_meta_access(self.config)
-            ),
+            access=internal.Access.model_validate(self.config["access"]),
             fmu=internal.FMUModel(
                 model=global_configuration.Model.model_validate(
                     self.config["model"],
