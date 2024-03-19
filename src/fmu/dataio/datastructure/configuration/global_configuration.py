@@ -59,6 +59,18 @@ class Ssdl(BaseModel):
         default=False,
     )
 
+    @model_validator(mode="after")
+    def _migrate_asset_to_restricted(self) -> Ssdl:
+        if self.access_level == enums.AccessLevel.asset:
+            warnings.warn(
+                "The value 'asset' for access.ssdl.access_level is deprecated. "
+                "Please use 'restricted' in input arguments or global variables "
+                "to silence this warning.",
+                FutureWarning,
+            )
+            self.access_level = enums.AccessLevel.restricted
+        return self
+
 
 class Asset(BaseModel):
     """
@@ -75,18 +87,15 @@ class Access(BaseModel):
 
     asset: Asset
     ssdl: Ssdl
-    classification: Optional[enums.AccessLevel] = Field(
-        default=enums.AccessLevel.internal,
-    )
+    classification: Optional[enums.AccessLevel] = Field(default=None)
 
-    @model_validator(mode="before")
-    @classmethod
-    def _classification_mirros_accesslevel(cls, values: Dict) -> Dict:
-        if isinstance(ssdl := values.get("ssdl", {}), dict):
-            values["classification"] = ssdl.get("access_level")
-            if values["classification"] == "asset":
-                values["classification"] = "restricted"
-        return values
+    @model_validator(mode="after")
+    def _classification_mirrors_accesslevel(self) -> Access:
+        # Ideally we want to only copy if the user has NOT
+        # set the classification.
+        # See: https://github.com/equinor/fmu-dataio/issues/540
+        self.classification = self.ssdl.access_level
+        return self
 
 
 class StratigraphyElement(BaseModel):
