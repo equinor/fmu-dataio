@@ -15,12 +15,11 @@ from datetime import timezone
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Final
-from warnings import warn
 
 from pydantic import AnyHttpUrl, TypeAdapter
 
 from fmu import dataio
-from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION, ConfigurationError
+from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataio._filedata_provider import FileDataProvider
 from fmu.dataio._fmu_provider import FmuProvider
 from fmu.dataio._objectdata_provider import ObjectDataProvider
@@ -31,6 +30,7 @@ from fmu.dataio._utils import (
     read_metadata_from_file,
 )
 from fmu.dataio.datastructure._internal import internal
+from fmu.dataio.datastructure.configuration import global_configuration
 from fmu.dataio.datastructure.meta import meta
 
 from . import types
@@ -78,120 +78,6 @@ def generate_meta_tracklog() -> list[meta.TracklogEvent]:
             ),
         )
     ]
-
-
-def generate_meta_masterdata(config: dict) -> dict | None:
-    """Populate metadata from masterdata section in config."""
-
-    if not config:
-        # this may be a temporary solution for a while, which will be told to the user
-        # in related checks in dataio.py.
-        warn(
-            "The global config is empty, hence the 'masterdata' section "
-            "in the metadata will be omitted.",
-            UserWarning,
-        )
-        return None
-
-    if "masterdata" not in config:
-        raise ValueError("A config exists, but 'masterdata' are not present.")
-
-    return config["masterdata"]
-
-
-def generate_meta_access(config: dict) -> dict | None:
-    """Populate metadata overall from access section in config + allowed keys.
-
-    Access should be possible to change per object, based on user input.
-    This is done through the access_ssdl input argument.
-
-    The "asset" field shall come from the config. This is static information.
-
-    The "ssdl" field can come from the config, or be explicitly given through
-    the "access_ssdl" input argument. If the access_ssdl input argument is present,
-    its contents shall take presedence. If no input, and no config, revert to the
-    following defaults:
-
-      access.ssdl.access_level: "internal" (we explicitly elevate to "restricted)
-      access.ssdl.rep_include: False (we explicitly flag to be included in REP)
-
-    The access.ssdl.access_level field shall be "internal" or "restricted". We still
-    allow for the legacy input argument "asset", however we issue warning and change it
-    to "restricted".
-
-    The access.classification will in the future be the only information classification
-    field. For now, we simply mirror it from ssdl.access_level to avoid API change.
-    """
-
-    if not config:
-        warn("The config is empty or missing", UserWarning)
-        return None
-
-    if config and "access" not in config:
-        raise ConfigurationError("The config misses the 'access' section")
-
-    a_cfg = config["access"]  # shortform
-
-    if "asset" not in a_cfg:
-        # asset shall be present if config is used
-        raise ConfigurationError("The 'access.asset' field not found in the config")
-
-    # initialize and populate with defaults from config
-    a_meta = {}  # shortform
-
-    # if there is a config, the 'asset' tag shall be present
-    a_meta["asset"] = a_cfg["asset"]
-
-    # ------------------------------------
-    # classification & ssdl.access_level and ssdl.rep_include
-    # ------------------------------------
-
-    # The information from the input argument "ssdl_access" has previously
-    # been inserted into the config. Meaning: The fact that it sits in the config
-    # at this stage, does not necessarily mean that the user actually has it in his
-    # config on the FMU side. It may come from user arguments.
-    # See dataio._update_globalconfig_from_settings
-
-    # First set defaults
-    a_meta["ssdl"] = {"access_level": "internal", "rep_include": False}
-
-    # Then overwrite from config (which may also actually come from user arguments)
-    if "ssdl" in a_cfg and "access_level" in a_cfg["ssdl"]:
-        a_meta["ssdl"]["access_level"] = a_cfg["ssdl"]["access_level"]
-
-    if "ssdl" in a_cfg and "rep_include" in a_cfg["ssdl"]:
-        a_meta["ssdl"]["rep_include"] = a_cfg["ssdl"]["rep_include"]
-
-    # check validity
-    _valid_ssdl_access_levels = ["internal", "restricted", "asset"]
-    _ssdl_access_level = a_meta["ssdl"]["access_level"]
-    if _ssdl_access_level not in _valid_ssdl_access_levels:
-        raise ConfigurationError(
-            f"Illegal value for access.ssdl.access_level: {_ssdl_access_level} "
-            f"Valid values are: {_valid_ssdl_access_levels}"
-        )
-
-    _ssdl_rep_include = a_meta["ssdl"]["rep_include"]
-    if not isinstance(_ssdl_rep_include, bool):
-        raise ConfigurationError(
-            f"Illegal value for access.ssdl.rep_include: {_ssdl_rep_include}"
-            "access.ssdl.rep_include must be a boolean (True/False)."
-        )
-
-    # if "asset", change to "restricted" and give warning
-    if a_meta["ssdl"]["access_level"] == "asset":
-        warn(
-            "The value 'asset' for access.ssdl.access_level is deprecated. "
-            "Please use 'restricted' in input arguments or global variables to silence "
-            " this warning.",
-            UserWarning,
-        )
-        a_meta["ssdl"]["access_level"] = "restricted"
-
-    # mirror access.ssdl.access_level to access.classification
-    a_meta["classification"] = a_meta["ssdl"]["access_level"]  # mirror
-
-    return a_meta
 
 
 @dataclass
@@ -373,7 +259,7 @@ class MetaData:
 
     def _populate_meta_masterdata(self) -> None:
         """Populate metadata from masterdata section in config."""
-        self.meta_masterdata = generate_meta_masterdata(self.dataio.config) or {}
+        self.meta_masterdata = self.dataio.config.get("masterdata", {})
 
     def _populate_meta_access(self) -> None:
         """Populate metadata overall from access section in config + allowed keys.
@@ -388,8 +274,13 @@ class MetaData:
         its contents shall take presedence.
 
         """
-        if self.dataio:
-            self.meta_access = generate_meta_access(self.dataio.config) or {}
+        self.meta_access = (
+            global_configuration.Access.model_validate(
+                self.dataio.config["access"]
+            ).model_dump(mode="json", exclude_none=True)
+            if self.dataio._config_is_valid
+            else {}
+        )
 
     def _populate_meta_display(self) -> None:
         """Populate the display block."""
@@ -429,9 +320,8 @@ class MetaData:
         """Main function to generate the full metadata"""
 
         # populate order matters, in particular objectdata provides input to class/file
-        if self.dataio._config_is_valid:
-            self._populate_meta_masterdata()
-            self._populate_meta_access()
+        self._populate_meta_masterdata()
+        self._populate_meta_access()
 
         if self.dataio._fmurun:
             self._populate_meta_fmu()

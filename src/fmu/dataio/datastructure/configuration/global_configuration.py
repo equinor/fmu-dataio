@@ -161,7 +161,5 @@ def roundtrip(obj: Dict) -> Dict:
     """
     return GlobalConfiguration.model_validate(obj).model_dump(
         mode="json",
-        exclude_defaults=True,
         exclude_none=True,
-        exclude_unset=True,
     )
