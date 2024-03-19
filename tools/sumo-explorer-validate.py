@@ -21,6 +21,7 @@ async def get(
     from_dt: datetime,
     to_dt: datetime,
     que: asyncio.Queue[dict],
+    sem: asyncio.Semaphore,
 ):
     params = {
         "$query": (
@@ -31,41 +32,45 @@ async def get(
         "$sort": "_doc:desc",
     }
 
-    while True:
-        response = (await explorer._sumo.get_async("/search", params=params)).json()
-        hits = response["hits"]["hits"]
+    async with sem:
+        while True:
+            response = (await explorer._sumo.get_async("/search", params=params)).json()
+            hits = response["hits"]["hits"]
 
-        for hit in hits:
-            await que.put(hit["_source"])
+            if not hits:
+                return
 
-        try:
+            for hit in hits:
+                await que.put(hit["_source"])
+
             params["$search_after"] = json.dumps(hits[-1]["sort"])
-        except IndexError:
-            return
 
 
-async def main(env: str, last_n_days: int, concurrency: int):
+async def main(
+    explorer: Explorer,
+    start: datetime,
+    step: timedelta,
+    concurrency: int,
+):
     tally = Counter()
 
-    jobs = set[asyncio.Task]()
+    sem = asyncio.Semaphore(concurrency)
     que = asyncio.Queue[dict]()
 
-    step = timedelta(days=last_n_days) / concurrency
-    start = datetime.now(tz=pytz.utc) - timedelta(days=last_n_days)
+    jobs = set[asyncio.Task]()
+    now = datetime.now(tz=pytz.utc)
     stop = start + step
-    explorer = Explorer(env=env)
 
-    for _ in range(concurrency):
-        job = asyncio.create_task(get(explorer, start, stop, que))
+    while stop < now:
+        job = asyncio.create_task(get(explorer, start, stop, que, sem))
         job.add_done_callback(jobs.remove)
         jobs.add(job)
-
-        start, stop = start + step, stop + step
+        start, stop = stop, stop + step
 
     with tqdm(ascii=True, unit=" obj", unit_scale=True) as pbar:
         while jobs:
             try:
-                obj = await asyncio.wait_for(que.get(), 1)
+                obj = await asyncio.wait_for(que.get(), 0.1)
             except asyncio.TimeoutError:
                 continue
 
@@ -90,7 +95,7 @@ async def main(env: str, last_n_days: int, concurrency: int):
                 ]
             )
 
-            if sum(tally.values()) % ((len(jobs) + 1) * 1_000) == 0:
+            if sum(tally.values()) % ((concurrency - sem._value + 1) * 1_000) == 0:
                 pbar.write("-" * 100)
                 pbar.write(
                     "\n".join(
@@ -116,16 +121,26 @@ if __name__ == "__main__":
         choices=["dev", "prod"],
         default="prod",
         help=(
-            "Specify the environment to fetch data from. "
-            "Choose 'dev' for development or 'prod' for production. Default is 'prod'."
+            "Environment to fetch data from: 'dev' for development or 'prod' "
+            "for production. Defaults to 'prod'."
         ),
     )
 
     cliparser.add_argument(
-        "--last-n-days",
-        type=int,
-        default=30,
-        help="Specify the number of days to look back for data. Default is 30 days.",
+        "--last",
+        type=lambda x: timedelta(days=int(x)),
+        default=timedelta(days=7),
+        help="Number of days to retrospectively fetch data for. Default is 7 days.",
+    )
+
+    cliparser.add_argument(
+        "--step",
+        type=lambda x: timedelta(hours=int(x)),
+        default=timedelta(hours=1),
+        help=(
+            "Temporal resolution for fetching data in hours. Determines the time "
+            "span of each query. Default is 1 hours."
+        ),
     )
 
     cliparser.add_argument(
@@ -133,21 +148,29 @@ if __name__ == "__main__":
         type=int,
         default=16,
         help=(
-            "Specify the level of concurrency for the data fetching process. "
-            "This defines how many threads will be used to parallelize the data "
-            "retrieval, allowing for faster processing by dividing the query into "
-            "smaller time-buckets. Higher values can significantly reduce processing "
-            "time at the cost of increased resource usage. Default is 16."
+            "Concurrency level for data fetching. Specifies the number of simultaneous "
+            "requests. Higher values increase speed but use more resources. "
+            "Default is 16."
         ),
     )
 
     args = cliparser.parse_args()
 
-    if args.last_n_days <= 0:
-        cliparser.error("--last-n-days must be a positive number.")
+    if args.last <= timedelta(hours=0):
+        cliparser.error("--last must be a positive number.")
 
     if args.concurrency <= 0:
         cliparser.error("--concurrency must be a positive number.")
 
+    if args.step <= timedelta(hours=0):
+        cliparser.error("--step must be a positive number.")
+
     with suppress(KeyboardInterrupt):
-        asyncio.run(main(args.env, args.last_n_days, args.concurrency))
+        asyncio.run(
+            main(
+                Explorer(env=args.env),
+                datetime.now(tz=pytz.utc) - args.last,
+                args.step,
+                args.concurrency,
+            )
+        )
