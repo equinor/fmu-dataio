@@ -327,11 +327,17 @@ def test_set_display_name(regsurf, globalconfig2):
     assert mymeta["display"]["name"] == "MyOtherDisplayName"
 
 
-def test_global_config_from_env(monkeypatch, global_config2_path):
+def test_global_config_from_env(monkeypatch, global_config2_path, globalconfig1):
     """Testing getting global config from a file"""
     monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(global_config2_path))
+
     edata = ExportData(content="depth")  # the env variable will override this
     assert "smda" in edata.config["masterdata"]
+    assert edata.config["model"]["name"] == "ff"
+
+    # do not use global config from environment when explicitly given
+    edata = ExportData(config=globalconfig1, content="depth")
+    assert edata.config["model"]["name"] == "Test"
 
 
 def test_fmurun_attribute_outside_fmu(rmsglobalconfig):

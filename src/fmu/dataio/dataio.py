@@ -477,8 +477,9 @@ class ExportData:
                 "disable this warning, remove the 'FMU_DATAIO_CONFIG' env.",
             )
 
-        # global config which may be given as env variable -> a file; will override
-        if GLOBAL_ENVNAME in os.environ:
+        # global config which may be given as env variable
+        # will only be used if not explicitly given as input
+        if not self.config and GLOBAL_ENVNAME in os.environ:
             self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
 
         self._validate_content_key()
