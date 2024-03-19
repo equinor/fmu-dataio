@@ -225,6 +225,10 @@ class FaultLinesContent(Content):
     content: Literal[enums.ContentEnum.fault_lines]
 
 
+class FaultPropertiesContent(Content):
+    content: Literal[enums.ContentEnum.fault_properties]
+
+
 class FieldOutlineContent(Content):
     content: Literal[enums.ContentEnum.field_outline]
     field_outline: FieldOutline = Field(
@@ -344,6 +348,7 @@ class AnyContent(RootModel):
             ParametersContent,
             PinchoutContent,
             PropertyContent,
+            FaultPropertiesContent,
             PVTContent,
             RegionsContent,
             RelpermContent,
