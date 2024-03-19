@@ -638,6 +638,7 @@ The following attributes are contractual:
 * tracklog
 * data.format
 * data.name
+* data.parent
 * data.stratigraphic
 * data.alias
 * data.stratigraphic_alias
