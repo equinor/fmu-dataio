@@ -11,6 +11,7 @@
     "data.stratigraphic_alias",
     "data.offset",
     "data.content",
+    "data.parent",
     "data.tagname",
     "data.vertical_domain",
     "data.grid_model",
@@ -685,6 +686,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -1317,6 +1331,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -1576,6 +1603,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "spec": {
           "anyOf": [
@@ -1879,6 +1919,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -2157,6 +2210,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "spec": {
           "anyOf": [
@@ -2538,6 +2604,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -2814,6 +2893,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "spec": {
           "anyOf": [
@@ -3131,6 +3223,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -3419,6 +3524,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -3690,6 +3808,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "spec": {
           "anyOf": [
@@ -3971,6 +4102,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -4230,6 +4374,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "spec": {
           "anyOf": [
@@ -4539,6 +4696,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -4798,6 +4968,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "spec": {
           "anyOf": [
@@ -5114,6 +5297,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -5373,6 +5569,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "spec": {
           "anyOf": [
@@ -5721,6 +5930,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "seismic": {
           "$ref": "#/$defs/Seismic"
@@ -6095,6 +6317,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "spec": {
           "anyOf": [
@@ -6547,6 +6782,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -6835,6 +7083,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -7094,6 +7355,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "spec": {
           "anyOf": [
@@ -7413,6 +7687,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -7686,6 +7973,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -7946,6 +8246,19 @@
           "title": "Offset",
           "type": "number"
         },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
+        },
         "spec": {
           "anyOf": [
             {
@@ -8205,6 +8518,19 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string that tells which parent object it belongs to.",
+          "title": "Parent"
         },
         "spec": {
           "anyOf": [

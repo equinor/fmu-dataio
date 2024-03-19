@@ -538,6 +538,7 @@ def dump() -> Dict:
                     "data.stratigraphic_alias",
                     "data.offset",
                     "data.content",
+                    "data.parent",
                     "data.tagname",
                     "data.vertical_domain",
                     "data.grid_model",

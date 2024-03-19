@@ -248,6 +248,7 @@ class ObjectDataProvider:
     layout: str = field(default="")
     metadata: dict = field(default_factory=dict)
     name: str = field(default="")
+    parent: str = field(default="")
     specs: dict = field(default_factory=dict)
     subtype: str = field(default="")
     time0: str = field(default="")
@@ -806,6 +807,7 @@ class ObjectDataProvider:
         # setting (i.e. changing data.name is not allowed)
         self.metadata = self.meta_existing["data"]
         self.name = self.meta_existing["data"]["name"]
+        self.parent = self.meta_existing["data"].get("parent")
 
         # derive the additional attributes needed later e.g. in Filedata provider:
         relpath = Path(self.meta_existing["file"]["relative_path"])
@@ -877,6 +879,7 @@ class ObjectDataProvider:
         if content_spesific:
             meta[self.dataio._usecontent] = content_spesific
 
+        meta["parent"] = self.dataio.parent
         meta["tagname"] = self.dataio.tagname
         meta["format"] = objres.fmt
         meta["layout"] = objres.layout
@@ -909,6 +912,7 @@ class ObjectDataProvider:
         # the self.metadata fields:
 
         self.name = meta["name"]
+        self.parent = meta["parent"]
 
         # then there are a few settings that are not in the ``data`` metadata, but
         # needed as data/variables in other classes:

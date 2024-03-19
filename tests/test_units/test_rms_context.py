@@ -6,6 +6,7 @@ interactive or from ERT. Hence the rootpath will be ../../
 
 import logging
 import os
+from pathlib import Path
 
 import fmu.dataio.dataio as dataio
 import pandas as pd
@@ -560,6 +561,54 @@ def test_gridproperty_export_file_set_name(rmssetup, rmsglobalconfig, gridproper
     assert str(output) == str(
         (edata._rootpath / "share/results/grids/mygridproperty.roff").resolve()
     )
+
+
+@inside_rms
+def test_gridproperty_export_file_with_parent_name(
+    rmssetup, rmsglobalconfig, gridproperty
+):
+    """Export the gridprop to file with correct metadata and name, and grid parent."""
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    parentname = "Geogrid"
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth", name="MyGridProp", parent=parentname
+    )
+
+    output = edata.export(gridproperty)
+    logger.info("Output is %s", output)
+    assert parentname.lower() in Path(output).stem
+
+    metadata = dataio.read_metadata(output)
+    assert "parent" in metadata["data"]
+    assert metadata["data"]["parent"] == parentname
+
+
+@inside_rms
+def test_gridproperty_export_file_with_parent_skipinfilename(
+    rmssetup, rmsglobalconfig, gridproperty
+):
+    """As previous, but skip parentname in file name."""
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    parentname = "Geogrid"
+    edata = dataio.ExportData(
+        config=rmsglobalconfig,
+        content="depth",
+        name="MyGridProp",
+        parent=parentname,
+        parent_in_filename=False,
+    )
+
+    output = edata.export(gridproperty)
+    logger.info("Output is %s", output)
+    assert parentname.lower() not in Path(output).stem
+
+    metadata = dataio.read_metadata(output)
+    assert "parent" in metadata["data"]
+    assert metadata["data"]["parent"] == parentname
 
 
 # ======================================================================================

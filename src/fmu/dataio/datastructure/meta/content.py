@@ -180,6 +180,10 @@ class Content(BaseModel):
         default=0.0,
         allow_inf_nan=False,
     )
+    parent: Optional[str] = Field(
+        default=None,
+        description="A string that tells which parent object it belongs to.",
+    )
     spec: Optional[specification.AnySpecification] = Field(default=None)
     stratigraphic_alias: Optional[List[str]] = Field(default=None)
     stratigraphic: bool = Field(

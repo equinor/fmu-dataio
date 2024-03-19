@@ -117,8 +117,9 @@ class FileDataProvider:
         stem = self.name.lower()
         if self.dataio.tagname:
             stem += "--" + self.dataio.tagname.lower()
-        if self.dataio.parent:
-            stem = self.dataio.parent.lower() + "--" + stem
+        if self.dataio.parent and self.dataio.parent_in_filename:
+            parent_string = self.dataio.parent.lower().replace(" ", "_")
+            stem = parent_string + "--" + stem
 
         if self.objdata.time0 and not self.objdata.time1:
             stem += "--" + (str(self.objdata.time0)[0:10]).replace("-", "")

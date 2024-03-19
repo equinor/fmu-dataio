@@ -316,8 +316,13 @@ class ExportData:
             if "TopValysar" is the model name and the actual name is "Valysar Top Fm."
             that latter name will be used.
 
-        parent: Optional. This key is required for datatype GridProperty, and
-            refers to the name of the grid geometry.
+        parent: Optional. This key is useful for datatype GridProperty, and
+            refers to the name of the parent grid geometry. It may also be useful for
+            other data, e.g. for cubes it may give the official name of the original
+            seismic cube.
+
+        parent_in_filename: A bool which defaults to True, which then will prefix the
+            output file name with the parent name (if present)
 
         realization: Optional, default is -999 which means that realization shall be
             detected automatically from the FMU run. Can be used to override in rare
@@ -426,6 +431,7 @@ class ExportData:
     name: str = ""
     undef_is_zero: bool = False
     parent: str = ""
+    parent_in_filename: bool = True
     realization: int = -999
     reuse_metadata_rule: Optional[str] = None
     runpath: Optional[Union[str, Path]] = None
