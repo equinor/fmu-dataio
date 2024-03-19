@@ -47,9 +47,11 @@ def test_access_classification_mirrors():
 
     # classification should be set to restricted if
     # ssdl.access_level => asset
-    global_configuration.Access.model_validate(
+    gc = global_configuration.Access.model_validate(
         {
             "asset": {"name": "FakeName"},
             "ssdl": {"access_level": "asset"},
         }
-    ).classification == "restricted"
+    )
+    assert gc.classification == "restricted"
+    assert gc.ssdl.access_level == "restricted"
