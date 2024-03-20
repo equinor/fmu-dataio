@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from pydantic import AnyHttpUrl, TypeAdapter
 
@@ -22,7 +22,6 @@ from fmu import dataio
 from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataio._filedata_provider import FileDataProvider
 from fmu.dataio._fmu_provider import FmuProvider
-from fmu.dataio._objectdata_provider import ObjectDataProvider
 from fmu.dataio._utils import (
     drop_nones,
     export_file_compute_checksum_md5,
@@ -32,10 +31,14 @@ from fmu.dataio._utils import (
 from fmu.dataio.datastructure._internal import internal
 from fmu.dataio.datastructure.configuration import global_configuration
 from fmu.dataio.datastructure.meta import meta
+from fmu.dataio.providers._objectdata import objectdata_provider_factory
 
 from . import types
 from ._definitions import FmuContext
 from ._logging import null_logger
+
+if TYPE_CHECKING:
+    from fmu.dataio.providers._objectdata_base import ObjectDataProvider
 
 logger: Final = null_logger(__name__)
 
@@ -156,7 +159,9 @@ class MetaData:
 
         Hence this must be ran early or first.
         """
-        self.objdata = ObjectDataProvider(self.obj, self.dataio, self.meta_existing)
+        self.objdata = objectdata_provider_factory(
+            self.obj, self.dataio, self.meta_existing
+        )
         self.objdata.derive_metadata()
         self.meta_objectdata = self.objdata.metadata
 

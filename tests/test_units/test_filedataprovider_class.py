@@ -6,10 +6,8 @@ from pathlib import Path
 import pytest
 from fmu.dataio import ExportData
 from fmu.dataio._filedata_provider import FileDataProvider
-from fmu.dataio._objectdata_provider import (
-    ObjectDataProvider,
-    derive_name,
-)
+from fmu.dataio.providers._objectdata import objectdata_provider_factory
+from fmu.dataio.providers._objectdata_base import derive_name
 from xtgeo.cube import Cube
 from xtgeo.surface import RegularSurface
 
@@ -102,7 +100,7 @@ def test_get_filestem(
     expected,
 ):
     """Testing the private _get_filestem method."""
-    objdata = ObjectDataProvider(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = name
     # time0 is always the oldest
     objdata.time0 = time0
@@ -153,7 +151,7 @@ def test_get_filestem_shall_fail(
     message,
 ):
     """Testing the private _get_filestem method when it shall fail."""
-    objdata = ObjectDataProvider(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = name
     objdata.time0 = time0
     objdata.time1 = time1
@@ -178,7 +176,7 @@ def test_get_paths_path_exists_already(regsurf, edataobj1, tmp_path):
 
     edataobj1.name = "some"
 
-    objdata = ObjectDataProvider(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
     objdata.efolder = "efolder"
 
@@ -194,7 +192,7 @@ def test_get_paths_not_exists_so_create(regsurf, edataobj1, tmp_path):
 
     os.chdir(tmp_path)
 
-    objdata = ObjectDataProvider(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
     objdata.efolder = "efolder"
     cfg = edataobj1
@@ -218,7 +216,7 @@ def test_filedata_provider(regsurf, edataobj1, tmp_path):
     cfg._rootpath = Path(".")
     cfg.name = ""
 
-    objdata = ObjectDataProvider(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "name"
     objdata.efolder = "efolder"
     objdata.extension = ".ext"
@@ -244,7 +242,7 @@ def test_filedata_has_nonascii_letters(regsurf, edataobj1, tmp_path):
     cfg._rootpath = Path(".")
     cfg.name = "mynõme"
 
-    objdata = ObjectDataProvider(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "anynõme"
     objdata.efolder = "efolder"
     objdata.extension = ".ext"
