@@ -1,8 +1,8 @@
 """Test the _ObjectData class from the _objectdata.py module"""
 
 import pytest
-from fmu.dataio._definitions import ValidFormats
-from fmu.dataio._objectdata_provider import ConfigurationError, ObjectDataProvider
+from fmu.dataio._definitions import ConfigurationError, ValidFormats
+from fmu.dataio.providers._objectdata import objectdata_provider_factory
 
 # --------------------------------------------------------------------------------------
 # RegularSurface
@@ -12,7 +12,7 @@ from fmu.dataio._objectdata_provider import ConfigurationError, ObjectDataProvid
 def test_objectdata_regularsurface_derive_name_stratigraphy(regsurf, edataobj1):
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configuations for testing here
-    objdata = ObjectDataProvider(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
 
     res = objdata._derive_name_stratigraphy()
 
@@ -24,7 +24,7 @@ def test_objectdata_regularsurface_derive_name_stratigraphy(regsurf, edataobj1):
 def test_objectdata_regularsurface_derive_name_stratigraphy_differ(regsurf, edataobj2):
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configuations for testing here
-    objdata = ObjectDataProvider(regsurf, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, edataobj2)
 
     res = objdata._derive_name_stratigraphy()
 
@@ -36,7 +36,7 @@ def test_objectdata_regularsurface_derive_name_stratigraphy_differ(regsurf, edat
 def test_objectdata_regularsurface_validate_extension(regsurf, edataobj1):
     """Test a valid extension for RegularSurface object."""
 
-    ext = ObjectDataProvider(regsurf, edataobj1)._validate_get_ext(
+    ext = objectdata_provider_factory(regsurf, edataobj1)._validate_get_ext(
         "irap_binary", "RegularSurface", ValidFormats().surface
     )
 
@@ -47,7 +47,7 @@ def test_objectdata_regularsurface_validate_extension_shall_fail(regsurf, edatao
     """Test an invalid extension for RegularSurface object."""
 
     with pytest.raises(ConfigurationError):
-        ObjectDataProvider(regsurf, edataobj1)._validate_get_ext(
+        objectdata_provider_factory(regsurf, edataobj1)._validate_get_ext(
             "some_invalid", "RegularSurface", ValidFormats().surface
         )
 
@@ -55,9 +55,9 @@ def test_objectdata_regularsurface_validate_extension_shall_fail(regsurf, edatao
 def test_objectdata_regularsurface_spec_bbox(regsurf, edataobj1):
     """Derive specs and bbox for RegularSurface object."""
 
-    specs, bbox = ObjectDataProvider(
+    specs, bbox = objectdata_provider_factory(
         regsurf, edataobj1
-    )._derive_spec_bbox_regularsurface()
+    )._derive_spec_and_bbox()
 
     assert specs["ncol"] == regsurf.ncol
     assert bbox["xmin"] == 0.0
@@ -67,7 +67,7 @@ def test_objectdata_regularsurface_spec_bbox(regsurf, edataobj1):
 def test_objectdata_regularsurface_derive_objectdata(regsurf, edataobj1):
     """Derive other properties."""
 
-    res = ObjectDataProvider(regsurf, edataobj1)._derive_objectdata()
+    res = objectdata_provider_factory(regsurf, edataobj1)._derive_objectdata()
 
     assert res.subtype == "RegularSurface"
     assert res.classname == "surface"
@@ -77,7 +77,7 @@ def test_objectdata_regularsurface_derive_objectdata(regsurf, edataobj1):
 def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):
     """Derive all metadata for the 'data' block in fmu-dataio."""
 
-    myobj = ObjectDataProvider(regsurf, edataobj1)
+    myobj = objectdata_provider_factory(regsurf, edataobj1)
     myobj.derive_metadata()
     res = myobj.metadata
     assert res["content"] == "depth"
