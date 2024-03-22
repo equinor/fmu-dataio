@@ -13,9 +13,9 @@ import pytest
 import xtgeo
 import yaml
 from fmu.config import utilities as ut
-from fmu.dataio._fmu_provider import FmuEnv
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.datastructure.configuration import global_configuration
+from fmu.dataio.providers._fmu import FmuEnv
 
 from .utils import _metadata_examples
 

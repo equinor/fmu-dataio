@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 from fmu.dataio import ExportData
-from fmu.dataio._filedata_provider import FileDataProvider
+from fmu.dataio.providers._filedata import FileDataProvider
 from fmu.dataio.providers._objectdata import objectdata_provider_factory
 from fmu.dataio.providers._objectdata_base import derive_name
 from xtgeo.cube import Cube

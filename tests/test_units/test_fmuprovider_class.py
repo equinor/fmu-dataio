@@ -9,7 +9,7 @@ import pytest
 
 # from conftest import pretend_ert_env_run1
 from fmu.dataio._definitions import FmuContext
-from fmu.dataio._fmu_provider import RESTART_PATH_ENVNAME, FmuEnv, FmuProvider
+from fmu.dataio.providers._fmu import RESTART_PATH_ENVNAME, FmuEnv, FmuProvider
 
 logger = logging.getLogger(__name__)
 
