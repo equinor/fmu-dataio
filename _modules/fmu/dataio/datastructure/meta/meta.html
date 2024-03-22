@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+gaac5aa5 documentation</title>
+  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g1442842 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -414,6 +414,10 @@
     <span class="p">)</span></div>
 
 
+<span class="k">class</span> <span class="nc">Display</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+
 <span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The internal FMU context in which this data object was produced&quot;&quot;&quot;</span>
 
@@ -519,7 +523,8 @@
     <span class="n">fmu</span><span class="p">:</span> <span class="n">FMUClassMetaData</span>
     <span class="n">access</span><span class="p">:</span> <span class="n">SsdlAccess</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">content</span><span class="o">.</span><span class="n">AnyContent</span>
-    <span class="n">file</span><span class="p">:</span> <span class="n">File</span></div>
+    <span class="n">file</span><span class="p">:</span> <span class="n">File</span>
+    <span class="n">display</span><span class="p">:</span> <span class="n">Display</span></div>
 
 
 <div class="viewcode-block" id="Root"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Root">[docs]</a><span class="k">class</span> <span class="nc">Root</span><span class="p">(</span>
@@ -676,7 +681,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gaac5aa5).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g1442842).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

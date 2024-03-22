@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+gaac5aa5 documentation</title>
+  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+g1442842 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -119,6 +119,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.access"><code class="docutils literal notranslate"><span class="pre">FMUDataClassMeta.access</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.class_"><code class="docutils literal notranslate"><span class="pre">FMUDataClassMeta.class_</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.data"><code class="docutils literal notranslate"><span class="pre">FMUDataClassMeta.data</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.display"><code class="docutils literal notranslate"><span class="pre">FMUDataClassMeta.display</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.file"><code class="docutils literal notranslate"><span class="pre">FMUDataClassMeta.file</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.fmu"><code class="docutils literal notranslate"><span class="pre">FMUDataClassMeta.fmu</span></code></a></li>
 </ul>
@@ -777,6 +778,7 @@ validated to form a valid model.</p>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.access" title="fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.access"><code class="xref py py-obj docutils literal notranslate"><span class="pre">access</span> <span class="pre">(SsdlAccess)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.class_" title="fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.class_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">class_</span> <span class="pre">(Literal[enums.FMUClassEnum.surface,</span> <span class="pre">enums.FMUClassEnum.table,</span> <span class="pre">enums.FMUClassEnum.cpgrid,</span> <span class="pre">enums.FMUClassEnum.cpgrid_property,</span> <span class="pre">enums.FMUClassEnum.polygons,</span> <span class="pre">enums.FMUClassEnum.cube,</span> <span class="pre">enums.FMUClassEnum.well,</span> <span class="pre">enums.FMUClassEnum.points,</span> <span class="pre">enums.FMUClassEnum.dictionary])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.data" title="fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span> <span class="pre">(content.AnyContent)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.display" title="fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.display"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display</span> <span class="pre">(Display)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.file" title="fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">file</span> <span class="pre">(File)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.fmu" title="fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.fmu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fmu</span> <span class="pre">(FMUClassMetaData)</span></code></a></p></li>
 </ul>
@@ -795,6 +797,11 @@ validated to form a valid model.</p>
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.data">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">content.AnyContent</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.data" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.display">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">display</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Display</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.display" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -2833,7 +2840,7 @@ validated to form a valid model.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gaac5aa5).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g1442842).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
