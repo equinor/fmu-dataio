@@ -16,8 +16,9 @@ from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataio.datastructure.configuration.global_configuration import (
     Model as GlobalConfigurationModel,
 )
-from fmu.dataio.datastructure.meta.meta import Access, Masterdata, TracklogEvent, User
+from fmu.dataio.datastructure.meta import content, meta
 from pydantic import AnyHttpUrl, BaseModel, Field, TypeAdapter, model_validator
+from typing_extensions import Annotated
 
 
 def seismic_warn() -> None:
@@ -154,7 +155,7 @@ class JsonSchemaMetadata(BaseModel, populate_by_name=True):
 class CaseMetadata(BaseModel):
     name: str
     uuid: str
-    user: User
+    user: meta.User
 
 
 class FMUModel(BaseModel):
@@ -162,10 +163,47 @@ class FMUModel(BaseModel):
     case: CaseMetadata
 
 
+class PreprocessedInfo(BaseModel):
+    name: str
+    tagname: str
+    subfolder: str
+
+
+class UnsetContent(content.Content):
+    content: Literal["unset"]
+
+
+class Context(BaseModel):
+    stage: Literal[
+        "realization",
+        "case",
+        "case_symlink_realization",
+        "preprocessed",
+        "non_fmu",
+    ]
+
+
+class FMUClassMetaData(meta.FMUClassMetaData):
+    # This class is identical to the one used in the schema
+    # exept for more fmu context values are allowed internally
+    context: Context
+
+
+class DataMetaSchema(JsonSchemaMetadata, meta.FMUDataClassMeta):
+    fmu: Optional[FMUClassMetaData]
+    masterdata: Optional[meta.Masterdata]
+    access: Optional[meta.SsdlAccess]
+    data: Annotated[
+        Union[meta.content.AnyContent, UnsetContent], Field(discriminator="content")
+    ]
+    display: meta.Display
+    preprocessed: Optional[PreprocessedInfo]
+
+
 class CaseSchema(JsonSchemaMetadata):
     class_: Literal["case"] = Field(alias="class", default="case")
-    masterdata: Masterdata
-    access: Access
+    masterdata: meta.Masterdata
+    access: meta.Access
     fmu: FMUModel
     description: Optional[List[str]]
-    tracklog: List[TracklogEvent]
+    tracklog: List[meta.TracklogEvent]
