@@ -39,10 +39,9 @@ from typing import Final, Optional
 from warnings import warn
 
 from fmu.config import utilities as ut
-
-from . import _utils
-from ._definitions import FmuContext
-from ._logging import null_logger
+from fmu.dataio import _utils
+from fmu.dataio._definitions import FmuContext
+from fmu.dataio._logging import null_logger
 
 # case metadata relative to casepath
 ERT_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"

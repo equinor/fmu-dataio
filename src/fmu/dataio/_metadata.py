@@ -18,27 +18,26 @@ from typing import TYPE_CHECKING, Final
 
 from pydantic import AnyHttpUrl, TypeAdapter
 
-from fmu import dataio
-from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
-from fmu.dataio._filedata_provider import FileDataProvider
-from fmu.dataio._fmu_provider import FmuProvider
-from fmu.dataio._utils import (
+from . import types
+from ._definitions import SCHEMA, SOURCE, VERSION, FmuContext
+from ._logging import null_logger
+from ._utils import (
     drop_nones,
     export_file_compute_checksum_md5,
     glue_metadata_preprocessed,
     read_metadata_from_file,
 )
-from fmu.dataio.datastructure._internal import internal
-from fmu.dataio.datastructure.configuration import global_configuration
-from fmu.dataio.datastructure.meta import meta
-from fmu.dataio.providers._objectdata import objectdata_provider_factory
-
-from . import types
-from ._definitions import FmuContext
-from ._logging import null_logger
+from .datastructure._internal import internal
+from .datastructure.configuration import global_configuration
+from .datastructure.meta import meta
+from .providers._filedata import FileDataProvider
+from .providers._fmu import FmuProvider
+from .providers._objectdata import objectdata_provider_factory
+from .version import __version__
 
 if TYPE_CHECKING:
-    from fmu.dataio.providers._objectdata_base import ObjectDataProvider
+    from .dataio import ExportData
+    from .providers._objectdata_base import ObjectDataProvider
 
 logger: Final = null_logger(__name__)
 
@@ -65,9 +64,7 @@ def generate_meta_tracklog() -> list[meta.TracklogEvent]:
             event="created",
             user=meta.User.model_construct(id=getpass.getuser()),
             sysinfo=meta.SystemInformation.model_construct(
-                fmu_dataio=meta.VersionInformation.model_construct(
-                    version=dataio.__version__,
-                ),
+                fmu_dataio=meta.VersionInformation.model_construct(version=__version__),
                 komodo=meta.VersionInformation.model_construct(version=kr)
                 if (kr := os.environ.get("KOMODO_RELEASE"))
                 else None,
@@ -113,7 +110,7 @@ class MetaData:
 
     # input variables
     obj: types.Inferrable
-    dataio: dataio.ExportData
+    dataio: ExportData
     compute_md5: bool = True
 
     # storage state variables

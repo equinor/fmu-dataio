@@ -21,7 +21,6 @@ from ._definitions import (
     FmuContext,
     ValidationError,
 )
-from ._fmu_provider import FmuEnv
 from ._logging import null_logger
 from ._utils import (
     create_symlink,
@@ -38,6 +37,7 @@ from .datastructure._internal.internal import (
     AllowedContent,
 )
 from .datastructure.configuration import global_configuration
+from .providers._fmu import FmuEnv
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()

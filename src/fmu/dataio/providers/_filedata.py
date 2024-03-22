@@ -12,8 +12,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final, Optional
 from warnings import warn
 
-from ._definitions import FmuContext
-from ._logging import null_logger
+from fmu.dataio._definitions import FmuContext
+from fmu.dataio._logging import null_logger
 
 logger: Final = null_logger(__name__)
 

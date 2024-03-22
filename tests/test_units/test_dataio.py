@@ -9,9 +9,9 @@ from copy import deepcopy
 import pytest
 import yaml
 from fmu.dataio._definitions import FmuContext
-from fmu.dataio._fmu_provider import FmuEnv
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ExportData, ValidationError, read_metadata
+from fmu.dataio.providers._fmu import FmuEnv
 
 # pylint: disable=no-member
 
