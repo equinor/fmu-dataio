@@ -89,21 +89,29 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Final
 
-import numpy as np
 import pandas as pd
 import xtgeo
 
 from fmu.dataio._definitions import STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio.datastructure.meta import meta, specification
+from fmu.dataio.datastructure.meta import specification
 
 from ._objectdata_base import (
     DerivedObjectDescriptor,
     ObjectDataProvider,
-    SpecificationAndBoundingBox,
+)
+from ._objectdata_xtgeo import (
+    CPGridDataProvider,
+    CPGridPropertyDataProvider,
+    CubeDataProvider,
+    PointsDataProvider,
+    PolygonsDataProvider,
+    RegularSurfaceDataProvider,
 )
 
 if TYPE_CHECKING:
+    import pyarrow
+
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.types import Inferrable
 
@@ -163,330 +171,27 @@ def objectdata_provider_factory(
     raise NotImplementedError("This data type is not (yet) supported: ", type(obj))
 
 
-def npfloat_to_float(v: Any) -> Any:
-    return float(v) if isinstance(v, (np.float64, np.float32)) else v
-
-
-@dataclass
-class RegularSurfaceDataProvider(ObjectDataProvider):
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
-        """Process/collect the data.spec and data.bbox for RegularSurface"""
-        logger.info("Derive bbox and specs for RegularSurface")
-        regsurf: xtgeo.RegularSurface = self.obj
-        required = regsurf.metadata.required
-
-        return SpecificationAndBoundingBox(
-            spec=specification.SurfaceSpecification(
-                ncol=npfloat_to_float(required["ncol"]),
-                nrow=npfloat_to_float(required["nrow"]),
-                xori=npfloat_to_float(required["xori"]),
-                yori=npfloat_to_float(required["yori"]),
-                xinc=npfloat_to_float(required["xinc"]),
-                yinc=npfloat_to_float(required["yinc"]),
-                yflip=npfloat_to_float(required["yflip"]),
-                rotation=npfloat_to_float(required["rotation"]),
-                undef=1.0e30,
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-            bbox=meta.content.BoundingBox3D(
-                xmin=float(regsurf.xmin),
-                xmax=float(regsurf.xmax),
-                ymin=float(regsurf.ymin),
-                ymax=float(regsurf.ymax),
-                zmin=float(regsurf.values.min()),
-                zmax=float(regsurf.values.max()),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-        )
-
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
-        spec, bbox = self._derive_spec_and_bbox()
-        return DerivedObjectDescriptor(
-            subtype="RegularSurface",
-            classname="surface",
-            layout="regular",
-            efolder="maps",
-            fmt=(fmt := self.dataio.surface_fformat),
-            spec=spec,
-            bbox=bbox,
-            extension=self._validate_get_ext(
-                fmt, "RegularSurface", ValidFormats().surface
-            ),
-            table_index=None,
-        )
-
-
-@dataclass
-class PolygonsDataProvider(ObjectDataProvider):
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
-        """Process/collect the data.spec and data.bbox for Polygons"""
-        logger.info("Derive bbox and specs for Polygons")
-        poly: xtgeo.Polygons = self.obj
-        xmin, xmax, ymin, ymax, zmin, zmax = poly.get_boundary()
-
-        return SpecificationAndBoundingBox(
-            spec=specification.PolygonsSpecification(
-                npolys=np.unique(poly.get_dataframe(copy=False)[poly.pname].values).size
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-            bbox=meta.content.BoundingBox3D(
-                xmin=float(xmin),
-                xmax=float(xmax),
-                ymin=float(ymin),
-                ymax=float(ymax),
-                zmin=float(zmin),
-                zmax=float(zmax),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-        )
-
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
-        spec, bbox = self._derive_spec_and_bbox()
-        return DerivedObjectDescriptor(
-            subtype="Polygons",
-            classname="polygons",
-            layout="unset",
-            efolder="polygons",
-            fmt=(fmt := self.dataio.polygons_fformat),
-            extension=self._validate_get_ext(fmt, "Polygons", ValidFormats().polygons),
-            spec=spec,
-            bbox=bbox,
-            table_index=None,
-        )
-
-
-@dataclass
-class PointsDataProvider(ObjectDataProvider):
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
-        """Process/collect the data.spec and data.bbox for Points"""
-        logger.info("Derive bbox and specs for Points")
-        pnts: xtgeo.Points = self.obj
-        df: pd.DataFrame = pnts.get_dataframe(copy=False)
-
-        return SpecificationAndBoundingBox(
-            spec=specification.PointSpecification(
-                attributes=list(df.columns[3:]) if len(df.columns) > 3 else None,
-                size=int(df.size),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-            bbox=meta.content.BoundingBox3D(
-                xmin=float(df[pnts.xname].min()),
-                xmax=float(df[pnts.xname].max()),
-                ymax=float(df[pnts.yname].min()),
-                ymin=float(df[pnts.yname].max()),
-                zmin=float(df[pnts.zname].min()),
-                zmax=float(df[pnts.zname].max()),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-        )
-
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
-        spec, bbox = self._derive_spec_and_bbox()
-        return DerivedObjectDescriptor(
-            subtype="Points",
-            classname="points",
-            layout="unset",
-            efolder="points",
-            fmt=(fmt := self.dataio.points_fformat),
-            extension=self._validate_get_ext(fmt, "Points", ValidFormats().points),
-            spec=spec,
-            bbox=bbox,
-            table_index=None,
-        )
-
-
-@dataclass
-class CubeDataProvider(ObjectDataProvider):
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
-        """Process/collect the data.spec and data.bbox Cube"""
-        logger.info("Derive bbox and specs for Cube")
-        cube: xtgeo.Cube = self.obj
-        required = cube.metadata.required
-
-        # current xtgeo is missing xmin, xmax etc attributes for cube, so need
-        # to compute (simplify when xtgeo has this):
-        xmin, ymin = 1.0e23, 1.0e23
-        xmax, ymax = -xmin, -ymin
-
-        for corner in ((1, 1), (1, cube.nrow), (cube.ncol, 1), (cube.ncol, cube.nrow)):
-            xco, yco = cube.get_xy_value_from_ij(*corner)
-            xmin = min(xmin, xco)
-            xmax = max(xmax, xco)
-            ymin = min(ymin, yco)
-            ymax = max(ymax, yco)
-
-        return SpecificationAndBoundingBox(
-            spec=specification.CubeSpecification(
-                ncol=npfloat_to_float(required["ncol"]),
-                nrow=npfloat_to_float(required["nrow"]),
-                nlay=npfloat_to_float(required["nlay"]),
-                xori=npfloat_to_float(required["xori"]),
-                yori=npfloat_to_float(required["yori"]),
-                zori=npfloat_to_float(required["zori"]),
-                xinc=npfloat_to_float(required["xinc"]),
-                yinc=npfloat_to_float(required["yinc"]),
-                zinc=npfloat_to_float(required["zinc"]),
-                yflip=npfloat_to_float(required["yflip"]),
-                zflip=npfloat_to_float(required["zflip"]),
-                rotation=npfloat_to_float(required["rotation"]),
-                undef=npfloat_to_float(required["undef"]),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-            bbox=meta.content.BoundingBox3D(
-                xmin=float(xmin),
-                xmax=float(xmax),
-                ymin=float(ymin),
-                ymax=float(ymax),
-                zmin=float(cube.zori),
-                zmax=float(cube.zori + cube.zinc * (cube.nlay - 1)),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-        )
-
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
-        spec, bbox = self._derive_spec_and_bbox()
-        return DerivedObjectDescriptor(
-            subtype="RegularCube",
-            classname="cube",
-            layout="regular",
-            efolder="cubes",
-            fmt=(fmt := self.dataio.cube_fformat),
-            extension=self._validate_get_ext(fmt, "RegularCube", ValidFormats().cube),
-            spec=spec,
-            bbox=bbox,
-            table_index=None,
-        )
-
-
-@dataclass
-class CPGridDataProvider(ObjectDataProvider):
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
-        """Process/collect the data.spec and data.bbox CornerPoint Grid geometry"""
-        logger.info("Derive bbox and specs for Gride (geometry)")
-        grid: xtgeo.Grid = self.obj
-        required = grid.metadata.required
-
-        geox: dict = grid.get_geometrics(
-            cellcenter=False,
-            allcells=True,
-            return_dict=True,
-        )
-
-        return SpecificationAndBoundingBox(
-            spec=specification.CPGridSpecification(
-                ncol=npfloat_to_float(required["ncol"]),
-                nrow=npfloat_to_float(required["nrow"]),
-                nlay=npfloat_to_float(required["nlay"]),
-                xshift=npfloat_to_float(required["xshift"]),
-                yshift=npfloat_to_float(required["yshift"]),
-                zshift=npfloat_to_float(required["zshift"]),
-                xscale=npfloat_to_float(required["xscale"]),
-                yscale=npfloat_to_float(required["yscale"]),
-                zscale=npfloat_to_float(required["zscale"]),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-            bbox=meta.content.BoundingBox3D(
-                xmin=round(float(geox["xmin"]), 4),
-                xmax=round(float(geox["xmax"]), 4),
-                ymin=round(float(geox["ymin"]), 4),
-                ymax=round(float(geox["ymax"]), 4),
-                zmin=round(float(geox["zmin"]), 4),
-                zmax=round(float(geox["zmax"]), 4),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-        )
-
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
-        spec, bbox = self._derive_spec_and_bbox()
-        return DerivedObjectDescriptor(
-            subtype="CPGrid",
-            classname="cpgrid",
-            layout="cornerpoint",
-            efolder="grids",
-            fmt=(fmt := self.dataio.grid_fformat),
-            extension=self._validate_get_ext(fmt, "CPGrid", ValidFormats().grid),
-            spec=spec,
-            bbox=bbox,
-            table_index=None,
-        )
-
-
-@dataclass
-class CPGridPropertyDataProvider(ObjectDataProvider):
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
-        """Process/collect the data.spec and data.bbox GridProperty"""
-        logger.info("Derive bbox and specs for GridProperty")
-        gridprop: xtgeo.GridProperty = self.obj
-
-        return SpecificationAndBoundingBox(
-            spec=specification.CPGridPropertySpecification(
-                nrow=gridprop.nrow,
-                ncol=gridprop.ncol,
-                nlay=gridprop.nlay,
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-            bbox={},
-        )
-
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
-        spec, bbox = self._derive_spec_and_bbox()
-        return DerivedObjectDescriptor(
-            subtype="CPGridProperty",
-            classname="cpgrid_property",
-            layout="cornerpoint",
-            efolder="grids",
-            fmt=(fmt := self.dataio.grid_fformat),
-            extension=self._validate_get_ext(
-                fmt, "CPGridProperty", ValidFormats().grid
-            ),
-            spec=spec,
-            bbox=bbox,
-            table_index=None,
-        )
-
-
 @dataclass
 class DataFrameDataProvider(ObjectDataProvider):
-    def _get_columns(self) -> list[str]:
-        """Get the columns from table"""
-        if isinstance(self.obj, pd.DataFrame):
-            logger.debug("pandas")
-            columns = list(self.obj.columns)
-        else:
-            logger.debug("arrow")
-            from pyarrow import Table
+    obj: pd.DataFrame
 
-            assert isinstance(self.obj, Table)
-            columns = self.obj.column_names
-        logger.debug("Available columns in table %s ", columns)
-        return columns
+    def _check_index(self, index: list[str]) -> None:
+        """Check the table index.
+        Args:
+            index (list): list of column names
+
+        Raises:
+            KeyError: if index contains names that are not in self
+        """
+
+        not_founds = (item for item in index if item not in list(self.obj.columns))
+        for not_found in not_founds:
+            raise KeyError(f"{not_found} is not in table")
 
     def _derive_index(self) -> list[str]:
         """Derive table index"""
         # This could in the future also return context
-        columns = self._get_columns()
+        columns = list(self.obj.columns)
         index = []
 
         if self.dataio.table_index is None:
@@ -506,36 +211,25 @@ class DataFrameDataProvider(ObjectDataProvider):
         self._check_index(index)
         return index
 
-    def _check_index(self, index: list[str]) -> None:
-        """Check the table index.
-        Args:
-            index (list): list of column names
+    def get_spec(self) -> dict[str, Any]:
+        """Derive data.spec for pd.DataFrame."""
+        logger.info("Get spec for pd.DataFrame (tables)")
 
-        Raises:
-            KeyError: if index contains names that are not in self
-        """
-
-        not_founds = (item for item in index if item not in self._get_columns())
-        for not_found in not_founds:
-            raise KeyError(f"{not_found} is not in table")
-
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
-        """Process/collect the data items for DataFrame."""
-        logger.info("Process data metadata for DataFrame (tables)")
-        assert isinstance(self.obj, pd.DataFrame)
-        return SpecificationAndBoundingBox(
-            spec=specification.TableSpecification(
-                columns=list(self.obj.columns),
-                size=int(self.obj.size),
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-            bbox={},
+        return specification.TableSpecification(
+            columns=list(self.obj.columns),
+            size=int(self.obj.size),
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
         )
 
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
-        spec, bbox = self._derive_spec_and_bbox()
+    def get_bbox(self) -> dict[str, Any]:
+        """Derive data.bbox for pd.DataFrame."""
+        logger.info("Get bbox for pd.DataFrame (tables)")
+        return {}
+
+    def get_objectdata(self) -> DerivedObjectDescriptor:
+        """Derive object data for pd.DataFrame."""
         return DerivedObjectDescriptor(
             subtype="DataFrame",
             classname="table",
@@ -543,21 +237,28 @@ class DataFrameDataProvider(ObjectDataProvider):
             efolder="tables",
             fmt=(fmt := self.dataio.table_fformat),
             extension=self._validate_get_ext(fmt, "DataFrame", ValidFormats().table),
-            spec=spec,
-            bbox=bbox,
+            spec=self.get_spec(),
+            bbox=self.get_bbox(),
             table_index=self._derive_index(),
         )
 
 
 @dataclass
 class DictionaryDataProvider(ObjectDataProvider):
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
-        """Process/collect the data items for dictionary."""
-        logger.info("Process data metadata for dictionary")
-        return SpecificationAndBoundingBox({}, {})
+    obj: dict
 
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
-        spec, bbox = self._derive_spec_and_bbox()
+    def get_spec(self) -> dict[str, Any]:
+        """Derive data.spec for dict."""
+        logger.info("Get spec for dictionary")
+        return {}
+
+    def get_bbox(self) -> dict[str, Any]:
+        """Derive data.bbox for dict."""
+        logger.info("Get bbox for dictionary")
+        return {}
+
+    def get_objectdata(self) -> DerivedObjectDescriptor:
+        """Derive object data for dict."""
         return DerivedObjectDescriptor(
             subtype="JSON",
             classname="dictionary",
@@ -565,31 +266,32 @@ class DictionaryDataProvider(ObjectDataProvider):
             efolder="dictionaries",
             fmt=(fmt := self.dataio.dict_fformat),
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
-            spec=spec,
-            bbox=bbox,
+            spec=self.get_spec(),
+            bbox=self.get_bbox(),
             table_index=None,
         )
 
 
 class ArrowTableDataProvider(ObjectDataProvider):
-    def _get_columns(self) -> list[str]:
-        """Get the columns from table"""
-        if isinstance(self.obj, pd.DataFrame):
-            logger.debug("pandas")
-            columns = list(self.obj.columns)
-        else:
-            logger.debug("arrow")
-            from pyarrow import Table
+    obj: pyarrow.Table
 
-            assert isinstance(self.obj, Table)
-            columns = self.obj.column_names
-        logger.debug("Available columns in table %s ", columns)
-        return columns
+    def _check_index(self, index: list[str]) -> None:
+        """Check the table index.
+        Args:
+            index (list): list of column names
+
+        Raises:
+            KeyError: if index contains names that are not in self
+        """
+
+        not_founds = (item for item in index if item not in self.obj.column_names)
+        for not_found in not_founds:
+            raise KeyError(f"{not_found} is not in table")
 
     def _derive_index(self) -> list[str]:
         """Derive table index"""
         # This could in the future also return context
-        columns = self._get_columns()
+        columns = self.obj.column_names
         index = []
 
         if self.dataio.table_index is None:
@@ -609,38 +311,25 @@ class ArrowTableDataProvider(ObjectDataProvider):
         self._check_index(index)
         return index
 
-    def _check_index(self, index: list[str]) -> None:
-        """Check the table index.
-        Args:
-            index (list): list of column names
+    def get_spec(self) -> dict[str, Any]:
+        """Derive data.spec for pyarrow.Table."""
+        logger.info("Get spec for pyarrow (tables)")
 
-        Raises:
-            KeyError: if index contains names that are not in self
-        """
-
-        not_founds = (item for item in index if item not in self._get_columns())
-        for not_found in not_founds:
-            raise KeyError(f"{not_found} is not in table")
-
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
-        """Process/collect the data items for Arrow table."""
-        logger.info("Process data metadata for arrow (tables)")
-        from pyarrow import Table
-
-        assert isinstance(self.obj, Table)
-        return SpecificationAndBoundingBox(
-            spec=specification.TableSpecification(
-                columns=list(self.obj.column_names),
-                size=self.obj.num_columns * self.obj.num_rows,
-            ).model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-            bbox={},
+        return specification.TableSpecification(
+            columns=list(self.obj.column_names),
+            size=self.obj.num_columns * self.obj.num_rows,
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
         )
 
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
-        spec, bbox = self._derive_spec_and_bbox()
+    def get_bbox(self) -> dict[str, Any]:
+        """Derive data.bbox for pyarrow.Table."""
+        logger.info("Get bbox for pyarrow (tables)")
+        return {}
+
+    def get_objectdata(self) -> DerivedObjectDescriptor:
+        """Derive object data from pyarrow.Table."""
         return DerivedObjectDescriptor(
             table_index=self._derive_index(),
             subtype="ArrowTable",
@@ -649,8 +338,8 @@ class ArrowTableDataProvider(ObjectDataProvider):
             efolder="tables",
             fmt=(fmt := self.dataio.arrow_fformat),
             extension=self._validate_get_ext(fmt, "ArrowTable", ValidFormats().table),
-            spec=spec,
-            bbox=bbox,
+            spec=self.get_spec(),
+            bbox=self.get_bbox(),
         )
 
 
@@ -660,15 +349,18 @@ class ExistingDataProvider(ObjectDataProvider):
     object data from existing metadata, by calling _derive_from_existing, and return
     before calling them."""
 
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
-        """Process/collect the data items for dictionary."""
-        logger.info("Process data metadata for dictionary")
-        return SpecificationAndBoundingBox(
-            self.meta_existing["spec"], self.meta_existing["bbox"]
-        )
+    obj: Any
 
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
-        spec, bbox = self._derive_spec_and_bbox()
+    def get_spec(self) -> dict[str, Any]:
+        """Derive data.spec from existing metadata."""
+        return self.meta_existing["spec"]
+
+    def get_bbox(self) -> dict[str, Any]:
+        """Derive data.bbox from existing metadata."""
+        return self.meta_existing["bbox"]
+
+    def get_objectdata(self) -> DerivedObjectDescriptor:
+        """Derive object data for existing metadata."""
         return DerivedObjectDescriptor(
             subtype=self.meta_existing["subtype"],
             classname=self.meta_existing["class"],
@@ -676,7 +368,7 @@ class ExistingDataProvider(ObjectDataProvider):
             efolder=self.efolder,
             fmt=self.meta_existing["format"],
             extension=self.extension,
-            spec=spec,
-            bbox=bbox,
+            spec=self.get_spec(),
+            bbox=self.get_bbox(),
             table_index=None,
         )

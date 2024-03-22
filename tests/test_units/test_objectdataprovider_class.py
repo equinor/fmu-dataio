@@ -55,9 +55,9 @@ def test_objectdata_regularsurface_validate_extension_shall_fail(regsurf, edatao
 def test_objectdata_regularsurface_spec_bbox(regsurf, edataobj1):
     """Derive specs and bbox for RegularSurface object."""
 
-    specs, bbox = objectdata_provider_factory(
-        regsurf, edataobj1
-    )._derive_spec_and_bbox()
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    specs = objdata.get_spec()
+    bbox = objdata.get_bbox()
 
     assert specs["ncol"] == regsurf.ncol
     assert bbox["xmin"] == 0.0
@@ -67,7 +67,7 @@ def test_objectdata_regularsurface_spec_bbox(regsurf, edataobj1):
 def test_objectdata_regularsurface_derive_objectdata(regsurf, edataobj1):
     """Derive other properties."""
 
-    res = objectdata_provider_factory(regsurf, edataobj1)._derive_objectdata()
+    res = objectdata_provider_factory(regsurf, edataobj1).get_objectdata()
 
     assert res.subtype == "RegularSurface"
     assert res.classname == "surface"
