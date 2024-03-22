@@ -42,11 +42,11 @@ class FileDataProvider:
     realname: str = ""
 
     # storing results in these variables
-    relative_path: str = field(default="", init=False)
-    relative_path_symlink: Optional[str] = field(default="", init=False)
+    relative_path: Path = field(default_factory=Path)
+    relative_path_symlink: Optional[Path] = field(default=None)
 
-    absolute_path: str = field(default="", init=False)
-    absolute_path_symlink: Optional[str] = field(default="", init=False)
+    absolute_path: Path = field(default_factory=Path)
+    absolute_path_symlink: Optional[Path] = field(default=None)
 
     checksum_md5: Optional[str] = field(default="", init=False)
     forcefolder_is_absolute: bool = field(default=False, init=False)
@@ -68,7 +68,7 @@ class FileDataProvider:
 
         logger.info("Derived filedata")
 
-    def _derive_filedata_generic(self, inrelpath: Path) -> tuple[str, str]:
+    def _derive_filedata_generic(self, inrelpath: Path) -> tuple[Path, Path]:
         """This works with both normal data and symlinks."""
         stem = self._get_filestem()
 
@@ -104,7 +104,7 @@ class FileDataProvider:
             relpath = path.relative_to(self.rootpath)
 
         logger.info("Derived filedata")
-        return str(relpath), str(abspath)
+        return relpath, abspath
 
     def _get_filestem(self) -> str:
         """Construct the file"""
