@@ -227,8 +227,10 @@ def test_filedata_provider(regsurf, edataobj1, tmp_path):
     fdata.derive_filedata()
 
     print(fdata.relative_path)
-    assert fdata.relative_path == "share/results/efolder/parent--name--tag--t2_t1.ext"
-    absdata = str(tmp_path / "share/results/efolder/parent--name--tag--t2_t1.ext")
+    assert (
+        str(fdata.relative_path) == "share/results/efolder/parent--name--tag--t2_t1.ext"
+    )
+    absdata = tmp_path / "share/results/efolder/parent--name--tag--t2_t1.ext"
     assert fdata.absolute_path == absdata
 
 

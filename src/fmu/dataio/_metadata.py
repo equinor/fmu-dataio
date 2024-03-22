@@ -232,15 +232,11 @@ class MetaData:
             checksum_md5 = None
 
         self.meta_file = meta.File(
-            absolute_path=Path(fdata.absolute_path),
-            relative_path=Path(fdata.relative_path),
+            absolute_path=fdata.absolute_path,
+            relative_path=fdata.relative_path,
             checksum_md5=checksum_md5,
-            relative_path_symlink=Path(fdata.relative_path_symlink)
-            if fdata.relative_path_symlink
-            else None,
-            absolute_path_symlink=Path(fdata.absolute_path_symlink)
-            if fdata.absolute_path_symlink
-            else None,
+            relative_path_symlink=fdata.relative_path_symlink,
+            absolute_path_symlink=fdata.absolute_path_symlink,
         ).model_dump(
             mode="json",
             exclude_none=True,
