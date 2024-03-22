@@ -877,6 +877,24 @@
       "title": "DiscoveryItem",
       "type": "object"
     },
+    "Display": {
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        }
+      },
+      "title": "Display",
+      "type": "object"
+    },
     "FMUCase": {
       "properties": {
         "description": {
@@ -1092,6 +1110,9 @@
         "data": {
           "$ref": "#/$defs/AnyContent"
         },
+        "display": {
+          "$ref": "#/$defs/Display"
+        },
         "file": {
           "$ref": "#/$defs/File"
         },
@@ -1127,7 +1148,8 @@
         "fmu",
         "access",
         "data",
-        "file"
+        "file",
+        "display"
       ],
       "title": "FMUDataClassMeta",
       "type": "object"

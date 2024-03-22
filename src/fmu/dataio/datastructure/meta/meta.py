@@ -324,6 +324,10 @@ class TracklogEvent(BaseModel):
     )
 
 
+class Display(BaseModel):
+    name: Optional[str] = Field(default=None)
+
+
 class Context(BaseModel):
     """The internal FMU context in which this data object was produced"""
 
@@ -430,6 +434,7 @@ class FMUDataClassMeta(ClassMeta):
     access: SsdlAccess
     data: content.AnyContent
     file: File
+    display: Display
 
 
 class Root(
