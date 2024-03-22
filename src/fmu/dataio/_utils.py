@@ -13,6 +13,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Final, Literal
 
+import numpy as np
 import pandas as pd
 import xtgeo
 import yaml
@@ -23,6 +24,10 @@ from . import _design_kw, types
 from ._logging import null_logger
 
 logger: Final = null_logger(__name__)
+
+
+def npfloat_to_float(v: Any) -> Any:
+    return float(v) if isinstance(v, (np.float64, np.float32)) else v
 
 
 def detect_inside_rms() -> bool:

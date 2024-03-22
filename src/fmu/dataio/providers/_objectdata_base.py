@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Final, Literal, NamedTuple, Optional, TypeVar
+from typing import Any, Dict, Final, Literal, Optional, TypeVar
 from warnings import warn
 
 from fmu.dataio import dataio, types
@@ -65,11 +65,6 @@ class DerivedObjectDescriptor:
     spec: Dict[str, Any]
     bbox: Dict[str, Any]
     table_index: Optional[list[str]]
-
-
-class SpecificationAndBoundingBox(NamedTuple):
-    spec: Dict[str, Any]
-    bbox: Dict[str, Any]
 
 
 @dataclass
@@ -318,7 +313,7 @@ class ObjectDataProvider(ABC):
             return
 
         namedstratigraphy = self._derive_name_stratigraphy()
-        objres = self._derive_objectdata()
+        objres = self.get_objectdata()
         if self.dataio.forcefolder and not self.dataio.forcefolder.startswith("/"):
             msg = (
                 f"The standard folder name is overrided from {objres.efolder} to "
@@ -385,9 +380,13 @@ class ObjectDataProvider(ABC):
         logger.info("Derive all metadata for data object... DONE")
 
     @abstractmethod
-    def _derive_spec_and_bbox(self) -> SpecificationAndBoundingBox:
+    def get_spec(self) -> dict[str, Any]:
         raise NotImplementedError
 
     @abstractmethod
-    def _derive_objectdata(self) -> DerivedObjectDescriptor:
+    def get_bbox(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_objectdata(self) -> DerivedObjectDescriptor:
         raise NotImplementedError
