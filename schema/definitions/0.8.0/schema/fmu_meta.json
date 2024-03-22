@@ -738,6 +738,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -1370,6 +1392,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -1629,6 +1673,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [
@@ -1932,6 +1998,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -2210,6 +2298,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [
@@ -2591,6 +2701,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -2867,6 +2999,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [
@@ -3184,6 +3338,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -3472,6 +3648,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -3743,6 +3941,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [
@@ -4024,6 +4244,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -4283,6 +4525,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [
@@ -4592,6 +4856,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -4851,6 +5137,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [
@@ -5167,6 +5475,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -5426,6 +5756,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [
@@ -5777,6 +6129,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [
@@ -6148,6 +6522,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [
@@ -6600,6 +6996,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -6888,6 +7306,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -7147,6 +7587,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [
@@ -7466,6 +7928,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -7739,6 +8223,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -7999,6 +8505,28 @@
           "default": null,
           "title": "Stratigraphic Alias"
         },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
         "tagname": {
           "anyOf": [
             {
@@ -8258,6 +8786,28 @@
           ],
           "default": null,
           "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
         },
         "tagname": {
           "anyOf": [

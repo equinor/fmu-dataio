@@ -206,6 +206,12 @@ class Content(BaseModel):
         default=None,
         examples=["depth"],
     )
+    # Only valid for contents with class table
+    table_index: Optional[List[str]] = Field(
+        default=None,
+        description="Column names in the table which can be used for indexing",
+        examples=[["ZONE", "REGION"]],
+    )
 
     # Both must be set, or none.
     base: Optional[Layer] = None
