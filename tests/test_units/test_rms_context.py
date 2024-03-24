@@ -155,34 +155,31 @@ def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsur
         config=rmsglobalconfig,
         content="depth",
     )  # read from global config
-    meta1 = edata.generate_metadata(
+
+    # should raise userwarning
+    with pytest.warns(UserWarning):
+        meta1 = edata.generate_metadata(
+            regsurf,
+            name="TopVolantis",
+            timedata=[[20300101, "moni"], [20100203, "base"]],
+        )
+
+    assert "topvolantis--20300101_20100203" in meta1["file"]["relative_path"]
+
+    # new format should be present in the metadata files
+    assert meta1["data"]["time"]["t0"]["value"] == "2010-02-03T00:00:00"
+    assert meta1["data"]["time"]["t0"]["label"] == "base"
+    assert meta1["data"]["time"]["t1"]["value"] == "2030-01-01T00:00:00"
+    assert meta1["data"]["time"]["t1"]["label"] == "moni"
+
+    # check that metadata are equal independent of legacy_time_format
+    dataio.ExportData.legacy_time_format = False
+    meta2 = edata.generate_metadata(
         regsurf,
         name="TopVolantis",
         timedata=[[20300101, "moni"], [20100203, "base"]],
     )
-    logger.debug(prettyprint_dict(meta1))
-    assert "topvolantis--20300101_20100203" in meta1["file"]["relative_path"]
-
-    assert meta1["data"]["time"][0]["value"] == "2010-02-03T00:00:00"
-    assert meta1["data"]["time"][0]["label"] == "base"
-    assert meta1["data"]["time"][1]["value"] == "2030-01-01T00:00:00"
-    assert meta1["data"]["time"][1]["label"] == "moni"
-
-    meta1 = edata.generate_metadata(
-        regsurf,
-        name="TopVolantis",
-        content="depth",
-        timedata=[[20300123, "one"]],
-    )
-
-    logger.debug(prettyprint_dict(meta1))
-
-    assert meta1["data"]["time"][0]["value"] == "2030-01-23T00:00:00"
-    assert meta1["data"]["time"][0]["label"] == "one"
-
-    assert len(meta1["data"]["time"]) == 1
-
-    dataio.ExportData.legacy_time_format = False
+    assert meta2["data"]["time"] == meta1["data"]["time"]
 
 
 @inside_rms

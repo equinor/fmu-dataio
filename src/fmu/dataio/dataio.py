@@ -688,6 +688,13 @@ class ExportData:
             empty. If true, the MD5 checksum will be generated based on export to
             a temporary file, which may be time-consuming if the file is large.
         """
+        if self.legacy_time_format:
+            warn(
+                "Using the 'legacy_time_format=True' option to create metadata files "
+                "with the old format for time is now deprecated. This option has no "
+                "longer an effect and will be removed in the near future.",
+                UserWarning,
+            )
         logger.info("Generate metadata...")
         logger.info("KW args %s", kwargs)
 
