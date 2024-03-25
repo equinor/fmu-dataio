@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Final, Literal, Optional, TypeVar
@@ -12,6 +12,7 @@ from fmu.dataio._definitions import ConfigurationError
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import generate_description, parse_timedata
 from fmu.dataio.datastructure._internal.internal import AllowedContent
+from fmu.dataio.datastructure.meta import content
 
 logger: Final = null_logger(__name__)
 
@@ -68,30 +69,6 @@ class DerivedObjectDescriptor:
 
 
 @dataclass
-class TimedataValueLabel:
-    value: str
-    label: str
-
-    @staticmethod
-    def from_list(arr: list) -> TimedataValueLabel:
-        return TimedataValueLabel(
-            value=datetime.strptime(str(arr[0]), "%Y%m%d").isoformat(),
-            label=arr[1] if len(arr) == 2 else "",
-        )
-
-
-@dataclass
-class TimedataLegacyFormat:
-    time: list[TimedataValueLabel]
-
-
-@dataclass
-class TimedataFormat:
-    t0: Optional[TimedataValueLabel]
-    t1: Optional[TimedataValueLabel]
-
-
-@dataclass
 class DerivedNamedStratigraphy:
     name: str
     alias: list[str]
@@ -119,6 +96,19 @@ def derive_name(
         return name
 
     return ""
+
+
+def get_fmu_time_object(timedata_item: list[str]) -> content.FMUTimeObject:
+    """
+    Returns a FMUTimeObject from a timedata item on list
+    format: ["20200101", "monitor"] where the first item is a date and
+    the last item is an optional label
+    """
+    value, *label = timedata_item
+    return content.FMUTimeObject(
+        value=datetime.strptime(str(value), "%Y%m%d").isoformat(),
+        label=label[0] if label else None,
+    )
 
 
 @dataclass
@@ -151,8 +141,8 @@ class ObjectDataProvider(ABC):
     name: str = field(default="")
     specs: dict = field(default_factory=dict)
     subtype: str = field(default="")
-    time0: str = field(default="")
-    time1: str = field(default="")
+    time0: str | None = field(default=None)
+    time1: str | None = field(default=None)
 
     @staticmethod
     def _validate_get_ext(fmt: str, subtype: str, validator: dict[str, V]) -> V:
@@ -230,9 +220,7 @@ class ObjectDataProvider(ABC):
 
         return content, content_spesific
 
-    def _derive_timedata(
-        self,
-    ) -> Optional[TimedataFormat | TimedataLegacyFormat]:
+    def _derive_timedata(self) -> Optional[dict[str, str]]:
         """Format input timedata to metadata
 
         New format:
@@ -244,42 +232,27 @@ class ObjectDataProvider(ABC):
             variable is set for those who wants it turned around).
         """
 
-        tdata = self.dataio.timedata
-        use_legacy_format: bool = self.dataio.legacy_time_format
-
-        if not tdata:
+        if not self.dataio.timedata:
             return None
 
-        if len(tdata) == 1:
-            start = TimedataValueLabel.from_list(tdata[0])
-            self.time0 = start.value
-            return (
-                TimedataLegacyFormat([start])
-                if use_legacy_format
-                else TimedataFormat(start, None)
-            )
+        if len(self.dataio.timedata) > 2:
+            raise ValueError("The 'timedata' argument can maximum contain two dates")
 
-        if len(tdata) == 2:
-            start, stop = (
-                TimedataValueLabel.from_list(tdata[0]),
-                TimedataValueLabel.from_list(tdata[1]),
-            )
+        start_input, *stop_input = self.dataio.timedata
 
+        start = get_fmu_time_object(start_input)
+        stop = get_fmu_time_object(stop_input[0]) if stop_input else None
+
+        if stop:
+            assert start and start.value is not None  # for mypy
+            assert stop and stop.value is not None  # for mypy
             if datetime.fromisoformat(start.value) > datetime.fromisoformat(stop.value):
                 start, stop = stop, start
 
-            self.time0, self.time1 = start.value, stop.value
+        self.time0, self.time1 = start.value, stop.value if stop else None
 
-            return (
-                TimedataLegacyFormat([start, stop])
-                if use_legacy_format
-                else TimedataFormat(start, stop)
-            )
-
-        return (
-            TimedataLegacyFormat([])
-            if use_legacy_format
-            else TimedataFormat(None, None)
+        return content.Time(t0=start, t1=stop).model_dump(
+            mode="json", exclude_none=True
         )
 
     def _derive_from_existing(self) -> None:
@@ -301,8 +274,7 @@ class ObjectDataProvider(ABC):
         self.extension = relpath.suffix
         self.fmt = self.meta_existing["data"]["format"]
 
-        # TODO: Clean up types below.
-        self.time0, self.time1 = parse_timedata(self.meta_existing["data"])  # type: ignore
+        self.time0, self.time1 = parse_timedata(self.meta_existing["data"])
 
     def derive_metadata(self) -> None:
         """Main function here, will populate the metadata block for 'data'."""
@@ -349,17 +321,7 @@ class ObjectDataProvider(ABC):
         meta["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:
-        dt = self._derive_timedata()
-        if isinstance(dt, TimedataLegacyFormat) and dt.time:
-            meta["time"] = [asdict(v) for v in dt.time]
-        elif isinstance(dt, TimedataFormat):
-            if dt.t0 or dt.t1:
-                meta["time"] = {}
-            if t0 := dt.t0:
-                meta["time"]["t0"] = asdict(t0)
-            if t1 := dt.t1:
-                meta["time"]["t1"] = asdict(t1)
-
+        meta["time"] = self._derive_timedata()
         meta["is_prediction"] = self.dataio.is_prediction
         meta["is_observation"] = self.dataio.is_observation
         meta["description"] = generate_description(self.dataio.description)
