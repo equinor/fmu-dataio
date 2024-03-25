@@ -18,8 +18,8 @@ from fmu.dataio._logging import null_logger
 logger: Final = null_logger(__name__)
 
 if TYPE_CHECKING:
-    from ._objectdata_provider import ObjectDataProvider
     from .dataio import ExportData
+    from .objectdata._provider import ObjectDataProvider
 
 
 @dataclass
@@ -177,8 +177,6 @@ class FileDataProvider:
         info: str = "",
     ) -> Path:
         """Generically construct and get the folder path and verify."""
-        dest = None
-
         outroot = deepcopy(self.rootpath)
 
         logger.info("FMU context is %s", mode)

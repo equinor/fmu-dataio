@@ -6,11 +6,11 @@ import pytest
 from fmu.dataio import dataio
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
 from fmu.dataio._metadata import MetaData
-from fmu.dataio.providers._objectdata import (
+from fmu.dataio.providers.objectdata._provider import (
     ExistingDataProvider,
     objectdata_provider_factory,
 )
-from fmu.dataio.providers._objectdata_xtgeo import RegularSurfaceDataProvider
+from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
 
 from ..utils import inside_rms
 
