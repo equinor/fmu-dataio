@@ -32,7 +32,7 @@ from .datastructure.configuration import global_configuration
 from .datastructure.meta import meta
 from .providers._filedata import FileDataProvider
 from .providers._fmu import FmuProvider
-from .providers._objectdata import objectdata_provider_factory
+from .providers.objectdata._provider import objectdata_provider_factory
 from .version import __version__
 
 if TYPE_CHECKING:
