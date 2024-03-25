@@ -133,42 +133,30 @@ def objectdata_provider_factory(
         metadata for.
     """
     if meta_existing:
-        return ExistingDataProvider(obj=obj, dataio=dataio, meta_existing=meta_existing)
-
-    meta_existing = {}
+        return ExistingDataProvider.from_metadata_dict(obj, dataio, meta_existing)
     if isinstance(obj, xtgeo.RegularSurface):
-        return RegularSurfaceDataProvider(
-            obj=obj, dataio=dataio, meta_existing=meta_existing
-        )
+        return RegularSurfaceDataProvider(obj=obj, dataio=dataio)
     if isinstance(obj, xtgeo.Polygons):
-        return PolygonsDataProvider(obj=obj, dataio=dataio, meta_existing=meta_existing)
+        return PolygonsDataProvider(obj=obj, dataio=dataio)
     if isinstance(obj, xtgeo.Points):
-        return PointsDataProvider(obj=obj, dataio=dataio, meta_existing=meta_existing)
+        return PointsDataProvider(obj=obj, dataio=dataio)
     if isinstance(obj, xtgeo.Cube):
-        return CubeDataProvider(obj=obj, dataio=dataio, meta_existing=meta_existing)
+        return CubeDataProvider(obj=obj, dataio=dataio)
     if isinstance(obj, xtgeo.Grid):
-        return CPGridDataProvider(obj=obj, dataio=dataio, meta_existing=meta_existing)
+        return CPGridDataProvider(obj=obj, dataio=dataio)
     if isinstance(obj, xtgeo.GridProperty):
-        return CPGridPropertyDataProvider(
-            obj=obj, dataio=dataio, meta_existing=meta_existing
-        )
+        return CPGridPropertyDataProvider(obj=obj, dataio=dataio)
     if isinstance(obj, pd.DataFrame):
-        return DataFrameDataProvider(
-            obj=obj, dataio=dataio, meta_existing=meta_existing
-        )
+        return DataFrameDataProvider(obj=obj, dataio=dataio)
     if isinstance(obj, dict):
-        return DictionaryDataProvider(
-            obj=obj, dataio=dataio, meta_existing=meta_existing
-        )
+        return DictionaryDataProvider(obj=obj, dataio=dataio)
 
     from pyarrow import Table
 
     if isinstance(obj, Table):
-        return ArrowTableDataProvider(
-            obj=obj, dataio=dataio, meta_existing=meta_existing
-        )
+        return ArrowTableDataProvider(obj=obj, dataio=dataio)
 
-    raise NotImplementedError("This data type is not (yet) supported: ", type(obj))
+    raise NotImplementedError(f"This data type is not currently supported: {type(obj)}")
 
 
 @dataclass
@@ -345,30 +333,33 @@ class ArrowTableDataProvider(ObjectDataProvider):
 
 @dataclass
 class ExistingDataProvider(ObjectDataProvider):
-    """These functions should never be called because derive_metadata will populate the
-    object data from existing metadata, by calling _derive_from_existing, and return
-    before calling them."""
+    """These getters should never be called because metadata was derived a priori."""
 
-    obj: Any
+    obj: Inferrable
 
-    def get_spec(self) -> dict[str, Any]:
+    def get_spec(self) -> dict:
         """Derive data.spec from existing metadata."""
-        return self.meta_existing["spec"]
+        return self.metadata["spec"]
 
-    def get_bbox(self) -> dict[str, Any]:
+    def get_bbox(self) -> dict:
         """Derive data.bbox from existing metadata."""
-        return self.meta_existing["bbox"]
+        return self.metadata["bbox"]
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data for existing metadata."""
         return DerivedObjectDescriptor(
-            subtype=self.meta_existing["subtype"],
-            classname=self.meta_existing["class"],
-            layout=self.meta_existing["layout"],
+            subtype=self.metadata["subtype"],
+            classname=self.metadata["class"],
+            layout=self.metadata["layout"],
             efolder=self.efolder,
-            fmt=self.meta_existing["format"],
+            fmt=self.fmt,
             extension=self.extension,
             spec=self.get_spec(),
             bbox=self.get_bbox(),
             table_index=None,
         )
+
+    def derive_metadata(self) -> None:
+        """Metadata has already been derived for this provider, and is already set from
+        instantiation, so override this method and do nothing."""
+        return

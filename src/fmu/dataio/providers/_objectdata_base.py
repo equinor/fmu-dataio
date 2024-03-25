@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Final, Literal, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Final, Literal, Optional, TypeVar
 from warnings import warn
 
 from fmu.dataio import dataio, types
@@ -13,6 +13,10 @@ from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import generate_description, parse_timedata
 from fmu.dataio.datastructure._internal.internal import AllowedContent
 from fmu.dataio.datastructure.meta import content
+
+if TYPE_CHECKING:
+    from fmu.dataio.dataio import ExportData
+    from fmu.dataio.types import Inferrable
 
 logger: Final = null_logger(__name__)
 
@@ -126,21 +130,16 @@ class ObjectDataProvider(ABC):
     # input fields
     obj: types.Inferrable
     dataio: dataio.ExportData
-    meta_existing: dict = field(default_factory=dict)
 
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
     # as instance properties in addition (for simplicity in other classes/functions)
-    bbox: dict = field(default_factory=dict)
+    metadata: dict = field(default_factory=dict)
+    name: str = field(default="")
     classname: str = field(default="")
     efolder: str = field(default="")
     extension: str = field(default="")
     fmt: str = field(default="")
-    layout: str = field(default="")
-    metadata: dict = field(default_factory=dict)
-    name: str = field(default="")
-    specs: dict = field(default_factory=dict)
-    subtype: str = field(default="")
     time0: str | None = field(default=None)
     time1: str | None = field(default=None)
 
@@ -255,34 +254,21 @@ class ObjectDataProvider(ABC):
             mode="json", exclude_none=True
         )
 
-    def _derive_from_existing(self) -> None:
-        """Derive from existing metadata."""
+    @abstractmethod
+    def get_spec(self) -> dict:
+        raise NotImplementedError
 
-        # do not change any items in 'data' block, as it may ruin e.g. stratigrapical
-        # setting (i.e. changing data.name is not allowed)
-        self.metadata = self.meta_existing["data"]
-        self.name = self.meta_existing["data"]["name"]
+    @abstractmethod
+    def get_bbox(self) -> dict:
+        raise NotImplementedError
 
-        # derive the additional attributes needed later e.g. in Filedata provider:
-        relpath = Path(self.meta_existing["file"]["relative_path"])
-        if self.dataio.subfolder:
-            self.efolder = relpath.parent.parent.name
-        else:
-            self.efolder = relpath.parent.name
-
-        self.classname = self.meta_existing["class"]
-        self.extension = relpath.suffix
-        self.fmt = self.meta_existing["data"]["format"]
-
-        self.time0, self.time1 = parse_timedata(self.meta_existing["data"])
+    @abstractmethod
+    def get_objectdata(self) -> DerivedObjectDescriptor:
+        raise NotImplementedError
 
     def derive_metadata(self) -> None:
         """Main function here, will populate the metadata block for 'data'."""
         logger.info("Derive all metadata for data object...")
-
-        if self.meta_existing:
-            self._derive_from_existing()
-            return
 
         namedstratigraphy = self._derive_name_stratigraphy()
         objres = self.get_objectdata()
@@ -341,14 +327,26 @@ class ObjectDataProvider(ABC):
         self.fmt = objres.fmt
         logger.info("Derive all metadata for data object... DONE")
 
-    @abstractmethod
-    def get_spec(self) -> dict[str, Any]:
-        raise NotImplementedError
+    @classmethod
+    def from_metadata_dict(
+        cls, obj: Inferrable, dataio: ExportData, meta_existing: dict
+    ) -> ObjectDataProvider:
+        """Instantiate from existing metadata."""
 
-    @abstractmethod
-    def get_bbox(self) -> dict[str, Any]:
-        raise NotImplementedError
+        relpath = Path(meta_existing["file"]["relative_path"])
+        time0, time1 = parse_timedata(meta_existing["data"])
 
-    @abstractmethod
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        raise NotImplementedError
+        return cls(
+            obj=obj,
+            dataio=dataio,
+            metadata=meta_existing["data"],
+            name=meta_existing["data"]["name"],
+            classname=meta_existing["class"],
+            efolder=(
+                relpath.parent.parent.name if dataio.subfolder else relpath.parent.name
+            ),
+            extension=relpath.suffix,
+            fmt=meta_existing["data"]["format"],
+            time0=time0,
+            time1=time1,
+        )

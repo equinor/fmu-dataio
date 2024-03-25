@@ -1,8 +1,18 @@
 """Test the _ObjectData class from the _objectdata.py module"""
 
+import os
+
 import pytest
+from fmu.dataio import dataio
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
-from fmu.dataio.providers._objectdata import objectdata_provider_factory
+from fmu.dataio._metadata import MetaData
+from fmu.dataio.providers._objectdata import (
+    ExistingDataProvider,
+    objectdata_provider_factory,
+)
+from fmu.dataio.providers._objectdata_xtgeo import RegularSurfaceDataProvider
+
+from ..utils import inside_rms
 
 # --------------------------------------------------------------------------------------
 # RegularSurface
@@ -67,8 +77,10 @@ def test_objectdata_regularsurface_spec_bbox(regsurf, edataobj1):
 def test_objectdata_regularsurface_derive_objectdata(regsurf, edataobj1):
     """Derive other properties."""
 
-    res = objectdata_provider_factory(regsurf, edataobj1).get_objectdata()
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    assert isinstance(objdata, RegularSurfaceDataProvider)
 
+    res = objdata.get_objectdata()
     assert res.subtype == "RegularSurface"
     assert res.classname == "surface"
     assert res.extension == ".gri"
@@ -81,5 +93,68 @@ def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):
     myobj.derive_metadata()
     res = myobj.metadata
     assert res["content"] == "depth"
-
     assert res["alias"]
+
+
+def test_objectdata_provider_factory_raises_on_unknown(edataobj1):
+    with pytest.raises(NotImplementedError, match="not currently supported"):
+        objectdata_provider_factory(object(), edataobj1)
+
+
+def test_regsurf_preprocessed_observation(
+    fmurun_w_casemetadata, rmssetup, rmsglobalconfig, regsurf
+):
+    """Test generating pre-realization surfaces that comes to share/preprocessed.
+
+    Later, a fmu run will update this (merge metadata)
+    """
+
+    @inside_rms
+    def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
+        """Run an export of a preprocessed surface inside RMS."""
+
+        os.chdir(rmssetup)
+        edata = dataio.ExportData(
+            config=rmsglobalconfig,  # read from global config
+            fmu_context="preprocessed",
+            name="TopVolantis",
+            content="depth",
+            is_observation=True,
+            timedata=[[20240802, "moni"], [20200909, "base"]],
+        )
+        return edata, edata.export(regsurf)
+
+    def _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, surfacepath):
+        """Run FMU workflow, using the preprocessed data as case data.
+
+        When re-using metadata, the input object to dataio shall not be a XTGeo or
+        Pandas or ... instance, but just a file path (either as string or a pathlib.Path
+        object). This is because we want to avoid time and resources spent on double
+        reading e.g. a seismic cube, but rather trigger a file copy action instead.
+
+        But it requires that valid metadata for that file is found. The rule for
+        merging is currently defaulted to "preprocessed".
+        """
+        os.chdir(fmurun_w_casemetadata)
+
+        casepath = fmurun_w_casemetadata.parent.parent
+        edata = dataio.ExportData(
+            config=rmsglobalconfig,
+            fmu_context="case",
+            content=None,
+            is_observation=True,
+        )
+        _ = edata.generate_metadata(
+            surfacepath,
+            casepath=casepath,
+        )
+        metaobj = MetaData(surfacepath, edata)
+        metaobj._populate_meta_objectdata()
+        assert isinstance(metaobj.objdata, ExistingDataProvider)
+        return metaobj
+
+    # run two stage process
+    edata, mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
+    metaobj = _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, mysurf)
+    case_meta = metaobj.generate_export_metadata()
+    assert edata._metadata["data"] == case_meta["data"]
