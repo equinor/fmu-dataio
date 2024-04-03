@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final
 
 import pandas as pd
+
 from fmu.dataio._definitions import STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure.meta import specification

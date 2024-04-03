@@ -91,6 +91,7 @@ from typing import TYPE_CHECKING, Any, Final
 
 import pandas as pd
 import xtgeo
+
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
 

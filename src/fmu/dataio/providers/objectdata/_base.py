@@ -4,10 +4,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Final, Literal, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Final, TypeVar
 from warnings import warn
 
-from fmu.dataio import dataio, types
 from fmu.dataio._definitions import ConfigurationError
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import generate_description, parse_timedata
@@ -16,7 +15,7 @@ from fmu.dataio.datastructure.meta import content
 
 if TYPE_CHECKING:
     from fmu.dataio.dataio import ExportData
-    from fmu.dataio.types import Inferrable
+    from fmu.dataio.types import Classname, Efolder, Inferrable, Layout, Subtype
 
 logger: Final = null_logger(__name__)
 
@@ -25,51 +24,15 @@ V = TypeVar("V")
 
 @dataclass
 class DerivedObjectDescriptor:
-    subtype: Literal[
-        "RegularSurface",
-        "Polygons",
-        "Points",
-        "RegularCube",
-        "CPGrid",
-        "CPGridProperty",
-        "DataFrame",
-        "JSON",
-        "ArrowTable",
-    ]
-    classname: Literal[
-        "surface",
-        "polygons",
-        "points",
-        "cube",
-        "cpgrid",
-        "cpgrid_property",
-        "table",
-        "dictionary",
-    ]
-    layout: Literal[
-        "regular",
-        "unset",
-        "cornerpoint",
-        "table",
-        "dictionary",
-    ]
-    efolder: (
-        Literal[
-            "maps",
-            "polygons",
-            "points",
-            "cubes",
-            "grids",
-            "tables",
-            "dictionaries",
-        ]
-        | str
-    )
+    subtype: Subtype
+    classname: Classname
+    layout: Layout
+    efolder: Efolder | str
     fmt: str
     extension: str
-    spec: Dict[str, Any] | None
-    bbox: Dict[str, Any] | None
-    table_index: Optional[list[str]]
+    spec: dict[str, Any] | None
+    bbox: dict[str, Any] | None
+    table_index: list[str] | None
 
 
 @dataclass
@@ -86,8 +49,8 @@ class DerivedNamedStratigraphy:
 
 
 def derive_name(
-    export: dataio.ExportData,
-    obj: types.Inferrable,
+    export: ExportData,
+    obj: Inferrable,
 ) -> str:
     """
     Derives and returns a name for an export operation based on the
@@ -128,8 +91,8 @@ class ObjectDataProvider(ABC):
     """
 
     # input fields
-    obj: types.Inferrable
-    dataio: dataio.ExportData
+    obj: Inferrable
+    dataio: ExportData
 
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
@@ -216,7 +179,7 @@ class ObjectDataProvider(ABC):
 
         return content, content_spesific
 
-    def _derive_timedata(self) -> Optional[dict[str, str]]:
+    def _derive_timedata(self) -> dict[str, str] | None:
         """Format input timedata to metadata
 
         New format:
