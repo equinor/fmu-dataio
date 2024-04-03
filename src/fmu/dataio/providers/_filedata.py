@@ -9,16 +9,20 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Final, Optional
 from warnings import warn
 
 from fmu.dataio._definitions import FmuContext
 from fmu.dataio._logging import null_logger
+from fmu.dataio._utils import export_file_compute_checksum_md5
+from fmu.dataio.datastructure.meta import meta
 
 logger: Final = null_logger(__name__)
 
 if TYPE_CHECKING:
-    from .dataio import ExportData
+    from fmu.dataio import ExportData, types
+
     from .objectdata._provider import ObjectDataProvider
 
 
@@ -31,7 +35,6 @@ class FileDataProvider:
         file:
             relative_path: ... (relative to case)
             absolute_path: ...
-            checksum_md5: ...  Will be done in anothr routine!
     """
 
     # input
@@ -40,33 +43,30 @@ class FileDataProvider:
     rootpath: Path = field(default_factory=Path)
     itername: str = ""
     realname: str = ""
+    obj: Optional[types.Inferrable] = field(default=None)
+    compute_md5: bool = False
 
     # storing results in these variables
-    relative_path: Path = field(default_factory=Path)
-    relative_path_symlink: Optional[Path] = field(default=None)
-
-    absolute_path: Path = field(default_factory=Path)
-    absolute_path_symlink: Optional[Path] = field(default=None)
-
-    checksum_md5: Optional[str] = field(default="", init=False)
     forcefolder_is_absolute: bool = field(default=False, init=False)
 
     @property
     def name(self) -> str:
         return self.dataio.name or self.objdata.name
 
-    def derive_filedata(self) -> None:
+    def get_metadata(self) -> meta.File:
         relpath, symrelpath = self._get_path()
-        relative, absolute = self._derive_filedata_generic(relpath)
-        self.relative_path = relative
-        self.absolute_path = absolute
-
-        if symrelpath:
-            relative, absolute = self._derive_filedata_generic(symrelpath)
-            self.relative_path_symlink = relative
-            self.absolute_path_symlink = absolute
-
-        logger.info("Derived filedata")
+        relative_path, absolute_path = self._derive_filedata_generic(relpath)
+        relative_path_symlink, absolute_path_symlink = (
+            self._derive_filedata_generic(symrelpath) if symrelpath else (None, None)
+        )
+        logger.info("Returning metadata pydantic model meta.File")
+        return meta.File(
+            absolute_path=absolute_path,
+            relative_path=relative_path,
+            checksum_md5=self._compute_md5() if self.compute_md5 else None,
+            relative_path_symlink=relative_path_symlink,
+            absolute_path_symlink=absolute_path_symlink,
+        )
 
     def _derive_filedata_generic(self, inrelpath: Path) -> tuple[Path, Path]:
         """This works with both normal data and symlinks."""
@@ -105,6 +105,19 @@ class FileDataProvider:
 
         logger.info("Derived filedata")
         return relpath, abspath
+
+    def _compute_md5(self) -> str:
+        """Compute an MD5 sum using a temporary file."""
+        if self.obj is None:
+            raise ValueError("Can't compute MD5 sum without an object.")
+        if not self.objdata.extension.startswith("."):
+            raise ValueError("An extension must start with '.'")
+
+        with NamedTemporaryFile(buffering=0, suffix=self.objdata.extension) as tf:
+            logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
+            return export_file_compute_checksum_md5(
+                obj=self.obj, filename=Path(tf.name), flag=self.dataio._usefmtflag
+            )
 
     def _get_filestem(self) -> str:
         """Construct the file"""
