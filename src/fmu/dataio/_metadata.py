@@ -139,10 +139,9 @@ class MetaData:
     def __post_init__(self) -> None:
         logger.info("Initialize _MetaData instance.")
 
-        # one special case is that obj is a file path, and dataio.reuse_metadata_rule is
-        # active. In this case we read the existing metadata here and reuse parts
-        # according to rule described in string self.reuse_metadata_rule!
-        if isinstance(self.obj, (str, Path)) and self.dataio.reuse_metadata_rule:
+        # one special case is that obj is a file path.
+        # In this case we read the existing metadata here and reuse parts
+        if isinstance(self.obj, (str, Path)) and self.dataio._reuse_metadata:
             logger.info("Partially reuse existing metadata from %s", self.obj)
             self.meta_existing = read_metadata_from_file(self.obj)
 
@@ -300,15 +299,10 @@ class MetaData:
             self.meta_xpreprocessed["subfolder"] = self.dataio.subfolder
 
     def _reuse_existing_metadata(self, meta: dict) -> dict:
-        """Perform a merge procedure if the key `reuse_metadata_rule` is active."""
-        if self.dataio and self.dataio.reuse_metadata_rule:
-            oldmeta = self.meta_existing
-            newmeta = meta.copy()
-            if self.dataio.reuse_metadata_rule == "preprocessed":
-                return glue_metadata_preprocessed(oldmeta, newmeta)
-            raise ValueError(
-                f"The reuse_metadata_rule {self.dataio.reuse_metadata_rule} is not "
-                "supported."
+        """Perform a merge procedure if input is a file i.e. `_reuse_metadata=True`"""
+        if self.dataio._reuse_metadata:
+            return glue_metadata_preprocessed(
+                oldmeta=self.meta_existing, newmeta=meta.copy()
             )
         return meta
 
