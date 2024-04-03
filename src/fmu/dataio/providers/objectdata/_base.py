@@ -194,10 +194,7 @@ class ObjectDataProvider(ABC):
         # content == "unset" is not wanted, but in case metadata has been produced while
         # doing a preprocessing step first, and this step is re-using metadata, the
         # check is not done.
-        if self.dataio._usecontent == "unset" and (
-            self.dataio.reuse_metadata_rule is None
-            or self.dataio.reuse_metadata_rule != "preprocessed"
-        ):
+        if self.dataio._usecontent == "unset" and not self.dataio._reuse_metadata:
             allowed_fields = ", ".join(AllowedContent.model_fields.keys())
             warn(
                 "The <content> is not provided which defaults to 'unset'. "

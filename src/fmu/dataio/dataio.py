@@ -279,8 +279,7 @@ class ExportData:
             "preprocessed" folder instead, and metadata will be partially re-used in
             an ERT model run. If a non-FMU run is detected (e.g. you run from project),
             fmu-dataio will detect that and set actual context to None as fall-back
-            (unless preprocessed is specified). If value is "preprocessed", see also
-            ``reuse_metadata`` key.
+            (unless preprocessed is specified).
 
         description: A multiline description of the data either as a string or a list
             of strings.
@@ -322,11 +321,6 @@ class ExportData:
         realization: Optional, default is -999 which means that realization shall be
             detected automatically from the FMU run. Can be used to override in rare
             cases. If so, numbers must be >= 0
-
-        reuse_metadata_rule: This input is None or a string describing rule for reusing
-            metadata. Default is None, but if the input is a file string or object with
-            already valid metadata, then it is assumed to be "preprocessed", which
-            merges the metadata after predefined rules.
 
         runpath: TODO! Optional and deprecated. The relative location of the current run
             root. Optional and will in most cases be auto-detected, assuming that FMU
@@ -427,7 +421,7 @@ class ExportData:
     undef_is_zero: bool = False
     parent: str = ""
     realization: int = -999
-    reuse_metadata_rule: Optional[str] = None
+    reuse_metadata_rule: Optional[str] = None  # deprecated
     runpath: Optional[Union[str, Path]] = None
     subfolder: str = ""
     tagname: str = ""
@@ -447,11 +441,18 @@ class ExportData:
     _pwd: Path = field(default_factory=Path, init=False)
     _config_is_valid: bool = field(default=True, init=False)
     _fmurun: bool = field(default=False, init=False)
+    _reuse_metadata: bool = field(default=False, init=False)
 
     # << NB! storing ACTUAL casepath:
     _rootpath: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self) -> None:
+        if self.reuse_metadata_rule:
+            warn(
+                "The 'reuse_metadata_rule' key is deprecated and has no effect. "
+                "Please remove it from the argument list.",
+                UserWarning,
+            )
         if self.verbosity != "DEPRECATED":
             warn(
                 "Using the 'verbosity' key is now deprecated and will have no "
@@ -627,12 +628,11 @@ class ExportData:
         """
 
         if isinstance(obj, (str, Path)):
-            if isinstance(obj, str):
-                obj = Path(obj)
+            obj = Path(obj)
             if not obj.exists():
                 raise ValidationError(f"The file {obj} does not exist.")
-            if not self.reuse_metadata_rule:
-                self.reuse_metadata_rule = "preprocessed"
+
+            self._reuse_metadata = True
 
             currentmeta = read_metadata(obj)
             if "_preprocessed" not in currentmeta:
@@ -670,9 +670,6 @@ class ExportData:
 
         Examples of such known types are XTGeo objects (e.g. a RegularSurface),
         a Pandas Dataframe, a PyArrow table, etc.
-
-        If the key ``reuse_metadata_rule`` is applied with legal value, the object may
-        also be a reference to a file with existing metadata which then will be re-used.
 
         Args:
             obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
