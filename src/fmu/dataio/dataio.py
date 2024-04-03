@@ -594,6 +594,14 @@ class ExportData:
             )
             self.fmu_context = FmuContext.NON_FMU
 
+        if self.fmu_context != FmuContext.CASE and env_fmu_context == FmuContext.CASE:
+            warn(
+                "fmu_context is set to 'realization', but unable to detect "
+                "ERT runpath from environment variable. "
+                "Did you mean fmu_context='case'?",
+                UserWarning,
+            )
+
     def _update_fmt_flag(self) -> None:
         # treat special handling of "xtgeo" in format name:
         if self.points_fformat == "csv|xtgeo" or self.polygons_fformat == "csv|xtgeo":
@@ -717,7 +725,7 @@ class ExportData:
         return FmuProvider(
             model=self.config.get("model"),
             fmu_context=self.fmu_context,
-            casepath_proposed=self.casepath or "",
+            casepath_proposed=Path(self.casepath) if self.casepath else None,
             include_ertjobs=self.include_ertjobs,
             forced_realization=self.realization,
             workflow=self.workflow,
@@ -774,13 +782,12 @@ class ExportData:
         self._update_fmt_flag()
 
         fmudata = self._get_fmu_provider() if self._fmurun else None
-
         # update rootpath based on fmurun or not
         # TODO: Move to ExportData init when/if users are
         # disallowed to update class settings on the export.
-        self._rootpath = Path(
-            fmudata.get_casepath() if fmudata else str(self._rootpath.absolute())
-        )
+        if fmudata and (casepath := fmudata.get_casepath()):
+            self._rootpath = casepath
+        self._rootpath = self._rootpath.absolute()
         logger.debug("Rootpath is now %s", self._rootpath)
 
         # TODO: refactor the argument list for generate_export_metadata; we do not need

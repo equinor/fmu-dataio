@@ -17,7 +17,13 @@ from fmu.dataio.datastructure.configuration.global_configuration import (
     Model as GlobalConfigurationModel,
 )
 from fmu.dataio.datastructure.meta import meta
-from pydantic import AnyHttpUrl, BaseModel, Field, TypeAdapter, model_validator
+from pydantic import (
+    AnyHttpUrl,
+    BaseModel,
+    Field,
+    TypeAdapter,
+    model_validator,
+)
 
 
 def seismic_warn() -> None:
@@ -163,7 +169,7 @@ class PreprocessedInfo(BaseModel):
     subfolder: str
 
 
-class Context(BaseModel):
+class Context(BaseModel, use_enum_values=True):
     stage: FmuContext
 
 
@@ -211,5 +217,5 @@ class CaseSchema(JsonSchemaMetadata):
     masterdata: meta.Masterdata
     access: meta.Access
     fmu: FMUModel
-    description: Optional[List[str]]
+    description: Optional[List[str]] = Field(default=None)
     tracklog: List[meta.TracklogEvent]
