@@ -13,6 +13,7 @@ from . import _metadata, _utils
 from ._logging import null_logger
 from .datastructure._internal import internal
 from .datastructure.configuration import global_configuration
+from .datastructure.meta import meta
 
 logger: Final = null_logger(__name__)
 
@@ -116,9 +117,9 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             warnings.warn(exists_warning, UserWarning)
             return {}
 
-        meta = internal.CaseSchema(
-            masterdata=internal.Masterdata.model_validate(self.config["masterdata"]),
-            access=internal.Access.model_validate(self.config["access"]),
+        case_meta = internal.CaseSchema(
+            masterdata=meta.Masterdata.model_validate(self.config["masterdata"]),
+            access=meta.Access.model_validate(self.config["access"]),
             fmu=internal.FMUModel(
                 model=global_configuration.Model.model_validate(
                     self.config["model"],
@@ -126,7 +127,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
                 case=internal.CaseMetadata(
                     name=self.casename,
                     uuid=str(self._case_uuid()),
-                    user=internal.User(id=self.caseuser),
+                    user=meta.User(id=self.caseuser),
                 ),
             ),
             tracklog=_metadata.generate_meta_tracklog(),
@@ -137,7 +138,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             by_alias=True,
         )
 
-        self._metadata = _utils.drop_nones(meta)
+        self._metadata = _utils.drop_nones(case_meta)
 
         logger.info("The case metadata are now ready!")
         return copy.deepcopy(self._metadata)

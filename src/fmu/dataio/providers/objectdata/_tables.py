@@ -86,7 +86,7 @@ class DataFrameDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.table_fformat),
             extension=self._validate_get_ext(fmt, "DataFrame", ValidFormats().table),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox() or None,
             table_index=table_index,
         )
 
@@ -123,6 +123,6 @@ class ArrowTableDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.arrow_fformat),
             extension=self._validate_get_ext(fmt, "ArrowTable", ValidFormats().table),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox() or None,
             table_index=table_index,
         )

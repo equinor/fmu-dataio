@@ -6,6 +6,7 @@ import pathlib
 import sys
 from copy import deepcopy
 
+import pydantic
 import pytest
 import yaml
 from fmu.dataio._definitions import FmuContext
@@ -213,10 +214,16 @@ def test_content_invalid_dict(globalconfig1):
 
 
 def test_content_valid_string(regsurf, globalconfig2):
-    eobj = ExportData(config=globalconfig2, name="TopVolantis", content="seismic")
+    eobj = ExportData(config=globalconfig2, name="TopVolantis", content="depth")
     mymeta = eobj.generate_metadata(regsurf)
-    assert mymeta["data"]["content"] == "seismic"
-    assert "seismic" not in mymeta["data"]
+    assert mymeta["data"]["content"] == "depth"
+    assert "depth" not in mymeta["data"]
+
+
+def test_seismic_content_require_seismic_data(regsurf, globalconfig2):
+    eobj = ExportData(config=globalconfig2, content="seismic")
+    with pytest.raises(pydantic.ValidationError, match="Field required "):
+        eobj.generate_metadata(regsurf)
 
 
 def test_content_valid_dict(regsurf, globalconfig2):

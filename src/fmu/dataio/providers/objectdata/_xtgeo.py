@@ -352,6 +352,6 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
                 fmt, "CPGridProperty", ValidFormats().grid
             ),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox() or None,
             table_index=None,
         )
