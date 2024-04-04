@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from fmu.dataio import ExportData
+from fmu.dataio.datastructure.meta import meta
 from fmu.dataio.providers._filedata import FileDataProvider
 from fmu.dataio.providers.objectdata._base import derive_name
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
@@ -224,18 +225,19 @@ def test_filedata_provider(regsurf, edataobj1, tmp_path):
     objdata.time1 = "t2"
 
     fdata = FileDataProvider(cfg, objdata)
-    fdata.derive_filedata()
+    filemeta = fdata.get_metadata()
 
-    print(fdata.relative_path)
+    assert isinstance(filemeta, meta.File)
     assert (
-        str(fdata.relative_path) == "share/results/efolder/parent--name--tag--t2_t1.ext"
+        str(filemeta.relative_path)
+        == "share/results/efolder/parent--name--tag--t2_t1.ext"
     )
     absdata = tmp_path / "share/results/efolder/parent--name--tag--t2_t1.ext"
-    assert fdata.absolute_path == absdata
+    assert filemeta.absolute_path == absdata
 
 
 def test_filedata_has_nonascii_letters(regsurf, edataobj1, tmp_path):
-    """Testing the derive_filedata function."""
+    """Testing the get_metadata function."""
 
     os.chdir(tmp_path)
 
@@ -253,7 +255,7 @@ def test_filedata_has_nonascii_letters(regsurf, edataobj1, tmp_path):
 
     fdata = FileDataProvider(cfg, objdata)
     with pytest.raises(UnicodeEncodeError, match=r"codec can't encode character"):
-        fdata.derive_filedata()
+        fdata.get_metadata()
 
 
 @pytest.mark.parametrize(

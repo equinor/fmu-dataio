@@ -13,7 +13,6 @@ import platform
 from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Final
 
 from pydantic import AnyHttpUrl, TypeAdapter
@@ -23,7 +22,6 @@ from ._definitions import SCHEMA, SOURCE, VERSION, FmuContext
 from ._logging import null_logger
 from ._utils import (
     drop_nones,
-    export_file_compute_checksum_md5,
     glue_metadata_preprocessed,
     read_metadata_from_file,
 )
@@ -205,42 +203,15 @@ class MetaData:
         assert self.objdata is not None
 
         fdata = FileDataProvider(
-            self.dataio,
-            self.objdata,
-            Path(self.rootpath),
-            self.iter_name,
-            self.real_name,
+            dataio=self.dataio,
+            obj=self.obj,
+            objdata=self.objdata,
+            rootpath=Path(self.rootpath),
+            itername=self.iter_name,
+            realname=self.real_name,
+            compute_md5=self.compute_md5,
         )
-        fdata.derive_filedata()
-
-        if self.compute_md5:
-            if not self.objdata.extension.startswith("."):
-                raise ValueError("A extension must start with '.'")
-            with NamedTemporaryFile(
-                buffering=0,
-                suffix=self.objdata.extension,
-            ) as tf:
-                logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
-                checksum_md5 = export_file_compute_checksum_md5(
-                    self.obj,
-                    Path(tf.name),
-                    flag=self.dataio._usefmtflag,
-                )
-        else:
-            logger.info("Do not compute MD5 sum at this stage!")
-            checksum_md5 = None
-
-        self.meta_file = meta.File(
-            absolute_path=fdata.absolute_path,
-            relative_path=fdata.relative_path,
-            checksum_md5=checksum_md5,
-            relative_path_symlink=fdata.relative_path_symlink,
-            absolute_path_symlink=fdata.absolute_path_symlink,
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
-            by_alias=True,
-        )
+        self.meta_file = fdata.get_metadata().model_dump(mode="json", exclude_none=True)
 
     def _populate_meta_class(self) -> None:
         """Get the general class which is a simple string."""
