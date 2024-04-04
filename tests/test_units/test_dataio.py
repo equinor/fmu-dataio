@@ -162,6 +162,11 @@ def test_update_check_settings_shall_fail(globalconfig1):
             "some",
             r"The 'grid_model' key has currently no function",
         ),
+        (
+            "access_ssdl",
+            {"rep_include": False, "access_level": "internal"},
+            r"The 'access_ssdl' key is deprecated",
+        ),
     ],
 )
 def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
@@ -176,6 +181,31 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
     with pytest.warns(PendingDeprecationWarning, match=expected_msg):
         edata = ExportData(config=globalconfig1, content="depth")
         edata.generate_metadata(regsurf, **kval)
+
+
+def test_validate_access_ssdl_arguments():
+    """Test that failes when access_ssdl is given together with replacements."""
+
+    # We are deprecating the 'access_ssdl' argument in favor of 'classification' and
+    # 'rep_include'. While deprecated, we allow the argument, but not conflicts.
+
+    with pytest.raises(ValueError):
+        ExportData(
+            access_ssdl={"access_level": "restricted"}, classification="internal"
+        )
+
+    # fail also when they are identical
+    with pytest.raises(ValueError):
+        ExportData(access_ssdl={"access_level": "internal"}, classification="internal")
+
+    with pytest.raises(ValueError):
+        ExportData(access_ssdl={"rep_include": True}, rep_include=True)
+
+    # allow only new arguments
+    ExportData(rep_include=True, classification="internal")
+
+    # allow (for now) only old argument, but give warning
+    ExportData(access_ssdl={"access_level": "internal", "rep_include": True})
 
 
 def test_content_not_given(globalconfig1, regsurf):

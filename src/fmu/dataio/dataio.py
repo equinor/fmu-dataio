@@ -39,6 +39,9 @@ from .datastructure._internal.internal import (
 from .datastructure.configuration import global_configuration
 from .providers._fmu import FmuEnv
 
+# always show PendingDeprecationWarnings
+warnings.simplefilter("always", PendingDeprecationWarning)
+
 # DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
 
@@ -245,7 +248,7 @@ class ExportData:
 
 
     Args:
-        access_ssdl: Optional. A dictionary that will overwrite or append
+        access_ssdl: DEPRECATED. Optional. A dictionary that will overwrite or append
             to the default ssdl settings read from the config. Example:
             ``{"access_level": "restricted", "rep_include": False}``
 
@@ -253,6 +256,9 @@ class ExportData:
             the case root. If not provided, the rootpath will be attempted parsed from
             the file structure or by other means. See also fmu_context, where "case"
             may need an explicit casepath!
+
+        classification: Optional. The security classification of this data object, if
+            override defaults. Valid values are: ["restricted", "internal"].
 
         config: Required in order to produce valid metadata, either as key (here) or
             through an environment variable. A dictionary with static settings.
@@ -321,6 +327,8 @@ class ExportData:
         realization: Optional, default is -999 which means that realization shall be
             detected automatically from the FMU run. Can be used to override in rare
             cases. If so, numbers must be >= 0
+
+        rep_include: Optional. Boolean flag for REP to display this data object.
 
         runpath: TODO! Optional and deprecated. The relative location of the current run
             root. Optional and will in most cases be auto-detected, assuming that FMU
@@ -402,9 +410,10 @@ class ExportData:
     _inside_rms: ClassVar[bool] = False  # developer only! if True pretend inside RMS
 
     # input keys (alphabetic)
-    access_ssdl: dict = field(default_factory=dict)
+    access_ssdl: dict = field(default_factory=dict)  # deprecated
     aggregation: bool = False
     casepath: Optional[Union[str, Path]] = None
+    classification: Optional[str] = None
     config: dict = field(default_factory=dict)
     content: Optional[Union[dict, str]] = None
     depth_reference: str = "msl"
@@ -421,6 +430,7 @@ class ExportData:
     undef_is_zero: bool = False
     parent: str = ""
     realization: int = -999
+    rep_include: Optional[bool] = None
     reuse_metadata_rule: Optional[str] = None  # deprecated
     runpath: Optional[Union[str, Path]] = None
     subfolder: str = ""
@@ -485,6 +495,7 @@ class ExportData:
 
         self._validate_content_key()
         self._validate_fmucontext_key()
+        self._validate_access_ssdl_arguments()
         self._update_globalconfig_from_settings()
 
         # check state of global config
@@ -497,6 +508,27 @@ class ExportData:
         self._show_deprecations_or_notimplemented()
         logger.info("FMU context is %s", self.fmu_context)
         logger.info("Ran __post_init__")
+
+    def _validate_access_ssdl_arguments(self) -> None:
+        # The access_ssdl argument is deprecated, replaced by 'rep_include' and
+        # 'classification' arguments. While still supported, we don't want to mix old
+        # and new. I.e. when someone starts using any of the new arguments, we expect
+        # them to move away from 'access_ssdl' completely.
+
+        # Check if we are getting both old and new arguments, and raise if we do.
+        if self.access_ssdl is not None and self.classification is not None:
+            if "access_level" in self.access_ssdl:
+                raise ValueError(
+                    "Conflicting arguments: When using 'classification', the (legacy) "
+                    "'access_ssdl' is not supported."
+                )
+
+        if self.access_ssdl and self.rep_include is not None:
+            if "rep_include" in self.access_ssdl:
+                raise ValueError(
+                    "Conflicting arguments: When using 'rep_include', the (legacy) "
+                    "'access_ssdl' is not supported."
+                )
 
     def _show_deprecations_or_notimplemented(self) -> None:
         """Warn on deprecated keys or on stuff not implemented yet."""
@@ -512,6 +544,13 @@ class ExportData:
             warn(
                 "The 'grid_model' key has currently no function. It will be evaluated "
                 "for removal in fmu-dataio version 2.",
+                PendingDeprecationWarning,
+            )
+
+        if self.access_ssdl:
+            warn(
+                "The 'access_ssdl' key is deprecated, and replaced by arguments "
+                "'classification' and 'rep_include'. Please update your code.",
                 PendingDeprecationWarning,
             )
 
@@ -568,7 +607,9 @@ class ExportData:
         newglobals = deepcopy(self.config)
 
         if self.access_ssdl:
-            if "ssdl" not in self.config["access"]:
+            if "access" not in self.config:
+                newglobals["access"] = {}
+            if "ssdl" not in newglobals["access"]:
                 newglobals["access"]["ssdl"] = {}
 
             newglobals["access"]["ssdl"] = deepcopy(self.access_ssdl)
@@ -702,6 +743,9 @@ class ExportData:
         if self._config_is_valid:
             # TODO: This needs refinement: _config_is_valid should be removed
             self.config = global_configuration.roundtrip(self.config)
+
+        self._validate_access_ssdl_arguments()
+        # self._set_access_block_attributes()
 
         obj = self._check_obj_if_file(obj)
         self._establish_pwd_rootpath()

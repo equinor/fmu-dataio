@@ -199,7 +199,7 @@ def test_metadata_populate_access_ok_config(edataobj2):
     }
 
 
-def test_metadata_populate_from_argument(globalconfig1):
+def test_metadata_populate_from_legacy_argument(globalconfig1):
     """Testing the access part, now with ok config and a change in access."""
 
     # test assumptions
@@ -208,6 +208,29 @@ def test_metadata_populate_from_argument(globalconfig1):
     edata = dio.ExportData(
         config=globalconfig1,
         access_ssdl={"access_level": "restricted", "rep_include": True},
+        content="depth",
+    )
+    mymeta = MetaData("dummy", edata)
+
+    mymeta._populate_meta_access()
+    assert mymeta.meta_access == {
+        "asset": {"name": "Test"},
+        "ssdl": {"access_level": "restricted", "rep_include": True},
+        "classification": "restricted",  # mirroring ssdl.access_level
+    }
+
+
+def test_metadata_populate_from_argument(globalconfig1):
+    """Testing the access part, now with ok config and a change in access using
+    the classification keyword."""
+
+    # test assumptions
+    assert globalconfig1["access"]["ssdl"]["access_level"] == "internal"
+
+    edata = dio.ExportData(
+        config=globalconfig1,
+        classification="restricted",
+        rep_include=True,
         content="depth",
     )
     mymeta = MetaData("dummy", edata)

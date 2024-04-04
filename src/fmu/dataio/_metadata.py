@@ -2,6 +2,7 @@
 
 This contains the _MetaData class which collects and holds all relevant metadata
 """
+
 # https://realpython.com/python-data-classes/#basic-data-classes
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ from datetime import timezone
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Final
+from copy import deepcopy
 
 from pydantic import AnyHttpUrl, TypeAdapter
 
@@ -65,9 +67,11 @@ def generate_meta_tracklog() -> list[meta.TracklogEvent]:
             user=meta.User.model_construct(id=getpass.getuser()),
             sysinfo=meta.SystemInformation.model_construct(
                 fmu_dataio=meta.VersionInformation.model_construct(version=__version__),
-                komodo=meta.VersionInformation.model_construct(version=kr)
-                if (kr := os.environ.get("KOMODO_RELEASE"))
-                else None,
+                komodo=(
+                    meta.VersionInformation.model_construct(version=kr)
+                    if (kr := os.environ.get("KOMODO_RELEASE"))
+                    else None
+                ),
                 operating_system=meta.SystemInformationOperatingSystem.model_construct(
                     hostname=platform.node(),
                     operating_system=platform.platform(),
@@ -102,7 +106,7 @@ class MetaData:
     * meta_fmu: nested dict of model, case, etc (complex)
     * meta_file: dict of paths and checksums
     * meta_masterdata: dict of (currently) smda masterdata
-    * meta_access: dict with name of field + access rules
+    * meta_access: dict with name of asset + security classification
     * meta_objectdata: the data block, may be complex
     * meta_display: dict of default display settings (experimental)
 
@@ -261,23 +265,83 @@ class MetaData:
     def _populate_meta_access(self) -> None:
         """Populate metadata overall from access section in config + allowed keys.
 
-        Access should be possible to change per object, based on user input.
-        This is done through the access_ssdl input argument.
+        The access block contains the following keys:
+        access:
+          asset: str
+          ssdl:
+            rep_include: [True/False]
+            access_level: ["internal"/"restricted"] # to be deprecated
+          classification: ["internal"/"restricted"]
 
         The "asset" field shall come from the config. This is static information.
+        The "classification" and "rep_include" fields are dynamic. They can be set via
+        input arguments. If not set, they will fall back to defaults from config.
 
-        The "ssdl" field can come from the config, or be explicitly given through
-        the "access_ssdl" input argument. If the access_ssdl input argument is present,
-        its contents shall take presedence.
-
+        WIP: We are deprecating the 'access_ssdl' input argument, replacing it with the
+        'rep_include' and 'classification' arguments. While 'access_ssdl' is deprecated,
+        we still support it. Therefore, we must account for all possible weird
+        combinations for a while.
         """
+
+        # Will find "asset" no matter what the config looks like, which smells bad.
+        # Reason is that we allow non-valid config (which we should not?)
+        # access.asset always comes from config, never argument
+        asset = self.dataio.config.get("access", {}).get("asset", None)
+        classification = self._get_meta_access_classification()
+        rep_include = self._get_meta_access_rep_include()
+
+        m_access = {
+            "asset": asset,
+            "classification": classification,
+            "ssdl": {
+                "access_level": classification,
+                "rep_include": rep_include,
+            },
+        }
+
         self.meta_access = (
-            global_configuration.Access.model_validate(
-                self.dataio.config["access"]
-            ).model_dump(mode="json", exclude_none=True)
+            global_configuration.Access.model_validate(m_access).model_dump(
+                mode="json", exclude_none=True
+            )
             if self.dataio._config_is_valid
             else {}
         )
+
+    def _get_meta_access_classification(self) -> str:
+        classification = self.dataio.classification
+
+        if classification is None:
+            # fall back to config, which can be non-valid and non-existing
+            # First try the access.classification directly
+            classification = self.dataio.config.get("access", {}).get("classification")
+
+        if classification is None:
+            # then fall back to legacy access.ssdl.access_level
+            classification = (
+                self.dataio.config.get("access", {})
+                .get("ssdl", {})
+                .get("access_level", None)
+            )
+
+        if classification is None:
+            # if none of the above works, then I don't know what to do...
+            # I guess this will now be in the hands of Pydantic validation?
+            pass
+
+        return classification
+
+    def _get_meta_access_rep_include(self) -> bool:
+        rep_include = self.dataio.rep_include
+
+        if rep_include is None:
+            # fall back to config, which can be non-valid and non-existing
+            rep_include = (
+                self.dataio.config.get("access", {})
+                .get("ssdl", {})
+                .get("rep_include", None)
+            )
+
+        return rep_include
 
     def _populate_meta_display(self) -> None:
         """Populate the display block."""
