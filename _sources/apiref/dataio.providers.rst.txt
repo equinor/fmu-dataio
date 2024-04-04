@@ -5,3 +5,11 @@ dataio.providers package
    :members:
    :undoc-members:
    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   dataio.providers.objectdata

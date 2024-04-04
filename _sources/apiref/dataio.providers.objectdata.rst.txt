@@ -1,0 +1,7 @@
+dataio.providers.objectdata package
+===================================
+
+.. automodule:: dataio.providers.objectdata
+   :members:
+   :undoc-members:
+   :show-inheritance:
