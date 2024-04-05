@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g01415b6 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g242ad55 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -714,11 +714,13 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;pwd:        </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rootpath:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_check_obj_if_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_check_process_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;When obj is file-like, it must be checked + assume preprocessed.</span>
 
 <span class="sd">        In addition, if preprocessed, derive the name, tagname, subfolder if present and</span>
 <span class="sd">        those are not set already.</span>
+
+<span class="sd">        For all cases, tie incoming obj to self._object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
@@ -741,7 +743,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span> <span class="ow">or</span> <span class="n">preprocessed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tagname&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span> <span class="ow">or</span> <span class="n">preprocessed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subfolder&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_object</span> <span class="o">=</span> <span class="n">obj</span>
 
     <span class="k">def</span> <span class="nf">_get_fmu_provider</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FmuProvider</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">FmuProvider</span><span class="p">(</span>
@@ -803,7 +805,7 @@
             <span class="c1"># TODO: This needs refinement: _config_is_valid should be removed</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">global_configuration</span><span class="o">.</span><span class="n">roundtrip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_obj_if_file</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_process_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>  <span class="c1"># obj --&gt; self._object</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
@@ -819,8 +821,10 @@
         <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Rootpath is now </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">)</span>
 
+        <span class="c1"># TODO: refactor the argument list for generate_export_metadata; we do not need</span>
+        <span class="c1"># both self._object and self...</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">generate_export_metadata</span><span class="p">(</span>
-            <span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">fmudata</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_object</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">fmudata</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span>
         <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The metadata are now ready!&quot;</span><span class="p">)</span>
@@ -907,7 +911,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g01415b6).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g242ad55).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
