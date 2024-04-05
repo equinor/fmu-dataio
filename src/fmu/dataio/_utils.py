@@ -21,6 +21,7 @@ from fmu.config import utilities as ut
 
 from . import _design_kw, types
 from ._logging import null_logger
+from .readers import FaultRoomSurface
 
 logger: Final = null_logger(__name__)
 
@@ -156,6 +157,9 @@ def export_file(
             # Types in pyarrow-stubs package are wrong for the write_feather(...).
             # https://arrow.apache.org/docs/python/generated/pyarrow.feather.write_feather.html#pyarrow.feather.write_feather
             feather.write_feather(obj, dest=str(filename))  # type: ignore
+    elif filename.suffix == ".json" and isinstance(obj, FaultRoomSurface):
+        with open(filename, "w") as stream:
+            json.dump(obj.storage, stream, indent=4)
     elif filename.suffix == ".json":
         with open(filename, "w") as stream:
             json.dump(obj, stream)

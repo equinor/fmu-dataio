@@ -99,6 +99,25 @@ Python script
 
 |
 
+Exporting a faultroom plugin result surface
+-------------------------------------------
+
+The FaultRoom plugin for RMS produces special json files that e.g. can be viewed with DynaGeo.
+
+
+Python script
+~~~~~~~~~~~~~
+
+.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_faultroom_surfaces.py
+   :language: python
+
+.. toggle::
+
+   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
+      :language: yaml
+
+|
+
 Using fmu-dataio for post-processed data
 ----------------------------------------
 

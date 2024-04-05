@@ -457,6 +457,9 @@ class ExportData:
     # << NB! storing ACTUAL casepath:
     _rootpath: Path = field(default_factory=Path, init=False)
 
+    # in some cases input object may change class; store the internal variable here:
+    _object: types.Inferrable = field(init=False)
+
     def __post_init__(self) -> None:
         if self.reuse_metadata_rule:
             warn(
@@ -687,11 +690,13 @@ class ExportData:
         logger.info("pwd:        %s", str(self._pwd))
         logger.info("rootpath:   %s", str(self._rootpath))
 
-    def _check_obj_if_file(self, obj: types.Inferrable) -> types.Inferrable:
+    def _check_process_object(self, obj: types.Inferrable) -> None:
         """When obj is file-like, it must be checked + assume preprocessed.
 
         In addition, if preprocessed, derive the name, tagname, subfolder if present and
         those are not set already.
+
+        For all cases, tie incoming obj to self._object
         """
 
         if isinstance(obj, (str, Path)):
@@ -714,7 +719,7 @@ class ExportData:
             self.tagname = self.tagname or preprocessed.get("tagname", "")
             self.subfolder = self.subfolder or preprocessed.get("subfolder", "")
 
-        return obj
+        self._object = obj
 
     def _get_fmu_provider(self) -> FmuProvider:
         return FmuProvider(
@@ -779,7 +784,8 @@ class ExportData:
         if self.access_ssdl is not None:
             self._validate_access_ssdl()
 
-        obj = self._check_obj_if_file(obj)
+        self._check_process_object(obj)  # obj --> self._object
+
         self._establish_pwd_rootpath()
         self._validate_content_key()
         self._update_fmt_flag()
@@ -794,8 +800,10 @@ class ExportData:
         )
         logger.debug("Rootpath is now %s", self._rootpath)
 
+        # TODO: refactor the argument list for generate_export_metadata; we do not need
+        # both self._object and self...
         self._metadata = generate_export_metadata(
-            obj, self, fmudata, compute_md5=compute_md5
+            self._object, self, fmudata, compute_md5=compute_md5
         )
 
         logger.info("The metadata are now ready!")
@@ -831,21 +839,22 @@ class ExportData:
         self.table_index = kwargs.get("table_index", self.table_index)
         self.generate_metadata(obj, compute_md5=False, **kwargs)
         metadata = self._metadata
+        logger.info("Object type is: %s", type(self._object))  # from generate_metadata
 
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
         useflag = (
             self.table_include_index
-            if isinstance(obj, pd.DataFrame)
+            if isinstance(self._object, pd.DataFrame)
             else self._usefmtflag
         )
 
-        obj = self._check_obj_if_file(obj)
         logger.info("Export to file and compute MD5 sum, using flag: <%s>", useflag)
+
         # inject md5 checksum in metadata
         metadata["file"]["checksum_md5"] = export_file_compute_checksum_md5(
-            obj,
+            self._object,
             outfile,
             flag=useflag,  # type: ignore
             # BUG(?): Looks buggy, if flag is bool export_file will blow up.

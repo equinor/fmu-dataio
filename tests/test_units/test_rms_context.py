@@ -6,8 +6,11 @@ interactive or from ERT. Hence the rootpath will be ../../
 
 import logging
 import os
+import shutil
+from pathlib import Path
 
 import fmu.dataio.dataio as dataio
+import fmu.dataio.readers as readers
 import pandas as pd
 import pytest
 from fmu.dataio._utils import prettyprint_dict
@@ -605,3 +608,43 @@ def test_pyarrow_export_file_set_name(rmssetup, rmsglobalconfig, arrowtable):
 
         metaout = dataio.read_metadata(output)
         assert metaout["data"]["spec"]["columns"] == ["COL1", "COL2"]
+
+
+# ======================================================================================
+# Faultroom data, for e.g. DynaGEO usage
+# ======================================================================================
+
+
+@inside_rms
+def test_faultroom_export_as_file(rootpath, rmssetup, rmsglobalconfig):
+    """Export the faultroom surfaces, use input as file"""
+
+    # it assumes here that the faultroom plugin output file(s) to e.g.
+    # ../output/faultroom, but here need some preps for this test
+    f_room_files = (rootpath / "tests/data/drogon/rms/output/faultroom").glob("*.json")
+    target_folder = rmssetup / ".." / "output" / "faultroom"
+    target_folder.mkdir(parents=True, exist_ok=True)
+    for file_ in f_room_files:
+        shutil.copy(file_, target_folder)
+
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="fault_properties"
+    )  # read from global config
+
+    # in RMS, the Faultroom plugin will export the results to a temporary folder, then
+    # fmu-dataio will grab that, parse metadata and output to the 'right place'
+    faultroom_files = Path("../output/faultroom").glob("*.json")
+
+    for faultroom_file in faultroom_files:
+        logger.info("Working with %s", faultroom_file)
+        froom = readers.read_faultroom_file(faultroom_file)  # FaultRoomSurface instance
+        output = edata.export(froom, tagname=froom.tagname)
+        logger.info("Output is %s", type(output))
+
+        assert Path(output).name == "volantis_gp_top--faultroom_d1433e1.json"
+
+        metaout = dataio.read_metadata(output)
+        assert metaout["data"]["spec"]["faults"] == ["F1", "F2", "F3", "F4", "F5", "F6"]

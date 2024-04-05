@@ -7,6 +7,7 @@ class ContentEnum(str, Enum):
     depth = "depth"
     facies_thickness = "facies_thickness"
     fault_lines = "fault_lines"
+    fault_properties = "fault_properties"
     field_outline = "field_outline"
     field_region = "field_region"
     fluid_contact = "fluid_contact"

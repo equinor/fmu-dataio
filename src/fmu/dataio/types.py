@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Literal, MutableMapping, Union
 
 from typing_extensions import Annotated, TypeAlias
 
+from .readers import FaultRoomSurface
+
 if TYPE_CHECKING:
     from pandas import DataFrame
     from pyarrow import Table
@@ -39,6 +41,7 @@ if TYPE_CHECKING:
             RegularSurfaceProxy,
             # Others
             DataFrame,
+            FaultRoomSurface,
             MutableMapping,
             Table,
             pathlib.Path,
@@ -92,4 +95,5 @@ Layout: TypeAlias = Literal[
     "cornerpoint",
     "table",
     "dictionary",
+    "faultroom_triangulated",
 ]
