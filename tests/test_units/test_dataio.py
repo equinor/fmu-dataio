@@ -184,7 +184,7 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
         edata.generate_metadata(regsurf, **kval)
 
 
-def test_validate_access_ssdl_arguments():
+def test_validate_access_ssdl_arguments(globalconfig1, regsurf):
     """Test that failes when access_ssdl is given together with replacements."""
 
     # We are deprecating the 'access_ssdl' argument in favor of 'classification' and
@@ -202,11 +202,21 @@ def test_validate_access_ssdl_arguments():
     with pytest.raises(ValueError):
         ExportData(access_ssdl={"rep_include": True}, rep_include=True)
 
-    # allow only new arguments
+    # allow (for now) only old argument, but give warning
+    with pytest.warns(
+        PendingDeprecationWarning, match="The 'access_ssdl' key is deprec"
+    ):
+        ExportData(access_ssdl={"access_level": "internal", "rep_include": True})
+
+    # allow when new arguments only (preferred pattern going forward)
     ExportData(rep_include=True, classification="internal")
 
-    # allow (for now) only old argument, but give warning
-    ExportData(access_ssdl={"access_level": "internal", "rep_include": True})
+    # allowed and preferred
+    exp = ExportData(
+        config=globalconfig1, classification="restricted", rep_include=True
+    )
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["classification"] == "restricted"
 
 
 def test_content_not_given(globalconfig1, regsurf):

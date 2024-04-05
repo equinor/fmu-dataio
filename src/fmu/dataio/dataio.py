@@ -496,7 +496,8 @@ class ExportData:
 
         self._validate_content_key()
         self._validate_fmucontext_key()
-        self._validate_access_ssdl_arguments()
+        if self.access_ssdl is not None:
+            self._validate_access_ssdl()
         self._update_globalconfig_from_settings()
 
         # check state of global config
@@ -510,21 +511,21 @@ class ExportData:
         logger.info("FMU context is %s", self.fmu_context)
         logger.info("Ran __post_init__")
 
-    def _validate_access_ssdl_arguments(self) -> None:
+    def _validate_access_ssdl(self) -> None:
         # The access_ssdl argument is deprecated, replaced by 'rep_include' and
         # 'classification' arguments. While still supported, we don't want to mix old
         # and new. I.e. when someone starts using any of the new arguments, we expect
-        # them to move away from 'access_ssdl' completely.
+        # them to move away from 'access_ssdl' completely - in arguments AND in config.
 
         # Check if we are getting both old and new arguments, and raise if we do.
-        if self.access_ssdl is not None and self.classification is not None:
+        if self.classification is not None:
             if "access_level" in self.access_ssdl:
                 raise ValueError(
                     "Conflicting arguments: When using 'classification', the (legacy) "
                     "'access_ssdl' is not supported."
                 )
 
-        if self.access_ssdl and self.rep_include is not None:
+        if self.rep_include is not None:
             if "rep_include" in self.access_ssdl:
                 raise ValueError(
                     "Conflicting arguments: When using 'rep_include', the (legacy) "
@@ -605,6 +606,30 @@ class ExportData:
 
     def _update_globalconfig_from_settings(self) -> None:
         """A few user settings may update/append the global config directly."""
+
+        # TODO Not sure where else to put this
+        # While deprecating the 'ssdl.access_level' from all over, if a config has
+        # both 'ssdl.access_level' AND classification defined, issue warning, and use
+        # the classification value further.
+
+        _conf_ssdl_access_level = (
+            self.config.get("access", {}).get("ssdl", {}).get("access_level")
+        )
+        _conf_classification = self.config.get("access", {}).get("classification")
+
+        if _conf_ssdl_access_level and _conf_classification:
+            # warning triggers only when both are present, i.e. the user has actively
+            # started using access.classification, but has not removed ssdl.access_level
+            warn(
+                "The config contains both 'access.ssdl.access_level (deprecated) and "
+                "access.classification. The value from access.classification will be "
+                "used. Remove 'access.ssdl.access_level' to silence this warning."
+            )
+
+            self.config["access"]["ssdl"]["access_level"] = self.config["access"][
+                "classification"
+            ]
+
         newglobals = deepcopy(self.config)
 
         if self.access_ssdl:
@@ -751,8 +776,8 @@ class ExportData:
             # TODO: This needs refinement: _config_is_valid should be removed
             self.config = global_configuration.roundtrip(self.config)
 
-        self._validate_access_ssdl_arguments()
-        # self._set_access_block_attributes()
+        if self.access_ssdl is not None:
+            self._validate_access_ssdl()
 
         obj = self._check_obj_if_file(obj)
         self._establish_pwd_rootpath()

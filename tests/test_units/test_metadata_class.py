@@ -254,14 +254,19 @@ def test_metadata_populate_wrong_config(globalconfig1, regsurf):
     # test assumptions
     _config = deepcopy(globalconfig1)
     _config["access"]["ssdl"]["access_level"] = "wrong"
+    del _config["access"]["classification"]
 
+    # allow initializing despite errors in config
     with pytest.warns(UserWarning):
         edata = dio.ExportData(config=_config, content="depth")
 
     assert not edata._config_is_valid
 
+    # do not allow generating metadata with errors in config
     with pytest.raises(ValidationError, match="ssdl.access_level"):
         generate_export_metadata(regsurf, edata)
+
+    # raise ValueError
 
 
 def test_metadata_populate_wrong_argument(globalconfig1, regsurf):
@@ -358,6 +363,7 @@ def test_metadata_access_no_input(globalconfig1, regsurf):
     configcopy = deepcopy(globalconfig1)
     configcopy["access"]["ssdl"]["access_level"] = "restricted"
     configcopy["access"]["ssdl"]["rep_include"] = True
+    del configcopy["access"]["classification"]
     edata = dio.ExportData(config=configcopy, content="depth")
     mymeta = generate_export_metadata(regsurf, edata)
     assert mymeta["access"]["ssdl"]["rep_include"] is True
@@ -373,6 +379,30 @@ def test_metadata_access_no_input(globalconfig1, regsurf):
     assert mymeta["access"]["ssdl"]["rep_include"] is False  # default
     assert mymeta["access"]["ssdl"]["access_level"] == "internal"  # default
     assert mymeta["access"]["classification"] == "internal"  # mirrored
+
+
+def test_metadata_access_classification_arg(globalconfig1, regsurf):
+    """Test that classification argument is used."""
+
+    edata = dio.ExportData(config=globalconfig1, content="depth")
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta["access"]["classification"] == "internal"
+
+    # if both access.classification and ssdl.access_level are given, a user warning
+    # shall be given, and the value for classification shall be used.
+    configcopy = deepcopy(globalconfig1)
+    configcopy["access"]["classification"] = "restricted"
+    with pytest.warns(match="The config contains both 'access.ssdl"):
+        edata = dio.ExportData(config=configcopy, content="depth")
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta["access"]["classification"] == "restricted"
+    assert mymeta["access"]["ssdl"]["access_level"] == "restricted"
+
+    # if classification argument is given, it shall be used
+    assert globalconfig1["access"]["classification"] == "internal"
+    edata = dio.ExportData(config=configcopy, content="depth")
+    mymeta = edata.generate_metadata(regsurf, classification="restricted")
+    assert mymeta["access"]["classification"] == "restricted"
 
 
 # --------------------------------------------------------------------------------------

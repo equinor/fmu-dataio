@@ -102,8 +102,74 @@ def _get_meta_objectdata(
     )
 
 
-def _get_meta_access(access: dict) -> meta.SsdlAccess:
-    return meta.SsdlAccess.model_validate(access)
+def _get_meta_access(dataio) -> dict | None:
+    """Create the full access block form combination of arguments and config."""
+
+    # TMP: Try to carve out the logic here first, then move it to Pydantic
+
+    # if access isn't in the config, we return None right away
+    if dataio.config.get("access") is None:
+        return
+
+    # Validate the input from config
+    # We have tests that are expecting a UserWarning if we try to create metadata
+    # using config that has errors.
+    meta.SsdlAccess.model_validate(dataio.config.get("access"))
+
+    # Now build the access block element by element
+    asset = dataio.config.get("access", {}).get("asset", None)  # always from config.
+    classification = _meta_access_classification(dataio)
+    rep_include = _meta_access_rep_include(dataio)
+
+    m_access = {
+        "asset": asset,
+        "classification": classification,
+        "ssdl": {
+            "access_level": classification,  # legacy
+            "rep_include": rep_include,
+        },
+    }
+
+    return m_access
+
+
+def _meta_access_classification(dataio) -> str:
+
+    # Ideally, user provides the classification argument
+    # If they don't, we fall back to defaults in the config
+
+    # 1. Use the (optional) argument
+    classification = dataio.classification
+
+    # 2. If argument was not provided, fall back to the default from config
+    if classification is None:
+        classification = dataio.config.get("access", {}).get("classification")
+
+    # 3. If not found, fall back to (legacy) access.ssdl.access_level from config
+    if classification is None:
+        classification = (
+            dataio.config.get("access", {}).get("ssdl", {}).get("access_level", None)
+        )
+
+    # if none of the above works, then classification is None
+
+    return classification
+
+
+def _meta_access_rep_include(dataio) -> bool:
+
+    # 1. Check the (optional) argument
+    rep_include = dataio.rep_include
+
+    # 2. Check the config
+    if rep_include is None:
+        rep_include = (
+            dataio.config.get("access", {}).get("ssdl", {}).get("rep_include", None)
+        )
+
+    # if none of the above works, then rep_include is None
+
+    return rep_include
 
 
 def _get_meta_masterdata(masterdata: dict) -> meta.Masterdata:
@@ -169,7 +235,7 @@ def generate_export_metadata(
     filedata = _get_filedata_provider(dataio, obj, objdata, fmudata, compute_md5)
 
     masterdata = dataio.config.get("masterdata")
-    access = dataio.config.get("access")
+    access = _get_meta_access(dataio)
 
     metadata = internal.DataClassMeta(
         schema_=TypeAdapter(AnyHttpUrl).validate_strings(SCHEMA),  # type: ignore[call-arg]
@@ -178,7 +244,7 @@ def generate_export_metadata(
         class_=objdata.classname,
         fmu=_get_meta_fmu(fmudata) if fmudata else None,
         masterdata=_get_meta_masterdata(masterdata) if masterdata else None,
-        access=_get_meta_access(access) if access else None,
+        access=access if access else None,
         data=_get_meta_objectdata(objdata),
         file=filedata.get_metadata(),
         tracklog=generate_meta_tracklog(),

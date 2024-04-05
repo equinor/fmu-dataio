@@ -252,6 +252,7 @@ def fixture_globalconfig1():
                 access_level=global_configuration.enums.AccessLevel.internal,
                 rep_include=False,
             ),
+            classification=global_configuration.enums.AccessLevel.internal,
         ),
         model=global_configuration.Model(
             name="Test",
