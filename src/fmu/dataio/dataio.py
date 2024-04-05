@@ -447,6 +447,9 @@ class ExportData:
     # << NB! storing ACTUAL casepath:
     _rootpath: Path = field(default_factory=Path, init=False)
 
+    # in some cases input object may change class; store the internal variable here:
+    _object: types.Inferrable = field(init=False)
+
     def __post_init__(self) -> None:
         if self.reuse_metadata_rule:
             warn(
@@ -710,7 +713,8 @@ class ExportData:
             # TODO: This needs refinement: _config_is_valid should be removed
             self.config = global_configuration.roundtrip(self.config)
 
-        obj = self._check_obj_if_file(obj)
+        self._object = self._check_obj_if_file(obj)
+
         self._establish_pwd_rootpath()
         self._validate_content_key()
         self._update_fmt_flag()
@@ -762,21 +766,22 @@ class ExportData:
         self.table_index = kwargs.get("table_index", self.table_index)
         self.generate_metadata(obj, compute_md5=False, **kwargs)
         metadata = self._metadata
+        logger.info("Object type is: %s", type(self._object))  # from generate_metadata
 
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
         useflag = (
             self.table_include_index
-            if isinstance(obj, pd.DataFrame)
+            if isinstance(self._object, pd.DataFrame)
             else self._usefmtflag
         )
 
-        obj = self._check_obj_if_file(obj)
         logger.info("Export to file and compute MD5 sum, using flag: <%s>", useflag)
+
         # inject md5 checksum in metadata
         metadata["file"]["checksum_md5"] = export_file_compute_checksum_md5(
-            obj,
+            self._object,
             outfile,
             flag=useflag,  # type: ignore
             # BUG(?): Looks buggy, if flag is bool export_file will blow up.

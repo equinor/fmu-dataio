@@ -1,0 +1,154 @@
+# Example metadata for a faultroom surface (special format viewing props for faults).
+
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
+version: "0.8.0" # including for REP and others to build logic on.
+source: fmu  # always included, and always this value if FMU made it. For quick identification for external consumers.
+
+tracklog:
+  - datetime: 2020-10-28T14:28:02
+    user:
+      id: jriv
+    event: created
+    sysinfo:
+      fmu-dataio:
+        version: 1.2.3
+      operating_system:
+        hostname: whatever
+        operating_system: Linux-5.15.0-100-generic-x86_64-with-glibc2.35
+        release: 5.15.0-100-generic
+        system: Linux
+        version: 'some version'
+
+      komodo: # only added when running in Komodo environment
+        version: 2023.12.05-py38
+
+class: surface
+
+fmu: # the fmu-block contains information directly related to the FMU context
+  model:
+    name: ff
+    revision: 21.0.0.dev
+    description:
+      - detailed description
+      - optional
+
+  workflow:
+    reference: rms/structural_model
+
+  case:
+    name: MyCaseName
+    uuid: 8bb56d60-8758-481a-89a4-6bac8561d38e
+    user:
+      id: jriv # $USER from ERT
+    description:
+      - yet other detailed description
+      - optional
+
+  iteration:
+    id: 0 # always an int, will be 0 for e.g. "pred"
+    uuid: 4b939310-34b1-4179-802c-49460bc0f799 # hash of case.uuid + iteration.id
+    name: "iter-0" # /"pred"
+    restart_from: 15ce3b84-766f-4c93-9050-b154861f9100   # fmu.iteration.uuid for another iteration
+
+  realization:
+    id: 33
+    uuid: 29a15b21-ce13-471b-9a4a-0f791552aa51
+    name: "realization-33"
+    parameters: # directly pass parameters.txt. This is potentially a lot of content, only a stub is included here.
+      SENSNAME: faultseal
+      SENSCASE: low
+      RMS_SEED: 1006
+      INIT_FILES:
+        PERM_FLUVCHAN_E1_NORM: 0.748433
+        PERM_FLUVCHAN_E21_NORM: 0.782068
+      KVKH_CHANNEL: 0.6
+      KVKH_US: 0.6
+      FAULT_SEAL_SCALING: 0.1
+      FWL_CENTRAL: 1677
+
+  context:
+    stage: realization
+
+file:
+  # the Faultroom polygons are some kind of triangulated surfaces
+  relative_path: realization-33/iter-0/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
+  absolute_path: /some/absolute/path/realization-33/iter-0/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
+  checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
+  size_bytes: 132321
+
+
+data:
+  name: VOLANTIS GP. Top
+  stratigraphic: true
+  alias:
+  - TopVOLANTIS
+  - TOP_VOLANTIS
+  - TopVolantis
+  content: fault_properties
+  tagname: faultroom_d1433e1
+  format: json
+  layout: faultroom_triangulated
+  unit: ''
+  vertical_domain: depth
+  depth_reference: msl
+  spec:
+    horizons:
+    - TopVolantis
+    faults:
+    - F1
+    - F2
+    - F3
+    - F4
+    - F5
+    - F6
+    juxtaposition_hw:
+    - Therys
+    - Valysar
+    - Volon
+    juxtaposition_fw:
+    - Therys
+    - Valysar
+    - Volon
+    properties:
+    - Juxtaposition
+    - displacement_avg
+    - permeability_avg
+    - transmissibility_avg
+    name: TopVolantis
+  bbox:
+    xmin: 459495.34
+    xmax: 459495.34
+    ymin: 5930019.302
+    ymax: 5937680.563
+    zmin: 1556.379
+    zmax: 1831.14
+  undef_is_zero: false
+  is_prediction: true
+  is_observation: false
+
+display:
+  name: VOLANTIS GP. Top
+access:
+  asset:
+    name: Drogon
+  ssdl:
+    access_level: internal
+    rep_include: true
+  classification: internal
+masterdata:
+  smda:
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    country:
+    - identifier: Norway
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+    - short_identifier: DROGON
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    field:
+    - identifier: DROGON
+      uuid: 00000000-0000-0000-0000-000000000000
+    stratigraphic_column:
+      identifier: DROGON_2020
+      uuid: ad214d85-8a1d-19da-e053-c918a4889310

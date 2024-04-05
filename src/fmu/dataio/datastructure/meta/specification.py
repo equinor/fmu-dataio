@@ -112,6 +112,27 @@ class PolygonsSpecification(BaseModel):
     )
 
 
+class FaultRoomSurfaceSpecification(BaseModel):
+    horizons: List[str] = Field(
+        description="List of horizon names",
+    )
+    faults: List[str] = Field(
+        description="Names of faults",
+    )
+    juxtaposition_hw: List[str] = Field(
+        description="List of zones included in hangingwall juxtaposition",
+    )
+    juxtaposition_fw: List[str] = Field(
+        description="List of zones included in footwall juxtaposition",
+    )
+    properties: List[str] = Field(
+        description="List of properties along fault plane",
+    )
+    name: str = Field(
+        description="A name id of the faultroom usage",
+    )
+
+
 class CubeSpecification(SurfaceSpecification):
     nlay: int = Field(
         description="The number of layers",
@@ -167,6 +188,7 @@ class WellPointsDictionaryCaseSpecification(BaseModel): ...
 AnySpecification = Union[
     CPGridPropertySpecification,
     CPGridSpecification,
+    FaultRoomSurfaceSpecification,
     PointSpecification,
     CubeSpecification,
     PolygonsSpecification,

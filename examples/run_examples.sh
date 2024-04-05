@@ -22,6 +22,7 @@ export _ERT_RUNPATH=$current/examples/s/d/nn/xcase/realization-0/iter-0
 
 python export_faultpolygons.py
 python export_propmaps.py
+python export_faultroom_surfaces.py
 
 cd $current/examples/s/d/nn/xcase/realization-0/iter-0/any/bin
 
