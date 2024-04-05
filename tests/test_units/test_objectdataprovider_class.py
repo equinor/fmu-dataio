@@ -1,18 +1,44 @@
 """Test the _ObjectData class from the _objectdata.py module"""
 
 import os
+from datetime import datetime
 
 import pytest
 from fmu.dataio import dataio
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
-from fmu.dataio._metadata import MetaData
+from fmu.dataio.providers.objectdata._base import (
+    get_timedata_from_existing,
+)
 from fmu.dataio.providers.objectdata._provider import (
-    ExistingDataProvider,
     objectdata_provider_factory,
 )
 from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
 
 from ..utils import inside_rms
+
+
+@pytest.mark.parametrize(
+    "given, expected",
+    (
+        (
+            {"t0": {"value": "2022-08-02T00:00:00", "label": "base"}},
+            (datetime.strptime("2022-08-02T00:00:00", "%Y-%m-%dT%H:%M:%S"), None),
+        ),
+        (
+            [
+                {"value": "2030-01-01T00:00:00", "label": "moni"},
+                {"value": "2010-02-03T00:00:00", "label": "base"},
+            ],
+            (
+                datetime.strptime("2030-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S"),
+                datetime.strptime("2010-02-03T00:00:00", "%Y-%m-%dT%H:%M:%S"),
+            ),
+        ),
+    ),
+)
+def test_get_timedata_from_existing(given: dict, expected: tuple):
+    assert get_timedata_from_existing(given) == expected
+
 
 # --------------------------------------------------------------------------------------
 # RegularSurface
@@ -144,17 +170,12 @@ def test_regsurf_preprocessed_observation(
             content=None,
             is_observation=True,
         )
-        _ = edata.generate_metadata(
+        return edata.generate_metadata(
             surfacepath,
             casepath=casepath,
         )
-        metaobj = MetaData(surfacepath, edata)
-        metaobj._populate_meta_objectdata()
-        assert isinstance(metaobj.objdata, ExistingDataProvider)
-        return metaobj
 
     # run two stage process
     edata, mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
-    metaobj = _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, mysurf)
-    case_meta = metaobj.generate_export_metadata()
+    case_meta = _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, mysurf)
     assert edata._metadata["data"] == case_meta["data"]

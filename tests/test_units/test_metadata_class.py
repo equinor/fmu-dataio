@@ -5,12 +5,19 @@ from copy import deepcopy
 
 import fmu.dataio as dio
 import pytest
-from fmu.dataio._metadata import SCHEMA, SOURCE, VERSION, MetaData
+from fmu.dataio._metadata import (
+    SCHEMA,
+    SOURCE,
+    VERSION,
+    _get_objectdata_provider,
+    generate_export_metadata,
+)
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.datastructure.meta.meta import (
     SystemInformationOperatingSystem,
     TracklogEvent,
 )
+from pydantic import ValidationError
 
 # pylint: disable=no-member
 
@@ -21,14 +28,14 @@ logger = logging.getLogger(__name__)
 # --------------------------------------------------------------------------------------
 
 
-def test_metadata_dollars(edataobj1):
+def test_metadata_dollars(edataobj1, regsurf):
     """Testing the dollars part which is hard set."""
 
-    mymeta = MetaData("dummy", edataobj1)
+    mymeta = edataobj1.generate_metadata(obj=regsurf)
 
-    assert mymeta.meta_dollars["version"] == VERSION
-    assert mymeta.meta_dollars["$schema"] == SCHEMA
-    assert mymeta.meta_dollars["source"] == SOURCE
+    assert mymeta["version"] == VERSION
+    assert mymeta["$schema"] == SCHEMA
+    assert mymeta["source"] == SOURCE
 
 
 # --------------------------------------------------------------------------------------
@@ -36,10 +43,9 @@ def test_metadata_dollars(edataobj1):
 # --------------------------------------------------------------------------------------
 
 
-def test_generate_meta_tracklog_fmu_dataio_version(edataobj1):
-    mymeta = MetaData("dummy", edataobj1)
-    mymeta._populate_meta_tracklog()
-    tracklog = mymeta.meta_tracklog
+def test_generate_meta_tracklog_fmu_dataio_version(regsurf, edataobj1):
+    mymeta = generate_export_metadata(regsurf, edataobj1)
+    tracklog = mymeta["tracklog"]
 
     assert isinstance(tracklog, list)
     assert len(tracklog) == 1  # assume "created"
@@ -57,13 +63,12 @@ def test_generate_meta_tracklog_fmu_dataio_version(edataobj1):
     assert parsed.sysinfo.fmu_dataio.version is not None
 
 
-def test_generate_meta_tracklog_komodo_version(edataobj1, monkeypatch):
+def test_generate_meta_tracklog_komodo_version(edataobj1, regsurf, monkeypatch):
     fake_komodo_release = "<FAKE_KOMODO_RELEASE_VERSION>"
     monkeypatch.setenv("KOMODO_RELEASE", fake_komodo_release)
 
-    mymeta = MetaData("dummy", edataobj1)
-    mymeta._populate_meta_tracklog()
-    tracklog = mymeta.meta_tracklog
+    mymeta = generate_export_metadata(regsurf, edataobj1)
+    tracklog = mymeta["tracklog"]
 
     assert isinstance(tracklog, list)
     assert len(tracklog) == 1  # assume "created"
@@ -81,10 +86,9 @@ def test_generate_meta_tracklog_komodo_version(edataobj1, monkeypatch):
     assert parsed.sysinfo.komodo.version == fake_komodo_release
 
 
-def test_generate_meta_tracklog_operating_system(edataobj1):
-    mymeta = MetaData("dummy", edataobj1)
-    mymeta._populate_meta_tracklog()
-    tracklog = mymeta.meta_tracklog
+def test_generate_meta_tracklog_operating_system(edataobj1, regsurf):
+    mymeta = generate_export_metadata(regsurf, edataobj1)
+    tracklog = mymeta["tracklog"]
 
     assert isinstance(tracklog, list)
     assert len(tracklog) == 1  # assume "created"
@@ -102,9 +106,12 @@ def test_generate_meta_tracklog_operating_system(edataobj1):
 
 
 def test_populate_meta_objectdata(regsurf, edataobj2):
-    mymeta = MetaData(regsurf, edataobj2)
-    mymeta._populate_meta_objectdata()
-    assert mymeta.objdata.name == "VOLANTIS GP. Top"
+    mymeta = generate_export_metadata(regsurf, edataobj2)
+    objdata = _get_objectdata_provider(regsurf, edataobj2)
+
+    assert objdata.name == "VOLANTIS GP. Top"
+    assert mymeta["display"]["name"] == objdata.name
+    assert edataobj2.name == "TopVolantis"
 
 
 def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
@@ -140,30 +147,27 @@ def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
 # --------------------------------------------------------------------------------------
 
 
-def test_metadata_populate_masterdata_is_empty(globalconfig1):
+def test_metadata_populate_masterdata_is_empty(globalconfig1, regsurf):
     """Testing the masterdata part, first with no settings."""
     config = deepcopy(globalconfig1)
     del config["masterdata"]  # to force missing masterdata
 
     some = dio.ExportData(config=config, content="depth")
+
     assert not some._config_is_valid
 
-    mymeta = MetaData("dummy", some)
-
-    mymeta._populate_meta_masterdata()
-    assert not mymeta.meta_masterdata
+    mymeta = generate_export_metadata(regsurf, some)
+    assert "masterdata" not in mymeta
 
 
-def test_metadata_populate_masterdata_is_present_ok(edataobj1, edataobj2):
+def test_metadata_populate_masterdata_is_present_ok(edataobj1, edataobj2, regsurf):
     """Testing the masterdata part with OK metdata."""
 
-    mymeta = MetaData("dummy", edataobj1)
-    mymeta._populate_meta_masterdata()
-    assert mymeta.meta_masterdata == edataobj1.config["masterdata"]
+    mymeta = generate_export_metadata(regsurf, edataobj1)
+    assert mymeta["masterdata"] == edataobj1.config["masterdata"]
 
-    mymeta = MetaData("dummy", edataobj2)
-    mymeta._populate_meta_masterdata()
-    assert mymeta.meta_masterdata == edataobj2.config["masterdata"]
+    mymeta = generate_export_metadata(regsurf, edataobj2)
+    assert mymeta["masterdata"] == edataobj2.config["masterdata"]
 
 
 # --------------------------------------------------------------------------------------
@@ -171,35 +175,31 @@ def test_metadata_populate_masterdata_is_present_ok(edataobj1, edataobj2):
 # --------------------------------------------------------------------------------------
 
 
-def test_metadata_populate_access_miss_config_access(globalconfig1):
+def test_metadata_populate_access_miss_config_access(globalconfig1, regsurf):
     """Testing the access part, now with config missing access."""
 
     cfg1_edited = deepcopy(globalconfig1)
     del cfg1_edited["access"]
 
     edata = dio.ExportData(config=cfg1_edited, content="depth")
-
     assert not edata._config_is_valid
 
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert not mymeta.meta_access
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert "access" not in mymeta
 
 
-def test_metadata_populate_access_ok_config(edataobj2):
+def test_metadata_populate_access_ok_config(edataobj2, regsurf):
     """Testing the access part, now with config ok access."""
 
-    mymeta = MetaData("dummy", edataobj2)
-
-    mymeta._populate_meta_access()
-    assert mymeta.meta_access == {
+    mymeta = generate_export_metadata(regsurf, edataobj2)
+    assert mymeta["access"] == {
         "asset": {"name": "Drogon"},
         "ssdl": {"access_level": "internal", "rep_include": True},
         "classification": "internal",
     }
 
 
-def test_metadata_populate_from_legacy_argument(globalconfig1):
+def test_metadata_populate_from_argument(globalconfig1, regsurf):
     """Testing the access part, now with ok config and a change in access."""
 
     # test assumptions
@@ -210,40 +210,16 @@ def test_metadata_populate_from_legacy_argument(globalconfig1):
         access_ssdl={"access_level": "restricted", "rep_include": True},
         content="depth",
     )
-    mymeta = MetaData("dummy", edata)
+    mymeta = generate_export_metadata(regsurf, edata)
 
-    mymeta._populate_meta_access()
-    assert mymeta.meta_access == {
+    assert mymeta["access"] == {
         "asset": {"name": "Test"},
         "ssdl": {"access_level": "restricted", "rep_include": True},
         "classification": "restricted",  # mirroring ssdl.access_level
     }
 
 
-def test_metadata_populate_from_argument(globalconfig1):
-    """Testing the access part, now with ok config and a change in access using
-    the classification keyword."""
-
-    # test assumptions
-    assert globalconfig1["access"]["ssdl"]["access_level"] == "internal"
-
-    edata = dio.ExportData(
-        config=globalconfig1,
-        classification="restricted",
-        rep_include=True,
-        content="depth",
-    )
-    mymeta = MetaData("dummy", edata)
-
-    mymeta._populate_meta_access()
-    assert mymeta.meta_access == {
-        "asset": {"name": "Test"},
-        "ssdl": {"access_level": "restricted", "rep_include": True},
-        "classification": "restricted",  # mirroring ssdl.access_level
-    }
-
-
-def test_metadata_populate_partial_access_ssdl(globalconfig1):
+def test_metadata_populate_partial_access_ssdl(globalconfig1, regsurf):
     """Test what happens if ssdl_access argument is partial."""
 
     # test assumptions
@@ -255,11 +231,10 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1):
         config=globalconfig1, access_ssdl={"rep_include": True}, content="depth"
     )
 
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert mymeta.meta_access["ssdl"]["rep_include"] is True
-    assert mymeta.meta_access["ssdl"]["access_level"] == "internal"  # default
-    assert mymeta.meta_access["classification"] == "internal"  # default
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta["access"]["ssdl"]["rep_include"] is True
+    assert mymeta["access"]["ssdl"]["access_level"] == "internal"  # default
+    assert mymeta["access"]["classification"] == "internal"  # default
 
     # access_level only, but in config
     edata = dio.ExportData(
@@ -267,14 +242,13 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1):
         access_ssdl={"access_level": "restricted"},
         content="depth",
     )
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert mymeta.meta_access["ssdl"]["rep_include"] is False  # default
-    assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
-    assert mymeta.meta_access["classification"] == "restricted"
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta["access"]["ssdl"]["rep_include"] is False  # default
+    assert mymeta["access"]["ssdl"]["access_level"] == "restricted"
+    assert mymeta["access"]["classification"] == "restricted"
 
 
-def test_metadata_populate_wrong_config(globalconfig1):
+def test_metadata_populate_wrong_config(globalconfig1, regsurf):
     """Test error in access_ssdl in config."""
 
     # test assumptions
@@ -286,12 +260,11 @@ def test_metadata_populate_wrong_config(globalconfig1):
 
     assert not edata._config_is_valid
 
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert not mymeta.meta_access
+    with pytest.raises(ValidationError, match="ssdl.access_level"):
+        generate_export_metadata(regsurf, edata)
 
 
-def test_metadata_populate_wrong_argument(globalconfig1):
+def test_metadata_populate_wrong_argument(globalconfig1, regsurf):
     """Test error in access_ssdl in arguments."""
 
     with pytest.warns(UserWarning):
@@ -302,12 +275,11 @@ def test_metadata_populate_wrong_argument(globalconfig1):
         )
     assert not edata._config_is_valid
 
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert not mymeta.meta_access
+    with pytest.raises(ValidationError, match="ssdl.access_level"):
+        generate_export_metadata(regsurf, edata)
 
 
-def test_metadata_access_correct_input(globalconfig1):
+def test_metadata_access_correct_input(globalconfig1, regsurf):
     """Test giving correct input."""
     # Input is "restricted" and False - correct use, shall work
     edata = dio.ExportData(
@@ -315,11 +287,10 @@ def test_metadata_access_correct_input(globalconfig1):
         content="depth",
         access_ssdl={"access_level": "restricted", "rep_include": False},
     )
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert mymeta.meta_access["ssdl"]["rep_include"] is False
-    assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
-    assert mymeta.meta_access["classification"] == "restricted"
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta["access"]["ssdl"]["rep_include"] is False
+    assert mymeta["access"]["ssdl"]["access_level"] == "restricted"
+    assert mymeta["access"]["classification"] == "restricted"
 
     # Input is "internal" and True - correct use, shall work
     edata = dio.ExportData(
@@ -327,14 +298,13 @@ def test_metadata_access_correct_input(globalconfig1):
         content="depth",
         access_ssdl={"access_level": "internal", "rep_include": True},
     )
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert mymeta.meta_access["ssdl"]["rep_include"] is True
-    assert mymeta.meta_access["ssdl"]["access_level"] == "internal"
-    assert mymeta.meta_access["classification"] == "internal"
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta["access"]["ssdl"]["rep_include"] is True
+    assert mymeta["access"]["ssdl"]["access_level"] == "internal"
+    assert mymeta["access"]["classification"] == "internal"
 
 
-def test_metadata_access_deprecated_input(globalconfig1):
+def test_metadata_access_deprecated_input(globalconfig1, regsurf):
     """Test giving deprecated input."""
     # Input is "asset". Is deprecated, shall work with warning.
     # Output shall be "restricted".
@@ -349,13 +319,12 @@ def test_metadata_access_deprecated_input(globalconfig1):
         )
     assert edata._config_is_valid
 
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
-    assert mymeta.meta_access["classification"] == "restricted"
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta["access"]["ssdl"]["access_level"] == "restricted"
+    assert mymeta["access"]["classification"] == "restricted"
 
 
-def test_metadata_access_illegal_input(globalconfig1):
+def test_metadata_access_illegal_input(globalconfig1, regsurf):
     """Test giving illegal input, should provide empty access field"""
 
     # Input is "secret"
@@ -367,9 +336,8 @@ def test_metadata_access_illegal_input(globalconfig1):
         )
     assert not edata._config_is_valid
 
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert not mymeta.meta_access
+    with pytest.raises(ValidationError, match="ssdl.access_level"):
+        generate_export_metadata(regsurf, edata)
 
     # Input is "open". Not allowed, shall fail.
     with pytest.warns(UserWarning):
@@ -379,12 +347,11 @@ def test_metadata_access_illegal_input(globalconfig1):
             content="depth",
         )
     assert not edata._config_is_valid
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert not mymeta.meta_access
+    with pytest.raises(ValidationError, match="ssdl.access_level"):
+        generate_export_metadata(regsurf, edata)
 
 
-def test_metadata_access_no_input(globalconfig1):
+def test_metadata_access_no_input(globalconfig1, regsurf):
     """Test not giving any input arguments."""
 
     # No input, revert to config
@@ -392,22 +359,20 @@ def test_metadata_access_no_input(globalconfig1):
     configcopy["access"]["ssdl"]["access_level"] = "restricted"
     configcopy["access"]["ssdl"]["rep_include"] = True
     edata = dio.ExportData(config=configcopy, content="depth")
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert mymeta.meta_access["ssdl"]["rep_include"] is True
-    assert mymeta.meta_access["ssdl"]["access_level"] == "restricted"
-    assert mymeta.meta_access["classification"] == "restricted"  # mirrored
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta["access"]["ssdl"]["rep_include"] is True
+    assert mymeta["access"]["ssdl"]["access_level"] == "restricted"
+    assert mymeta["access"]["classification"] == "restricted"  # mirrored
 
     # No input, no config, shall default to "internal" and False
     configcopy = deepcopy(globalconfig1)
     del configcopy["access"]["ssdl"]["access_level"]
     del configcopy["access"]["ssdl"]["rep_include"]
     edata = dio.ExportData(config=globalconfig1, content="depth")
-    mymeta = MetaData("dummy", edata)
-    mymeta._populate_meta_access()
-    assert mymeta.meta_access["ssdl"]["rep_include"] is False  # default
-    assert mymeta.meta_access["ssdl"]["access_level"] == "internal"  # default
-    assert mymeta.meta_access["classification"] == "internal"  # mirrored
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta["access"]["ssdl"]["rep_include"] is False  # default
+    assert mymeta["access"]["ssdl"]["access_level"] == "internal"  # default
+    assert mymeta["access"]["classification"] == "internal"  # mirrored
 
 
 # --------------------------------------------------------------------------------------
@@ -418,24 +383,23 @@ def test_metadata_access_no_input(globalconfig1):
 def test_metadata_display_name_not_given(regsurf, edataobj2):
     """Test that display.name == data.name when not explicitly provided."""
 
-    mymeta = MetaData(regsurf, edataobj2)
-    mymeta._populate_meta_objectdata()
-    mymeta._populate_meta_display()
+    mymeta = generate_export_metadata(regsurf, edataobj2)
+    objdata = _get_objectdata_provider(regsurf, edataobj2)
 
-    assert "name" in mymeta.meta_display
-    assert mymeta.meta_display["name"] == mymeta.objdata.name
+    assert "name" in mymeta["display"]
+    assert mymeta["display"]["name"] == objdata.name
 
 
 def test_metadata_display_name_given(regsurf, edataobj2):
     """Test that display.name is set when explicitly given."""
 
-    mymeta = MetaData(regsurf, edataobj2)
     edataobj2.display_name = "My Display Name"
-    mymeta._populate_meta_objectdata()
-    mymeta._populate_meta_display()
 
-    assert mymeta.meta_display["name"] == "My Display Name"
-    assert mymeta.objdata.name == mymeta.meta_objectdata["name"] == "VOLANTIS GP. Top"
+    mymeta = generate_export_metadata(regsurf, edataobj2)
+    objdata = _get_objectdata_provider(regsurf, edataobj2)
+
+    assert mymeta["display"]["name"] == "My Display Name"
+    assert objdata.name == "VOLANTIS GP. Top"
 
 
 # --------------------------------------------------------------------------------------
@@ -446,10 +410,8 @@ def test_metadata_display_name_given(regsurf, edataobj2):
 def test_generate_full_metadata(regsurf, edataobj2):
     """Generating the full metadata block for a xtgeo surface."""
 
-    mymeta = MetaData(regsurf, edataobj2)
-
-    metadata_result = mymeta.generate_export_metadata(
-        skip_null=False
+    metadata_result = generate_export_metadata(
+        regsurf, edataobj2, skip_null=False
     )  # want to have None
 
     logger.debug("\n%s", prettyprint_dict(metadata_result))

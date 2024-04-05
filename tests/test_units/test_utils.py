@@ -34,55 +34,6 @@ def test_check_if_number(value, result):
     assert utils.check_if_number(value) == result
 
 
-@pytest.mark.parametrize(
-    "given, expected, isoformat",
-    (
-        (
-            {},
-            (None, None),
-            True,
-        ),
-        (
-            {"time": {"t0": {"value": "2022-08-02T00:00:00", "label": "base"}}},
-            ("2022-08-02T00:00:00", None),
-            True,
-        ),
-        (
-            {
-                "time": [
-                    {"value": "2030-01-01T00:00:00", "label": "moni"},
-                    {"value": "2010-02-03T00:00:00", "label": "base"},
-                ]
-            },
-            ("2030-01-01T00:00:00", "2010-02-03T00:00:00"),
-            True,
-        ),
-        (
-            {},
-            (None, None),
-            False,
-        ),
-        (
-            {"time": {"t0": {"value": "2022-08-02T00:00:00", "label": "base"}}},
-            ("20220802", None),
-            False,
-        ),
-        (
-            {
-                "time": [
-                    {"value": "2030-01-01T00:00:00", "label": "moni"},
-                    {"value": "2010-02-03T00:00:00", "label": "base"},
-                ]
-            },
-            ("20300101", "20100203"),
-            False,
-        ),
-    ),
-)
-def test_parse_timedata(given: dict, expected: tuple, isoformat: bool):
-    assert utils.parse_timedata(given, isoformat) == expected
-
-
 def test_get_object_name():
     assert utils.get_object_name(object()) is None
 

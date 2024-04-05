@@ -2,7 +2,15 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, GetJsonSchemaHandler, RootModel, model_validator
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    Field,
+    GetJsonSchemaHandler,
+    NaiveDatetime,
+    RootModel,
+    model_validator,
+)
 from pydantic_core import CoreSchema
 from typing_extensions import Annotated
 
@@ -18,7 +26,7 @@ class FMUTimeObject(BaseModel):
         default=None,
         examples=["base", "monitor", "mylabel"],
     )
-    value: Optional[str] = Field(
+    value: Optional[Union[NaiveDatetime, AwareDatetime]] = Field(
         default=None,
         examples=["2020-10-28T14:28:02"],
     )

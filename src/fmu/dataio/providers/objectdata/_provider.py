@@ -91,6 +91,7 @@ from typing import TYPE_CHECKING, Any, Final
 
 import pandas as pd
 import xtgeo
+
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
 
@@ -213,7 +214,7 @@ class DictionaryDataProvider(ObjectDataProvider):
             efolder="dictionaries",
             fmt=(fmt := self.dataio.dict_fformat),
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
-            spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            spec=self.get_spec() or None,
+            bbox=self.get_bbox() or None,
             table_index=None,
         )

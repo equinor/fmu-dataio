@@ -16,12 +16,13 @@ from warnings import warn
 import pandas as pd
 from pydantic import ValidationError as PydanticValidationError
 
-from . import _metadata, types
+from . import types
 from ._definitions import (
     FmuContext,
     ValidationError,
 )
 from ._logging import null_logger
+from ._metadata import generate_export_metadata
 from ._utils import (
     create_symlink,
     detect_inside_rms,  # dataio_examples,
@@ -37,7 +38,7 @@ from .datastructure._internal.internal import (
     AllowedContent,
 )
 from .datastructure.configuration import global_configuration
-from .providers._fmu import FmuEnv
+from .providers._fmu import FmuEnv, FmuProvider
 
 # always show PendingDeprecationWarnings
 warnings.simplefilter("always", PendingDeprecationWarning)
@@ -682,17 +683,23 @@ class ExportData:
                     "missing in the metadata. A possible solution is to rerun the"
                     "preprocessed export."
                 )
+            preprocessed = currentmeta["_preprocessed"]
 
-            if not self.name and currentmeta["_preprocessed"].get("name", ""):
-                self.name = currentmeta["_preprocessed"]["name"]
-
-            if not self.tagname and currentmeta["_preprocessed"].get("tagname", ""):
-                self.tagname = currentmeta["_preprocessed"]["tagname"]
-
-            if not self.subfolder and currentmeta["_preprocessed"].get("subfolder", ""):
-                self.subfolder = currentmeta["_preprocessed"]["subfolder"]
+            self.name = self.name or preprocessed.get("name", "")
+            self.tagname = self.tagname or preprocessed.get("tagname", "")
+            self.subfolder = self.subfolder or preprocessed.get("subfolder", "")
 
         return obj
+
+    def _get_fmu_provider(self) -> FmuProvider:
+        return FmuProvider(
+            model=self.config.get("model", None),
+            fmu_context=FmuContext.get(self.fmu_context),
+            casepath_proposed=self.casepath or "",
+            include_ertjobs=self.include_ertjobs,
+            forced_realization=self.realization,
+            workflow=self.workflow,
+        )
 
     # ==================================================================================
     # Public methods:
@@ -752,10 +759,19 @@ class ExportData:
         self._validate_content_key()
         self._update_fmt_flag()
 
-        metaobj = _metadata.MetaData(obj, self, compute_md5=compute_md5)
-        self._metadata = metaobj.generate_export_metadata()
+        fmudata = self._get_fmu_provider() if self._fmurun else None
 
-        self._rootpath = Path(metaobj.rootpath)
+        # update rootpath based on fmurun or not
+        # TODO: Move to ExportData init when/if users are
+        # disallowed to update class settings on the export.
+        self._rootpath = Path(
+            fmudata.get_casepath() if fmudata else str(self._rootpath.absolute())
+        )
+        logger.debug("Rootpath is now %s", self._rootpath)
+
+        self._metadata = generate_export_metadata(
+            obj, self, fmudata, compute_md5=compute_md5
+        )
 
         logger.info("The metadata are now ready!")
 

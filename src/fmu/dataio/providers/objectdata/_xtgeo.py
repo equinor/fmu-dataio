@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Final
 import numpy as np
 import pandas as pd
 import xtgeo
+
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import npfloat_to_float
@@ -352,6 +353,6 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
                 fmt, "CPGridProperty", ValidFormats().grid
             ),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox() or None,
             table_index=None,
         )
