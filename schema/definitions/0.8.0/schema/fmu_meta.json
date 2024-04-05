@@ -1229,6 +1229,7 @@
         "value": {
           "anyOf": [
             {
+              "format": "date-time",
               "type": "string"
             },
             {

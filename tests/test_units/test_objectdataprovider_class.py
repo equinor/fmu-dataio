@@ -1,16 +1,44 @@
 """Test the _ObjectData class from the _objectdata.py module"""
 
 import os
+from datetime import datetime
 
 import pytest
 from fmu.dataio import dataio
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
+from fmu.dataio.providers.objectdata._base import (
+    get_timedata_from_existing,
+)
 from fmu.dataio.providers.objectdata._provider import (
     objectdata_provider_factory,
 )
 from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
 
 from ..utils import inside_rms
+
+
+@pytest.mark.parametrize(
+    "given, expected",
+    (
+        (
+            {"t0": {"value": "2022-08-02T00:00:00", "label": "base"}},
+            (datetime.strptime("2022-08-02T00:00:00", "%Y-%m-%dT%H:%M:%S"), None),
+        ),
+        (
+            [
+                {"value": "2030-01-01T00:00:00", "label": "moni"},
+                {"value": "2010-02-03T00:00:00", "label": "base"},
+            ],
+            (
+                datetime.strptime("2030-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S"),
+                datetime.strptime("2010-02-03T00:00:00", "%Y-%m-%dT%H:%M:%S"),
+            ),
+        ),
+    ),
+)
+def test_get_timedata_from_existing(given: dict, expected: tuple):
+    assert get_timedata_from_existing(given) == expected
+
 
 # --------------------------------------------------------------------------------------
 # RegularSurface

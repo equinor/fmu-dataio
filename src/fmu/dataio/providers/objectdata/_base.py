@@ -9,7 +9,7 @@ from warnings import warn
 
 from fmu.dataio._definitions import ConfigurationError
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import generate_description, parse_timedata
+from fmu.dataio._utils import generate_description
 from fmu.dataio.datastructure._internal.internal import AllowedContent
 from fmu.dataio.datastructure.meta import content
 
@@ -65,6 +65,49 @@ def derive_name(
     return ""
 
 
+def get_timedata_from_existing(meta_timedata: dict) -> tuple[datetime, datetime | None]:
+    """Converts the time data in existing metadata from a string to a datetime.
+
+    The time section under datablock has variants to parse.
+
+    Formats::
+        "time": {
+            "t0": {
+               "value": "2022-08-02T00:00:00",
+               "label": "base"
+            }
+        }
+
+        # with or without t1
+        # or legacy format:
+
+        "time": [
+        {
+            "value": "2030-01-01T00:00:00",
+            "label": "moni"
+        },
+        {
+            "value": "2010-02-03T00:00:00",
+            "label": "base"
+        }
+        ],
+    """
+    date1 = None
+    if isinstance(meta_timedata, list):
+        date0 = meta_timedata[0]["value"]
+        if len(meta_timedata) == 2:
+            date1 = meta_timedata[1]["value"]
+    elif isinstance(meta_timedata, dict):
+        date0 = meta_timedata["t0"].get("value")
+        if "t1" in meta_timedata:
+            date1 = meta_timedata["t1"].get("value")
+
+    return (
+        datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S"),
+        datetime.strptime(date1, "%Y-%m-%dT%H:%M:%S") if date1 else None,
+    )
+
+
 def get_fmu_time_object(timedata_item: list[str]) -> content.FMUTimeObject:
     """
     Returns a FMUTimeObject from a timedata item on list
@@ -73,7 +116,7 @@ def get_fmu_time_object(timedata_item: list[str]) -> content.FMUTimeObject:
     """
     value, *label = timedata_item
     return content.FMUTimeObject(
-        value=datetime.strptime(str(value), "%Y%m%d").isoformat(),
+        value=datetime.strptime(str(value), "%Y%m%d"),
         label=label[0] if label else None,
     )
 
@@ -103,8 +146,8 @@ class ObjectDataProvider(ABC):
     efolder: str = field(default="")
     extension: str = field(default="")
     fmt: str = field(default="")
-    time0: str | None = field(default=None)
-    time1: str | None = field(default=None)
+    time0: datetime | None = field(default=None)
+    time1: datetime | None = field(default=None)
 
     @staticmethod
     def _validate_get_ext(fmt: str, subtype: str, validator: dict[str, V]) -> V:
@@ -205,7 +248,7 @@ class ObjectDataProvider(ABC):
         if stop:
             assert start and start.value is not None  # for mypy
             assert stop and stop.value is not None  # for mypy
-            if datetime.fromisoformat(start.value) > datetime.fromisoformat(stop.value):
+            if start.value > stop.value:
                 start, stop = stop, start
 
         self.time0, self.time1 = start.value, stop.value if stop else None
@@ -294,7 +337,10 @@ class ObjectDataProvider(ABC):
         """Instantiate from existing metadata."""
 
         relpath = Path(meta_existing["file"]["relative_path"])
-        time0, time1 = parse_timedata(meta_existing["data"])
+
+        time0, time1 = None, None
+        if "time" in meta_existing["data"]:
+            time0, time1 = get_timedata_from_existing(meta_existing["data"]["time"])
 
         return cls(
             obj=obj,
