@@ -624,11 +624,13 @@ class ExportData:
         logger.info("pwd:        %s", str(self._pwd))
         logger.info("rootpath:   %s", str(self._rootpath))
 
-    def _check_obj_if_file(self, obj: types.Inferrable) -> types.Inferrable:
+    def _check_process_object(self, obj: types.Inferrable) -> None:
         """When obj is file-like, it must be checked + assume preprocessed.
 
         In addition, if preprocessed, derive the name, tagname, subfolder if present and
         those are not set already.
+
+        For all cases, tie incoming obj to self._object
         """
 
         if isinstance(obj, (str, Path)):
@@ -651,7 +653,7 @@ class ExportData:
             self.tagname = self.tagname or preprocessed.get("tagname", "")
             self.subfolder = self.subfolder or preprocessed.get("subfolder", "")
 
-        return obj
+        self._object = obj
 
     def _get_fmu_provider(self) -> FmuProvider:
         return FmuProvider(
@@ -713,7 +715,7 @@ class ExportData:
             # TODO: This needs refinement: _config_is_valid should be removed
             self.config = global_configuration.roundtrip(self.config)
 
-        self._object = self._check_obj_if_file(obj)
+        self._check_process_object(obj)  # obj --> self._object
 
         self._establish_pwd_rootpath()
         self._validate_content_key()
@@ -729,8 +731,10 @@ class ExportData:
         )
         logger.debug("Rootpath is now %s", self._rootpath)
 
+        # TODO: refactor the argument list for generate_export_metadata; we do not need
+        # both self._object and self...
         self._metadata = generate_export_metadata(
-            obj, self, fmudata, compute_md5=compute_md5
+            self._object, self, fmudata, compute_md5=compute_md5
         )
 
         logger.info("The metadata are now ready!")
