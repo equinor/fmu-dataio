@@ -94,11 +94,13 @@ import xtgeo
 
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
+from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
     DerivedObjectDescriptor,
     ObjectDataProvider,
 )
+from ._faultroom import FaultRoomSurfaceProvider
 from ._tables import ArrowTableDataProvider, DataFrameDataProvider
 from ._xtgeo import (
     CPGridDataProvider,
@@ -146,6 +148,8 @@ def objectdata_provider_factory(
         return CPGridPropertyDataProvider(obj=obj, dataio=dataio)
     if isinstance(obj, pd.DataFrame):
         return DataFrameDataProvider(obj=obj, dataio=dataio)
+    if isinstance(obj, FaultRoomSurface):
+        return FaultRoomSurfaceProvider(obj=obj, dataio=dataio)
     if isinstance(obj, dict):
         return DictionaryDataProvider(obj=obj, dataio=dataio)
 

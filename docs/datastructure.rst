@@ -216,6 +216,8 @@ Meta export datastructure
 .. autopydantic_model:: fmu.dataio.datastructure.meta.specification.TableSpecification
   :model-show-json: false
 
-.. autopydantic_model:: fmu.dataio.datastructure.meta.specification.WellPointsDictionaryCaseSpecification
+.. autopydantic_model:: fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification
   :model-show-json: false
 
+.. autopydantic_model:: fmu.dataio.datastructure.meta.specification.WellPointsDictionaryCaseSpecification
+  :model-show-json: false

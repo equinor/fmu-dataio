@@ -169,6 +169,9 @@
           "$ref": "#/$defs/PropertyContent"
         },
         {
+          "$ref": "#/$defs/FaultPropertiesContent"
+        },
+        {
           "$ref": "#/$defs/PVTContent"
         },
         {
@@ -692,6 +695,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -1371,6 +1377,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -1653,6 +1662,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -1808,6 +1820,350 @@
         "stratigraphic"
       ],
       "title": "FaultLinesContent",
+      "type": "object"
+    },
+    "FaultPropertiesContent": {
+      "properties": {
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox3D"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "content": {
+          "const": "fault_properties",
+          "title": "Content"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is observation flag",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is prediction flag",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular"
+          ],
+          "title": "Layout"
+        },
+        "name": {
+          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic": {
+          "description": "True if data object represents an entity in the stratigraphic column",
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column names in the table which can be used for indexing",
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A semi-human readable tag for internal usage and uniqueness",
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Flag if undefined values are to be interpreted as zero",
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "enum": [
+                "depth",
+                "time"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth"
+          ],
+          "title": "Vertical Domain"
+        }
+      },
+      "required": [
+        "content",
+        "format",
+        "is_observation",
+        "is_prediction",
+        "name",
+        "stratigraphic"
+      ],
+      "title": "FaultPropertiesContent",
+      "type": "object"
+    },
+    "FaultRoomSurfaceSpecification": {
+      "properties": {
+        "faults": {
+          "description": "Names of faults",
+          "items": {
+            "type": "string"
+          },
+          "title": "Faults",
+          "type": "array"
+        },
+        "horizons": {
+          "description": "List of horizon names",
+          "items": {
+            "type": "string"
+          },
+          "title": "Horizons",
+          "type": "array"
+        },
+        "juxtaposition_fw": {
+          "description": "List of zones included in footwall juxtaposition",
+          "items": {
+            "type": "string"
+          },
+          "title": "Juxtaposition Fw",
+          "type": "array"
+        },
+        "juxtaposition_hw": {
+          "description": "List of zones included in hangingwall juxtaposition",
+          "items": {
+            "type": "string"
+          },
+          "title": "Juxtaposition Hw",
+          "type": "array"
+        },
+        "name": {
+          "description": "A name id of the faultroom usage",
+          "title": "Name",
+          "type": "string"
+        },
+        "properties": {
+          "description": "List of properties along fault plane",
+          "items": {
+            "type": "string"
+          },
+          "title": "Properties",
+          "type": "array"
+        }
+      },
+      "required": [
+        "horizons",
+        "faults",
+        "juxtaposition_hw",
+        "juxtaposition_fw",
+        "properties",
+        "name"
+      ],
+      "title": "FaultRoomSurfaceSpecification",
       "type": "object"
     },
     "FieldItem": {
@@ -1975,6 +2331,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -2276,6 +2635,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -2680,6 +3042,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -2977,6 +3342,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -3317,6 +3685,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -3627,6 +3998,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -3919,6 +4293,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -4223,6 +4600,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -4503,6 +4883,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -4835,6 +5218,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -5115,6 +5501,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -5454,6 +5843,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -5734,6 +6126,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -6107,6 +6502,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -6500,6 +6898,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -6975,6 +7376,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -7285,6 +7689,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -7565,6 +7972,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
@@ -7907,6 +8317,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -8202,6 +8615,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -8484,6 +8900,9 @@
               "$ref": "#/$defs/CPGridSpecification"
             },
             {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/PointSpecification"
             },
             {
@@ -8764,6 +9183,9 @@
             },
             {
               "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/PointSpecification"
