@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.specification &mdash; fmu.dataio 0.1.dev1+g477879a documentation</title>
+  <title>fmu.dataio.datastructure.meta.specification &mdash; fmu.dataio 0.1.dev1+g01415b6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -202,6 +202,27 @@
     <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="FaultRoomSurfaceSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification">[docs]</a><span class="k">class</span> <span class="nc">FaultRoomSurfaceSpecification</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">horizons</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of horizon names&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">faults</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Names of faults&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">juxtaposition_hw</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of zones included in hangingwall juxtaposition&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">juxtaposition_fw</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of zones included in footwall juxtaposition&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">properties</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of properties along fault plane&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A name id of the faultroom usage&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="CubeSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.CubeSpecification">[docs]</a><span class="k">class</span> <span class="nc">CubeSpecification</span><span class="p">(</span><span class="n">SurfaceSpecification</span><span class="p">):</span>
     <span class="n">nlay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of layers&quot;</span><span class="p">,</span>
@@ -257,6 +278,7 @@
 <span class="n">AnySpecification</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span>
     <span class="n">CPGridPropertySpecification</span><span class="p">,</span>
     <span class="n">CPGridSpecification</span><span class="p">,</span>
+    <span class="n">FaultRoomSurfaceSpecification</span><span class="p">,</span>
     <span class="n">PointSpecification</span><span class="p">,</span>
     <span class="n">CubeSpecification</span><span class="p">,</span>
     <span class="n">PolygonsSpecification</span><span class="p">,</span>
@@ -273,7 +295,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g477879a).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g01415b6).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

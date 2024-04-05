@@ -1,0 +1,7 @@
+dataio.readers module
+=====================
+
+.. automodule:: dataio.readers
+   :members:
+   :undoc-members:
+   :show-inheritance:
