@@ -770,11 +770,6 @@ class ExportData:
 
         self._update_check_settings(kwargs)
 
-        self._config_is_valid = global_configuration.is_valid(self.config)
-        if self._config_is_valid:
-            # TODO: This needs refinement: _config_is_valid should be removed
-            self.config = global_configuration.roundtrip(self.config)
-
         self._validate_access_ssdl_key()
 
         self._check_process_object(obj)  # obj --> self._object
