@@ -476,7 +476,6 @@ class ExportData:
                 UserWarning,
             )
         logger.info("Running __post_init__ ExportData")
-        logger.debug("Global config is %s", prettyprint_dict(self.config))
 
         self._fmurun = FmuEnv.ENSEMBLE_ID.value is not None
         self.fmu_context = FmuContext.get(self.fmu_context)
@@ -484,7 +483,37 @@ class ExportData:
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
 
-        # if input is provided as an ENV variable pointing to a YAML file; will override
+        self._validate_content_key()
+        self._validate_fmucontext_key()
+        self._validate_access_ssdl_key()
+
+        # parse and validate the config
+        self._parse_validate_config()
+
+        self._establish_pwd_rootpath()
+        self._show_deprecations_or_notimplemented()
+        logger.info("FMU context is %s", self.fmu_context)
+        logger.info("Ran __post_init__")
+
+    def _parse_validate_config(self) -> None:
+        """Parse the incoming config, validate and keep known fields only."""
+
+        # The intention is that this shall be The One And Only Place we read the
+        # incoming config, and populate self.config. We currently pass global_variables
+        # as config, and this can contain everything and anything. Trying to make the
+        # contract between fmu-dataio and global_variables.yml a bit more clear.
+
+        # TODO this function is way to long and ugly. Consider breaking it up, or
+        # perhaps outsource the whole handling of config to a dedicated module.
+
+        logger.debug("Global config given %s", prettyprint_dict(self.config))
+
+        # global config which may be given as env variable
+        # will only be used if not explicitly given as input
+        if not self.config and GLOBAL_ENVNAME in os.environ:
+            self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
+
+        # if config is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
             warnings.warn(
                 "Providing input settings through environment variables is deprecated, "
@@ -492,46 +521,27 @@ class ExportData:
                 "disable this warning, remove the 'FMU_DATAIO_CONFIG' env.",
             )
 
-        # global config which may be given as env variable
-        # will only be used if not explicitly given as input
-        if not self.config and GLOBAL_ENVNAME in os.environ:
-            self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
+        # Reading the current self.config (argument given in the call) with a temporary
+        # 'useconfig' while we sort it out, then overwrite self.config at the end.
+        # This is somewhat ugly. Doing it this way because the argument is called
+        # "config" (don't want to change that) and we use self.config a lot later (so
+        # don't want to change that either).
 
-        self._validate_content_key()
-        self._validate_fmucontext_key()
-        self._validate_access_ssdl_key()
+        # verify that a dict was given
+        if not isinstance(self.config, dict):
+            # Perhaps not needed? We know that self.config is always a dict?
+            # Want to avoid "config has no method '.get' type errors later
+            raise ValueError("Unsupported format for config, expected Dictionary.")
 
-        # check state of global config
-        self._config_is_valid = global_configuration.is_valid(self.config)
-        if self._config_is_valid:
-            # TODO: This needs refinement: _config_is_valid should be removed
-            self.config = global_configuration.roundtrip(self.config)
+        useconfig = {}
 
-        self._establish_pwd_rootpath()
-        self._show_deprecations_or_notimplemented()
-        logger.info("FMU context is %s", self.fmu_context)
-        logger.info("Ran __post_init__")
+        # populate the fields we actually use
+        for key in ["access", "masterdata", "stratigraphy", "model"]:
+            if key in self.config.keys():
+                useconfig[key] = self.config[key]
 
-    def _validate_access_ssdl_key(self) -> None:
-        # The access_ssdl argument is deprecated, replaced by 'rep_include' and
-        # 'classification' arguments. While still supported, we don't want to mix old
-        # and new. I.e. when someone starts using any of the new arguments, we expect
-        # them to move away from 'access_ssdl' completely - in arguments AND in config.
+        self.config = useconfig
 
-        # Check if we are getting both old and new arguments, and raise if we do.
-        if self.classification is not None and "access_level" in self.access_ssdl:
-            raise ValueError(
-                "Conflicting arguments: When using 'classification', the (legacy) "
-                "'access_ssdl' is not supported."
-            )
-
-        if self.rep_include is not None and "rep_include" in self.access_ssdl:
-            raise ValueError(
-                "Conflicting arguments: When using 'rep_include', the (legacy) "
-                "'access_ssdl' is not supported."
-            )
-
-        # TODO Not sure where else to put this
         # While deprecating the 'ssdl.access_level', if config has
         # both 'ssdl.access_level' AND classification defined, issue warning, and use
         # the classification value further.
@@ -553,6 +563,36 @@ class ExportData:
             self.config["access"]["ssdl"]["access_level"] = self.config["access"][
                 "classification"
             ]
+
+        # check state of global config
+        self._config_is_valid = global_configuration.is_valid(self.config)
+        if self._config_is_valid:
+            # TODO: This needs refinement: _config_is_valid should be removed
+            self.config = global_configuration.roundtrip(self.config)
+
+        # self.config is now ready and will be used further.
+        # The idea is that self.config should be immutable from here on.
+
+        logger.debug("Global config after parsing is %s", prettyprint_dict(self.config))
+
+    def _validate_access_ssdl_key(self) -> None:
+        # The access_ssdl argument is deprecated, replaced by 'rep_include' and
+        # 'classification' arguments. While still supported, we don't want to mix old
+        # and new. I.e. when someone starts using any of the new arguments, we expect
+        # them to move away from 'access_ssdl' completely - in arguments AND in config.
+
+        # Check if we are getting both old and new arguments, and raise if we do.
+        if self.classification is not None and "access_level" in self.access_ssdl:
+            raise ValueError(
+                "Conflicting arguments: When using 'classification', the (legacy) "
+                "'access_ssdl' is not supported."
+            )
+
+        if self.rep_include is not None and "rep_include" in self.access_ssdl:
+            raise ValueError(
+                "Conflicting arguments: When using 'rep_include', the (legacy) "
+                "'access_ssdl' is not supported."
+            )
 
     def _show_deprecations_or_notimplemented(self) -> None:
         """Warn on deprecated keys or on stuff not implemented yet."""
