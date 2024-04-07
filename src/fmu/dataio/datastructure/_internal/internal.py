@@ -221,7 +221,7 @@ class DataClassMeta(JsonSchemaMetadata):
 class CaseSchema(JsonSchemaMetadata):
     class_: Literal["case"] = Field(alias="class", default="case")
     masterdata: meta.Masterdata
-    access: meta.Access
+    access: meta.CaseAccess
     fmu: FMUModel
     description: Optional[List[str]]
     tracklog: List[meta.TracklogEvent]

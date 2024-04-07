@@ -519,19 +519,17 @@ class ExportData:
         # them to move away from 'access_ssdl' completely - in arguments AND in config.
 
         # Check if we are getting both old and new arguments, and raise if we do.
-        if self.classification is not None:
-            if "access_level" in self.access_ssdl:
-                raise ValueError(
-                    "Conflicting arguments: When using 'classification', the (legacy) "
-                    "'access_ssdl' is not supported."
-                )
+        if self.classification is not None and "access_level" in self.access_ssdl:
+            raise ValueError(
+                "Conflicting arguments: When using 'classification', the (legacy) "
+                "'access_ssdl' is not supported."
+            )
 
-        if self.rep_include is not None:
-            if "rep_include" in self.access_ssdl:
-                raise ValueError(
-                    "Conflicting arguments: When using 'rep_include', the (legacy) "
-                    "'access_ssdl' is not supported."
-                )
+        if self.rep_include is not None and "rep_include" in self.access_ssdl:
+            raise ValueError(
+                "Conflicting arguments: When using 'rep_include', the (legacy) "
+                "'access_ssdl' is not supported."
+            )
 
         # TODO Not sure where else to put this
         # While deprecating the 'ssdl.access_level', if config has
@@ -595,6 +593,7 @@ class ExportData:
                     "Use 'restricted'.",
                     FutureWarning,
                 )
+                self.access_ssdl["access_level"] = "restricted"
 
     def _validate_content_key(self) -> None:
         """Validate the given 'content' input."""

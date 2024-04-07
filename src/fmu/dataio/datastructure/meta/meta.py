@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import warnings
-
 from collections import ChainMap
 from pathlib import Path
 from typing import Dict, List, Literal, Optional, TypeVar, Union
@@ -33,45 +31,21 @@ class Ssdl(BaseModel):
     Sub-Surface Data Lake
     """
 
-    access_level: enums.AccessLevel = Field(
-        default=enums.AccessLevel.internal,
-    )
-    rep_include: bool = Field(
-        default=False,
-    )
-
-    @model_validator(mode="after")
-    def _migrate_asset_to_restricted(self) -> Ssdl:
-        if self.access_level == enums.AccessLevel.asset:
-            warnings.warn(
-                "The value 'asset' for access.ssdl.access_level is deprecated. "
-                "Please use 'restricted' in input arguments or global variables "
-                "to silence this warning.",
-                FutureWarning,
-            )
-            self.access_level = enums.AccessLevel.restricted
-        return self
+    access_level: enums.AccessLevel
+    rep_include: bool
 
 
 class Access(BaseModel):
     asset: Asset
-    ssdl: Ssdl
     classification: Optional[enums.AccessLevel] = Field(default=None)
 
-    @model_validator(mode="after")
-    def _classification_mirrors_accesslevel(self) -> Access:
-        # Ideally we want to only copy if the user has NOT
-        # set the classification.
-        # See: https://github.com/equinor/fmu-dataio/issues/540
-        self.classification = self.ssdl.access_level
-        return self
 
-
-class SsdlAccess(Access):  # arver fra baseclassen
+class SsdlAccess(Access):
     ssdl: Ssdl
 
 
-# OK med kun en klasse for "access"?
+class CaseAccess(BaseModel):
+    asset: Asset
 
 
 class File(BaseModel):

@@ -157,6 +157,9 @@ def test_initialize_case_with_export(monkeypatch, globalconfig2, fmurun):
     assert metadata["fmu"]["case"]["name"] == "MyCaseName"
     assert metadata["masterdata"]["smda"]["field"][0]["identifier"] == "DROGON"
 
+    # case objects have only access.asset
+    assert list(metadata["access"].keys()) == ["asset"]
+
 
 def test_initialize_case_export_with_norsk_alphabet(monkeypatch, globalconfig2, fmurun):
     monkeypatch.chdir(fmurun)

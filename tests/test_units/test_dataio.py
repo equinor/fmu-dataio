@@ -55,13 +55,13 @@ def test_missing_or_wrong_config_exports_with_warning(regsurf):
     with pytest.warns(UserWarning, match=pydantic_warning()):
         edata = ExportData(config={}, content="depth")
 
-    with pytest.warns(UserWarning, match=pydantic_warning()):
-        meta = edata.generate_metadata(regsurf)
+    # still work, but no metadata
+    meta = edata.generate_metadata(regsurf)
 
     assert "masterdata" not in meta
 
-    with pytest.warns(UserWarning, match=pydantic_warning()):
-        out = edata.export(regsurf, name="mysurface")
+    # still work, but no metadata
+    out = edata.export(regsurf, name="mysurface")
 
     assert "mysurface" in out
 

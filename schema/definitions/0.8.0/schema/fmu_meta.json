@@ -2268,7 +2268,12 @@
           "title": "Description"
         },
         "field_outline": {
-          "$ref": "#/$defs/FieldOutline"
+          "allOf": [
+            {
+              "$ref": "#/$defs/FieldOutline"
+            }
+          ],
+          "description": "Conditional field"
         },
         "format": {
           "examples": [
@@ -2572,7 +2577,12 @@
           "title": "Description"
         },
         "field_region": {
-          "$ref": "#/$defs/FieldRegion"
+          "allOf": [
+            {
+              "$ref": "#/$defs/FieldRegion"
+            }
+          ],
+          "description": "Conditional field"
         },
         "format": {
           "examples": [
@@ -2977,7 +2987,12 @@
           "title": "Description"
         },
         "fluid_contact": {
-          "$ref": "#/$defs/FluidContact"
+          "allOf": [
+            {
+              "$ref": "#/$defs/FluidContact"
+            }
+          ],
+          "description": "Conditional field"
         },
         "format": {
           "examples": [
@@ -6493,7 +6508,12 @@
           "type": "number"
         },
         "seismic": {
-          "$ref": "#/$defs/Seismic"
+          "allOf": [
+            {
+              "$ref": "#/$defs/Seismic"
+            }
+          ],
+          "description": "Conditional field"
         },
         "spec": {
           "anyOf": [
