@@ -49,31 +49,6 @@ def test_generate_metadata_simple(globalconfig1):
     ExportData.grid_fformat = default_fformat  # reset
 
 
-def test_parse_validate_config(globalconfig1):
-    """Test the _parse_validate_config method."""
-
-    # runs when config is not given
-    edata = ExportData()
-    edata._parse_validate_config()
-
-    # runs when config is empty
-    edata = ExportData(config={})
-    edata._parse_validate_config()
-
-    # crashes when config is not a dict
-    with pytest.raises(ValueError):
-        edata = ExportData(config="a string")
-
-    # keeps only the wanted keys
-    assert "masterdata" in globalconfig1
-    globalconfig1["not_used"] = {"not-used": "not-used"}
-    assert "not_used" in globalconfig1
-    edata = ExportData(config=globalconfig1)
-    edata._parse_validate_config()
-    assert "masterdata" in edata.config
-    assert "not_used" not in edata.config
-
-
 def test_missing_or_wrong_config_exports_with_warning(regsurf):
     """In case a config is missing, or is invalid, do export with warning."""
 

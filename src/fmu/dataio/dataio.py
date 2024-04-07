@@ -5,7 +5,6 @@ The metadata spec is documented as a JSON schema, stored under schema/.
 
 from __future__ import annotations
 
-import os
 import warnings
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -30,7 +29,6 @@ from ._utils import (
     export_metadata_file,
     prettyprint_dict,
     read_metadata_from_file,
-    some_config_from_env,
 )
 from .aggregation import AggregatedData
 from .case import InitializeCase
@@ -46,11 +44,6 @@ warnings.simplefilter("always", PendingDeprecationWarning)
 # DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
 
-
-GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
-SETTINGS_ENVNAME: Final = (
-    "FMU_DATAIO_CONFIG"  # Feature deprecated, still used for user warning.
-)
 
 logger: Final = null_logger(__name__)
 
@@ -488,92 +481,24 @@ class ExportData:
         self._validate_access_ssdl_key()
 
         # parse and validate the config
-        self._parse_validate_config()
-
-        self._establish_pwd_rootpath()
-        self._show_deprecations_or_notimplemented()
-        logger.info("FMU context is %s", self.fmu_context)
-        logger.info("Ran __post_init__")
-
-    def _parse_validate_config(self) -> None:
-        """Parse the incoming config, validate and keep known fields only."""
-
-        # The intention is that this shall be The One And Only Place we read the
-        # incoming config, and populate self.config. We currently pass global_variables
-        # as config, and this can contain everything and anything. Trying to make the
-        # contract between fmu-dataio and global_variables.yml a bit more clear.
-
-        # TODO this function is way to long and ugly. Consider breaking it up, or
-        # perhaps outsource the whole handling of config to a dedicated module.
-
         logger.debug("Global config given %s", prettyprint_dict(self.config))
 
-        # global config which may be given as env variable
-        # will only be used if not explicitly given as input
-        if not self.config and GLOBAL_ENVNAME in os.environ:
-            self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
+        # NB overwriting self.config. Ugly, but needed (?)
+        # Input argument is called "config", don't want to change that.
+        # Class variable self.config is used a lot, don't want to change it.
+        self.config = global_configuration.parse(self.config)
+        logger.debug("Global config after parsing is %s", prettyprint_dict(self.config))
 
-        # if config is provided as an ENV variable pointing to a YAML file; will override
-        if SETTINGS_ENVNAME in os.environ:
-            warnings.warn(
-                "Providing input settings through environment variables is deprecated, "
-                "use ExportData(**yaml_load(<your_file>)) instead. To "
-                "disable this warning, remove the 'FMU_DATAIO_CONFIG' env.",
-            )
-
-        # Reading the current self.config (argument given in the call) with a temporary
-        # 'useconfig' while we sort it out, then overwrite self.config at the end.
-        # This is somewhat ugly. Doing it this way because the argument is called
-        # "config" (don't want to change that) and we use self.config a lot later (so
-        # don't want to change that either).
-
-        # verify that a dict was given
-        if not isinstance(self.config, dict):
-            # Perhaps not needed? We know that self.config is always a dict?
-            # Want to avoid "config has no method '.get' type errors later
-            raise ValueError("Unsupported format for config, expected Dictionary.")
-
-        useconfig = {}
-
-        # populate the fields we actually use
-        for key in ["access", "masterdata", "stratigraphy", "model"]:
-            if key in self.config.keys():
-                useconfig[key] = self.config[key]
-
-        self.config = useconfig
-
-        # While deprecating the 'ssdl.access_level', if config has
-        # both 'ssdl.access_level' AND classification defined, issue warning, and use
-        # the classification value further.
-
-        _conf_ssdl_access_level = (
-            self.config.get("access", {}).get("ssdl", {}).get("access_level")
-        )
-        _conf_classification = self.config.get("access", {}).get("classification")
-
-        if _conf_ssdl_access_level and _conf_classification:
-            # warning triggers only when both are present, i.e. the user has actively
-            # started using access.classification, but has not removed ssdl.access_level
-            warn(
-                "The config contains both 'access.ssdl.access_level (deprecated) and "
-                "access.classification. The value from access.classification will be "
-                "used. Remove 'access.ssdl.access_level' to silence this warning."
-            )
-
-            self.config["access"]["ssdl"]["access_level"] = self.config["access"][
-                "classification"
-            ]
-
-        # check state of global config
+        # keeping this block here, while we still require the "_config_is_valid"
         self._config_is_valid = global_configuration.is_valid(self.config)
         if self._config_is_valid:
             # TODO: This needs refinement: _config_is_valid should be removed
             self.config = global_configuration.roundtrip(self.config)
 
-        # self.config is now ready and will be used further.
-        # The idea is that self.config should be immutable from here on.
-
-        logger.debug("Global config after parsing is %s", prettyprint_dict(self.config))
+        self._establish_pwd_rootpath()
+        self._show_deprecations_or_notimplemented()
+        logger.info("FMU context is %s", self.fmu_context)
+        logger.info("Ran __post_init__")
 
     def _validate_access_ssdl_key(self) -> None:
         # The access_ssdl argument is deprecated, replaced by 'rep_include' and

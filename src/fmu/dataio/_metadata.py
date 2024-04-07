@@ -12,7 +12,6 @@ import platform
 from datetime import timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
-from copy import deepcopy
 
 from pydantic import AnyHttpUrl, TypeAdapter
 
@@ -110,6 +109,8 @@ def _get_meta_access(dataio) -> meta.SsdlAccess | None:
     # if access isn't in the config, we return None right away.
     # This is a bad pattern, making it so for now to make existing tests pass.
     # We allow calling metadata with empty config.access, hence need to deal with this.
+
+    # ruff: noqa: RET502
     if dataio.config.get("access") is None:
         return
 

@@ -6,9 +6,11 @@ are defined and maintained consistently.
 
 from __future__ import annotations
 
+import os
 import warnings
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Final, List, Optional
 
+from fmu.dataio._utils import some_config_from_env
 from fmu.dataio.datastructure.meta import enums, meta
 from pydantic import (
     BaseModel,
@@ -17,6 +19,11 @@ from pydantic import (
     ValidationError,
     field_validator,
     model_validator,
+)
+
+GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
+SETTINGS_ENVNAME: Final = (
+    "FMU_DATAIO_CONFIG"  # Feature deprecated, still used for user warning.
 )
 
 
@@ -136,6 +143,64 @@ class GlobalConfiguration(BaseModel):
     stratigraphy: Optional[Stratigraphy] = Field(
         default=None,
     )
+
+
+def parse(input_config: object) -> dict:
+    """
+    Parses the raw config given as input, and sanitizes it.
+    """
+
+    # Trying to move the config parsing here to reduce complexity in dataio.py
+
+    # global config which may be given as env variable
+    # will only be used if not explicitly given as input
+    if not input_config and GLOBAL_ENVNAME in os.environ:
+        input_config = some_config_from_env(GLOBAL_ENVNAME) or {}
+
+    # if config is provided as an ENV variable pointing to a YAML file; will override
+    if SETTINGS_ENVNAME in os.environ:
+        warnings.warn(
+            "Providing input settings through environment variables is deprecated, "
+            "use ExportData(**yaml_load(<your_file>)) instead. To "
+            "disable this warning, remove the 'FMU_DATAIO_CONFIG' env.",
+        )
+
+    # verify that a dict was given
+    if not isinstance(input_config, dict):
+        # Perhaps not needed? We know that self.config is always a dict?
+        # Want to avoid "config has no method '.get' type errors later
+        raise ValueError("Unsupported format for config, expected Dictionary.")
+
+    use_config = {}
+
+    # populate the fields we actually use
+    for key in ["access", "masterdata", "stratigraphy", "model"]:  # TODO
+        if key in input_config:
+            use_config[key] = input_config[key]
+
+    # While deprecating the 'ssdl.access_level', if config has
+    # both 'ssdl.access_level' AND classification defined, issue warning, and use
+    # the classification value further.
+
+    _conf_ssdl_access_level = (
+        use_config.get("access", {}).get("ssdl", {}).get("access_level")
+    )
+    _conf_classification = use_config.get("access", {}).get("classification")
+
+    if _conf_ssdl_access_level and _conf_classification:
+        # warning triggers only when both are present, i.e. the user has actively
+        # started using access.classification, but has not removed ssdl.access_level
+        warnings.warn(
+            "The config contains both 'access.ssdl.access_level (deprecated) and "
+            "access.classification. The value from access.classification will be "
+            "used. Remove 'access.ssdl.access_level' to silence this warning."
+        )
+
+        use_config["access"]["ssdl"]["access_level"] = use_config["access"][
+            "classification"
+        ]
+
+    return use_config
 
 
 def is_valid(obj: object) -> bool:

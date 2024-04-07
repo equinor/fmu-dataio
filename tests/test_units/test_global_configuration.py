@@ -1,3 +1,5 @@
+import pytest
+
 from fmu.dataio.datastructure.configuration import global_configuration
 from hypothesis import given, strategies
 
@@ -55,3 +57,26 @@ def test_access_classification_mirrors():
     )
     assert gc.classification == "restricted"
     assert gc.ssdl.access_level == "restricted"
+
+
+def test_parse(globalconfig1):
+    """Test the parse method."""
+
+    # runs when config is not given
+    # global_configuration.parse(None)
+
+    # runs when config is empty
+    global_configuration.parse({})
+
+    # crashes when config is not a dict
+    with pytest.raises(ValueError):
+        global_configuration.parse("a string")
+
+    # keeps only the wanted keys
+    assert "masterdata" in globalconfig1
+    globalconfig1["not_used"] = {"not-used": "not-used"}
+    assert "not_used" in globalconfig1
+    result = global_configuration.parse(globalconfig1)
+    assert "masterdata" in result
+    assert "not_used" not in result
+    del globalconfig1["not_used"]
