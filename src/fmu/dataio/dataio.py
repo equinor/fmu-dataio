@@ -499,9 +499,7 @@ class ExportData:
 
         self._validate_content_key()
         self._validate_fmucontext_key()
-        if self.access_ssdl is not None:
-            self._validate_access_ssdl()
-        self._update_globalconfig_from_settings()
+        self._validate_access_ssdl_key()
 
         # check state of global config
         self._config_is_valid = global_configuration.is_valid(self.config)
@@ -514,7 +512,7 @@ class ExportData:
         logger.info("FMU context is %s", self.fmu_context)
         logger.info("Ran __post_init__")
 
-    def _validate_access_ssdl(self) -> None:
+    def _validate_access_ssdl_key(self) -> None:
         # The access_ssdl argument is deprecated, replaced by 'rep_include' and
         # 'classification' arguments. While still supported, we don't want to mix old
         # and new. I.e. when someone starts using any of the new arguments, we expect
@@ -535,6 +533,29 @@ class ExportData:
                     "'access_ssdl' is not supported."
                 )
 
+        # TODO Not sure where else to put this
+        # While deprecating the 'ssdl.access_level', if config has
+        # both 'ssdl.access_level' AND classification defined, issue warning, and use
+        # the classification value further.
+
+        _conf_ssdl_access_level = (
+            self.config.get("access", {}).get("ssdl", {}).get("access_level")
+        )
+        _conf_classification = self.config.get("access", {}).get("classification")
+
+        if _conf_ssdl_access_level and _conf_classification:
+            # warning triggers only when both are present, i.e. the user has actively
+            # started using access.classification, but has not removed ssdl.access_level
+            warn(
+                "The config contains both 'access.ssdl.access_level (deprecated) and "
+                "access.classification. The value from access.classification will be "
+                "used. Remove 'access.ssdl.access_level' to silence this warning."
+            )
+
+            self.config["access"]["ssdl"]["access_level"] = self.config["access"][
+                "classification"
+            ]
+
     def _show_deprecations_or_notimplemented(self) -> None:
         """Warn on deprecated keys or on stuff not implemented yet."""
 
@@ -553,11 +574,27 @@ class ExportData:
             )
 
         if self.access_ssdl:
+            # if the access_ssdl argument is still provided, warning, then validate it
             warn(
                 "The 'access_ssdl' key is deprecated, and replaced by arguments "
                 "'classification' and 'rep_include'. Please update your code.",
                 PendingDeprecationWarning,
             )
+
+            # (I am) not capable of doing a proper validation using e.g. Pydantic here
+            # since we are stuck in so many corner-cases:
+            # - access_ssdl argument is deprecated, but allowed
+            # - We allow partial access_ssdl arg (e.g. just "access_level")
+            # - We do not allow non-valid values for access_level, EXCEPT "asset", which
+            #   we give warning for. (Time to stop this, perhaps?)
+            # TODO
+
+            if self.access_ssdl.get("access_level") == "asset":
+                warn(
+                    "The value 'asset' for access.ssdl.access_level is deprecated. "
+                    "Use 'restricted'.",
+                    FutureWarning,
+                )
 
     def _validate_content_key(self) -> None:
         """Validate the given 'content' input."""
@@ -606,48 +643,6 @@ class ExportData:
         self._validate_content_key()
         self._validate_fmucontext_key()
         logger.info("Validate FMU context which is now %s", self.fmu_context)
-
-    def _update_globalconfig_from_settings(self) -> None:
-        """A few user settings may update/append the global config directly."""
-
-        # TODO Not sure where else to put this
-        # While deprecating the 'ssdl.access_level' from all over, if a config has
-        # both 'ssdl.access_level' AND classification defined, issue warning, and use
-        # the classification value further.
-
-        _conf_ssdl_access_level = (
-            self.config.get("access", {}).get("ssdl", {}).get("access_level")
-        )
-        _conf_classification = self.config.get("access", {}).get("classification")
-
-        if _conf_ssdl_access_level and _conf_classification:
-            # warning triggers only when both are present, i.e. the user has actively
-            # started using access.classification, but has not removed ssdl.access_level
-            warn(
-                "The config contains both 'access.ssdl.access_level (deprecated) and "
-                "access.classification. The value from access.classification will be "
-                "used. Remove 'access.ssdl.access_level' to silence this warning."
-            )
-
-            self.config["access"]["ssdl"]["access_level"] = self.config["access"][
-                "classification"
-            ]
-
-        newglobals = deepcopy(self.config)
-
-        if self.access_ssdl:
-            if "access" not in self.config:
-                newglobals["access"] = {}
-            if "ssdl" not in newglobals["access"]:
-                newglobals["access"]["ssdl"] = {}
-
-            newglobals["access"]["ssdl"] = deepcopy(self.access_ssdl)
-
-            logger.info(
-                "Updated global config's access.ssdl value: %s", newglobals["access"]
-            )
-
-        self.config = newglobals
 
     def _establish_pwd_rootpath(self) -> None:
         """Establish state variables pwd and the (initial) rootpath.
@@ -774,15 +769,13 @@ class ExportData:
         logger.info("KW args %s", kwargs)
 
         self._update_check_settings(kwargs)
-        self._update_globalconfig_from_settings()
 
         self._config_is_valid = global_configuration.is_valid(self.config)
         if self._config_is_valid:
             # TODO: This needs refinement: _config_is_valid should be removed
             self.config = global_configuration.roundtrip(self.config)
 
-        if self.access_ssdl is not None:
-            self._validate_access_ssdl()
+        self._validate_access_ssdl_key()
 
         self._check_process_object(obj)  # obj --> self._object
 

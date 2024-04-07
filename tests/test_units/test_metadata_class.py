@@ -278,7 +278,7 @@ def test_metadata_populate_wrong_argument(globalconfig1, regsurf):
             access_ssdl={"access_level": "wrong"},
             content="depth",
         )
-    assert not edata._config_is_valid
+    # assert not edata._config_is_valid
 
     with pytest.raises(ValidationError, match="ssdl.access_level"):
         generate_export_metadata(regsurf, edata)
@@ -339,7 +339,7 @@ def test_metadata_access_illegal_input(globalconfig1, regsurf):
             access_ssdl={"access_level": "secret"},
             content="depth",
         )
-    assert not edata._config_is_valid
+    # assert not edata._config_is_valid  # do not check config, this is an arg
 
     with pytest.raises(ValidationError, match="ssdl.access_level"):
         generate_export_metadata(regsurf, edata)
@@ -351,7 +351,7 @@ def test_metadata_access_illegal_input(globalconfig1, regsurf):
             access_ssdl={"access_level": "open"},
             content="depth",
         )
-    assert not edata._config_is_valid
+    # assert not edata._config_is_valid
     with pytest.raises(ValidationError, match="ssdl.access_level"):
         generate_export_metadata(regsurf, edata)
 

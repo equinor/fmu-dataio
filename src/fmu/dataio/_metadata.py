@@ -134,18 +134,21 @@ def _get_meta_access(dataio) -> dict | None:
 
 
 def _meta_access_classification(dataio) -> str:
-
     # Ideally, user provides the classification argument
     # If they don't, we fall back to defaults in the config
 
-    # 1. Use the (optional) argument
+    # Use the (optional) argument
     classification = dataio.classification
 
-    # 2. If argument was not provided, fall back to the default from config
+    # If not there, check if we have the legacy access_ssdl argument
+    if classification is None:
+        classification = dataio.access_ssdl.get("access_level")
+
+    # If argument was not provided, fall back to the default from config
     if classification is None:
         classification = dataio.config.get("access", {}).get("classification")
 
-    # 3. If not found, fall back to (legacy) access.ssdl.access_level from config
+    # If not found, fall back to (legacy) access.ssdl.access_level from config
     if classification is None:
         classification = (
             dataio.config.get("access", {}).get("ssdl", {}).get("access_level", None)
@@ -157,11 +160,14 @@ def _meta_access_classification(dataio) -> str:
 
 
 def _meta_access_rep_include(dataio) -> bool:
-
-    # 1. Check the (optional) argument
+    # Check the (optional) argument
     rep_include = dataio.rep_include
 
-    # 2. Check the config
+    # If not there, check the legacy access_ssdl argument
+    if rep_include is None:
+        rep_include = dataio.access_ssdl.get("rep_include")
+
+    # If no arguments, fall back to config
     if rep_include is None:
         rep_include = (
             dataio.config.get("access", {}).get("ssdl", {}).get("rep_include", None)
