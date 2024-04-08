@@ -235,14 +235,4 @@ class FileDataProvider:
                     f"You cannot use forcefolder in combination with fmucontext={info}"
                 )
 
-        if self.dataio.subfolder:
-            dest = dest / self.dataio.subfolder
-
-        if self.dataio.createfolder:
-            dest.mkdir(parents=True, exist_ok=True)
-
-        # check that destination actually exists if verifyfolder is True
-        if self.dataio.verifyfolder and not dest.exists():
-            raise OSError(f"Folder {str(dest)} is not present.")
-
-        return dest
+        return dest if not self.dataio.subfolder else dest / self.dataio.subfolder

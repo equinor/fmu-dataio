@@ -288,8 +288,6 @@ def fixture_edataobj1(globalconfig1):
         is_observation=False,
     )
     eobj.surface_fformat = "irap_binary"
-    eobj.createfolder = False
-    eobj.verifyfolder = False
 
     logger.debug(
         "Ran %s returning %s", inspect.currentframe().f_code.co_name, type(eobj)
@@ -323,8 +321,6 @@ def fixture_edataobj2(globalconfig2):
     )
 
     eobj.surface_fformat = "irap_binary"
-    eobj.createfolder = False
-    eobj.verifyfolder = False
     eobj.legacy_time_format = False
 
     eobj._rootpath = Path(".")
