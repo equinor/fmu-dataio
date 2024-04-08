@@ -11,6 +11,7 @@ from fmu.dataio._metadata import (
     VERSION,
     _get_objectdata_provider,
     generate_export_metadata,
+    _get_meta_access,
 )
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.datastructure.meta.meta import (
@@ -266,8 +267,6 @@ def test_metadata_populate_wrong_config(globalconfig1, regsurf):
     with pytest.raises(ValidationError, match="ssdl.access_level"):
         generate_export_metadata(regsurf, edata)
 
-    # raise ValueError
-
 
 def test_metadata_populate_wrong_argument(globalconfig1, regsurf):
     """Test error in access_ssdl in arguments."""
@@ -278,8 +277,6 @@ def test_metadata_populate_wrong_argument(globalconfig1, regsurf):
             access_ssdl={"access_level": "wrong"},
             content="depth",
         )
-    # assert not edata._config_is_valid
-
     with pytest.raises(ValidationError, match="ssdl.access_level"):
         generate_export_metadata(regsurf, edata)
 
@@ -403,6 +400,100 @@ def test_metadata_access_classification_arg(globalconfig1, regsurf):
     edata = dio.ExportData(config=configcopy, content="depth")
     mymeta = edata.generate_metadata(regsurf, classification="restricted")
     assert mymeta["access"]["classification"] == "restricted"
+
+
+def test_get_meta_access_config_only(globalconfig1):
+    """Test the _get_meta_access  method."""
+
+    cfg = deepcopy(globalconfig1)
+
+    # verify test assumptions
+    assert cfg["access"]["classification"] == "internal"
+    assert cfg["access"]["ssdl"] == {
+        "access_level": "internal",
+        "rep_include": False,
+    }
+    assert cfg["access"]["asset"]["name"] == "Test"
+
+    # use correct config only
+    edata = dio.ExportData(config=cfg)
+    access = _get_meta_access(edata).model_dump()
+
+    assert access["asset"] == {"name": "Test"}
+    assert access["classification"] == "internal"
+    assert access["ssdl"] == {"access_level": "internal", "rep_include": False}
+    # Note! ssdl.access_level is deprecated
+
+
+def test_get_meta_access_args_override(globalconfig1, regsurf):
+    """Test the _get_meta_access method with arguments provided to dataio."""
+
+    cfg = deepcopy(globalconfig1)
+
+    # verify test assumptions
+    assert cfg["access"]["classification"] == "internal"
+    assert cfg["access"]["ssdl"] == {
+        "access_level": "internal",
+        "rep_include": False,
+    }
+    assert cfg["access"]["asset"]["name"] == "Test"
+
+    # correct config + arguments, arguments shall be used: classification
+    # This is the happy path, the pattern we want to promote.
+    edata = dio.ExportData(config=cfg, classification="restricted")
+    access = _get_meta_access(edata).model_dump()
+
+    assert access["asset"] == {"name": "Test"}
+    assert access["classification"] == "restricted"
+    assert access["ssdl"] == {"access_level": "restricted", "rep_include": False}
+
+    meta = edata.generate_metadata(regsurf)
+    assert meta["access"]["classification"] == "restricted"  # from class init
+
+    meta = edata.generate_metadata(regsurf, classification="internal")
+    assert meta["access"]["classification"] == "internal"  # overriding class init
+
+    # do same again, but this time not overriding in class init first
+    edata = dio.ExportData(config=cfg)
+    meta = edata.generate_metadata(regsurf)  # as in config
+    assert meta["access"]["classification"] == "internal"
+
+    meta = edata.generate_metadata(regsurf, classification="restricted")  # override
+    assert meta["access"]["classification"] == "restricted"
+
+    # correct config + arguments, arguments shall be used: rep_include
+    edata = dio.ExportData(config=cfg, rep_include=True)
+    access = _get_meta_access(edata).model_dump()
+
+    assert access["asset"] == {"name": "Test"}
+    assert access["classification"] == "internal"
+    assert access["ssdl"] == {"access_level": "internal", "rep_include": True}
+
+    # correct config + arguments, arguments shall be used: classification + rep_include
+    edata = dio.ExportData(config=cfg, classification="restricted", rep_include=True)
+    access = _get_meta_access(edata).model_dump()
+
+    assert access["asset"] == {"name": "Test"}
+    assert access["classification"] == "restricted"
+    assert access["ssdl"] == {"access_level": "restricted", "rep_include": True}
+
+    # legacy (deprecated) ssdl_access argument, shall be used before config
+    edata = dio.ExportData(config=cfg, access_ssdl={"access_level": "restricted"})
+    access = _get_meta_access(edata).model_dump()
+
+    assert access["asset"] == {"name": "Test"}
+    assert access["classification"] == "restricted"
+    assert access["ssdl"] == {"access_level": "restricted", "rep_include": False}
+
+    # legacy (deprecated) ssdl_access argument, shall be used before config
+    edata = dio.ExportData(
+        config=cfg, access_ssdl={"access_level": "restricted", "rep_include": True}
+    )
+    access = _get_meta_access(edata).model_dump()
+
+    assert access["asset"] == {"name": "Test"}
+    assert access["classification"] == "restricted"
+    assert access["ssdl"] == {"access_level": "restricted", "rep_include": True}
 
 
 # --------------------------------------------------------------------------------------

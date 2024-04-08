@@ -488,6 +488,10 @@ class ExportData:
         # Class variable self.config is used a lot, don't want to change it.
         self.config = global_configuration.parse(self.config)
         logger.debug("Global config after parsing is %s", prettyprint_dict(self.config))
+        # TODO: Consider if we should wipe self.config at this point, to avoid any
+        # (misuse) of it downstream. Since we are no longer carrying it and updating it,
+        # it will potentially NOT contain the values we are actually using. So there is
+        # a risk keeping it around.
 
         # keeping this block here, while we still require the "_config_is_valid"
         self._config_is_valid = global_configuration.is_valid(self.config)

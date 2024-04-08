@@ -101,20 +101,11 @@ def _get_meta_objectdata(
     )
 
 
-def _get_meta_access(dataio) -> meta.SsdlAccess | None:
+def _get_meta_access(dataio: ExportData) -> meta.SsdlAccess:
     """Create the full access block from combination of arguments and config."""
 
     # TMP: Try to carve out the logic here first, then move it to Pydantic
 
-    # if access isn't in the config, we return None right away.
-    # This is a bad pattern, making it so for now to make existing tests pass.
-    # We allow calling metadata with empty config.access, hence need to deal with this.
-
-    # ruff: noqa: RET502
-    if dataio.config.get("access") is None:
-        return
-
-    # If access is in the config, validate it.
     # This feels stupid, but keeping if for now as we have tests that expect
     # UserWarning if we try to create metadata using config that has errors.
     meta.SsdlAccess.model_validate(dataio.config.get("access"))
@@ -136,7 +127,7 @@ def _get_meta_access(dataio) -> meta.SsdlAccess | None:
     return meta.SsdlAccess.model_validate(m_access)
 
 
-def _meta_access_classification(dataio) -> str:
+def _meta_access_classification(dataio: ExportData) -> str:
     # Ideally, user provides the classification argument
     # If they don't, we fall back to defaults in the config
 
@@ -162,7 +153,7 @@ def _meta_access_classification(dataio) -> str:
     return classification
 
 
-def _meta_access_rep_include(dataio) -> bool:
+def _meta_access_rep_include(dataio: ExportData) -> bool:
     # Check the (optional) argument
     rep_include = dataio.rep_include
 
@@ -244,6 +235,7 @@ def generate_export_metadata(
     filedata = _get_filedata_provider(dataio, obj, objdata, fmudata, compute_md5)
 
     masterdata = dataio.config.get("masterdata")
+    access = dataio.config.get("access")
 
     metadata = internal.DataClassMeta(
         schema_=TypeAdapter(AnyHttpUrl).validate_strings(SCHEMA),  # type: ignore[call-arg]
@@ -252,7 +244,7 @@ def generate_export_metadata(
         class_=objdata.classname,
         fmu=_get_meta_fmu(fmudata) if fmudata else None,
         masterdata=_get_meta_masterdata(masterdata) if masterdata else None,
-        access=_get_meta_access(dataio),  # should never be None anymore?
+        access=_get_meta_access(dataio) if access else None,
         data=_get_meta_objectdata(objdata),
         file=filedata.get_metadata(),
         tracklog=generate_meta_tracklog(),

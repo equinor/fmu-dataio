@@ -219,6 +219,37 @@ def test_validate_access_ssdl_arguments(globalconfig1, regsurf):
     assert mymeta["access"]["classification"] == "restricted"
 
 
+def test_config_is_not_updated_during_runtime(globalconfig1, regsurf):
+    """Test (show) that self.config is NOT updated when arguments are provided."""
+
+    # This is to highlight important change in patterns.
+    # Before: Config was provided, and some arguments could update the config. So
+    #         the self.config object was changed during runtime.
+    # Now: Config is provided, arguments can override it, but the self.config object
+    #      is NOT changed during runtime.
+
+    cfg = deepcopy(globalconfig1)
+
+    # verify test assumptions
+    assert cfg["access"]["classification"] == "internal"
+    assert cfg["access"]["ssdl"] == {
+        "access_level": "internal",
+        "rep_include": False,
+    }
+    assert cfg["access"]["asset"]["name"] == "Test"
+
+    # config only
+    exp = ExportData(config=cfg)
+    assert exp.config["access"] == cfg["access"]
+
+    # config + arguments
+    exp = ExportData(config=cfg, classification="restricted")
+    assert exp.config["access"]["classification"] == "internal"  # no change!
+    assert exp.classification == "restricted"
+
+    # TODO: Consider making self.config immutable, so that it _cannot_ be changed.
+
+
 def test_content_not_given(globalconfig1, regsurf):
     """When content is not explicitly given, warning shall be issued."""
     with pytest.warns(UserWarning, match="The <content> is not provided"):
