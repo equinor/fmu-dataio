@@ -49,8 +49,10 @@ def test_generate_metadata_simple(globalconfig1):
     ExportData.grid_fformat = default_fformat  # reset
 
 
-def test_missing_or_wrong_config_exports_with_warning(regsurf):
+def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, regsurf):
     """In case a config is missing, or is invalid, do export with warning."""
+
+    monkeypatch.chdir(tmp_path)
 
     with pytest.warns(UserWarning, match=pydantic_warning()):
         edata = ExportData(config={}, content="depth")
@@ -69,8 +71,10 @@ def test_missing_or_wrong_config_exports_with_warning(regsurf):
         read_metadata(out)
 
 
-def test_config_miss_required_fields(globalconfig1, regsurf):
+def test_config_miss_required_fields(monkeypatch, tmp_path, globalconfig1, regsurf):
     """Global config exists but missing critical data; export file but skip metadata."""
+
+    monkeypatch.chdir(tmp_path)
 
     cfg = globalconfig1.copy()
 
