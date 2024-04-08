@@ -49,33 +49,39 @@ def assert_correct_table_index(dict_input, answer):
     assert_list_and_answer(index, answer, index)
 
 
-def test_inplace_volume_index(mock_volumes, globalconfig2):
+def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path):
     """Test volumetric data
 
     Args:
         mock_volumes (pd.DataFrame): a volumetriclike dataset
         globalconfig2 (dict): one global variables dict
     """
+    monkeypatch.chdir(tmp_path)
     answer = ["ZONE", "LICENCE"]
     exd = ExportData(config=globalconfig2, content="volumes")
     path = exd.export(mock_volumes, name="baretull")
     assert_correct_table_index(path, answer)
 
 
-def test_derive_summary_index_pandas(mock_summary, globalconfig2):
+def test_derive_summary_index_pandas(
+    mock_summary, globalconfig2, monkeypatch, tmp_path
+):
     """Test summary data
 
     Args:
         mock_summary (pd.DataFrame): summary "like" dataframe
         globalconfig2 (dict): global variables dict
     """
+    monkeypatch.chdir(tmp_path)
     answer = ["DATE"]
     exd = ExportData(config=globalconfig2, content="timeseries")
     path = exd.export(mock_summary, name="baretull")
     assert_correct_table_index(path, answer)
 
 
-def test_derive_summary_index_pyarrow(mock_summary, globalconfig2):
+def test_derive_summary_index_pyarrow(
+    mock_summary, globalconfig2, monkeypatch, tmp_path
+):
     """Test summary data
 
     Args:
@@ -84,45 +90,51 @@ def test_derive_summary_index_pyarrow(mock_summary, globalconfig2):
     """
     from pyarrow import Table
 
+    monkeypatch.chdir(tmp_path)
     answer = ["DATE"]
     exd = ExportData(config=globalconfig2, content="timeseries")
     path = exd.export(Table.from_pandas(mock_summary), name="baretull")
     assert_correct_table_index(path, answer)
 
 
-def test_set_from_exportdata(mock_volumes, globalconfig2):
+def test_set_from_exportdata(mock_volumes, globalconfig2, monkeypatch, tmp_path):
     """Test setting of index from class ExportData
 
     Args:
         mock_volumes (pd.DataFrame): a volumetric like dataframe
         globalconfig2 (dict): one global variables dict
     """
+    monkeypatch.chdir(tmp_path)
     index = ["OTHER"]
     exd = ExportData(config=globalconfig2, table_index=index, content="timeseries")
     path = exd.export(mock_volumes, name="baretull")
     assert_correct_table_index(path, index)
 
 
-def test_set_from_export(mock_volumes, globalconfig2):
+def test_set_from_export(mock_volumes, globalconfig2, monkeypatch, tmp_path):
     """Test setting of index from method export on class ExportData
 
     Args:
         mock_volumes (pd.DataFrame): volumetric like data
         globalconfig2 (dict): one global variable dict
     """
+    monkeypatch.chdir(tmp_path)
     index = ["OTHER"]
     exd = ExportData(config=globalconfig2, content="timeseries")
     path = exd.export(mock_volumes, name="baretull", table_index=index)
     assert_correct_table_index(path, index)
 
 
-def test_set_table_index_not_in_table(mock_volumes, globalconfig2):
+def test_set_table_index_not_in_table(
+    mock_volumes, globalconfig2, monkeypatch, tmp_path
+):
     """Test when setting index with something that is not in data
 
     Args:
         mock_volumes (pd.DataFrame): volumetric like data
         globalconfig2 (dict): one global variables dict
     """
+    monkeypatch.chdir(tmp_path)
     index = ["banana"]
     exd = ExportData(config=globalconfig2, content="timeseries")
     with pytest.raises(KeyError) as k_err:
