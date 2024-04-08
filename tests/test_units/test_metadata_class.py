@@ -9,9 +9,9 @@ from fmu.dataio._metadata import (
     SCHEMA,
     SOURCE,
     VERSION,
+    _get_meta_access,
     _get_objectdata_provider,
     generate_export_metadata,
-    _get_meta_access,
 )
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.datastructure.meta.meta import (
