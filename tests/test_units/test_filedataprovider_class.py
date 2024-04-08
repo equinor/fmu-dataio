@@ -198,7 +198,6 @@ def test_get_paths_not_exists_so_create(regsurf, edataobj1, tmp_path):
     objdata.efolder = "efolder"
     cfg = edataobj1
 
-    cfg.createfolder = True
     cfg._rootpath = Path(".")
 
     fdata = FileDataProvider(cfg, objdata)
@@ -213,7 +212,6 @@ def test_filedata_provider(regsurf, edataobj1, tmp_path):
     os.chdir(tmp_path)
 
     cfg = edataobj1
-    cfg.createfolder = True
     cfg._rootpath = Path(".")
     cfg.name = ""
 
@@ -242,7 +240,6 @@ def test_filedata_has_nonascii_letters(regsurf, edataobj1, tmp_path):
     os.chdir(tmp_path)
 
     cfg = edataobj1
-    cfg.createfolder = True
     cfg._rootpath = Path(".")
     cfg.name = "mynõme"
 
