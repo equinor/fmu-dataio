@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum, unique
-from typing import Final
+from typing import Final, Type
 
 SCHEMA: Final = (
     "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json"
@@ -78,36 +78,31 @@ STANDARD_TABLE_INDEX_COLUMNS: Final[dict[str, list[str]]] = {
 
 
 @unique
-class FmuContext(Enum):
-    """Use a Enum class for fmu_context entries."""
+class FmuContext(str, Enum):
+    """
+    Use a Enum class for fmu_context entries.
 
+    The different entries will impact where data is exported:
     REALIZATION = "To realization-N/iter_M/share"
     CASE = "To casename/share, but will also work on project disk"
     CASE_SYMLINK_REALIZATION = "To case/share, with symlinks on realizations level"
     PREPROCESSED = "To share/preprocessed; from interactive runs but re-used later"
     NON_FMU = "Not ran in a FMU setting, e.g. interactive RMS"
 
-    @classmethod
-    def has_key(cls, key: str) -> bool:
-        return key.upper() in cls._member_names_
+    """
+
+    REALIZATION = "realization"
+    CASE = "case"
+    CASE_SYMLINK_REALIZATION = "case_symlink_realization"
+    PREPROCESSED = "preprocessed"
+    NON_FMU = "non-fmu"
 
     @classmethod
-    def list_valid(cls) -> dict:
-        return {member.name: member.value for member in cls}
+    def list_valid_values(cls) -> list[str]:
+        return [m.value for m in cls]
 
     @classmethod
-    def get(cls, key: FmuContext | str) -> FmuContext:
-        """Get the enum member with a case-insensitive key."""
-        if isinstance(key, cls):
-            key_upper = key.name
-        elif isinstance(key, str):
-            key_upper = key.upper()
-        else:
-            raise ValidationError("The input must be a str or FmuContext instance")
-
-        if not cls.has_key(key_upper):
-            raise ValidationError(
-                f"Invalid key <{key_upper}>. Valid keys: {cls.list_valid().keys()}"
-            )
-
-        return cls[key_upper]
+    def _missing_(cls: Type[FmuContext], value: object) -> None:
+        raise ValueError(
+            f"Invalid FmuContext {value=}. Valid entries are {cls.list_valid_values()}"
+        )
