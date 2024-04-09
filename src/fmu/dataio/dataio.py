@@ -387,12 +387,12 @@ class ExportData:
     allow_forcefolder_absolute: ClassVar[bool] = False
     arrow_fformat: ClassVar[str] = "arrow"
     case_folder: ClassVar[str] = "share/metadata"
-    createfolder: ClassVar[bool] = True
+    createfolder: ClassVar[bool] = True  # deprecated
     cube_fformat: ClassVar[str] = "segy"
     filename_timedata_reverse: ClassVar[bool] = False  # reverse order output file name
     grid_fformat: ClassVar[str] = "roff"
     include_ertjobs: ClassVar[bool] = False  # if True, include jobs.json from ERT
-    legacy_time_format: ClassVar[bool] = False
+    legacy_time_format: ClassVar[bool] = False  # deprecated
     meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
     polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
@@ -400,7 +400,7 @@ class ExportData:
     table_fformat: ClassVar[str] = "csv"
     dict_fformat: ClassVar[str] = "json"
     table_include_index: ClassVar[bool] = False
-    verifyfolder: ClassVar[bool] = True
+    verifyfolder: ClassVar[bool] = True  # deprecated
     _inside_rms: ClassVar[bool] = False  # developer only! if True pretend inside RMS
 
     # input keys (alphabetic)
@@ -564,6 +564,26 @@ class ExportData:
                 )
                 self.access_ssdl["access_level"] = "restricted"
 
+        if self.legacy_time_format:
+            warn(
+                "Using the 'legacy_time_format=True' option to create metadata files "
+                "with the old format for time is now deprecated. This option has no "
+                "longer an effect and will be removed in the near future.",
+                UserWarning,
+            )
+        if not self.createfolder:
+            warn(
+                "Using the 'createfolder=False' option is now deprecated. "
+                "This option has no longer an effect and can safely be removed",
+                UserWarning,
+            )
+        if not self.verifyfolder:
+            warn(
+                "Using the 'verifyfolder=False' option to create metadata files "
+                "This option has no longer an effect and can safely be removed",
+                UserWarning,
+            )
+
     def _validate_content_key(self) -> None:
         """Validate the given 'content' input."""
         self._usecontent, self._content_specific = _check_content(self.content)
@@ -726,13 +746,7 @@ class ExportData:
             empty. If true, the MD5 checksum will be generated based on export to
             a temporary file, which may be time-consuming if the file is large.
         """
-        if self.legacy_time_format:
-            warn(
-                "Using the 'legacy_time_format=True' option to create metadata files "
-                "with the old format for time is now deprecated. This option has no "
-                "longer an effect and will be removed in the near future.",
-                UserWarning,
-            )
+
         logger.info("Generate metadata...")
         logger.info("KW args %s", kwargs)
 
@@ -798,6 +812,8 @@ class ExportData:
         logger.info("Object type is: %s", type(self._object))  # from generate_metadata
 
         outfile = Path(metadata["file"]["absolute_path"])
+        # create output folders if they don't exist
+        outfile.parent.mkdir(parents=True, exist_ok=True)
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
         useflag = (
@@ -827,8 +843,8 @@ class ExportData:
         outfile_target = None
         if metadata["file"].get("absolute_path_symlink"):
             outfile_target = Path(metadata["file"]["absolute_path_symlink"])
-            outfile_source = Path(metadata["file"]["absolute_path"])
-            create_symlink(str(outfile_source), str(outfile_target))
+            outfile_target.parent.mkdir(parents=True, exist_ok=True)
+            create_symlink(str(outfile), str(outfile_target))
             metafile_target = outfile_target.parent / ("." + str(outfile.name) + ".yml")
             create_symlink(str(metafile), str(metafile_target))
 

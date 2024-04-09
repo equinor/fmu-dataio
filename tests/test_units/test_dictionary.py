@@ -105,7 +105,7 @@ def read_dict_and_meta(path):
         ("nested_parameters"),
     ],
 )
-def test_export_dict_w_meta(globalconfig2, dictionary, request):
+def test_export_dict_w_meta(globalconfig2, dictionary, request, monkeypatch, tmp_path):
     """Test various dictionaries
 
     Args:
@@ -113,6 +113,7 @@ def test_export_dict_w_meta(globalconfig2, dictionary, request):
         dictionary (str): name of fixture to use
         request (pytest.fixture): fixture for using fixtures in parameterize
     """
+    monkeypatch.chdir(tmp_path)
     name = dictionary
     in_dict = request.getfixturevalue(dictionary)
     print(f"{name}: {in_dict}")
@@ -122,13 +123,16 @@ def test_export_dict_w_meta(globalconfig2, dictionary, request):
     assert_dict_correct(out_dict, out_meta, name)
 
 
-def test_invalid_dict(globalconfig2, drogon_summary, drogon_volumes):
+def test_invalid_dict(
+    globalconfig2, drogon_summary, drogon_volumes, monkeypatch, tmp_path
+):
     """Test raising of error when dictionary is not serializable
     Args:
         globalconfig2 (_type_): _description_
         drogon_summary (pd.DataFrame): a dataframe
         drogon_volumes (pa.Table): a pyarrow table
     """
+    monkeypatch.chdir(tmp_path)
     in_dict = {"volumes": drogon_volumes, "summary": drogon_summary}
     exd = ExportData(config=globalconfig2, content="parameters")
     with pytest.raises(TypeError) as exc_info:
