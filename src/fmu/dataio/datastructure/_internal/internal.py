@@ -12,7 +12,7 @@ import warnings
 from textwrap import dedent
 from typing import List, Literal, Optional, Union
 
-from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
+from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION, FmuContext
 from fmu.dataio.datastructure.configuration.global_configuration import (
     Model as GlobalConfigurationModel,
 )
@@ -170,13 +170,7 @@ class PreprocessedInfo(BaseModel):
 
 
 class Context(BaseModel):
-    stage: Literal[
-        "realization",
-        "case",
-        "case_symlink_realization",
-        "preprocessed",
-        "non_fmu",
-    ]
+    stage: FmuContext
 
 
 # Remove the two models below when content is required as input.

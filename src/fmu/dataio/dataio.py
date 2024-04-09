@@ -471,7 +471,6 @@ class ExportData:
         logger.info("Running __post_init__ ExportData")
 
         self._fmurun = FmuEnv.ENSEMBLE_ID.value is not None
-        self.fmu_context = FmuContext.get(self.fmu_context)
 
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
@@ -591,17 +590,16 @@ class ExportData:
     def _validate_fmucontext_key(self) -> None:
         """Validate the given 'fmu_context' input."""
         if isinstance(self.fmu_context, str):
-            self.fmu_context = FmuContext.get(self.fmu_context)
-
+            self.fmu_context = FmuContext(self.fmu_context.lower())
         # fmu_context is only allowed to be preprocessed if not in a fmu run
         if not self._fmurun and self.fmu_context != FmuContext.PREPROCESSED:
             logger.warning(
                 "Requested fmu_context is <%s> but since this is detected as a non "
                 "FMU run, the actual context is force set to <%s>",
                 self.fmu_context,
-                FmuContext.get("non_fmu"),
+                FmuContext.NON_FMU,
             )
-            self.fmu_context = FmuContext.get("non_fmu")
+            self.fmu_context = FmuContext.NON_FMU
 
     def _update_fmt_flag(self) -> None:
         # treat special handling of "xtgeo" in format name:
@@ -705,9 +703,10 @@ class ExportData:
         self._object = obj
 
     def _get_fmu_provider(self) -> FmuProvider:
+        assert isinstance(self.fmu_context, FmuContext)
         return FmuProvider(
             model=self.config.get("model", None),
-            fmu_context=FmuContext.get(self.fmu_context),
+            fmu_context=self.fmu_context,
             casepath_proposed=self.casepath or "",
             include_ertjobs=self.include_ertjobs,
             forced_realization=self.realization,
