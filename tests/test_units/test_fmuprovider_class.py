@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 FOLDERTREE = "/scratch/myfield/case/realization-13/iter-2/"
 
+GLOBAL_CONFIG_MODEL = {"name": "Model2", "revision": "22.1.0"}
+
 
 def test_get_folderlist_from_path():
     """Test static method on getting folders from a path"""
@@ -38,7 +40,7 @@ def test_fmuprovider_no_provider():
     """Testing the FmuProvider where no ERT context is found from env variables."""
 
     myfmu = FmuProvider(
-        model="Model2",
+        model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.REALIZATION,
         casepath_proposed="",
         include_ertjobs=False,
@@ -46,6 +48,26 @@ def test_fmuprovider_no_provider():
         workflow="some work flow",
     )
     assert myfmu.get_provider() is None
+
+
+def test_fmuprovider_model_info_in_metadata(fmurun_w_casemetadata):
+    """Test that the model info is stored and preserved in the metadata."""
+
+    myfmu = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL,
+        fmu_context=FmuContext.REALIZATION,
+        workflow="some work flow",
+    )
+
+    assert "model" in myfmu._metadata
+    assert myfmu._metadata["model"] == GLOBAL_CONFIG_MODEL
+
+    myfmu = FmuProvider(
+        model=None,
+        fmu_context=FmuContext.REALIZATION,
+        workflow="some work flow",
+    )
+    assert not myfmu._metadata["model"]
 
 
 def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
@@ -56,7 +78,7 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
     os.chdir(fmurun)
     with pytest.warns(UserWarning, match="Case metadata does not exist"):
         myfmu = FmuProvider(
-            model="Model2",
+            model=GLOBAL_CONFIG_MODEL,
             fmu_context=FmuContext.REALIZATION,
             casepath_proposed="",  # if casepath is undef, try deduce from, _ERT_RUNPATH
             include_ertjobs=False,
@@ -82,7 +104,7 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(
 
     with pytest.warns(UserWarning, match="parameters.txt file was not found"):
         myfmu = FmuProvider(
-            model="Model2",
+            model=GLOBAL_CONFIG_MODEL,
             fmu_context=FmuContext.REALIZATION,
             include_ertjobs=True,
             workflow="some work flow",
@@ -97,7 +119,7 @@ def test_fmuprovider_arbitrary_iter_name(fmurun_w_casemetadata_pred):
 
     os.chdir(fmurun_w_casemetadata_pred)
     myfmu = FmuProvider(
-        model="Model2",
+        model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.REALIZATION,
         include_ertjobs=True,
         workflow="some work flow",
@@ -145,7 +167,7 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
     os.chdir(fmurun_prehook)
     logger.debug("Case root proposed is: %s", caseroot)
     myfmu = FmuProvider(
-        model="Model567",
+        model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.CASE,
         include_ertjobs=False,
         workflow="some work flow",
@@ -165,7 +187,7 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
 
     with pytest.warns(UserWarning):
         myfmu = FmuProvider(
-            model="Model567",
+            model=GLOBAL_CONFIG_MODEL,
             fmu_context=FmuContext.REALIZATION,
         )
     assert myfmu._case_name == "ertrun1"
@@ -181,13 +203,15 @@ def test_fmuprovider_valid_restart_env(monkeypatch, fmurun_w_casemetadata, fmuru
     """
     os.chdir(fmurun_w_casemetadata)
     fmu_restart_from = FmuProvider(
-        model="Model with restart", fmu_context=FmuContext.REALIZATION
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION
     )
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, str(fmurun_w_casemetadata))
 
     os.chdir(fmurun_pred)
-    fmu_restart = FmuProvider(model="Modelrun", fmu_context=FmuContext.REALIZATION)
+    fmu_restart = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION
+    )
 
     assert (
         fmu_restart._metadata["iteration"]["restart_from"]
@@ -204,12 +228,14 @@ def test_fmuprovider_invalid_restart_env(
     """
     os.chdir(fmurun_w_casemetadata)
 
-    _ = FmuProvider(model="Model with restart", fmu_context=FmuContext.REALIZATION)
+    _ = FmuProvider(model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION)
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "/path/to/somewhere/invalid")
 
     os.chdir(fmurun_pred)
-    fmu_restart = FmuProvider(model="Modelrun", fmu_context=FmuContext.REALIZATION)
+    fmu_restart = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION
+    )
     assert "restart_from" not in fmu_restart._metadata["iteration"]
 
 
@@ -220,13 +246,15 @@ def test_fmuprovider_no_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_p
     """
     os.chdir(fmurun_w_casemetadata)
 
-    _ = FmuProvider(model="Model with restart", fmu_context=FmuContext.REALIZATION)
+    _ = FmuProvider(model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION)
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "/path/to/somewhere/invalid")
     monkeypatch.delenv(RESTART_PATH_ENVNAME)
 
     os.chdir(fmurun_pred)
-    fmu_restart = FmuProvider(model="Modelrun", fmu_context=FmuContext.REALIZATION)
+    fmu_restart = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION
+    )
     assert "restart_from" not in fmu_restart._metadata["iteration"]
 
 

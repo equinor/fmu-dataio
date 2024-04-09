@@ -83,7 +83,7 @@ class FmuProvider:
         workflow: Descriptive work flow info
     """
 
-    model: str = ""
+    model: dict | None = field(default_factory=dict)
     fmu_context: FmuContext = FmuContext.REALIZATION
     include_ertjobs: bool = True
     casepath_proposed: str | Path = ""
