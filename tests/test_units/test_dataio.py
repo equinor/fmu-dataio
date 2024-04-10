@@ -174,11 +174,11 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
 
     # under primary initialisation
     kval = {key: value}
-    with pytest.warns(PendingDeprecationWarning, match=expected_msg):
+    with pytest.warns(UserWarning, match=expected_msg):
         ExportData(config=globalconfig1, content="depth", **kval)
 
     # under override
-    with pytest.warns(PendingDeprecationWarning, match=expected_msg):
+    with pytest.warns(UserWarning, match=expected_msg):
         edata = ExportData(config=globalconfig1, content="depth")
         edata.generate_metadata(regsurf, **kval)
 
