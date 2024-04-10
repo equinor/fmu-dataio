@@ -38,7 +38,7 @@ from .datastructure._internal.internal import (
     AllowedContent,
 )
 from .datastructure.configuration import global_configuration
-from .providers._fmu import FmuEnv, FmuProvider
+from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
@@ -280,7 +280,9 @@ class ExportData:
             "preprocessed" folder instead, and metadata will be partially re-used in
             an ERT model run. If a non-FMU run is detected (e.g. you run from project),
             fmu-dataio will detect that and set actual context to None as fall-back
-            (unless preprocessed is specified).
+            (unless preprocessed is specified). If this key is not explicitly given it
+            will be inferred to be either "case"/"realization"/"non-fmu" based on the
+            presence of ERT environment variables.
 
         description: A multiline description of the data either as a string or a list
             of strings.
@@ -411,9 +413,7 @@ class ExportData:
     depth_reference: str = "msl"
     description: Union[str, list] = ""
     display_name: Optional[str] = None
-    fmu_context: Union[FmuContext, str] = (
-        FmuContext.REALIZATION
-    )  # post init converts to FmuContext
+    fmu_context: Optional[str] = None
     forcefolder: str = ""
     grid_model: Optional[str] = None
     is_observation: bool = False
@@ -468,7 +468,7 @@ class ExportData:
         logger.info("Running __post_init__ ExportData")
         logger.debug("Global config is %s", prettyprint_dict(self.config))
 
-        self._fmurun = FmuEnv.ENSEMBLE_ID.value is not None
+        self._fmurun = get_fmu_context_from_environment() != FmuContext.NON_FMU
 
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
@@ -487,7 +487,7 @@ class ExportData:
             self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
 
         self._validate_content_key()
-        self._validate_fmucontext_key()
+        self._validate_and_establish_fmucontext()
         self._update_globalconfig_from_settings()
 
         # check state of global config
@@ -498,7 +498,6 @@ class ExportData:
 
         self._establish_pwd_rootpath()
         self._show_deprecations_or_notimplemented()
-        logger.info("FMU context is %s", self.fmu_context)
         logger.info("Ran __post_init__")
 
     def _show_deprecations_or_notimplemented(self) -> None:
@@ -542,11 +541,27 @@ class ExportData:
         """Validate the given 'content' input."""
         self._usecontent, self._content_specific = _check_content(self.content)
 
-    def _validate_fmucontext_key(self) -> None:
-        """Validate the given 'fmu_context' input."""
-        if isinstance(self.fmu_context, str):
+    def _validate_and_establish_fmucontext(self) -> None:
+        """
+        Validate the given 'fmu_context' input. if not explicitly given it
+        will be established based on the presence of ERT environment variables.
+        """
+
+        env_fmu_context = get_fmu_context_from_environment()
+        logger.debug("fmu context from input is %s", self.fmu_context)
+        logger.debug("fmu context from environment is %s", env_fmu_context)
+
+        # use fmu_context from environment if not explicitly set
+        if self.fmu_context is None:
+            logger.info(
+                "fmu_context is established from environment variables %s",
+                env_fmu_context,
+            )
+            self.fmu_context = env_fmu_context
+        else:
             self.fmu_context = FmuContext(self.fmu_context.lower())
-        # fmu_context is only allowed to be preprocessed if not in a fmu run
+        logger.info("FMU context is %s", self.fmu_context)
+
         if not self._fmurun and self.fmu_context != FmuContext.PREPROCESSED:
             logger.warning(
                 "Requested fmu_context is <%s> but since this is detected as a non "
@@ -582,8 +597,7 @@ class ExportData:
 
         self._show_deprecations_or_notimplemented()
         self._validate_content_key()
-        self._validate_fmucontext_key()
-        logger.info("Validate FMU context which is now %s", self.fmu_context)
+        self._validate_and_establish_fmucontext()
 
     def _update_globalconfig_from_settings(self) -> None:
         """A few user settings may update/append the global config directly."""

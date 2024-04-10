@@ -87,7 +87,6 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
         )
 
     assert myfmu.get_provider() == "ERT"
-    assert myfmu._stage == "realization"  # i.e. being a so-called forward model
     assert not myfmu.get_metadata()
     assert myfmu.get_casepath() == ""
 

@@ -371,6 +371,47 @@ def test_fmurun_attribute_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig):
     assert edata._fmurun is True
 
 
+def test_fmu_context_not_given_fetch_from_env_realization(
+    fmurun_w_casemetadata, rmsglobalconfig
+):
+    """
+    Test fmu_context not explicitly given, should be set to "realization" when
+    inside fmu and RUNPATH value is detected from the environment variables.
+    """
+    assert FmuEnv.RUNPATH.value is not None
+    assert FmuEnv.EXPERIMENT_ID.value is not None
+
+    edata = ExportData(config=rmsglobalconfig, content="depth")
+    assert edata._fmurun is True
+    assert edata.fmu_context == FmuContext.REALIZATION
+
+
+def test_fmu_context_not_given_fetch_from_env_case(fmurun_prehook, rmsglobalconfig):
+    """
+    Test fmu_context not explicitly given, should be set to "case" when
+    inside fmu and RUNPATH value not detected from the environment variables.
+    """
+    assert FmuEnv.RUNPATH.value is None
+    assert FmuEnv.EXPERIMENT_ID.value is not None
+
+    edata = ExportData(config=rmsglobalconfig, content="depth")
+    assert edata._fmurun is True
+    assert edata.fmu_context == FmuContext.CASE
+
+
+def test_fmu_context_not_given_fetch_from_env_nonfmu(rmsglobalconfig):
+    """
+    Test fmu_context not explicitly given, should be set to "non-fmu" when
+    outside fmu.
+    """
+    assert FmuEnv.RUNPATH.value is None
+    assert FmuEnv.EXPERIMENT_ID.value is None
+
+    edata = ExportData(config=rmsglobalconfig, content="depth")
+    assert edata._fmurun is False
+    assert edata.fmu_context == FmuContext.NON_FMU
+
+
 def test_fmu_context_outside_fmu_input_overwrite(rmsglobalconfig):
     """
     For non-fmu run fmu_context should be overwritten when input
