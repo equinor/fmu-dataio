@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+ga51370c documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g34a684b documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -541,20 +541,6 @@
     <span class="n">_object</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse_metadata_rule</span><span class="p">:</span>
-            <span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The &#39;reuse_metadata_rule&#39; key is deprecated and has no effect. &quot;</span>
-                <span class="s2">&quot;Please remove it from the argument list.&quot;</span><span class="p">,</span>
-                <span class="ne">UserWarning</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">!=</span> <span class="s2">&quot;DEPRECATED&quot;</span><span class="p">:</span>
-            <span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Using the &#39;verbosity&#39; key is now deprecated and will have no &quot;</span>
-                <span class="s2">&quot;effect and will be removed in near future. Please remove it from the &quot;</span>
-                <span class="s2">&quot;argument list. Set logging level from client script in the standard &quot;</span>
-                <span class="s2">&quot;manner instead.&quot;</span><span class="p">,</span>
-                <span class="ne">UserWarning</span><span class="p">,</span>
-            <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running __post_init__ ExportData&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Global config is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">prettyprint_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
 
@@ -597,14 +583,14 @@
             <span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;The &#39;runpath&#39; key has currently no function. It will be evaluated for &quot;</span>
                 <span class="s2">&quot;removal in fmu-dataio version 2. Use &#39;casepath&#39; instead!&quot;</span><span class="p">,</span>
-                <span class="ne">PendingDeprecationWarning</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_model</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;The &#39;grid_model&#39; key has currently no function. It will be evaluated &quot;</span>
                 <span class="s2">&quot;for removal in fmu-dataio version 2.&quot;</span><span class="p">,</span>
-                <span class="ne">PendingDeprecationWarning</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">legacy_time_format</span><span class="p">:</span>
@@ -624,6 +610,20 @@
             <span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;Using the &#39;verifyfolder=False&#39; option to create metadata files &quot;</span>
                 <span class="s2">&quot;This option has no longer an effect and can safely be removed&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse_metadata_rule</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The &#39;reuse_metadata_rule&#39; key is deprecated and has no effect. &quot;</span>
+                <span class="s2">&quot;Please remove it from the argument list.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">!=</span> <span class="s2">&quot;DEPRECATED&quot;</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Using the &#39;verbosity&#39; key is now deprecated and will have no &quot;</span>
+                <span class="s2">&quot;effect and will be removed in near future. Please remove it from the &quot;</span>
+                <span class="s2">&quot;argument list. Set logging level from client script in the standard &quot;</span>
+                <span class="s2">&quot;manner instead.&quot;</span><span class="p">,</span>
                 <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -940,7 +940,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+ga51370c).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g34a684b).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
