@@ -36,7 +36,7 @@ from .datastructure._internal.internal import (
     AllowedContent,
 )
 from .datastructure.configuration import global_configuration
-from .providers._fmu import FmuEnv, FmuProvider
+from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 
 # always show PendingDeprecationWarnings
 warnings.simplefilter("always", PendingDeprecationWarning)
@@ -279,7 +279,9 @@ class ExportData:
             "preprocessed" folder instead, and metadata will be partially re-used in
             an ERT model run. If a non-FMU run is detected (e.g. you run from project),
             fmu-dataio will detect that and set actual context to None as fall-back
-            (unless preprocessed is specified).
+            (unless preprocessed is specified). If this key is not explicitly given it
+            will be inferred to be either "case"/"realization"/"non-fmu" based on the
+            presence of ERT environment variables.
 
         description: A multiline description of the data either as a string or a list
             of strings.
@@ -413,9 +415,7 @@ class ExportData:
     depth_reference: str = "msl"
     description: Union[str, list] = ""
     display_name: Optional[str] = None
-    fmu_context: Union[FmuContext, str] = (
-        FmuContext.REALIZATION
-    )  # post init converts to FmuContext
+    fmu_context: Optional[str] = None
     forcefolder: str = ""
     grid_model: Optional[str] = None
     is_observation: bool = False
@@ -454,29 +454,15 @@ class ExportData:
     _object: types.Inferrable = field(init=False)
 
     def __post_init__(self) -> None:
-        if self.reuse_metadata_rule:
-            warn(
-                "The 'reuse_metadata_rule' key is deprecated and has no effect. "
-                "Please remove it from the argument list.",
-                UserWarning,
-            )
-        if self.verbosity != "DEPRECATED":
-            warn(
-                "Using the 'verbosity' key is now deprecated and will have no "
-                "effect and will be removed in near future. Please remove it from the "
-                "argument list. Set logging level from client script in the standard "
-                "manner instead.",
-                UserWarning,
-            )
         logger.info("Running __post_init__ ExportData")
 
-        self._fmurun = FmuEnv.ENSEMBLE_ID.value is not None
+        self._fmurun = get_fmu_context_from_environment() != FmuContext.NON_FMU
 
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
 
         self._validate_content_key()
-        self._validate_fmucontext_key()
+        self._validate_and_establish_fmucontext()
         self._validate_access_ssdl_key()
 
         # parse and validate the config
@@ -493,6 +479,7 @@ class ExportData:
         # a risk keeping it around.
 
         # keeping this block here, while we still require the "_config_is_valid"
+
         self._config_is_valid = global_configuration.is_valid(self.config)
         if self._config_is_valid:
             # TODO: This needs refinement: _config_is_valid should be removed
@@ -500,7 +487,6 @@ class ExportData:
 
         self._establish_pwd_rootpath()
         self._show_deprecations_or_notimplemented()
-        logger.info("FMU context is %s", self.fmu_context)
         logger.info("Ran __post_init__")
 
     def _validate_access_ssdl_key(self) -> None:
@@ -529,14 +515,14 @@ class ExportData:
             warn(
                 "The 'runpath' key has currently no function. It will be evaluated for "
                 "removal in fmu-dataio version 2. Use 'casepath' instead!",
-                PendingDeprecationWarning,
+                UserWarning,
             )
 
         if self.grid_model:
             warn(
                 "The 'grid_model' key has currently no function. It will be evaluated "
                 "for removal in fmu-dataio version 2.",
-                PendingDeprecationWarning,
+                UserWarning,
             )
 
         if self.access_ssdl:
@@ -582,16 +568,46 @@ class ExportData:
                 "This option has no longer an effect and can safely be removed",
                 UserWarning,
             )
+        if self.reuse_metadata_rule:
+            warn(
+                "The 'reuse_metadata_rule' key is deprecated and has no effect. "
+                "Please remove it from the argument list.",
+                UserWarning,
+            )
+        if self.verbosity != "DEPRECATED":
+            warn(
+                "Using the 'verbosity' key is now deprecated and will have no "
+                "effect and will be removed in near future. Please remove it from the "
+                "argument list. Set logging level from client script in the standard "
+                "manner instead.",
+                UserWarning,
+            )
 
     def _validate_content_key(self) -> None:
         """Validate the given 'content' input."""
         self._usecontent, self._content_specific = _check_content(self.content)
 
-    def _validate_fmucontext_key(self) -> None:
-        """Validate the given 'fmu_context' input."""
-        if isinstance(self.fmu_context, str):
+    def _validate_and_establish_fmucontext(self) -> None:
+        """
+        Validate the given 'fmu_context' input. if not explicitly given it
+        will be established based on the presence of ERT environment variables.
+        """
+
+        env_fmu_context = get_fmu_context_from_environment()
+        logger.debug("fmu context from input is %s", self.fmu_context)
+        logger.debug("fmu context from environment is %s", env_fmu_context)
+
+        # use fmu_context from environment if not explicitly set
+        if self.fmu_context is None:
+            logger.info(
+                "fmu_context is established from environment variables %s",
+                env_fmu_context,
+            )
+            self.fmu_context = env_fmu_context
+        else:
             self.fmu_context = FmuContext(self.fmu_context.lower())
-        # fmu_context is only allowed to be preprocessed if not in a fmu run
+        logger.info("FMU context is %s", self.fmu_context)
+
         if not self._fmurun and self.fmu_context != FmuContext.PREPROCESSED:
             logger.warning(
                 "Requested fmu_context is <%s> but since this is detected as a non "
@@ -627,8 +643,7 @@ class ExportData:
 
         self._show_deprecations_or_notimplemented()
         self._validate_content_key()
-        self._validate_fmucontext_key()
-        logger.info("Validate FMU context which is now %s", self.fmu_context)
+        self._validate_and_establish_fmucontext()
 
     def _establish_pwd_rootpath(self) -> None:
         """Establish state variables pwd and the (initial) rootpath.

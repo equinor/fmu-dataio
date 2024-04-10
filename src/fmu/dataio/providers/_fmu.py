@@ -50,6 +50,15 @@ RESTART_PATH_ENVNAME: Final = "RESTART_FROM_PATH"
 logger: Final = null_logger(__name__)
 
 
+def get_fmu_context_from_environment() -> FmuContext:
+    """return the ERT run context as an FmuContext"""
+    if FmuEnv.RUNPATH.value:
+        return FmuContext.REALIZATION
+    if FmuEnv.EXPERIMENT_ID.value:
+        return FmuContext.CASE
+    return FmuContext.NON_FMU
+
+
 class FmuEnv(Enum):
     EXPERIMENT_ID = auto()
     ENSEMBLE_ID = auto()
@@ -91,7 +100,6 @@ class FmuProvider:
     workflow: str | dict = ""
 
     # private properties for this class
-    _stage: str = field(default="unset", init=False)
     _runpath: Path | str = field(default="", init=False)
     _casepath: Path | str = field(default="", init=False)  # actual casepath
     _provider: str = field(default="", init=False)
@@ -110,7 +118,6 @@ class FmuProvider:
     def __post_init__(self) -> None:
         logger.info("Initialize %s...", self.__class__)
         logger.debug("Case path is initially <%s>...", self.casepath_proposed)
-        logger.debug("FMU context is <%s>...", self.fmu_context)
 
         if not FmuEnv.ENSEMBLE_ID.value:
             logger.debug(
@@ -120,7 +127,6 @@ class FmuProvider:
 
         self._provider = "ERT"
 
-        self._detect_fmurun_stage()
         self._detect_absolute_runpath()
         self._detect_and_update_casepath()
         self._parse_folder_info()
@@ -176,19 +182,6 @@ class FmuProvider:
             return [folder for folder in runpath.split("/") if folder]
         return []
 
-    def _detect_fmurun_stage(self) -> None:
-        """Detect if ERT is in a PRE-HOOK or in a FORWARD MODEL stage
-
-        Update self._stage = "case" | "forward" | "unset"
-        """
-        if FmuEnv.EXPERIMENT_ID.value and not FmuEnv.RUNPATH.value:
-            self._stage = "case"
-        elif FmuEnv.EXPERIMENT_ID.value and FmuEnv.RUNPATH.value:
-            self._stage = "realization"
-        else:
-            self._stage = "unset"
-        logger.debug("Detecting FMU stage as %s", self._stage)
-
     def _detect_absolute_runpath(self) -> None:
         """In case _ERT_RUNPATH is relative, an absolute runpath is detected."""
         if FmuEnv.RUNPATH.value:
@@ -205,11 +198,8 @@ class FmuProvider:
         logger.debug("Proposed casepath is now <%s>", self.casepath_proposed)
 
         self._casepath = Path(self.casepath_proposed) if self.casepath_proposed else ""
-        if self._stage == "case" and self._casepath:
-            try_casepath = Path(self._casepath)
-            logger.debug("Try casepath (stage is case): %s", try_casepath)
 
-        elif not self._casepath:
+        if not self._casepath:
             try_casepath = Path(self._runpath).parent.parent
             logger.debug("Try casepath (first attempt): %s", try_casepath)
 
