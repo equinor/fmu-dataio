@@ -451,20 +451,6 @@ class ExportData:
     _object: types.Inferrable = field(init=False)
 
     def __post_init__(self) -> None:
-        if self.reuse_metadata_rule:
-            warn(
-                "The 'reuse_metadata_rule' key is deprecated and has no effect. "
-                "Please remove it from the argument list.",
-                UserWarning,
-            )
-        if self.verbosity != "DEPRECATED":
-            warn(
-                "Using the 'verbosity' key is now deprecated and will have no "
-                "effect and will be removed in near future. Please remove it from the "
-                "argument list. Set logging level from client script in the standard "
-                "manner instead.",
-                UserWarning,
-            )
         logger.info("Running __post_init__ ExportData")
         logger.debug("Global config is %s", prettyprint_dict(self.config))
 
@@ -507,14 +493,14 @@ class ExportData:
             warn(
                 "The 'runpath' key has currently no function. It will be evaluated for "
                 "removal in fmu-dataio version 2. Use 'casepath' instead!",
-                PendingDeprecationWarning,
+                UserWarning,
             )
 
         if self.grid_model:
             warn(
                 "The 'grid_model' key has currently no function. It will be evaluated "
                 "for removal in fmu-dataio version 2.",
-                PendingDeprecationWarning,
+                UserWarning,
             )
 
         if self.legacy_time_format:
@@ -534,6 +520,20 @@ class ExportData:
             warn(
                 "Using the 'verifyfolder=False' option to create metadata files "
                 "This option has no longer an effect and can safely be removed",
+                UserWarning,
+            )
+        if self.reuse_metadata_rule:
+            warn(
+                "The 'reuse_metadata_rule' key is deprecated and has no effect. "
+                "Please remove it from the argument list.",
+                UserWarning,
+            )
+        if self.verbosity != "DEPRECATED":
+            warn(
+                "Using the 'verbosity' key is now deprecated and will have no "
+                "effect and will be removed in near future. Please remove it from the "
+                "argument list. Set logging level from client script in the standard "
+                "manner instead.",
                 UserWarning,
             )
 
