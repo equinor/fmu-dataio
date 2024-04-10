@@ -34,10 +34,9 @@ from ._utils import (
 )
 from .aggregation import AggregatedData
 from .case import InitializeCase
-from .datastructure._internal.internal import (
-    AllowedContent,
-)
+from .datastructure._internal.internal import AllowedContent
 from .datastructure.configuration import global_configuration
+from .datastructure.meta import meta
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
@@ -430,7 +429,7 @@ class ExportData:
     unit: str = ""
     verbosity: str = "DEPRECATED"  # remove in version 2
     vertical_domain: dict = field(default_factory=dict)
-    workflow: str = ""
+    workflow: Optional[str | dict[str, str]] = None
     table_index: Optional[list] = None
 
     # some keys that are modified version of input, prepended with _use
@@ -454,6 +453,8 @@ class ExportData:
         logger.info("Running __post_init__ ExportData")
         logger.debug("Global config is %s", prettyprint_dict(self.config))
 
+        self._show_deprecations_or_notimplemented()
+
         self._fmurun = get_fmu_context_from_environment() != FmuContext.NON_FMU
 
         # set defaults for mutable keys
@@ -474,6 +475,7 @@ class ExportData:
 
         self._validate_content_key()
         self._validate_and_establish_fmucontext()
+        self._validate_workflow_key()
         self._update_globalconfig_from_settings()
 
         # check state of global config
@@ -483,7 +485,6 @@ class ExportData:
             self.config = global_configuration.roundtrip(self.config)
 
         self._establish_pwd_rootpath()
-        self._show_deprecations_or_notimplemented()
         logger.info("Ran __post_init__")
 
     def _show_deprecations_or_notimplemented(self) -> None:
@@ -536,6 +537,23 @@ class ExportData:
                 "manner instead.",
                 UserWarning,
             )
+        if isinstance(self.workflow, dict):
+            warn(
+                "The 'workflow' argument should be given as a string. "
+                "Support for dictionary will be deprecated.",
+                FutureWarning,
+            )
+
+    def _validate_workflow_key(self) -> None:
+        if self.workflow:
+            if isinstance(self.workflow, str):
+                workflow = meta.Workflow(reference=self.workflow)
+            elif isinstance(self.workflow, dict):
+                workflow = meta.Workflow.model_validate(self.workflow)
+            else:
+                raise TypeError("'workflow' should be string.")
+
+            self.workflow = workflow.model_dump(mode="json", exclude_none=True)
 
     def _validate_content_key(self) -> None:
         """Validate the given 'content' input."""
@@ -597,6 +615,7 @@ class ExportData:
 
         self._show_deprecations_or_notimplemented()
         self._validate_content_key()
+        self._validate_workflow_key()
         self._validate_and_establish_fmucontext()
 
     def _update_globalconfig_from_settings(self) -> None:
@@ -689,6 +708,7 @@ class ExportData:
 
     def _get_fmu_provider(self) -> FmuProvider:
         assert isinstance(self.fmu_context, FmuContext)
+        assert isinstance(self.workflow, dict) or self.workflow is None
         return FmuProvider(
             model=self.config.get("model"),
             fmu_context=self.fmu_context,

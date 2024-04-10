@@ -97,7 +97,7 @@ class FmuProvider:
     include_ertjobs: bool = True
     casepath_proposed: str | Path = ""
     forced_realization: Optional[int] = None
-    workflow: str | dict = ""
+    workflow: Optional[dict[str, str]] = None
 
     # private properties for this class
     _runpath: Path | str = field(default="", init=False)
@@ -364,29 +364,8 @@ class FmuProvider:
         meta = self._metadata  # shortform
 
         meta["model"] = self.model
-
         meta["context"] = {"stage": self.fmu_context.name.lower()}
-
-        if self.workflow:
-            if isinstance(self.workflow, str):
-                meta["workflow"] = {"reference": self.workflow}
-            elif isinstance(self.workflow, dict):
-                if "reference" not in self.workflow:
-                    raise ValueError(
-                        "When workflow is given as a dict, the 'reference' "
-                        "key must be included and be a string"
-                    )
-                warn(
-                    "The 'workflow' argument should be given as a string. "
-                    "Support for dictionary input is scheduled for deprecation.",
-                    PendingDeprecationWarning,
-                )
-
-                meta["workflow"] = {"reference": self.workflow["reference"]}
-
-            else:
-                raise TypeError("'workflow' should be string.")
-
+        meta["workflow"] = self.workflow
         case_uuid = "not_present"  # TODO! not allow missing case metadata?
         if self._case_metadata and "fmu" in self._case_metadata:
             meta["case"] = deepcopy(self._case_metadata["fmu"]["case"])

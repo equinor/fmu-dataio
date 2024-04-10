@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 import fmu.dataio as dataio
+import pydantic
 import pytest
 
 # from conftest import pretend_ert_env_run1
@@ -14,6 +15,7 @@ from fmu.dataio.providers._fmu import RESTART_PATH_ENVNAME, FmuEnv, FmuProvider
 logger = logging.getLogger(__name__)
 
 FOLDERTREE = "/scratch/myfield/case/realization-13/iter-2/"
+WORKFLOW = {"reference": "some_work_flow"}
 
 GLOBAL_CONFIG_MODEL = {"name": "Model2", "revision": "22.1.0"}
 
@@ -45,7 +47,7 @@ def test_fmuprovider_no_provider():
         casepath_proposed="",
         include_ertjobs=False,
         forced_realization=None,
-        workflow="some work flow",
+        workflow=WORKFLOW,
     )
     assert myfmu.get_provider() is None
 
@@ -83,7 +85,7 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
             casepath_proposed="",  # if casepath is undef, try deduce from, _ERT_RUNPATH
             include_ertjobs=False,
             forced_realization=None,
-            workflow="some work flow",
+            workflow=WORKFLOW,
         )
 
     assert myfmu.get_provider() == "ERT"
@@ -106,7 +108,7 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(
             model=GLOBAL_CONFIG_MODEL,
             fmu_context=FmuContext.REALIZATION,
             include_ertjobs=True,
-            workflow="some work flow",
+            workflow=WORKFLOW,
         )
     assert myfmu._case_name == "ertrun1"
     assert myfmu._real_name == "realization-0"
@@ -121,7 +123,7 @@ def test_fmuprovider_arbitrary_iter_name(fmurun_w_casemetadata_pred):
         model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.REALIZATION,
         include_ertjobs=True,
-        workflow="some work flow",
+        workflow=WORKFLOW,
     )
     assert myfmu._case_name == "ertrun1"
     assert myfmu._real_name == "realization-0"
@@ -169,7 +171,7 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
         model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.CASE,
         include_ertjobs=False,
-        workflow="some work flow",
+        workflow=WORKFLOW,
         casepath_proposed=caseroot,
     )
 
@@ -257,7 +259,7 @@ def test_fmuprovider_no_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_p
     assert "restart_from" not in fmu_restart._metadata["iteration"]
 
 
-def test_fmuprovider_workflow_reference(fmurun_w_casemetadata):
+def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, edataobj1):
     """Testing the handling of workflow reference input.
 
     Metadata definitions of fmu.workflow is that it is a dictionary with 'reference'
@@ -274,20 +276,25 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata):
     os.chdir(fmurun_w_casemetadata)
 
     # workflow input is a string
-    myfmu = FmuProvider(workflow="workflow as string")
+    edata = dataio.ExportData(workflow="workflow as string")
+    # check that the conversion to dict works
+    assert edata.workflow == {"reference": "workflow as string"}
+    myfmu = FmuProvider(workflow=edata.workflow)
     assert "workflow" in myfmu._metadata
-    assert myfmu._metadata["workflow"] == {"reference": "workflow as string"}
+    assert myfmu._metadata["workflow"] == edata.workflow
 
     # workflow input is a correct dict
-    with pytest.warns(PendingDeprecationWarning, match="The 'workflow' argument"):
-        myfmu = FmuProvider(workflow={"reference": "workflow as dict"})
+    with pytest.warns(FutureWarning, match="The 'workflow' argument"):
+        edata = dataio.ExportData(workflow={"reference": "workflow as dict"})
+    assert edata.workflow == {"reference": "workflow as dict"}
+    myfmu = FmuProvider(workflow=edata.workflow)
     assert "workflow" in myfmu._metadata
-    assert myfmu._metadata["workflow"] == {"reference": "workflow as dict"}
+    assert myfmu._metadata["workflow"] == edata.workflow
 
     # workflow input is non-correct dict
-    with pytest.raises(ValueError):
-        myfmu = FmuProvider(workflow={"wrong": "workflow as dict"})
+    with pytest.raises(pydantic.ValidationError):
+        dataio.ExportData(workflow={"wrong": "workflow as dict"})
 
     # workflow input is other types - shall fail
     with pytest.raises(TypeError):
-        myfmu = FmuProvider(workflow=123.4)
+        dataio.ExportData(workflow=123.4)
