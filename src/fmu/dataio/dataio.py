@@ -705,7 +705,7 @@ class ExportData:
     def _get_fmu_provider(self) -> FmuProvider:
         assert isinstance(self.fmu_context, FmuContext)
         return FmuProvider(
-            model=self.config.get("model", None),
+            model=self.config.get("model"),
             fmu_context=self.fmu_context,
             casepath_proposed=self.casepath or "",
             include_ertjobs=self.include_ertjobs,
