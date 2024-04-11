@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.case &mdash; fmu.dataio 0.1.dev1+g111ce36 documentation</title>
+  <title>dataio.case &mdash; fmu.dataio 0.1.dev1+g6ba4b49 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -214,10 +214,11 @@
                 <span class="n">model</span><span class="o">=</span><span class="n">global_configuration</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
                 <span class="p">),</span>
-                <span class="n">case</span><span class="o">=</span><span class="n">internal</span><span class="o">.</span><span class="n">CaseMetadata</span><span class="p">(</span>
+                <span class="n">case</span><span class="o">=</span><span class="n">meta</span><span class="o">.</span><span class="n">FMUCase</span><span class="p">(</span>
                     <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">casename</span><span class="p">,</span>
-                    <span class="n">uuid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span><span class="p">()),</span>
+                    <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_case_uuid</span><span class="p">(),</span>
                     <span class="n">user</span><span class="o">=</span><span class="n">meta</span><span class="o">.</span><span class="n">User</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">caseuser</span><span class="p">),</span>
+                    <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">),</span>
             <span class="n">tracklog</span><span class="o">=</span><span class="n">_metadata</span><span class="o">.</span><span class="n">generate_meta_tracklog</span><span class="p">(),</span>
@@ -254,7 +255,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g111ce36).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g6ba4b49).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
