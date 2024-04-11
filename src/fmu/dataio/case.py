@@ -124,10 +124,11 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
                 model=global_configuration.Model.model_validate(
                     self.config["model"],
                 ),
-                case=internal.CaseMetadata(
+                case=meta.FMUCase(
                     name=self.casename,
-                    uuid=str(self._case_uuid()),
+                    uuid=self._case_uuid(),
                     user=meta.User(id=self.caseuser),
+                    description=None,
                 ),
             ),
             tracklog=_metadata.generate_meta_tracklog(),

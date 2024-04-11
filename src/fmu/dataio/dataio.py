@@ -32,10 +32,9 @@ from ._utils import (
 )
 from .aggregation import AggregatedData
 from .case import InitializeCase
-from .datastructure._internal.internal import (
-    AllowedContent,
-)
+from .datastructure._internal.internal import AllowedContent
 from .datastructure.configuration import global_configuration
+from .datastructure.meta import meta
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 
 # always show PendingDeprecationWarnings
@@ -433,7 +432,7 @@ class ExportData:
     unit: str = ""
     verbosity: str = "DEPRECATED"  # remove in version 2
     vertical_domain: dict = field(default_factory=dict)
-    workflow: str = ""
+    workflow: Optional[str | dict[str, str]] = None
     table_index: Optional[list] = None
 
     # some keys that are modified version of input, prepended with _use
@@ -456,6 +455,8 @@ class ExportData:
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
 
+        self._show_deprecations_or_notimplemented()
+
         self._fmurun = get_fmu_context_from_environment() != FmuContext.NON_FMU
 
         # set defaults for mutable keys
@@ -463,22 +464,7 @@ class ExportData:
 
         self._validate_content_key()
         self._validate_and_establish_fmucontext()
-        self._validate_access_ssdl_key()
-
-        # parse and validate the config
-        logger.debug("Global config given %s", prettyprint_dict(self.config))
-
-        # NB overwriting self.config. Ugly, but needed (?)
-        # Input argument is called "config", don't want to change that.
-        # Class variable self.config is used a lot, don't want to change it.
-        self.config = global_configuration.parse(self.config)
-        logger.debug("Global config after parsing is %s", prettyprint_dict(self.config))
-        # TODO: Consider if we should wipe self.config at this point, to avoid any
-        # (misuse) of it downstream. Since we are no longer carrying it and updating it,
-        # it will potentially NOT contain the values we are actually using. So there is
-        # a risk keeping it around.
-
-        # keeping this block here, while we still require the "_config_is_valid"
+        self._validate_workflow_key()
 
         self._config_is_valid = global_configuration.is_valid(self.config)
         if self._config_is_valid:
@@ -486,7 +472,6 @@ class ExportData:
             self.config = global_configuration.roundtrip(self.config)
 
         self._establish_pwd_rootpath()
-        self._show_deprecations_or_notimplemented()
         logger.info("Ran __post_init__")
 
     def _validate_access_ssdl_key(self) -> None:
@@ -582,6 +567,23 @@ class ExportData:
                 "manner instead.",
                 UserWarning,
             )
+        if isinstance(self.workflow, dict):
+            warn(
+                "The 'workflow' argument should be given as a string. "
+                "Support for dictionary will be deprecated.",
+                FutureWarning,
+            )
+
+    def _validate_workflow_key(self) -> None:
+        if self.workflow:
+            if isinstance(self.workflow, str):
+                workflow = meta.Workflow(reference=self.workflow)
+            elif isinstance(self.workflow, dict):
+                workflow = meta.Workflow.model_validate(self.workflow)
+            else:
+                raise TypeError("'workflow' should be string.")
+
+            self.workflow = workflow.model_dump(mode="json", exclude_none=True)
 
     def _validate_content_key(self) -> None:
         """Validate the given 'content' input."""
@@ -643,6 +645,7 @@ class ExportData:
 
         self._show_deprecations_or_notimplemented()
         self._validate_content_key()
+        self._validate_workflow_key()
         self._validate_and_establish_fmucontext()
 
     def _establish_pwd_rootpath(self) -> None:
@@ -719,6 +722,7 @@ class ExportData:
 
     def _get_fmu_provider(self) -> FmuProvider:
         assert isinstance(self.fmu_context, FmuContext)
+        assert isinstance(self.workflow, dict) or self.workflow is None
         return FmuProvider(
             model=self.config.get("model"),
             fmu_context=self.fmu_context,
