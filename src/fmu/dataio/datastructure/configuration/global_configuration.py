@@ -45,6 +45,7 @@ class Model(BaseModel):
 
     name: str
     revision: str
+    description: Optional[List[str]] = Field(default=None)
 
 
 class Ssdl(BaseModel):
