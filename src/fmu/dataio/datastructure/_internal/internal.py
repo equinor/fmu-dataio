@@ -152,15 +152,9 @@ class JsonSchemaMetadata(BaseModel, populate_by_name=True):
     source: str = Field(default=SOURCE)
 
 
-class CaseMetadata(BaseModel):
-    name: str
-    uuid: str
-    user: meta.User
-
-
 class FMUModel(BaseModel):
     model: GlobalConfigurationModel
-    case: CaseMetadata
+    case: meta.FMUCase
 
 
 class PreprocessedInfo(BaseModel):
