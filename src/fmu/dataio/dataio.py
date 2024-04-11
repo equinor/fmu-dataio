@@ -27,7 +27,6 @@ from ._utils import (
     detect_inside_rms,  # dataio_examples,
     export_file_compute_checksum_md5,
     export_metadata_file,
-    prettyprint_dict,
     read_metadata_from_file,
 )
 from .aggregation import AggregatedData
