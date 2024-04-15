@@ -140,7 +140,11 @@ def export_file(
     ):
         obj.to_file(filename, fformat="roff")
     elif filename.suffix == ".csv" and isinstance(obj, pd.DataFrame):
-        obj.to_csv(filename, index=flag == "include_index")
+        logger.info(
+            "Exporting dataframe to csv. Note: index columns will not be "
+            "preserved unless calling 'reset_index()' on the dataframe."
+        )
+        obj.to_csv(filename, index=False)
     elif filename.suffix == ".arrow":
         from pyarrow import Table
 
