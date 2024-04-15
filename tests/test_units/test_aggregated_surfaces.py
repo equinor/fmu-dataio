@@ -32,6 +32,32 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, aggr_surfs_mean):
     assert newmeta["fmu"]["context"]["stage"] == "iteration"
 
 
+def test_regsurf_aggregated_content_seismic(
+    fmurun_w_casemetadata, aggr_sesimic_surfs_mean
+):
+    """
+    Test generating aggragated metadata for a surface, where the content is seismic
+    which will require more info.
+    """
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+
+    os.chdir(fmurun_w_casemetadata)
+
+    aggr_mean, metas = aggr_sesimic_surfs_mean  # xtgeo_object, list-of-metadata-dicts
+    logger.info("Aggr. mean is %s", aggr_mean.values.mean())
+
+    aggdata = dataio.AggregatedData(
+        source_metadata=metas,
+        operation="mean",
+        name="myaggrd",
+        aggregation_id="1234",
+    )
+    newmeta = aggdata.generate_metadata(aggr_mean)
+    logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
+    assert newmeta["fmu"]["aggregation"]["id"] == "1234"
+    assert newmeta["fmu"]["context"]["stage"] == "iteration"
+
+
 def test_regsurf_aggregated_export(fmurun_w_casemetadata, aggr_surfs_mean):
     """Test generating aggragated metadata, now with export method.
 

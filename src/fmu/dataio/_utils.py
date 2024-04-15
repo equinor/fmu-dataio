@@ -10,6 +10,7 @@ import shutil
 import uuid
 from copy import deepcopy
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any, Final, Literal
 
 import numpy as np
@@ -190,6 +191,20 @@ def export_file_compute_checksum_md5(
     """Export and compute checksum"""
     export_file(obj, filename, flag=flag)
     return md5sum(filename)
+
+
+def compute_md5_using_temp_file(
+    obj: types.Inferrable, extension: str, flag: str = ""
+) -> str:
+    """Compute an MD5 sum using a temporary file."""
+    if not extension.startswith("."):
+        raise ValueError("An extension must start with '.'")
+
+    with NamedTemporaryFile(buffering=0, suffix=extension) as tf:
+        logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
+        return export_file_compute_checksum_md5(
+            obj=obj, filename=Path(tf.name), flag=flag
+        )
 
 
 def create_symlink(source: str, target: str) -> None:

@@ -9,13 +9,14 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Final, Optional
 from warnings import warn
 
 from fmu.dataio._definitions import FmuContext
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import export_file_compute_checksum_md5
+from fmu.dataio._utils import (
+    compute_md5_using_temp_file,
+)
 from fmu.dataio.datastructure.meta import meta
 
 logger: Final = null_logger(__name__)
@@ -110,14 +111,9 @@ class FileDataProvider:
         """Compute an MD5 sum using a temporary file."""
         if self.obj is None:
             raise ValueError("Can't compute MD5 sum without an object.")
-        if not self.objdata.extension.startswith("."):
-            raise ValueError("An extension must start with '.'")
-
-        with NamedTemporaryFile(buffering=0, suffix=self.objdata.extension) as tf:
-            logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
-            return export_file_compute_checksum_md5(
-                obj=self.obj, filename=Path(tf.name), flag=self.dataio._usefmtflag
-            )
+        return compute_md5_using_temp_file(
+            self.obj, self.objdata.extension, self.dataio._usefmtflag
+        )
 
     def _get_filestem(self) -> str:
         """Construct the file"""
