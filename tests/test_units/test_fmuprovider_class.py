@@ -25,7 +25,6 @@ def test_fmuprovider_no_provider():
         fmu_context=FmuContext.REALIZATION,
         casepath_proposed="",
         include_ertjobs=False,
-        forced_realization=None,
         workflow=WORKFLOW,
     )
     assert myfmu.get_metadata() is None
@@ -64,7 +63,6 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
             fmu_context=FmuContext.REALIZATION,
             casepath_proposed="",  # if casepath is undef, try deduce from, _ERT_RUNPATH
             include_ertjobs=False,
-            forced_realization=None,
             workflow=WORKFLOW,
         )
 

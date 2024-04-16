@@ -92,14 +92,13 @@ class FmuEnv(Enum):
 
 @dataclass
 class FmuProvider:
-    """Class for detecting the run environment (e.g. an ERT) and provide metadata.
+    """Class for getting the run environment (e.g. an ERT) and provide metadata.
 
     Args:
         model: Name of the model (usually from global config)
         fmu_context: The FMU context this is ran in; see FmuContext enum class
         casepath_proposed: Proposed casepath. Needed if FmuContext is CASE
         include_ertjobs: True if we want to include ....
-        forced_realization: If we want to force the realization (use case?)
         workflow: Descriptive work flow info
     """
 
@@ -107,7 +106,6 @@ class FmuProvider:
     fmu_context: FmuContext = FmuContext.REALIZATION
     include_ertjobs: bool = True
     casepath_proposed: Optional[Path] = None
-    forced_realization: Optional[int] = None
     workflow: Optional[dict[str, str]] = None
 
     # private properties for this class
