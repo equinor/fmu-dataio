@@ -318,10 +318,6 @@ class ExportData:
         parent: Optional. This key is required for datatype GridProperty, and
             refers to the name of the grid geometry.
 
-        realization: Optional, default is -999 which means that realization shall be
-            detected automatically from the FMU run. Can be used to override in rare
-            cases. If so, numbers must be >= 0
-
         runpath: TODO! Optional and deprecated. The relative location of the current run
             root. Optional and will in most cases be auto-detected, assuming that FMU
             folder conventions are followed. For an ERT run e.g.
@@ -418,7 +414,7 @@ class ExportData:
     name: str = ""
     undef_is_zero: bool = False
     parent: str = ""
-    realization: int = -999
+    realization: Optional[int] = None  # deprecated
     reuse_metadata_rule: Optional[str] = None  # deprecated
     runpath: Optional[Union[str, Path]] = None
     subfolder: str = ""
@@ -524,6 +520,12 @@ class ExportData:
         if self.reuse_metadata_rule:
             warn(
                 "The 'reuse_metadata_rule' key is deprecated and has no effect. "
+                "Please remove it from the argument list.",
+                UserWarning,
+            )
+        if self.realization:
+            warn(
+                "The 'realization' key is deprecated and has no effect. "
                 "Please remove it from the argument list.",
                 UserWarning,
             )
@@ -727,7 +729,6 @@ class ExportData:
             fmu_context=self.fmu_context,
             casepath_proposed=Path(self.casepath) if self.casepath else None,
             include_ertjobs=self.include_ertjobs,
-            forced_realization=self.realization,
             workflow=self.workflow,
         )
 
