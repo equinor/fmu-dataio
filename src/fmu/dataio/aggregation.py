@@ -10,6 +10,8 @@ from pydantic import ValidationError
 
 from . import _utils, dataio, types
 from ._logging import null_logger
+from ._metadata import generate_meta_tracklog
+from .providers.objectdata._provider import objectdata_provider_factory
 
 logger: Final = null_logger(__name__)
 
@@ -230,32 +232,28 @@ class AggregatedData:
         template["fmu"]["context"]["stage"] = "iteration"
 
         # next, the new object will trigger update of: 'file', 'data' (some fields) and
-        # 'tracklog'. The trick is to create an ExportData() instance and just retrieve
-        # the metadata from that, and then blend the needed metadata from here into the
-        # template -> final metadata
-
-        fakeconfig = {
-            "access": self.source_metadata[0]["access"],
-            "masterdata": self.source_metadata[0]["masterdata"],
-            "model": self.source_metadata[0]["fmu"]["model"],
-        }
-
+        # 'tracklog'.
         content = template["data"]["content"]
-        etemp = dataio.ExportData(config=fakeconfig, name=self.name, content=content)
-        etempmeta = etemp.generate_metadata(obj, compute_md5=compute_md5)
+        etemp = dataio.ExportData(name=self.name, content=content)
+        objdata = objectdata_provider_factory(obj=obj, dataio=etemp).get_objectdata()
 
-        template["tracklog"] = etempmeta["tracklog"]
-        template["file"] = etempmeta["file"]  # actually only use the checksum_md5
-        template["file"]["relative_path"] = str(relpath)
-        template["file"]["absolute_path"] = str(abspath) if abspath else None
+        template["tracklog"] = [generate_meta_tracklog()[0].model_dump(mode="json")]
+        template["file"] = {
+            "relative_path": str(relpath),
+            "absolute_path": str(abspath) if abspath else None,
+        }
+        if compute_md5:
+            template["file"]["checksum_md5"] = _utils.compute_md5_using_temp_file(
+                obj, objdata.extension
+            )
 
         # data section
         if self.name:
             template["data"]["name"] = self.name
         if self.tagname:
             template["data"]["tagname"] = self.tagname
-        if etempmeta["data"].get("bbox"):
-            template["data"]["bbox"] = etempmeta["data"]["bbox"]
+        if objdata.bbox:
+            template["data"]["bbox"] = objdata.bbox
 
         self._metadata = template
 

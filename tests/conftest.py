@@ -474,17 +474,11 @@ def fixture_arrowtable():
         return None
 
 
-@pytest.fixture(name="aggr_surfs_mean", scope="function")
-def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
-    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
-    logger.debug("Ran %s", _current_function_name())
-
-    origfolder = os.getcwd()
-    os.chdir(fmurun_w_casemetadata)
-
+# helper function for the two fixtures below
+def _create_aggregated_surface_dataset(rmsglobalconfig, regsurf, content):
     edata = dio.ExportData(
         config=rmsglobalconfig,  # read from global config
-        content="depth",
+        content=content,
     )
 
     aggs = []
@@ -505,6 +499,42 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
 
         metas.append(meta)
         surfs.append([surf])
+    return surfs, metas
+
+
+@pytest.fixture(name="aggr_sesimic_surfs_mean", scope="function")
+def fixture_aggr_seismic_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
+    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
+    logger.debug("Ran %s", _current_function_name())
+
+    origfolder = os.getcwd()
+    os.chdir(fmurun_w_casemetadata)
+
+    surfs, metas = _create_aggregated_surface_dataset(
+        rmsglobalconfig, regsurf, content={"seismic": {"attribute": "amplitude"}}
+    )
+
+    aggregated = surfs.statistics()
+    logger.debug(
+        "Aggr. mean is %s", aggregated["mean"].values.mean()
+    )  # shall be 1238.5
+
+    os.chdir(origfolder)
+
+    return (aggregated["mean"], metas)
+
+
+@pytest.fixture(name="aggr_surfs_mean", scope="function")
+def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
+    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
+    logger.debug("Ran %s", _current_function_name())
+
+    origfolder = os.getcwd()
+    os.chdir(fmurun_w_casemetadata)
+
+    surfs, metas = _create_aggregated_surface_dataset(
+        rmsglobalconfig, regsurf, content="depth"
+    )
 
     aggregated = surfs.statistics()
     logger.debug(
