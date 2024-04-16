@@ -113,6 +113,22 @@ def fixture_fmurun_w_casemetadata(tmp_path_factory, monkeypatch, rootpath):
     return rootpath
 
 
+@pytest.fixture(name="fmurun_non_equal_real_and_iter", scope="function")
+def fixture_fmurun_non_equal_real_and_iter(tmp_path_factory, monkeypatch, rootpath):
+    """Create a tmp folder structure for testing; with non equal real and iter num!"""
+    tmppath = tmp_path_factory.mktemp("data3")
+    newpath = tmppath / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, newpath)
+    rootpath = newpath / "realization-1/iter-0"
+
+    monkeypatch.setenv(f"_ERT_{FmuEnv.ITERATION_NUMBER.name}", "0")
+    monkeypatch.setenv(f"_ERT_{FmuEnv.REALIZATION_NUMBER.name}", "1")
+    monkeypatch.setenv(f"_ERT_{FmuEnv.RUNPATH.name}", str(rootpath))
+
+    logger.debug("Ran %s", _current_function_name())
+    return rootpath
+
+
 @pytest.fixture(name="fmurun_w_casemetadata_pred", scope="function")
 def fixture_fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch, rootpath):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""

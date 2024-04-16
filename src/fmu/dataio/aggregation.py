@@ -77,7 +77,7 @@ class AggregatedData:
     @staticmethod
     def _generate_aggr_uuid(uuids: list[str]) -> str:
         """Unless aggregation_id; use existing UUIDs to generate a new UUID."""
-        return _utils.uuid_from_string("".join(sorted(uuids)))
+        return str(_utils.uuid_from_string("".join(sorted(uuids))))
 
     def _update_settings(self, newsettings: dict) -> None:
         """Update instance settings (properties) from other routines."""

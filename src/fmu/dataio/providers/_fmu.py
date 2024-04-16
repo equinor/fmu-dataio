@@ -30,18 +30,21 @@ from __future__ import annotations
 
 import json
 import os
-from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from os import environ
 from pathlib import Path
-from typing import Final, Optional
+from typing import TYPE_CHECKING, Final, Optional
 from warnings import warn
 
 from fmu.config import utilities as ut
 from fmu.dataio import _utils
 from fmu.dataio._definitions import FmuContext
 from fmu.dataio._logging import null_logger
+from fmu.dataio.datastructure._internal import internal
+from fmu.dataio.datastructure.meta import meta
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 # case metadata relative to casepath
 ERT_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
@@ -57,6 +60,15 @@ def get_fmu_context_from_environment() -> FmuContext:
     if FmuEnv.EXPERIMENT_ID.value:
         return FmuContext.CASE
     return FmuContext.NON_FMU
+
+
+def _casepath_has_metadata(casepath: Path) -> bool:
+    """Check if a proposed casepath has a metadata file"""
+    if (casepath / ERT_RELATIVE_CASE_METADATA_FILE).exists():
+        logger.debug("Found metadata for proposed casepath <%s>", casepath)
+        return True
+    logger.debug("Did not find metadata for proposed casepath <%s>", casepath)
+    return False
 
 
 class FmuEnv(Enum):
@@ -84,61 +96,60 @@ class FmuProvider:
 
     Args:
         model: Name of the model (usually from global config)
-        rootpath: ....
         fmu_context: The FMU context this is ran in; see FmuContext enum class
-        casepath_proposed: Proposed casepath ... needed?
+        casepath_proposed: Proposed casepath. Needed if FmuContext is CASE
         include_ertjobs: True if we want to include ....
         forced_realization: If we want to force the realization (use case?)
         workflow: Descriptive work flow info
     """
 
-    model: dict | None = field(default_factory=dict)
+    model: dict | None = None
     fmu_context: FmuContext = FmuContext.REALIZATION
     include_ertjobs: bool = True
-    casepath_proposed: str | Path = ""
+    casepath_proposed: Optional[Path] = None
     forced_realization: Optional[int] = None
     workflow: Optional[dict[str, str]] = None
 
     # private properties for this class
-    _runpath: Path | str = field(default="", init=False)
-    _casepath: Path | str = field(default="", init=False)  # actual casepath
-    _provider: str = field(default="", init=False)
+    _runpath: Optional[Path] = field(default_factory=Path, init=False)
+    _casepath: Optional[Path] = field(default_factory=Path, init=False)
     _iter_name: str = field(default="", init=False)
     _iter_id: int = field(default=0, init=False)
-    _iter_path: Path | str = field(default="", init=False)
     _real_name: str = field(default="", init=False)
     _real_id: int = field(default=0, init=False)
-    _real_path: Path | str = field(default="", init=False)
     _case_name: str = field(default="", init=False)
-    _user_name: str = field(default="", init=False)
-    _ert_info: dict = field(default_factory=dict, init=False)
-    _case_metadata: dict = field(default_factory=dict, init=False)
-    _metadata: dict = field(default_factory=dict, init=False)
 
     def __post_init__(self) -> None:
         logger.info("Initialize %s...", self.__class__)
         logger.debug("Case path is initially <%s>...", self.casepath_proposed)
 
-        if not FmuEnv.ENSEMBLE_ID.value:
-            logger.debug(
-                "No ERT environment variables detected, provider will be empty"
-            )
-            return  # not an FMU run
+        self._runpath = self._get_runpath_from_env()
+        self._real_id = (
+            int(iter_num) if (iter_num := FmuEnv.REALIZATION_NUMBER.value) else 0
+        )
+        self._iter_id = (
+            int(real_num) if (real_num := FmuEnv.ITERATION_NUMBER.value) else 0
+        )
 
-        self._provider = "ERT"
+        self._casepath = self._validate_and_establish_casepath()
+        if self._casepath:
+            self._case_name = self._casepath.name
 
-        self._detect_absolute_runpath()
-        self._detect_and_update_casepath()
-        self._parse_folder_info()
-        self._read_case_metadata()
-
-        # the next ones will not be read if case metadata is empty, or stage is FMU CASE
-        self._read_optional_restart_data()
-        self._read_ert_information()
-        self._generate_ert_metadata()
+            if self._runpath and self.fmu_context != FmuContext.CASE:
+                missing_iter_folder = self._casepath == self._runpath.parent
+                if not missing_iter_folder:
+                    logger.debug("Iteration folder found")
+                    self._iter_name = self._runpath.name
+                    self._real_name = self._runpath.parent.name
+                else:
+                    logger.debug("No iteration folder found")
+                    raise NotImplementedError(
+                        "No iteration folder found, this is not supported yet"
+                    )
+                logger.debug("Found iter name from runpath: %s", self._iter_name)
+                logger.debug("Found real name from runpath: %s", self._real_name)
 
     def get_iter_name(self) -> str:
-        """The client (metadata) will ask for iter_name"""
         """Return the iter_name, e.g. 'iter-3' or 'pred'."""
         return self._iter_name
 
@@ -146,256 +157,162 @@ class FmuProvider:
         """Return the real_name, e.g. 'realization-23'."""
         return self._real_name
 
-    def get_casepath(self) -> str:
+    def get_casepath(self) -> Path | None:
         """Return updated casepath in a FMU run, will be updated if initially blank."""
-        return "" if not self._casepath else str(self._casepath)
+        return self._casepath
 
-    def get_provider(self) -> str | None:
-        """Return the name of the FMU provider (so far 'ERT' only), or None."""
-        return None if not self._provider else self._provider
+    def get_metadata(self) -> internal.FMUClassMetaData | None:
+        """Construct the metadata FMU block for an ERT forward job."""
+        logger.debug("Generate ERT metadata...")
 
-    def get_metadata(self) -> dict:
-        """The client (metadata) will ask for complete metadata for FMU section"""
-        return {} if not self._metadata else self._metadata
+        if self._casepath is None or self.model is None:
+            logger.info("Can't return metadata, missing casepath or model description")
+            return None
 
-    # private methods:
+        case_meta = self._get_fmucase_meta()
+
+        if self.fmu_context != FmuContext.REALIZATION:
+            return internal.FMUClassMetaData(
+                case=case_meta,
+                context=self._get_fmucontext_meta(),
+                model=self._get_fmumodel_meta(),
+                workflow=self._get_workflow_meta() if self.workflow else None,
+            )
+
+        iter_uuid, real_uuid = self._get_iteration_and_real_uuid(case_meta.uuid)
+        return internal.FMUClassMetaData(
+            case=case_meta,
+            context=self._get_fmucontext_meta(),
+            model=self._get_fmumodel_meta(),
+            workflow=self._get_workflow_meta() if self.workflow else None,
+            iteration=self._get_iteration_meta(iter_uuid),
+            realization=self._get_realization_meta(real_uuid),
+        )
+
     @staticmethod
-    def _get_folderlist_from_path(current: Path | str) -> list:
-        """Return a list of pure folder names incl. current casepath up to system root.
+    def _get_runpath_from_env() -> Path | None:
+        """get runpath as an absolute path if detected from the enviroment"""
+        return Path(runpath).resolve() if (runpath := FmuEnv.RUNPATH.value) else None
 
-        For example: current is /scratch/xfield/nn/case/realization-33/iter-1
-        shall return ['scratch', 'xfield', 'nn', 'case', 'realization-33', 'iter-1']
-        """
-        return [folder for folder in str(current).split("/") if folder]
-
-    @staticmethod
-    def _get_folderlist_from_runpath_env() -> list:
-        """Return a list of pure folder names incl. current from RUNPATH environment,
-
-        Derived from _ERT_RUNPATH.
-
-        For example: runpath is /scratch/xfield/nn/case/realization-33/iter-1/
-        shall return ['scratch', 'xfield', 'nn', 'case', 'realization-33', 'iter-1']
-        """
-        runpath = FmuEnv.RUNPATH.value
-        if runpath:
-            return [folder for folder in runpath.split("/") if folder]
-        return []
-
-    def _detect_absolute_runpath(self) -> None:
-        """In case _ERT_RUNPATH is relative, an absolute runpath is detected."""
-        if FmuEnv.RUNPATH.value:
-            self._runpath = Path(FmuEnv.RUNPATH.value).resolve()
-
-    def _detect_and_update_casepath(self) -> None:
+    def _validate_and_establish_casepath(self) -> Path | None:
         """If casepath is not given, then try update _casepath (if in realization).
 
         There is also a validation here that casepath contains case metadata, and if not
-        then a second guess  is attempted, looking at `parent` insted of `parent.parent`
-        is case of unconventional structure.
+        then a second guess is attempted, looking at `parent` insted of `parent.parent`
+        is case of missing iteration folder.
         """
-        logger.debug("Try detect casepath, RUNPATH is %s", self._runpath)
-        logger.debug("Proposed casepath is now <%s>", self.casepath_proposed)
-
-        self._casepath = Path(self.casepath_proposed) if self.casepath_proposed else ""
-
-        if not self._casepath:
-            try_casepath = Path(self._runpath).parent.parent
-            logger.debug("Try casepath (first attempt): %s", try_casepath)
-
-            if not (try_casepath / ERT_RELATIVE_CASE_METADATA_FILE).exists():
-                logger.debug("Cannot find metadata file, try just one parent...")
-                try_casepath = Path(self._runpath).parent
-                logger.debug("Try casepath (second attempt): %s", try_casepath)
-            self._casepath = try_casepath
-
-        if not (Path(self._casepath) / ERT_RELATIVE_CASE_METADATA_FILE).exists():
-            logger.debug("No case metadata, issue a warning!")
+        if self.casepath_proposed:
+            if _casepath_has_metadata(self.casepath_proposed):
+                return self.casepath_proposed
             warn(
-                "Case metadata does not exist; will not update initial casepath",
-                UserWarning,
+                "Could not detect metadata for the proposed casepath "
+                f"{self.casepath_proposed}. Will try to detect from runpath."
             )
-            self._casepath = ""
+        if self._runpath:
+            if _casepath_has_metadata(self._runpath.parent.parent):
+                return self._runpath.parent.parent
 
-    def _parse_folder_info(self) -> None:
-        """Retreive the folders (id's and paths)."""
-        logger.debug("Parse folder info...")
+            if _casepath_has_metadata(self._runpath.parent):
+                return self._runpath.parent
 
-        folders = self._get_folderlist_from_runpath_env()
-        if self.fmu_context == FmuContext.CASE and self._casepath:
-            folders = self._get_folderlist_from_path(self._casepath)  # override
-            logger.debug("Folders to evaluate (case): %s", folders)
-
-            self._iter_path = ""
-            self._real_path = ""
-            self._case_name = folders[-1]
-            self._user_name = folders[-2]
-
-            logger.debug(
-                "case_name, user_name: %s %s", self._case_name, self._user_name
+        if self.fmu_context == FmuContext.CASE:
+            raise ValueError(
+                "Could not auto detect the casepath, please provide it as input."
             )
-            logger.debug("Detecting FMU provider as ERT (case only)")
-        else:
-            logger.debug("Folders to evaluate (realization): %s", folders)
+        logger.debug("No case metadata, issue a warning!")
+        warn("Case metadata does not exist, metadata will be empty!", UserWarning)
+        return None
 
-            self._case_name = folders[-3]
-            self._user_name = folders[-4]
-
-            self._iter_name = folders[-1]
-            self._real_name = folders[-2]
-
-            self._iter_path = Path("/" + "/".join(folders))
-            self._real_path = Path("/" + "/".join(folders[:-1]))
-
-            self._iter_id = int(str(FmuEnv.ITERATION_NUMBER.value))
-            self._real_id = int(str(FmuEnv.REALIZATION_NUMBER.value))
-
-    def _read_case_metadata(self) -> None:
-        """Check if metadatafile file for CASE exists, and if so parse metadata.
-
-        If file does not exist, still give a proposed file path, but the
-        self.casepath_proposed_metadata will be {} (empty) and the physical file
-        will not be made.
-        """
-        logger.debug("Read case metadata, if any...")
-        if not self._casepath:
-            logger.info("No case path detected, hence FMU metadata will be empty.")
-            return
-
-        case_metafile = Path(self._casepath) / ERT_RELATIVE_CASE_METADATA_FILE
-        if case_metafile.exists():
-            logger.debug("Case metadata file exists in file %s", str(case_metafile))
-            self._case_metadata = ut.yaml_load(case_metafile, loader="standard")
-            logger.debug("Case metadata are: %s", self._case_metadata)
-        else:
-            logger.debug("Case metadata file does not exists as %s", str(case_metafile))
-            warn(
-                "Cannot read case metadata, hence stop retrieving FMU data!",
-                UserWarning,
-            )
-            self._case_metadata = {}
-
-    def _read_optional_restart_data(self) -> None:
-        # Load restart_from information
-        logger.debug("Read optional restart data, if any, and requested...")
-        if not self._case_metadata:
-            return
-
-        if not environ.get(RESTART_PATH_ENVNAME):
-            return
-
+    def _get_restart_data_uuid(self) -> UUID | None:
+        """Load restart_from information"""
+        assert self._runpath is not None
         logger.debug("Detected a restart run from environment variable")
-        restart_path = Path(self._iter_path) / environ[RESTART_PATH_ENVNAME]
-        restart_iter = self._get_folderlist_from_path(restart_path)[-1]
+        restart_path = self._runpath / os.environ[RESTART_PATH_ENVNAME]
         restart_case_metafile = (
-            restart_path / "../.." / ERT_RELATIVE_CASE_METADATA_FILE
+            restart_path.parent.parent / ERT_RELATIVE_CASE_METADATA_FILE
         ).resolve()
-        if restart_case_metafile.exists():
-            restart_metadata = ut.yaml_load(restart_case_metafile, loader="standard")
-            self._ert_info["restart_from"] = _utils.uuid_from_string(
-                restart_metadata["fmu"]["case"]["uuid"] + restart_iter
-            )
-        else:
-            print(
-                f"{RESTART_PATH_ENVNAME} environment variable is set to "
-                f"{environ[RESTART_PATH_ENVNAME]} which is invalid. Metadata "
-                "restart_from will remain empty."
-            )
-            logger.warning(
-                f"{RESTART_PATH_ENVNAME} environment variable is set to "
-                f"{environ[RESTART_PATH_ENVNAME]} which is invalid. Metadata "
-                "restart_from will remain empty."
-            )
 
-    def _read_ert_information(self) -> None:
-        """Retrieve information from an ERT (ver 5 and later) run."""
-        logger.debug("Read ERT information, if any")
-
-        if not self._case_metadata:
-            return
-
-        logger.debug("Read ERT information")
-        if not self._iter_path:
-            logger.debug("Not _iter_path!")
-            return
-
-        # store parameters.txt
-        logger.debug("Read ERT information, if any (continues)")
-        parameters_file = Path(self._iter_path) / "parameters.txt"
-        if parameters_file.is_file():
-            params = _utils.read_parameters_txt(parameters_file)
-            # BUG(?): value can contain Nones, loop in fn. below
-            # does contains check, will fail.
-            nested_params = _utils.nested_parameters_dict(params)  # type: ignore
-            self._ert_info["params"] = nested_params
-            logger.debug("parameters.txt parsed.")
-        else:
-            self._ert_info["params"] = {}
-            warn("The parameters.txt file was not found", UserWarning)
-
-        # store jobs.json if required!
-        if self.include_ertjobs:
-            jobs_file = Path(self._iter_path) / "jobs.json"
-            if jobs_file.is_file():
-                with open(jobs_file) as stream:
-                    self._ert_info["jobs"] = json.load(stream)
-                logger.debug("jobs.json parsed.")
-            else:
-                logger.debug("jobs.json was not found")
-        else:
-            self._ert_info["jobs"] = None
-            logger.debug("Storing jobs.json is disabled")
-
-        logger.debug("ERT files has been parsed.")
-
-    def _generate_ert_metadata(self) -> None:
-        """Construct the metadata FMU block for an ERT forward job."""
-        if not self._case_metadata:
-            return
-
-        logger.debug("Generate ERT metadata...")
-        if not self._case_metadata:
-            logger.debug("Trigger UserWarning!")
+        if not restart_case_metafile.exists():
             warn(
-                f"The fmu provider: {self._provider} is found but no case metadata!",
+                f"{RESTART_PATH_ENVNAME} environment variable is set to "
+                f"{os.environ[RESTART_PATH_ENVNAME]} which is invalid. Metadata "
+                "restart_from will remain empty.",
                 UserWarning,
             )
+            return None
 
-        meta = self._metadata  # shortform
+        restart_metadata = internal.CaseSchema.model_validate(
+            ut.yaml_load(restart_case_metafile, loader="standard")
+        )
+        return _utils.uuid_from_string(
+            f"{restart_metadata.fmu.case.uuid}{restart_path.name}"
+        )
 
-        meta["model"] = self.model
-        meta["context"] = {"stage": self.fmu_context.name.lower()}
-        meta["workflow"] = self.workflow
-        case_uuid = "not_present"  # TODO! not allow missing case metadata?
-        if self._case_metadata and "fmu" in self._case_metadata:
-            meta["case"] = deepcopy(self._case_metadata["fmu"]["case"])
-            case_uuid = meta["case"]["uuid"]
+    def _get_ert_parameters(self) -> meta.Parameters | None:
+        logger.debug("Read ERT parameters")
+        assert self._runpath is not None
+        parameters_file = self._runpath / "parameters.txt"
+        if not parameters_file.exists():
+            warn("The parameters.txt file was not found", UserWarning)
+            return None
 
-        if self.fmu_context == FmuContext.REALIZATION:
-            iter_uuid = _utils.uuid_from_string(case_uuid + str(self._iter_name))
-            meta["iteration"] = {
-                "id": self._iter_id,
-                "uuid": iter_uuid,
-                "name": self._iter_name,
-                **(
-                    {"restart_from": self._ert_info["restart_from"]}
-                    if "restart_from" in self._ert_info
-                    else {}
-                ),
-            }
-            real_uuid = _utils.uuid_from_string(
-                case_uuid + str(iter_uuid) + str(self._real_id)
-            )
+        params = _utils.read_parameters_txt(parameters_file)
+        logger.debug("parameters.txt parsed.")
+        # BUG(?): value can contain Nones, loop in fn. below
+        # does contains check, will fail.
+        return meta.Parameters(root=_utils.nested_parameters_dict(params))  # type: ignore
 
-            logger.debug(
-                "Generate ERT metadata continues, and real ID %s", self._real_id
-            )
+    def _get_ert_jobs(self) -> dict | None:
+        logger.debug("Read ERT jobs")
+        assert self._runpath is not None
+        jobs_file = self._runpath / "jobs.json"
+        if not jobs_file.exists():
+            logger.debug("jobs.json was not found")
+            return None
 
-            mreal = meta["realization"] = {}
-            mreal["id"] = self._real_id
-            mreal["uuid"] = real_uuid
-            mreal["name"] = self._real_name
-            mreal["parameters"] = self._ert_info["params"]
+        with open(jobs_file) as stream:
+            logger.debug("parsing jobs.json.")
+            return json.load(stream)
 
-            if self.include_ertjobs:
-                mreal["jobs"] = self._ert_info["jobs"]
+    def _get_iteration_and_real_uuid(self, case_uuid: UUID) -> tuple[UUID, UUID]:
+        iter_uuid = _utils.uuid_from_string(f"{case_uuid}{self._iter_name}")
+        real_uuid = _utils.uuid_from_string(f"{case_uuid}{iter_uuid}{self._real_id}")
+        return iter_uuid, real_uuid
+
+    def _get_fmucase_meta(self) -> meta.FMUCase:
+        """Parse and validate the CASE metadata."""
+        logger.debug("Loading case metadata file and return pydantic case model")
+        assert self._casepath is not None
+        case_metafile = self._casepath / ERT_RELATIVE_CASE_METADATA_FILE
+        case_meta = internal.CaseSchema.model_validate(
+            ut.yaml_load(case_metafile, loader="standard")
+        )
+        return case_meta.fmu.case
+
+    def _get_realization_meta(self, real_uuid: UUID) -> meta.Realization:
+        return meta.Realization(
+            id=self._real_id,
+            name=self._real_name,
+            parameters=self._get_ert_parameters(),
+            jobs=self._get_ert_jobs() if self.include_ertjobs else None,
+            uuid=real_uuid,
+        )
+
+    def _get_iteration_meta(self, iter_uuid: UUID) -> meta.Iteration:
+        return meta.Iteration(
+            id=self._iter_id,
+            name=self._iter_name,
+            uuid=iter_uuid,
+            restart_from=self._get_restart_data_uuid()
+            if os.getenv(RESTART_PATH_ENVNAME)
+            else None,
+        )
+
+    def _get_fmucontext_meta(self) -> internal.Context:
+        return internal.Context(stage=self.fmu_context)
+
+    def _get_fmumodel_meta(self) -> meta.FMUModel:
+        return meta.FMUModel.model_validate(self.model)
+
+    def _get_workflow_meta(self) -> meta.Workflow:
+        return meta.Workflow.model_validate(self.workflow)

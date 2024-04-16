@@ -230,9 +230,9 @@ def size(fname: str) -> int:
     return Path(fname).stat().st_size
 
 
-def uuid_from_string(string: str) -> str:
+def uuid_from_string(string: str) -> uuid.UUID:
     """Produce valid and repeteable UUID4 as a hash of given string"""
-    return str(uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest()))
+    return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())
 
 
 def read_parameters_txt(pfile: Path | str) -> types.Parameters:
