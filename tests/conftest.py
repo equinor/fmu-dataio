@@ -22,6 +22,7 @@ from .utils import _metadata_examples
 logger = logging.getLogger(__name__)
 
 ERTRUN = "tests/data/drogon/ertrun1"
+ERTRUN_NO_ITER = "tests/data/drogon/ertrun1_no_iter"
 ERTRUN_REAL0_ITER0 = f"{ERTRUN}/realization-0/iter-0"
 ERTRUN_PRED = f"{ERTRUN}/realization-0/pred"
 
@@ -120,6 +121,22 @@ def fixture_fmurun_non_equal_real_and_iter(tmp_path_factory, monkeypatch, rootpa
     newpath = tmppath / ERTRUN
     shutil.copytree(rootpath / ERTRUN, newpath)
     rootpath = newpath / "realization-1/iter-0"
+
+    monkeypatch.setenv(f"_ERT_{FmuEnv.ITERATION_NUMBER.name}", "0")
+    monkeypatch.setenv(f"_ERT_{FmuEnv.REALIZATION_NUMBER.name}", "1")
+    monkeypatch.setenv(f"_ERT_{FmuEnv.RUNPATH.name}", str(rootpath))
+
+    logger.debug("Ran %s", _current_function_name())
+    return rootpath
+
+
+@pytest.fixture(name="fmurun_no_iter_folder", scope="function")
+def fixture_fmurun_no_iter_folder(tmp_path_factory, monkeypatch, rootpath):
+    """Create a tmp folder structure for testing; with no iter folder!"""
+    tmppath = tmp_path_factory.mktemp("data3")
+    newpath = tmppath / ERTRUN_NO_ITER
+    shutil.copytree(rootpath / ERTRUN_NO_ITER, newpath)
+    rootpath = newpath / "realization-1"
 
     monkeypatch.setenv(f"_ERT_{FmuEnv.ITERATION_NUMBER.name}", "0")
     monkeypatch.setenv(f"_ERT_{FmuEnv.REALIZATION_NUMBER.name}", "1")

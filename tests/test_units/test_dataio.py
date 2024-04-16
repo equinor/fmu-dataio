@@ -361,6 +361,23 @@ def test_fmurun_attribute_outside_fmu(rmsglobalconfig):
     assert edata._fmurun is False
 
 
+def test_exportdata_no_iter_folder(
+    fmurun_no_iter_folder, rmsglobalconfig, regsurf, monkeypatch
+):
+    """Test that the fmuprovider works without a iteration folder"""
+
+    monkeypatch.chdir(fmurun_no_iter_folder)
+    edata = ExportData(config=rmsglobalconfig, content="depth")
+    assert edata._fmurun is True
+
+    edata.export(regsurf)
+
+    assert edata._metadata["fmu"]["realization"]["name"] == "realization-1"
+    assert edata._metadata["fmu"]["realization"]["id"] == 1
+    assert edata._metadata["fmu"]["iteration"]["name"] == "iter-0"
+    assert edata._metadata["fmu"]["iteration"]["id"] == 0
+
+
 def test_fmurun_attribute_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig):
     """Test that _fmurun attribute is True when in fmu"""
 

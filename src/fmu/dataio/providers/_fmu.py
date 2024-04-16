@@ -140,10 +140,10 @@ class FmuProvider:
                     self._iter_name = self._runpath.name
                     self._real_name = self._runpath.parent.name
                 else:
-                    logger.debug("No iteration folder found")
-                    raise NotImplementedError(
-                        "No iteration folder found, this is not supported yet"
-                    )
+                    logger.debug("No iteration folder found, using default name iter-0")
+                    self._iter_name = "iter-0"
+                    self._real_name = self._runpath.name
+
                 logger.debug("Found iter name from runpath: %s", self._iter_name)
                 logger.debug("Found real name from runpath: %s", self._real_name)
 

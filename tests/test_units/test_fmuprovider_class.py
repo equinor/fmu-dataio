@@ -111,7 +111,7 @@ def test_fmuprovider_arbitrary_iter_name(fmurun_w_casemetadata_pred):
     assert str(meta.case.uuid) == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
 
 
-def test_fmuprovider_arbitrary_iter_name_(fmurun_non_equal_real_and_iter):
+def test_fmuprovider_get_real_and_iter_from_env(fmurun_non_equal_real_and_iter):
     """Test that iter and real number is picked up correctly from env"""
 
     os.chdir(fmurun_non_equal_real_and_iter)
@@ -127,6 +127,29 @@ def test_fmuprovider_arbitrary_iter_name_(fmurun_non_equal_real_and_iter):
     assert myfmu._real_id == 1
     assert myfmu._iter_name == "iter-0"
     assert myfmu._iter_id == 0
+
+
+def test_fmuprovider_no_iter_folder(fmurun_no_iter_folder):
+    """Test that the fmuprovider works without a iteration folder"""
+
+    os.chdir(fmurun_no_iter_folder)
+    myfmu = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION, workflow=WORKFLOW
+    )
+    assert myfmu._runpath == fmurun_no_iter_folder
+    assert myfmu._casepath == fmurun_no_iter_folder.parent
+    assert myfmu._case_name == "ertrun1_no_iter"
+    assert myfmu._real_name == "realization-1"
+    assert myfmu._real_id == 1
+    assert myfmu._iter_name == "iter-0"
+    assert myfmu._iter_id == 0
+
+    # also check that it is stored correctly in the metadata
+    meta = myfmu.get_metadata()
+    assert meta.realization.name == "realization-1"
+    assert meta.realization.id == 1
+    assert meta.iteration.name == "iter-0"
+    assert meta.iteration.id == 0
 
 
 def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
