@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gdde70fe documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gb9cf947 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -103,7 +103,6 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Final</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">PydanticValidationError</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">types</span>
@@ -116,7 +115,7 @@
 <span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">create_symlink</span><span class="p">,</span>
     <span class="n">detect_inside_rms</span><span class="p">,</span>  <span class="c1"># dataio_examples,</span>
-    <span class="n">export_file_compute_checksum_md5</span><span class="p">,</span>
+    <span class="n">export_file</span><span class="p">,</span>
     <span class="n">export_metadata_file</span><span class="p">,</span>
     <span class="n">prettyprint_dict</span><span class="p">,</span>
     <span class="n">read_metadata_from_file</span><span class="p">,</span>
@@ -389,9 +388,8 @@
 
 <span class="sd">        grid_model: Currently allowed but planned for deprecation</span>
 
-<span class="sd">        include_index: This applies to Pandas (table) data only, and if True then the</span>
-<span class="sd">            index column will be exported. Deprecated, use class variable</span>
-<span class="sd">            ``table_include_index`` instead</span>
+<span class="sd">        table_index: This applies to Pandas (table) data only, and is a list of the</span>
+<span class="sd">            column names to use as index columns e.g. [&quot;ZONE&quot;, &quot;REGION&quot;].</span>
 
 <span class="sd">        is_prediction: True (default) if model prediction data</span>
 
@@ -489,7 +487,7 @@
     <span class="n">surface_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;irap_binary&quot;</span>
     <span class="n">table_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span>
     <span class="n">dict_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span>
-    <span class="n">table_include_index</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">table_include_index</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># deprecated</span>
     <span class="n">verifyfolder</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># deprecated</span>
     <span class="n">_inside_rms</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># developer only! if True pretend inside RMS</span>
 
@@ -617,6 +615,13 @@
             <span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;The &#39;reuse_metadata_rule&#39; key is deprecated and has no effect. &quot;</span>
                 <span class="s2">&quot;Please remove it from the argument list.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_include_index</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The &#39;table_include_index&#39; option is deprecated and has no effect. &quot;</span>
+                <span class="s2">&quot;To get the index included in your dataframe, reset the index &quot;</span>
+                <span class="s2">&quot;before exporting the dataframe with dataio i.e. df = df.reset_index()&quot;</span><span class="p">,</span>
                 <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">!=</span> <span class="s2">&quot;DEPRECATED&quot;</span><span class="p">:</span>
@@ -904,8 +909,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            String: full path to exported item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">table_index</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;table_index&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_index</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Object type is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_object</span><span class="p">))</span>  <span class="c1"># from generate_metadata</span>
 
@@ -914,21 +918,9 @@
         <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">metafile</span> <span class="o">=</span> <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span><span class="p">)</span>
 
-        <span class="n">useflag</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">table_include_index</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_object</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
-            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span>
-        <span class="p">)</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file and compute MD5 sum, using flag: &lt;</span><span class="si">%s</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="n">useflag</span><span class="p">)</span>
-
-        <span class="c1"># inject md5 checksum in metadata</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">export_file_compute_checksum_md5</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_object</span><span class="p">,</span>
-            <span class="n">outfile</span><span class="p">,</span>
-            <span class="n">flag</span><span class="o">=</span><span class="n">useflag</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-            <span class="c1"># BUG(?): Looks buggy, if flag is bool export_file will blow up.</span>
-        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file using flag: &lt;</span><span class="si">%s</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span><span class="p">)</span>
+        <span class="c1"># md5sum is already present in the metadata</span>
+        <span class="n">export_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_object</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Actual file is:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span><span class="p">:</span>
@@ -960,7 +952,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gdde70fe).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gb9cf947).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
