@@ -13,7 +13,6 @@ from pathlib import Path
 from typing import Any, ClassVar, Final, List, Literal, Optional, Union
 from warnings import warn
 
-import pandas as pd
 from pydantic import ValidationError as PydanticValidationError
 
 from . import types
@@ -26,7 +25,7 @@ from ._metadata import generate_export_metadata
 from ._utils import (
     create_symlink,
     detect_inside_rms,  # dataio_examples,
-    export_file_compute_checksum_md5,
+    export_file,
     export_metadata_file,
     prettyprint_dict,
     read_metadata_from_file,
@@ -299,9 +298,8 @@ class ExportData:
 
         grid_model: Currently allowed but planned for deprecation
 
-        include_index: This applies to Pandas (table) data only, and if True then the
-            index column will be exported. Deprecated, use class variable
-            ``table_include_index`` instead
+        table_index: This applies to Pandas (table) data only, and is a list of the
+            column names to use as index columns e.g. ["ZONE", "REGION"].
 
         is_prediction: True (default) if model prediction data
 
@@ -399,7 +397,7 @@ class ExportData:
     surface_fformat: ClassVar[str] = "irap_binary"
     table_fformat: ClassVar[str] = "csv"
     dict_fformat: ClassVar[str] = "json"
-    table_include_index: ClassVar[bool] = False
+    table_include_index: ClassVar[bool] = False  # deprecated
     verifyfolder: ClassVar[bool] = True  # deprecated
     _inside_rms: ClassVar[bool] = False  # developer only! if True pretend inside RMS
 
@@ -527,6 +525,13 @@ class ExportData:
             warn(
                 "The 'reuse_metadata_rule' key is deprecated and has no effect. "
                 "Please remove it from the argument list.",
+                UserWarning,
+            )
+        if self.table_include_index:
+            warn(
+                "The 'table_include_index' option is deprecated and has no effect. "
+                "To get the index included in your dataframe, reset the index "
+                "before exporting the dataframe with dataio i.e. df = df.reset_index()",
                 UserWarning,
             )
         if self.verbosity != "DEPRECATED":
@@ -814,8 +819,7 @@ class ExportData:
         Returns:
             String: full path to exported item.
         """
-        self.table_index = kwargs.get("table_index", self.table_index)
-        self.generate_metadata(obj, compute_md5=False, **kwargs)
+        self.generate_metadata(obj, compute_md5=True, **kwargs)
         metadata = self._metadata
         logger.info("Object type is: %s", type(self._object))  # from generate_metadata
 
@@ -824,21 +828,9 @@ class ExportData:
         outfile.parent.mkdir(parents=True, exist_ok=True)
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
-        useflag = (
-            self.table_include_index
-            if isinstance(self._object, pd.DataFrame)
-            else self._usefmtflag
-        )
-
-        logger.info("Export to file and compute MD5 sum, using flag: <%s>", useflag)
-
-        # inject md5 checksum in metadata
-        metadata["file"]["checksum_md5"] = export_file_compute_checksum_md5(
-            self._object,
-            outfile,
-            flag=useflag,  # type: ignore
-            # BUG(?): Looks buggy, if flag is bool export_file will blow up.
-        )
+        logger.info("Export to file using flag: <%s>", self._usefmtflag)
+        # md5sum is already present in the metadata
+        export_file(self._object, outfile, flag=self._usefmtflag)
         logger.info("Actual file is:   %s", outfile)
 
         if self._config_is_valid:
