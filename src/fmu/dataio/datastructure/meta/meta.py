@@ -70,6 +70,15 @@ class File(BaseModel):
     relative_path_symlink: Optional[Path] = Field(default=None)
     absolute_path_symlink: Optional[Path] = Field(default=None)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _check_for_non_ascii_in_path(cls, values: Dict) -> Dict:
+        if (path := values.get("absolute_path")) and not str(path).isascii():
+            raise ValueError(
+                f"Path has non-ascii elements which is not supported: {path}"
+            )
+        return values
+
 
 class Parameters(RootModel):
     root: Dict[str, Union[Parameters, int, float, str]]

@@ -159,6 +159,10 @@ class FmuProvider:
         """Return updated casepath in a FMU run, will be updated if initially blank."""
         return self._casepath
 
+    def get_runpath(self) -> Path | None:
+        """Return runpath for a FMU run."""
+        return self._runpath
+
     def get_metadata(self) -> internal.FMUClassMetaData | None:
         """Construct the metadata FMU block for an ERT forward job."""
         logger.debug("Generate ERT metadata...")

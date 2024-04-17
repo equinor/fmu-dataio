@@ -1,6 +1,7 @@
 """Test the _MetaData class from the _metadata.py module"""
 
 import os
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -157,6 +158,7 @@ def test_get_filestem_shall_fail(
     objdata.time0 = time0
     objdata.time1 = time1
 
+    edataobj1 = deepcopy(edataobj1)
     edataobj1.tagname = tagname
     edataobj1.parent = parentname
     edataobj1.name = ""
@@ -168,53 +170,51 @@ def test_get_filestem_shall_fail(
         assert message in str(msg)
 
 
-def test_get_paths_path_exists_already(regsurf, edataobj1, tmp_path):
-    """Testing the private _get_path method."""
+def test_get_share_folders(regsurf):
+    """Testing the get_share_folders method."""
 
-    os.chdir(tmp_path)
-    newpath = tmp_path / "share" / "results" / "efolder"
-    newpath.mkdir(parents=True, exist_ok=True)
-
-    edataobj1.name = "some"
+    edataobj1 = ExportData(name="some")
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
     objdata.efolder = "efolder"
 
     fdata = FileDataProvider(edataobj1, objdata)
+    share_folders = fdata._get_share_folders()
+    assert isinstance(share_folders, Path)
+    assert share_folders == Path("share/results/efolder")
+    # check that the path present in the metadata matches the share folders
 
-    path = fdata._get_path()
-    assert str(path) == "share/results/efolder"
+    fmeta = fdata.get_metadata()
+    assert str(fmeta.absolute_path.parent).endswith("share/results/efolder")
 
 
-def test_get_paths_not_exists_so_create(regsurf, edataobj1, tmp_path):
+def test_get_share_folders_with_subfolder(regsurf):
     """Testing the private _get_path method, creating the path."""
 
-    os.chdir(tmp_path)
+    edataobj1 = ExportData(name="some", subfolder="sub")
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
     objdata.efolder = "efolder"
-    cfg = edataobj1
 
-    cfg._rootpath = Path(".")
+    fdata = FileDataProvider(edataobj1, objdata)
+    share_folders = fdata._get_share_folders()
+    assert share_folders == Path("share/results/efolder/sub")
 
-    fdata = FileDataProvider(cfg, objdata)
+    # check that the path present in the metadata matches the share folders
+    fmeta = fdata.get_metadata()
+    assert str(fmeta.absolute_path.parent).endswith("share/results/efolder/sub")
 
-    path = fdata._get_path()
-    assert str(path) == "share/results/efolder"
 
-
-def test_filedata_provider(regsurf, edataobj1, tmp_path):
+def test_filedata_provider(regsurf, tmp_path):
     """Testing the derive_filedata function."""
 
     os.chdir(tmp_path)
 
-    cfg = edataobj1
-    cfg._rootpath = Path(".")
-    cfg.name = ""
+    cfg = ExportData(name="", parent="parent", tagname="tag")
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, cfg)
     objdata.name = "name"
     objdata.efolder = "efolder"
     objdata.extension = ".ext"
@@ -233,24 +233,17 @@ def test_filedata_provider(regsurf, edataobj1, tmp_path):
     assert filemeta.absolute_path == absdata
 
 
-def test_filedata_has_nonascii_letters(regsurf, edataobj1, tmp_path):
+def test_filedata_has_nonascii_letters(regsurf, tmp_path):
     """Testing the get_metadata function."""
 
     os.chdir(tmp_path)
-
-    cfg = edataobj1
-    cfg._rootpath = Path(".")
-    cfg.name = "mynõme"
+    edataobj1 = ExportData(name="mynõme")
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "anynõme"
-    objdata.efolder = "efolder"
-    objdata.extension = ".ext"
-    objdata.time0 = "t1"
-    objdata.time1 = "t2"
 
-    fdata = FileDataProvider(cfg, objdata)
-    with pytest.raises(UnicodeEncodeError, match=r"codec can't encode character"):
+    fdata = FileDataProvider(edataobj1, objdata)
+    with pytest.raises(ValueError, match="Path has non-ascii elements"):
         fdata.get_metadata()
 
 

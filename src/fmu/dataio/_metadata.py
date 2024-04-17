@@ -81,9 +81,7 @@ def _get_filedata_provider(
     return FileDataProvider(
         dataio=dataio,
         objdata=objdata,
-        rootpath=dataio._rootpath,  # has been updated to case_path if fmurun
-        itername=fmudata.get_iter_name() if fmudata else "",
-        realname=fmudata.get_real_name() if fmudata else "",
+        runpath=fmudata.get_runpath() if fmudata else None,
         obj=obj,
         compute_md5=compute_md5,
     )
