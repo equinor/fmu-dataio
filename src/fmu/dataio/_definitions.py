@@ -85,7 +85,6 @@ class FmuContext(str, Enum):
     The different entries will impact where data is exported:
     REALIZATION = "To realization-N/iter_M/share"
     CASE = "To casename/share, but will also work on project disk"
-    CASE_SYMLINK_REALIZATION = "To case/share, with symlinks on realizations level"
     PREPROCESSED = "To share/preprocessed; from interactive runs but re-used later"
     NON_FMU = "Not ran in a FMU setting, e.g. interactive RMS"
 
@@ -93,7 +92,6 @@ class FmuContext(str, Enum):
 
     REALIZATION = "realization"
     CASE = "case"
-    CASE_SYMLINK_REALIZATION = "case_symlink_realization"
     PREPROCESSED = "preprocessed"
     NON_FMU = "non-fmu"
 
