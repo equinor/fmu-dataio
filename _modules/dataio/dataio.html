@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gdf6318c documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g0d371c1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -113,7 +113,6 @@
 <span class="kn">from</span> <span class="nn">._logging</span> <span class="kn">import</span> <span class="n">null_logger</span>
 <span class="kn">from</span> <span class="nn">._metadata</span> <span class="kn">import</span> <span class="n">generate_export_metadata</span>
 <span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">create_symlink</span><span class="p">,</span>
     <span class="n">detect_inside_rms</span><span class="p">,</span>  <span class="c1"># dataio_examples,</span>
     <span class="n">export_file</span><span class="p">,</span>
     <span class="n">export_metadata_file</span><span class="p">,</span>
@@ -662,6 +661,17 @@
 <span class="sd">        will be established based on the presence of ERT environment variables.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;case_symlink_realization&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;fmu_context is set to &#39;case_symlink_realization&#39;, which is no &quot;</span>
+                <span class="s2">&quot;longer a supported option. Recommended workflow is to export &quot;</span>
+                <span class="s2">&quot;your data as preprocessed ouside of FMU, and re-export the data &quot;</span>
+                <span class="s2">&quot;with fmu_context=&#39;case&#39; using a PRE_SIMULATION ERT workflow. &quot;</span>
+                <span class="s2">&quot;If needed, forward_models in ERT can be set-up to create symlinks &quot;</span>
+                <span class="s2">&quot;out into the individual realizations.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
         <span class="n">env_fmu_context</span> <span class="o">=</span> <span class="n">get_fmu_context_from_environment</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fmu context from input is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fmu context from environment is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">env_fmu_context</span><span class="p">)</span>
@@ -908,15 +918,16 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            obj: XTGeo instance, a Pandas Dataframe instance or other supported object.</span>
-<span class="sd">            return_symlink: If fmu_context is &#39;case_symlink_realization&#39; then the link</span>
-<span class="sd">                adress will be returned if this is True; otherwise the physical file</span>
-<span class="sd">                path will be returned.</span>
 <span class="sd">            **kwargs: For other arguments, see ExportData() input keys. If they</span>
 <span class="sd">                exist both places, this function will override!</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            String: full path to exported item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">return_symlink</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The return_symlink option is deprecated and can safely be removed.&quot;</span>
+            <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Object type is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_object</span><span class="p">))</span>  <span class="c1"># from generate_metadata</span>
@@ -937,19 +948,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Data will be exported, but without metadata.&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
 
-        <span class="c1"># generate symlink if requested</span>
-        <span class="n">outfile_target</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;absolute_path_symlink&quot;</span><span class="p">):</span>
-            <span class="n">outfile_target</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path_symlink&quot;</span><span class="p">])</span>
-            <span class="n">outfile_target</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">create_symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile_target</span><span class="p">))</span>
-            <span class="n">metafile_target</span> <span class="o">=</span> <span class="n">outfile_target</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span><span class="p">)</span>
-            <span class="n">create_symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">metafile</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">metafile_target</span><span class="p">))</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
 
-        <span class="k">if</span> <span class="n">return_symlink</span> <span class="ow">and</span> <span class="n">outfile_target</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile_target</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div></div>
 </pre></div>
 
@@ -960,7 +960,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gdf6318c).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g0d371c1).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
