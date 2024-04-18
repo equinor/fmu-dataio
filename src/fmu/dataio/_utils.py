@@ -10,6 +10,7 @@ import shutil
 import uuid
 from copy import deepcopy
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any, Final, Literal
 
 import numpy as np
@@ -140,7 +141,11 @@ def export_file(
     ):
         obj.to_file(filename, fformat="roff")
     elif filename.suffix == ".csv" and isinstance(obj, pd.DataFrame):
-        obj.to_csv(filename, index=flag == "include_index")
+        logger.info(
+            "Exporting dataframe to csv. Note: index columns will not be "
+            "preserved unless calling 'reset_index()' on the dataframe."
+        )
+        obj.to_csv(filename, index=False)
     elif filename.suffix == ".arrow":
         from pyarrow import Table
 
@@ -188,6 +193,20 @@ def export_file_compute_checksum_md5(
     return md5sum(filename)
 
 
+def compute_md5_using_temp_file(
+    obj: types.Inferrable, extension: str, flag: str = ""
+) -> str:
+    """Compute an MD5 sum using a temporary file."""
+    if not extension.startswith("."):
+        raise ValueError("An extension must start with '.'")
+
+    with NamedTemporaryFile(buffering=0, suffix=extension) as tf:
+        logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
+        return export_file_compute_checksum_md5(
+            obj=obj, filename=Path(tf.name), flag=flag
+        )
+
+
 def create_symlink(source: str, target: str) -> None:
     """Create a symlinked file with some checks."""
 
@@ -211,9 +230,9 @@ def size(fname: str) -> int:
     return Path(fname).stat().st_size
 
 
-def uuid_from_string(string: str) -> str:
+def uuid_from_string(string: str) -> uuid.UUID:
     """Produce valid and repeteable UUID4 as a hash of given string"""
-    return str(uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest()))
+    return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())
 
 
 def read_parameters_txt(pfile: Path | str) -> types.Parameters:

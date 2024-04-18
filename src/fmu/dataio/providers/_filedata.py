@@ -9,13 +9,14 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Final, Optional
 from warnings import warn
 
 from fmu.dataio._definitions import FmuContext
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import export_file_compute_checksum_md5
+from fmu.dataio._utils import (
+    compute_md5_using_temp_file,
+)
 from fmu.dataio.datastructure.meta import meta
 
 logger: Final = null_logger(__name__)
@@ -54,18 +55,13 @@ class FileDataProvider:
         return self.dataio.name or self.objdata.name
 
     def get_metadata(self) -> meta.File:
-        relpath, symrelpath = self._get_path()
+        relpath = self._get_path()
         relative_path, absolute_path = self._derive_filedata_generic(relpath)
-        relative_path_symlink, absolute_path_symlink = (
-            self._derive_filedata_generic(symrelpath) if symrelpath else (None, None)
-        )
         logger.info("Returning metadata pydantic model meta.File")
         return meta.File(
             absolute_path=absolute_path,
             relative_path=relative_path,
             checksum_md5=self._compute_md5() if self.compute_md5 else None,
-            relative_path_symlink=relative_path_symlink,
-            absolute_path_symlink=absolute_path_symlink,
         )
 
     def _derive_filedata_generic(self, inrelpath: Path) -> tuple[Path, Path]:
@@ -110,14 +106,9 @@ class FileDataProvider:
         """Compute an MD5 sum using a temporary file."""
         if self.obj is None:
             raise ValueError("Can't compute MD5 sum without an object.")
-        if not self.objdata.extension.startswith("."):
-            raise ValueError("An extension must start with '.'")
-
-        with NamedTemporaryFile(buffering=0, suffix=self.objdata.extension) as tf:
-            logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
-            return export_file_compute_checksum_md5(
-                obj=self.obj, filename=Path(tf.name), flag=self.dataio._usefmtflag
-            )
+        return compute_md5_using_temp_file(
+            self.obj, self.objdata.extension, self.dataio._usefmtflag
+        )
 
     def _get_filestem(self) -> str:
         """Construct the file"""
@@ -161,35 +152,9 @@ class FileDataProvider:
         stem = stem.replace("ø", "oe")
         return stem.replace("å", "aa")
 
-    def _get_path(self) -> tuple[Path, Path | None]:
+    def _get_path(self) -> Path:
         """Construct and get the folder path(s)."""
-        linkdest = None
-
-        assert isinstance(
-            self.dataio.fmu_context, FmuContext
-        )  # Converted to a FmuContext obj. in post-init.
-
-        dest = self._get_path_generic(
-            mode=self.dataio.fmu_context,
-            allow_forcefolder=True,
-        )
-
-        if self.dataio.fmu_context == FmuContext.CASE_SYMLINK_REALIZATION:
-            linkdest = self._get_path_generic(
-                mode=FmuContext.REALIZATION,
-                allow_forcefolder=False,
-                info=self.dataio.fmu_context.name,
-            )
-
-        return dest, linkdest
-
-    def _get_path_generic(
-        self,
-        mode: FmuContext,
-        allow_forcefolder: bool = True,
-        info: str = "",
-    ) -> Path:
-        """Generically construct and get the folder path and verify."""
+        mode = self.dataio.fmu_context
         outroot = deepcopy(self.rootpath)
 
         logger.info("FMU context is %s", mode)
@@ -229,10 +194,5 @@ class FileDataProvider:
             # absolute if starts with "/", otherwise relative to outroot
             dest = Path(self.dataio.forcefolder).absolute()
             self.forcefolder_is_absolute = True
-
-            if not allow_forcefolder:
-                raise RuntimeError(
-                    f"You cannot use forcefolder in combination with fmucontext={info}"
-                )
 
         return dest if not self.dataio.subfolder else dest / self.dataio.subfolder

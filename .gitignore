@@ -98,8 +98,7 @@ venv.bak/
 src/fmu/dataio/version.py
 # aggregated examples directory
 examples/s/d/nn/xcase/iter-0/
-# exported results directory
-share/
+
 
 # mypy
 .dmypy.json

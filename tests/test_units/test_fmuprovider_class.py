@@ -2,7 +2,6 @@
 
 import logging
 import os
-from pathlib import Path
 
 import fmu.dataio as dataio
 import pydantic
@@ -14,28 +13,8 @@ from fmu.dataio.providers._fmu import RESTART_PATH_ENVNAME, FmuEnv, FmuProvider
 
 logger = logging.getLogger(__name__)
 
-FOLDERTREE = "/scratch/myfield/case/realization-13/iter-2/"
 WORKFLOW = {"reference": "some_work_flow"}
-
 GLOBAL_CONFIG_MODEL = {"name": "Model2", "revision": "22.1.0"}
-
-
-def test_get_folderlist_from_path():
-    """Test static method on getting folders from a path"""
-    ftree = Path(FOLDERTREE)
-    mylist = FmuProvider._get_folderlist_from_path(ftree)
-    assert mylist[-1] == "iter-2"
-    assert mylist[-3] == "case"
-    assert mylist[0] == "scratch"
-
-
-def test_get_folderlist_from_ert_runpath(monkeypatch):
-    """Test static method on getting folders from a _ERT_RUNPATH env variable"""
-    logger.debug("Set ENV for RUNPATH as %s", FmuEnv.RUNPATH.keyname)
-    monkeypatch.setenv(FmuEnv.RUNPATH.keyname, FOLDERTREE)
-    mylist = FmuProvider._get_folderlist_from_runpath_env()
-    assert mylist[-1] == "iter-2"
-    assert mylist[-3] == "case"
 
 
 def test_fmuprovider_no_provider():
@@ -46,10 +25,9 @@ def test_fmuprovider_no_provider():
         fmu_context=FmuContext.REALIZATION,
         casepath_proposed="",
         include_ertjobs=False,
-        forced_realization=None,
         workflow=WORKFLOW,
     )
-    assert myfmu.get_provider() is None
+    assert myfmu.get_metadata() is None
 
 
 def test_fmuprovider_model_info_in_metadata(fmurun_w_casemetadata):
@@ -58,18 +36,19 @@ def test_fmuprovider_model_info_in_metadata(fmurun_w_casemetadata):
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.REALIZATION,
-        workflow="some work flow",
+        workflow=WORKFLOW,
     )
-
-    assert "model" in myfmu._metadata
-    assert myfmu._metadata["model"] == GLOBAL_CONFIG_MODEL
+    meta = myfmu.get_metadata()
+    assert "model" in meta.model_fields_set
+    assert meta.model.model_dump(mode="json", exclude_none=True) == GLOBAL_CONFIG_MODEL
 
     myfmu = FmuProvider(
         model=None,
         fmu_context=FmuContext.REALIZATION,
-        workflow="some work flow",
+        workflow=WORKFLOW,
     )
-    assert not myfmu._metadata["model"]
+    meta = myfmu.get_metadata()
+    assert meta is None
 
 
 def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
@@ -84,32 +63,29 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
             fmu_context=FmuContext.REALIZATION,
             casepath_proposed="",  # if casepath is undef, try deduce from, _ERT_RUNPATH
             include_ertjobs=False,
-            forced_realization=None,
             workflow=WORKFLOW,
         )
 
-    assert myfmu.get_provider() == "ERT"
-    assert not myfmu.get_metadata()
-    assert myfmu.get_casepath() == ""
+    assert myfmu.get_metadata() is None
+    assert myfmu.get_casepath() is None
 
 
-def test_fmuprovider_ert_provider_missing_parameter_txt(
-    fmurun_w_casemetadata, globalconfig1
-):
+def test_fmuprovider_ert_provider_missing_parameter_txt(fmurun_w_casemetadata):
     """Test for an ERT case, when missing file parameter.txt (e.g. pred. run)"""
 
     os.chdir(fmurun_w_casemetadata)
 
     # delete the file for this test
     (fmurun_w_casemetadata / "parameters.txt").unlink()
-
+    myfmu = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL,
+        fmu_context=FmuContext.REALIZATION,
+        include_ertjobs=True,
+        workflow=WORKFLOW,
+    )
     with pytest.warns(UserWarning, match="parameters.txt file was not found"):
-        myfmu = FmuProvider(
-            model=GLOBAL_CONFIG_MODEL,
-            fmu_context=FmuContext.REALIZATION,
-            include_ertjobs=True,
-            workflow=WORKFLOW,
-        )
+        myfmu.get_metadata()
+
     assert myfmu._case_name == "ertrun1"
     assert myfmu._real_name == "realization-0"
     assert myfmu._real_id == 0
@@ -129,11 +105,51 @@ def test_fmuprovider_arbitrary_iter_name(fmurun_w_casemetadata_pred):
     assert myfmu._real_name == "realization-0"
     assert myfmu._real_id == 0
     assert myfmu._iter_name == "pred"
-    assert not myfmu._iter_id
-    assert (
-        myfmu._case_metadata["fmu"]["case"]["uuid"]
-        == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
+    # iter_id should have the default value
+    assert myfmu._iter_id == 0
+    meta = myfmu.get_metadata()
+    assert str(meta.case.uuid) == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
+
+
+def test_fmuprovider_get_real_and_iter_from_env(fmurun_non_equal_real_and_iter):
+    """Test that iter and real number is picked up correctly from env"""
+
+    os.chdir(fmurun_non_equal_real_and_iter)
+    myfmu = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL,
+        fmu_context=FmuContext.REALIZATION,
+        include_ertjobs=True,
+        workflow=WORKFLOW,
     )
+    assert myfmu._runpath == fmurun_non_equal_real_and_iter
+    assert myfmu._case_name == "ertrun1"
+    assert myfmu._real_name == "realization-1"
+    assert myfmu._real_id == 1
+    assert myfmu._iter_name == "iter-0"
+    assert myfmu._iter_id == 0
+
+
+def test_fmuprovider_no_iter_folder(fmurun_no_iter_folder):
+    """Test that the fmuprovider works without a iteration folder"""
+
+    os.chdir(fmurun_no_iter_folder)
+    myfmu = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION, workflow=WORKFLOW
+    )
+    assert myfmu._runpath == fmurun_no_iter_folder
+    assert myfmu._casepath == fmurun_no_iter_folder.parent
+    assert myfmu._case_name == "ertrun1_no_iter"
+    assert myfmu._real_name == "realization-1"
+    assert myfmu._real_id == 1
+    assert myfmu._iter_name == "iter-0"
+    assert myfmu._iter_id == 0
+
+    # also check that it is stored correctly in the metadata
+    meta = myfmu.get_metadata()
+    assert meta.realization.name == "realization-1"
+    assert meta.realization.id == 1
+    assert meta.iteration.name == "iter-0"
+    assert meta.iteration.id == 0
 
 
 def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
@@ -186,15 +202,42 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
     """
     os.chdir(fmurun)
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match="Case metadata does not exist"):
         myfmu = FmuProvider(
             model=GLOBAL_CONFIG_MODEL,
             fmu_context=FmuContext.REALIZATION,
         )
-    assert myfmu._case_name == "ertrun1"
-    assert myfmu._real_name == "realization-0"
-    assert myfmu._real_id == 0
-    assert not myfmu._case_metadata
+    meta = myfmu.get_metadata()
+    assert meta is None
+
+
+def test_fmuprovider_case_run(fmurun_prehook):
+    """
+    When fmu_context="case" and no runpath can be detected from environment
+    an error should be raised if no casepath is provided.
+    """
+    logger.info("Active folder is %s", fmurun_prehook)
+
+    os.chdir(fmurun_prehook)
+
+    # make sure that no runpath environment value is present
+    assert FmuEnv.RUNPATH.value is None
+
+    with pytest.raises(ValueError, match="Could not auto detect the casepath"):
+        FmuProvider(
+            model=GLOBAL_CONFIG_MODEL,
+            fmu_context=FmuContext.CASE,
+        )
+
+    # providing the casepath is the solution, and no error is thrown
+    myfmu = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL,
+        fmu_context=FmuContext.CASE,
+        casepath_proposed=fmurun_prehook,
+    )
+    meta = myfmu.get_metadata()
+    assert meta.realization is None
+    assert myfmu._case_name == fmurun_prehook.name
 
 
 def test_fmuprovider_valid_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_pred):
@@ -206,6 +249,7 @@ def test_fmuprovider_valid_restart_env(monkeypatch, fmurun_w_casemetadata, fmuru
     fmu_restart_from = FmuProvider(
         model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION
     )
+    meta_restart_from = fmu_restart_from.get_metadata()
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, str(fmurun_w_casemetadata))
 
@@ -214,10 +258,9 @@ def test_fmuprovider_valid_restart_env(monkeypatch, fmurun_w_casemetadata, fmuru
         model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION
     )
 
-    assert (
-        fmu_restart._metadata["iteration"]["restart_from"]
-        == fmu_restart_from._metadata["iteration"]["uuid"]
-    )
+    meta_restart = fmu_restart.get_metadata()
+    assert meta_restart.iteration.restart_from is not None
+    assert meta_restart.iteration.restart_from == meta_restart_from.iteration.uuid
 
 
 def test_fmuprovider_invalid_restart_env(
@@ -237,7 +280,8 @@ def test_fmuprovider_invalid_restart_env(
     fmu_restart = FmuProvider(
         model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION
     )
-    assert "restart_from" not in fmu_restart._metadata["iteration"]
+    meta = fmu_restart.get_metadata()
+    assert meta.iteration.restart_from is None
 
 
 def test_fmuprovider_no_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_pred):
@@ -253,13 +297,13 @@ def test_fmuprovider_no_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_p
     monkeypatch.delenv(RESTART_PATH_ENVNAME)
 
     os.chdir(fmurun_pred)
-    fmu_restart = FmuProvider(
+    restart_meta = FmuProvider(
         model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.REALIZATION
-    )
-    assert "restart_from" not in fmu_restart._metadata["iteration"]
+    ).get_metadata()
+    assert restart_meta.iteration.restart_from is None
 
 
-def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, edataobj1):
+def test_fmuprovider_workflow_reference(fmurun_w_casemetadata):
     """Testing the handling of workflow reference input.
 
     Metadata definitions of fmu.workflow is that it is a dictionary with 'reference'
@@ -268,9 +312,8 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, edataobj1):
     to a string which is inserted into the 'workflow' element in the outgoing metadata.
     Some users still have legacy workflows that give this as a dictionary, so we will
     continue to allow it, but with a warning.
-
     This test is asserting that when 'workflow' is given in various shapes and forms,
-    it shall always produce valid metadata.
+    it shall always produce valid metadata, or give a validation error if not.
 
     """
     os.chdir(fmurun_w_casemetadata)
@@ -279,17 +322,25 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, edataobj1):
     edata = dataio.ExportData(workflow="workflow as string")
     # check that the conversion to dict works
     assert edata.workflow == {"reference": "workflow as string"}
-    myfmu = FmuProvider(workflow=edata.workflow)
-    assert "workflow" in myfmu._metadata
-    assert myfmu._metadata["workflow"] == edata.workflow
+    myfmu_meta = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL, workflow=edata.workflow
+    ).get_metadata()
+    assert myfmu_meta.workflow is not None
+    assert (
+        myfmu_meta.workflow.model_dump(mode="json", exclude_none=True) == edata.workflow
+    )
 
     # workflow input is a correct dict
     with pytest.warns(FutureWarning, match="The 'workflow' argument"):
         edata = dataio.ExportData(workflow={"reference": "workflow as dict"})
     assert edata.workflow == {"reference": "workflow as dict"}
-    myfmu = FmuProvider(workflow=edata.workflow)
-    assert "workflow" in myfmu._metadata
-    assert myfmu._metadata["workflow"] == edata.workflow
+    myfmu_meta = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL, workflow=edata.workflow
+    ).get_metadata()
+    assert myfmu_meta.workflow is not None
+    assert (
+        myfmu_meta.workflow.model_dump(mode="json", exclude_none=True) == edata.workflow
+    )
 
     # workflow input is non-correct dict
     with pytest.raises(pydantic.ValidationError):

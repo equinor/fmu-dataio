@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any, ClassVar, Final, List, Literal, Optional, Union
 from warnings import warn
 
-import pandas as pd
 from pydantic import ValidationError as PydanticValidationError
 
 from . import types
@@ -23,9 +22,8 @@ from ._definitions import (
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._utils import (
-    create_symlink,
     detect_inside_rms,  # dataio_examples,
-    export_file_compute_checksum_md5,
+    export_file,
     export_metadata_file,
     read_metadata_from_file,
 )
@@ -297,9 +295,8 @@ class ExportData:
 
         grid_model: Currently allowed but planned for deprecation
 
-        include_index: This applies to Pandas (table) data only, and if True then the
-            index column will be exported. Deprecated, use class variable
-            ``table_include_index`` instead
+        table_index: This applies to Pandas (table) data only, and is a list of the
+            column names to use as index columns e.g. ["ZONE", "REGION"].
 
         is_prediction: True (default) if model prediction data
 
@@ -317,10 +314,6 @@ class ExportData:
 
         parent: Optional. This key is required for datatype GridProperty, and
             refers to the name of the grid geometry.
-
-        realization: Optional, default is -999 which means that realization shall be
-            detected automatically from the FMU run. Can be used to override in rare
-            cases. If so, numbers must be >= 0
 
         rep_include: Optional. Boolean flag for REP to display this data object.
 
@@ -399,7 +392,7 @@ class ExportData:
     surface_fformat: ClassVar[str] = "irap_binary"
     table_fformat: ClassVar[str] = "csv"
     dict_fformat: ClassVar[str] = "json"
-    table_include_index: ClassVar[bool] = False
+    table_include_index: ClassVar[bool] = False  # deprecated
     verifyfolder: ClassVar[bool] = True  # deprecated
     _inside_rms: ClassVar[bool] = False  # developer only! if True pretend inside RMS
 
@@ -421,8 +414,8 @@ class ExportData:
     name: str = ""
     undef_is_zero: bool = False
     parent: str = ""
-    realization: int = -999
     rep_include: Optional[bool] = None
+    realization: Optional[int] = None  # deprecated
     reuse_metadata_rule: Optional[str] = None  # deprecated
     runpath: Optional[Union[str, Path]] = None
     subfolder: str = ""
@@ -558,6 +551,19 @@ class ExportData:
                 "Please remove it from the argument list.",
                 UserWarning,
             )
+        if self.realization:
+            warn(
+                "The 'realization' key is deprecated and has no effect. "
+                "Please remove it from the argument list.",
+                UserWarning,
+            )
+        if self.table_include_index:
+            warn(
+                "The 'table_include_index' option is deprecated and has no effect. "
+                "To get the index included in your dataframe, reset the index "
+                "before exporting the dataframe with dataio i.e. df = df.reset_index()",
+                UserWarning,
+            )
         if self.verbosity != "DEPRECATED":
             warn(
                 "Using the 'verbosity' key is now deprecated and will have no "
@@ -594,6 +600,17 @@ class ExportData:
         will be established based on the presence of ERT environment variables.
         """
 
+        if self.fmu_context and self.fmu_context.lower() == "case_symlink_realization":
+            raise ValueError(
+                "fmu_context is set to 'case_symlink_realization', which is no "
+                "longer a supported option. Recommended workflow is to export "
+                "your data as preprocessed ouside of FMU, and re-export the data "
+                "with fmu_context='case' using a PRE_SIMULATION ERT workflow. "
+                "If needed, forward_models in ERT can be set-up to create symlinks "
+                "out into the individual realizations.",
+                UserWarning,
+            )
+
         env_fmu_context = get_fmu_context_from_environment()
         logger.debug("fmu context from input is %s", self.fmu_context)
         logger.debug("fmu context from environment is %s", env_fmu_context)
@@ -617,6 +634,14 @@ class ExportData:
                 FmuContext.NON_FMU,
             )
             self.fmu_context = FmuContext.NON_FMU
+
+        if self.fmu_context != FmuContext.CASE and env_fmu_context == FmuContext.CASE:
+            warn(
+                "fmu_context is set to 'realization', but unable to detect "
+                "ERT runpath from environment variable. "
+                "Did you mean fmu_context='case'?",
+                UserWarning,
+            )
 
     def _update_fmt_flag(self) -> None:
         # treat special handling of "xtgeo" in format name:
@@ -725,9 +750,8 @@ class ExportData:
         return FmuProvider(
             model=self.config.get("model"),
             fmu_context=self.fmu_context,
-            casepath_proposed=self.casepath or "",
+            casepath_proposed=Path(self.casepath) if self.casepath else None,
             include_ertjobs=self.include_ertjobs,
-            forced_realization=self.realization,
             workflow=self.workflow,
         )
 
@@ -778,13 +802,12 @@ class ExportData:
         self._update_fmt_flag()
 
         fmudata = self._get_fmu_provider() if self._fmurun else None
-
         # update rootpath based on fmurun or not
         # TODO: Move to ExportData init when/if users are
         # disallowed to update class settings on the export.
-        self._rootpath = Path(
-            fmudata.get_casepath() if fmudata else str(self._rootpath.absolute())
-        )
+        if fmudata and (casepath := fmudata.get_casepath()):
+            self._rootpath = casepath
+        self._rootpath = self._rootpath.absolute()
         logger.debug("Rootpath is now %s", self._rootpath)
 
         # TODO: refactor the argument list for generate_export_metadata; we do not need
@@ -814,17 +837,17 @@ class ExportData:
 
         Args:
             obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
-            return_symlink: If fmu_context is 'case_symlink_realization' then the link
-                adress will be returned if this is True; otherwise the physical file
-                path will be returned.
             **kwargs: For other arguments, see ExportData() input keys. If they
                 exist both places, this function will override!
 
         Returns:
             String: full path to exported item.
         """
-        self.table_index = kwargs.get("table_index", self.table_index)
-        self.generate_metadata(obj, compute_md5=False, **kwargs)
+        if return_symlink:
+            warnings.warn(
+                "The return_symlink option is deprecated and can safely be removed."
+            )
+        self.generate_metadata(obj, compute_md5=True, **kwargs)
         metadata = self._metadata
         logger.info("Object type is: %s", type(self._object))  # from generate_metadata
 
@@ -833,21 +856,9 @@ class ExportData:
         outfile.parent.mkdir(parents=True, exist_ok=True)
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
-        useflag = (
-            self.table_include_index
-            if isinstance(self._object, pd.DataFrame)
-            else self._usefmtflag
-        )
-
-        logger.info("Export to file and compute MD5 sum, using flag: <%s>", useflag)
-
-        # inject md5 checksum in metadata
-        metadata["file"]["checksum_md5"] = export_file_compute_checksum_md5(
-            self._object,
-            outfile,
-            flag=useflag,  # type: ignore
-            # BUG(?): Looks buggy, if flag is bool export_file will blow up.
-        )
+        logger.info("Export to file using flag: <%s>", self._usefmtflag)
+        # md5sum is already present in the metadata
+        export_file(self._object, outfile, flag=self._usefmtflag)
         logger.info("Actual file is:   %s", outfile)
 
         if self._config_is_valid:
@@ -856,17 +867,6 @@ class ExportData:
         else:
             warnings.warn("Data will be exported, but without metadata.", UserWarning)
 
-        # generate symlink if requested
-        outfile_target = None
-        if metadata["file"].get("absolute_path_symlink"):
-            outfile_target = Path(metadata["file"]["absolute_path_symlink"])
-            outfile_target.parent.mkdir(parents=True, exist_ok=True)
-            create_symlink(str(outfile), str(outfile_target))
-            metafile_target = outfile_target.parent / ("." + str(outfile.name) + ".yml")
-            create_symlink(str(metafile), str(metafile_target))
-
         self._metadata = metadata
 
-        if return_symlink and outfile_target:
-            return str(outfile_target)
         return str(outfile)

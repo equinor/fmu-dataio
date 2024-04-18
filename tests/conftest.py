@@ -22,6 +22,7 @@ from .utils import _metadata_examples
 logger = logging.getLogger(__name__)
 
 ERTRUN = "tests/data/drogon/ertrun1"
+ERTRUN_NO_ITER = "tests/data/drogon/ertrun1_no_iter"
 ERTRUN_REAL0_ITER0 = f"{ERTRUN}/realization-0/iter-0"
 ERTRUN_PRED = f"{ERTRUN}/realization-0/pred"
 
@@ -108,6 +109,38 @@ def fixture_fmurun_w_casemetadata(tmp_path_factory, monkeypatch, rootpath):
     rootpath = newpath / "realization-0/iter-0"
 
     _fmu_run1_env_variables(monkeypatch, usepath=rootpath, case_only=False)
+
+    logger.debug("Ran %s", _current_function_name())
+    return rootpath
+
+
+@pytest.fixture(name="fmurun_non_equal_real_and_iter", scope="function")
+def fixture_fmurun_non_equal_real_and_iter(tmp_path_factory, monkeypatch, rootpath):
+    """Create a tmp folder structure for testing; with non equal real and iter num!"""
+    tmppath = tmp_path_factory.mktemp("data3")
+    newpath = tmppath / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, newpath)
+    rootpath = newpath / "realization-1/iter-0"
+
+    monkeypatch.setenv(f"_ERT_{FmuEnv.ITERATION_NUMBER.name}", "0")
+    monkeypatch.setenv(f"_ERT_{FmuEnv.REALIZATION_NUMBER.name}", "1")
+    monkeypatch.setenv(f"_ERT_{FmuEnv.RUNPATH.name}", str(rootpath))
+
+    logger.debug("Ran %s", _current_function_name())
+    return rootpath
+
+
+@pytest.fixture(name="fmurun_no_iter_folder", scope="function")
+def fixture_fmurun_no_iter_folder(tmp_path_factory, monkeypatch, rootpath):
+    """Create a tmp folder structure for testing; with no iter folder!"""
+    tmppath = tmp_path_factory.mktemp("data3")
+    newpath = tmppath / ERTRUN_NO_ITER
+    shutil.copytree(rootpath / ERTRUN_NO_ITER, newpath)
+    rootpath = newpath / "realization-1"
+
+    monkeypatch.setenv(f"_ERT_{FmuEnv.ITERATION_NUMBER.name}", "0")
+    monkeypatch.setenv(f"_ERT_{FmuEnv.REALIZATION_NUMBER.name}", "1")
+    monkeypatch.setenv(f"_ERT_{FmuEnv.RUNPATH.name}", str(rootpath))
 
     logger.debug("Ran %s", _current_function_name())
     return rootpath
@@ -475,17 +508,11 @@ def fixture_arrowtable():
         return None
 
 
-@pytest.fixture(name="aggr_surfs_mean", scope="function")
-def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
-    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
-    logger.debug("Ran %s", _current_function_name())
-
-    origfolder = os.getcwd()
-    os.chdir(fmurun_w_casemetadata)
-
+# helper function for the two fixtures below
+def _create_aggregated_surface_dataset(rmsglobalconfig, regsurf, content):
     edata = dio.ExportData(
         config=rmsglobalconfig,  # read from global config
-        content="depth",
+        content=content,
     )
 
     aggs = []
@@ -506,6 +533,42 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
 
         metas.append(meta)
         surfs.append([surf])
+    return surfs, metas
+
+
+@pytest.fixture(name="aggr_sesimic_surfs_mean", scope="function")
+def fixture_aggr_seismic_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
+    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
+    logger.debug("Ran %s", _current_function_name())
+
+    origfolder = os.getcwd()
+    os.chdir(fmurun_w_casemetadata)
+
+    surfs, metas = _create_aggregated_surface_dataset(
+        rmsglobalconfig, regsurf, content={"seismic": {"attribute": "amplitude"}}
+    )
+
+    aggregated = surfs.statistics()
+    logger.debug(
+        "Aggr. mean is %s", aggregated["mean"].values.mean()
+    )  # shall be 1238.5
+
+    os.chdir(origfolder)
+
+    return (aggregated["mean"], metas)
+
+
+@pytest.fixture(name="aggr_surfs_mean", scope="function")
+def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
+    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
+    logger.debug("Ran %s", _current_function_name())
+
+    origfolder = os.getcwd()
+    os.chdir(fmurun_w_casemetadata)
+
+    surfs, metas = _create_aggregated_surface_dataset(
+        rmsglobalconfig, regsurf, content="depth"
+    )
 
     aggregated = surfs.statistics()
     logger.debug(

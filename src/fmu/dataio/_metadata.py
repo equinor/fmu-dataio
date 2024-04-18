@@ -176,10 +176,6 @@ def _get_meta_masterdata(masterdata: dict) -> meta.Masterdata:
     return meta.Masterdata.model_validate(masterdata)
 
 
-def _get_meta_fmu(fmudata: FmuProvider) -> internal.FMUClassMetaData:
-    return internal.FMUClassMetaData.model_validate(fmudata.get_metadata())
-
-
 def _get_meta_display(dataio: ExportData, objdata: ObjectDataProvider) -> meta.Display:
     return meta.Display(name=dataio.display_name or objdata.name)
 
@@ -242,7 +238,7 @@ def generate_export_metadata(
         version=VERSION,
         source=SOURCE,
         class_=objdata.classname,
-        fmu=_get_meta_fmu(fmudata) if fmudata else None,
+        fmu=fmudata.get_metadata() if fmudata else None,
         masterdata=_get_meta_masterdata(masterdata) if masterdata else None,
         access=_get_meta_access(dataio) if access else None,
         data=_get_meta_objectdata(objdata),
