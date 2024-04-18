@@ -12,7 +12,6 @@ and are typically used to compare results.
 
 import logging
 import os
-from pathlib import Path
 
 import fmu.dataio.dataio as dataio
 import pytest
@@ -48,33 +47,6 @@ def test_regsurf_case_observation(fmurun_w_casemetadata, rmsglobalconfig, regsur
 
     exp = edata.export(regsurf)
     assert "ertrun1/share/observations/maps/mymap.gri" in exp
-
-
-def test_regsurf_case_observation_w_symlinks(
-    fmurun_w_casemetadata, rmsglobalconfig, regsurf
-):
-    """Generating case level surface, with symlinks in realization folders."""
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
-
-    os.chdir(fmurun_w_casemetadata)
-
-    edata = dataio.ExportData(
-        config=rmsglobalconfig,  # read from global config
-        fmu_context="case_symlink_realization",
-        name="mymap",
-        content="depth",
-        is_observation=True,
-    )
-    metadata = edata.generate_metadata(regsurf)
-    logger.info("\n%s", utils.prettyprint_dict(metadata))
-    assert (
-        "realization-0/iter-0/share/observations/maps/mymap.gri"
-        in metadata["file"]["relative_path_symlink"]
-    )
-
-    exp = edata.export(regsurf, return_symlink=True)
-    myfile = Path(exp)
-    assert myfile.is_symlink() is True
 
 
 def test_regsurf_preprocessed_observation(

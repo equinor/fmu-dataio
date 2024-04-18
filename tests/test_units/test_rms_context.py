@@ -397,29 +397,21 @@ def test_cube_export_as_case(rmssetup, rmsglobalconfig, cube):
 
 
 @inside_rms
-def test_cube_export_as_case_symlink_realization(rmssetup, rmsglobalconfig, cube):
-    """Export the cube to file with correct metadata and name, is_observation.
-
-    In addition, try fmu_conext=case
-    """
+def test_case_symlink_realization_raises_error(
+    rmssetup, rmsglobalconfig, cube, monkeypatch
+):
+    """Test that fmu_context="case_symlink_realization" raises error."""
     logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
+    monkeypatch.chdir(rmssetup)
 
-    edata = dataio.ExportData(
-        config=rmsglobalconfig, content="depth"
-    )  # read from global config
-
-    output = edata.export(
-        cube,
-        name="MyCube",
-        fmu_context="case_symlink_realization",
-        is_observation=True,
-    )
-    logger.info("Output %s", output)
-
-    assert str(output) == str(
-        (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
-    )
+    edata = dataio.ExportData(config=rmsglobalconfig, content="depth")
+    with pytest.raises(ValueError, match="no longer a supported option"):
+        edata.export(
+            cube,
+            name="MyCube",
+            fmu_context="case_symlink_realization",
+            is_observation=True,
+        )
 
 
 @inside_rms

@@ -15,7 +15,6 @@ def test_fmu_context_validation() -> None:
     assert FmuContext.list_valid_values() == [
         "realization",
         "case",
-        "case_symlink_realization",
         "preprocessed",
         "non-fmu",
     ]

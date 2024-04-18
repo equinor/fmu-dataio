@@ -55,18 +55,13 @@ class FileDataProvider:
         return self.dataio.name or self.objdata.name
 
     def get_metadata(self) -> meta.File:
-        relpath, symrelpath = self._get_path()
+        relpath = self._get_path()
         relative_path, absolute_path = self._derive_filedata_generic(relpath)
-        relative_path_symlink, absolute_path_symlink = (
-            self._derive_filedata_generic(symrelpath) if symrelpath else (None, None)
-        )
         logger.info("Returning metadata pydantic model meta.File")
         return meta.File(
             absolute_path=absolute_path,
             relative_path=relative_path,
             checksum_md5=self._compute_md5() if self.compute_md5 else None,
-            relative_path_symlink=relative_path_symlink,
-            absolute_path_symlink=absolute_path_symlink,
         )
 
     def _derive_filedata_generic(self, inrelpath: Path) -> tuple[Path, Path]:
@@ -157,35 +152,9 @@ class FileDataProvider:
         stem = stem.replace("ø", "oe")
         return stem.replace("å", "aa")
 
-    def _get_path(self) -> tuple[Path, Path | None]:
+    def _get_path(self) -> Path:
         """Construct and get the folder path(s)."""
-        linkdest = None
-
-        assert isinstance(
-            self.dataio.fmu_context, FmuContext
-        )  # Converted to a FmuContext obj. in post-init.
-
-        dest = self._get_path_generic(
-            mode=self.dataio.fmu_context,
-            allow_forcefolder=True,
-        )
-
-        if self.dataio.fmu_context == FmuContext.CASE_SYMLINK_REALIZATION:
-            linkdest = self._get_path_generic(
-                mode=FmuContext.REALIZATION,
-                allow_forcefolder=False,
-                info=self.dataio.fmu_context.name,
-            )
-
-        return dest, linkdest
-
-    def _get_path_generic(
-        self,
-        mode: FmuContext,
-        allow_forcefolder: bool = True,
-        info: str = "",
-    ) -> Path:
-        """Generically construct and get the folder path and verify."""
+        mode = self.dataio.fmu_context
         outroot = deepcopy(self.rootpath)
 
         logger.info("FMU context is %s", mode)
@@ -225,10 +194,5 @@ class FileDataProvider:
             # absolute if starts with "/", otherwise relative to outroot
             dest = Path(self.dataio.forcefolder).absolute()
             self.forcefolder_is_absolute = True
-
-            if not allow_forcefolder:
-                raise RuntimeError(
-                    f"You cannot use forcefolder in combination with fmucontext={info}"
-                )
 
         return dest if not self.dataio.subfolder else dest / self.dataio.subfolder
