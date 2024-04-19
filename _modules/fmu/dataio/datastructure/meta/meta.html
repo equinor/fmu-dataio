@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g0d371c1 documentation</title>
+  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g69dcd09 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -158,7 +158,16 @@
     <span class="p">)</span>
 
     <span class="n">relative_path_symlink</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">absolute_path_symlink</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+    <span class="n">absolute_path_symlink</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_for_non_ascii_in_path</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">path</span> <span class="o">:=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">isascii</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Path has non-ascii elements which is not supported: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">values</span></div>
 
 
 <div class="viewcode-block" id="Parameters"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.meta.Parameters">[docs]</a><span class="k">class</span> <span class="nc">Parameters</span><span class="p">(</span><span class="n">RootModel</span><span class="p">):</span>
@@ -683,7 +692,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g0d371c1).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g69dcd09).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
