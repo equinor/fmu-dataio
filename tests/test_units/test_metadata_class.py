@@ -17,7 +17,6 @@ from fmu.dataio.datastructure.meta.meta import (
     SystemInformationOperatingSystem,
     TracklogEvent,
 )
-from pydantic import ValidationError
 
 # pylint: disable=no-member
 
@@ -175,7 +174,7 @@ def test_metadata_populate_masterdata_is_present_ok(edataobj1, edataobj2, regsur
 # --------------------------------------------------------------------------------------
 
 
-def test_metadata_populate_access_miss_config_access(globalconfig1, regsurf):
+def test_metadata_populate_access_miss_cfg_access(globalconfig1, regsurf):
     """Testing the access part, now with config missing access."""
 
     cfg1_edited = deepcopy(globalconfig1)
@@ -185,7 +184,8 @@ def test_metadata_populate_access_miss_config_access(globalconfig1, regsurf):
     assert not edata._config_is_valid
 
     mymeta = generate_export_metadata(regsurf, edata)
-    assert "access" not in mymeta
+    # check that the default "internal" is used
+    assert mymeta["access"]["classification"] == "internal"
 
 
 def test_metadata_populate_access_ok_config(edataobj2, regsurf):
@@ -203,7 +203,7 @@ def test_metadata_populate_from_argument(globalconfig1, regsurf):
     """Testing the access part, now with ok config and a change in access."""
 
     # test assumptions
-    assert globalconfig1["access"]["ssdl"]["access_level"] == "internal"
+    assert globalconfig1["access"]["classification"] == "internal"
 
     edata = dio.ExportData(
         config=globalconfig1,
@@ -223,7 +223,7 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1, regsurf):
     """Test what happens if ssdl_access argument is partial."""
 
     # test assumptions
-    assert globalconfig1["access"]["ssdl"]["access_level"] == "internal"
+    assert globalconfig1["access"]["classification"] == "internal"
     assert globalconfig1["access"]["ssdl"]["rep_include"] is False
 
     # rep_include only, but in config
@@ -253,30 +253,27 @@ def test_metadata_populate_wrong_config(globalconfig1, regsurf):
 
     # test assumptions
     _config = deepcopy(globalconfig1)
-    _config["access"]["ssdl"]["access_level"] = "wrong"
+    _config["access"]["classification"] = "wrong"
 
     with pytest.warns(UserWarning):
         edata = dio.ExportData(config=_config, content="depth")
 
     assert not edata._config_is_valid
 
-    with pytest.raises(ValidationError, match="ssdl.access_level"):
-        generate_export_metadata(regsurf, edata)
+    # use default 'internal' if wrong in config
+    meta = generate_export_metadata(regsurf, edata)
+    assert meta["access"]["classification"] == "internal"
 
 
-def test_metadata_populate_wrong_argument(globalconfig1, regsurf):
+def test_metadata_populate_wrong_argument(globalconfig1):
     """Test error in access_ssdl in arguments."""
 
-    with pytest.warns(UserWarning):
-        edata = dio.ExportData(
+    with pytest.raises(ValueError, match="is not a valid AccessLevel"):
+        dio.ExportData(
             config=globalconfig1,
             access_ssdl={"access_level": "wrong"},
             content="depth",
         )
-    assert not edata._config_is_valid
-
-    with pytest.raises(ValidationError, match="ssdl.access_level"):
-        generate_export_metadata(regsurf, edata)
 
 
 def test_metadata_access_correct_input(globalconfig1, regsurf):
@@ -324,39 +321,35 @@ def test_metadata_access_deprecated_input(globalconfig1, regsurf):
     assert mymeta["access"]["classification"] == "restricted"
 
 
-def test_metadata_access_illegal_input(globalconfig1, regsurf):
+def test_metadata_access_illegal_input(globalconfig1):
     """Test giving illegal input, should provide empty access field"""
 
     # Input is "secret"
-    with pytest.warns(UserWarning):
-        edata = dio.ExportData(
+    with pytest.raises(ValueError, match="is not a valid AccessLevel"):
+        dio.ExportData(
             config=globalconfig1,
             access_ssdl={"access_level": "secret"},
             content="depth",
         )
-    assert not edata._config_is_valid
-
-    with pytest.raises(ValidationError, match="ssdl.access_level"):
-        generate_export_metadata(regsurf, edata)
 
     # Input is "open". Not allowed, shall fail.
-    with pytest.warns(UserWarning):
-        edata = dio.ExportData(
+    with pytest.raises(ValueError, match="is not a valid AccessLevel"):
+        dio.ExportData(
             config=globalconfig1,
             access_ssdl={"access_level": "open"},
             content="depth",
         )
-    assert not edata._config_is_valid
-    with pytest.raises(ValidationError, match="ssdl.access_level"):
-        generate_export_metadata(regsurf, edata)
 
 
 def test_metadata_access_no_input(globalconfig1, regsurf):
     """Test not giving any input arguments."""
 
+    # test assumption, deprected access.ssdl.access_level not present in config
+    assert "access_level" not in globalconfig1["access"]["ssdl"]
+
     # No input, revert to config
     configcopy = deepcopy(globalconfig1)
-    configcopy["access"]["ssdl"]["access_level"] = "restricted"
+    configcopy["access"]["classification"] = "restricted"
     configcopy["access"]["ssdl"]["rep_include"] = True
     edata = dio.ExportData(config=configcopy, content="depth")
     mymeta = generate_export_metadata(regsurf, edata)
@@ -366,7 +359,7 @@ def test_metadata_access_no_input(globalconfig1, regsurf):
 
     # No input, no config, shall default to "internal" and False
     configcopy = deepcopy(globalconfig1)
-    del configcopy["access"]["ssdl"]["access_level"]
+    del configcopy["access"]["classification"]
     del configcopy["access"]["ssdl"]["rep_include"]
     edata = dio.ExportData(config=globalconfig1, content="depth")
     mymeta = generate_export_metadata(regsurf, edata)

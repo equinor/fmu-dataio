@@ -281,10 +281,8 @@ def fixture_globalconfig1():
         ),
         access=global_configuration.Access(
             asset=global_configuration.Asset(name="Test"),
-            ssdl=global_configuration.Ssdl(
-                access_level=global_configuration.enums.AccessLevel.internal,
-                rep_include=False,
-            ),
+            ssdl=global_configuration.Ssdl(rep_include=False),
+            classification=global_configuration.enums.AccessLevel.internal,
         ),
         model=global_configuration.Model(
             name="Test",
@@ -299,7 +297,7 @@ def fixture_globalconfig1():
                 )
             }
         ),
-    ).model_dump()
+    ).model_dump(exclude_none=True)
 
 
 @pytest.fixture(scope="module")

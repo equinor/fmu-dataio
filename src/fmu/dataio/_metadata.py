@@ -97,8 +97,17 @@ def _get_meta_objectdata(
     )
 
 
-def _get_meta_access(access: dict) -> meta.SsdlAccess:
-    return meta.SsdlAccess.model_validate(access)
+def _get_meta_access(dataio: ExportData) -> meta.SsdlAccess:
+    return meta.SsdlAccess(
+        asset=meta.Asset(
+            name=dataio.config.get("access", {}).get("asset", {}).get("name", "")
+        ),
+        classification=dataio._classification,
+        ssdl=meta.Ssdl(
+            access_level=dataio._classification,
+            rep_include=dataio._rep_include,
+        ),
+    )
 
 
 def _get_meta_masterdata(masterdata: dict) -> meta.Masterdata:
@@ -160,7 +169,6 @@ def generate_export_metadata(
     filedata = _get_filedata_provider(dataio, obj, objdata, fmudata, compute_md5)
 
     masterdata = dataio.config.get("masterdata")
-    access = dataio.config.get("access")
 
     metadata = internal.DataClassMeta(
         schema_=TypeAdapter(AnyHttpUrl).validate_strings(SCHEMA),  # type: ignore[call-arg]
@@ -169,7 +177,7 @@ def generate_export_metadata(
         class_=objdata.classname,
         fmu=fmudata.get_metadata() if fmudata else None,
         masterdata=_get_meta_masterdata(masterdata) if masterdata else None,
-        access=_get_meta_access(access) if access else None,
+        access=_get_meta_access(dataio),
         data=_get_meta_objectdata(objdata),
         file=filedata.get_metadata(),
         tracklog=generate_meta_tracklog(),

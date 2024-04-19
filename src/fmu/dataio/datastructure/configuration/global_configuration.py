@@ -53,24 +53,10 @@ class Ssdl(BaseModel):
     Defines the configuration for the SSDL.
     """
 
-    access_level: enums.AccessLevel = Field(
-        default=enums.AccessLevel.internal,
-    )
-    rep_include: bool = Field(
+    access_level: Optional[enums.AccessLevel] = Field(default=None)
+    rep_include: Optional[bool] = Field(
         default=False,
     )
-
-    @model_validator(mode="after")
-    def _migrate_asset_to_restricted(self) -> Ssdl:
-        if self.access_level == enums.AccessLevel.asset:
-            warnings.warn(
-                "The value 'asset' for access.ssdl.access_level is deprecated. "
-                "Please use 'restricted' in input arguments or global variables "
-                "to silence this warning.",
-                FutureWarning,
-            )
-            self.access_level = enums.AccessLevel.restricted
-        return self
 
 
 class Asset(BaseModel):
@@ -81,21 +67,33 @@ class Asset(BaseModel):
     name: str
 
 
-class Access(BaseModel):
+class Access(BaseModel, use_enum_values=True):
     """
     Manages access configurations, combining asset and SSDL information.
     """
 
     asset: Asset
-    ssdl: Ssdl
+    ssdl: Optional[Ssdl] = Field(default=None)
     classification: Optional[enums.AccessLevel] = Field(default=None)
 
     @model_validator(mode="after")
-    def _classification_mirrors_accesslevel(self) -> Access:
-        # Ideally we want to only copy if the user has NOT
-        # set the classification.
-        # See: https://github.com/equinor/fmu-dataio/issues/540
-        self.classification = self.ssdl.access_level
+    def _validate_classification_ssdl_access_level(self) -> Access:
+        if self.classification and self.ssdl and self.ssdl.access_level:
+            warnings.warn(
+                "The config contains both 'access.ssdl.access_level (deprecated) and "
+                "access.classification. The value from access.classification will be "
+                "used as the default classification. Remove 'access.ssdl.access_level' "
+                "to silence this warning."
+            )
+        if not self.classification:
+            if not (self.ssdl and self.ssdl.access_level):
+                raise ValueError(
+                    "The config doesn't contain any default security classification. "
+                    "Please provide access.classification."
+                )
+            # classification mirrors ssdl.access_level if not present
+            self.classification = self.ssdl.access_level
+
         return self
 
 
