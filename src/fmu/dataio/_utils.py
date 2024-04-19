@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any, Final
 
 import numpy as np
-import xtgeo
 
 from fmu.config import utilities as ut
 
@@ -78,29 +77,6 @@ def md5sum(fname: Path) -> str:
     return hash_md5.hexdigest()
 
 
-def create_symlink(source: str, target: str) -> None:
-    """Create a symlinked file with some checks."""
-
-    thesource = Path(source)
-    if not thesource.exists():
-        raise OSError(f"Cannot symlink: Source file {thesource} does not exist.")
-
-    thetarget = Path(target)
-
-    if thetarget.exists() and not thetarget.is_symlink():
-        raise OSError(f"Target file {thetarget} exists already as a normal file.")
-
-    os.symlink(source, target)
-
-    if not (thetarget.exists() and thetarget.is_symlink()):
-        raise OSError(f"Target file {thesource} does not exist or is not a symlink.")
-
-
-def size(fname: str) -> int:
-    """Size of file, in bytes"""
-    return Path(fname).stat().st_size
-
-
 def uuid_from_string(string: str) -> uuid.UUID:
     """Produce valid and repeteable UUID4 as a hash of given string"""
     return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())
@@ -148,39 +124,6 @@ def check_if_number(value: str | None) -> int | float | str | None:
     return value
 
 
-def get_object_name(obj: Path) -> str | None:
-    """Get the name of the object.
-
-    If not possible, return None.
-    If result is 'unknown', return None (XTgeo defaults)
-    If object is a polygon, and object name is 'poly', return None (XTgeo defaults)
-    If object is a grid, and object name is 'noname', return None (XTgeo defaults)
-
-    """
-
-    logger.debug("Getting name from the data object itself")
-
-    try:
-        name = obj.name
-    except AttributeError:
-        logger.info("display.name could not be set")
-        return None
-
-    if isinstance(obj, xtgeo.RegularSurface) and name == "unknown":
-        logger.debug("Got 'unknown' as name from a surface object, returning None")
-        return None
-
-    if isinstance(obj, xtgeo.Polygons) and name == "poly":
-        logger.debug("Got 'poly' as name from a polygons object, returning None")
-        return None
-
-    if isinstance(obj, xtgeo.Grid) and name == "noname":
-        logger.debug("Got 'noname' as name from grids object, returning None")
-        return None
-
-    return name
-
-
 def prettyprint_dict(inp: dict) -> str:
     """Prettyprint a dict into as string variable (for python logging e.g)"""
     return str(json.dumps(inp, indent=2, default=str, ensure_ascii=False))
@@ -204,11 +147,6 @@ def some_config_from_env(envvar: str = "FMU_GLOBAL_CONFIG") -> dict | None:
             f"{envvar} = {os.environ[envvar]}. "
             f"The environment variable {envvar} must point to a valid yaml file."
         ) from e
-
-
-def read_named_envvar(envvar: str) -> str | None:
-    """Read a specific (named) environment variable."""
-    return os.environ.get(envvar, None)
 
 
 def filter_validate_metadata(metadata_in: dict) -> dict:
