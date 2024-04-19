@@ -6,6 +6,7 @@ as this is convinient to populate later, on demand)
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -110,47 +111,55 @@ class FileDataProvider:
         return (path / stem).with_suffix(path.suffix + self.objdata.extension)
 
     def _get_filestem(self) -> str:
-        """Construct the file"""
+        """
+        Construct the filestem string as a combinaton of various
+        attributes; parent, name, tagname and time information.
+        A '--' is used to separate the non-empty components, and a
+        filestem containing all components will look like this:
+        filestem = 'parent--name--tagname--time1_time0'
+        """
 
         if not self.name:
             raise ValueError("The 'name' entry is missing for constructing a file name")
         if not self.objdata.time0 and self.objdata.time1:
             raise ValueError("Not legal: 'time0' is missing while 'time1' is present")
 
-        stem = self.name.lower()
-        if self.dataio.tagname:
-            stem += "--" + self.dataio.tagname.lower()
-        if self.dataio.parent:
-            stem = self.dataio.parent.lower() + "--" + stem
+        filestem_order = (
+            self.dataio.parent,
+            self.name,
+            self.dataio.tagname,
+            self._get_timepart_for_filename(),
+        )
+        # join non-empty parts with '--'
+        filestem = "--".join((p for p in filestem_order if p))
+        filestem = self._sanitize_the_filestem(filestem)
+        return filestem.lower()
 
-        if self.objdata.time0 and not self.objdata.time1:
-            stem += "--" + (str(self.objdata.time0)[0:10]).replace("-", "")
+    def _get_timepart_for_filename(self) -> str:
+        if self.objdata.time0 is None:
+            return ""
+        t0 = self.objdata.time0.strftime("%Y%m%d")
+        if not self.objdata.time1:
+            return t0
+        t1 = self.objdata.time1.strftime("%Y%m%d")
+        return "_".join(
+            (t1, t0) if not self.dataio.filename_timedata_reverse else (t0, t1)
+        )
 
-        elif self.objdata.time0 and self.objdata.time1:
-            monitor = (str(self.objdata.time1)[0:10]).replace("-", "")
-            base = (str(self.objdata.time0)[0:10]).replace("-", "")
-            if monitor == base:
-                warn(
-                    "The monitor date and base date are equal", UserWarning
-                )  # TODO: consider add clocktimes in such cases?
-            if self.dataio.filename_timedata_reverse:  # class variable
-                stem += "--" + base + "_" + monitor
-            else:
-                stem += "--" + monitor + "_" + base
-
-        # remove unwanted characters
-        stem = stem.replace(".", "_").replace(" ", "_")
-
-        # avoid multiple double underscores
-        while "__" in stem:
-            stem = stem.replace("__", "_")
-
-        # treat norwegian special letters
-        # BUG(?): What about germen letter like "Ü"?
-        stem = stem.replace("æ", "ae")
-        stem = stem.replace("ø", "oe")
-        stem = stem.replace("å", "aa")
-        return stem.lower()
+    @staticmethod
+    def _sanitize_the_filestem(filestem: str) -> str:
+        """
+        Clean up the filestem; remove unwanted characters, treat
+        norwegian special letters and remove multiple underscores
+        """
+        filestem = (
+            filestem.replace(".", "_")
+            .replace(" ", "_")
+            .replace("æ", "ae")
+            .replace("ø", "oe")
+            .replace("å", "aa")
+        )
+        return re.sub(r"__+", "_", filestem)
 
     def _get_forcefolder_if_absolute(self) -> Path | None:
         if self.dataio.forcefolder.startswith("/"):
