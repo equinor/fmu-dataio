@@ -1,7 +1,6 @@
 """Test the utils module"""
 
 import os
-from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import numpy as np
@@ -88,27 +87,6 @@ def test_detect_inside_rms_decorator():
 
 def test_detect_not_inside_rms():
     assert not utils.detect_inside_rms()
-
-
-def test_non_metadata_export_metadata_file():
-    with NamedTemporaryFile(buffering=0, suffix=".yaml") as tf, pytest.raises(
-        RuntimeError
-    ):
-        utils.export_metadata_file(Path(tf.name), {}, savefmt="json")
-
-    with NamedTemporaryFile(buffering=0, suffix=".yaml") as tf, pytest.raises(
-        RuntimeError
-    ):
-        utils.export_metadata_file(Path(tf.name), {}, savefmt="yaml")
-
-
-def test_export_file_raises():
-    with NamedTemporaryFile() as tf, pytest.raises(TypeError):
-        utils.export_file(
-            object(),
-            Path(tf.name),
-            ".placeholder",
-        )
 
 
 def test_create_symlink():

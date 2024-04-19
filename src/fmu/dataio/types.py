@@ -5,8 +5,6 @@ from typing import TYPE_CHECKING, Literal, MutableMapping, Union
 
 from typing_extensions import Annotated, TypeAlias
 
-from .readers import FaultRoomSurface
-
 if TYPE_CHECKING:
     from pandas import DataFrame
     from pyarrow import Table
@@ -14,6 +12,8 @@ if TYPE_CHECKING:
     from xtgeo.grid3d import Grid, GridProperty
     from xtgeo.surface import RegularSurface
     from xtgeo.xyz import Points, Polygons
+
+    from .readers import FaultRoomSurface
 
     # Local proxies due to xtgeo at the time of writing
     # not having stubs/marked itself as a typed library.

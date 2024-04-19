@@ -14,6 +14,7 @@ from ._logging import null_logger
 from .datastructure._internal import internal
 from .datastructure.configuration import global_configuration
 from .datastructure.meta import meta
+from .writers import export_metadata_file
 
 logger: Final = null_logger(__name__)
 
@@ -151,7 +152,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             Full path of metadata file.
         """
         if self.generate_metadata():
-            _utils.export_metadata_file(
+            export_metadata_file(
                 self._metafile, self._metadata, savefmt=self.meta_format
             )
             logger.info("METAFILE %s", self._metafile)

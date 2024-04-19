@@ -6,23 +6,18 @@ import contextlib
 import hashlib
 import json
 import os
-import shutil
 import uuid
 from copy import deepcopy
 from pathlib import Path
-from tempfile import NamedTemporaryFile
-from typing import Any, Final, Literal
+from typing import Any, Final
 
 import numpy as np
-import pandas as pd
 import xtgeo
-import yaml
 
 from fmu.config import utilities as ut
 
-from . import _design_kw, types
+from . import types
 from ._logging import null_logger
-from .readers import FaultRoomSurface
 
 logger: Final = null_logger(__name__)
 
@@ -74,106 +69,6 @@ def drop_nones(dinput: dict) -> dict:
     return dd
 
 
-def export_metadata_file(
-    file: Path,
-    metadata: dict,
-    savefmt: Literal["yaml", "json"] = "yaml",
-) -> None:
-    """Export genericly and ordered to the complementary metadata file."""
-    if not metadata:
-        raise RuntimeError(
-            "Export of metadata was requested, but no metadata are present."
-        )
-
-    if savefmt == "yaml":
-        with open(file, "w", encoding="utf8") as stream:
-            stream.write(
-                yaml.safe_dump(
-                    drop_nones(metadata),
-                    allow_unicode=True,
-                )
-            )
-    else:
-        with open(file.replace(file.with_suffix(".json")), "w") as stream:
-            stream.write(
-                json.dumps(
-                    drop_nones(metadata),
-                    default=str,
-                    indent=2,
-                    ensure_ascii=False,
-                )
-            )
-
-    logger.info("Yaml file on: %s", file)
-
-
-def export_file(
-    obj: types.Inferrable,
-    filename: Path,
-    flag: str | None = None,
-) -> str:
-    """Export a valid object to file"""
-
-    if isinstance(obj, (Path, str)):
-        # special case when processing data which already has metadata
-        shutil.copy(obj, filename)
-    elif filename.suffix == ".gri" and isinstance(obj, xtgeo.RegularSurface):
-        obj.to_file(filename, fformat="irap_binary")
-    elif filename.suffix == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
-        out = obj.copy()  # to not modify incoming instance!
-        assert flag is not None
-        if "xtgeo" not in flag:
-            out.xname = "X"
-            out.yname = "Y"
-            out.zname = "Z"
-            if isinstance(out, xtgeo.Polygons):
-                # out.pname = "ID"  not working
-                out.get_dataframe(copy=False).rename(
-                    columns={out.pname: "ID"}, inplace=True
-                )
-        out.get_dataframe(copy=False).to_csv(filename, index=False)
-    elif filename.suffix == ".pol" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
-        obj.to_file(filename)
-    elif filename.suffix == ".segy" and isinstance(obj, xtgeo.Cube):
-        obj.to_file(filename, fformat="segy")
-    elif filename.suffix == ".roff" and isinstance(
-        obj, (xtgeo.Grid, xtgeo.GridProperty)
-    ):
-        obj.to_file(filename, fformat="roff")
-    elif filename.suffix == ".csv" and isinstance(obj, pd.DataFrame):
-        logger.info(
-            "Exporting dataframe to csv. Note: index columns will not be "
-            "preserved unless calling 'reset_index()' on the dataframe."
-        )
-        obj.to_csv(filename, index=False)
-    elif filename.suffix == ".arrow":
-        from pyarrow import Table
-
-        if isinstance(obj, Table):
-            from pyarrow import feather
-
-            # comment taken from equinor/webviz_subsurface/smry2arrow.py
-            # Writing here is done through the feather import, but could also be
-            # done using pa.RecordBatchFileWriter.write_table() with a few
-            # pa.ipc.IpcWriteOptions(). It is convenient to use feather since it
-            # has ready configured defaults and the actual file format is the same
-            # (https://arrow.apache.org/docs/python/feather.html)
-
-            # Types in pyarrow-stubs package are wrong for the write_feather(...).
-            # https://arrow.apache.org/docs/python/generated/pyarrow.feather.write_feather.html#pyarrow.feather.write_feather
-            feather.write_feather(obj, dest=str(filename))  # type: ignore
-    elif filename.suffix == ".json" and isinstance(obj, FaultRoomSurface):
-        with open(filename, "w") as stream:
-            json.dump(obj.storage, stream, indent=4)
-    elif filename.suffix == ".json":
-        with open(filename, "w") as stream:
-            json.dump(obj, stream)
-    else:
-        raise TypeError(f"Exporting {filename.suffix} for {type(obj)} is not supported")
-
-    return str(filename)
-
-
 def md5sum(fname: Path) -> str:
     """Calculate the MD5 checksum of a file."""
     hash_md5 = hashlib.md5()
@@ -181,30 +76,6 @@ def md5sum(fname: Path) -> str:
         for chunk in iter(lambda: fil.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
-
-
-def export_file_compute_checksum_md5(
-    obj: types.Inferrable,
-    filename: Path,
-    flag: str | None = None,
-) -> str:
-    """Export and compute checksum"""
-    export_file(obj, filename, flag=flag)
-    return md5sum(filename)
-
-
-def compute_md5_using_temp_file(
-    obj: types.Inferrable, extension: str, flag: str = ""
-) -> str:
-    """Compute an MD5 sum using a temporary file."""
-    if not extension.startswith("."):
-        raise ValueError("An extension must start with '.'")
-
-    with NamedTemporaryFile(buffering=0, suffix=extension) as tf:
-        logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
-        return export_file_compute_checksum_md5(
-            obj=obj, filename=Path(tf.name), flag=flag
-        )
 
 
 def create_symlink(source: str, target: str) -> None:
@@ -233,49 +104,6 @@ def size(fname: str) -> int:
 def uuid_from_string(string: str) -> uuid.UUID:
     """Produce valid and repeteable UUID4 as a hash of given string"""
     return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())
-
-
-def read_parameters_txt(pfile: Path | str) -> types.Parameters:
-    """Read the parameters.txt file and convert to a dict.
-    The parameters.txt file has this structure::
-      SENSNAME rms_seed
-      SENSCASE p10_p90
-      RMS_SEED 1000
-      KVKH_CHANNEL 0.6
-      KVKH_CREVASSE 0.3
-      GLOBVAR:VOLON_FLOODPLAIN_VOLFRAC 0.256355
-      GLOBVAR:VOLON_PERMH_CHANNEL 1100
-      GLOBVAR:VOLON_PORO_CHANNEL 0.2
-      LOG10_GLOBVAR:FAULT_SEAL_SCALING 0.685516
-      LOG10_MULTREGT:MULT_THERYS_VOLON -3.21365
-      LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
-    ...but may also appear on a justified format, with leading
-    whitespace and tab-justified columns, legacy from earlier
-    versions but kept alive by some users::
-                            SENSNAME     rms_seed
-                            SENSCASE     p10_p90
-                            RMS_SEED     1000
-                        KVKH_CHANNEL     0.6
-          GLOBVAR:VOLON_PERMH_CHANNEL    1100
-      LOG10_GLOBVAR:FAULT_SEAL_SCALING   0.685516
-      LOG10_MULTREGT:MULT_THERYS_VOLON   -3.21365
-    This should be parsed as::
-        {
-        "SENSNAME": "rms_seed"
-        "SENSCASE": "p10_p90"
-        "RMS_SEED": 1000
-        "KVKH_CHANNEL": 0.6
-        "KVKH_CREVASSE": 0.3
-        "GLOBVAR": {"VOLON_FLOODPLAIN_VOLFRAC": 0.256355, ...etc}
-        }
-    """
-
-    logger.debug("Reading parameters.txt from %s", pfile)
-
-    parameterlines = Path(pfile).read_text().splitlines()
-
-    dict_str_to_str = _design_kw.extract_key_value(parameterlines)
-    return {key: check_if_number(value) for key, value in dict_str_to_str.items()}
 
 
 def nested_parameters_dict(paramdict: dict[str, str | int | float]) -> types.Parameters:
@@ -420,30 +248,6 @@ def generate_description(desc: str | list | None = None) -> list | None:
         return desc
 
     raise ValueError("Description of wrong type, must be list of strings or string")
-
-
-def read_metadata_from_file(filename: str | Path) -> dict:
-    """Read the metadata as a dictionary given a filename.
-
-    If the filename is e.g. /some/path/mymap.gri, the assosiated metafile
-    will be /some/path/.mymap.gri.yml (or json?)
-
-    Args:
-        filename: The full path filename to the data-object.
-
-    Returns:
-        A dictionary with metadata read from the assiated metadata file.
-    """
-    fname = Path(filename)
-    if fname.stem.startswith("."):
-        raise OSError(f"The input is a hidden file, cannot continue: {fname.stem}")
-
-    metafile = str(fname.parent) + "/." + fname.stem + fname.suffix + ".yml"
-    metafilepath = Path(metafile)
-    if not metafilepath.exists():
-        raise OSError(f"Cannot find requested metafile: {metafile}")
-    with open(metafilepath) as stream:
-        return yaml.safe_load(stream)
 
 
 def glue_metadata_preprocessed(

@@ -12,6 +12,11 @@ from . import _utils, dataio, types
 from ._logging import null_logger
 from ._metadata import generate_meta_tracklog
 from .providers.objectdata._provider import objectdata_provider_factory
+from .writers import (
+    export_file_compute_checksum_md5,
+    export_metadata_file,
+    export_temp_file_compute_checksum_md5,
+)
 
 logger: Final = null_logger(__name__)
 
@@ -243,7 +248,7 @@ class AggregatedData:
             "absolute_path": str(abspath) if abspath else None,
         }
         if compute_md5:
-            template["file"]["checksum_md5"] = _utils.compute_md5_using_temp_file(
+            template["file"]["checksum_md5"] = export_temp_file_compute_checksum_md5(
                 obj, objdata.extension
             )
 
@@ -350,11 +355,11 @@ class AggregatedData:
 
         logger.info("Export to file and compute MD5 sum")
         # inject the computed md5 checksum in metadata
-        metadata["file"]["checksum_md5"] = _utils.export_file_compute_checksum_md5(
+        metadata["file"]["checksum_md5"] = export_file_compute_checksum_md5(
             obj, outfile
         )
 
-        _utils.export_metadata_file(metafile, metadata, savefmt=self.meta_format)
+        export_metadata_file(metafile, metadata, savefmt=self.meta_format)
         logger.info("Actual file is:   %s", outfile)
         logger.info("Metadata file is: %s", metafile)
 

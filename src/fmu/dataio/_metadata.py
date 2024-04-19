@@ -21,13 +21,13 @@ from ._logging import null_logger
 from ._utils import (
     drop_nones,
     glue_metadata_preprocessed,
-    read_metadata_from_file,
 )
 from .datastructure._internal import internal
 from .datastructure.meta import meta
 from .providers._filedata import FileDataProvider
 from .providers._fmu import FmuProvider
 from .providers.objectdata._provider import objectdata_provider_factory
+from .readers import read_metadata_from_file
 from .version import __version__
 
 if TYPE_CHECKING:

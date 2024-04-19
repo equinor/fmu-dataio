@@ -42,6 +42,7 @@ from fmu.dataio._definitions import FmuContext
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure._internal import internal
 from fmu.dataio.datastructure.meta import meta
+from fmu.dataio.readers import read_parameters_txt
 
 if TYPE_CHECKING:
     from uuid import UUID
@@ -254,7 +255,7 @@ class FmuProvider:
             warn("The parameters.txt file was not found", UserWarning)
             return None
 
-        params = _utils.read_parameters_txt(parameters_file)
+        params = read_parameters_txt(parameters_file)
         logger.debug("parameters.txt parsed.")
         # BUG(?): value can contain Nones, loop in fn. below
         # does contains check, will fail.

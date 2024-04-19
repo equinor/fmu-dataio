@@ -14,10 +14,8 @@ from warnings import warn
 
 from fmu.dataio._definitions import FmuContext
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import (
-    compute_md5_using_temp_file,
-)
 from fmu.dataio.datastructure.meta import meta
+from fmu.dataio.writers import export_temp_file_compute_checksum_md5
 
 logger: Final = null_logger(__name__)
 
@@ -106,7 +104,7 @@ class FileDataProvider:
         """Compute an MD5 sum using a temporary file."""
         if self.obj is None:
             raise ValueError("Can't compute MD5 sum without an object.")
-        return compute_md5_using_temp_file(
+        return export_temp_file_compute_checksum_md5(
             self.obj, self.objdata.extension, self.dataio._usefmtflag
         )
 
