@@ -233,17 +233,9 @@ class AggregatedData:
 
         # next, the new object will trigger update of: 'file', 'data' (some fields) and
         # 'tracklog'.
-
-        # Get content and make a temporary config from template to be allowed to
-        # initialize a temporary ExportData without warnings so that we can get to the
-        # objectdata_provider
         content = template["data"]["content"]
-        config = {
-            "access": template["access"],
-            "masterdata": template["masterdata"],
-            "model": template["fmu"]["model"],
-        }
-        etemp = dataio.ExportData(config=config, name=self.name, content=content)
+
+        etemp = dataio.ExportData(name=self.name, content=content)
         objdata = objectdata_provider_factory(obj=obj, dataio=etemp).get_objectdata()
 
         template["tracklog"] = [generate_meta_tracklog()[0].model_dump(mode="json")]

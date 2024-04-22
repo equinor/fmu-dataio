@@ -54,9 +54,12 @@ def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, reg
 
     monkeypatch.chdir(tmp_path)
 
-    with pytest.warns(UserWarning, match=pydantic_warning()):
-        edata = ExportData(config={}, content="depth")
+    # we allow initializing ExportData with empty config, e.g. as done when
+    # using the AggregatedData class
+    edata = ExportData(config={}, content="depth")
 
+    # When attempting to generate metadata with erroneous or missing config,
+    # issue UserWarning.
     with pytest.warns(UserWarning, match=pydantic_warning()):
         meta = edata.generate_metadata(regsurf)
 

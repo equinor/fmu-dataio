@@ -472,7 +472,9 @@ class ExportData:
         self._update_globalconfig_from_settings()
 
         # check state of global config
-        self._config_is_valid = global_configuration.is_valid(self.config)
+        self._config_is_valid = (
+            global_configuration.is_valid(self.config) if self.config else False
+        )
         if self._config_is_valid:
             # TODO: This needs refinement: _config_is_valid should be removed
             self.config = global_configuration.roundtrip(self.config)
