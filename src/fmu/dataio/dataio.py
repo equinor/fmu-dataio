@@ -34,7 +34,7 @@ from .aggregation import AggregatedData
 from .case import InitializeCase
 from .datastructure._internal.internal import AllowedContent
 from .datastructure.configuration import global_configuration
-from .datastructure.meta import meta
+from .datastructure.meta import enums, meta
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
@@ -246,11 +246,16 @@ class ExportData:
         access_ssdl: Optional. A dictionary that will overwrite or append
             to the default ssdl settings read from the config. Example:
             ``{"access_level": "restricted", "rep_include": False}``
+            Deprecated and replaced by 'classification' and 'rep_include' arguments.
 
         casepath: To override the automatic and actual ``rootpath``. Absolute path to
             the case root. If not provided, the rootpath will be attempted parsed from
             the file structure or by other means. See also fmu_context, where "case"
             may need an explicit casepath!
+
+        classification: Optional. Security classification level of the data object.
+            If present it will override the default found in the config.
+            Valid values are either "restricted" or "internal".
 
         config: Required in order to produce valid metadata, either as key (here) or
             through an environment variable. A dictionary with static settings.
@@ -316,6 +321,9 @@ class ExportData:
 
         parent: Optional. This key is required for datatype GridProperty, and
             refers to the name of the grid geometry.
+
+        rep_include: Optional. If True then the data object will be available in REP.
+            Default is False.
 
         runpath: TODO! Optional and deprecated. The relative location of the current run
             root. Optional and will in most cases be auto-detected, assuming that FMU
@@ -400,6 +408,7 @@ class ExportData:
     access_ssdl: dict = field(default_factory=dict)
     aggregation: bool = False
     casepath: Optional[Union[str, Path]] = None
+    classification: Optional[str] = None
     config: dict = field(default_factory=dict)
     content: Optional[Union[dict, str]] = None
     depth_reference: str = "msl"
@@ -414,6 +423,7 @@ class ExportData:
     undef_is_zero: bool = False
     parent: str = ""
     realization: Optional[int] = None  # deprecated
+    rep_include: Optional[bool] = None
     reuse_metadata_rule: Optional[str] = None  # deprecated
     runpath: Optional[Union[str, Path]] = None
     subfolder: str = ""
@@ -435,6 +445,11 @@ class ExportData:
     _config_is_valid: bool = field(default=True, init=False)
     _fmurun: bool = field(default=False, init=False)
     _reuse_metadata: bool = field(default=False, init=False)
+
+    # Need to store these temporarily in variables until we stop
+    # updating state of the class also on export and generate_metadata
+    _classification: enums.AccessLevel = enums.AccessLevel.internal
+    _rep_include: bool = field(default=False, init=False)
 
     # << NB! storing ACTUAL casepath:
     _rootpath: Path = field(default_factory=Path, init=False)
@@ -469,7 +484,6 @@ class ExportData:
         self._validate_content_key()
         self._validate_and_establish_fmucontext()
         self._validate_workflow_key()
-        self._update_globalconfig_from_settings()
 
         # check state of global config
         self._config_is_valid = global_configuration.is_valid(self.config)
@@ -477,11 +491,89 @@ class ExportData:
             # TODO: This needs refinement: _config_is_valid should be removed
             self.config = global_configuration.roundtrip(self.config)
 
+        self._classification = self._get_classification()
+        self._rep_include = self._get_rep_include()
+
         self._establish_pwd_rootpath()
         logger.info("Ran __post_init__")
 
+    def _get_classification(self) -> enums.AccessLevel:
+        """
+        Get the security classification as an AccessLevel.
+        The order of how the classification is set is:
+        1. from classification argument if present
+        2. from access_ssdl argument (deprecated) if present
+        3. from access.classification in config (has been mirrored from
+        access.ssdl.access_level if not present)
+
+        """
+        if self.classification is not None:
+            logger.info("Classification is set from input")
+            classification = self.classification
+
+        elif self.access_ssdl and self.access_ssdl.get("access_level"):
+            logger.info("Classification is set from access_ssdl input")
+            classification = self.access_ssdl["access_level"]
+
+        elif self._config_is_valid:
+            logger.info("Classification is set from config")
+            classification = self.config["access"]["classification"]
+        else:
+            # note the one below here will never be used, because that
+            # means the config is invalid and no metadata will be produced
+            logger.info("Using default classification 'internal'")
+            classification = enums.AccessLevel.internal
+
+        if enums.AccessLevel(classification) == enums.AccessLevel.asset:
+            warnings.warn(
+                "The value 'asset' for access.ssdl.access_level is deprecated. "
+                "Please use 'restricted' in input arguments or global variables "
+                "to silence this warning.",
+                FutureWarning,
+            )
+            return enums.AccessLevel.restricted
+        return enums.AccessLevel(classification)
+
+    def _get_rep_include(self) -> bool:
+        """
+        Get the rep_include status.
+        The order of how the staus is set is:
+        1. from rep_include argument if present
+        2. from access_ssdl argument (deprecated) if present
+        3. from access.ssdl.rep_include in config
+        4. default to False if not found
+        """
+        if self.rep_include is not None:
+            logger.debug("rep_include is set from input")
+            return self.rep_include
+
+        if self.access_ssdl and self.access_ssdl.get("rep_include"):
+            logger.debug("rep_include is set from access_ssdl input")
+            return self.access_ssdl["rep_include"]
+
+        if "rep_include" in self.config.get("access", {}).get("ssdl", {}):
+            logger.debug("rep_include is set from config")
+            return self.config["access"]["ssdl"]["rep_include"]
+
+        logger.debug("Using default 'rep_include'=False")
+        return False
+
     def _show_deprecations_or_notimplemented(self) -> None:
         """Warn on deprecated keys or on stuff not implemented yet."""
+
+        if self.access_ssdl:
+            warn(
+                "The 'access_ssdl' argument is deprecated and will be removed in the "
+                "future. Use the more explicit 'classification' and 'rep_include' "
+                "arguments instead.",
+                FutureWarning,
+            )
+            if self.classification is not None or self.rep_include is not None:
+                raise ValueError(
+                    "Using the 'classification' and/or 'rep_include' arguments, "
+                    "in combination with the (legacy) 'access_ssdl' argument "
+                    "is not supported."
+                )
 
         if self.runpath:
             warn(
@@ -643,22 +735,6 @@ class ExportData:
         self._validate_workflow_key()
         self._validate_and_establish_fmucontext()
 
-    def _update_globalconfig_from_settings(self) -> None:
-        """A few user settings may update/append the global config directly."""
-        newglobals = deepcopy(self.config)
-
-        if self.access_ssdl:
-            if "ssdl" not in self.config["access"]:
-                newglobals["access"]["ssdl"] = {}
-
-            newglobals["access"]["ssdl"] = deepcopy(self.access_ssdl)
-
-            logger.info(
-                "Updated global config's access.ssdl value: %s", newglobals["access"]
-            )
-
-        self.config = newglobals
-
     def _establish_pwd_rootpath(self) -> None:
         """Establish state variables pwd and the (initial) rootpath.
 
@@ -779,12 +855,9 @@ class ExportData:
         logger.info("KW args %s", kwargs)
 
         self._update_check_settings(kwargs)
-        self._update_globalconfig_from_settings()
 
-        self._config_is_valid = global_configuration.is_valid(self.config)
-        if self._config_is_valid:
-            # TODO: This needs refinement: _config_is_valid should be removed
-            self.config = global_configuration.roundtrip(self.config)
+        self._classification = self._get_classification()
+        self._rep_include = self._get_rep_include()
 
         self._check_process_object(obj)  # obj --> self._object
 

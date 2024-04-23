@@ -1,3 +1,4 @@
+import pytest
 from fmu.dataio.datastructure.configuration import global_configuration
 from hypothesis import given, strategies
 
@@ -28,30 +29,61 @@ def test_drop_none(name, stratigraphic, alias, stratigraphic_alias):
         assert all(v is not None for v in cnf.stratigraphic_alias)
 
 
-def test_access_classification_mirrors():
-    # Tests the _classification_mirros_accesslevel(...)
-    # model_validator.
+def test_access_classification_logic():
+    """Test various inputs of access.ssdl and access.classification."""
+
+    # check that ssdl.access_level is mirrored to classification
+    assert (
+        global_configuration.Access.model_validate(
+            {
+                "asset": {"name": "FakeName"},
+                "ssdl": {"access_level": "internal"},
+            }
+        ).classification
+        == "internal"
+    )
+    assert (
+        global_configuration.Access.model_validate(
+            {
+                "asset": {"name": "FakeName"},
+                "ssdl": {"access_level": "restricted"},
+            }
+        ).classification
+        == "restricted"
+    )
+    # classification together with ssdl.access_level should warn
+    # and ignore the ssdl_access level
+    with pytest.warns(match="The config contains both"):
+        assert (
+            global_configuration.Access.model_validate(
+                {
+                    "asset": {"name": "FakeName"},
+                    "ssdl": {"access_level": "internal"},
+                    "classification": "restricted",
+                }
+            ).classification
+            == "restricted"
+        )
+    # classification together with ssdl.rep_include is ok
     global_configuration.Access.model_validate(
         {
             "asset": {"name": "FakeName"},
-            "ssdl": {"access_level": "internal"},
-        }
-    ).classification == "internal"
-
-    global_configuration.Access.model_validate(
-        {
-            "asset": {"name": "FakeName"},
-            "ssdl": {"access_level": "restricted"},
-        }
-    ).classification == "restricted"
-
-    # classification should be set to restricted if
-    # ssdl.access_level => asset
-    gc = global_configuration.Access.model_validate(
-        {
-            "asset": {"name": "FakeName"},
-            "ssdl": {"access_level": "asset"},
+            "ssdl": {"rep_include": True},
+            "classification": "internal",
         }
     )
-    assert gc.classification == "restricted"
-    assert gc.ssdl.access_level == "restricted"
+    # ssdl is optional as long as classification is present
+    global_configuration.Access.model_validate(
+        {
+            "asset": {"name": "FakeName"},
+            "classification": "internal",
+        }
+    )
+    # missing classification and ssdl.access_level should fail
+    with pytest.raises(ValueError, match="Please provide access.classification"):
+        global_configuration.Access.model_validate(
+            {
+                "asset": {"name": "FakeName"},
+                "ssdl": {"rep_include": False},
+            }
+        )

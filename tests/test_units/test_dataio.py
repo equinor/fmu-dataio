@@ -5,6 +5,7 @@ import os
 import pathlib
 import sys
 from copy import deepcopy
+from pathlib import Path
 
 import pydantic
 import pytest
@@ -57,16 +58,13 @@ def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, reg
     with pytest.warns(UserWarning, match=pydantic_warning()):
         edata = ExportData(config={}, content="depth")
 
-    with pytest.warns(UserWarning, match=pydantic_warning()):
-        meta = edata.generate_metadata(regsurf)
-
+    meta = edata.generate_metadata(regsurf)
     assert "masterdata" not in meta
 
-    with pytest.warns(UserWarning, match=pydantic_warning()):
-        out = edata.export(regsurf, name="mysurface")
-
+    # check that obj is created but no metadata is found
+    out = edata.export(regsurf, name="mysurface")
     assert "mysurface" in out
-
+    assert Path(out).exists()
     with pytest.raises(OSError, match="Cannot find requested metafile"):
         read_metadata(out)
 
@@ -181,6 +179,109 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
     with pytest.warns(UserWarning, match=expected_msg):
         edata = ExportData(config=globalconfig1, content="depth")
         edata.generate_metadata(regsurf, **kval)
+
+
+def test_access_ssdl_vs_classification_rep_include(globalconfig1, regsurf):
+    """
+    The access_ssdl is deprecated, and replaced by the 'classification' and
+    'rep_include' arguments. Test various combinations of these arguments.
+    ."""
+
+    # verify that a deprecation warning is given for access_ssdl argument
+    with pytest.warns(FutureWarning, match="'access_ssdl' argument is deprecated"):
+        exp = ExportData(
+            config=globalconfig1,
+            access_ssdl={"access_level": "restricted", "rep_include": True},
+        )
+        mymeta = exp.generate_metadata(regsurf)
+        assert mymeta["access"]["classification"] == "restricted"
+        assert mymeta["access"]["ssdl"]["rep_include"] is True
+
+    # 'access_ssdl' is not allowed together with any combination of
+    # 'classification' / 'rep_include' arguments
+    with pytest.raises(ValueError, match="is not supported"):
+        ExportData(
+            access_ssdl={"access_level": "restricted"}, classification="internal"
+        )
+    with pytest.raises(ValueError, match="is not supported"):
+        ExportData(access_ssdl={"rep_include": True}, rep_include=True)
+
+    with pytest.raises(ValueError, match="is not supported"):
+        ExportData(access_ssdl={"access_level": "restricted"}, rep_include=False)
+
+    # using 'classification' / 'rep_include' as arguments is the preferred pattern
+    exp = ExportData(
+        config=globalconfig1, classification="restricted", rep_include=True
+    )
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["classification"] == "restricted"
+    assert mymeta["access"]["ssdl"]["rep_include"] is True
+
+
+def test_classification(globalconfig1, regsurf):
+    """Test that 'classification' is set correctly."""
+
+    # test assumptions
+    config = deepcopy(globalconfig1)
+    assert config["access"]["classification"] == "internal"
+    assert "access_level" not in config["access"]["ssdl"]
+
+    # test that classification can be given directly and will override config
+    exp = ExportData(config=config, classification="restricted")
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["classification"] == "restricted"
+
+    # test that classification can be given through deprecated access_ssdl
+    with pytest.warns(FutureWarning, match="'access_ssdl' argument is deprecated"):
+        exp = ExportData(config=config, access_ssdl={"access_level": "restricted"})
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["classification"] == "restricted"
+
+    # test that classification is taken from 'classification' in config if not provided
+    exp = ExportData(config=config)
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["classification"] == "internal"
+
+    # test that classification is taken from access.ssdl.access_level
+    # in config if classification is not present
+    del config["access"]["classification"]
+    config["access"]["ssdl"]["access_level"] = "restricted"
+    exp = ExportData(config=config)
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["classification"] == "restricted"
+
+    # verify that classification is defaulted to internal
+    exp = ExportData(config={})
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["classification"] == "internal"
+
+
+def test_rep_include(globalconfig1, regsurf):
+    """Test that 'classification' is set correctly."""
+
+    # test assumptions
+    assert globalconfig1["access"]["ssdl"]["rep_include"] is False
+
+    # test that rep_include can be given directly and will override config
+    exp = ExportData(config=globalconfig1, rep_include=True)
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["ssdl"]["rep_include"] is True
+
+    # test that rep_include can be given through access_ssdl
+    with pytest.warns(FutureWarning, match="'access_ssdl' argument is deprecated"):
+        exp = ExportData(config=globalconfig1, access_ssdl={"rep_include": True})
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["ssdl"]["rep_include"] is True
+
+    # test that rep_include is taken from config if not provided
+    exp = ExportData(config=globalconfig1)
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["ssdl"]["rep_include"] is False
+
+    # test that rep_include is defaulted False
+    exp = ExportData(config={})
+    mymeta = exp.generate_metadata(regsurf)
+    assert mymeta["access"]["ssdl"]["rep_include"] is False
 
 
 def test_content_not_given(globalconfig1, regsurf):
