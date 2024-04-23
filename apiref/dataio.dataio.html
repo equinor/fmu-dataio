@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 0.1.dev1+g4eb32b5 documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 0.1.dev1+g3b3d405 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
@@ -132,7 +132,7 @@ will be /some/path/.mymap.gri.yml (or json?)</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.dataio.</span></span><span class="sig-name descname"><span class="pre">ExportData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_ssdl=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">casepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_reference='msl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmu_context=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcefolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_model=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_observation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_prediction=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undef_is_zero=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realization=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse_metadata_rule=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runpath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagname=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timedata=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity='DEPRECATED'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_domain=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_index=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.dataio.</span></span><span class="sig-name descname"><span class="pre">ExportData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_ssdl=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">casepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classification=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_reference='msl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmu_context=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcefolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_model=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_observation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_prediction=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undef_is_zero=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realization=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep_include=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse_metadata_rule=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runpath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagname=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timedata=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity='DEPRECATED'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_domain=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_index=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_classification=AccessLevel.internal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for exporting data with rich metadata in FMU.</p>
 <p>This class sets up the general metadata content to be applied in export. The idea is
@@ -194,11 +194,15 @@ The user can however force set the ‘actual’ rootpath by providing the input
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>access_ssdl</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Optional. A dictionary that will overwrite or append
 to the default ssdl settings read from the config. Example:
-<code class="docutils literal notranslate"><span class="pre">{&quot;access_level&quot;:</span> <span class="pre">&quot;restricted&quot;,</span> <span class="pre">&quot;rep_include&quot;:</span> <span class="pre">False}</span></code></p></li>
+<code class="docutils literal notranslate"><span class="pre">{&quot;access_level&quot;:</span> <span class="pre">&quot;restricted&quot;,</span> <span class="pre">&quot;rep_include&quot;:</span> <span class="pre">False}</span></code>
+Deprecated and replaced by ‘classification’ and ‘rep_include’ arguments.</p></li>
 <li><p><strong>casepath</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – To override the automatic and actual <code class="docutils literal notranslate"><span class="pre">rootpath</span></code>. Absolute path to
 the case root. If not provided, the rootpath will be attempted parsed from
 the file structure or by other means. See also fmu_context, where “case”
 may need an explicit casepath!</p></li>
+<li><p><strong>classification</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Optional. Security classification level of the data object.
+If present it will override the default found in the config.
+Valid values are either “restricted” or “internal”.</p></li>
 <li><p><strong>config</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Required in order to produce valid metadata, either as key (here) or
 through an environment variable. A dictionary with static settings.
 In the standard case this is read from FMU global variables
@@ -252,6 +256,8 @@ if “TopValysar” is the model name and the actual name is “Valysar Top Fm.�
 that latter name will be used.</p></li>
 <li><p><strong>parent</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Optional. This key is required for datatype GridProperty, and
 refers to the name of the grid geometry.</p></li>
+<li><p><strong>rep_include</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – Optional. If True then the data object will be available in REP.
+Default is False.</p></li>
 <li><p><strong>runpath</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – TODO! Optional and deprecated. The relative location of the current run
 root. Optional and will in most cases be auto-detected, assuming that FMU
 folder conventions are followed. For an ERT run e.g.
@@ -394,6 +400,11 @@ shown as t0:</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="dataio.dataio.ExportData.classification">
+<span class="sig-name descname"><span class="pre">classification</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.classification" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.config">
 <span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#dataio.dataio.ExportData.config" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -461,6 +472,11 @@ shown as t0:</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.realization">
 <span class="sig-name descname"><span class="pre">realization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[int]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.realization" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataio.dataio.ExportData.rep_include">
+<span class="sig-name descname"><span class="pre">rep_include</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[bool]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.rep_include" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -585,7 +601,7 @@ exist both places, this function will override!</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g4eb32b5).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g3b3d405).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
