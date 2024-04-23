@@ -68,68 +68,22 @@ You will see a number of topics, and below each topic you will see several tiles
 (Direct links to the tiles you need will be provided further down, but clicking around a
 bit in SMDA is encouraged to get a feel for what our master data looks like.)
 
-.. note::
-  You can always use Ctrl+F to quickly search in the Viewer.
+Navigate to the `Fields <https://opus.smda.equinor.com/smda_viewer/fields>`_ section. Use
+the filters to focus the list of fields, until you are able to find yours. In the list
+of fields, highlight the line corresponding to your field (or fields if your model covers
+more than one field).
+
+Click the FMU-logo in the top right menu to open the FMU Metadata generation dialogue.
+
+Review the settings and make necessary changes. You can remove erroneous data, empty
+discoveries, etc. Choose the appropriate Stratigraphic Column and 
+Coordinate Reference System (use same as in RMS) from the drop-down menus.
 
 .. note::
-  There is a "hide map" button in the upper right toolbar, make a mental note - you will
-  be looking for it soon.
+  To find the coordinate system used in RMS: In RMS, select ``tools`` > ``Coordinate system``.
 
-Now we find and fill in the values we need:
+Copy the generated YAML content into your `_masterdata.yml`
 
-Country
-^^^^^^^
-Under "Reference data", click the `Country <https://opus.smda.equinor.com/smda_viewer/countries>`_
-tile. Each line in the table represents one country. Find yours directly or use the filters to narrow down.
-Once you find your country, locate the ``UUID``. For ``Norway``, the corresponding
-``UUID`` is ``ad214d85-8a1d-19da-e053-c918a4889309``.
-
-Field
-^^^^^
-Go back to the Viewer, click `Fields <https://opus.smda.equinor.com/smda_viewer/fields>`_
-(still under "Reference data") tile. Locate the line representing your field, locate the 
-``itentifier`` and the ``UUID`` entries and insert those in ``_masterdata.yml``. Since a model
-can cover multiple fields, this entry is a *list* and you can insert multiple fields if
-that applies to you.
-
-Discovery
-^^^^^^^^^
-From the Viewer, click `Discoveries <https://opus.smda.equinor.com/smda_viewer/discoveries>`_
-(still under "Reference data") tile. The concept of "discovery" is likely not something
-you are familiar with, and it may not always be intuitive. First, find your ``FIELD``. 
-For most fields, there is only one discovery. However other fields may have more than
-one discovery. For each discovery your model is covering, find the ``Short Identifier`` +
-the ``UUID`` fields and insert those in your yaml. Since a model can cover multiple
-discoveries, this entry is a *list*.
-
-.. note::
-  Note that ``discovery`` also have an ``identifier``. But this is related to the discovery
-  well and we *do not use that*. For discovery, we use ``Short identifier``.
-
-Coordinate Reference System
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-First, go to RMS and note which coordinate reference system you are using. From the main menu
-in RMS select ``tools``, then select ``Coordinate system``.
-From the Viewer, click `Coordinate Reference System <https://opus.smda.equinor.com/smda_viewer/crs>`_, 
-and locate your coordinate system. Find the ``identifier`` and the ``UUID`` fields, and insert
-those into your yaml. Note that there can only be one coordinate system, so unlike some of the
-other entries, this one is *not* a list.
-
-.. note::
-  The coordinate system entry in the yaml file will be used to tag your produced data with
-  the coordinate system that was used when generating them. Therefore, the important thing
-  here is to write the coordinate system *you are actually using*. Note also that systems
-  may not have exactly identical names. The one you are using in RMS may be older, etc.
-
-Stratigraphic Column
-^^^^^^^^^^^^^^^^^^^^
-From the viewer, click `Stratigraphic Column <https://opus.smda.equinor.com/smda_viewer/strat-column>`_
-and locate your stratcolumn. Transfer the ``identifier`` and the ``UUID`` fields into your yaml. Note
-that there can be only one stratigraphic column, so this entry is *not* a list.
-
-.. note::
-  If you do not know the name of the stratigraphic column used on your field, ask a geologist
-  or someone else who normally do work within OpenWorks.
 
 global_variables.yml | **access**
 ---------------------------------
@@ -153,18 +107,23 @@ Under ``asset.name`` you will put the name of your asset. If you plan to upload 
 Sumo, you will be told by the Sumo team what asset should be.
 
 .. note::
-  "I cannot find asset in SMDA, and why does asset not have a unique ID"?
-
-  Currently, "asset" is not in our masterdata. However, it is an important
+  Currently, the "asset" concept is not covered by our masterdata. However, it is an important
   piece of information that governs both ownership and access to data when stored in the
   cloud. Sometimes, asset is identical to "field" but frequently it is not.
 
 Under ``ssdl``, you will enter some defaults regarding data sharing with the Subsurface Data Lake.
-In the Drogon example, data are by default available to SSDL, but you may want to do differently.
-Valid entries here are ``internal`` and ``restricted``.
 
-Note that you can override this default setting at any point when exporting data, and also
-note that no data will be lifted to the lake without explicit action by you.
+The ``ssdl.access_level`` sets the (default) sensitivity of exported data. Valid entries
+here are ``internal`` and ``restricted``. The ``ssdl.rep_include`` sets the default flag
+for signalling inclusion of exported data in the Reservoir Experience Platform. This is
+a boolean, and valid entries are ``True`` and ``False``.
+
+.. note::
+  The ``access.ssdl.access_level`` is currently also used for access handling in Sumo.
+
+Note that these are defaults. You can override these settings at any point when exporting
+data, and also note that no data will be lifted to the datalake without explicit action by you.
+
 
 global_variables.yml | **stratigraphy**
 ---------------------------------------
@@ -198,17 +157,14 @@ From the Drogon tutorial:
   
     # HORIZONS
     Seabed:
-        stratigraphic: False
+        stratigraphic: False # This horizon is NOT in the stratigraphic column.
         name: Seabed
     TopVolantis:
-        stratigraphic: True
-        name: VOLANTIS GP. Top
-        alias:
+        stratigraphic: True # This horizon is in the stratigraphic column...
+        name: VOLANTIS GP. Top # ...and this is what it is called.
+        alias: # Optional
         - TopVOLANTIS
         - TOP_VOLANTIS
-        stratigraphic_alias:
-        - TopValysar
-        - Valysar Fm. Top
     TopTherys:
         stratigraphic: True
         name: Therys Fm. Top
@@ -228,6 +184,7 @@ From the Drogon tutorial:
   fmu-dataio will do validation of this configuration, and report to you if there are
   errors of any kind. Later, you will create a first script for exporting data, and you
   might see validation errors then if you have made mistakes here.
+
 
 global_variables.yml | **model**
 --------------------------------
