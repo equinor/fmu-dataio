@@ -10,7 +10,7 @@ import warnings
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, ClassVar, Final, List, Literal, Optional, Union
+from typing import Any, ClassVar, Dict, Final, List, Literal, Optional, Union
 from warnings import warn
 
 from pydantic import ValidationError as PydanticValidationError
@@ -422,7 +422,7 @@ class ExportData:
     unit: str = ""
     verbosity: str = "DEPRECATED"  # remove in version 2
     vertical_domain: dict = field(default_factory=dict)
-    workflow: Optional[str | dict[str, str]] = None
+    workflow: Optional[Union[str, Dict[str, str]]] = None
     table_index: Optional[list] = None
 
     # some keys that are modified version of input, prepended with _use

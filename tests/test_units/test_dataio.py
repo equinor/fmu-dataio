@@ -318,6 +318,27 @@ def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
     }
 
 
+def test_workflow_as_string(fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf):
+    """
+    Check that having workflow as string works both in ExportData and on export.
+    The workflow string input is given into the metadata as fmu.workflow.reference
+    """
+
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    workflow = "My test workflow"
+
+    # check that it works in ExportData
+    edata = ExportData(config=globalconfig1, workflow=workflow)
+    meta = edata.generate_metadata(regsurf)
+    assert meta["fmu"]["workflow"]["reference"] == workflow
+
+    # doing actual export with a few ovverides
+    edata = ExportData(config=globalconfig1)
+    meta = edata.generate_metadata(regsurf, workflow="My test workflow")
+    assert meta["fmu"]["workflow"]["reference"] == workflow
+
+
 def test_set_display_name(regsurf, globalconfig2):
     """Test that giving the display_name argument sets display.name."""
     eobj = ExportData(
