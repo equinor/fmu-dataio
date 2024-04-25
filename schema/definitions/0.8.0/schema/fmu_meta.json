@@ -3293,7 +3293,7 @@
         },
         "relative_path": {
           "examples": [
-            "../some/relative/path/mygrid.roff"
+            "some/relative/path/mygrid.roff"
           ],
           "title": "Relative Path",
           "type": "string"

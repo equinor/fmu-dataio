@@ -465,7 +465,7 @@ def glue_metadata_preprocessed(
     return meta
 
 
-def get_geometry_ref(geometrypath: str, obj: Any) -> dict[str]:
+def get_geometry_ref(geometrypath: str | None, obj: Any) -> dict[str, str]:
     """Get a reference to a geometry.
 
     Read the metadata file for an already exported file, and returns info like this
