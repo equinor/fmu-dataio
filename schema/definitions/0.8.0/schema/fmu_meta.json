@@ -643,6 +643,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -1323,6 +1334,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -1608,6 +1630,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -1892,6 +1925,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [
@@ -2279,6 +2323,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -2582,6 +2637,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [
@@ -2988,6 +3054,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -3205,6 +3282,30 @@
       "title": "FluidContactContent",
       "type": "object"
     },
+    "Geometry": {
+      "properties": {
+        "name": {
+          "examples": [
+            "MyGrid"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "relative_path": {
+          "examples": [
+            "../some/relative/path/mygrid.roff"
+          ],
+          "title": "Relative Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "relative_path"
+      ],
+      "title": "Geometry",
+      "type": "object"
+    },
     "GridModel": {
       "properties": {
         "name": {
@@ -3289,6 +3390,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [
@@ -3631,6 +3743,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -3944,6 +4067,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -4240,6 +4374,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [
@@ -4546,6 +4691,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -4830,6 +4986,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [
@@ -5164,6 +5331,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -5448,6 +5626,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [
@@ -5789,6 +5978,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -6073,6 +6273,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [
@@ -6446,6 +6657,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [
@@ -6845,6 +7067,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [
@@ -7322,6 +7555,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -7635,6 +7879,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -7919,6 +8174,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [
@@ -8263,6 +8529,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -8561,6 +8838,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -8846,6 +9134,17 @@
           "title": "Format",
           "type": "string"
         },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "grid_model": {
           "anyOf": [
             {
@@ -9130,6 +9429,17 @@
           ],
           "title": "Format",
           "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "grid_model": {
           "anyOf": [

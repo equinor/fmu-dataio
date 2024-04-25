@@ -32,6 +32,7 @@ class DerivedObjectDescriptor:
     extension: str
     spec: dict[str, Any] | None
     bbox: dict[str, Any] | None
+    geometry: dict[str, Any] | None
     table_index: list[str] | None
 
 
@@ -299,6 +300,7 @@ class ObjectDataProvider(ABC):
             meta[self.dataio._usecontent] = content_spesific
 
         meta["tagname"] = self.dataio.tagname
+        meta["geometry"] = objres.geometry
         meta["format"] = objres.fmt
         meta["layout"] = objres.layout
         meta["unit"] = self.dataio.unit

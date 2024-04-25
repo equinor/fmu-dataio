@@ -89,6 +89,30 @@ def test_regsurf_export_file(rmssetup, rmsglobalconfig, regsurf):
 
 
 @inside_rms
+def test_regsurf_export_file_w_geometry(rmssetup, rmsglobalconfig, regsurf):
+    """Export the regular surface to file which refers to a geometry."""
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
+
+    depth_file = edata.export(regsurf, name="mydepth")
+    logger.info("Output is %s", depth_file)
+
+    # now mimic another surface e.g porosity which will refer to the depth as geometry
+    poro = regsurf.copy()
+    poro.values = 0.33
+
+    out = edata.export(poro, content="property", name="poro", geometry=depth_file)
+    logger.info("Output is %s", out)
+
+    meta = dataio.read_metadata(out)
+    assert meta["data"]["geometry"]["relative_path"] == "share/results/maps/mydepth.gri"
+
+
+@inside_rms
 def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
     """Export the regular surface to file with correct metadata and name."""
     logger.info("Active folder is %s", rmssetup)
@@ -551,6 +575,32 @@ def test_gridproperty_export_file_set_name(rmssetup, rmsglobalconfig, gridproper
 
     assert str(output) == str(
         (edata._rootpath / "share/results/grids/mygridproperty.roff").resolve()
+    )
+
+
+@inside_rms
+def test_gridproperty_export_with_geometry(
+    rmssetup, rmsglobalconfig, grid, gridproperty
+):
+    """Export the the grid and the gridprop(s) with connected geometry."""
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth"
+    )  # read from global config
+    grid_output = edata.export(grid, name="MyGrid")
+
+    # Here the export of the grid property point to the path of the exported geometry,
+    # which is then sufficient to provide a geometry tag in the data settings.
+    output = edata.export(gridproperty, name="MyGridProperty", geometry=grid_output)
+    logger.info("Output is %s", output)
+    metadata = dataio.read_metadata(output)
+
+    assert metadata["data"]["geometry"]["name"] == "MyGrid"
+    assert (
+        metadata["data"]["geometry"]["relative_path"]
+        == "share/results/grids/mygrid.roff"
     )
 
 

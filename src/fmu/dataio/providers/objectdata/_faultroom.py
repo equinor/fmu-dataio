@@ -63,5 +63,6 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
             spec=self.get_spec(),
             bbox=self.get_bbox(),
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
+            geometry=None,
             table_index=None,
         )

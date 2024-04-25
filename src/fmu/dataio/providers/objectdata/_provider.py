@@ -186,6 +186,7 @@ class ExistingDataProvider(ObjectDataProvider):
             extension=self.extension,
             spec=self.get_spec(),
             bbox=self.get_bbox(),
+            geometry=None,
             table_index=None,
         )
 
@@ -220,5 +221,6 @@ class DictionaryDataProvider(ObjectDataProvider):
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
             spec=self.get_spec() or None,
             bbox=self.get_bbox() or None,
+            geometry=None,
             table_index=None,
         )

@@ -463,3 +463,35 @@ def glue_metadata_preprocessed(
     meta["tracklog"].extend(newmeta["tracklog"])
 
     return meta
+
+
+def get_geometry_ref(geometrypath: str, obj: Any) -> dict[str]:
+    """Get a reference to a geometry.
+
+    Read the metadata file for an already exported file, and returns info like this
+    for the data block:
+
+    data:
+      geometry:
+        name: somename
+        relative_path: some_relative/path/geometry.roff
+
+    This means that the geometry may be 'located' both on disk (relative path) and in
+    SUMO
+    """
+    if not geometrypath:
+        return {}
+
+    gmeta = read_metadata_from_file(geometrypath)
+
+    # some basic checks (may be exteneded to e.g. match on NCOL, NROW, ...?)
+    if isinstance(obj, xtgeo.GridProperty) and gmeta["class"] != "cpgrid":
+        raise ValueError("The geometry for a grid property must be a grid")
+
+    if isinstance(obj, xtgeo.RegularSurface) and gmeta["class"] != "surface":
+        raise ValueError("The geometry for a surface must be another surface")
+
+    geom_name = gmeta["data"].get("name", "")
+    relpath = gmeta["file"]["relative_path"]
+
+    return {"name": geom_name, "relative_path": relpath}

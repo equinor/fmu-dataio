@@ -9,7 +9,7 @@ import xtgeo
 
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import npfloat_to_float
+from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
 from fmu.dataio.datastructure.meta import meta, specification
 
 from ._base import (
@@ -76,6 +76,7 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
             extension=self._validate_get_ext(
                 fmt, "RegularSurface", ValidFormats().surface
             ),
+            geometry=get_geometry_ref(self.dataio.geometry, self.obj) or None,
             table_index=None,
         )
 
@@ -125,6 +126,7 @@ class PolygonsDataProvider(ObjectDataProvider):
             extension=self._validate_get_ext(fmt, "Polygons", ValidFormats().polygons),
             spec=self.get_spec(),
             bbox=self.get_bbox(),
+            geometry=None,
             table_index=None,
         )
 
@@ -179,6 +181,7 @@ class PointsDataProvider(ObjectDataProvider):
             extension=self._validate_get_ext(fmt, "Points", ValidFormats().points),
             spec=self.get_spec(),
             bbox=self.get_bbox(),
+            geometry=None,
             table_index=None,
         )
 
@@ -255,6 +258,7 @@ class CubeDataProvider(ObjectDataProvider):
             extension=self._validate_get_ext(fmt, "RegularCube", ValidFormats().cube),
             spec=self.get_spec(),
             bbox=self.get_bbox(),
+            geometry=None,
             table_index=None,
         )
 
@@ -315,6 +319,7 @@ class CPGridDataProvider(ObjectDataProvider):
             extension=self._validate_get_ext(fmt, "CPGrid", ValidFormats().grid),
             spec=self.get_spec(),
             bbox=self.get_bbox(),
+            geometry=None,
             table_index=None,
         )
 
@@ -354,5 +359,6 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
             ),
             spec=self.get_spec(),
             bbox=self.get_bbox() or None,
+            geometry=get_geometry_ref(self.dataio.geometry, self.obj) or None,
             table_index=None,
         )

@@ -97,6 +97,11 @@ class FieldRegion(BaseModel):
     )
 
 
+class Geometry(BaseModel):
+    name: str = Field(examples=["MyGrid"])
+    relative_path: str = Field(examples=["some/relative/path/mygrid.roff"])
+
+
 class GridModel(BaseModel):
     name: str = Field(examples=["MyGrid"])
 
@@ -165,6 +170,8 @@ class Content(BaseModel):
     format: str = Field(
         examples=["irap_binary"],
     )
+
+    geometry: Optional[Geometry] = Field(default=None)
 
     grid_model: Optional[GridModel] = Field(default=None)
     is_observation: bool = Field(

@@ -300,6 +300,12 @@ class ExportData:
             possible! (*) For absolute paths, the class variable
             allow_forcefolder_absolute must set to True.
 
+        geometry: Optional, and for some data types only, like grid properties and
+            surface(s), may need a reference to geometry (a 3D grid for grid
+            properties, a surface in depth or time for a surface). The
+            value shall point to an existing file which is already exported with
+            dataio, and hence has an assosiated metadata file.
+
         grid_model: Currently allowed but planned for deprecation
 
         table_index: This applies to Pandas (table) data only, and is a list of the
@@ -416,6 +422,7 @@ class ExportData:
     display_name: Optional[str] = None
     fmu_context: Optional[str] = None
     forcefolder: str = ""
+    geometry: Optional[str] = None
     grid_model: Optional[str] = None
     is_observation: bool = False
     is_prediction: bool = True
