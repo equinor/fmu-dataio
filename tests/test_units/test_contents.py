@@ -89,6 +89,17 @@ def test_content_lift_curves(dataframe, globalconfig2):
     assert meta["data"]["content"] == "lift_curves"
 
 
+def test_content_named_area(polygons, globalconfig2):
+    """Test export of the named_area content."""
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content="named_area",
+    ).generate_metadata(polygons)
+
+    assert meta["data"]["content"] == "named_area"
+
+
 def test_content_parameters(dataframe, globalconfig2):
     """Test export of the parameters content."""
     meta = ExportData(
@@ -170,7 +181,6 @@ def test_content_seismic(polygons, globalconfig2):
     """Test export of the seismic content."""
 
     # tested various other places
-    pass
 
 
 def test_content_subcrop(polygons, globalconfig2):
@@ -199,7 +209,6 @@ def test_content_time(polygons, globalconfig2):
     """Test export of the time content."""
 
     # tested various other places
-    pass
 
 
 def test_content_timeseries(dataframe, globalconfig2):
@@ -215,8 +224,8 @@ def test_content_timeseries(dataframe, globalconfig2):
 
 def test_content_transmissibilities(gridproperty, globalconfig2):
     """Test export of the transmissibilities content."""
+
     # not supported (?)
-    pass
 
 
 def test_content_velocity(regsurf, globalconfig2):

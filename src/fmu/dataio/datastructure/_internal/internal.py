@@ -98,7 +98,6 @@ class AllowedContentFieldRegion(BaseModel):
 
 
 class AllowedContent(BaseModel):
-
     # NB! See also ContentEnum in enums.py
 
     depth: None = Field(default=None)
@@ -110,6 +109,7 @@ class AllowedContent(BaseModel):
     fluid_contact: Optional[AllowedContentFluidContact] = Field(default=None)
     khproduct: None = Field(default=None)
     lift_curves: None = Field(default=None)
+    named_area: None = Field(default=None)
     parameters: None = Field(default=None)
     pinchout: None = Field(default=None)
     property: Optional[Union[AllowedContentProperty, str]] = Field(default=None)
