@@ -264,10 +264,6 @@ class FluidContactContent(Content):
     )
 
 
-class InplaceVolumesContent(Content):
-    content: Literal[enums.ContentEnum.inplace_volumes]
-
-
 class KPProductContent(Content):
     content: Literal[enums.ContentEnum.khproduct]
 
@@ -339,10 +335,6 @@ class VolumesContent(Content):
     content: Literal[enums.ContentEnum.volumes]
 
 
-class VolumetricsContent(Content):
-    content: Literal[enums.ContentEnum.volumetrics]
-
-
 class WellPicksContent(Content):
     content: Literal[enums.ContentEnum.wellpicks]
 
@@ -356,7 +348,6 @@ class AnyContent(RootModel):
             FieldOutlineContent,
             FieldRegionContent,
             FluidContactContent,
-            InplaceVolumesContent,
             KPProductContent,
             LiftCurvesContent,
             ParametersContent,
@@ -374,7 +365,6 @@ class AnyContent(RootModel):
             TimeSeriesContent,
             VelocityContent,
             VolumesContent,
-            VolumetricsContent,
             WellPicksContent,
         ],
         Field(discriminator="content"),

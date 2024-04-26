@@ -70,7 +70,7 @@ class ValidFormats:
 
 
 STANDARD_TABLE_INDEX_COLUMNS: Final[dict[str, list[str]]] = {
-    "inplace_volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
+    "volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
     "rft": ["measured_depth", "well", "time"],
     "timeseries": ["DATE"],  # summary
     "wellpicks": ["WELL", "HORIZON"],
