@@ -120,6 +120,8 @@ def test_regsurf_preprocessed_observation(
         assert metadata["data"]["name"] == "VOLANTIS GP. Top"
         assert "TopVolantis" in metadata["data"]["alias"]
         assert "_preprocessed" not in metadata
+        # check that content comes from the existing metadata
+        assert metadata["data"]["content"] == "depth"
 
         # do the actual export (which will copy data to case/share/observations/...)
         edata.export(

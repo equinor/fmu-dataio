@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 from enum import Enum, IntEnum
+from typing import Type
 
 
 class ContentEnum(str, Enum):
-    # NB! See also AllowedContent in internal.py
-
     depth = "depth"
     facies_thickness = "facies_thickness"
     fault_lines = "fault_lines"
@@ -32,6 +31,12 @@ class ContentEnum(str, Enum):
     velocity = "velocity"
     volumes = "volumes"
     wellpicks = "wellpicks"
+
+    @classmethod
+    def _missing_(cls: Type[ContentEnum], value: object) -> None:
+        raise ValueError(
+            f"Invalid 'content' {value=}. Valid entries are {[m.value for m in cls]}"
+        )
 
 
 class FMUClassEnum(str, Enum):

@@ -13,8 +13,6 @@ from pathlib import Path
 from typing import Any, ClassVar, Dict, Final, List, Literal, Optional, Union
 from warnings import warn
 
-from pydantic import ValidationError as PydanticValidationError
-
 from . import types
 from ._definitions import (
     FmuContext,
@@ -32,7 +30,6 @@ from ._utils import (
 )
 from .aggregation import AggregatedData
 from .case import InitializeCase
-from .datastructure._internal.internal import AllowedContent
 from .datastructure.configuration import global_configuration
 from .datastructure.meta import enums, meta
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
@@ -85,76 +82,6 @@ def _validate_variable(key: str, value: type, legals: dict[str, str | type]) -> 
         logger.info("Skip type checking of complex types; '%s: %s'", key, validcheck)
 
     return True
-
-
-# the two next content key related function may require refactoring/simplification
-def _check_content(proposed: str | dict | None) -> Any:
-    """Check content and return a validated version."""
-    logger.info("Evaluate content")
-
-    content = proposed
-    content_specific = None
-    logger.debug("content is %s of type %s", str(content), type(content))
-    if content is None:
-        usecontent = "unset"  # user warnings on this will in _objectdata_provider
-
-    elif isinstance(content, str):
-        logger.debug("content is a string")
-        if AllowedContent.requires_additional_input(content):
-            raise ValidationError(f"content {content} requires additional input")
-        usecontent = content
-        content_specific = None  # not relevant when content is a string
-        logger.debug("usecontent is %s", usecontent)
-
-    elif isinstance(content, dict):
-        logger.debug("content is a dictionary")
-        usecontent = (list(content.keys()))[0]
-        logger.debug("usecontent is %s", usecontent)
-        content_specific = content[usecontent]
-        logger.debug("content_specific is %s", content_specific)
-        if not isinstance(content_specific, dict):
-            raise ValueError(
-                "Content is incorrectly formatted. When giving content as a dict, "
-                "it must be formatted as:"
-                "{'mycontent': {extra_key: extra_value} where mycontent is a string "
-                "and in the list of valid contents, and extra keys in associated "
-                " dictionary must be valid keys for this content."
-            )
-    else:
-        raise ValidationError("The 'content' must be string or dict")
-
-    if usecontent != "unset" and usecontent not in AllowedContent.model_fields:
-        raise ValidationError(
-            f"Invalid content: <{usecontent}>! "
-            f"Valid content: {', '.join(AllowedContent.model_fields.keys())}"
-        )
-
-    logger.debug("outgoing content is set to %s", usecontent)
-    if content_specific:
-        content_specific = _content_validate(usecontent, content_specific)
-    else:
-        logger.debug("content has no extra information")
-
-    return usecontent, content_specific
-
-
-def _content_validate(name: str, fields: dict[str, object] | None) -> dict | None:
-    try:
-        return AllowedContent.model_validate({name: fields}).model_dump(
-            exclude_none=True,
-            mode="json",
-        )[name]
-    except PydanticValidationError as e:
-        raise ValidationError(
-            f"""The field {name} has one or more errors that makes it
-impossible to create valid content. The data will still be exported but no
-metadata will be made. You are strongly encouraged to correct your
-configuration. Invalid configuration may be disallowed in future versions.
-
-Detailed information:
-{str(e)}
-"""
-        )
 
 
 # ======================================================================================
@@ -436,7 +363,6 @@ class ExportData:
     table_index: Optional[list] = None
 
     # some keys that are modified version of input, prepended with _use
-    _usecontent: dict | str = field(default_factory=dict, init=False)
     _usefmtflag: str = field(default="", init=False)
 
     # storing resulting state variables for instance, non-public:
@@ -481,7 +407,6 @@ class ExportData:
         if not self.config and GLOBAL_ENVNAME in os.environ:
             self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
 
-        self._validate_content_key()
         self._validate_and_establish_fmucontext()
         self._validate_workflow_key()
 
@@ -661,10 +586,6 @@ class ExportData:
 
             self.workflow = workflow.model_dump(mode="json", exclude_none=True)
 
-    def _validate_content_key(self) -> None:
-        """Validate the given 'content' input."""
-        self._usecontent, self._content_specific = _check_content(self.content)
-
     def _validate_and_establish_fmucontext(self) -> None:
         """
         Validate the given 'fmu_context' input. if not explicitly given it
@@ -739,7 +660,6 @@ class ExportData:
                 logger.info("New setting OK for %s", setting)
 
         self._show_deprecations_or_notimplemented()
-        self._validate_content_key()
         self._validate_workflow_key()
         self._validate_and_establish_fmucontext()
 
@@ -870,7 +790,6 @@ class ExportData:
         self._check_process_object(obj)  # obj --> self._object
 
         self._establish_pwd_rootpath()
-        self._validate_content_key()
         self._update_fmt_flag()
 
         fmudata = self._get_fmu_provider() if self._fmurun else None

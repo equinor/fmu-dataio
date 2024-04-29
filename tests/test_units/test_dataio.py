@@ -12,7 +12,7 @@ import pytest
 import yaml
 from fmu.dataio._definitions import FmuContext
 from fmu.dataio._utils import prettyprint_dict
-from fmu.dataio.dataio import ExportData, ValidationError, read_metadata
+from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.providers._fmu import FmuEnv
 
 # pylint: disable=no-member
@@ -286,8 +286,8 @@ def test_rep_include(globalconfig1, regsurf):
 
 def test_content_not_given(globalconfig1, regsurf):
     """When content is not explicitly given, warning shall be issued."""
+    eobj = ExportData(config=globalconfig1)
     with pytest.warns(UserWarning, match="The <content> is not provided"):
-        eobj = ExportData(config=globalconfig1)
         mymeta = eobj.generate_metadata(regsurf)
 
     assert mymeta["data"]["content"] == "unset"
@@ -306,16 +306,24 @@ def test_content_given_init_or_later(globalconfig1, regsurf):
     assert mymeta["data"]["content"] == "depth"  # last content shall win
 
 
-def test_content_invalid_string(globalconfig1):
-    with pytest.raises(ValidationError):
-        ExportData(config=globalconfig1, content="not_valid")
+def test_content_invalid_string(globalconfig1, regsurf):
+    eobj = ExportData(config=globalconfig1, content="not_valid")
+    with pytest.raises(ValueError, match="Invalid 'content' value='not_valid'"):
+        eobj.generate_metadata(regsurf)
 
 
-def test_content_invalid_dict(globalconfig1):
-    with pytest.raises(ValidationError):
-        ExportData(
-            config=globalconfig1, content={"not_valid": {"some_key": "some_value"}}
-        )
+def test_content_invalid_dict(globalconfig1, regsurf):
+    eobj = ExportData(
+        config=globalconfig1, content={"not_valid": {"some_key": "some_value"}}
+    )
+    with pytest.raises(ValueError, match="Invalid 'content' value='not_valid'"):
+        eobj.generate_metadata(regsurf)
+
+    eobj = ExportData(
+        config=globalconfig1, content={"seismic": "some_key", "extra": "some_value"}
+    )
+    with pytest.raises(ValueError, match="Found more than one content item"):
+        eobj.generate_metadata(regsurf)
 
 
 def test_content_valid_string(regsurf, globalconfig2):
@@ -325,9 +333,9 @@ def test_content_valid_string(regsurf, globalconfig2):
     assert "depth" not in mymeta["data"]
 
 
-def test_seismic_content_require_seismic_data(regsurf, globalconfig2):
+def test_seismic_content_require_seismic_data(globalconfig2, regsurf):
     eobj = ExportData(config=globalconfig2, content="seismic")
-    with pytest.raises(pydantic.ValidationError, match="Field required "):
+    with pytest.raises(pydantic.ValidationError, match="requires additional input"):
         eobj.generate_metadata(regsurf)
 
 
@@ -359,28 +367,30 @@ def test_content_valid_dict(regsurf, globalconfig2):
     }
 
 
-def test_content_is_a_wrongly_formatted_dict(globalconfig2):
+def test_content_is_a_wrongly_formatted_dict(globalconfig2, regsurf):
     """When content is a dict, it shall have one key with one dict as value."""
+    eobj = ExportData(
+        config=globalconfig2,
+        name="TopVolantis",
+        content={"seismic": "myvalue"},
+    )
     with pytest.raises(ValueError, match="incorrectly formatted"):
-        ExportData(
-            config=globalconfig2,
-            name="TopVolantis",
-            content={"seismic": "myvalue"},
-        )
+        eobj.generate_metadata(regsurf)
 
 
-def test_content_is_dict_with_wrong_types(globalconfig2):
+def test_content_is_dict_with_wrong_types(globalconfig2, regsurf):
     """When content is a dict, it shall have right types for known keys."""
-    with pytest.raises(ValidationError):
-        ExportData(
-            config=globalconfig2,
-            name="TopVolantis",
-            content={
-                "seismic": {
-                    "stacking_offset": 123.4,  # not a string
-                }
-            },
-        )
+    eobj = ExportData(
+        config=globalconfig2,
+        name="TopVolantis",
+        content={
+            "seismic": {
+                "stacking_offset": 123.4,  # not a string
+            }
+        },
+    )
+    with pytest.raises(pydantic.ValidationError):
+        eobj.generate_metadata(regsurf)
 
 
 def test_content_with_subfields(globalconfig2, polygons):
@@ -708,21 +718,21 @@ def test_norwegian_letters(encoding, mode, tmp_path):
         assert yaml.safe_load(f) == {"æøå": "æøå"}
 
 
-@pytest.mark.parametrize("content", ("seismic", "property"))
-def test_content_seismic_or_property_as_string_future_warning(content, globalconfig2):
+def test_content_seismic_as_string_validation_error(globalconfig2, regsurf):
+    edata = ExportData(content="seismic", config=globalconfig2)
+    with pytest.raises(ValueError, match="requires additional input"):
+        edata.generate_metadata(regsurf)
+
+    # correct way, should not fail
+    edata = ExportData(
+        content={"seismic": {"attribute": "attribute-value"}}, config=globalconfig2
+    )
+    meta = edata.generate_metadata(regsurf)
+    assert meta["data"]["content"] == "seismic"
+    assert meta["data"]["seismic"] == {"attribute": "attribute-value"}
+
+
+def test_content_property_as_string_future_warning(globalconfig2, regsurf):
+    edata = ExportData(content="property", config=globalconfig2)
     with pytest.warns(FutureWarning):
-        ExportData(content=content, config=globalconfig2)
-
-
-@pytest.mark.parametrize(
-    "content",
-    (
-        {"seismic": {"attribute": "attribute-value"}},
-        {"property": {"attribute": "attribute-value"}},
-    ),
-)
-def test_content_seismic_or_property_as_composite_no_future_warning(
-    content, globalconfig2, recwarn
-):
-    ExportData(content=content, config=globalconfig2)
-    assert len(recwarn) == 0
+        edata.generate_metadata(regsurf)
