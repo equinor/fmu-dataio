@@ -490,6 +490,14 @@ class ExportData:
         if self._config_is_valid:
             # TODO: This needs refinement: _config_is_valid should be removed
             self.config = global_configuration.roundtrip(self.config)
+        else:
+            warnings.warn(
+                "The global config file is lacking key information, hence no metadata "
+                "will be exported. Follow the simple 'Getting started' steps "
+                "to do necessary preparations and enable metadata export: "
+                "https://fmu-dataio.readthedocs.io/en/latest/preparations.html ",
+                UserWarning,
+            )
 
         self._classification = self._get_classification()
         self._rep_include = self._get_rep_include()
