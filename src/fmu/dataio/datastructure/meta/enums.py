@@ -4,6 +4,8 @@ from enum import Enum, IntEnum
 
 
 class ContentEnum(str, Enum):
+    # NB! See also AllowedContent in internal.py
+
     depth = "depth"
     facies_thickness = "facies_thickness"
     fault_lines = "fault_lines"
@@ -13,6 +15,7 @@ class ContentEnum(str, Enum):
     fluid_contact = "fluid_contact"
     khproduct = "khproduct"
     lift_curves = "lift_curves"
+    named_area = "named_area"
     parameters = "parameters"
     pinchout = "pinchout"
     property = "property"

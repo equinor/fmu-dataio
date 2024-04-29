@@ -272,6 +272,10 @@ class LiftCurvesContent(Content):
     content: Literal[enums.ContentEnum.lift_curves]
 
 
+class NamedAreaContent(Content):
+    content: Literal[enums.ContentEnum.named_area]
+
+
 class ParametersContent(Content):
     content: Literal[enums.ContentEnum.parameters]
 
@@ -350,6 +354,7 @@ class AnyContent(RootModel):
             FluidContactContent,
             KPProductContent,
             LiftCurvesContent,
+            NamedAreaContent,
             ParametersContent,
             PinchoutContent,
             PropertyContent,
