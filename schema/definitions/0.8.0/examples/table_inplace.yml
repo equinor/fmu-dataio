@@ -69,7 +69,7 @@ file:
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
 
-  content: inplace_volumes   # white-listed and standardized
+  content: volumes   # white-listed and standardized
 
   # if stratigraphic, name must match the strat column. This is the official name of this surface.
   name: inplace_mygrid

@@ -13,7 +13,6 @@ class ContentEnum(str, Enum):
     field_outline = "field_outline"
     field_region = "field_region"
     fluid_contact = "fluid_contact"
-    inplace_volumes = "inplace_volumes"
     khproduct = "khproduct"
     lift_curves = "lift_curves"
     named_area = "named_area"
@@ -32,7 +31,6 @@ class ContentEnum(str, Enum):
     transmissibilities = "transmissibilities"
     velocity = "velocity"
     volumes = "volumes"
-    volumetrics = "volumetrics"
     wellpicks = "wellpicks"
 
 
