@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gb6be1cb documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g69027ac documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -309,13 +309,11 @@
 <span class="sd">        display_name: Optional, set name for clients to use when visualizing.</span>
 
 <span class="sd">        forcefolder: This setting shall only be used as exception, and will make it</span>
-<span class="sd">            possible to output to a non-standard folder. A ``/`` in front will indicate</span>
-<span class="sd">            an absolute path*; otherwise it will be relative to casepath or rootpath, as</span>
-<span class="sd">            dependent on the both fmu_context and the is_observations boolean value. A</span>
-<span class="sd">            typical use-case is forcefolder=&quot;seismic&quot; which will replace the &quot;cubes&quot;</span>
+<span class="sd">            possible to output to a non-standard folder relative to casepath/rootpath,</span>
+<span class="sd">            as dependent on the both fmu_context and the is_observations boolean value.</span>
+<span class="sd">            A typical use-case is forcefolder=&quot;seismic&quot; which will replace the &quot;cubes&quot;</span>
 <span class="sd">            standard folder for Cube output with &quot;seismics&quot;. Use with care and avoid if</span>
-<span class="sd">            possible! (*) For absolute paths, the class variable</span>
-<span class="sd">            allow_forcefolder_absolute must set to True.</span>
+<span class="sd">            possible!</span>
 
 <span class="sd">        grid_model: Currently allowed but planned for deprecation</span>
 
@@ -402,7 +400,7 @@
     <span class="c1"># ----------------------------------------------------------------------------------</span>
 
     <span class="c1"># class variables</span>
-    <span class="n">allow_forcefolder_absolute</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">allow_forcefolder_absolute</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># deprecated</span>
     <span class="n">arrow_fformat</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;arrow&quot;</span>
     <span class="n">case_folder</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;share/metadata&quot;</span>
     <span class="n">createfolder</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># deprecated</span>
@@ -663,6 +661,12 @@
                 <span class="s2">&quot;The &#39;workflow&#39; argument should be given as a string. &quot;</span>
                 <span class="s2">&quot;Support for dictionary will be deprecated.&quot;</span><span class="p">,</span>
                 <span class="ne">FutureWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_forcefolder_absolute</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Support for using an absolute path as &#39;forcefolder&#39; is deprecated. &quot;</span>
+                <span class="s2">&quot;Please remove it from the argument list.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_validate_workflow_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -960,7 +964,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gb6be1cb).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g69027ac).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
