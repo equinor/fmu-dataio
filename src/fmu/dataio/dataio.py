@@ -425,7 +425,11 @@ class ExportData:
         self._classification = self._get_classification()
         self._rep_include = self._get_rep_include()
 
-        self._establish_pwd_rootpath()
+        self._pwd = Path().cwd()
+        self._rootpath = self._establish_rootpath()
+        logger.debug("pwd:   %s", str(self._pwd))
+        logger.info("rootpath:   %s", str(self._rootpath))
+
         logger.info("Ran __post_init__")
 
     def _get_classification(self) -> enums.AccessLevel:
@@ -658,6 +662,12 @@ class ExportData:
         if "config" in newsettings:
             raise ValueError("Cannot have 'config' outside instance initialization")
 
+        if "casepath" in newsettings:
+            raise ValueError(
+                "Not possible to update 'casepath' on export/generate_metadata. "
+                "Use instead ExportData(casepath='mycasepath')"
+            )
+
         for setting, value in newsettings.items():
             if _validate_variable(setting, value, legals):
                 setattr(self, setting, value)
@@ -667,46 +677,40 @@ class ExportData:
         self._validate_workflow_key()
         self._validate_and_establish_fmucontext()
 
-    def _establish_pwd_rootpath(self) -> None:
-        """Establish state variables pwd and the (initial) rootpath.
-
-        The self._pwd stores the process working directory, i.e. the folder
-        from which the process is ran
-
-        The self._rootpath stores the folder from which is the base root for all
-        relative output files. This rootpath may be dependent on if this is a FMU run
-        or just an interactive run.
-
-        Hence this 'initial' rootpath can be updated later!
+    def _establish_rootpath(self) -> Path:
         """
-        logger.info(
-            "Establish pwd and actual casepath, inside RMS flag is %s (actual: %s))",
-            ExportData._inside_rms,
-            INSIDE_RMS,
+        Establish the rootpath. The rootpath is the folder that acts as the
+        base root for all relative output files. The rootpath is dependent on
+        whether this is run in a FMU context via ERT and whether it's being
+        run from inside or outside RMS.
+
+        1: Running ERT: the rootpath will be equal to the casepath
+        2: Running RMS interactively: The rootpath will be rootpath/rms/model
+        3: When none of the above conditions apply, the rootpath value will be equal
+           to the present working directory (pwd).
+        """
+        logger.info("Establish roothpath")
+        logger.debug(
+            "inside RMS flag is %s (actual: %s))", ExportData._inside_rms, INSIDE_RMS
         )
-        self._pwd = Path().absolute()
+        assert isinstance(self.fmu_context, FmuContext)
 
-        # fmu_context 1: Running RMS, we are in conventionally in rootpath/rms/model
-        # fmu_context 2: ERT FORWARD_JOB, at case = rootpath=RUNPATH/../../. level
-        # fmu_context 3: ERT WORKFLOW_JOB, running somewhere/anywhere else
+        if self._fmurun and (
+            casepath := FmuProvider(
+                fmu_context=self.fmu_context,
+                casepath_proposed=Path(self.casepath) if self.casepath else None,
+            ).get_casepath()
+        ):
+            logger.info("Run from ERT")
+            return casepath.absolute()
 
-        self._rootpath = self._pwd
-        if self.casepath and isinstance(self.casepath, (str, Path)):
-            self._rootpath = Path(self.casepath).absolute()
-            logger.info("The casepath is hard set as %s", self._rootpath)
+        if ExportData._inside_rms or INSIDE_RMS:
+            logger.info("Run from inside RMS")
+            ExportData._inside_rms = True
+            return self._pwd.parent.parent.absolute().resolve()
 
-        else:
-            if ExportData._inside_rms or INSIDE_RMS:
-                logger.info(
-                    "Run from inside RMS: ExportData._inside_rms=%s, INSIDE_RMS=%s",
-                    ExportData._inside_rms,
-                    INSIDE_RMS,
-                )
-                self._rootpath = (self._pwd / "../../.").absolute().resolve()
-                ExportData._inside_rms = True
-
-        logger.info("pwd:        %s", str(self._pwd))
-        logger.info("rootpath:   %s", str(self._rootpath))
+        logger.info("Running outside FMU context, using pwd as roothpath")
+        return self._pwd
 
     def _check_process_object(self, obj: types.Inferrable) -> None:
         """When obj is file-like, it must be checked + assume preprocessed.
@@ -792,19 +796,8 @@ class ExportData:
         self._rep_include = self._get_rep_include()
 
         self._check_process_object(obj)  # obj --> self._object
-
-        self._establish_pwd_rootpath()
         self._update_fmt_flag()
-
         fmudata = self._get_fmu_provider() if self._fmurun else None
-        # update rootpath based on fmurun or not
-        # TODO: Move to ExportData init when/if users are
-        # disallowed to update class settings on the export.
-        if fmudata and (casepath := fmudata.get_casepath()):
-            self._rootpath = casepath
-        self._rootpath = self._rootpath.absolute()
-        logger.debug("Rootpath is now %s", self._rootpath)
-
         # TODO: refactor the argument list for generate_export_metadata; we do not need
         # both self._object and self...
         self._metadata = generate_export_metadata(

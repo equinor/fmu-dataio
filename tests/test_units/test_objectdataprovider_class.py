@@ -169,11 +169,9 @@ def test_regsurf_preprocessed_observation(
             fmu_context="case",
             content=None,
             is_observation=True,
-        )
-        return edata.generate_metadata(
-            surfacepath,
             casepath=casepath,
         )
+        return edata.generate_metadata(surfacepath)
 
     # run two stage process
     edata, mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)

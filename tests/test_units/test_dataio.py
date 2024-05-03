@@ -543,9 +543,15 @@ def test_fmu_context_not_given_fetch_from_env_case(fmurun_prehook, rmsglobalconf
     assert FmuEnv.RUNPATH.value is None
     assert FmuEnv.EXPERIMENT_ID.value is not None
 
-    edata = ExportData(config=rmsglobalconfig, content="depth")
+    # will give error when casepath not provided
+    with pytest.raises(ValueError, match="Could not auto detect"):
+        edata = ExportData(config=rmsglobalconfig, content="depth")
+
+    # test that it runs properly when casepath is provided
+    edata = ExportData(config=rmsglobalconfig, content="depth", casepath=fmurun_prehook)
     assert edata._fmurun is True
     assert edata.fmu_context == FmuContext.CASE
+    assert edata._rootpath == fmurun_prehook
 
 
 def test_fmu_context_not_given_fetch_from_env_nonfmu(rmsglobalconfig):
@@ -641,7 +647,7 @@ def test_norwegian_letters_globalconfig_as_json(
     ExportData.meta_format = "yaml"  # reset
 
 
-def test_establish_pwd_runpath(tmp_path, globalconfig2):
+def test_establish_runpath(tmp_path, globalconfig2):
     """Testing pwd and rootpath from RMS"""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
@@ -649,7 +655,7 @@ def test_establish_pwd_runpath(tmp_path, globalconfig2):
 
     ExportData._inside_rms = True
     edata = ExportData(config=globalconfig2, content="depth")
-    edata._establish_pwd_rootpath()
+    edata._establish_rootpath()
 
     assert edata._rootpath == rmspath.parent.parent
 
