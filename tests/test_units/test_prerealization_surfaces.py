@@ -335,7 +335,7 @@ def test_preprocessed_with_abs_forcefolder_shall_fail(
         forcefolder="/tmp",
     )
 
-    with pytest.raises(ValueError, match="Cannot use absolute path to 'forcefolder'"):
+    with pytest.raises(ValueError, match="Can't use absolute path as 'forcefolder'"):
         edata.generate_metadata(regsurf)
 
 

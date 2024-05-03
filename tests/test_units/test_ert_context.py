@@ -327,9 +327,7 @@ def test_cube_export_file_is_observation_forcefolder_abs(
         config=rmsglobalconfig, content="depth"
     )  # read from global config
 
-    with pytest.warns(
-        UserWarning, match="absolute paths in forcefolder is not recommended"
-    ):
+    with pytest.raises(ValueError, match="Can't use absolute path as 'forcefolder'"):
         output = edata.export(
             cube,
             name="MyCube",
@@ -337,9 +335,8 @@ def test_cube_export_file_is_observation_forcefolder_abs(
             fmu_context="realization",
             forcefolder="/tmp/seismic",
         )
-    logger.info("Output is %s", output)
+        logger.info("Output is %s", output)
 
-    assert str(output) == "/tmp/seismic/mycube.segy"
     dataio.ExportData.allow_forcefolder_absolute = False
 
 
