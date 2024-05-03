@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g73001ef documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gb6be1cb documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -103,8 +103,6 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Final</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
-<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">PydanticValidationError</span>
-
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">types</span>
 <span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">FmuContext</span><span class="p">,</span>
@@ -122,7 +120,6 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.aggregation</span> <span class="kn">import</span> <span class="n">AggregatedData</span>
 <span class="kn">from</span> <span class="nn">.case</span> <span class="kn">import</span> <span class="n">InitializeCase</span>
-<span class="kn">from</span> <span class="nn">.datastructure._internal.internal</span> <span class="kn">import</span> <span class="n">AllowedContent</span>
 <span class="kn">from</span> <span class="nn">.datastructure.configuration</span> <span class="kn">import</span> <span class="n">global_configuration</span>
 <span class="kn">from</span> <span class="nn">.datastructure.meta</span> <span class="kn">import</span> <span class="n">enums</span><span class="p">,</span> <span class="n">meta</span>
 <span class="kn">from</span> <span class="nn">.providers._fmu</span> <span class="kn">import</span> <span class="n">FmuProvider</span><span class="p">,</span> <span class="n">get_fmu_context_from_environment</span>
@@ -175,76 +172,6 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skip type checking of complex types; &#39;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">validcheck</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="kc">True</span>
-
-
-<span class="c1"># the two next content key related function may require refactoring/simplification</span>
-<span class="k">def</span> <span class="nf">_check_content</span><span class="p">(</span><span class="n">proposed</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check content and return a validated version.&quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Evaluate content&quot;</span><span class="p">)</span>
-
-    <span class="n">content</span> <span class="o">=</span> <span class="n">proposed</span>
-    <span class="n">content_specific</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content is </span><span class="si">%s</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">usecontent</span> <span class="o">=</span> <span class="s2">&quot;unset&quot;</span>  <span class="c1"># user warnings on this will in _objectdata_provider</span>
-
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content is a string&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">AllowedContent</span><span class="o">.</span><span class="n">requires_additional_input</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;content </span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2"> requires additional input&quot;</span><span class="p">)</span>
-        <span class="n">usecontent</span> <span class="o">=</span> <span class="n">content</span>
-        <span class="n">content_specific</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># not relevant when content is a string</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;usecontent is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">usecontent</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content is a dictionary&quot;</span><span class="p">)</span>
-        <span class="n">usecontent</span> <span class="o">=</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">keys</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;usecontent is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">usecontent</span><span class="p">)</span>
-        <span class="n">content_specific</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">usecontent</span><span class="p">]</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content_specific is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">content_specific</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content_specific</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Content is incorrectly formatted. When giving content as a dict, &quot;</span>
-                <span class="s2">&quot;it must be formatted as:&quot;</span>
-                <span class="s2">&quot;{&#39;mycontent&#39;: {extra_key: extra_value} where mycontent is a string &quot;</span>
-                <span class="s2">&quot;and in the list of valid contents, and extra keys in associated &quot;</span>
-                <span class="s2">&quot; dictionary must be valid keys for this content.&quot;</span>
-            <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;The &#39;content&#39; must be string or dict&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">usecontent</span> <span class="o">!=</span> <span class="s2">&quot;unset&quot;</span> <span class="ow">and</span> <span class="n">usecontent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">AllowedContent</span><span class="o">.</span><span class="n">model_fields</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid content: &lt;</span><span class="si">{</span><span class="n">usecontent</span><span class="si">}</span><span class="s2">&gt;! &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Valid content: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">AllowedContent</span><span class="o">.</span><span class="n">model_fields</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;outgoing content is set to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">usecontent</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">content_specific</span><span class="p">:</span>
-        <span class="n">content_specific</span> <span class="o">=</span> <span class="n">_content_validate</span><span class="p">(</span><span class="n">usecontent</span><span class="p">,</span> <span class="n">content_specific</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;content has no extra information&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">usecontent</span><span class="p">,</span> <span class="n">content_specific</span>
-
-
-<span class="k">def</span> <span class="nf">_content_validate</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">AllowedContent</span><span class="o">.</span><span class="n">model_validate</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">fields</span><span class="p">})</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span>
-            <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
-        <span class="p">)[</span><span class="n">name</span><span class="p">]</span>
-    <span class="k">except</span> <span class="n">PydanticValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;The field </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> has one or more errors that makes it</span>
-<span class="s2">impossible to create valid content. The data will still be exported but no</span>
-<span class="s2">metadata will be made. You are strongly encouraged to correct your</span>
-<span class="s2">configuration. Invalid configuration may be disallowed in future versions.</span>
-
-<span class="s2">Detailed information:</span>
-<span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span>
-<span class="s2">&quot;&quot;&quot;</span>
-        <span class="p">)</span>
 
 
 <span class="c1"># ======================================================================================</span>
@@ -526,7 +453,6 @@
     <span class="n">table_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># some keys that are modified version of input, prepended with _use</span>
-    <span class="n">_usecontent</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">_usefmtflag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># storing resulting state variables for instance, non-public:</span>
@@ -571,7 +497,6 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> <span class="n">GLOBAL_ENVNAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">some_config_from_env</span><span class="p">(</span><span class="n">GLOBAL_ENVNAME</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_and_establish_fmucontext</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_workflow_key</span><span class="p">()</span>
 
@@ -751,10 +676,6 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_validate_content_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate the given &#39;content&#39; input.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_usecontent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_specific</span> <span class="o">=</span> <span class="n">_check_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">_validate_and_establish_fmucontext</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Validate the given &#39;fmu_context&#39; input. if not explicitly given it</span>
@@ -829,7 +750,6 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New setting OK for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_show_deprecations_or_notimplemented</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_workflow_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_and_establish_fmucontext</span><span class="p">()</span>
 
@@ -960,7 +880,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_process_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>  <span class="c1"># obj --&gt; self._object</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_content_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_fmt_flag</span><span class="p">()</span>
 
         <span class="n">fmudata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fmu_provider</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span> <span class="k">else</span> <span class="kc">None</span>
@@ -1041,7 +960,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g73001ef).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gb6be1cb).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
