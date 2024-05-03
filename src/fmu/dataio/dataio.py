@@ -219,13 +219,11 @@ class ExportData:
         display_name: Optional, set name for clients to use when visualizing.
 
         forcefolder: This setting shall only be used as exception, and will make it
-            possible to output to a non-standard folder. A ``/`` in front will indicate
-            an absolute path*; otherwise it will be relative to casepath or rootpath, as
-            dependent on the both fmu_context and the is_observations boolean value. A
-            typical use-case is forcefolder="seismic" which will replace the "cubes"
+            possible to output to a non-standard folder relative to casepath/rootpath,
+            as dependent on the both fmu_context and the is_observations boolean value.
+            A typical use-case is forcefolder="seismic" which will replace the "cubes"
             standard folder for Cube output with "seismics". Use with care and avoid if
-            possible! (*) For absolute paths, the class variable
-            allow_forcefolder_absolute must set to True.
+            possible!
 
         grid_model: Currently allowed but planned for deprecation
 
@@ -312,7 +310,7 @@ class ExportData:
     # ----------------------------------------------------------------------------------
 
     # class variables
-    allow_forcefolder_absolute: ClassVar[bool] = False
+    allow_forcefolder_absolute: ClassVar[bool] = False  # deprecated
     arrow_fformat: ClassVar[str] = "arrow"
     case_folder: ClassVar[str] = "share/metadata"
     createfolder: ClassVar[bool] = True  # deprecated
@@ -573,6 +571,12 @@ class ExportData:
                 "The 'workflow' argument should be given as a string. "
                 "Support for dictionary will be deprecated.",
                 FutureWarning,
+            )
+        if self.allow_forcefolder_absolute:
+            warn(
+                "Support for using an absolute path as 'forcefolder' is deprecated. "
+                "Please remove it from the argument list.",
+                UserWarning,
             )
 
     def _validate_workflow_key(self) -> None:

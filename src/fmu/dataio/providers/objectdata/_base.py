@@ -276,7 +276,9 @@ class ObjectDataProvider(ABC):
         objres = self.get_objectdata()
         content_model = get_validated_content(self.dataio.content)
 
-        if self.dataio.forcefolder and not self.dataio.forcefolder.startswith("/"):
+        if self.dataio.forcefolder:
+            if self.dataio.forcefolder.startswith("/"):
+                raise ValueError("Can't use absolute path as 'forcefolder'")
             msg = (
                 f"The standard folder name is overrided from {objres.efolder} to "
                 f"{self.dataio.forcefolder}"

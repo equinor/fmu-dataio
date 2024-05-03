@@ -682,22 +682,17 @@ def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsu
 
     ExportData._inside_rms = True
     ExportData.allow_forcefolder_absolute = False
-    edata = ExportData(config=globalconfig2, content="depth", forcefolder="/tmp/what")
-    with pytest.raises(ValueError):
-        meta = edata.generate_metadata(regsurf, name="x")
 
-    ExportData.allow_forcefolder_absolute = True
     edata = ExportData(config=globalconfig2, content="depth", forcefolder="/tmp/what")
-    with pytest.warns(UserWarning, match="absolute paths in forcefolder is not rec"):
-        meta = edata.generate_metadata(regsurf, name="y")
+    with pytest.raises(ValueError, match="Can't use absolute path as 'forcefolder'"):
+        edata.generate_metadata(regsurf, name="x")
 
-    assert (
-        meta["file"]["relative_path"]
-        == meta["file"]["absolute_path"]
-        == "/tmp/what/y.gri"
-    )
-    ExportData.allow_forcefolder_absolute = False  # reset
+    with pytest.warns(UserWarning, match="is deprecated"):
+        ExportData.allow_forcefolder_absolute = True
+        ExportData(config=globalconfig2, content="depth", forcefolder="/tmp/what")
+
     ExportData._inside_rms = False
+    ExportData.allow_forcefolder_absolute = False
 
 
 def test_deprecated_verbosity(globalconfig1):
