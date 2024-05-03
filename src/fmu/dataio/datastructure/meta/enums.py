@@ -88,3 +88,14 @@ class FMUContext(str, Enum):
     case = "case"
     iteration = "iteration"
     realization = "realization"
+
+
+class VerticalDomain(str, Enum):
+    depth = "depth"
+    time = "time"
+
+
+class DomainReference(str, Enum):
+    msl = "msl"
+    sb = "sb"
+    rkb = "rkb"
