@@ -133,6 +133,33 @@ def test_content_property(gridproperty, globalconfig2):
     assert meta["data"]["content"] == "property"
 
 
+def test_content_property_as_dict(gridproperty, globalconfig2):
+    """Test export of the property content."""
+    content_specifc = {"attribute": "porosity", "is_discrete": False}
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content={"property": content_specifc},
+    ).generate_metadata(gridproperty)
+
+    assert meta["data"]["content"] == "property"
+    # TODO: add next line when schema defines content_specific for property
+    # assert meta["data"]["property"] == content_specifc
+
+
+def test_content_seismic_as_dict(gridproperty, globalconfig2):
+    """Test export of the property content."""
+    content_specifc = {"attribute": "amplitude", "calculation": "mean"}
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content={"seismic": content_specifc},
+    ).generate_metadata(gridproperty)
+
+    assert meta["data"]["content"] == "seismic"
+    assert meta["data"]["seismic"] == content_specifc
+
+
 def test_content_pvt(dataframe, globalconfig2):
     """Test export of the pvt content."""
     meta = ExportData(

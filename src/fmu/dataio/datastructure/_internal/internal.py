@@ -26,21 +26,6 @@ from pydantic import (
 )
 
 
-def seismic_warn() -> None:
-    warnings.warn(
-        dedent(
-            """
-            When using content "seismic", please use a dictionary form, as
-            more information is required. Example:
-                content={"seismic": {"attribute": "amplitude"}}
-
-            The use of "seismic" will be disallowed in future versions."
-            """
-        ),
-        FutureWarning,
-    )
-
-
 def property_warn() -> None:
     warnings.warn(
         dedent(
@@ -56,14 +41,7 @@ def property_warn() -> None:
     )
 
 
-class AllowedContentSeismic(BaseModel):
-    attribute: Optional[str] = Field(default=None)  # e.g. amplitude
-    calculation: Optional[str] = Field(default=None)  # e.g. mean
-    zrange: Optional[float] = Field(default=None)
-    filter_size: Optional[float] = Field(default=None)
-    scaling_factor: Optional[float] = Field(default=None)
-    stacking_offset: Optional[str] = Field(default=None)
-
+class AllowedContentSeismic(meta.content.Seismic):
     # Deprecated
     offset: Optional[str] = Field(default=None)
 
@@ -80,77 +58,46 @@ class AllowedContentSeismic(BaseModel):
 
 
 class AllowedContentProperty(BaseModel):
+    # needs to be here for now, as it is not defined in the schema
     attribute: Optional[str] = Field(default=None)
     is_discrete: Optional[bool] = Field(default=None)
 
 
-class AllowedContentFluidContact(BaseModel):
-    contact: Optional[str] = Field(default=None)
-    truncated: Optional[bool] = Field(default=None)
-
-
-class AllowedContentFieldOutline(BaseModel):
-    contact: Optional[str] = Field(default=None)
-
-
-class AllowedContentFieldRegion(BaseModel):
-    id: Optional[int] = Field(default=None)
+class ContentRequireSpecific(BaseModel):
+    field_outline: Optional[meta.content.FieldOutline] = Field(default=None)
+    field_region: Optional[meta.content.FieldRegion] = Field(default=None)
+    fluid_contact: Optional[meta.content.FluidContact] = Field(default=None)
+    property: Optional[AllowedContentProperty] = Field(default=None)
+    seismic: Optional[AllowedContentSeismic] = Field(default=None)
 
 
 class AllowedContent(BaseModel):
-    # NB! See also ContentEnum in enums.py
+    content: Union[meta.enums.ContentEnum, Literal["unset"]]
+    content_incl_specific: Optional[ContentRequireSpecific] = Field(default=None)
 
-    depth: None = Field(default=None)
-    facies_thickness: None = Field(default=None)
-    fault_lines: None = Field(default=None)
-    fault_properties: None = Field(default=None)
-    field_outline: Optional[AllowedContentFieldOutline] = Field(default=None)
-    field_region: Optional[AllowedContentFieldRegion] = Field(default=None)
-    fluid_contact: Optional[AllowedContentFluidContact] = Field(default=None)
-    khproduct: None = Field(default=None)
-    lift_curves: None = Field(default=None)
-    named_area: None = Field(default=None)
-    parameters: None = Field(default=None)
-    pinchout: None = Field(default=None)
-    property: Optional[Union[AllowedContentProperty, str]] = Field(default=None)
-    pvt: None = Field(default=None)
-    regions: None = Field(default=None)
-    relperm: None = Field(default=None)
-    rft: None = Field(default=None)
-    seismic: Optional[Union[AllowedContentSeismic, str]] = Field(default=None)
-    subcrop: None = Field(default=None)
-    thickness: None = Field(default=None)
-    time: None = Field(default=None)
-    timeseries: None = Field(default=None)
-    transmissibilities: None = Field(default=None)
-    velocity: None = Field(default=None)
-    volumes: None = Field(default=None)
-    wellpicks: None = Field(default=None)
+    @model_validator(mode="before")
+    @classmethod
+    def _validate_input(cls, values: dict) -> dict:
+        content = values.get("content")
+        content_specific = values.get("content_incl_specific", {}).get(content)
 
-    @staticmethod
-    def requires_additional_input(field: str) -> bool:
-        # Ideally 'property' and 'seismic' should have been part of the below
-        # filds that requires additional input, but due to backwards compatibility
-        # they have to be excluted (for now).
-        if field == "property":
-            property_warn()
-        if field == "seismic":
-            seismic_warn()
-        return field in (
-            # "property",
-            # "seismic",
-            "fluid_contact",
-            "field_outline",
-            "field_region",
-        )
+        if content in ContentRequireSpecific.model_fields and not content_specific:
+            # 'property' should be included below after a deprecation period
+            if content == meta.enums.ContentEnum.property:
+                property_warn()
+            else:
+                raise ValueError(f"Content {content} requires additional input")
 
-    @model_validator(mode="after")
-    def _future_warning_property_seismic(self) -> AllowedContent:
-        if isinstance(self.property, str):
-            property_warn()
-        if isinstance(self.seismic, str):
-            seismic_warn()
-        return self
+        if content_specific and not isinstance(content_specific, dict):
+            raise ValueError(
+                "Content is incorrectly formatted. When giving content as a dict, "
+                "it must be formatted as: "
+                "{'mycontent': {extra_key: extra_value}} where mycontent is a string "
+                "and in the list of valid contents, and extra keys in associated "
+                "dictionary must be valid keys for this content."
+            )
+
+        return values
 
 
 class JsonSchemaMetadata(BaseModel, populate_by_name=True):
@@ -180,6 +127,18 @@ class Context(BaseModel, use_enum_values=True):
 # Remove the two models below when content is required as input.
 class UnsetContent(meta.content.Content):
     content: Literal["unset"]  # type: ignore
+
+    @model_validator(mode="after")
+    def _deprecation_warning(self) -> UnsetContent:
+        valid_contents = [m.value for m in meta.enums.ContentEnum]
+        warnings.warn(
+            "The <content> is not provided which will produce invalid metadata. "
+            "It is strongly recommended that content is given explicitly! "
+            f"\n\nValid contents are: {', '.join(valid_contents)} "
+            "\n\nThis list can be extended upon request and need.",
+            UserWarning,
+        )
+        return self
 
 
 class UnsetAnyContent(meta.content.AnyContent):

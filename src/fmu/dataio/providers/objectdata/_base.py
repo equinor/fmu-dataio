@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -11,7 +12,7 @@ from fmu.dataio._definitions import ConfigurationError
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import generate_description
 from fmu.dataio.datastructure._internal.internal import AllowedContent
-from fmu.dataio.datastructure.meta import content
+from fmu.dataio.datastructure.meta import content, enums
 
 if TYPE_CHECKING:
     from fmu.dataio.dataio import ExportData
@@ -121,6 +122,32 @@ def get_fmu_time_object(timedata_item: list[str]) -> content.FMUTimeObject:
     )
 
 
+def get_validated_content(content: str | dict | None) -> AllowedContent:
+    """Check content and return a validated model."""
+    logger.info("Evaluate content")
+    logger.debug("content is %s of type %s", str(content), type(content))
+
+    if not content:
+        return AllowedContent(content="unset")
+
+    if isinstance(content, str):
+        return AllowedContent(content=enums.ContentEnum(content))
+
+    if len(content) > 1:
+        raise ValueError(
+            "Found more than one content item in the 'content' dictionary. Ensure "
+            "input is formatted as content={'mycontent': {extra_key: extra_value}}."
+        )
+    content = deepcopy(content)
+    usecontent, content_specific = next(iter(content.items()))
+    logger.debug("usecontent is %s", usecontent)
+    logger.debug("content_specific is %s", content_specific)
+
+    return AllowedContent.model_validate(
+        {"content": enums.ContentEnum(usecontent), "content_incl_specific": content}
+    )
+
+
 @dataclass
 class ObjectDataProvider(ABC):
     """Base class for providing metadata for data objects in fmu-dataio, e.g. a surface.
@@ -194,34 +221,6 @@ class ObjectDataProvider(ABC):
 
         return rv
 
-    def _process_content(self) -> tuple[str | dict, dict | None]:
-        """Work with the `content` metadata"""
-
-        # content == "unset" is not wanted, but in case metadata has been produced while
-        # doing a preprocessing step first, and this step is re-using metadata, the
-        # check is not done.
-        if self.dataio._usecontent == "unset" and not self.dataio._reuse_metadata:
-            allowed_fields = ", ".join(AllowedContent.model_fields.keys())
-            warn(
-                "The <content> is not provided which defaults to 'unset'. "
-                "It is strongly recommended that content is given explicitly! "
-                f"\n\nValid contents are: {allowed_fields} "
-                "\n\nThis list can be extended upon request and need.",
-                UserWarning,
-            )
-
-        content = self.dataio._usecontent
-        content_spesific = None
-
-        # Outgoing content is always a string, but it can be given as a dict if content-
-        # specific information is to be included in the metadata.
-        # In that case, it shall be inserted in the data block as a key with name as the
-        # content, e.g. "seismic" or "field_outline"
-        if self.dataio._content_specific is not None:
-            content_spesific = self.dataio._content_specific
-
-        return content, content_spesific
-
     def _derive_timedata(self) -> dict[str, str] | None:
         """Format input timedata to metadata
 
@@ -275,6 +274,8 @@ class ObjectDataProvider(ABC):
 
         namedstratigraphy = self._derive_name_stratigraphy()
         objres = self.get_objectdata()
+        content_model = get_validated_content(self.dataio.content)
+
         if self.dataio.forcefolder and not self.dataio.forcefolder.startswith("/"):
             msg = (
                 f"The standard folder name is overrided from {objres.efolder} to "
@@ -293,10 +294,11 @@ class ObjectDataProvider(ABC):
         meta["top"] = namedstratigraphy.top
         meta["base"] = namedstratigraphy.base
 
-        content, content_spesific = self._process_content()
-        meta["content"] = content
-        if content_spesific:
-            meta[self.dataio._usecontent] = content_spesific
+        meta["content"] = (usecontent := content_model.content)
+        if content_model.content_incl_specific:
+            meta[usecontent] = getattr(
+                content_model.content_incl_specific, usecontent, None
+            )
 
         meta["tagname"] = self.dataio.tagname
         meta["format"] = objres.fmt
