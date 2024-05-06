@@ -14,7 +14,6 @@ import fmu.dataio.readers as readers
 import pandas as pd
 import pytest
 import yaml
-from fmu.dataio._definitions import FmuContext
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
 
@@ -395,7 +394,7 @@ def test_cube_export_as_case(rmssetup, rmsglobalconfig, cube):
         is_observation=True,
     )
     logger.info("Output %s", output)
-    assert edata.fmu_context == FmuContext.NON_FMU
+    assert edata.fmu_context is None
     assert str(output) == str(
         (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
     )

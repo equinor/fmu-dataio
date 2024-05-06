@@ -37,10 +37,10 @@ from warnings import warn
 
 from fmu.config import utilities as ut
 from fmu.dataio import _utils
-from fmu.dataio._definitions import FmuContext
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure._internal import internal
 from fmu.dataio.datastructure.meta import meta
+from fmu.dataio.datastructure.meta.enums import FmuContext
 from fmu.dataio.exceptions import InvalidMetadataError
 
 from ._base import Provider
@@ -55,13 +55,13 @@ RESTART_PATH_ENVNAME: Final = "RESTART_FROM_PATH"
 logger: Final = null_logger(__name__)
 
 
-def get_fmu_context_from_environment() -> FmuContext:
+def get_fmu_context_from_environment() -> FmuContext | None:
     """return the ERT run context as an FmuContext"""
     if FmuEnv.RUNPATH.value:
-        return FmuContext.REALIZATION
+        return FmuContext.realization
     if FmuEnv.EXPERIMENT_ID.value:
-        return FmuContext.CASE
-    return FmuContext.NON_FMU
+        return FmuContext.case
+    return None
 
 
 def _casepath_has_metadata(casepath: Path) -> bool:
@@ -104,7 +104,7 @@ class FmuProvider(Provider):
     """
 
     model: dict | None = None
-    fmu_context: FmuContext = FmuContext.REALIZATION
+    fmu_context: FmuContext = FmuContext.realization
     casepath_proposed: Optional[Path] = None
     workflow: Optional[Union[str, dict[str, str]]] = None
 
@@ -135,7 +135,7 @@ class FmuProvider(Provider):
         if self._casepath:
             self._case_name = self._casepath.name
 
-            if self._runpath and self.fmu_context != FmuContext.CASE:
+            if self._runpath and self.fmu_context != FmuContext.case:
                 missing_iter_folder = self._casepath == self._runpath.parent
                 if not missing_iter_folder:
                     logger.debug("Iteration folder found")
@@ -174,7 +174,7 @@ class FmuProvider(Provider):
 
         case_meta = self._get_case_meta()
 
-        if self.fmu_context != FmuContext.REALIZATION:
+        if self.fmu_context != FmuContext.realization:
             return internal.FMUClassMetaData(
                 case=case_meta.fmu.case,
                 context=self._get_fmucontext_meta(),
@@ -220,7 +220,7 @@ class FmuProvider(Provider):
             if _casepath_has_metadata(self._runpath.parent):
                 return self._runpath.parent
 
-        if self.fmu_context == FmuContext.CASE:
+        if self.fmu_context == FmuContext.case:
             # TODO: Change to ValueError when no longer kwargs are accepted in export()
             warn("Could not auto detect the casepath, please provide it as input.")
 

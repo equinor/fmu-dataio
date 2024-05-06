@@ -10,9 +10,9 @@ from pathlib import Path
 import pydantic
 import pytest
 import yaml
-from fmu.dataio._definitions import FmuContext
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ExportData, read_metadata
+from fmu.dataio.datastructure.meta.enums import FmuContext
 from fmu.dataio.providers._fmu import FmuEnv
 
 # pylint: disable=no-member
@@ -591,7 +591,7 @@ def test_fmu_context_not_given_fetch_from_env_realization(
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._fmurun is True
-    assert edata.fmu_context == FmuContext.REALIZATION
+    assert edata.fmu_context == FmuContext.realization
 
 
 def test_fmu_context_not_given_fetch_from_env_case(
@@ -611,13 +611,13 @@ def test_fmu_context_not_given_fetch_from_env_case(
     # test that it runs properly when casepath is provided
     edata = ExportData(config=rmsglobalconfig, content="depth", casepath=fmurun_prehook)
     assert edata._fmurun is True
-    assert edata.fmu_context == FmuContext.CASE
+    assert edata.fmu_context == FmuContext.case
     assert edata._rootpath == fmurun_prehook
 
 
 def test_fmu_context_not_given_fetch_from_env_nonfmu(rmsglobalconfig):
     """
-    Test fmu_context not explicitly given, should be set to "non-fmu" when
+    Test fmu_context not explicitly given, should be set to None when
     outside fmu.
     """
     assert FmuEnv.RUNPATH.value is None
@@ -625,19 +625,19 @@ def test_fmu_context_not_given_fetch_from_env_nonfmu(rmsglobalconfig):
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._fmurun is False
-    assert edata.fmu_context == FmuContext.NON_FMU
+    assert edata.fmu_context is None
 
 
 def test_fmu_context_outside_fmu_input_overwrite(rmsglobalconfig):
     """
-    For non-fmu run fmu_context should be overwritten when input
+    For non-fmu run fmu_context should be overwritten to None when input
     is not "preprocessed"
     """
     edata = ExportData(
         config=rmsglobalconfig, content="depth", fmu_context="realization"
     )
     assert edata._fmurun is False
-    assert edata.fmu_context == FmuContext.NON_FMU
+    assert edata.fmu_context is None
 
 
 def test_fmu_context_outside_fmu_no_input_overwrite(rmsglobalconfig):
@@ -648,7 +648,7 @@ def test_fmu_context_outside_fmu_no_input_overwrite(rmsglobalconfig):
     edata = ExportData(config=rmsglobalconfig, content="depth", preprocessed=True)
     assert edata._fmurun is False
     assert edata.preprocessed is True
-    assert edata.fmu_context == FmuContext.NON_FMU
+    assert edata.fmu_context is None
 
 
 def test_fmu_context_preprocessed_deprecation_outside_fmu(rmsglobalconfig, regsurf):
@@ -662,7 +662,7 @@ def test_fmu_context_preprocessed_deprecation_outside_fmu(rmsglobalconfig, regsu
             config=rmsglobalconfig, content="depth", fmu_context="preprocessed"
         )
     assert edata.preprocessed is True
-    assert edata.fmu_context == FmuContext.NON_FMU
+    assert edata.fmu_context is None
 
     meta = edata.generate_metadata(regsurf)
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
@@ -684,7 +684,7 @@ def test_fmu_context_preprocessed_deprecation_inside_fmu(
             casepath=fmurun_prehook,
         )
     assert edata.preprocessed is True
-    assert edata.fmu_context == FmuContext.CASE
+    assert edata.fmu_context == FmuContext.case
 
     meta = edata.generate_metadata(regsurf)
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
@@ -695,7 +695,7 @@ def test_preprocessed_outside_fmu(rmsglobalconfig, regsurf):
 
     edata = ExportData(config=rmsglobalconfig, content="depth", preprocessed=True)
     assert edata.preprocessed is True
-    assert edata.fmu_context == FmuContext.NON_FMU
+    assert edata.fmu_context is None
 
     meta = edata.generate_metadata(regsurf)
     # check that the relative file is at case level and has a preprocessed folder
@@ -722,7 +722,7 @@ def test_preprocessed_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig, regsurf
     )
     assert edata._fmurun is True
     assert edata.preprocessed is True
-    assert edata.fmu_context == FmuContext.CASE
+    assert edata.fmu_context == FmuContext.case
 
     meta = edata.generate_metadata(regsurf)
     # check that the relative file is at case level and has a preprocessed folder

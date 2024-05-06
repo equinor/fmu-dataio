@@ -408,13 +408,7 @@
       "description": "The internal FMU context in which this data object was produced",
       "properties": {
         "stage": {
-          "enum": [
-            "case",
-            "iteration",
-            "realization"
-          ],
-          "title": "Stage",
-          "type": "string"
+          "$ref": "#/$defs/FmuContext"
         }
       },
       "required": [
@@ -3250,6 +3244,15 @@
       ],
       "title": "FluidContactContent",
       "type": "object"
+    },
+    "FmuContext": {
+      "enum": [
+        "case",
+        "iteration",
+        "realization"
+      ],
+      "title": "FmuContext",
+      "type": "string"
     },
     "Geometry": {
       "properties": {

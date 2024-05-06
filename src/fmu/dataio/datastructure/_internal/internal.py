@@ -12,7 +12,7 @@ import warnings
 from textwrap import dedent
 from typing import List, Literal, Optional, Union
 
-from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION, FmuContext
+from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
 from fmu.dataio.datastructure.meta import meta
 from pydantic import (
     AnyHttpUrl,
@@ -112,7 +112,7 @@ class FMUModelCase(BaseModel):
 
 
 class Context(BaseModel, use_enum_values=True):
-    stage: FmuContext
+    stage: meta.enums.FmuContext
 
 
 # Remove the two models below when content is required as input.

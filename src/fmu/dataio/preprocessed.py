@@ -9,12 +9,12 @@ from typing import Final
 import yaml
 from pydantic import ValidationError
 
-from ._definitions import FmuContext
 from ._logging import null_logger
 from ._metadata import generate_meta_tracklog
 from ._utils import export_metadata_file, md5sum
 from .datastructure._internal import internal
 from .datastructure.meta import meta
+from .datastructure.meta.enums import FmuContext
 from .exceptions import InvalidMetadataError
 from .providers._filedata import ShareFolder
 from .providers._fmu import (
@@ -61,14 +61,14 @@ class ExportPreprocessedData:
     _fmudata: FmuProvider | None = field(default=None)
 
     def __post_init__(self) -> None:
-        if get_fmu_context_from_environment() != FmuContext.CASE:
+        if get_fmu_context_from_environment() != FmuContext.case:
             raise RuntimeError(
                 "Only possible to run re-export of preprocessed data inside FMU "
                 "using a pre-simulation workflow in ERT."
             )
 
         self._fmudata = FmuProvider(
-            fmu_context=FmuContext.CASE,
+            fmu_context=FmuContext.case,
             casepath_proposed=Path(self.casepath),
             workflow=None,
         )

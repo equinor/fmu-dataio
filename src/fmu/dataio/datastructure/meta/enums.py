@@ -70,3 +70,9 @@ class Layout(str, Enum):
     table = "table"
     dictionary = "dictionary"
     faultroom_triangulated = "faultroom_triangulated"
+
+
+class FmuContext(str, Enum):
+    case = "case"
+    iteration = "iteration"
+    realization = "realization"
