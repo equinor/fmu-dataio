@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g69027ac documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g6545af5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -515,7 +515,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_classification</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_classification</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rep_include</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rep_include</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_establish_rootpath</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;pwd:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rootpath:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
+
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ran __post_init__&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_classification</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span><span class="p">:</span>
@@ -748,6 +752,12 @@
         <span class="k">if</span> <span class="s2">&quot;config&quot;</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot have &#39;config&#39; outside instance initialization&quot;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="s2">&quot;casepath&quot;</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Not possible to update &#39;casepath&#39; on export/generate_metadata. &quot;</span>
+                <span class="s2">&quot;Use instead ExportData(casepath=&#39;mycasepath&#39;)&quot;</span>
+            <span class="p">)</span>
+
         <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">newsettings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">_validate_variable</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">legals</span><span class="p">):</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
@@ -757,46 +767,40 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_workflow_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_and_establish_fmucontext</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_establish_pwd_rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Establish state variables pwd and the (initial) rootpath.</span>
+    <span class="k">def</span> <span class="nf">_establish_rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Establish the rootpath. The rootpath is the folder that acts as the</span>
+<span class="sd">        base root for all relative output files. The rootpath is dependent on</span>
+<span class="sd">        whether this is run in a FMU context via ERT and whether it&#39;s being</span>
+<span class="sd">        run from inside or outside RMS.</span>
 
-<span class="sd">        The self._pwd stores the process working directory, i.e. the folder</span>
-<span class="sd">        from which the process is ran</span>
-
-<span class="sd">        The self._rootpath stores the folder from which is the base root for all</span>
-<span class="sd">        relative output files. This rootpath may be dependent on if this is a FMU run</span>
-<span class="sd">        or just an interactive run.</span>
-
-<span class="sd">        Hence this &#39;initial&#39; rootpath can be updated later!</span>
+<span class="sd">        1: Running ERT: the rootpath will be equal to the casepath</span>
+<span class="sd">        2: Running RMS interactively: The rootpath will be rootpath/rms/model</span>
+<span class="sd">        3: When none of the above conditions apply, the rootpath value will be equal</span>
+<span class="sd">           to the present working directory (pwd).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Establish pwd and actual casepath, inside RMS flag is </span><span class="si">%s</span><span class="s2"> (actual: </span><span class="si">%s</span><span class="s2">))&quot;</span><span class="p">,</span>
-            <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span><span class="p">,</span>
-            <span class="n">INSIDE_RMS</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Establish roothpath&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;inside RMS flag is </span><span class="si">%s</span><span class="s2"> (actual: </span><span class="si">%s</span><span class="s2">))&quot;</span><span class="p">,</span> <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span><span class="p">,</span> <span class="n">INSIDE_RMS</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">,</span> <span class="n">FmuContext</span><span class="p">)</span>
 
-        <span class="c1"># fmu_context 1: Running RMS, we are in conventionally in rootpath/rms/model</span>
-        <span class="c1"># fmu_context 2: ERT FORWARD_JOB, at case = rootpath=RUNPATH/../../. level</span>
-        <span class="c1"># fmu_context 3: ERT WORKFLOW_JOB, running somewhere/anywhere else</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="n">casepath</span> <span class="o">:=</span> <span class="n">FmuProvider</span><span class="p">(</span>
+                <span class="n">fmu_context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">,</span>
+                <span class="n">casepath_proposed</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">get_casepath</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Run from ERT&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">casepath</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The casepath is hard set as </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="ow">or</span> <span class="n">INSIDE_RMS</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Run from inside RMS&quot;</span><span class="p">)</span>
+            <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="ow">or</span> <span class="n">INSIDE_RMS</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Run from inside RMS: ExportData._inside_rms=</span><span class="si">%s</span><span class="s2">, INSIDE_RMS=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span><span class="p">,</span>
-                    <span class="n">INSIDE_RMS</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span> <span class="o">/</span> <span class="s2">&quot;../../.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-                <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="o">=</span> <span class="kc">True</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;pwd:        </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="p">))</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rootpath:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running outside FMU context, using pwd as roothpath&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
 
     <span class="k">def</span> <span class="nf">_check_process_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;When obj is file-like, it must be checked + assume preprocessed.</span>
@@ -882,19 +886,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_rep_include</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rep_include</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_process_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>  <span class="c1"># obj --&gt; self._object</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_establish_pwd_rootpath</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_fmt_flag</span><span class="p">()</span>
-
         <span class="n">fmudata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fmu_provider</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="c1"># update rootpath based on fmurun or not</span>
-        <span class="c1"># TODO: Move to ExportData init when/if users are</span>
-        <span class="c1"># disallowed to update class settings on the export.</span>
-        <span class="k">if</span> <span class="n">fmudata</span> <span class="ow">and</span> <span class="p">(</span><span class="n">casepath</span> <span class="o">:=</span> <span class="n">fmudata</span><span class="o">.</span><span class="n">get_casepath</span><span class="p">()):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">casepath</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Rootpath is now </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">)</span>
-
         <span class="c1"># TODO: refactor the argument list for generate_export_metadata; we do not need</span>
         <span class="c1"># both self._object and self...</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">generate_export_metadata</span><span class="p">(</span>
@@ -964,7 +957,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g69027ac).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g6545af5).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
