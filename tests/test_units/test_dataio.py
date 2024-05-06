@@ -645,11 +645,88 @@ def test_fmu_context_outside_fmu_no_input_overwrite(rmsglobalconfig):
     For non-fmu run fmu_context should not be overwritten when input
     is "preprocessed"
     """
-    edata = ExportData(
-        config=rmsglobalconfig, content="depth", fmu_context="preprocessed"
-    )
+    edata = ExportData(config=rmsglobalconfig, content="depth", preprocessed=True)
     assert edata._fmurun is False
-    assert edata.fmu_context == FmuContext.PREPROCESSED
+    assert edata.preprocessed is True
+    assert edata.fmu_context == FmuContext.NON_FMU
+
+
+def test_fmu_context_preprocessed_deprecation_outside_fmu(rmsglobalconfig, regsurf):
+    """
+    Test the deprecated fmu_context="preprocessed" outside fmu.
+    This should set the preprocessed flag to True and overwrite the
+    fmu_context (if any) to "non-fmu".
+    """
+    with pytest.warns(FutureWarning, match="is deprecated"):
+        edata = ExportData(
+            config=rmsglobalconfig, content="depth", fmu_context="preprocessed"
+        )
+    assert edata.preprocessed is True
+    assert edata.fmu_context == FmuContext.NON_FMU
+
+    meta = edata.generate_metadata(regsurf)
+    assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
+
+
+def test_fmu_context_preprocessed_deprecation_inside_fmu(
+    fmurun_prehook, rmsglobalconfig, regsurf
+):
+    """
+    Test the deprecated fmu_context="preprocessed" inside fmu.
+    This should set the preprocessed flag to True and overwrite the
+    fmu_context (if any) to "case".
+    """
+    with pytest.warns(FutureWarning, match="is deprecated"):
+        edata = ExportData(
+            config=rmsglobalconfig,
+            content="depth",
+            fmu_context="preprocessed",
+            casepath=fmurun_prehook,
+        )
+    assert edata.preprocessed is True
+    assert edata.fmu_context == FmuContext.CASE
+
+    meta = edata.generate_metadata(regsurf)
+    assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
+
+
+def test_preprocessed_outside_fmu(rmsglobalconfig, regsurf):
+    """Test the preprocessed argument outside FMU context"""
+
+    edata = ExportData(config=rmsglobalconfig, content="depth", preprocessed=True)
+    assert edata.preprocessed is True
+    assert edata.fmu_context == FmuContext.NON_FMU
+
+    meta = edata.generate_metadata(regsurf)
+    # check that the relative file is at case level and has a preprocessed folder
+    assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
+
+
+def test_preprocessed_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
+    """Test the preprocessed argument inside FMU context"""
+    # should raise error if preprocessed=True and fmu_context="realization"
+    with pytest.raises(ValueError, match="Can't export preprocessed"):
+        edata = ExportData(
+            config=rmsglobalconfig,
+            content="depth",
+            fmu_context="realization",
+            preprocessed=True,
+        )
+
+    # test that no error is raised if preprocessed=True and fmu_context="case"
+    edata = ExportData(
+        config=rmsglobalconfig,
+        content="depth",
+        fmu_context="case",
+        preprocessed=True,
+    )
+    assert edata._fmurun is True
+    assert edata.preprocessed is True
+    assert edata.fmu_context == FmuContext.CASE
+
+    meta = edata.generate_metadata(regsurf)
+    # check that the relative file is at case level and has a preprocessed folder
+    assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
 
 
 def test_norwegian_letters_globalconfig(

@@ -94,7 +94,7 @@ class FileDataProvider(Provider):
 
     def _get_share_folders(self) -> Path:
         """Get the export share folders."""
-        if self.dataio.fmu_context == FmuContext.PREPROCESSED:
+        if self.dataio.preprocessed:
             sharefolder = Path(ShareFolder.PREPROCESSED.value)
         elif self.dataio.is_observation:
             sharefolder = Path(ShareFolder.OBSERVATIONS.value)

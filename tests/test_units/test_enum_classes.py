@@ -12,9 +12,9 @@ def test_fmu_context_validation() -> None:
     with pytest.raises(ValueError, match="Invalid FmuContext value='invalid_context'"):
         FmuContext("invalid_context")
 
-    assert FmuContext.list_valid_values() == [
+    assert set(FmuContext.list_valid_values()) == {
         "realization",
+        "iteration",
         "case",
-        "preprocessed",
         "non-fmu",
-    ]
+    }

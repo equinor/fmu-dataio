@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Final, Literal
 from pydantic import AnyHttpUrl, TypeAdapter
 
 from . import types
-from ._definitions import SCHEMA, SOURCE, VERSION, FmuContext
+from ._definitions import SCHEMA, SOURCE, VERSION
 from ._logging import null_logger
 from .datastructure._internal import internal
 from .datastructure.meta import meta
@@ -151,5 +151,5 @@ def generate_export_metadata(
         file=_get_meta_filedata(dataio, obj, objdata, fmudata, compute_md5),
         tracklog=generate_meta_tracklog(),
         display=_get_meta_display(dataio, objdata),
-        preprocessed=dataio.fmu_context == FmuContext.PREPROCESSED,
+        preprocessed=dataio.preprocessed,
     )
