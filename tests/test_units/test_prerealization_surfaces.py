@@ -105,11 +105,9 @@ def test_regsurf_preprocessed_observation(
             fmu_context="case",
             content=None,  # shall be accepted without warning here in this context
             is_observation=True,
-        )
-        metadata = edata.generate_metadata(
-            surfacepath,
             casepath=casepath,
         )
+        metadata = edata.generate_metadata(surfacepath)
         logger.info("Casepath folder is now %s", casepath)
         logger.debug("\n%s", utils.prettyprint_dict(metadata))
         assert (
@@ -124,10 +122,7 @@ def test_regsurf_preprocessed_observation(
         assert metadata["data"]["content"] == "depth"
 
         # do the actual export (which will copy data to case/share/observations/...)
-        edata.export(
-            surfacepath,
-            casepath=casepath,
-        )
+        edata.export(surfacepath)
         assert (
             casepath
             / "share"

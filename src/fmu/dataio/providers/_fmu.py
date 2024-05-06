@@ -122,6 +122,8 @@ class FmuProvider:
         logger.debug("Case path is initially <%s>...", self.casepath_proposed)
 
         self._runpath = self._get_runpath_from_env()
+        logger.debug("Runpath is %s", self._runpath)
+
         self._real_id = (
             int(iter_num) if (iter_num := FmuEnv.REALIZATION_NUMBER.value) else 0
         )
