@@ -662,12 +662,6 @@ class ExportData:
         if "config" in newsettings:
             raise ValueError("Cannot have 'config' outside instance initialization")
 
-        if "casepath" in newsettings:
-            raise ValueError(
-                "Not possible to update 'casepath' on export/generate_metadata. "
-                "Use instead ExportData(casepath='mycasepath')"
-            )
-
         for setting, value in newsettings.items():
             if _validate_variable(setting, value, legals):
                 setattr(self, setting, value)
@@ -676,6 +670,7 @@ class ExportData:
         self._show_deprecations_or_notimplemented()
         self._validate_workflow_key()
         self._validate_and_establish_fmucontext()
+        self._rootpath = self._establish_rootpath()
 
     def _establish_rootpath(self) -> Path:
         """

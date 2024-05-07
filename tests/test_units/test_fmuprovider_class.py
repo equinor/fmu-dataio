@@ -223,7 +223,7 @@ def test_fmuprovider_case_run(fmurun_prehook):
     # make sure that no runpath environment value is present
     assert FmuEnv.RUNPATH.value is None
 
-    with pytest.raises(ValueError, match="Could not auto detect the casepath"):
+    with pytest.warns(UserWarning, match="Could not auto detect the casepath"):
         FmuProvider(
             model=GLOBAL_CONFIG_MODEL,
             fmu_context=FmuContext.CASE,
