@@ -220,9 +220,9 @@ class FmuProvider:
                 return self._runpath.parent
 
         if self.fmu_context == FmuContext.CASE:
-            raise ValueError(
-                "Could not auto detect the casepath, please provide it as input."
-            )
+            # TODO: Change to ValueError when no longer kwargs are accepted in export()
+            warn("Could not auto detect the casepath, please provide it as input.")
+
         logger.debug("No case metadata, issue a warning!")
         warn("Case metadata does not exist, metadata will be empty!", UserWarning)
         return None

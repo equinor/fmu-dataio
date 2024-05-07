@@ -510,6 +510,31 @@ def test_exportdata_no_iter_folder(
     assert edata._metadata["fmu"]["iteration"]["id"] == 0
 
 
+def test_fmucontext_case_casepath(fmurun_prehook, rmsglobalconfig, regsurf):
+    """
+    Test fmu_context case when casepath is / is not explicitly given
+
+    In the future we would like to not be able to update casepath outside
+    of initialization, but it needs to be deprecated first.
+    """
+    assert FmuEnv.RUNPATH.value is None
+    assert FmuEnv.EXPERIMENT_ID.value is not None
+
+    # will give warning when casepath not provided
+    with pytest.warns(UserWarning, match="Could not auto detect"):
+        edata = ExportData(config=rmsglobalconfig, content="depth")
+
+    # should still give warning when casepath not provided and create empty fmu metadata
+    with pytest.warns(UserWarning, match="Could not auto detect"):
+        meta = edata.generate_metadata(regsurf)
+    assert "fmu" not in meta
+
+    # no warning when casepath is provided and metadata is valid
+    meta = edata.generate_metadata(regsurf, casepath=fmurun_prehook)
+    assert "fmu" in meta
+    assert meta["fmu"]["case"]["name"] == "somecasename"
+
+
 def test_fmurun_attribute_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig):
     """Test that _fmurun attribute is True when in fmu"""
 
@@ -535,7 +560,9 @@ def test_fmu_context_not_given_fetch_from_env_realization(
     assert edata.fmu_context == FmuContext.REALIZATION
 
 
-def test_fmu_context_not_given_fetch_from_env_case(fmurun_prehook, rmsglobalconfig):
+def test_fmu_context_not_given_fetch_from_env_case(
+    fmurun_prehook, rmsglobalconfig, regsurf
+):
     """
     Test fmu_context not explicitly given, should be set to "case" when
     inside fmu and RUNPATH value not detected from the environment variables.
@@ -543,8 +570,8 @@ def test_fmu_context_not_given_fetch_from_env_case(fmurun_prehook, rmsglobalconf
     assert FmuEnv.RUNPATH.value is None
     assert FmuEnv.EXPERIMENT_ID.value is not None
 
-    # will give error when casepath not provided
-    with pytest.raises(ValueError, match="Could not auto detect"):
+    # will give warning when casepath not provided
+    with pytest.warns(UserWarning, match="Could not auto detect"):
         edata = ExportData(config=rmsglobalconfig, content="depth")
 
     # test that it runs properly when casepath is provided
