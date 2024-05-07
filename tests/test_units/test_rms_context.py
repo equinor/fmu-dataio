@@ -13,6 +13,7 @@ import fmu.dataio.dataio as dataio
 import fmu.dataio.readers as readers
 import pandas as pd
 import pytest
+from fmu.dataio._definitions import FmuContext
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
 
@@ -373,7 +374,7 @@ def test_cube_export_file_set_name_as_observation_forcefolder(
 def test_cube_export_as_case(rmssetup, rmsglobalconfig, cube):
     """Export the cube to file with correct metadata and name, is_observation.
 
-    In addition, try fmu_conext=case
+    In addition try fmu_context=case; when inside rms this should be reset to "non-fmu"
     """
     logger.info("Active folder is %s", rmssetup)
     os.chdir(rmssetup)
@@ -390,7 +391,7 @@ def test_cube_export_as_case(rmssetup, rmsglobalconfig, cube):
         is_observation=True,
     )
     logger.info("Output %s", output)
-
+    assert edata.fmu_context == FmuContext.NON_FMU
     assert str(output) == str(
         (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
     )
@@ -503,7 +504,6 @@ def test_cube_export_as_observation_forcefolder_w_subfolder_case(
             cube,
             name="MyCube",
             is_observation=True,
-            fmu_context="case",
             forcefolder="seismic/xxx",
         )
     logger.info("Output after force is %s", output)

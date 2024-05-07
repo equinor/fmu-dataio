@@ -14,6 +14,7 @@ from fmu.dataio.providers.objectdata._provider import (
 )
 from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
 
+from ..conftest import remove_ert_env, set_ert_env_prehook
 from ..utils import inside_rms
 
 
@@ -128,7 +129,7 @@ def test_objectdata_provider_factory_raises_on_unknown(edataobj1):
 
 
 def test_regsurf_preprocessed_observation(
-    fmurun_w_casemetadata, rmssetup, rmsglobalconfig, regsurf
+    fmurun_prehook, rmssetup, rmsglobalconfig, regsurf, monkeypatch
 ):
     """Test generating pre-realization surfaces that comes to share/preprocessed.
 
@@ -150,7 +151,7 @@ def test_regsurf_preprocessed_observation(
         )
         return edata, edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, surfacepath):
+    def _run_case_fmu(fmurun_prehook, rmsglobalconfig, surfacepath):
         """Run FMU workflow, using the preprocessed data as case data.
 
         When re-using metadata, the input object to dataio shall not be a XTGeo or
@@ -161,9 +162,9 @@ def test_regsurf_preprocessed_observation(
         But it requires that valid metadata for that file is found. The rule for
         merging is currently defaulted to "preprocessed".
         """
-        os.chdir(fmurun_w_casemetadata)
+        os.chdir(fmurun_prehook)
 
-        casepath = fmurun_w_casemetadata.parent.parent
+        casepath = fmurun_prehook
         edata = dataio.ExportData(
             config=rmsglobalconfig,
             fmu_context="case",
@@ -174,6 +175,8 @@ def test_regsurf_preprocessed_observation(
         return edata.generate_metadata(surfacepath)
 
     # run two stage process
+    remove_ert_env(monkeypatch)
     edata, mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
-    case_meta = _run_case_fmu(fmurun_w_casemetadata, rmsglobalconfig, mysurf)
+    set_ert_env_prehook(monkeypatch)
+    case_meta = _run_case_fmu(fmurun_prehook, rmsglobalconfig, mysurf)
     assert edata._metadata["data"] == case_meta["data"]
