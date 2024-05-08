@@ -74,6 +74,21 @@ def _fmu_run1_env_variables(monkeypatch, usepath="", case_only=False):
         logger.debug("Setting env %s as %s", key, env_value)
 
 
+def remove_ert_env(monkeypatch):
+    for key in ERTRUN_ENV_FULLRUN:
+        monkeypatch.delenv(key, raising=False)
+
+
+def set_ert_env_forward(monkeypatch):
+    for key, val in ERTRUN_ENV_FORWARD.items():
+        monkeypatch.setenv(key, val)
+
+
+def set_ert_env_prehook(monkeypatch):
+    for key, val in ERTRUN_ENV_PREHOOK.items():
+        monkeypatch.setenv(key, val)
+
+
 @pytest.fixture(scope="function")
 def fmurun(tmp_path_factory, monkeypatch, rootpath):
     """A tmp folder structure for testing; here a new fmurun without case metadata."""
