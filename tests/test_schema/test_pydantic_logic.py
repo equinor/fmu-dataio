@@ -4,7 +4,7 @@ import logging
 from copy import deepcopy
 
 import pytest
-from fmu.dataio.datastructure.meta import Root
+from fmu.dataio.datastructure.meta import Root, content
 from pydantic import ValidationError
 
 from ..utils import _metadata_examples
@@ -377,3 +377,29 @@ def test_content_whitelist(metadata_examples):
     example_surface["data"]["content"] = "not_valid_content"
     with pytest.raises(ValidationError):
         Root.model_validate(example_surface)
+
+
+def test_zmin_zmax_not_present_for_surfaces(metadata_examples):
+    """
+    Test that the validation works for surface metadata without
+    zmin/zmax info or with zmin/zmax = None.
+    """
+
+    # fetch surface example
+    example_surface = deepcopy(metadata_examples["surface_depth.yml"])
+
+    # assert validation with no changes and check that bbox is 3D
+    model = Root.model_validate(example_surface)
+    assert isinstance(model.root.data.root.bbox, content.BoundingBox3D)
+
+    # assert validation works with zmin/zmax = None, bbox should be 2D
+    example_surface["data"]["bbox"]["zmin"] = None
+    example_surface["data"]["bbox"]["zmax"] = None
+    model = Root.model_validate(example_surface)
+    assert isinstance(model.root.data.root.bbox, content.BoundingBox2D)
+
+    # assert validation works without zmin/zmax, bbox should be 2D
+    del example_surface["data"]["bbox"]["zmin"]
+    del example_surface["data"]["bbox"]["zmax"]
+    model = Root.model_validate(example_surface)
+    assert isinstance(model.root.data.root.bbox, content.BoundingBox2D)

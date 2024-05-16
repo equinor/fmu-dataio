@@ -48,20 +48,29 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
         )
 
     def get_bbox(self) -> dict[str, Any]:
-        """Derive data.bbox for xtgeo.RegularSurface."""
+        """
+        Derive data.bbox for xtgeo.RegularSurface. The zmin/zmax fields represents
+        the minimum/maximum surface values and should be absent in the metadata if the
+        surface only has undefined values.
+        """
         logger.info("Get bbox for RegularSurface")
 
-        return meta.content.BoundingBox3D(
+        if np.isfinite(self.obj.values).any():
+            return meta.content.BoundingBox3D(
+                xmin=float(self.obj.xmin),
+                xmax=float(self.obj.xmax),
+                ymin=float(self.obj.ymin),
+                ymax=float(self.obj.ymax),
+                zmin=float(self.obj.values.min()),
+                zmax=float(self.obj.values.max()),
+            ).model_dump(mode="json", exclude_none=True)
+
+        return meta.content.BoundingBox2D(
             xmin=float(self.obj.xmin),
             xmax=float(self.obj.xmax),
             ymin=float(self.obj.ymin),
             ymax=float(self.obj.ymax),
-            zmin=float(self.obj.values.min()),
-            zmax=float(self.obj.values.max()),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
-        )
+        ).model_dump(mode="json", exclude_none=True)
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data for xtgeo.RegularSurface."""

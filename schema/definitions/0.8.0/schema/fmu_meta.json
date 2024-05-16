@@ -291,12 +291,12 @@
           "type": "number"
         },
         "zmax": {
-          "description": "Maximum z-coordinate",
+          "description": "Maximum z-coordinate. For regular surfaces this field represents the maximum surface value and it will be absent if all values are undefined.",
           "title": "Zmax",
           "type": "number"
         },
         "zmin": {
-          "description": "Minimum z-coordinate",
+          "description": "Minimum z-coordinate. For regular surfaces this field represents the minimum surface value and it will be absent if all values are undefined.",
           "title": "Zmin",
           "type": "number"
         }

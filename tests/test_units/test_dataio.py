@@ -429,6 +429,32 @@ def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
     }
 
 
+def test_surfaces_with_non_finite_values(
+    globalconfig1, regsurf_masked_only, regsurf_nan_only, regsurf
+):
+    """
+    When a surface has no finite values the zmin/zmax should not be present
+    in the metadata.
+    """
+
+    eobj = ExportData(config=globalconfig1, content="time")
+
+    # test surface with only masked values
+    mymeta = eobj.generate_metadata(regsurf_masked_only)
+    assert "zmin" not in mymeta["data"]["bbox"]
+    assert "zmax" not in mymeta["data"]["bbox"]
+
+    # test surface with only nan values
+    mymeta = eobj.generate_metadata(regsurf_nan_only)
+    assert "zmin" not in mymeta["data"]["bbox"]
+    assert "zmax" not in mymeta["data"]["bbox"]
+
+    # test surface with finite values has zmin/zmax
+    mymeta = eobj.generate_metadata(regsurf)
+    assert "zmin" in mymeta["data"]["bbox"]
+    assert "zmax" in mymeta["data"]["bbox"]
+
+
 def test_workflow_as_string(fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf):
     """
     Check that having workflow as string works both in ExportData and on export.
