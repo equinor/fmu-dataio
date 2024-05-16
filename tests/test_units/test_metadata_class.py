@@ -112,6 +112,11 @@ def test_populate_meta_objectdata(regsurf, edataobj2):
     assert mymeta["display"]["name"] == objdata.name
     assert edataobj2.name == "TopVolantis"
 
+    # surfaces shall have data.spec
+    assert mymeta["data"]
+    assert mymeta["data"]["spec"]
+    assert mymeta["data"]["spec"] == objdata.get_spec()
+
 
 def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
     eobj1 = dio.ExportData(

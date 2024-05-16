@@ -77,9 +77,7 @@ data: # The data block describes the actual data (e.g. surface). Only present in
   vertical_domain: depth # / time / null
   depth_reference: msl # / seabed / etc
   spec: # class/layout dependent, optional? Can spec be expanded to work for all data types?
-    ncol: 281
-    nrow: 441
-    undef: -999.25  # Allow both number and string
+    size: 123921
     columns:
       - X_UTME
       - Y_UTMN

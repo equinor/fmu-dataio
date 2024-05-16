@@ -182,9 +182,6 @@ class CubeSpecification(SurfaceSpecification):
     )
 
 
-class WellPointsDictionaryCaseSpecification(BaseModel): ...
-
-
 AnySpecification = Union[
     CPGridPropertySpecification,
     CPGridSpecification,
@@ -194,5 +191,4 @@ AnySpecification = Union[
     PolygonsSpecification,
     SurfaceSpecification,
     TableSpecification,
-    WellPointsDictionaryCaseSpecification,
 ]

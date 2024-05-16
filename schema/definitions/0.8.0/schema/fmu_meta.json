@@ -714,9 +714,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -1394,9 +1391,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -1679,9 +1673,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -1962,9 +1953,6 @@
             },
             {
               "$ref": "#/$defs/TableSpecification"
-            },
-            {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
             },
             {
               "type": "null"
@@ -2350,9 +2338,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -2652,9 +2637,6 @@
             },
             {
               "$ref": "#/$defs/TableSpecification"
-            },
-            {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
             },
             {
               "type": "null"
@@ -3059,9 +3041,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -3417,9 +3396,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -3730,9 +3706,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -4027,9 +4000,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -4310,9 +4280,6 @@
             },
             {
               "$ref": "#/$defs/TableSpecification"
-            },
-            {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
             },
             {
               "type": "null"
@@ -4617,9 +4584,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -4900,9 +4864,6 @@
             },
             {
               "$ref": "#/$defs/TableSpecification"
-            },
-            {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
             },
             {
               "type": "null"
@@ -5235,9 +5196,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -5518,9 +5476,6 @@
             },
             {
               "$ref": "#/$defs/TableSpecification"
-            },
-            {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
             },
             {
               "type": "null"
@@ -5860,9 +5815,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -6143,9 +6095,6 @@
             },
             {
               "$ref": "#/$defs/TableSpecification"
-            },
-            {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
             },
             {
               "type": "null"
@@ -6519,9 +6468,6 @@
             },
             {
               "$ref": "#/$defs/TableSpecification"
-            },
-            {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
             },
             {
               "type": "null"
@@ -6915,9 +6861,6 @@
             },
             {
               "$ref": "#/$defs/TableSpecification"
-            },
-            {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
             },
             {
               "type": "null"
@@ -7393,9 +7336,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -7706,9 +7646,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -7989,9 +7926,6 @@
             },
             {
               "$ref": "#/$defs/TableSpecification"
-            },
-            {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
             },
             {
               "type": "null"
@@ -8334,9 +8268,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -8632,9 +8563,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -8917,9 +8845,6 @@
               "$ref": "#/$defs/TableSpecification"
             },
             {
-              "$ref": "#/$defs/WellPointsDictionaryCaseSpecification"
-            },
-            {
               "type": "null"
             }
           ],
@@ -9057,11 +8982,6 @@
         "stratigraphic"
       ],
       "title": "WellPicksContent",
-      "type": "object"
-    },
-    "WellPointsDictionaryCaseSpecification": {
-      "properties": {},
-      "title": "WellPointsDictionaryCaseSpecification",
       "type": "object"
     },
     "Workflow": {
