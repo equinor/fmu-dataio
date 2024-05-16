@@ -6,6 +6,82 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Final
+
+import yaml
+
+from . import _design_kw, types
+from ._logging import null_logger
+from ._utils import check_if_number
+
+logger: Final = null_logger(__name__)
+
+
+def read_metadata_from_file(filename: str | Path) -> dict:
+    """Read the metadata as a dictionary given a filename.
+
+    If the filename is e.g. /some/path/mymap.gri, the assosiated metafile
+    will be /some/path/.mymap.gri.yml (or json?)
+
+    Args:
+        filename: The full path filename to the data-object.
+
+    Returns:
+        A dictionary with metadata read from the assiated metadata file.
+    """
+    fname = Path(filename)
+    if fname.stem.startswith("."):
+        raise OSError(f"The input is a hidden file, cannot continue: {fname.stem}")
+
+    metafile = str(fname.parent) + "/." + fname.stem + fname.suffix + ".yml"
+    metafilepath = Path(metafile)
+    if not metafilepath.exists():
+        raise OSError(f"Cannot find requested metafile: {metafile}")
+    with open(metafilepath) as stream:
+        return yaml.safe_load(stream)
+
+
+def read_parameters_txt(pfile: Path | str) -> types.Parameters:
+    """Read the parameters.txt file and convert to a dict.
+    The parameters.txt file has this structure::
+      SENSNAME rms_seed
+      SENSCASE p10_p90
+      RMS_SEED 1000
+      KVKH_CHANNEL 0.6
+      KVKH_CREVASSE 0.3
+      GLOBVAR:VOLON_FLOODPLAIN_VOLFRAC 0.256355
+      GLOBVAR:VOLON_PERMH_CHANNEL 1100
+      GLOBVAR:VOLON_PORO_CHANNEL 0.2
+      LOG10_GLOBVAR:FAULT_SEAL_SCALING 0.685516
+      LOG10_MULTREGT:MULT_THERYS_VOLON -3.21365
+      LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
+    ...but may also appear on a justified format, with leading
+    whitespace and tab-justified columns, legacy from earlier
+    versions but kept alive by some users::
+                            SENSNAME     rms_seed
+                            SENSCASE     p10_p90
+                            RMS_SEED     1000
+                        KVKH_CHANNEL     0.6
+          GLOBVAR:VOLON_PERMH_CHANNEL    1100
+      LOG10_GLOBVAR:FAULT_SEAL_SCALING   0.685516
+      LOG10_MULTREGT:MULT_THERYS_VOLON   -3.21365
+    This should be parsed as::
+        {
+        "SENSNAME": "rms_seed"
+        "SENSCASE": "p10_p90"
+        "RMS_SEED": 1000
+        "KVKH_CHANNEL": 0.6
+        "KVKH_CREVASSE": 0.3
+        "GLOBVAR": {"VOLON_FLOODPLAIN_VOLFRAC": 0.256355, ...etc}
+        }
+    """
+
+    logger.debug("Reading parameters.txt from %s", pfile)
+
+    parameterlines = Path(pfile).read_text().splitlines()
+
+    dict_str_to_str = _design_kw.extract_key_value(parameterlines)
+    return {key: check_if_number(value) for key, value in dict_str_to_str.items()}
 
 
 def read_faultroom_file(filename: str | Path) -> FaultRoomSurface:

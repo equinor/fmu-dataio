@@ -8,7 +8,8 @@ from tempfile import NamedTemporaryFile
 import pytest
 import yaml
 from fmu.dataio import ExportData
-from fmu.dataio._utils import nested_parameters_dict, read_parameters_txt
+from fmu.dataio._utils import nested_parameters_dict
+from fmu.dataio.readers import read_parameters_txt
 
 
 @pytest.fixture(name="direct_creation", scope="function")

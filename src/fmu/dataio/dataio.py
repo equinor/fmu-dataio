@@ -22,10 +22,7 @@ from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._utils import (
     detect_inside_rms,  # dataio_examples,
-    export_file,
-    export_metadata_file,
     prettyprint_dict,
-    read_metadata_from_file,
     some_config_from_env,
 )
 from .aggregation import AggregatedData
@@ -33,6 +30,8 @@ from .case import InitializeCase
 from .datastructure.configuration import global_configuration
 from .datastructure.meta import enums, meta
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
+from .readers import read_metadata_from_file
+from .writers import export_file, export_metadata_file
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
