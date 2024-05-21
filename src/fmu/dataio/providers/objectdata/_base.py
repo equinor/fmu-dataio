@@ -4,7 +4,6 @@ from abc import abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final, TypeVar
 from warnings import warn
 
@@ -345,30 +344,3 @@ class ObjectDataProvider(Provider):
                 f"The file format {fmt} is not supported. ",
                 f"Valid {subtype} formats are: {list(validator.keys())}",
             )
-
-    @classmethod
-    def from_metadata_dict(
-        cls, obj: Inferrable, dataio: ExportData, meta_existing: dict
-    ) -> ObjectDataProvider:
-        """Instantiate from existing metadata."""
-
-        relpath = Path(meta_existing["file"]["relative_path"])
-
-        time0, time1 = None, None
-        if "time" in meta_existing["data"]:
-            time0, time1 = get_timedata_from_existing(meta_existing["data"]["time"])
-
-        return cls(
-            obj=obj,
-            dataio=dataio,
-            metadata=meta_existing["data"],
-            name=meta_existing["data"]["name"],
-            classname=meta_existing["class"],
-            efolder=(
-                relpath.parent.parent.name if dataio.subfolder else relpath.parent.name
-            ),
-            extension=relpath.suffix,
-            fmt=meta_existing["data"]["format"],
-            time0=time0,
-            time1=time1,
-        )

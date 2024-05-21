@@ -132,8 +132,6 @@ def objectdata_provider_factory(
         NotImplementedError: when receiving an object we don't know how to generated
         metadata for.
     """
-    if meta_existing:
-        return ExistingDataProvider.from_metadata_dict(obj, dataio, meta_existing)
     if isinstance(obj, xtgeo.RegularSurface):
         return RegularSurfaceDataProvider(obj=obj, dataio=dataio)
     if isinstance(obj, xtgeo.Polygons):
@@ -159,37 +157,6 @@ def objectdata_provider_factory(
         return ArrowTableDataProvider(obj=obj, dataio=dataio)
 
     raise NotImplementedError(f"This data type is not currently supported: {type(obj)}")
-
-
-@dataclass
-class ExistingDataProvider(ObjectDataProvider):
-    """These getters should never be called because metadata was derived a priori."""
-
-    obj: Inferrable
-
-    def get_spec(self) -> None:
-        """Derive data.spec from existing metadata."""
-
-    def get_bbox(self) -> None:
-        """Derive data.bbox from existing metadata."""
-
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data for existing metadata."""
-        return DerivedObjectDescriptor(
-            subtype=self.metadata["subtype"],
-            classname=self.metadata["class"],
-            layout=self.metadata["layout"],
-            efolder=self.efolder,
-            fmt=self.fmt,
-            extension=self.extension,
-            spec=self.metadata["spec"],
-            bbox=self.metadata["bbox"],
-            table_index=None,
-        )
-
-    def derive_metadata(self) -> None:
-        """Metadata has already been derived for this provider, and is already set from
-        instantiation, so override this method and do nothing."""
 
 
 @dataclass

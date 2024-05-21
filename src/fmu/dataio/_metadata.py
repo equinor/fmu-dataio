@@ -10,19 +10,14 @@ import getpass
 import os
 import platform
 from datetime import timezone
-from pathlib import Path
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, Literal
 
 from pydantic import AnyHttpUrl, TypeAdapter
 
 from . import types
 from ._definitions import SCHEMA, SOURCE, VERSION, FmuContext
 from ._logging import null_logger
-from ._utils import (
-    drop_nones,
-    glue_metadata_preprocessed,
-    read_metadata_from_file,
-)
+from ._utils import drop_nones
 from .datastructure._internal import internal
 from .datastructure.meta import meta
 from .exceptions import InvalidMetadataError
@@ -38,12 +33,14 @@ if TYPE_CHECKING:
 logger: Final = null_logger(__name__)
 
 
-def generate_meta_tracklog() -> list[meta.TracklogEvent]:
+def generate_meta_tracklog(
+    event: Literal["created", "merged"] = "created",
+) -> list[meta.TracklogEvent]:
     """Initialize the tracklog with the 'created' event only."""
     return [
         meta.TracklogEvent.model_construct(
             datetime=datetime.datetime.now(timezone.utc),
-            event="created",
+            event=event,
             user=meta.User.model_construct(id=getpass.getuser()),
             sysinfo=meta.SystemInformation.model_construct(
                 fmu_dataio=meta.VersionInformation.model_construct(version=__version__),
@@ -107,14 +104,6 @@ def _get_meta_display(dataio: ExportData, objdata: ObjectDataProvider) -> meta.D
     return meta.Display(name=dataio.display_name or objdata.name)
 
 
-def _get_meta_preprocessed_info(dataio: ExportData) -> internal.PreprocessedInfo:
-    return internal.PreprocessedInfo(
-        name=dataio.name,
-        tagname=dataio.tagname,
-        subfolder=dataio.subfolder,
-    )
-
-
 def generate_export_metadata(
     obj: types.Inferrable,
     dataio: ExportData,
@@ -149,12 +138,7 @@ def generate_export_metadata(
 
     """
 
-    meta_existing = None
-    if isinstance(obj, (str, Path)) and dataio._reuse_metadata:
-        logger.info("Partially reuse existing metadata from %s", obj)
-        meta_existing = read_metadata_from_file(obj)
-
-    objdata = objectdata_provider_factory(obj, dataio, meta_existing)
+    objdata = objectdata_provider_factory(obj, dataio)
     masterdata = dataio.config.get("masterdata")
 
     metadata = internal.DataClassMeta(
@@ -169,18 +153,7 @@ def generate_export_metadata(
         file=_get_meta_filedata(dataio, obj, objdata, fmudata, compute_md5),
         tracklog=generate_meta_tracklog(),
         display=_get_meta_display(dataio, objdata),
-        preprocessed=(
-            _get_meta_preprocessed_info(dataio)
-            if dataio.fmu_context == FmuContext.PREPROCESSED
-            else None
-        ),
+        preprocessed=dataio.fmu_context == FmuContext.PREPROCESSED,
     ).model_dump(mode="json", exclude_none=True, by_alias=True)
 
-    if skip_null:
-        metadata = drop_nones(metadata)
-
-    return (
-        metadata
-        if not meta_existing
-        else glue_metadata_preprocessed(oldmeta=meta_existing, newmeta=metadata.copy())
-    )
+    return metadata if not skip_null else drop_nones(metadata)
