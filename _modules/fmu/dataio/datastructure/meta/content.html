@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.content &mdash; fmu.dataio 0.1.dev1+gf748188 documentation</title>
+  <title>fmu.dataio.datastructure.meta.content &mdash; fmu.dataio 0.1.dev1+gfe33877 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -232,11 +232,17 @@
 
 <span class="k">class</span> <span class="nc">BoundingBox3D</span><span class="p">(</span><span class="n">BoundingBox2D</span><span class="p">):</span>
     <span class="n">zmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Minimum z-coordinate&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Minimum z-coordinate. For regular surfaces this field represents the &quot;</span>
+            <span class="s2">&quot;minimum surface value and it will be absent if all values are undefined.&quot;</span>
+        <span class="p">),</span>
         <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">zmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum z-coordinate&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Maximum z-coordinate. For regular surfaces this field represents the &quot;</span>
+            <span class="s2">&quot;maximum surface value and it will be absent if all values are undefined.&quot;</span>
+        <span class="p">),</span>
         <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -501,7 +507,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gf748188).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gfe33877).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
