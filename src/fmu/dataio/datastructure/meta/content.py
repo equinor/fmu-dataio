@@ -157,7 +157,7 @@ class Content(BaseModel):
     alias: Optional[List[str]] = Field(default=None)
 
     # Only valid for cooridate based meta.
-    bbox: Optional[Union[BoundingBox2D, BoundingBox3D]] = Field(default=None)
+    bbox: Optional[Union[BoundingBox3D, BoundingBox2D]] = Field(default=None)
 
     description: Optional[List[str]] = Field(
         default=None,

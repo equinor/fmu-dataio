@@ -593,10 +593,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -1279,10 +1279,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -1561,10 +1561,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -1843,10 +1843,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -2223,10 +2223,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -2524,10 +2524,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -2926,10 +2926,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -3284,10 +3284,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -3594,10 +3594,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -3888,10 +3888,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -4170,10 +4170,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -4472,10 +4472,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -4754,10 +4754,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -5084,10 +5084,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -5366,10 +5366,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -5703,10 +5703,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -5985,10 +5985,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -6355,10 +6355,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -6751,10 +6751,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -7224,10 +7224,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -7534,10 +7534,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -7816,10 +7816,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -8156,10 +8156,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -8451,10 +8451,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
@@ -8733,10 +8733,10 @@
         "bbox": {
           "anyOf": [
             {
-              "$ref": "#/$defs/BoundingBox2D"
+              "$ref": "#/$defs/BoundingBox3D"
             },
             {
-              "$ref": "#/$defs/BoundingBox3D"
+              "$ref": "#/$defs/BoundingBox2D"
             },
             {
               "type": "null"
