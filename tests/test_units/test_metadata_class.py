@@ -118,6 +118,20 @@ def test_populate_meta_objectdata(regsurf, edataobj2):
     assert mymeta["data"]["spec"] == objdata.get_spec()
 
 
+def test_bbox_zmin_zmax_presence(polygons, edataobj2):
+    """
+    Test to ensure the zmin/zmax fields are present in the metadata for a
+    data type (polygons) where it is expexted. This is dependent on the order
+    of the bbox types (2D/3D) inside the pydantic model. If 2D is first zmin/zmax
+    will be ignored even if present.
+    """
+    mymeta = generate_export_metadata(polygons, edataobj2)
+
+    # polygons shall have data.spec
+    assert "zmin" in mymeta["data"]["bbox"]
+    assert "zmax" in mymeta["data"]["bbox"]
+
+
 def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
     eobj1 = dio.ExportData(
         config=globalconfig2,
