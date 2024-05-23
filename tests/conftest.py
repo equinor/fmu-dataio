@@ -8,6 +8,7 @@ import shutil
 from pathlib import Path
 
 import fmu.dataio as dio
+import numpy as np
 import pandas as pd
 import pytest
 import xtgeo
@@ -399,6 +400,22 @@ def metadata_examples():
 
     """
     return _metadata_examples()
+
+
+@pytest.fixture(name="regsurf_nan_only", scope="module")
+def fixture_regsurf_nan_only():
+    """Create an xtgeo surface with only NaNs."""
+    logger.debug("Ran %s", _current_function_name())
+    return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=np.nan)
+
+
+@pytest.fixture(name="regsurf_masked_only", scope="module")
+def fixture_regsurf_masked_only():
+    """Create an xtgeo surface with only masked values."""
+    logger.debug("Ran %s", _current_function_name())
+    regsurf = xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1000)
+    regsurf.values = np.ma.masked_array(regsurf.values, mask=True)
+    return regsurf
 
 
 # ======================================================================================

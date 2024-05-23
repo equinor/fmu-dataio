@@ -142,11 +142,17 @@ class BoundingBox2D(BaseModel):
 
 class BoundingBox3D(BoundingBox2D):
     zmin: float = Field(
-        description="Minimum z-coordinate",
+        description=(
+            "Minimum z-coordinate. For regular surfaces this field represents the "
+            "minimum surface value and it will be absent if all values are undefined."
+        ),
         allow_inf_nan=False,
     )
     zmax: float = Field(
-        description="Maximum z-coordinate",
+        description=(
+            "Maximum z-coordinate. For regular surfaces this field represents the "
+            "maximum surface value and it will be absent if all values are undefined."
+        ),
         allow_inf_nan=False,
     )
 
