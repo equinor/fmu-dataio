@@ -25,6 +25,7 @@ from ._utils import (
 )
 from .datastructure._internal import internal
 from .datastructure.meta import meta
+from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers._fmu import FmuProvider
 from .providers.objectdata._provider import objectdata_provider_factory
@@ -70,13 +71,13 @@ def _get_objectdata_provider(
     return objdata
 
 
-def _get_filedata_provider(
+def _get_meta_filedata(
     dataio: ExportData,
     obj: types.Inferrable,
     objdata: ObjectDataProvider,
     fmudata: FmuProvider | None,
     compute_md5: bool,
-) -> FileDataProvider:
+) -> meta.File:
     """Derive metadata for the file."""
     return FileDataProvider(
         dataio=dataio,
@@ -84,7 +85,7 @@ def _get_filedata_provider(
         runpath=fmudata.get_runpath() if fmudata else None,
         obj=obj,
         compute_md5=compute_md5,
-    )
+    ).get_metadata()
 
 
 def _get_meta_objectdata(
@@ -95,6 +96,13 @@ def _get_meta_objectdata(
         if objdata.metadata["content"] == "unset"
         else meta.content.AnyContent.model_validate(objdata.metadata)
     )
+
+
+def _get_meta_fmu(fmudata: FmuProvider) -> internal.FMUClassMetaData | None:
+    try:
+        return fmudata.get_metadata()
+    except InvalidMetadataError:
+        return None
 
 
 def _get_meta_access(dataio: ExportData) -> meta.SsdlAccess:
@@ -166,8 +174,6 @@ def generate_export_metadata(
         meta_existing = read_metadata_from_file(obj)
 
     objdata = _get_objectdata_provider(obj, dataio, meta_existing)
-    filedata = _get_filedata_provider(dataio, obj, objdata, fmudata, compute_md5)
-
     masterdata = dataio.config.get("masterdata")
 
     metadata = internal.DataClassMeta(
@@ -175,16 +181,18 @@ def generate_export_metadata(
         version=VERSION,
         source=SOURCE,
         class_=objdata.classname,
-        fmu=fmudata.get_metadata() if fmudata else None,
+        fmu=_get_meta_fmu(fmudata) if fmudata else None,
         masterdata=_get_meta_masterdata(masterdata) if masterdata else None,
         access=_get_meta_access(dataio),
         data=_get_meta_objectdata(objdata),
-        file=filedata.get_metadata(),
+        file=_get_meta_filedata(dataio, obj, objdata, fmudata, compute_md5),
         tracklog=generate_meta_tracklog(),
         display=_get_meta_display(dataio, objdata),
-        preprocessed=_get_meta_preprocessed_info(dataio)
-        if dataio.fmu_context == FmuContext.PREPROCESSED
-        else None,
+        preprocessed=(
+            _get_meta_preprocessed_info(dataio)
+            if dataio.fmu_context == FmuContext.PREPROCESSED
+            else None
+        ),
     ).model_dump(mode="json", exclude_none=True, by_alias=True)
 
     if skip_null:

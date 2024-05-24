@@ -19,6 +19,8 @@ from fmu.dataio._utils import (
 )
 from fmu.dataio.datastructure.meta import meta
 
+from ._base import Provider
+
 logger: Final = null_logger(__name__)
 
 if TYPE_CHECKING:
@@ -34,7 +36,7 @@ class ShareFolder(str, Enum):
 
 
 @dataclass
-class FileDataProvider:
+class FileDataProvider(Provider):
     """Class for providing metadata for the 'files' block in fmu-dataio.
 
     Example::

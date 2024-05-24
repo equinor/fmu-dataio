@@ -9,6 +9,7 @@ import pytest
 
 # from conftest import pretend_ert_env_run1
 from fmu.dataio._definitions import FmuContext
+from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import RESTART_PATH_ENVNAME, FmuEnv, FmuProvider
 
 logger = logging.getLogger(__name__)
@@ -27,7 +28,10 @@ def test_fmuprovider_no_provider():
         include_ertjobs=False,
         workflow=WORKFLOW,
     )
-    assert myfmu.get_metadata() is None
+    with pytest.raises(
+        InvalidMetadataError, match="Missing casepath or model description"
+    ):
+        myfmu.get_metadata()
 
 
 def test_fmuprovider_model_info_in_metadata(fmurun_w_casemetadata):
@@ -47,8 +51,11 @@ def test_fmuprovider_model_info_in_metadata(fmurun_w_casemetadata):
         fmu_context=FmuContext.REALIZATION,
         workflow=WORKFLOW,
     )
-    meta = myfmu.get_metadata()
-    assert meta is None
+
+    with pytest.raises(
+        InvalidMetadataError, match="Missing casepath or model description"
+    ):
+        meta = myfmu.get_metadata()
 
 
 def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
@@ -66,8 +73,11 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
             workflow=WORKFLOW,
         )
 
-    assert myfmu.get_metadata() is None
     assert myfmu.get_casepath() is None
+    with pytest.raises(
+        InvalidMetadataError, match="Missing casepath or model description"
+    ):
+        myfmu.get_metadata()
 
 
 def test_fmuprovider_ert_provider_missing_parameter_txt(fmurun_w_casemetadata):
@@ -207,8 +217,10 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
             model=GLOBAL_CONFIG_MODEL,
             fmu_context=FmuContext.REALIZATION,
         )
-    meta = myfmu.get_metadata()
-    assert meta is None
+    with pytest.raises(
+        InvalidMetadataError, match="Missing casepath or model description"
+    ):
+        myfmu.get_metadata()
 
 
 def test_fmuprovider_case_run(fmurun_prehook):

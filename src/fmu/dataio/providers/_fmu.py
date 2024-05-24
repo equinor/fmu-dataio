@@ -42,6 +42,9 @@ from fmu.dataio._definitions import FmuContext
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure._internal import internal
 from fmu.dataio.datastructure.meta import meta
+from fmu.dataio.exceptions import InvalidMetadataError
+
+from ._base import Provider
 
 if TYPE_CHECKING:
     from uuid import UUID
@@ -91,7 +94,7 @@ class FmuEnv(Enum):
 
 
 @dataclass
-class FmuProvider:
+class FmuProvider(Provider):
     """Class for getting the run environment (e.g. an ERT) and provide metadata.
 
     Args:
@@ -165,13 +168,12 @@ class FmuProvider:
         """Return runpath for a FMU run."""
         return self._runpath
 
-    def get_metadata(self) -> internal.FMUClassMetaData | None:
+    def get_metadata(self) -> internal.FMUClassMetaData:
         """Construct the metadata FMU block for an ERT forward job."""
         logger.debug("Generate ERT metadata...")
 
         if self._casepath is None or self.model is None:
-            logger.info("Can't return metadata, missing casepath or model description")
-            return None
+            raise InvalidMetadataError("Missing casepath or model description")
 
         case_meta = self._get_fmucase_meta()
 
