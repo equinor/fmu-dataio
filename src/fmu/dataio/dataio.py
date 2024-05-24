@@ -311,7 +311,7 @@ class ExportData:
 
     # class variables
     allow_forcefolder_absolute: ClassVar[bool] = False  # deprecated
-    arrow_fformat: ClassVar[str] = "arrow"
+    arrow_fformat: ClassVar[str] = "parquet"
     case_folder: ClassVar[str] = "share/metadata"
     createfolder: ClassVar[bool] = True  # deprecated
     cube_fformat: ClassVar[str] = "segy"

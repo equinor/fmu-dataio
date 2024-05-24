@@ -595,7 +595,7 @@ def test_pyarrow_export_file_set_name(rmssetup, rmsglobalconfig, arrowtable):
         logger.info("Output is %s", output)
 
         assert str(output) == str(
-            (edata._rootpath / "share/results/tables/myarrowtable.arrow").resolve()
+            (edata._rootpath / "share/results/tables/myarrowtable.parquet").resolve()
         )
 
         metaout = dataio.read_metadata(output)
