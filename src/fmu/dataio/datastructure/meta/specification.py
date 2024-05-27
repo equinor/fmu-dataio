@@ -8,6 +8,8 @@ from . import enums
 
 
 class RowColumn(BaseModel):
+    """Specifies the number of rows and columns in a regular surface object."""
+
     nrow: int = Field(
         description="The number of rows",
     )
@@ -17,12 +19,16 @@ class RowColumn(BaseModel):
 
 
 class RowColumnLayer(RowColumn):
+    """Specifies the number of rows, columns, and layers in grid object."""
+
     nlay: int = Field(
         description="The number of layers",
     )
 
 
 class SurfaceSpecification(RowColumn):
+    """Specifies relevant values describing a regular surface object."""
+
     rotation: float = Field(
         description="Rotation angle",
         allow_inf_nan=False,
@@ -54,6 +60,8 @@ class SurfaceSpecification(RowColumn):
 
 
 class PointSpecification(BaseModel):
+    """Specifies relevant values describing an xyz points object."""
+
     attributes: Optional[List[str]] = Field(
         description="List of columns present in a table.",
     )
@@ -64,6 +72,8 @@ class PointSpecification(BaseModel):
 
 
 class TableSpecification(BaseModel):
+    """Specifies relevant values describing a generic tabular data object."""
+
     columns: List[str] = Field(
         description="List of columns present in a table.",
     )
@@ -74,7 +84,7 @@ class TableSpecification(BaseModel):
 
 
 class CPGridSpecification(RowColumnLayer):
-    """Corner point grid"""
+    """Specifies relevant values describing a corner point grid object."""
 
     xshift: float = Field(
         description="Shift along the x-axis",
@@ -103,16 +113,21 @@ class CPGridSpecification(RowColumnLayer):
     )
 
 
-class CPGridPropertySpecification(RowColumnLayer): ...
+class CPGridPropertySpecification(RowColumnLayer):
+    """Specifies relevant values describing a corner point grid property object."""
 
 
 class PolygonsSpecification(BaseModel):
+    """Specifies relevant values describing a polygon object."""
+
     npolys: int = Field(
         description="The number of individual polygons in the data object",
     )
 
 
 class FaultRoomSurfaceSpecification(BaseModel):
+    """Specifies relevant values describing a Faultroom surface object."""
+
     horizons: List[str] = Field(
         description="List of horizon names",
     )
@@ -134,6 +149,8 @@ class FaultRoomSurfaceSpecification(BaseModel):
 
 
 class CubeSpecification(SurfaceSpecification):
+    """Specifies relevant values describing a cube object, i.e. a seismic cube."""
+
     nlay: int = Field(
         description="The number of layers",
     )

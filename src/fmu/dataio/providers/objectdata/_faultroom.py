@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Final
+from typing import Final
 
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio.datastructure.meta import specification
 from fmu.dataio.datastructure.meta.content import BoundingBox3D
+from fmu.dataio.datastructure.meta.specification import FaultRoomSurfaceSpecification
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
@@ -33,20 +33,16 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
             zmax=float(self.obj.bbox["zmax"]),
         )
 
-    def get_spec(self) -> dict[str, Any]:
+    def get_spec(self) -> FaultRoomSurfaceSpecification:
         """Derive data.spec for FaultRoomSurface"""
         logger.info("Get spec for FaultRoomSurface")
-        faultsurf = self.obj
-        return specification.FaultRoomSurfaceSpecification(
-            horizons=faultsurf.horizons,
-            faults=faultsurf.faults,
-            juxtaposition_hw=faultsurf.juxtaposition_hw,
-            juxtaposition_fw=faultsurf.juxtaposition_fw,
-            properties=faultsurf.properties,
-            name=faultsurf.name,
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
+        return FaultRoomSurfaceSpecification(
+            horizons=self.obj.horizons,
+            faults=self.obj.faults,
+            juxtaposition_hw=self.obj.juxtaposition_hw,
+            juxtaposition_fw=self.obj.juxtaposition_fw,
+            properties=self.obj.properties,
+            name=self.obj.name,
         )
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
@@ -57,7 +53,7 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
             layout="faultroom_triangulated",
             efolder="maps",
             fmt=(fmt := self.dataio.dict_fformat),
-            spec=self.get_spec(),
+            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
             bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
             table_index=None,

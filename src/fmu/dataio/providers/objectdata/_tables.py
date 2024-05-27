@@ -7,7 +7,7 @@ import pandas as pd
 
 from fmu.dataio._definitions import STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio.datastructure.meta import specification
+from fmu.dataio.datastructure.meta.specification import TableSpecification
 
 from ._base import (
     DerivedObjectDescriptor,
@@ -59,16 +59,12 @@ def _derive_index(table_index: list[str] | None, columns: list[str]) -> list[str
 class DataFrameDataProvider(ObjectDataProvider):
     obj: pd.DataFrame
 
-    def get_spec(self) -> dict:
+    def get_spec(self) -> TableSpecification:
         """Derive data.spec for pd.DataFrame."""
         logger.info("Get spec for pd.DataFrame (tables)")
-
-        return specification.TableSpecification(
+        return TableSpecification(
             columns=list(self.obj.columns),
             size=int(self.obj.size),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_bbox(self) -> None:
@@ -84,7 +80,7 @@ class DataFrameDataProvider(ObjectDataProvider):
             efolder="tables",
             fmt=(fmt := self.dataio.table_fformat),
             extension=self._validate_get_ext(fmt, "DataFrame", ValidFormats().table),
-            spec=self.get_spec(),
+            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
             bbox=None,
             table_index=table_index,
         )
@@ -94,16 +90,12 @@ class DataFrameDataProvider(ObjectDataProvider):
 class ArrowTableDataProvider(ObjectDataProvider):
     obj: pyarrow.Table
 
-    def get_spec(self) -> dict:
+    def get_spec(self) -> TableSpecification:
         """Derive data.spec for pyarrow.Table."""
         logger.info("Get spec for pyarrow (tables)")
-
-        return specification.TableSpecification(
+        return TableSpecification(
             columns=list(self.obj.column_names),
             size=self.obj.num_columns * self.obj.num_rows,
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_bbox(self) -> None:
@@ -119,7 +111,7 @@ class ArrowTableDataProvider(ObjectDataProvider):
             efolder="tables",
             fmt=(fmt := self.dataio.arrow_fformat),
             extension=self._validate_get_ext(fmt, "ArrowTable", ValidFormats().table),
-            spec=self.get_spec(),
+            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
             bbox=None,
             table_index=table_index,
         )

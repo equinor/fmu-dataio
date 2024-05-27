@@ -315,6 +315,7 @@
       "type": "object"
     },
     "CPGridPropertySpecification": {
+      "description": "Specifies relevant values describing a corner point grid property object.",
       "properties": {
         "ncol": {
           "description": "The number of columns",
@@ -341,7 +342,7 @@
       "type": "object"
     },
     "CPGridSpecification": {
-      "description": "Corner point grid",
+      "description": "Specifies relevant values describing a corner point grid object.",
       "properties": {
         "ncol": {
           "description": "The number of columns",
@@ -473,6 +474,7 @@
       "type": "object"
     },
     "CubeSpecification": {
+      "description": "Specifies relevant values describing a cube object, i.e. a seismic cube.",
       "properties": {
         "ncol": {
           "description": "The number of columns",
@@ -2097,6 +2099,7 @@
       "type": "object"
     },
     "FaultRoomSurfaceSpecification": {
+      "description": "Specifies relevant values describing a Faultroom surface object.",
       "properties": {
         "faults": {
           "description": "Names of faults",
@@ -5008,6 +5011,7 @@
       "type": "object"
     },
     "PointSpecification": {
+      "description": "Specifies relevant values describing an xyz points object.",
       "properties": {
         "attributes": {
           "anyOf": [
@@ -5042,6 +5046,7 @@
       "type": "object"
     },
     "PolygonsSpecification": {
+      "description": "Specifies relevant values describing a polygon object.",
       "properties": {
         "npolys": {
           "description": "The number of individual polygons in the data object",
@@ -7005,6 +7010,7 @@
       "type": "object"
     },
     "SurfaceSpecification": {
+      "description": "Specifies relevant values describing a regular surface object.",
       "properties": {
         "ncol": {
           "description": "The number of columns",
@@ -7169,6 +7175,7 @@
       "type": "object"
     },
     "TableSpecification": {
+      "description": "Specifies relevant values describing a generic tabular data object.",
       "properties": {
         "columns": {
           "description": "List of columns present in a table.",

@@ -115,7 +115,10 @@ def test_populate_meta_objectdata(regsurf, edataobj2):
     # surfaces shall have data.spec
     assert mymeta["data"]
     assert mymeta["data"]["spec"]
-    assert mymeta["data"]["spec"] == objdata.get_spec()
+    assert mymeta["data"]["spec"] == objdata.get_spec().model_dump(
+        mode="json",
+        exclude_none=True,
+    )
 
 
 def test_bbox_zmin_zmax_presence(polygons, edataobj2):
