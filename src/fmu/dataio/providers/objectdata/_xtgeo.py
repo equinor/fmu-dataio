@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Final
 
 import numpy as np
 import pandas as pd
@@ -10,8 +10,15 @@ import xtgeo
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import npfloat_to_float
-from fmu.dataio.datastructure.meta import specification
 from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
+from fmu.dataio.datastructure.meta.specification import (
+    CPGridPropertySpecification,
+    CPGridSpecification,
+    CubeSpecification,
+    PointSpecification,
+    PolygonsSpecification,
+    SurfaceSpecification,
+)
 
 from ._base import (
     DerivedObjectDescriptor,
@@ -28,12 +35,12 @@ logger: Final = null_logger(__name__)
 class RegularSurfaceDataProvider(ObjectDataProvider):
     obj: xtgeo.RegularSurface
 
-    def get_spec(self) -> dict[str, Any]:
+    def get_spec(self) -> SurfaceSpecification:
         """Derive data.spec for xtgeo.RegularSurface."""
         logger.info("Get spec for RegularSurface")
 
         required = self.obj.metadata.required
-        return specification.SurfaceSpecification(
+        return SurfaceSpecification(
             ncol=npfloat_to_float(required["ncol"]),
             nrow=npfloat_to_float(required["nrow"]),
             xori=npfloat_to_float(required["xori"]),
@@ -43,9 +50,6 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
             yflip=npfloat_to_float(required["yflip"]),
             rotation=npfloat_to_float(required["rotation"]),
             undef=1.0e30,
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_bbox(self) -> BoundingBox2D | BoundingBox3D:
@@ -81,7 +85,7 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
             layout="regular",
             efolder="maps",
             fmt=(fmt := self.dataio.surface_fformat),
-            spec=self.get_spec(),
+            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
             bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             extension=self._validate_get_ext(
                 fmt, "RegularSurface", ValidFormats().surface
@@ -94,17 +98,14 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
 class PolygonsDataProvider(ObjectDataProvider):
     obj: xtgeo.Polygons
 
-    def get_spec(self) -> dict[str, Any]:
+    def get_spec(self) -> PolygonsSpecification:
         """Derive data.spec for xtgeo.Polygons."""
         logger.info("Get spec for Polygons")
 
-        return specification.PolygonsSpecification(
+        return PolygonsSpecification(
             npolys=np.unique(
                 self.obj.get_dataframe(copy=False)[self.obj.pname].values
             ).size
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_bbox(self) -> BoundingBox3D:
@@ -130,7 +131,7 @@ class PolygonsDataProvider(ObjectDataProvider):
             efolder="polygons",
             fmt=(fmt := self.dataio.polygons_fformat),
             extension=self._validate_get_ext(fmt, "Polygons", ValidFormats().polygons),
-            spec=self.get_spec(),
+            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
             bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
@@ -145,17 +146,14 @@ class PointsDataProvider(ObjectDataProvider):
         """Returns a dataframe of the referenced xtgeo.Points object."""
         return self.obj.get_dataframe(copy=False)
 
-    def get_spec(self) -> dict[str, Any]:
+    def get_spec(self) -> PointSpecification:
         """Derive data.spec for xtgeo.Points."""
         logger.info("Get spec for Points")
 
         df = self.obj_dataframe
-        return specification.PointSpecification(
+        return PointSpecification(
             attributes=list(df.columns[3:]) if len(df.columns) > 3 else None,
             size=int(df.size),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_bbox(self) -> BoundingBox3D:
@@ -181,7 +179,7 @@ class PointsDataProvider(ObjectDataProvider):
             efolder="points",
             fmt=(fmt := self.dataio.points_fformat),
             extension=self._validate_get_ext(fmt, "Points", ValidFormats().points),
-            spec=self.get_spec(),
+            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
             bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
@@ -191,12 +189,12 @@ class PointsDataProvider(ObjectDataProvider):
 class CubeDataProvider(ObjectDataProvider):
     obj: xtgeo.Cube
 
-    def get_spec(self) -> dict[str, Any]:
+    def get_spec(self) -> CubeSpecification:
         """Derive data.spec for xtgeo.Cube."""
         logger.info("Get spec for Cube")
 
         required = self.obj.metadata.required
-        return specification.CubeSpecification(
+        return CubeSpecification(
             ncol=npfloat_to_float(required["ncol"]),
             nrow=npfloat_to_float(required["nrow"]),
             nlay=npfloat_to_float(required["nlay"]),
@@ -210,9 +208,6 @@ class CubeDataProvider(ObjectDataProvider):
             zflip=npfloat_to_float(required["zflip"]),
             rotation=npfloat_to_float(required["rotation"]),
             undef=npfloat_to_float(required["undef"]),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_bbox(self) -> BoundingBox3D:
@@ -254,7 +249,7 @@ class CubeDataProvider(ObjectDataProvider):
             efolder="cubes",
             fmt=(fmt := self.dataio.cube_fformat),
             extension=self._validate_get_ext(fmt, "RegularCube", ValidFormats().cube),
-            spec=self.get_spec(),
+            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
             bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
@@ -264,12 +259,12 @@ class CubeDataProvider(ObjectDataProvider):
 class CPGridDataProvider(ObjectDataProvider):
     obj: xtgeo.Grid
 
-    def get_spec(self) -> dict[str, Any]:
+    def get_spec(self) -> CPGridSpecification:
         """Derive data.spec for xtgeo.Grid."""
         logger.info("Get spec for Grid geometry")
 
         required = self.obj.metadata.required
-        return specification.CPGridSpecification(
+        return CPGridSpecification(
             ncol=npfloat_to_float(required["ncol"]),
             nrow=npfloat_to_float(required["nrow"]),
             nlay=npfloat_to_float(required["nlay"]),
@@ -279,9 +274,6 @@ class CPGridDataProvider(ObjectDataProvider):
             xscale=npfloat_to_float(required["xscale"]),
             yscale=npfloat_to_float(required["yscale"]),
             zscale=npfloat_to_float(required["zscale"]),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_bbox(self) -> BoundingBox3D:
@@ -311,7 +303,7 @@ class CPGridDataProvider(ObjectDataProvider):
             efolder="grids",
             fmt=(fmt := self.dataio.grid_fformat),
             extension=self._validate_get_ext(fmt, "CPGrid", ValidFormats().grid),
-            spec=self.get_spec(),
+            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
             bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
@@ -321,17 +313,14 @@ class CPGridDataProvider(ObjectDataProvider):
 class CPGridPropertyDataProvider(ObjectDataProvider):
     obj: xtgeo.GridProperty
 
-    def get_spec(self) -> dict[str, Any]:
+    def get_spec(self) -> CPGridPropertySpecification:
         """Derive data.spec for xtgeo.GridProperty."""
         logger.info("Get spec for GridProperty")
 
-        return specification.CPGridPropertySpecification(
+        return CPGridPropertySpecification(
             nrow=self.obj.nrow,
             ncol=self.obj.ncol,
             nlay=self.obj.nlay,
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_bbox(self) -> None:
@@ -348,7 +337,7 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
             extension=self._validate_get_ext(
                 fmt, "CPGridProperty", ValidFormats().grid
             ),
-            spec=self.get_spec(),
+            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
             bbox=None,
             table_index=None,
         )

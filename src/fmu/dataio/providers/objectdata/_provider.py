@@ -87,7 +87,7 @@ data:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Final
 
 import pandas as pd
 import xtgeo
@@ -167,9 +167,8 @@ class ExistingDataProvider(ObjectDataProvider):
 
     obj: Inferrable
 
-    def get_spec(self) -> dict:
+    def get_spec(self) -> None:
         """Derive data.spec from existing metadata."""
-        return self.metadata["spec"]
 
     def get_bbox(self) -> None:
         """Derive data.bbox from existing metadata."""
@@ -183,7 +182,7 @@ class ExistingDataProvider(ObjectDataProvider):
             efolder=self.efolder,
             fmt=self.fmt,
             extension=self.extension,
-            spec=self.get_spec(),
+            spec=self.metadata["spec"],
             bbox=self.metadata["bbox"],
             table_index=None,
         )
@@ -197,10 +196,8 @@ class ExistingDataProvider(ObjectDataProvider):
 class DictionaryDataProvider(ObjectDataProvider):
     obj: dict
 
-    def get_spec(self) -> dict[str, Any]:
+    def get_spec(self) -> None:
         """Derive data.spec for dict."""
-        logger.info("Get spec for dictionary")
-        return {}
 
     def get_bbox(self) -> None:
         """Derive data.bbox for dict."""
@@ -214,7 +211,7 @@ class DictionaryDataProvider(ObjectDataProvider):
             efolder="dictionaries",
             fmt=(fmt := self.dataio.dict_fformat),
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
-            spec=self.get_spec() or None,
+            spec=None,
             bbox=None,
             table_index=None,
         )

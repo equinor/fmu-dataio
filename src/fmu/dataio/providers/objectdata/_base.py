@@ -17,6 +17,7 @@ from fmu.dataio.datastructure.meta import content, enums
 if TYPE_CHECKING:
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
+    from fmu.dataio.datastructure.meta.specification import AnySpecification
     from fmu.dataio.types import Classname, Efolder, Inferrable, Layout, Subtype
 
 logger: Final = null_logger(__name__)
@@ -258,7 +259,7 @@ class ObjectDataProvider(ABC):
         )
 
     @abstractmethod
-    def get_spec(self) -> dict:
+    def get_spec(self) -> AnySpecification | None:
         raise NotImplementedError
 
     @abstractmethod

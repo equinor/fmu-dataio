@@ -96,7 +96,7 @@ def test_objectdata_regularsurface_spec_bbox(regsurf, edataobj1):
     specs = objdata.get_spec()
     bbox = objdata.get_bbox()
 
-    assert specs["ncol"] == regsurf.ncol
+    assert specs.ncol == regsurf.ncol
     assert bbox.xmin == 0.0
     assert bbox.zmin == 1234.0
 
