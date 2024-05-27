@@ -71,10 +71,8 @@ class DataFrameDataProvider(ObjectDataProvider):
             exclude_none=True,
         )
 
-    def get_bbox(self) -> dict:
+    def get_bbox(self) -> None:
         """Derive data.bbox for pd.DataFrame."""
-        logger.info("Get bbox for pd.DataFrame (tables)")
-        return {}
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data for pd.DataFrame."""
@@ -87,7 +85,7 @@ class DataFrameDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.table_fformat),
             extension=self._validate_get_ext(fmt, "DataFrame", ValidFormats().table),
             spec=self.get_spec(),
-            bbox=self.get_bbox() or None,
+            bbox=None,
             table_index=table_index,
         )
 
@@ -108,10 +106,8 @@ class ArrowTableDataProvider(ObjectDataProvider):
             exclude_none=True,
         )
 
-    def get_bbox(self) -> dict:
+    def get_bbox(self) -> None:
         """Derive data.bbox for pyarrow.Table."""
-        logger.info("Get bbox for pyarrow (tables)")
-        return {}
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data from pyarrow.Table."""
@@ -124,6 +120,6 @@ class ArrowTableDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.arrow_fformat),
             extension=self._validate_get_ext(fmt, "ArrowTable", ValidFormats().table),
             spec=self.get_spec(),
-            bbox=self.get_bbox() or None,
+            bbox=None,
             table_index=table_index,
         )

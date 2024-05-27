@@ -122,6 +122,8 @@ class Layer(BaseModel):
 
 
 class BoundingBox2D(BaseModel):
+    """Contains the 2D coordinates within which a data object is contained."""
+
     xmin: float = Field(
         description="Minimum x-coordinate",
         allow_inf_nan=False,
@@ -141,6 +143,8 @@ class BoundingBox2D(BaseModel):
 
 
 class BoundingBox3D(BoundingBox2D):
+    """Contains the 3D coordinates within which a data object is contained."""
+
     zmin: float = Field(
         description=(
             "Minimum z-coordinate. For regular surfaces this field represents the "

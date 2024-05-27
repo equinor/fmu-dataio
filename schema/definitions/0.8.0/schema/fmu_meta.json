@@ -237,6 +237,7 @@
       "type": "integer"
     },
     "BoundingBox2D": {
+      "description": "Contains the 2D coordinates within which a data object is contained.",
       "properties": {
         "xmax": {
           "description": "Maximum x-coordinate",
@@ -269,6 +270,7 @@
       "type": "object"
     },
     "BoundingBox3D": {
+      "description": "Contains the 3D coordinates within which a data object is contained.",
       "properties": {
         "xmax": {
           "description": "Maximum x-coordinate",

@@ -10,7 +10,8 @@ import xtgeo
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import npfloat_to_float
-from fmu.dataio.datastructure.meta import meta, specification
+from fmu.dataio.datastructure.meta import specification
+from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
 
 from ._base import (
     DerivedObjectDescriptor,
@@ -47,7 +48,7 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
             exclude_none=True,
         )
 
-    def get_bbox(self) -> dict[str, Any]:
+    def get_bbox(self) -> BoundingBox2D | BoundingBox3D:
         """
         Derive data.bbox for xtgeo.RegularSurface. The zmin/zmax fields represents
         the minimum/maximum surface values and should be absent in the metadata if the
@@ -56,21 +57,21 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
         logger.info("Get bbox for RegularSurface")
 
         if np.isfinite(self.obj.values).any():
-            return meta.content.BoundingBox3D(
+            return BoundingBox3D(
                 xmin=float(self.obj.xmin),
                 xmax=float(self.obj.xmax),
                 ymin=float(self.obj.ymin),
                 ymax=float(self.obj.ymax),
                 zmin=float(self.obj.values.min()),
                 zmax=float(self.obj.values.max()),
-            ).model_dump(mode="json", exclude_none=True)
+            )
 
-        return meta.content.BoundingBox2D(
+        return BoundingBox2D(
             xmin=float(self.obj.xmin),
             xmax=float(self.obj.xmax),
             ymin=float(self.obj.ymin),
             ymax=float(self.obj.ymax),
-        ).model_dump(mode="json", exclude_none=True)
+        )
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data for xtgeo.RegularSurface."""
@@ -81,7 +82,7 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
             efolder="maps",
             fmt=(fmt := self.dataio.surface_fformat),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             extension=self._validate_get_ext(
                 fmt, "RegularSurface", ValidFormats().surface
             ),
@@ -106,21 +107,18 @@ class PolygonsDataProvider(ObjectDataProvider):
             exclude_none=True,
         )
 
-    def get_bbox(self) -> dict[str, Any]:
+    def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Polygons"""
         logger.info("Get bbox for Polygons")
 
         xmin, xmax, ymin, ymax, zmin, zmax = self.obj.get_boundary()
-        return meta.content.BoundingBox3D(
+        return BoundingBox3D(
             xmin=float(xmin),
             xmax=float(xmax),
             ymin=float(ymin),
             ymax=float(ymax),
             zmin=float(zmin),
             zmax=float(zmax),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
@@ -133,7 +131,7 @@ class PolygonsDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.polygons_fformat),
             extension=self._validate_get_ext(fmt, "Polygons", ValidFormats().polygons),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
 
@@ -160,21 +158,18 @@ class PointsDataProvider(ObjectDataProvider):
             exclude_none=True,
         )
 
-    def get_bbox(self) -> dict[str, Any]:
+    def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Points."""
         logger.info("Get bbox for Points")
 
         df = self.obj_dataframe
-        return meta.content.BoundingBox3D(
+        return BoundingBox3D(
             xmin=float(df[self.obj.xname].min()),
             xmax=float(df[self.obj.xname].max()),
             ymax=float(df[self.obj.yname].min()),
             ymin=float(df[self.obj.yname].max()),
             zmin=float(df[self.obj.zname].min()),
             zmax=float(df[self.obj.zname].max()),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
@@ -187,7 +182,7 @@ class PointsDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.points_fformat),
             extension=self._validate_get_ext(fmt, "Points", ValidFormats().points),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
 
@@ -220,7 +215,7 @@ class CubeDataProvider(ObjectDataProvider):
             exclude_none=True,
         )
 
-    def get_bbox(self) -> dict[str, Any]:
+    def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Cube."""
         logger.info("Get bbox for Cube")
 
@@ -241,16 +236,13 @@ class CubeDataProvider(ObjectDataProvider):
             ymin = min(ymin, yco)
             ymax = max(ymax, yco)
 
-        return meta.content.BoundingBox3D(
+        return BoundingBox3D(
             xmin=float(xmin),
             xmax=float(xmax),
             ymin=float(ymin),
             ymax=float(ymax),
             zmin=float(self.obj.zori),
             zmax=float(self.obj.zori + self.obj.zinc * (self.obj.nlay - 1)),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
@@ -263,7 +255,7 @@ class CubeDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.cube_fformat),
             extension=self._validate_get_ext(fmt, "RegularCube", ValidFormats().cube),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
 
@@ -292,7 +284,7 @@ class CPGridDataProvider(ObjectDataProvider):
             exclude_none=True,
         )
 
-    def get_bbox(self) -> dict[str, Any]:
+    def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Grid."""
         logger.info("Get bbox for Grid geometry")
 
@@ -301,16 +293,13 @@ class CPGridDataProvider(ObjectDataProvider):
             allcells=True,
             return_dict=True,
         )
-        return meta.content.BoundingBox3D(
+        return BoundingBox3D(
             xmin=round(float(geox["xmin"]), 4),
             xmax=round(float(geox["xmax"]), 4),
             ymin=round(float(geox["ymin"]), 4),
             ymax=round(float(geox["ymax"]), 4),
             zmin=round(float(geox["zmin"]), 4),
             zmax=round(float(geox["zmax"]), 4),
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
         )
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
@@ -323,7 +312,7 @@ class CPGridDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.grid_fformat),
             extension=self._validate_get_ext(fmt, "CPGrid", ValidFormats().grid),
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
 
@@ -345,10 +334,8 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
             exclude_none=True,
         )
 
-    def get_bbox(self) -> dict[str, Any]:
+    def get_bbox(self) -> None:
         """Derive data.bbox for xtgeo.GridProperty."""
-        logger.info("Get bbox for GridProperty")
-        return {}
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data for xtgeo.GridProperty."""
@@ -362,6 +349,6 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
                 fmt, "CPGridProperty", ValidFormats().grid
             ),
             spec=self.get_spec(),
-            bbox=self.get_bbox() or None,
+            bbox=None,
             table_index=None,
         )
