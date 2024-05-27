@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.version module &mdash; fmu.dataio 0.1.dev1+g289707b documentation</title>
+  <title>dataio.exceptions module &mdash; fmu.dataio 0.1.dev1+g289707b documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
@@ -28,8 +28,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="The FMU results data model" href="../datamodel.html" />
-    <link rel="prev" title="dataio.types module" href="dataio.types.html" /> 
+    <link rel="next" title="dataio.readers module" href="dataio.readers.html" />
+    <link rel="prev" title="dataio.dataio module" href="dataio.dataio.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -68,10 +68,10 @@
 <li class="toctree-l4"><a class="reference internal" href="dataio.aggregation.html">dataio.aggregation module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dataio.case.html">dataio.case module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dataio.dataio.html">dataio.dataio module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="dataio.exceptions.html">dataio.exceptions module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dataio.exceptions module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dataio.readers.html">dataio.readers module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dataio.types.html">dataio.types module</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">dataio.version module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dataio.version.html">dataio.version module</a></li>
 </ul>
 </li>
 </ul>
@@ -98,9 +98,9 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">API reference for fmu.dataio</a></li>
           <li class="breadcrumb-item"><a href="dataio.html">dataio package</a></li>
-      <li class="breadcrumb-item active">dataio.version module</li>
+      <li class="breadcrumb-item active">dataio.exceptions module</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/apiref/dataio.version.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/apiref/dataio.exceptions.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -108,16 +108,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-dataio.version">
-<span id="dataio-version-module"></span><h1>dataio.version module<a class="headerlink" href="#module-dataio.version" title="Permalink to this heading"></a></h1>
+  <section id="module-dataio.exceptions">
+<span id="dataio-exceptions-module"></span><h1>dataio.exceptions module<a class="headerlink" href="#module-dataio.exceptions" title="Permalink to this heading"></a></h1>
+<dl class="py exception">
+<dt class="sig sig-object py" id="dataio.exceptions.InvalidMetadataError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidMetadataError</span></span><a class="reference internal" href="../_modules/dataio/exceptions.html#InvalidMetadataError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.exceptions.InvalidMetadataError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when valid metadata cannot be generated or returned.</p>
+</dd></dl>
+
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="dataio.types.html" class="btn btn-neutral float-left" title="dataio.types module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../datamodel.html" class="btn btn-neutral float-right" title="The FMU results data model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dataio.dataio.html" class="btn btn-neutral float-left" title="dataio.dataio module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dataio.readers.html" class="btn btn-neutral float-right" title="dataio.readers module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
