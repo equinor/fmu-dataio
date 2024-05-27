@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.specification &mdash; fmu.dataio 0.1.dev1+gc1040c0 documentation</title>
+  <title>fmu.dataio.datastructure.meta.specification &mdash; fmu.dataio 0.1.dev1+ge673480 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -98,6 +98,8 @@
 
 
 <span class="k">class</span> <span class="nc">RowColumn</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies the number of rows and columns in a regular surface object.&quot;&quot;&quot;</span>
+
     <span class="n">nrow</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of rows&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -107,12 +109,16 @@
 
 
 <span class="k">class</span> <span class="nc">RowColumnLayer</span><span class="p">(</span><span class="n">RowColumn</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies the number of rows, columns, and layers in grid object.&quot;&quot;&quot;</span>
+
     <span class="n">nlay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of layers&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
 
 <div class="viewcode-block" id="SurfaceSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.SurfaceSpecification">[docs]</a><span class="k">class</span> <span class="nc">SurfaceSpecification</span><span class="p">(</span><span class="n">RowColumn</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies relevant values describing a regular surface object.&quot;&quot;&quot;</span>
+
     <span class="n">rotation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Rotation angle&quot;</span><span class="p">,</span>
         <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -144,6 +150,8 @@
 
 
 <span class="k">class</span> <span class="nc">PointSpecification</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies relevant values describing an xyz points object.&quot;&quot;&quot;</span>
+
     <span class="n">attributes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of columns present in a table.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -154,6 +162,8 @@
 
 
 <div class="viewcode-block" id="TableSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.TableSpecification">[docs]</a><span class="k">class</span> <span class="nc">TableSpecification</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies relevant values describing a generic tabular data object.&quot;&quot;&quot;</span>
+
     <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of columns present in a table.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -164,7 +174,7 @@
 
 
 <div class="viewcode-block" id="CPGridSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.CPGridSpecification">[docs]</a><span class="k">class</span> <span class="nc">CPGridSpecification</span><span class="p">(</span><span class="n">RowColumnLayer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Corner point grid&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies relevant values describing a corner point grid object.&quot;&quot;&quot;</span>
 
     <span class="n">xshift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Shift along the x-axis&quot;</span><span class="p">,</span>
@@ -193,16 +203,21 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CPGridPropertySpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification">[docs]</a><span class="k">class</span> <span class="nc">CPGridPropertySpecification</span><span class="p">(</span><span class="n">RowColumnLayer</span><span class="p">):</span> <span class="o">...</span></div>
+<div class="viewcode-block" id="CPGridPropertySpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification">[docs]</a><span class="k">class</span> <span class="nc">CPGridPropertySpecification</span><span class="p">(</span><span class="n">RowColumnLayer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies relevant values describing a corner point grid property object.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="PolygonsSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.PolygonsSpecification">[docs]</a><span class="k">class</span> <span class="nc">PolygonsSpecification</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies relevant values describing a polygon object.&quot;&quot;&quot;</span>
+
     <span class="n">npolys</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of individual polygons in the data object&quot;</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FaultRoomSurfaceSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification">[docs]</a><span class="k">class</span> <span class="nc">FaultRoomSurfaceSpecification</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies relevant values describing a Faultroom surface object.&quot;&quot;&quot;</span>
+
     <span class="n">horizons</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of horizon names&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -224,6 +239,8 @@
 
 
 <div class="viewcode-block" id="CubeSpecification"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.specification.CubeSpecification">[docs]</a><span class="k">class</span> <span class="nc">CubeSpecification</span><span class="p">(</span><span class="n">SurfaceSpecification</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies relevant values describing a cube object, i.e. a seismic cube.&quot;&quot;&quot;</span>
+
     <span class="n">nlay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of layers&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -291,7 +308,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gc1040c0).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+ge673480).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
