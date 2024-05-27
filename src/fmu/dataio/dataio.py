@@ -31,7 +31,7 @@ from ._utils import (
 from .aggregation import AggregatedData
 from .case import InitializeCase
 from .datastructure.configuration import global_configuration
-from .datastructure.meta import enums, meta
+from .datastructure.meta import enums
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
@@ -406,7 +406,6 @@ class ExportData:
             self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
 
         self._validate_and_establish_fmucontext()
-        self._validate_workflow_key()
 
         # check state of global config
         self._config_is_valid = global_configuration.is_valid(self.config)
@@ -583,17 +582,6 @@ class ExportData:
                 UserWarning,
             )
 
-    def _validate_workflow_key(self) -> None:
-        if self.workflow:
-            if isinstance(self.workflow, str):
-                workflow = meta.Workflow(reference=self.workflow)
-            elif isinstance(self.workflow, dict):
-                workflow = meta.Workflow.model_validate(self.workflow)
-            else:
-                raise TypeError("'workflow' should be string.")
-
-            self.workflow = workflow.model_dump(mode="json", exclude_none=True)
-
     def _validate_and_establish_fmucontext(self) -> None:
         """
         Validate the given 'fmu_context' input. if not explicitly given it
@@ -668,7 +656,6 @@ class ExportData:
                 logger.info("New setting OK for %s", setting)
 
         self._show_deprecations_or_notimplemented()
-        self._validate_workflow_key()
         self._validate_and_establish_fmucontext()
         self._rootpath = self._establish_rootpath()
 
@@ -740,7 +727,6 @@ class ExportData:
 
     def _get_fmu_provider(self) -> FmuProvider:
         assert isinstance(self.fmu_context, FmuContext)
-        assert isinstance(self.workflow, dict) or self.workflow is None
         return FmuProvider(
             model=self.config.get("model"),
             fmu_context=self.fmu_context,

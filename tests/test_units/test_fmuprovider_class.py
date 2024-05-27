@@ -331,33 +331,35 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata):
     os.chdir(fmurun_w_casemetadata)
 
     # workflow input is a string
-    edata = dataio.ExportData(workflow="workflow as string")
-    # check that the conversion to dict works
-    assert edata.workflow == {"reference": "workflow as string"}
     myfmu_meta = FmuProvider(
-        model=GLOBAL_CONFIG_MODEL, workflow=edata.workflow
+        model=GLOBAL_CONFIG_MODEL, workflow="workflow as string"
     ).get_metadata()
     assert myfmu_meta.workflow is not None
-    assert (
-        myfmu_meta.workflow.model_dump(mode="json", exclude_none=True) == edata.workflow
-    )
+    assert myfmu_meta.workflow.model_dump(mode="json") == {
+        "reference": "workflow as string"
+    }
 
-    # workflow input is a correct dict
+    # workflow as a dict should give future warning
     with pytest.warns(FutureWarning, match="The 'workflow' argument"):
-        edata = dataio.ExportData(workflow={"reference": "workflow as dict"})
-    assert edata.workflow == {"reference": "workflow as dict"}
+        dataio.ExportData(workflow={"reference": "workflow as dict"})
+
+    # test that workflow as a dict still gives valid results
     myfmu_meta = FmuProvider(
-        model=GLOBAL_CONFIG_MODEL, workflow=edata.workflow
+        model=GLOBAL_CONFIG_MODEL, workflow={"reference": "workflow as dict"}
     ).get_metadata()
     assert myfmu_meta.workflow is not None
-    assert (
-        myfmu_meta.workflow.model_dump(mode="json", exclude_none=True) == edata.workflow
-    )
+    assert myfmu_meta.workflow.model_dump(mode="json") == {
+        "reference": "workflow as dict"
+    }
 
     # workflow input is non-correct dict
     with pytest.raises(pydantic.ValidationError):
-        dataio.ExportData(workflow={"wrong": "workflow as dict"})
+        FmuProvider(
+            model=GLOBAL_CONFIG_MODEL, workflow={"wrong": "workflow as dict"}
+        ).get_metadata()
 
     # workflow input is other types - shall fail
-    with pytest.raises(TypeError):
-        dataio.ExportData(workflow=123.4)
+    with pytest.raises(
+        pydantic.ValidationError, match="Input should be a valid string"
+    ):
+        FmuProvider(model=GLOBAL_CONFIG_MODEL, workflow=123.4).get_metadata()

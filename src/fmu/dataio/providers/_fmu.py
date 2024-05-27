@@ -33,7 +33,7 @@ import os
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, Optional
+from typing import TYPE_CHECKING, Final, Optional, Union
 from warnings import warn
 
 from fmu.config import utilities as ut
@@ -109,7 +109,7 @@ class FmuProvider(Provider):
     fmu_context: FmuContext = FmuContext.REALIZATION
     include_ertjobs: bool = True
     casepath_proposed: Optional[Path] = None
-    workflow: Optional[dict[str, str]] = None
+    workflow: Optional[Union[str, dict[str, str]]] = None
 
     # private properties for this class
     _runpath: Optional[Path] = field(default_factory=Path, init=False)
@@ -321,4 +321,7 @@ class FmuProvider(Provider):
         return meta.FMUModel.model_validate(self.model)
 
     def _get_workflow_meta(self) -> meta.Workflow:
-        return meta.Workflow.model_validate(self.workflow)
+        assert self.workflow is not None
+        if isinstance(self.workflow, dict):
+            return meta.Workflow.model_validate(self.workflow)
+        return meta.Workflow(reference=self.workflow)
