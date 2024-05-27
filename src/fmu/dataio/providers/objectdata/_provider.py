@@ -171,9 +171,8 @@ class ExistingDataProvider(ObjectDataProvider):
         """Derive data.spec from existing metadata."""
         return self.metadata["spec"]
 
-    def get_bbox(self) -> dict:
+    def get_bbox(self) -> None:
         """Derive data.bbox from existing metadata."""
-        return self.metadata["bbox"]
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data for existing metadata."""
@@ -185,14 +184,13 @@ class ExistingDataProvider(ObjectDataProvider):
             fmt=self.fmt,
             extension=self.extension,
             spec=self.get_spec(),
-            bbox=self.get_bbox(),
+            bbox=self.metadata["bbox"],
             table_index=None,
         )
 
     def derive_metadata(self) -> None:
         """Metadata has already been derived for this provider, and is already set from
         instantiation, so override this method and do nothing."""
-        return
 
 
 @dataclass
@@ -204,10 +202,8 @@ class DictionaryDataProvider(ObjectDataProvider):
         logger.info("Get spec for dictionary")
         return {}
 
-    def get_bbox(self) -> dict[str, Any]:
+    def get_bbox(self) -> None:
         """Derive data.bbox for dict."""
-        logger.info("Get bbox for dictionary")
-        return {}
 
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data for dict."""
@@ -219,6 +215,6 @@ class DictionaryDataProvider(ObjectDataProvider):
             fmt=(fmt := self.dataio.dict_fformat),
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
             spec=self.get_spec() or None,
-            bbox=self.get_bbox() or None,
+            bbox=None,
             table_index=None,
         )
