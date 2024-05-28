@@ -47,14 +47,14 @@ class DerivedObjectDescriptor:
 @dataclass
 class DerivedNamedStratigraphy:
     name: str
-    alias: list[str]
+    alias: list[str] = field(default_factory=list)
 
-    stratigraphic: bool
-    stratigraphic_alias: list[str]
+    stratigraphic: bool = field(default=False)
+    stratigraphic_alias: list[str] = field(default_factory=list)
 
-    offset: int
-    base: str | None
-    top: str | None
+    offset: float = field(default=0.0)
+    base: str | None = field(default=None)
+    top: str | None = field(default=None)
 
 
 def derive_name(
@@ -191,7 +191,7 @@ class ObjectDataProvider(Provider):
         if self.metadata:
             return
 
-        namedstratigraphy = self._derive_name_stratigraphy()
+        namedstratigraphy = self._derive_named_stratigraphy()
         objres = self.get_objectdata()
         content_model = get_validated_content(self.dataio.content)
 
@@ -251,7 +251,7 @@ class ObjectDataProvider(Provider):
         self.fmt = objres.fmt
         logger.info("Derive all metadata for data object... DONE")
 
-    def _derive_name_stratigraphy(self) -> DerivedNamedStratigraphy:
+    def _derive_named_stratigraphy(self) -> DerivedNamedStratigraphy:
         """Derive the name and stratigraphy for the object; may have several sources.
 
         If not in input settings it is tried to be inferred from the xtgeo/pandas/...
@@ -263,28 +263,22 @@ class ObjectDataProvider(Provider):
         name = derive_name(self.dataio, self.obj)
 
         # next check if usename has a "truename" and/or aliases from the config
-        strat = self.dataio.config.get("stratigraphy", {})
-        no_stratigraphy_or_name = strat is None or name not in strat
+        stratigraphy = self.dataio.config.get("stratigraphy", {})
 
+        if name not in stratigraphy:
+            return DerivedNamedStratigraphy(name=name)
+
+        named_stratigraphy = stratigraphy.get(name)
         rv = DerivedNamedStratigraphy(
-            name=name if no_stratigraphy_or_name else strat[name].get("name", name),
-            alias=[] if no_stratigraphy_or_name else strat[name].get("alias", []),
-            stratigraphic=(
-                False
-                if no_stratigraphy_or_name
-                else strat[name].get("stratigraphic", False)
-            ),
-            stratigraphic_alias=(
-                []
-                if no_stratigraphy_or_name
-                else strat[name].get("stratigraphic_alias")
-            ),
-            offset=0.0 if no_stratigraphy_or_name else strat[name].get("offset", 0.0),
-            top=None if no_stratigraphy_or_name else strat[name].get("top"),
-            base=None if no_stratigraphy_or_name else strat[name].get("base"),
+            name=named_stratigraphy.get("name", name),
+            alias=named_stratigraphy.get("alias", []),
+            stratigraphic=named_stratigraphy.get("stratigraphic", False),
+            stratigraphic_alias=named_stratigraphy.get("stratigraphic_alias", []),
+            offset=named_stratigraphy.get("offset", 0.0),
+            top=named_stratigraphy.get("top"),
+            base=named_stratigraphy.get("base"),
         )
-
-        if not no_stratigraphy_or_name and rv.name != "name":
+        if rv.name != "name":
             rv.alias.append(name)
 
         return rv

@@ -46,24 +46,24 @@ def test_get_timedata_from_existing(given: dict, expected: tuple):
 # --------------------------------------------------------------------------------------
 
 
-def test_objectdata_regularsurface_derive_name_stratigraphy(regsurf, edataobj1):
+def test_objectdata_regularsurface_derive_named_stratigraphy(regsurf, edataobj1):
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configuations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj1)
 
-    res = objdata._derive_name_stratigraphy()
+    res = objdata._derive_named_stratigraphy()
 
     assert res.name == "Whatever Top"
     assert "TopWhatever" in res.alias
     assert res.stratigraphic is True
 
 
-def test_objectdata_regularsurface_derive_name_stratigraphy_differ(regsurf, edataobj2):
+def test_objectdata_regularsurface_derive_named_stratigraphy_differ(regsurf, edataobj2):
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configuations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj2)
 
-    res = objdata._derive_name_stratigraphy()
+    res = objdata._derive_named_stratigraphy()
 
     assert res.name == "VOLANTIS GP. Top"
     assert "TopVolantis" in res.alias
