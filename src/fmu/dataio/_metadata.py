@@ -62,15 +62,6 @@ def generate_meta_tracklog() -> list[meta.TracklogEvent]:
     ]
 
 
-def _get_objectdata_provider(
-    obj: types.Inferrable, dataio: ExportData, meta_existing: dict | None = None
-) -> ObjectDataProvider:
-    """Derive metadata for the object. Reuse metadata if existing"""
-    objdata = objectdata_provider_factory(obj, dataio, meta_existing)
-    objdata.derive_metadata()
-    return objdata
-
-
 def _get_meta_filedata(
     dataio: ExportData,
     obj: types.Inferrable,
@@ -86,16 +77,6 @@ def _get_meta_filedata(
         obj=obj,
         compute_md5=compute_md5,
     ).get_metadata()
-
-
-def _get_meta_objectdata(
-    objdata: ObjectDataProvider,
-) -> meta.content.AnyContent | internal.UnsetAnyContent:
-    return (
-        internal.UnsetAnyContent.model_validate(objdata.metadata)
-        if objdata.metadata["content"] == "unset"
-        else meta.content.AnyContent.model_validate(objdata.metadata)
-    )
 
 
 def _get_meta_fmu(fmudata: FmuProvider) -> internal.FMUClassMetaData | None:
@@ -173,7 +154,7 @@ def generate_export_metadata(
         logger.info("Partially reuse existing metadata from %s", obj)
         meta_existing = read_metadata_from_file(obj)
 
-    objdata = _get_objectdata_provider(obj, dataio, meta_existing)
+    objdata = objectdata_provider_factory(obj, dataio, meta_existing)
     masterdata = dataio.config.get("masterdata")
 
     metadata = internal.DataClassMeta(
@@ -184,7 +165,7 @@ def generate_export_metadata(
         fmu=_get_meta_fmu(fmudata) if fmudata else None,
         masterdata=_get_meta_masterdata(masterdata) if masterdata else None,
         access=_get_meta_access(dataio),
-        data=_get_meta_objectdata(objdata),
+        data=objdata.get_metadata(),
         file=_get_meta_filedata(dataio, obj, objdata, fmudata, compute_md5),
         tracklog=generate_meta_tracklog(),
         display=_get_meta_display(dataio, objdata),

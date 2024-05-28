@@ -117,10 +117,8 @@ def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):
     """Derive all metadata for the 'data' block in fmu-dataio."""
 
     myobj = objectdata_provider_factory(regsurf, edataobj1)
-    myobj.derive_metadata()
-    res = myobj.metadata
-    assert res["content"] == "depth"
-    assert res["alias"]
+    assert myobj.metadata["content"] == "depth"
+    assert myobj.metadata["alias"]
 
 
 def test_objectdata_provider_factory_raises_on_unknown(edataobj1):

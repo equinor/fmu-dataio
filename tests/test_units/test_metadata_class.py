@@ -9,7 +9,6 @@ from fmu.dataio._metadata import (
     SCHEMA,
     SOURCE,
     VERSION,
-    _get_objectdata_provider,
     generate_export_metadata,
 )
 from fmu.dataio._utils import prettyprint_dict
@@ -17,6 +16,7 @@ from fmu.dataio.datastructure.meta.meta import (
     SystemInformationOperatingSystem,
     TracklogEvent,
 )
+from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 
 # pylint: disable=no-member
 
@@ -106,7 +106,7 @@ def test_generate_meta_tracklog_operating_system(edataobj1, regsurf):
 
 def test_populate_meta_objectdata(regsurf, edataobj2):
     mymeta = generate_export_metadata(regsurf, edataobj2)
-    objdata = _get_objectdata_provider(regsurf, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, edataobj2)
 
     assert objdata.name == "VOLANTIS GP. Top"
     assert mymeta["display"]["name"] == objdata.name
@@ -399,7 +399,7 @@ def test_metadata_display_name_not_given(regsurf, edataobj2):
     """Test that display.name == data.name when not explicitly provided."""
 
     mymeta = generate_export_metadata(regsurf, edataobj2)
-    objdata = _get_objectdata_provider(regsurf, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, edataobj2)
 
     assert "name" in mymeta["display"]
     assert mymeta["display"]["name"] == objdata.name
@@ -411,7 +411,7 @@ def test_metadata_display_name_given(regsurf, edataobj2):
     edataobj2.display_name = "My Display Name"
 
     mymeta = generate_export_metadata(regsurf, edataobj2)
-    objdata = _get_objectdata_provider(regsurf, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, edataobj2)
 
     assert mymeta["display"]["name"] == "My Display Name"
     assert objdata.name == "VOLANTIS GP. Top"
