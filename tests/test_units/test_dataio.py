@@ -284,6 +284,13 @@ def test_rep_include(globalconfig1, regsurf):
     assert mymeta["access"]["ssdl"]["rep_include"] is False
 
 
+def test_unit_is_none(globalconfig1, regsurf):
+    """Test that unit=None works and is translated into an enpty string"""
+    eobj = ExportData(config=globalconfig1, unit=None)
+    meta = eobj.generate_metadata(regsurf)
+    assert meta["data"]["unit"] == ""
+
+
 def test_content_not_given(globalconfig1, regsurf):
     """When content is not explicitly given, warning shall be issued."""
     eobj = ExportData(config=globalconfig1)

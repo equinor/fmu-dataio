@@ -222,7 +222,7 @@ class ObjectDataProvider(Provider):
         self.metadata["tagname"] = self.dataio.tagname
         self.metadata["format"] = objres.fmt
         self.metadata["layout"] = objres.layout
-        self.metadata["unit"] = self.dataio.unit
+        self.metadata["unit"] = self.dataio.unit or ""
         self.metadata["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
         self.metadata["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
         self.metadata["spec"] = objres.spec
