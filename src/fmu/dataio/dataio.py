@@ -354,7 +354,7 @@ class ExportData:
     subfolder: str = ""
     tagname: str = ""
     timedata: Optional[List[list]] = None
-    unit: str = ""
+    unit: Optional[str] = ""
     verbosity: str = "DEPRECATED"  # remove in version 2
     vertical_domain: dict = field(default_factory=dict)
     workflow: Optional[Union[str, Dict[str, str]]] = None
