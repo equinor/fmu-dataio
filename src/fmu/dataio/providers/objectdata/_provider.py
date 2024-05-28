@@ -94,6 +94,7 @@ import xtgeo
 
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
+from fmu.dataio.datastructure.meta.enums import FMUClassEnum
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
@@ -163,6 +164,10 @@ def objectdata_provider_factory(
 class DictionaryDataProvider(ObjectDataProvider):
     obj: dict
 
+    @property
+    def classname(self) -> FMUClassEnum:
+        return FMUClassEnum.dictionary
+
     def get_spec(self) -> None:
         """Derive data.spec for dict."""
 
@@ -173,12 +178,9 @@ class DictionaryDataProvider(ObjectDataProvider):
         """Derive object data for dict."""
         return DerivedObjectDescriptor(
             subtype="JSON",
-            classname="dictionary",
             layout="dictionary",
             efolder="dictionaries",
             fmt=(fmt := self.dataio.dict_fformat),
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
-            spec=None,
-            bbox=None,
             table_index=None,
         )

@@ -6,6 +6,7 @@ from typing import Final
 from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure.meta.content import BoundingBox3D
+from fmu.dataio.datastructure.meta.enums import FMUClassEnum
 from fmu.dataio.datastructure.meta.specification import FaultRoomSurfaceSpecification
 from fmu.dataio.readers import FaultRoomSurface
 
@@ -20,6 +21,10 @@ logger: Final = null_logger(__name__)
 @dataclass
 class FaultRoomSurfaceProvider(ObjectDataProvider):
     obj: FaultRoomSurface
+
+    @property
+    def classname(self) -> FMUClassEnum:
+        return FMUClassEnum.surface
 
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for FaultRoomSurface."""
@@ -49,12 +54,9 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
         """Derive object data for FaultRoomSurface"""
         return DerivedObjectDescriptor(
             subtype="JSON",
-            classname="surface",
             layout="faultroom_triangulated",
             efolder="maps",
             fmt=(fmt := self.dataio.dict_fformat),
-            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
-            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
             table_index=None,
         )

@@ -11,6 +11,7 @@ from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import npfloat_to_float
 from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
+from fmu.dataio.datastructure.meta.enums import FMUClassEnum
 from fmu.dataio.datastructure.meta.specification import (
     CPGridPropertySpecification,
     CPGridSpecification,
@@ -34,6 +35,10 @@ logger: Final = null_logger(__name__)
 @dataclass
 class RegularSurfaceDataProvider(ObjectDataProvider):
     obj: xtgeo.RegularSurface
+
+    @property
+    def classname(self) -> FMUClassEnum:
+        return FMUClassEnum.surface
 
     def get_spec(self) -> SurfaceSpecification:
         """Derive data.spec for xtgeo.RegularSurface."""
@@ -81,12 +86,9 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.RegularSurface."""
         return DerivedObjectDescriptor(
             subtype="RegularSurface",
-            classname="surface",
             layout="regular",
             efolder="maps",
             fmt=(fmt := self.dataio.surface_fformat),
-            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
-            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             extension=self._validate_get_ext(
                 fmt, "RegularSurface", ValidFormats().surface
             ),
@@ -97,6 +99,10 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
 @dataclass
 class PolygonsDataProvider(ObjectDataProvider):
     obj: xtgeo.Polygons
+
+    @property
+    def classname(self) -> FMUClassEnum:
+        return FMUClassEnum.polygons
 
     def get_spec(self) -> PolygonsSpecification:
         """Derive data.spec for xtgeo.Polygons."""
@@ -126,13 +132,10 @@ class PolygonsDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.Polygons."""
         return DerivedObjectDescriptor(
             subtype="Polygons",
-            classname="polygons",
             layout="unset",
             efolder="polygons",
             fmt=(fmt := self.dataio.polygons_fformat),
             extension=self._validate_get_ext(fmt, "Polygons", ValidFormats().polygons),
-            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
-            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
 
@@ -145,6 +148,10 @@ class PointsDataProvider(ObjectDataProvider):
     def obj_dataframe(self) -> pd.DataFrame:
         """Returns a dataframe of the referenced xtgeo.Points object."""
         return self.obj.get_dataframe(copy=False)
+
+    @property
+    def classname(self) -> FMUClassEnum:
+        return FMUClassEnum.points
 
     def get_spec(self) -> PointSpecification:
         """Derive data.spec for xtgeo.Points."""
@@ -174,13 +181,10 @@ class PointsDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.Points."""
         return DerivedObjectDescriptor(
             subtype="Points",
-            classname="points",
             layout="unset",
             efolder="points",
             fmt=(fmt := self.dataio.points_fformat),
             extension=self._validate_get_ext(fmt, "Points", ValidFormats().points),
-            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
-            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
 
@@ -188,6 +192,10 @@ class PointsDataProvider(ObjectDataProvider):
 @dataclass
 class CubeDataProvider(ObjectDataProvider):
     obj: xtgeo.Cube
+
+    @property
+    def classname(self) -> FMUClassEnum:
+        return FMUClassEnum.cube
 
     def get_spec(self) -> CubeSpecification:
         """Derive data.spec for xtgeo.Cube."""
@@ -244,13 +252,10 @@ class CubeDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.Cube."""
         return DerivedObjectDescriptor(
             subtype="RegularCube",
-            classname="cube",
             layout="regular",
             efolder="cubes",
             fmt=(fmt := self.dataio.cube_fformat),
             extension=self._validate_get_ext(fmt, "RegularCube", ValidFormats().cube),
-            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
-            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
 
@@ -258,6 +263,10 @@ class CubeDataProvider(ObjectDataProvider):
 @dataclass
 class CPGridDataProvider(ObjectDataProvider):
     obj: xtgeo.Grid
+
+    @property
+    def classname(self) -> FMUClassEnum:
+        return FMUClassEnum.cpgrid
 
     def get_spec(self) -> CPGridSpecification:
         """Derive data.spec for xtgeo.Grid."""
@@ -298,13 +307,10 @@ class CPGridDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.Grid."""
         return DerivedObjectDescriptor(
             subtype="CPGrid",
-            classname="cpgrid",
             layout="cornerpoint",
             efolder="grids",
             fmt=(fmt := self.dataio.grid_fformat),
             extension=self._validate_get_ext(fmt, "CPGrid", ValidFormats().grid),
-            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
-            bbox=self.get_bbox().model_dump(mode="json", exclude_none=True),
             table_index=None,
         )
 
@@ -312,6 +318,10 @@ class CPGridDataProvider(ObjectDataProvider):
 @dataclass
 class CPGridPropertyDataProvider(ObjectDataProvider):
     obj: xtgeo.GridProperty
+
+    @property
+    def classname(self) -> FMUClassEnum:
+        return FMUClassEnum.cpgrid_property
 
     def get_spec(self) -> CPGridPropertySpecification:
         """Derive data.spec for xtgeo.GridProperty."""
@@ -330,14 +340,11 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.GridProperty."""
         return DerivedObjectDescriptor(
             subtype="CPGridProperty",
-            classname="cpgrid_property",
             layout="cornerpoint",
             efolder="grids",
             fmt=(fmt := self.dataio.grid_fformat),
             extension=self._validate_get_ext(
                 fmt, "CPGridProperty", ValidFormats().grid
             ),
-            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
-            bbox=None,
             table_index=None,
         )

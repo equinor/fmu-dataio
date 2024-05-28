@@ -243,7 +243,9 @@ class AggregatedData:
             "model": template["fmu"]["model"],
         }
         etemp = dataio.ExportData(config=config, name=self.name)
-        objdata = objectdata_provider_factory(obj=obj, dataio=etemp).get_objectdata()
+
+        objectdata_provider = objectdata_provider_factory(obj=obj, dataio=etemp)
+        objdata = objectdata_provider.get_objectdata()
 
         template["tracklog"] = [generate_meta_tracklog()[0].model_dump(mode="json")]
         template["file"] = {
@@ -260,8 +262,8 @@ class AggregatedData:
             template["data"]["name"] = self.name
         if self.tagname:
             template["data"]["tagname"] = self.tagname
-        if objdata.bbox:
-            template["data"]["bbox"] = objdata.bbox
+        if bbox := objectdata_provider.get_bbox():
+            template["data"]["bbox"] = bbox.model_dump(mode="json", exclude_none=True)
 
         self._metadata = template
 

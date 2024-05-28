@@ -1,14 +1,10 @@
 """Test the _ObjectData class from the _objectdata.py module"""
 
 import os
-from datetime import datetime
 
 import fmu.dataio as dataio
 import pytest
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
-from fmu.dataio.providers.objectdata._base import (
-    get_timedata_from_existing,
-)
 from fmu.dataio.providers.objectdata._provider import (
     objectdata_provider_factory,
 )
@@ -16,30 +12,6 @@ from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
 
 from ..conftest import remove_ert_env, set_ert_env_prehook
 from ..utils import inside_rms
-
-
-@pytest.mark.parametrize(
-    "given, expected",
-    (
-        (
-            {"t0": {"value": "2022-08-02T00:00:00", "label": "base"}},
-            (datetime.strptime("2022-08-02T00:00:00", "%Y-%m-%dT%H:%M:%S"), None),
-        ),
-        (
-            [
-                {"value": "2030-01-01T00:00:00", "label": "moni"},
-                {"value": "2010-02-03T00:00:00", "label": "base"},
-            ],
-            (
-                datetime.strptime("2030-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S"),
-                datetime.strptime("2010-02-03T00:00:00", "%Y-%m-%dT%H:%M:%S"),
-            ),
-        ),
-    ),
-)
-def test_get_timedata_from_existing(given: dict, expected: tuple):
-    assert get_timedata_from_existing(given) == expected
-
 
 # --------------------------------------------------------------------------------------
 # RegularSurface
@@ -51,19 +23,19 @@ def test_objectdata_regularsurface_derive_named_stratigraphy(regsurf, edataobj1)
     # mimic the stripped parts of configuations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj1)
 
-    res = objdata._derive_named_stratigraphy()
+    res = objdata._get_named_stratigraphy()
 
     assert res.name == "Whatever Top"
     assert "TopWhatever" in res.alias
     assert res.stratigraphic is True
 
 
-def test_objectdata_regularsurface_derive_named_stratigraphy_differ(regsurf, edataobj2):
+def test_objectdata_regularsurface_get_named_stratigraphy_differ(regsurf, edataobj2):
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configuations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj2)
 
-    res = objdata._derive_named_stratigraphy()
+    res = objdata._get_named_stratigraphy()
 
     assert res.name == "VOLANTIS GP. Top"
     assert "TopVolantis" in res.alias
@@ -106,10 +78,10 @@ def test_objectdata_regularsurface_derive_objectdata(regsurf, edataobj1):
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     assert isinstance(objdata, RegularSurfaceDataProvider)
+    assert objdata.classname.value == "surface"
 
     res = objdata.get_objectdata()
     assert res.subtype == "RegularSurface"
-    assert res.classname == "surface"
     assert res.extension == ".gri"
 
 
@@ -117,8 +89,8 @@ def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):
     """Derive all metadata for the 'data' block in fmu-dataio."""
 
     myobj = objectdata_provider_factory(regsurf, edataobj1)
-    assert myobj.metadata["content"] == "depth"
-    assert myobj.metadata["alias"]
+    assert myobj._metadata["content"] == "depth"
+    assert myobj._metadata["alias"]
 
 
 def test_objectdata_provider_factory_raises_on_unknown(edataobj1):

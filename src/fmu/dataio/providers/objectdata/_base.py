@@ -4,7 +4,7 @@ from abc import abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Final, TypeVar
+from typing import TYPE_CHECKING, Final, TypeVar
 from warnings import warn
 
 from fmu.dataio._definitions import ConfigurationError
@@ -22,8 +22,9 @@ from fmu.dataio.providers._base import Provider
 if TYPE_CHECKING:
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
+    from fmu.dataio.datastructure.meta.enums import FMUClassEnum
     from fmu.dataio.datastructure.meta.specification import AnySpecification
-    from fmu.dataio.types import Classname, Efolder, Inferrable, Layout, Subtype
+    from fmu.dataio.types import Efolder, Inferrable, Layout, Subtype
 
 logger: Final = null_logger(__name__)
 
@@ -33,13 +34,10 @@ V = TypeVar("V")
 @dataclass
 class DerivedObjectDescriptor:
     subtype: Subtype
-    classname: Classname
     layout: Layout
     efolder: Efolder | str
     fmt: str
     extension: str
-    spec: dict[str, Any] | None
-    bbox: dict[str, Any] | None
     table_index: list[str] | None
 
 
@@ -54,105 +52,6 @@ class DerivedNamedStratigraphy:
     offset: float = field(default=0.0)
     base: str | None = field(default=None)
     top: str | None = field(default=None)
-
-
-def derive_name(
-    export: ExportData,
-    obj: Inferrable,
-) -> str:
-    """
-    Derives and returns a name for an export operation based on the
-    provided ExportData instance and a 'sniffable' object.
-    """
-    if name := export.name:
-        return name
-
-    if isinstance(name := getattr(obj, "name", ""), str):
-        return name
-
-    return ""
-
-
-def get_timedata_from_existing(meta_timedata: dict) -> tuple[datetime, datetime | None]:
-    """Converts the time data in existing metadata from a string to a datetime.
-
-    The time section under datablock has variants to parse.
-
-    Formats::
-        "time": {
-            "t0": {
-               "value": "2022-08-02T00:00:00",
-               "label": "base"
-            }
-        }
-
-        # with or without t1
-        # or legacy format:
-
-        "time": [
-        {
-            "value": "2030-01-01T00:00:00",
-            "label": "moni"
-        },
-        {
-            "value": "2010-02-03T00:00:00",
-            "label": "base"
-        }
-        ],
-    """
-    date1 = None
-    if isinstance(meta_timedata, list):
-        date0 = meta_timedata[0]["value"]
-        if len(meta_timedata) == 2:
-            date1 = meta_timedata[1]["value"]
-    elif isinstance(meta_timedata, dict):
-        date0 = meta_timedata["t0"].get("value")
-        if "t1" in meta_timedata:
-            date1 = meta_timedata["t1"].get("value")
-
-    return (
-        datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S"),
-        datetime.strptime(date1, "%Y-%m-%dT%H:%M:%S") if date1 else None,
-    )
-
-
-def get_fmu_time_object(timedata_item: list[str]) -> FMUTimeObject:
-    """
-    Returns a FMUTimeObject from a timedata item on list
-    format: ["20200101", "monitor"] where the first item is a date and
-    the last item is an optional label
-    """
-    value, *label = timedata_item
-    return FMUTimeObject(
-        value=datetime.strptime(str(value), "%Y%m%d"),
-        label=label[0] if label else None,
-    )
-
-
-def get_validated_content(content: str | dict | None) -> AllowedContent:
-    """Check content and return a validated model."""
-    logger.info("Evaluate content")
-    logger.debug("content is %s of type %s", str(content), type(content))
-
-    if not content:
-        return AllowedContent(content="unset")
-
-    if isinstance(content, str):
-        return AllowedContent(content=ContentEnum(content))
-
-    if len(content) > 1:
-        raise ValueError(
-            "Found more than one content item in the 'content' dictionary. Ensure "
-            "input is formatted as content={'mycontent': {extra_key: extra_value}}."
-        )
-    content = deepcopy(content)
-    usecontent, content_specific = next(iter(content.items()))
-    logger.debug("usecontent is %s", usecontent)
-    logger.debug("content_specific is %s", content_specific)
-
-    return AllowedContent.model_validate(
-        {"content": ContentEnum(usecontent), "content_incl_specific": content}
-    )
 
 
 @dataclass
@@ -174,9 +73,8 @@ class ObjectDataProvider(Provider):
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
     # as instance properties in addition (for simplicity in other classes/functions)
-    metadata: dict = field(default_factory=dict)
+    _metadata: dict = field(default_factory=dict)
     name: str = field(default="")
-    classname: str = field(default="")
     efolder: str = field(default="")
     extension: str = field(default="")
     fmt: str = field(default="")
@@ -184,73 +82,99 @@ class ObjectDataProvider(Provider):
     time1: datetime | None = field(default=None)
 
     def __post_init__(self) -> None:
-        """Main function here, will populate the metadata block for 'data'."""
+        content_model = self._get_validated_content(self.dataio.content)
+        named_stratigraphy = self._get_named_stratigraphy()
+        obj_data = self.get_objectdata()
 
-        # Don't re-initialize data if it's coming from pre-existing metadata.
-        if self.metadata:
-            return
-
-        namedstratigraphy = self._derive_named_stratigraphy()
-        objres = self.get_objectdata()
-        content_model = get_validated_content(self.dataio.content)
+        self.name = named_stratigraphy.name
+        self.extension = obj_data.extension
+        self.fmt = obj_data.fmt
+        self.efolder = obj_data.efolder
 
         if self.dataio.forcefolder:
             if self.dataio.forcefolder.startswith("/"):
                 raise ValueError("Can't use absolute path as 'forcefolder'")
             msg = (
-                f"The standard folder name is overrided from {objres.efolder} to "
+                f"The standard folder name is overrided from {obj_data.efolder} to "
                 f"{self.dataio.forcefolder}"
             )
-            objres.efolder = self.dataio.forcefolder
+            self.efolder = self.dataio.forcefolder
             logger.info(msg)
             warn(msg, UserWarning)
 
-        self.metadata["name"] = namedstratigraphy.name
-        self.metadata["stratigraphic"] = namedstratigraphy.stratigraphic
-        self.metadata["offset"] = namedstratigraphy.offset
-        self.metadata["alias"] = namedstratigraphy.alias
-        self.metadata["top"] = namedstratigraphy.top
-        self.metadata["base"] = namedstratigraphy.base
+        self._metadata["name"] = self.name
+        self._metadata["stratigraphic"] = named_stratigraphy.stratigraphic
+        self._metadata["offset"] = named_stratigraphy.offset
+        self._metadata["alias"] = named_stratigraphy.alias
+        self._metadata["top"] = named_stratigraphy.top
+        self._metadata["base"] = named_stratigraphy.base
 
-        self.metadata["content"] = (usecontent := content_model.content)
+        self._metadata["content"] = (usecontent := content_model.content)
         if content_model.content_incl_specific:
-            self.metadata[usecontent] = getattr(
+            self._metadata[usecontent] = getattr(
                 content_model.content_incl_specific, usecontent, None
             )
 
-        self.metadata["tagname"] = self.dataio.tagname
-        self.metadata["format"] = objres.fmt
-        self.metadata["layout"] = objres.layout
-        self.metadata["unit"] = self.dataio.unit or ""
-        self.metadata["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
-        self.metadata["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
-        self.metadata["spec"] = objres.spec
-        self.metadata["bbox"] = objres.bbox
-        self.metadata["table_index"] = objres.table_index
-        self.metadata["undef_is_zero"] = self.dataio.undef_is_zero
+        self._metadata["tagname"] = self.dataio.tagname
+        self._metadata["format"] = self.fmt
+        self._metadata["layout"] = obj_data.layout
+        self._metadata["unit"] = self.dataio.unit or ""
+        self._metadata["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
+        self._metadata["depth_reference"] = list(self.dataio.vertical_domain.values())[
+            0
+        ]
+
+        self._metadata["spec"] = (
+            spec.model_dump(mode="json", exclude_none=True)
+            if (spec := self.get_spec())
+            else None
+        )
+        self._metadata["bbox"] = (
+            bbox.model_dump(mode="json", exclude_none=True)
+            if (bbox := self.get_bbox())
+            else None
+        )
+        self._metadata["time"] = (
+            timedata.model_dump(mode="json", exclude_none=True)
+            if (timedata := self._get_timedata())
+            else None
+        )
+
+        self._metadata["table_index"] = obj_data.table_index
+        self._metadata["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:
-        self.metadata["time"] = self._derive_timedata()
-        self.metadata["is_prediction"] = self.dataio.is_prediction
-        self.metadata["is_observation"] = self.dataio.is_observation
-        self.metadata["description"] = generate_description(self.dataio.description)
-
-        # the next is to give addition state variables identical values, and for
-        # consistency these are derived after all eventual validation and directly from
-        # the self.metadata fields:
-
-        self.name = self.metadata["name"]
-
-        # then there are a few settings that are not in the ``data`` metadata, but
-        # needed as data/variables in other classes:
-
-        self.efolder = objres.efolder
-        self.classname = objres.classname
-        self.extension = objres.extension
-        self.fmt = objres.fmt
+        self._metadata["is_prediction"] = self.dataio.is_prediction
+        self._metadata["is_observation"] = self.dataio.is_observation
+        self._metadata["description"] = generate_description(self.dataio.description)
         logger.info("Derive all metadata for data object... DONE")
 
-    def _derive_named_stratigraphy(self) -> DerivedNamedStratigraphy:
+    def _get_validated_content(self, content: str | dict | None) -> AllowedContent:
+        """Check content and return a validated model."""
+        logger.info("Evaluate content")
+        logger.debug("content is %s of type %s", str(content), type(content))
+
+        if not content:
+            return AllowedContent(content="unset")
+
+        if isinstance(content, str):
+            return AllowedContent(content=ContentEnum(content))
+
+        if len(content) > 1:
+            raise ValueError(
+                "Found more than one content item in the 'content' dictionary. Ensure "
+                "input is formatted as content={'mycontent': {extra_key: extra_value}}."
+            )
+        content = deepcopy(content)
+        usecontent, content_specific = next(iter(content.items()))
+        logger.debug("usecontent is %s", usecontent)
+        logger.debug("content_specific is %s", content_specific)
+
+        return AllowedContent.model_validate(
+            {"content": ContentEnum(usecontent), "content_incl_specific": content}
+        )
+
+    def _get_named_stratigraphy(self) -> DerivedNamedStratigraphy:
         """Derive the name and stratigraphy for the object; may have several sources.
 
         If not in input settings it is tried to be inferred from the xtgeo/pandas/...
@@ -259,7 +183,11 @@ class ObjectDataProvider(Provider):
         `stratigraphy`. For example, if "TopValysar" is the model name and the actual
         name is "Valysar Top Fm." that latter name will be used.
         """
-        name = derive_name(self.dataio, self.obj)
+        name = ""
+        if self.dataio.name:
+            name = self.dataio.name
+        elif isinstance(obj_name := getattr(self.obj, "name", ""), str):
+            name = obj_name
 
         # next check if usename has a "truename" and/or aliases from the config
         stratigraphy = self.dataio.config.get("stratigraphy", {})
@@ -282,7 +210,19 @@ class ObjectDataProvider(Provider):
 
         return rv
 
-    def _derive_timedata(self) -> dict[str, str] | None:
+    def _get_fmu_time_object(self, timedata_item: list[str]) -> FMUTimeObject:
+        """
+        Returns a FMUTimeObject from a timedata item on list
+        format: ["20200101", "monitor"] where the first item is a date and
+        the last item is an optional label
+        """
+        value, *label = timedata_item
+        return FMUTimeObject(
+            value=datetime.strptime(str(value), "%Y%m%d"),
+            label=label[0] if label else None,
+        )
+
+    def _get_timedata(self) -> Time | None:
         """Format input timedata to metadata
 
         New format:
@@ -293,7 +233,6 @@ class ObjectDataProvider(Provider):
             will be some--time1_time0 where time1 is the newest (unless a class
             variable is set for those who wants it turned around).
         """
-
         if not self.dataio.timedata:
             return None
 
@@ -302,8 +241,8 @@ class ObjectDataProvider(Provider):
 
         start_input, *stop_input = self.dataio.timedata
 
-        start = get_fmu_time_object(start_input)
-        stop = get_fmu_time_object(stop_input[0]) if stop_input else None
+        start = self._get_fmu_time_object(start_input)
+        stop = self._get_fmu_time_object(stop_input[0]) if stop_input else None
 
         if stop:
             assert start and start.value is not None  # for mypy
@@ -313,7 +252,12 @@ class ObjectDataProvider(Provider):
 
         self.time0, self.time1 = start.value, stop.value if stop else None
 
-        return Time(t0=start, t1=stop).model_dump(mode="json", exclude_none=True)
+        return Time(t0=start, t1=stop)
+
+    @property
+    @abstractmethod
+    def classname(self) -> FMUClassEnum:
+        raise NotImplementedError
 
     @abstractmethod
     def get_spec(self) -> AnySpecification | None:
@@ -329,9 +273,9 @@ class ObjectDataProvider(Provider):
 
     def get_metadata(self) -> AnyContent | UnsetAnyContent:
         return (
-            UnsetAnyContent.model_validate(self.metadata)
-            if self.metadata["content"] == "unset"
-            else AnyContent.model_validate(self.metadata)
+            UnsetAnyContent.model_validate(self._metadata)
+            if self._metadata["content"] == "unset"
+            else AnyContent.model_validate(self._metadata)
         )
 
     @staticmethod
