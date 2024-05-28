@@ -9,10 +9,7 @@ import pytest
 from fmu.dataio import ExportData
 from fmu.dataio.datastructure.meta import meta
 from fmu.dataio.providers._filedata import FileDataProvider
-from fmu.dataio.providers.objectdata._base import derive_name
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
-from xtgeo.cube import Cube
-from xtgeo.surface import RegularSurface
 
 
 @pytest.mark.parametrize(
@@ -248,58 +245,3 @@ def test_filedata_has_nonascii_letters(regsurf, tmp_path):
     fdata = FileDataProvider(edataobj1, objdata)
     with pytest.raises(ValueError, match="Path has non-ascii elements"):
         fdata.get_metadata()
-
-
-@pytest.mark.parametrize(
-    "exportdata, obj, expected_name",
-    (
-        (
-            ExportData(),
-            Cube(
-                ncol=1,
-                nrow=1,
-                nlay=1,
-                xinc=25.0,
-                yinc=25.0,
-                zinc=2.0,
-            ),
-            "",
-        ),
-        (
-            ExportData(name="NamedExportData"),
-            Cube(
-                ncol=1,
-                nrow=1,
-                nlay=1,
-                xinc=25.0,
-                yinc=25.0,
-                zinc=2.0,
-            ),
-            "NamedExportData",
-        ),
-        (
-            ExportData(),
-            RegularSurface(
-                name="NamedRegularSurface",
-                ncol=25,
-                nrow=25,
-                xinc=1,
-                yinc=1,
-            ),
-            "NamedRegularSurface",
-        ),
-        (
-            ExportData(name="NamedExportData"),
-            RegularSurface(
-                name="NamedRegularSurface",
-                ncol=25,
-                nrow=25,
-                xinc=1,
-                yinc=1,
-            ),
-            "NamedExportData",
-        ),
-    ),
-)
-def test_derive_name(exportdata, obj, expected_name) -> None:
-    assert derive_name(exportdata, obj) == expected_name

@@ -78,17 +78,6 @@ Subtype: TypeAlias = Literal[
     "ArrowTable",
 ]
 
-Classname: TypeAlias = Literal[
-    "surface",
-    "polygons",
-    "points",
-    "cube",
-    "cpgrid",
-    "cpgrid_property",
-    "table",
-    "dictionary",
-]
-
 Layout: TypeAlias = Literal[
     "regular",
     "unset",

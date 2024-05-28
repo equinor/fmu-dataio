@@ -7,6 +7,7 @@ import pandas as pd
 
 from fmu.dataio._definitions import STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
 from fmu.dataio._logging import null_logger
+from fmu.dataio.datastructure.meta.enums import FMUClassEnum
 from fmu.dataio.datastructure.meta.specification import TableSpecification
 
 from ._base import (
@@ -59,6 +60,10 @@ def _derive_index(table_index: list[str] | None, columns: list[str]) -> list[str
 class DataFrameDataProvider(ObjectDataProvider):
     obj: pd.DataFrame
 
+    @property
+    def classname(self) -> FMUClassEnum:
+        return FMUClassEnum.table
+
     def get_spec(self) -> TableSpecification:
         """Derive data.spec for pd.DataFrame."""
         logger.info("Get spec for pd.DataFrame (tables)")
@@ -75,13 +80,10 @@ class DataFrameDataProvider(ObjectDataProvider):
         table_index = _derive_index(self.dataio.table_index, list(self.obj.columns))
         return DerivedObjectDescriptor(
             subtype="DataFrame",
-            classname="table",
             layout="table",
             efolder="tables",
             fmt=(fmt := self.dataio.table_fformat),
             extension=self._validate_get_ext(fmt, "DataFrame", ValidFormats().table),
-            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
-            bbox=None,
             table_index=table_index,
         )
 
@@ -89,6 +91,10 @@ class DataFrameDataProvider(ObjectDataProvider):
 @dataclass
 class ArrowTableDataProvider(ObjectDataProvider):
     obj: pyarrow.Table
+
+    @property
+    def classname(self) -> FMUClassEnum:
+        return FMUClassEnum.table
 
     def get_spec(self) -> TableSpecification:
         """Derive data.spec for pyarrow.Table."""
@@ -106,12 +112,9 @@ class ArrowTableDataProvider(ObjectDataProvider):
         table_index = _derive_index(self.dataio.table_index, self.obj.column_names)
         return DerivedObjectDescriptor(
             subtype="ArrowTable",
-            classname="table",
             layout="table",
             efolder="tables",
             fmt=(fmt := self.dataio.arrow_fformat),
             extension=self._validate_get_ext(fmt, "ArrowTable", ValidFormats().table),
-            spec=self.get_spec().model_dump(mode="json", exclude_none=True),
-            bbox=None,
             table_index=table_index,
         )
