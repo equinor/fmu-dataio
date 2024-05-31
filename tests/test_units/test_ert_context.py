@@ -33,24 +33,16 @@ def test_regsurf_generate_metadata(fmurun_w_casemetadata, rmsglobalconfig, regsu
     assert "jobs" not in meta["fmu"]["realization"]
 
 
-def test_regsurf_generate_metadata_incl_jobs(
-    fmurun_w_casemetadata, rmsglobalconfig, regsurf
-):
-    """As above but now with jobs.json stuff included via class variable flag."""
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
-    os.chdir(fmurun_w_casemetadata)
+def test_incl_jobs_warning(rmsglobalconfig):
+    """Check that usning the deprecated class variable include_ertjobs gives warning."""
 
     dataio.ExportData.include_ertjobs = True
 
-    edata = dataio.ExportData(
-        config=rmsglobalconfig,
-        content="depth",
-    )
-
-    meta = edata.generate_metadata(regsurf)
-    assert meta["fmu"]["realization"]["jobs"]["umask"] == "0002"
-
-    dataio.ExportData.include_ertjobs = False
+    with pytest.warns(UserWarning, match="deprecated"):
+        dataio.ExportData(
+            config=rmsglobalconfig,
+            content="depth",
+        )
 
 
 def test_regsurf_metadata_with_timedata(

@@ -25,7 +25,6 @@ def test_fmuprovider_no_provider():
         model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.REALIZATION,
         casepath_proposed="",
-        include_ertjobs=False,
         workflow=WORKFLOW,
     )
     with pytest.raises(
@@ -69,7 +68,6 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
             model=GLOBAL_CONFIG_MODEL,
             fmu_context=FmuContext.REALIZATION,
             casepath_proposed="",  # if casepath is undef, try deduce from, _ERT_RUNPATH
-            include_ertjobs=False,
             workflow=WORKFLOW,
         )
 
@@ -90,7 +88,6 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(fmurun_w_casemetadata):
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.REALIZATION,
-        include_ertjobs=True,
         workflow=WORKFLOW,
     )
     with pytest.warns(UserWarning, match="parameters.txt file was not found"):
@@ -108,7 +105,6 @@ def test_fmuprovider_arbitrary_iter_name(fmurun_w_casemetadata_pred):
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.REALIZATION,
-        include_ertjobs=True,
         workflow=WORKFLOW,
     )
     assert myfmu._case_name == "ertrun1"
@@ -128,7 +124,6 @@ def test_fmuprovider_get_real_and_iter_from_env(fmurun_non_equal_real_and_iter):
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.REALIZATION,
-        include_ertjobs=True,
         workflow=WORKFLOW,
     )
     assert myfmu._runpath == fmurun_non_equal_real_and_iter
@@ -196,7 +191,6 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
         fmu_context=FmuContext.CASE,
-        include_ertjobs=False,
         workflow=WORKFLOW,
         casepath_proposed=caseroot,
     )

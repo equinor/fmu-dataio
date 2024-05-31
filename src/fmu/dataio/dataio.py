@@ -329,7 +329,7 @@ class ExportData:
     cube_fformat: ClassVar[str] = "segy"
     filename_timedata_reverse: ClassVar[bool] = False  # reverse order output file name
     grid_fformat: ClassVar[str] = "roff"
-    include_ertjobs: ClassVar[bool] = False  # if True, include jobs.json from ERT
+    include_ertjobs: ClassVar[bool] = False  # deprecated
     legacy_time_format: ClassVar[bool] = False  # deprecated
     meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
     polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
@@ -589,6 +589,11 @@ class ExportData:
                 "Please remove it from the argument list.",
                 UserWarning,
             )
+        if self.include_ertjobs:
+            warn(
+                "The 'include_ertjobs' option is deprecated and should be removed.",
+                UserWarning,
+            )
 
     def _validate_and_establish_fmucontext(self) -> None:
         """
@@ -708,7 +713,6 @@ class ExportData:
             model=self.config.get("model"),
             fmu_context=self.fmu_context,
             casepath_proposed=Path(self.casepath) if self.casepath else None,
-            include_ertjobs=self.include_ertjobs,
             workflow=self.workflow,
         )
 

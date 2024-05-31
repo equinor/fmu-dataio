@@ -28,7 +28,6 @@ _ERT_RUNPATH:   /scratch/fmu/jriv/01_drogon_ahm/realization-0/iter-0/
 
 from __future__ import annotations
 
-import json
 import os
 from dataclasses import dataclass, field
 from enum import Enum, auto
@@ -101,13 +100,11 @@ class FmuProvider(Provider):
         model: Name of the model (usually from global config)
         fmu_context: The FMU context this is ran in; see FmuContext enum class
         casepath_proposed: Proposed casepath. Needed if FmuContext is CASE
-        include_ertjobs: True if we want to include ....
         workflow: Descriptive work flow info
     """
 
     model: dict | None = None
     fmu_context: FmuContext = FmuContext.REALIZATION
-    include_ertjobs: bool = False
     casepath_proposed: Optional[Path] = None
     workflow: Optional[Union[str, dict[str, str]]] = None
 
@@ -268,18 +265,6 @@ class FmuProvider(Provider):
         # does contains check, will fail.
         return meta.Parameters(root=_utils.nested_parameters_dict(params))  # type: ignore
 
-    def _get_ert_jobs(self) -> dict | None:
-        logger.debug("Read ERT jobs")
-        assert self._runpath is not None
-        jobs_file = self._runpath / "jobs.json"
-        if not jobs_file.exists():
-            logger.debug("jobs.json was not found")
-            return None
-
-        with open(jobs_file) as stream:
-            logger.debug("parsing jobs.json.")
-            return json.load(stream)
-
     def _get_iteration_and_real_uuid(self, case_uuid: UUID) -> tuple[UUID, UUID]:
         iter_uuid = _utils.uuid_from_string(f"{case_uuid}{self._iter_name}")
         real_uuid = _utils.uuid_from_string(f"{case_uuid}{iter_uuid}{self._real_id}")
@@ -300,7 +285,6 @@ class FmuProvider(Provider):
             id=self._real_id,
             name=self._real_name,
             parameters=self._get_ert_parameters(),
-            jobs=self._get_ert_jobs() if self.include_ertjobs else None,
             uuid=real_uuid,
         )
 

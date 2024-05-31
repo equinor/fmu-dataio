@@ -57,17 +57,6 @@ fmu:
       - KVKH_US: 0.6
       - FAULT_SEAL_SCALING: 0.1
       - FWL_CENTRAL: 1677
-    jobs: # directly pass jobs.json. This is a lot of content, only a stub is included here.
-      umask: "0002"
-      DATA_ROOT: /some/path/20.4.0_20201106/ert/model
-      anything: something
-      something:
-        anything: something
-      global_update_path: {}
-      jobList:
-        - name: MAKE_DIRECTORY
-          min_arg: 1
-          anything: something
 
 file:
   relative_path: share/results/maps/volantis_gp_base--amplitude.gri
