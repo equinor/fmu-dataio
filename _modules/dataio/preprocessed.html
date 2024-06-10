@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dataio.preprocessed &mdash; fmu.dataio 0.1.dev1+g40a0573 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script>let toggleHintShow = 'Expand';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #C0C0C0" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            fmu.dataio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../preparations.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apiref/modules.html">API reference for fmu.dataio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datamodel.html">The FMU results data model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datastructure.html">Meta export datastructure</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #C0C0C0" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fmu.dataio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dataio.preprocessed</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dataio.preprocessed</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Final</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+
+<span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="n">FmuContext</span>
+<span class="kn">from</span> <span class="nn">._logging</span> <span class="kn">import</span> <span class="n">null_logger</span>
+<span class="kn">from</span> <span class="nn">._metadata</span> <span class="kn">import</span> <span class="n">generate_meta_tracklog</span>
+<span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="n">export_metadata_file</span><span class="p">,</span> <span class="n">md5sum</span>
+<span class="kn">from</span> <span class="nn">.datastructure._internal</span> <span class="kn">import</span> <span class="n">internal</span>
+<span class="kn">from</span> <span class="nn">.datastructure.meta</span> <span class="kn">import</span> <span class="n">meta</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InvalidMetadataError</span>
+<span class="kn">from</span> <span class="nn">.providers._filedata</span> <span class="kn">import</span> <span class="n">ShareFolder</span>
+<span class="kn">from</span> <span class="nn">.providers._fmu</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ERT_RELATIVE_CASE_METADATA_FILE</span><span class="p">,</span>
+    <span class="n">FmuProvider</span><span class="p">,</span>
+    <span class="n">get_fmu_context_from_environment</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">logger</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">null_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># ######################################################################################</span>
+<span class="c1"># ExportPreprocessedData.</span>
+<span class="c1">#</span>
+<span class="c1"># The ExportPreprocessedData is used for exporting preprocessed data that already</span>
+<span class="c1"># contains metadata, into a FMU run.</span>
+<span class="c1"># ######################################################################################</span>
+
+
+<div class="viewcode-block" id="ExportPreprocessedData"><a class="viewcode-back" href="../../apiref/dataio.preprocessed.html#dataio.preprocessed.ExportPreprocessedData">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ExportPreprocessedData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a preprocessed file and its metadata into a FMU run at case level.</span>
+
+<span class="sd">    The existing metadata will be validated and three fields will be updated</span>
+<span class="sd">    - The &#39;fmu&#39; block will be added with information about the existing FMU/ERT run</span>
+<span class="sd">    - The &#39;file&#39; block will be updated with new file paths.</span>
+<span class="sd">    - The &#39;tracklog&#39; block will be extended with a new event tagged &quot;merged&quot;.</span>
+
+<span class="sd">    Note it is important that the preprocessed data have been created upfront with the,</span>
+<span class="sd">    ExportData class using the argument fmu_context=&#39;preprocessed&#39;. This ensures</span>
+<span class="sd">    that the file and metadata are stored in the &#39;share/preprocessed/&#39; folder.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: Required dictionary with &#39;model&#39; information; &#39;name&#39; and &#39;revision&#39;.</span>
+<span class="sd">            Example is {&#39;model&#39;: {&#39;name&#39;: &#39;mymodelname&#39;, &#39;revision&#39;: &#39;1.0.0&#39;}}</span>
+<span class="sd">            Normally read from FMU global variables (via fmuconfig).</span>
+
+<span class="sd">        casepath: Required casepath for the active ERT experiment. The case needs to</span>
+<span class="sd">            contain valid case metadata i.e. the ERT workflow &#39;WF_CREATE_CASE_METADATA&#39;</span>
+<span class="sd">            has been run prior to using this class.</span>
+
+<span class="sd">        is_observation: Default is True. If True, then disk storage will be on the</span>
+<span class="sd">            &quot;casepath/share/observations&quot; folder, otherwise on casepath/share/result.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">casepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
+    <span class="n">is_observation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">_fmudata</span><span class="p">:</span> <span class="n">FmuProvider</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">get_fmu_context_from_environment</span><span class="p">()</span> <span class="o">!=</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">CASE</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Only possible to run re-export of preprocessed data inside FMU &quot;</span>
+                <span class="s2">&quot;using a pre-simulation workflow in ERT.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fmudata</span> <span class="o">=</span> <span class="n">FmuProvider</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">),</span>
+            <span class="n">fmu_context</span><span class="o">=</span><span class="n">FmuContext</span><span class="o">.</span><span class="n">CASE</span><span class="p">,</span>
+            <span class="n">casepath_proposed</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">),</span>
+            <span class="n">workflow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">casepath</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmudata</span><span class="o">.</span><span class="n">get_casepath</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Could not detect valid case metadata at file location:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">ERT_RELATIVE_CASE_METADATA_FILE</span><span class="si">}</span><span class="s2">. Provide an &quot;</span>
+                <span class="s2">&quot;updated casepath. Note, it is required to have run the ERT workflow &quot;</span>
+                <span class="s2">&quot;&#39;WF_CREATE_CASE_METADATA&#39; prior to this export job. See how-to here: &quot;</span>
+                <span class="s2">&quot;https://fmu-dataio.readthedocs.io/en/latest/&quot;</span>
+                <span class="s2">&quot;preparations.html#workflow-for-creating-case-metadata&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span> <span class="o">=</span> <span class="n">casepath</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_validate_object</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check that the input object is an existing file and convert it</span>
+<span class="sd">        to an absolute path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only file paths are supported as input object&quot;</span><span class="p">)</span>
+
+        <span class="n">objfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">objfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The file </span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ShareFolder</span><span class="o">.</span><span class="n">PREPROCESSED</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">objfile</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Exporting files located outside the &#39;</span><span class="si">{</span><span class="n">ShareFolder</span><span class="o">.</span><span class="n">PREPROCESSED</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                <span class="s2">&quot;folder is not supported. Please re-export your objects to disk &quot;</span>
+                <span class="s2">&quot;using ExportData(fmu_context=&#39;preprocessed&#39;)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">objfile</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_read_metadata_file</span><span class="p">(</span><span class="n">objmetafile</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a metadata file as a dictionary. If the metadata file</span>
+<span class="sd">        is not present, None will be returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">objmetafile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">objmetafile</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_get_relative_export_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get an updated relative_path from an existing path to a preprocessed</span>
+<span class="sd">        file stored somewhere inside the &#39;share/preprocessed/&#39; folder.</span>
+<span class="sd">        The existing subfolders and filename will be kept.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">existing_subfolders_and_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">existing_path</span><span class="p">)</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span>
+            <span class="n">ShareFolder</span><span class="o">.</span><span class="n">PREPROCESSED</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_observation</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">Path</span><span class="p">(</span><span class="n">ShareFolder</span><span class="o">.</span><span class="n">OBSERVATIONS</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">/</span> <span class="n">existing_subfolders_and_filename</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">ShareFolder</span><span class="o">.</span><span class="n">RESULTS</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">/</span> <span class="n">existing_subfolders_and_filename</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_md5sum_consistency</span><span class="p">(</span>
+        <span class="n">checksum_md5_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">checksum_md5_meta</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the md5sum for the file is equal to the one in the metadata&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">checksum_md5_file</span> <span class="o">!=</span> <span class="n">checksum_md5_meta</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The preprocessed file seem to have been modified since it was &quot;</span>
+                <span class="s2">&quot;initially exported. You are adviced to re-create the preprocessed &quot;</span>
+                <span class="s2">&quot;data to prevent mismatch between the file and its metadata.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_meta_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objfile</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">checksum_md5</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">meta</span><span class="o">.</span><span class="n">File</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a meta.File model with updated paths and checksum_md5&quot;&quot;&quot;</span>
+        <span class="n">relative_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_relative_export_path</span><span class="p">(</span><span class="n">existing_path</span><span class="o">=</span><span class="n">objfile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">meta</span><span class="o">.</span><span class="n">File</span><span class="p">(</span>
+            <span class="n">absolute_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span> <span class="o">/</span> <span class="n">relative_path</span><span class="p">,</span>
+            <span class="n">relative_path</span><span class="o">=</span><span class="n">relative_path</span><span class="p">,</span>
+            <span class="n">checksum_md5</span><span class="o">=</span><span class="n">checksum_md5</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_updated_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta_existing</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">objfile</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the existing metadata with updated fmu/file/tracklog info:</span>
+<span class="sd">        - The &#39;fmu&#39; block will be added</span>
+<span class="sd">        - The &#39;file&#39; block will be updated with new paths.</span>
+<span class="sd">        - The &#39;tracklog&#39; block will be extended with a new event tagged &quot;merged&quot;.</span>
+
+<span class="sd">        A simple consistency check will be run to detect if the file has been</span>
+<span class="sd">        modified since it was initially exported.</span>
+
+<span class="sd">        Subsequently the final metadata is validated against the schema to ensure</span>
+<span class="sd">        it is ready for sumo upload, before it is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmudata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">checksum_md5_file</span> <span class="o">=</span> <span class="n">md5sum</span><span class="p">(</span><span class="n">objfile</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">checksum_md5_meta</span> <span class="o">:=</span> <span class="n">meta_existing</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checksum_md5&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_md5sum_consistency</span><span class="p">(</span><span class="n">checksum_md5_file</span><span class="p">,</span> <span class="n">checksum_md5_meta</span><span class="p">)</span>
+
+        <span class="c1"># remove &#39;_preprocessed&#39; key if present and check truthy state of it</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">meta_existing</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;_preprocessed&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Missing entry &#39;_preprocessed&#39; in the metadata. Only files exported &quot;</span>
+                <span class="s2">&quot;with ExportData(fmu_context=&#39;preprocessed&#39;) is supported. &quot;</span>
+                <span class="s2">&quot;Please re-export your objects to disk.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">meta_existing</span><span class="p">[</span><span class="s2">&quot;fmu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmudata</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">()</span>
+        <span class="n">meta_existing</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta_file</span><span class="p">(</span><span class="n">objfile</span><span class="p">,</span> <span class="n">checksum_md5_file</span><span class="p">)</span>
+
+        <span class="c1"># update the tracklog block</span>
+        <span class="n">tracklog_entry</span> <span class="o">=</span> <span class="n">generate_meta_tracklog</span><span class="p">(</span><span class="n">event</span><span class="o">=</span><span class="s2">&quot;merged&quot;</span><span class="p">)</span>
+        <span class="n">meta_existing</span><span class="p">[</span><span class="s2">&quot;tracklog&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tracklog_entry</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># TODO: Would like to use meta.Root.model_validate() here</span>
+            <span class="c1"># but then the &#39;$schema&#39; field is dropped from the meta_existing</span>
+            <span class="k">return</span> <span class="n">internal</span><span class="o">.</span><span class="n">DataClassMeta</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">meta_existing</span><span class="p">)</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidMetadataError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The existing metadata for the preprocessed file </span><span class="si">{</span><span class="n">objfile</span><span class="si">}</span><span class="s2"> is &quot;</span>
+                <span class="s2">&quot;outdated. The files will still be copied to the fmu case but no &quot;</span>
+                <span class="s2">&quot;metadata will be made. Please re-export the preprocessed object to &quot;</span>
+                <span class="s2">&quot;disk to ensure the metadata are following the latest data standards. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Detailed information: </span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+
+    <span class="c1"># ==================================================================================</span>
+    <span class="c1"># Public methods:</span>
+    <span class="c1"># ==================================================================================</span>
+
+<div class="viewcode-block" id="ExportPreprocessedData.generate_metadata"><a class="viewcode-back" href="../../apiref/dataio.preprocessed.html#dataio.preprocessed.ExportPreprocessedData.generate_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate updated metadata for the preprocessed data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dictionary with all metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">objfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">objmetafile</span> <span class="o">=</span> <span class="n">objfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">objfile</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.yml&quot;</span>
+
+        <span class="k">if</span> <span class="n">meta_existing</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_metadata_file</span><span class="p">(</span><span class="n">objmetafile</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_updated_metadata</span><span class="p">(</span><span class="n">meta_existing</span><span class="p">,</span> <span class="n">objfile</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Could not detect existing metadata with name </span><span class="si">{</span><span class="n">objmetafile</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ExportPreprocessedData.export"><a class="viewcode-back" href="../../apiref/dataio.preprocessed.html#dataio.preprocessed.ExportPreprocessedData.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-export preprocessed file with updated metadata.</span>
+<span class="sd">        If existing metadata can&#39;t be found or it is outdated,</span>
+<span class="sd">        the file will still be copied but metadata will not be created.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Full path of exported object file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">objmetafile</span> <span class="o">=</span> <span class="n">objfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">objfile</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.yml&quot;</span>
+
+        <span class="n">outfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_relative_export_path</span><span class="p">(</span><span class="n">existing_path</span><span class="o">=</span><span class="n">objfile</span><span class="p">)</span>
+        <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># copy existing file to updated path</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">objfile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Copied input file to: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">meta_existing</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_metadata_file</span><span class="p">(</span><span class="n">objmetafile</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">meta_updated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_updated_metadata</span><span class="p">(</span><span class="n">meta_existing</span><span class="p">,</span> <span class="n">objfile</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">InvalidMetadataError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># store metafile to updated path</span>
+                <span class="n">metafile</span> <span class="o">=</span> <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.yml&quot;</span>
+                <span class="n">export_metadata_file</span><span class="p">(</span>
+                    <span class="n">file</span><span class="o">=</span><span class="n">metafile</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">meta_updated</span><span class="p">,</span> <span class="n">savefmt</span><span class="o">=</span><span class="s2">&quot;yaml&quot;</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Updated metadata file is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Could not detect existing metadata with name </span><span class="si">{</span><span class="n">objmetafile</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Input file will be copied to </span><span class="si">{</span><span class="n">outfile</span><span class="si">}</span><span class="s2">, but without metadata.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g40a0573).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

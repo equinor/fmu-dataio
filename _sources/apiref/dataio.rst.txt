@@ -25,6 +25,7 @@ Submodules
    dataio.case
    dataio.dataio
    dataio.exceptions
+   dataio.preprocessed
    dataio.readers
    dataio.types
    dataio.version

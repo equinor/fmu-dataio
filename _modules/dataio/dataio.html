@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g0c2d040 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g40a0573 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -122,6 +122,7 @@
 <span class="kn">from</span> <span class="nn">.case</span> <span class="kn">import</span> <span class="n">InitializeCase</span>
 <span class="kn">from</span> <span class="nn">.datastructure.configuration</span> <span class="kn">import</span> <span class="n">global_configuration</span>
 <span class="kn">from</span> <span class="nn">.datastructure.meta</span> <span class="kn">import</span> <span class="n">enums</span>
+<span class="kn">from</span> <span class="nn">.preprocessed</span> <span class="kn">import</span> <span class="n">ExportPreprocessedData</span>
 <span class="kn">from</span> <span class="nn">.providers._fmu</span> <span class="kn">import</span> <span class="n">FmuProvider</span><span class="p">,</span> <span class="n">get_fmu_context_from_environment</span>
 
 <span class="c1"># DATAIO_EXAMPLES: Final = dataio_examples()</span>
@@ -142,6 +143,17 @@
 <span class="c1"># ======================================================================================</span>
 <span class="c1"># Private functions</span>
 <span class="c1"># ======================================================================================</span>
+
+
+<span class="k">def</span> <span class="nf">_future_warning_preprocessed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">&quot;Using the ExportData class for re-exporting preprocessed data is no &quot;</span>
+        <span class="s2">&quot;longer supported. Use the dedicated ExportPreprocessedData class &quot;</span>
+        <span class="s2">&quot;instead. In a deprecation period the ExportPreprocessedData is used &quot;</span>
+        <span class="s2">&quot;under the hood when a filepath is input to ExportData. &quot;</span>
+        <span class="s2">&quot;Please update your script, as this will be discontinued in the future.&quot;</span><span class="p">,</span>
+        <span class="ne">FutureWarning</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_validate_variable</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="n">legals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">type</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -458,7 +470,6 @@
     <span class="n">_pwd</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">_config_is_valid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">_fmurun</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">_reuse_metadata</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># Need to store these temporarily in variables until we stop</span>
     <span class="c1"># updating state of the class also on export and generate_metadata</span>
@@ -467,9 +478,6 @@
 
     <span class="c1"># &lt;&lt; NB! storing ACTUAL casepath:</span>
     <span class="n">_rootpath</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="c1"># in some cases input object may change class; store the internal variable here:</span>
-    <span class="n">_object</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running __post_init__ ExportData&quot;</span><span class="p">)</span>
@@ -784,37 +792,6 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running outside FMU context, using pwd as roothpath&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
 
-    <span class="k">def</span> <span class="nf">_check_process_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">Inferrable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;When obj is file-like, it must be checked + assume preprocessed.</span>
-
-<span class="sd">        In addition, if preprocessed, derive the name, tagname, subfolder if present and</span>
-<span class="sd">        those are not set already.</span>
-
-<span class="sd">        For all cases, tie incoming obj to self._object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The file </span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_reuse_metadata</span> <span class="o">=</span> <span class="kc">True</span>
-
-            <span class="n">currentmeta</span> <span class="o">=</span> <span class="n">read_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;_preprocessed&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">currentmeta</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
-                    <span class="s2">&quot;The special entry for preprocessed data &lt;_preprocessed&gt; is&quot;</span>
-                    <span class="s2">&quot;missing in the metadata. A possible solution is to rerun the&quot;</span>
-                    <span class="s2">&quot;preprocessed export.&quot;</span>
-                <span class="p">)</span>
-            <span class="n">preprocessed</span> <span class="o">=</span> <span class="n">currentmeta</span><span class="p">[</span><span class="s2">&quot;_preprocessed&quot;</span><span class="p">]</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">preprocessed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagname</span> <span class="ow">or</span> <span class="n">preprocessed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tagname&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subfolder</span> <span class="ow">or</span> <span class="n">preprocessed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subfolder&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_object</span> <span class="o">=</span> <span class="n">obj</span>
-
     <span class="k">def</span> <span class="nf">_get_fmu_provider</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FmuProvider</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">,</span> <span class="n">FmuContext</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">FmuProvider</span><span class="p">(</span>
@@ -863,16 +840,22 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_check_settings</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">_future_warning_preprocessed</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">ExportPreprocessedData</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">casepath</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">,</span>
+                <span class="n">is_observation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_observation</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_classification</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_classification</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rep_include</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rep_include</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_process_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>  <span class="c1"># obj --&gt; self._object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_fmt_flag</span><span class="p">()</span>
         <span class="n">fmudata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fmu_provider</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="c1"># TODO: refactor the argument list for generate_export_metadata; we do not need</span>
-        <span class="c1"># both self._object and self...</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">generate_export_metadata</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_object</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">fmudata</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span>
+            <span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">fmudata</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="n">compute_md5</span>
         <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The metadata are now ready!&quot;</span><span class="p">)</span>
@@ -906,18 +889,24 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;The return_symlink option is deprecated and can safely be removed.&quot;</span>
             <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Object type is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_object</span><span class="p">))</span>  <span class="c1"># from generate_metadata</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">_future_warning_preprocessed</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">ExportPreprocessedData</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">casepath</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">,</span>
+                <span class="n">is_observation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_observation</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">compute_md5</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Object type is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
 
         <span class="n">outfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">][</span><span class="s2">&quot;absolute_path&quot;</span><span class="p">])</span>
         <span class="c1"># create output folders if they don&#39;t exist</span>
         <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">metafile</span> <span class="o">=</span> <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span><span class="p">)</span>
+        <span class="n">metafile</span> <span class="o">=</span> <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.yml&quot;</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Export to file using flag: &lt;</span><span class="si">%s</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span><span class="p">)</span>
-        <span class="c1"># md5sum is already present in the metadata</span>
-        <span class="n">export_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_object</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span><span class="p">)</span>
+        <span class="n">export_file</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_usefmtflag</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Actual file is:   </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_is_valid</span><span class="p">:</span>
@@ -925,8 +914,6 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata file is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Data will be exported, but without metadata.&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
 
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div></div>
 </pre></div>
@@ -938,7 +925,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g0c2d040).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g40a0573).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
