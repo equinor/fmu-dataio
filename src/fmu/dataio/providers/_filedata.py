@@ -30,9 +30,9 @@ if TYPE_CHECKING:
 
 
 class ShareFolder(str, Enum):
-    PREPROCESSED = "share/preprocessed"
-    OBSERVATIONS = "share/observations"
-    RESULTS = "share/results"
+    PREPROCESSED = "share/preprocessed/"
+    OBSERVATIONS = "share/observations/"
+    RESULTS = "share/results/"
 
 
 @dataclass

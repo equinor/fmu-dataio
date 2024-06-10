@@ -3,8 +3,8 @@
 import os
 from datetime import datetime
 
+import fmu.dataio as dataio
 import pytest
-from fmu.dataio import dataio
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
 from fmu.dataio.providers.objectdata._base import (
     get_timedata_from_existing,
@@ -163,10 +163,8 @@ def test_regsurf_preprocessed_observation(
         os.chdir(fmurun_prehook)
 
         casepath = fmurun_prehook
-        edata = dataio.ExportData(
+        edata = dataio.ExportPreprocessedData(
             config=rmsglobalconfig,
-            fmu_context="case",
-            content=None,
             is_observation=True,
             casepath=casepath,
         )

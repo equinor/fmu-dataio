@@ -114,12 +114,6 @@ class FMUModel(BaseModel):
     case: meta.FMUCase
 
 
-class PreprocessedInfo(BaseModel):
-    name: str
-    tagname: str
-    subfolder: str
-
-
 class Context(BaseModel, use_enum_values=True):
     stage: FmuContext
 
@@ -172,7 +166,7 @@ class DataClassMeta(JsonSchemaMetadata):
     file: meta.File
     display: meta.Display
     tracklog: List[meta.TracklogEvent]
-    preprocessed: Optional[PreprocessedInfo] = Field(alias="_preprocessed")
+    preprocessed: Optional[bool] = Field(alias="_preprocessed", default=None)
 
 
 class CaseSchema(JsonSchemaMetadata):

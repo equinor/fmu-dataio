@@ -5,6 +5,7 @@ from fmu.dataio.dataio import AggregatedData  # noqa  # type: ignore
 from fmu.dataio.dataio import ExportData  # noqa  # type: ignore
 from fmu.dataio.dataio import InitializeCase  # noqa  # type: ignore
 from fmu.dataio.dataio import read_metadata  # noqa
+from fmu.dataio.preprocessed import ExportPreprocessedData  # noqa  # type: ignore
 
 try:
     from .version import version

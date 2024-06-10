@@ -6,7 +6,6 @@ import contextlib
 import hashlib
 import json
 import os
-import shutil
 import uuid
 from copy import deepcopy
 from pathlib import Path
@@ -114,10 +113,7 @@ def export_file(
 ) -> str:
     """Export a valid object to file"""
 
-    if isinstance(obj, (Path, str)):
-        # special case when processing data which already has metadata
-        shutil.copy(obj, filename)
-    elif filename.suffix == ".gri" and isinstance(obj, xtgeo.RegularSurface):
+    if filename.suffix == ".gri" and isinstance(obj, xtgeo.RegularSurface):
         obj.to_file(filename, fformat="irap_binary")
     elif filename.suffix == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
         out = obj.copy()  # to not modify incoming instance!
@@ -436,22 +432,3 @@ def read_metadata_from_file(filename: str | Path) -> dict:
         raise OSError(f"Cannot find requested metafile: {metafile}")
     with open(metafilepath) as stream:
         return yaml.safe_load(stream)
-
-
-def glue_metadata_preprocessed(
-    oldmeta: dict[str, Any], newmeta: dict[str, Any]
-) -> dict[str, Any]:
-    """Glue (combine) to metadata dicts according to rule 'preprocessed'."""
-
-    meta = oldmeta.copy()
-
-    if "_preprocessed" in meta:
-        del meta["_preprocessed"]
-
-    meta["fmu"] = newmeta["fmu"]
-    meta["file"] = newmeta["file"]
-
-    newmeta["tracklog"][-1]["event"] = "merged"
-    meta["tracklog"].extend(newmeta["tracklog"])
-
-    return meta

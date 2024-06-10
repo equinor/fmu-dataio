@@ -107,7 +107,7 @@ class FmuProvider(Provider):
 
     model: dict | None = None
     fmu_context: FmuContext = FmuContext.REALIZATION
-    include_ertjobs: bool = True
+    include_ertjobs: bool = False
     casepath_proposed: Optional[Path] = None
     workflow: Optional[Union[str, dict[str, str]]] = None
 

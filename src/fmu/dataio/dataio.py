@@ -32,6 +32,7 @@ from .aggregation import AggregatedData
 from .case import InitializeCase
 from .datastructure.configuration import global_configuration
 from .datastructure.meta import enums
+from .preprocessed import ExportPreprocessedData
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
@@ -52,6 +53,17 @@ InitializeCase: Final = InitializeCase  # Backwards compatibility alias
 # ======================================================================================
 # Private functions
 # ======================================================================================
+
+
+def _future_warning_preprocessed() -> None:
+    warnings.warn(
+        "Using the ExportData class for re-exporting preprocessed data is no "
+        "longer supported. Use the dedicated ExportPreprocessedData class "
+        "instead. In a deprecation period the ExportPreprocessedData is used "
+        "under the hood when a filepath is input to ExportData. "
+        "Please update your script, as this will be discontinued in the future.",
+        FutureWarning,
+    )
 
 
 def _validate_variable(key: str, value: type, legals: dict[str, str | type]) -> bool:
@@ -368,7 +380,6 @@ class ExportData:
     _pwd: Path = field(default_factory=Path, init=False)
     _config_is_valid: bool = field(default=True, init=False)
     _fmurun: bool = field(default=False, init=False)
-    _reuse_metadata: bool = field(default=False, init=False)
 
     # Need to store these temporarily in variables until we stop
     # updating state of the class also on export and generate_metadata
@@ -377,9 +388,6 @@ class ExportData:
 
     # << NB! storing ACTUAL casepath:
     _rootpath: Path = field(default_factory=Path, init=False)
-
-    # in some cases input object may change class; store the internal variable here:
-    _object: types.Inferrable = field(init=False)
 
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
@@ -694,37 +702,6 @@ class ExportData:
         logger.info("Running outside FMU context, using pwd as roothpath")
         return self._pwd
 
-    def _check_process_object(self, obj: types.Inferrable) -> None:
-        """When obj is file-like, it must be checked + assume preprocessed.
-
-        In addition, if preprocessed, derive the name, tagname, subfolder if present and
-        those are not set already.
-
-        For all cases, tie incoming obj to self._object
-        """
-
-        if isinstance(obj, (str, Path)):
-            obj = Path(obj)
-            if not obj.exists():
-                raise ValidationError(f"The file {obj} does not exist.")
-
-            self._reuse_metadata = True
-
-            currentmeta = read_metadata(obj)
-            if "_preprocessed" not in currentmeta:
-                raise ValidationError(
-                    "The special entry for preprocessed data <_preprocessed> is"
-                    "missing in the metadata. A possible solution is to rerun the"
-                    "preprocessed export."
-                )
-            preprocessed = currentmeta["_preprocessed"]
-
-            self.name = self.name or preprocessed.get("name", "")
-            self.tagname = self.tagname or preprocessed.get("tagname", "")
-            self.subfolder = self.subfolder or preprocessed.get("subfolder", "")
-
-        self._object = obj
-
     def _get_fmu_provider(self) -> FmuProvider:
         assert isinstance(self.fmu_context, FmuContext)
         return FmuProvider(
@@ -773,16 +750,22 @@ class ExportData:
 
         self._update_check_settings(kwargs)
 
+        if isinstance(obj, (str, Path)):
+            assert self.casepath is not None
+            _future_warning_preprocessed()
+            return ExportPreprocessedData(
+                config=self.config,
+                casepath=self.casepath,
+                is_observation=self.is_observation,
+            ).generate_metadata(obj)
+
         self._classification = self._get_classification()
         self._rep_include = self._get_rep_include()
 
-        self._check_process_object(obj)  # obj --> self._object
         self._update_fmt_flag()
         fmudata = self._get_fmu_provider() if self._fmurun else None
-        # TODO: refactor the argument list for generate_export_metadata; we do not need
-        # both self._object and self...
         self._metadata = generate_export_metadata(
-            self._object, self, fmudata, compute_md5=compute_md5
+            obj, self, fmudata, compute_md5=compute_md5
         )
 
         logger.info("The metadata are now ready!")
@@ -816,18 +799,24 @@ class ExportData:
             warnings.warn(
                 "The return_symlink option is deprecated and can safely be removed."
             )
-        self.generate_metadata(obj, compute_md5=True, **kwargs)
-        metadata = self._metadata
-        logger.info("Object type is: %s", type(self._object))  # from generate_metadata
+        if isinstance(obj, (str, Path)):
+            assert self.casepath is not None
+            _future_warning_preprocessed()
+            return ExportPreprocessedData(
+                config=self.config,
+                casepath=self.casepath,
+                is_observation=self.is_observation,
+            ).export(obj)
+
+        metadata = self.generate_metadata(obj, compute_md5=True, **kwargs)
+        logger.info("Object type is: %s", type(obj))
 
         outfile = Path(metadata["file"]["absolute_path"])
         # create output folders if they don't exist
         outfile.parent.mkdir(parents=True, exist_ok=True)
-        metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
+        metafile = outfile.parent / f".{outfile.name}.yml"
 
-        logger.info("Export to file using flag: <%s>", self._usefmtflag)
-        # md5sum is already present in the metadata
-        export_file(self._object, outfile, flag=self._usefmtflag)
+        export_file(obj, outfile, flag=self._usefmtflag)
         logger.info("Actual file is:   %s", outfile)
 
         if self._config_is_valid:
@@ -835,7 +824,5 @@ class ExportData:
             logger.info("Metadata file is: %s", metafile)
         else:
             warnings.warn("Data will be exported, but without metadata.", UserWarning)
-
-        self._metadata = metadata
 
         return str(outfile)
