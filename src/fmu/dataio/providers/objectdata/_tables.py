@@ -88,6 +88,9 @@ class DataFrameDataProvider(ObjectDataProvider):
         """Return the table index."""
         return _derive_index(self.dataio.table_index, list(self.obj.columns))
 
+    def get_geometry(self) -> None:
+        """Derive data.geometry for data frame"""
+
     def get_bbox(self) -> None:
         """Derive data.bbox for pd.DataFrame."""
 
@@ -128,6 +131,9 @@ class ArrowTableDataProvider(ObjectDataProvider):
     def table_index(self) -> list[str]:
         """Return the table index."""
         return _derive_index(self.dataio.table_index, list(self.obj.column_names))
+
+    def get_geometry(self) -> None:
+        """Derive data.geometry for Arrow table."""
 
     def get_bbox(self) -> None:
         """Derive data.bbox for pyarrow.Table."""

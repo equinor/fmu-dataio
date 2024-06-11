@@ -7,6 +7,7 @@ as this is convinient to populate later, on demand)
 from __future__ import annotations
 
 import re
+import warnings
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -56,6 +57,21 @@ class FileDataProvider(Provider):
     @property
     def name(self) -> str:
         return self.dataio.name or self.objdata.name
+
+    @property
+    def parent(self) -> str:
+        """Action when both parent key and geometry key are given (GridProperty)."""
+        geom = self.objdata.get_geometry()
+
+        if geom and self.dataio.parent:
+            warnings.warn(
+                "Both 'geometry' and 'parent' keys are given, but 'parent' will here "
+                "be ignored as they are in conflict. Instead, the geometry.name will "
+                "be applied as 'parent' string info as part of the file name.",
+                UserWarning,
+            )
+
+        return geom.name if geom else self.dataio.parent
 
     def get_metadata(self) -> meta.File:
         rootpath = (
@@ -119,7 +135,7 @@ class FileDataProvider(Provider):
             raise ValueError("Not legal: 'time0' is missing while 'time1' is present")
 
         filestem_order = (
-            self.dataio.parent,
+            self.parent,
             self.name,
             self.dataio.tagname,
             self._get_timepart_for_filename(),

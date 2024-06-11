@@ -45,6 +45,9 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
     def table_index(self) -> None:
         """Return the table index."""
 
+    def get_geometry(self) -> None:
+        """Derive data.geometry for FaultRoomSurface."""
+
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for FaultRoomSurface."""
         logger.info("Get bbox for FaultRoomSurface")
