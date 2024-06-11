@@ -21,7 +21,11 @@ from fmu.dataio.providers._base import Provider
 
 if TYPE_CHECKING:
     from fmu.dataio.dataio import ExportData
-    from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
+    from fmu.dataio.datastructure.meta.content import (
+        BoundingBox2D,
+        BoundingBox3D,
+        Geometry,
+    )
     from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
     from fmu.dataio.datastructure.meta.specification import AnySpecification
     from fmu.dataio.types import Inferrable
@@ -103,6 +107,7 @@ class ObjectDataProvider(Provider):
         metadata["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
 
         metadata["spec"] = self.get_spec()
+        metadata["geometry"] = self.get_geometry()
         metadata["bbox"] = self.get_bbox()
         metadata["time"] = self._get_timedata()
         metadata["table_index"] = self.table_index
@@ -147,6 +152,10 @@ class ObjectDataProvider(Provider):
     @property
     @abstractmethod
     def table_index(self) -> list[str] | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_geometry(self) -> Geometry | None:
         raise NotImplementedError
 
     @abstractmethod

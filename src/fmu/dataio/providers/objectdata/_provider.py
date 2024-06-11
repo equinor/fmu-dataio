@@ -187,6 +187,9 @@ class DictionaryDataProvider(ObjectDataProvider):
     def table_index(self) -> None:
         """Return the table index."""
 
+    def get_geometry(self) -> None:
+        """Derive data.geometry for dictionary."""
+
     def get_bbox(self) -> None:
         """Derive data.bbox for dict."""
 

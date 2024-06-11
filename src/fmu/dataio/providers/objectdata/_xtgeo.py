@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
+from textwrap import dedent
 from typing import TYPE_CHECKING, Final
 
 import numpy as np
@@ -9,8 +11,8 @@ import xtgeo
 
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import npfloat_to_float
-from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
+from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
+from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D, Geometry
 from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
 from fmu.dataio.datastructure.meta.specification import (
     CPGridPropertySpecification,
@@ -27,6 +29,21 @@ if TYPE_CHECKING:
     import pandas as pd
 
 logger: Final = null_logger(__name__)
+
+
+def lack_of_geometry_warn() -> None:
+    warnings.warn(
+        dedent(
+            """
+            From fmu.dataio version 2.3:
+
+            When exporting a grid property, linking it to a geometry is strongly
+            recommended and may be mandatory in the near future!
+            See example in the documentation.
+            """
+        ),
+        FutureWarning,
+    )
 
 
 @dataclass
@@ -56,6 +73,9 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
     @property
     def table_index(self) -> None:
         """Return the table index."""
+
+    def get_geometry(self) -> None:
+        """Derive data.geometry for xtgeo.RegularSurface."""
 
     def get_bbox(self) -> BoundingBox2D | BoundingBox3D:
         """
@@ -128,6 +148,9 @@ class PolygonsDataProvider(ObjectDataProvider):
     def table_index(self) -> None:
         """Return the table index."""
 
+    def get_geometry(self) -> None:
+        """Derive data.geometry for xtgeo.Polygons."""
+
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Polygons"""
         logger.info("Get bbox for Polygons")
@@ -186,6 +209,9 @@ class PointsDataProvider(ObjectDataProvider):
         """Returns a dataframe of the referenced xtgeo.Points object."""
         return self.obj.get_dataframe(copy=False)
 
+    def get_geometry(self) -> None:
+        """Derive data.geometry for xtgeo.Points."""
+
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Points."""
         logger.info("Get bbox for Points")
@@ -238,6 +264,9 @@ class CubeDataProvider(ObjectDataProvider):
     @property
     def table_index(self) -> None:
         """Return the table index."""
+
+    def get_geometry(self) -> None:
+        """Derive data.geometry for xtgeo.Cube."""
 
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Cube."""
@@ -319,6 +348,9 @@ class CPGridDataProvider(ObjectDataProvider):
     def table_index(self) -> None:
         """Return the table index."""
 
+    def get_geometry(self) -> None:
+        """Derive data.geometry for xtgeo.Grid."""
+
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Grid."""
         logger.info("Get bbox for Grid geometry")
@@ -395,3 +427,15 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
             ncol=self.obj.ncol,
             nlay=self.obj.nlay,
         )
+
+    def get_geometry(self) -> Geometry | None:
+        """Derive data.geometry for xtgeo.GridProperty."""
+        logger.info("Get geometry for a GridProperty, if present")
+
+        name, relpath = get_geometry_ref(self.dataio.geometry, self.obj)
+
+        # issue a warning if geometry is missing:
+        if not relpath:
+            lack_of_geometry_warn()
+
+        return Geometry(name=name, relative_path=relpath) if name and relpath else None

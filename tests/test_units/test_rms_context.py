@@ -554,6 +554,66 @@ def test_gridproperty_export_file_set_name(rmssetup, rmsglobalconfig, gridproper
     )
 
 
+@inside_rms
+def test_gridproperty_export_with_geometry(
+    rmssetup, rmsglobalconfig, grid, gridproperty
+):
+    """Export the the grid and the gridprop(s) with connected geometry."""
+    logger.info("Active folder is %s", rmssetup)
+    os.chdir(rmssetup)
+
+    grd_edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth", name="MyGrid"
+    )
+    grid_output = grd_edata.export(grid)
+
+    # Here the export of the grid property point to the path of the exported geometry,
+    # which is then sufficient to provide a geometry tag in the data settings.
+    grdprop_edata = dataio.ExportData(
+        config=rmsglobalconfig,
+        content={"property": {"is_discrete": False}},
+        name="MyProperty",
+        geometry=grid_output,
+    )
+    output = grdprop_edata.export(gridproperty)
+
+    assert "MyGrid".lower() in output  # grid name shall be a part of the name
+
+    logger.info("Output is %s", output)
+    metadata = dataio.read_metadata(output)
+
+    assert metadata["data"]["geometry"]["name"] == "MyGrid"
+    assert (
+        metadata["data"]["geometry"]["relative_path"]
+        == "share/results/grids/mygrid.roff"
+    )
+
+    # try with both parent and geometry, and geometry name shall win
+    grdprop_edata_2 = dataio.ExportData(
+        config=rmsglobalconfig,
+        content={"property": {"is_discrete": False}},
+        name="MyProperty",
+        geometry=grid_output,
+        parent="this_is_parent",
+    )
+    output = grdprop_edata_2.export(gridproperty)
+
+    assert "mygrid" in output
+    assert "this_is_parent" not in output
+
+    # skip geometry; now parent name will present in name
+    grdprop_edata_3 = dataio.ExportData(
+        config=rmsglobalconfig,
+        content={"property": {"is_discrete": False}},
+        name="MyProperty",
+        parent="this_is_parent",
+    )
+    output = grdprop_edata_3.export(gridproperty)
+
+    assert "mygrid" not in output
+    assert "this_is_parent" in output
+
+
 # ======================================================================================
 # Dataframe and PyArrow
 # ======================================================================================

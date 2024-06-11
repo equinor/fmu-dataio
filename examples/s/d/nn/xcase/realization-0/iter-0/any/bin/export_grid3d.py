@@ -38,9 +38,10 @@ def export_geogrid_geometry():
 
     out = ed.export(grd)
     print(f"Stored grid as {out}")
+    return out
 
 
-def export_geogrid_parameters():
+def export_geogrid_parameters(outgrid):
     """Export geogrid assosiated parameters based on user defined lists"""
 
     props = PROPS_SEISMIC + PROPS_OTHER
@@ -51,10 +52,9 @@ def export_geogrid_parameters():
         prop = xtgeo.gridproperty_from_file(filename)
         ed = dataio.ExportData(
             name=propname,
-            # parent={"name": GNAME},
+            geometry=outgrid,
             config=CFG,
-            content="depth",
-            unit="m",
+            content={"property": {"is_discrete": False}},
             vertical_domain={"depth": "msl"},
             timedata=None,
             is_prediction=True,
@@ -67,6 +67,6 @@ def export_geogrid_parameters():
 
 
 if __name__ == "__main__":
-    export_geogrid_geometry()
-    export_geogrid_parameters()
+    outgrid = export_geogrid_geometry()
+    export_geogrid_parameters(outgrid)
     print("Done.")

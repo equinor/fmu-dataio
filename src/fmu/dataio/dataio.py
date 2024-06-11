@@ -238,7 +238,16 @@ class ExportData:
             standard folder for Cube output with "seismics". Use with care and avoid if
             possible!
 
-        grid_model: Currently allowed but planned for deprecation
+        geometry: Optional, and for grid properties only, which may need a
+            reference to the 3D grid geometry object. The value shall
+            point to an existing file which is already exported with dataio,
+            and hence has an assosiated metadata file. The grid name will be derived
+            from the grid metadata, if present, and applied as part of the gridproperty
+            file name (same behaviour as the `parent` key; replacing this).
+            Note that this key may replace the usage of both the `parent` key and the
+            `grid_model` key in the near future.
+
+        grid_model: Currently allowed but planned for deprecation. See `geometry`.
 
         table_index: This applies to Pandas (table) data only, and is a list of the
             column names to use as index columns e.g. ["ZONE", "REGION"].
@@ -257,8 +266,12 @@ class ExportData:
             if "TopValysar" is the model name and the actual name is "Valysar Top Fm."
             that latter name will be used.
 
-        parent: Optional. This key is required for datatype GridProperty, and
-            refers to the name of the grid geometry.
+        parent: Optional. This key is required for datatype GridProperty, unless the
+            `geometry` is given, and refers to the name of the grid geometry. It will
+            only be added in the filename, and not as genuine metadata entry.
+            This key is a candidate for deprecation, and users shall use the
+            `geometry` key instead. If both `parent` and `geometry` is given, the grid
+            name derived from the `geometry` object will have predence.
 
         rep_include: Optional. If True then the data object will be available in REP.
             Default is False.
@@ -354,6 +367,7 @@ class ExportData:
     display_name: Optional[str] = None
     fmu_context: Optional[str] = None
     forcefolder: str = ""
+    geometry: Optional[str] = None
     grid_model: Optional[str] = None
     is_observation: bool = False
     is_prediction: bool = True

@@ -111,6 +111,11 @@ class FieldRegion(BaseModel):
     )
 
 
+class Geometry(BaseModel):
+    name: str = Field(examples=["MyGrid"])
+    relative_path: str = Field(examples=["some/relative/path/mygrid.roff"])
+
+
 class GridModel(BaseModel):
     name: str = Field(examples=["MyGrid"])
 
@@ -180,7 +185,10 @@ class Content(BaseModel):
 
     alias: Optional[List[str]] = Field(default=None)
 
-    # Only valid for cooridate based meta.
+    # only relevant for grid properties
+    geometry: Optional[Geometry] = Field(default=None)
+
+    # Only valid for coordinate based meta.
     bbox: Optional[Union[BoundingBox3D, BoundingBox2D]] = Field(default=None)
 
     description: Optional[List[str]] = Field(
@@ -189,7 +197,6 @@ class Content(BaseModel):
     format: str = Field(
         examples=["irap_binary"],
     )
-
     grid_model: Optional[GridModel] = Field(default=None)
     is_observation: bool = Field(
         title="Is observation flag",
