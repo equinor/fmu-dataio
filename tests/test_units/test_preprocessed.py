@@ -298,3 +298,50 @@ def test_export_preprocessed_file_exportdata_futurewarning(
     assert filepath.exists()
     metafile = filepath.parent / f".{filepath.name}.yml"
     assert metafile.exists()
+
+
+def test_export_preprocessed_file_exportdata_casepath_on_export(
+    fmurun_prehook, rmsglobalconfig, regsurf, monkeypatch
+):
+    """
+    Test that using the ExportData class to export preprocessed files
+    works also if arguments have been given on the export/generate_metadata methods
+    """
+    # mock being outside of FMU
+    remove_ert_env(monkeypatch)
+    surfacepath, _ = export_preprocessed_surface(rmsglobalconfig, regsurf)
+
+    # mock being inside of FMU
+    set_ert_env_prehook(monkeypatch)
+
+    # Use the ExportData class instead of the ExportPreprocessedData
+    edata = dataio.ExportData(config=rmsglobalconfig)
+
+    # test that error is thrown when missing casepath
+    with pytest.raises(TypeError, match="No 'casepath' argument provided"):
+        edata.export(surfacepath, is_observation=True)
+
+    # test that export() works if casepath is provided
+    with pytest.warns(FutureWarning, match="no longer supported"):
+        filepath = Path(
+            edata.export(surfacepath, is_observation=True, casepath=fmurun_prehook)
+        )
+    assert filepath.exists()
+    metafile = filepath.parent / f".{filepath.name}.yml"
+    assert metafile.exists()
+
+    # Use the ExportData class instead of the ExportPreprocessedData
+    edata = dataio.ExportData(config=rmsglobalconfig)
+
+    # test that error is thrown when missing casepath
+    with pytest.raises(TypeError, match="No 'casepath' argument provided"):
+        edata.generate_metadata(surfacepath, is_observation=True)
+
+    # test that generate_metadata() works if casepath is provided
+    with pytest.warns(FutureWarning, match="no longer supported"):
+        meta = edata.generate_metadata(
+            surfacepath, is_observation=True, casepath=fmurun_prehook
+        )
+
+    assert "fmu" in meta
+    assert "merged" in meta["tracklog"][-1]["event"]
