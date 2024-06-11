@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import xtgeo
 
-from fmu.dataio._definitions import ValidFormats
+from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import npfloat_to_float
 from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
@@ -39,6 +39,10 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
     @property
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.surface
+
+    @property
+    def efolder(self) -> str:
+        return self.dataio.forcefolder or ExportFolder.maps.value
 
     @property
     def extension(self) -> str:
@@ -94,7 +98,6 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.RegularSurface."""
         return DerivedObjectDescriptor(
             layout="regular",
-            efolder="maps",
             table_index=None,
         )
 
@@ -106,6 +109,10 @@ class PolygonsDataProvider(ObjectDataProvider):
     @property
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.polygons
+
+    @property
+    def efolder(self) -> str:
+        return self.dataio.forcefolder or ExportFolder.polygons.value
 
     @property
     def extension(self) -> str:
@@ -143,7 +150,6 @@ class PolygonsDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.Polygons."""
         return DerivedObjectDescriptor(
             layout="unset",
-            efolder="polygons",
             table_index=None,
         )
 
@@ -155,6 +161,10 @@ class PointsDataProvider(ObjectDataProvider):
     @property
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.points
+
+    @property
+    def efolder(self) -> str:
+        return self.dataio.forcefolder or ExportFolder.points.value
 
     @property
     def extension(self) -> str:
@@ -197,7 +207,6 @@ class PointsDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.Points."""
         return DerivedObjectDescriptor(
             layout="unset",
-            efolder="points",
             table_index=None,
         )
 
@@ -209,6 +218,10 @@ class CubeDataProvider(ObjectDataProvider):
     @property
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.cube
+
+    @property
+    def efolder(self) -> str:
+        return self.dataio.forcefolder or ExportFolder.cubes.value
 
     @property
     def extension(self) -> str:
@@ -273,7 +286,6 @@ class CubeDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.Cube."""
         return DerivedObjectDescriptor(
             layout="regular",
-            efolder="cubes",
             table_index=None,
         )
 
@@ -285,6 +297,10 @@ class CPGridDataProvider(ObjectDataProvider):
     @property
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.cpgrid
+
+    @property
+    def efolder(self) -> str:
+        return self.dataio.forcefolder or ExportFolder.grids.value
 
     @property
     def extension(self) -> str:
@@ -333,7 +349,6 @@ class CPGridDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.Grid."""
         return DerivedObjectDescriptor(
             layout="cornerpoint",
-            efolder="grids",
             table_index=None,
         )
 
@@ -345,6 +360,10 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
     @property
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.cpgrid_property
+
+    @property
+    def efolder(self) -> str:
+        return self.dataio.forcefolder or ExportFolder.grids.value
 
     @property
     def extension(self) -> str:
@@ -371,6 +390,5 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
         """Derive object data for xtgeo.GridProperty."""
         return DerivedObjectDescriptor(
             layout="cornerpoint",
-            efolder="grids",
             table_index=None,
         )

@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
     from fmu.dataio.datastructure.meta.enums import FMUClassEnum
     from fmu.dataio.datastructure.meta.specification import AnySpecification
-    from fmu.dataio.types import Efolder, Inferrable, Layout
+    from fmu.dataio.types import Inferrable, Layout
 
 logger: Final = null_logger(__name__)
 
@@ -32,7 +32,6 @@ logger: Final = null_logger(__name__)
 @dataclass
 class DerivedObjectDescriptor:
     layout: Layout
-    efolder: Efolder | str
     table_index: list[str] | None
 
 
@@ -70,7 +69,6 @@ class ObjectDataProvider(Provider):
     # as instance properties in addition (for simplicity in other classes/functions)
     _metadata: dict = field(default_factory=dict)
     name: str = field(default="")
-    efolder: str = field(default="")
     time0: datetime | None = field(default=None)
     time1: datetime | None = field(default=None)
 
@@ -80,16 +78,14 @@ class ObjectDataProvider(Provider):
         obj_data = self.get_objectdata()
 
         self.name = named_stratigraphy.name
-        self.efolder = obj_data.efolder
 
         if self.dataio.forcefolder:
             if self.dataio.forcefolder.startswith("/"):
                 raise ValueError("Can't use absolute path as 'forcefolder'")
             msg = (
-                f"The standard folder name is overrided from {obj_data.efolder} to "
+                f"The standard folder name is overrided from {self.efolder} to "
                 f"{self.dataio.forcefolder}"
             )
-            self.efolder = self.dataio.forcefolder
             logger.info(msg)
             warn(msg, UserWarning)
 
@@ -143,6 +139,11 @@ class ObjectDataProvider(Provider):
     @property
     @abstractmethod
     def classname(self) -> FMUClassEnum:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def efolder(self) -> str:
         raise NotImplementedError
 
     @property

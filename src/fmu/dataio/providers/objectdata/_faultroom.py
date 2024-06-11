@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Final
 
-from fmu.dataio._definitions import ValidFormats
+from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure.meta.content import BoundingBox3D
 from fmu.dataio.datastructure.meta.enums import FMUClassEnum
@@ -25,6 +25,10 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
     @property
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.surface
+
+    @property
+    def efolder(self) -> str:
+        return self.dataio.forcefolder or ExportFolder.maps.value
 
     @property
     def extension(self) -> str:
@@ -62,6 +66,5 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
         """Derive object data for FaultRoomSurface"""
         return DerivedObjectDescriptor(
             layout="faultroom_triangulated",
-            efolder="maps",
             table_index=None,
         )
