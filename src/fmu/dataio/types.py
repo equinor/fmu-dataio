@@ -50,7 +50,6 @@ if TYPE_CHECKING:
         "Collection of 'inferrable' objects with metadata deduction capabilities",
     ]
 
-
 Parameters: TypeAlias = Annotated[
     MutableMapping[str, Union[str, float, int, None, "Parameters"]],
     "Nested or flat configurations for dynamically structured parameters.",
