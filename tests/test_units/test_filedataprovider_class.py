@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from fmu.dataio import ExportData
+from fmu.dataio._definitions import ExportFolder
 from fmu.dataio.datastructure.meta import meta
 from fmu.dataio.providers._filedata import FileDataProvider
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
@@ -175,16 +176,17 @@ def test_get_share_folders(regsurf):
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
-    objdata.efolder = "efolder"
 
     fdata = FileDataProvider(edataobj1, objdata)
     share_folders = fdata._get_share_folders()
     assert isinstance(share_folders, Path)
-    assert share_folders == Path("share/results/efolder")
+    assert share_folders == Path(f"share/results/{ExportFolder.maps.value}")
     # check that the path present in the metadata matches the share folders
 
     fmeta = fdata.get_metadata()
-    assert str(fmeta.absolute_path.parent).endswith("share/results/efolder")
+    assert str(fmeta.absolute_path.parent).endswith(
+        f"share/results/{ExportFolder.maps.value}"
+    )
 
 
 def test_get_share_folders_with_subfolder(regsurf):
@@ -194,15 +196,14 @@ def test_get_share_folders_with_subfolder(regsurf):
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
-    objdata.efolder = "efolder"
 
     fdata = FileDataProvider(edataobj1, objdata)
     share_folders = fdata._get_share_folders()
-    assert share_folders == Path("share/results/efolder/sub")
+    assert share_folders == Path("share/results/maps/sub")
 
     # check that the path present in the metadata matches the share folders
     fmeta = fdata.get_metadata()
-    assert str(fmeta.absolute_path.parent).endswith("share/results/efolder/sub")
+    assert str(fmeta.absolute_path.parent).endswith("share/results/maps/sub")
 
 
 def test_filedata_provider(regsurf, tmp_path):
@@ -210,11 +211,10 @@ def test_filedata_provider(regsurf, tmp_path):
 
     os.chdir(tmp_path)
 
-    cfg = ExportData(name="", parent="parent", tagname="tag")
+    cfg = ExportData(name="", parent="parent", tagname="tag", forcefolder="efolder")
 
     objdata = objectdata_provider_factory(regsurf, cfg)
     objdata.name = "name"
-    objdata.efolder = "efolder"
     t1 = "19000101"
     t2 = "20240101"
     objdata.time0 = datetime.strptime(t1, "%Y%m%d")

@@ -5,7 +5,11 @@ from typing import TYPE_CHECKING, Final
 
 import pandas as pd
 
-from fmu.dataio._definitions import STANDARD_TABLE_INDEX_COLUMNS, ValidFormats
+from fmu.dataio._definitions import (
+    STANDARD_TABLE_INDEX_COLUMNS,
+    ExportFolder,
+    ValidFormats,
+)
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure.meta.enums import FMUClassEnum
 from fmu.dataio.datastructure.meta.specification import TableSpecification
@@ -65,6 +69,10 @@ class DataFrameDataProvider(ObjectDataProvider):
         return FMUClassEnum.table
 
     @property
+    def efolder(self) -> str:
+        return self.dataio.forcefolder or ExportFolder.tables.value
+
+    @property
     def extension(self) -> str:
         return self._validate_get_ext(self.fmt, ValidFormats.table)
 
@@ -88,7 +96,6 @@ class DataFrameDataProvider(ObjectDataProvider):
         table_index = _derive_index(self.dataio.table_index, list(self.obj.columns))
         return DerivedObjectDescriptor(
             layout="table",
-            efolder="tables",
             table_index=table_index,
         )
 
@@ -100,6 +107,10 @@ class ArrowTableDataProvider(ObjectDataProvider):
     @property
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.table
+
+    @property
+    def efolder(self) -> str:
+        return self.dataio.forcefolder or ExportFolder.tables.value
 
     @property
     def extension(self) -> str:
@@ -125,6 +136,5 @@ class ArrowTableDataProvider(ObjectDataProvider):
         table_index = _derive_index(self.dataio.table_index, self.obj.column_names)
         return DerivedObjectDescriptor(
             layout="table",
-            efolder="tables",
             table_index=table_index,
         )

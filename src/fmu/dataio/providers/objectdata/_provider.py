@@ -92,7 +92,7 @@ from typing import TYPE_CHECKING, Final
 import pandas as pd
 import xtgeo
 
-from fmu.dataio._definitions import ValidFormats
+from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure.meta.enums import FMUClassEnum
 from fmu.dataio.readers import FaultRoomSurface
@@ -169,6 +169,10 @@ class DictionaryDataProvider(ObjectDataProvider):
         return FMUClassEnum.dictionary
 
     @property
+    def efolder(self) -> str:
+        return self.dataio.forcefolder or ExportFolder.dictionaries.value
+
+    @property
     def extension(self) -> str:
         return self._validate_get_ext(self.fmt, ValidFormats.dictionary)
 
@@ -186,6 +190,5 @@ class DictionaryDataProvider(ObjectDataProvider):
         """Derive object data for dict."""
         return DerivedObjectDescriptor(
             layout="dictionary",
-            efolder="dictionaries",
             table_index=None,
         )
