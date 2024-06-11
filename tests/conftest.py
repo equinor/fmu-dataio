@@ -549,7 +549,7 @@ def _create_aggregated_surface_dataset(rmsglobalconfig, regsurf, content):
     for i in range(10):  # TODO! 10
         use_regsurf = regsurf.copy()
         use_regsurf.values += float(i)
-        expfile = edata.export(use_regsurf, name="mymap_" + str(i), realization=i)
+        expfile = edata.export(use_regsurf, name=f"mymap_{i}")
         aggs.append(expfile)
 
     # next task is to do an aggradation, and now the metadata already exists

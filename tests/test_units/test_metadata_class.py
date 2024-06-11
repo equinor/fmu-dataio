@@ -145,7 +145,9 @@ def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
     assert mymeta1["data"]["undef_is_zero"] is False
 
     # assert that value is reflected when passed to generate_metadata
-    mymeta2 = eobj1.generate_metadata(regsurf, undef_is_zero=True)
+    # and warning is issued to move the argument to initialization
+    with pytest.warns(FutureWarning, match="move them up to initialization"):
+        mymeta2 = eobj1.generate_metadata(regsurf, undef_is_zero=True)
     assert mymeta2["data"]["undef_is_zero"] is True
 
     # assert that value is reflected when passed to ExportData
@@ -156,7 +158,7 @@ def test_populate_meta_undef_is_zero(regsurf, globalconfig2):
         unit="m",
         undef_is_zero=True,
     )
-    mymeta3 = eobj2.generate_metadata(regsurf, undef_is_zero=True)
+    mymeta3 = eobj2.generate_metadata(regsurf)
     assert mymeta3["data"]["undef_is_zero"] is True
 
 

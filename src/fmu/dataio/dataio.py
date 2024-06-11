@@ -122,26 +122,25 @@ def read_metadata(filename: str | Path) -> dict:
 class ExportData:
     """Class for exporting data with rich metadata in FMU.
 
-    This class sets up the general metadata content to be applied in export. The idea is
-    that one ExportData instance can be re-used for several similar export() jobs. For
-    example::
-
-        edata = dataio.ExportData(
-            config=CFG, content="depth", unit="m", vertical_domain={"depth": "msl"},
-            timedata=None, is_prediction=True, is_observation=False,
-            tagname="faultlines", workflow="rms structural model",
-        )
+    This class sets up the general metadata content to be applied in export.
+    For example::
 
         for name in ["TopOne", TopTwo", "TopThree"]:
             poly = xtgeo.polygons_from_roxar(PRJ, hname, POL_FOLDER)
 
-            out = ed.export(poly, name=name)
-
-    Almost all keyword settings like ``name``, ``tagname`` etc can be set in both the
-    ExportData instance and directly in the ``generate_metadata`` or ``export()``
-    function, to provide flexibility for different use cases. If both are set, the
-    ``export()`` setting will win followed by ``generate_metadata() and finally
-    ExportData()``.
+            ed = dataio.ExportData(
+                config=CFG,
+                content="depth",
+                unit="m",
+                vertical_domain={"depth": "msl"},
+                timedata=None,
+                is_prediction=True,
+                is_observation=False,
+                tagname="faultlines",
+                workflow="rms structural model",
+                name=name
+            )
+            out = ed.export(poly)
 
     A note on 'pwd' and 'rootpath' and 'casepath': The 'pwd' is the process working
     directory, which is folder where the process (script) starts. The 'rootpath' is the
@@ -707,6 +706,9 @@ class ExportData:
         self._validate_and_establish_fmucontext()
         self._rootpath = self._establish_rootpath()
 
+        self._classification = self._get_classification()
+        self._rep_include = self._get_rep_include()
+
     def _establish_rootpath(self) -> Path:
         """
         Establish the rootpath. The rootpath is the folder that acts as the
@@ -774,8 +776,8 @@ class ExportData:
         Args:
             obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
             compute_md5: If True, compute a MD5 checksum for the exported file.
-            **kwargs: For other arguments, see ExportData() input keys. If they
-                exist both places, this function will override!
+            **kwargs: Using other ExportData() input keys is now deprecated, input the
+                arguments when initializing the ExportData() instance instead.
 
         Returns:
             A dictionary with all metadata.
@@ -789,7 +791,14 @@ class ExportData:
         logger.info("Generate metadata...")
         logger.info("KW args %s", kwargs)
 
-        self._update_check_settings(kwargs)
+        if kwargs:
+            warnings.warn(
+                "In the future it will not be possible to enter following arguments "
+                f"inside the export() / generate_metadata() methods: {list(kwargs)}. "
+                "Please move them up to initialization of the ExportData instance.",
+                FutureWarning,
+            )
+            self._update_check_settings(kwargs)
 
         if isinstance(obj, (str, Path)):
             if self.casepath is None:
@@ -799,9 +808,6 @@ class ExportData:
                 casepath=self.casepath,
                 is_observation=self.is_observation,
             ).generate_metadata(obj)
-
-        self._classification = self._get_classification()
-        self._rep_include = self._get_rep_include()
 
         self._update_fmt_flag()
         fmudata = self._get_fmu_provider() if self._fmurun else None
@@ -827,8 +833,8 @@ class ExportData:
 
         Args:
             obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
-            **kwargs: For other arguments, see ExportData() input keys. If they
-                exist both places, this function will override!
+            **kwargs: Using other ExportData() input keys is now deprecated, input the
+                arguments when initializing the ExportData() instance instead.
 
         Returns:
             String: full path to exported item.

@@ -27,7 +27,7 @@ def read_metadata(objmetafile):
 def export_preprocessed_surface(config, regsurf):
     edata = dataio.ExportData(
         config=config,
-        fmu_context="preprocessed",
+        preprocessed=True,
         name="TopVolantis",
         content="depth",
         timedata=[[20240802, "moni"], [20200909, "base"]],
@@ -200,7 +200,7 @@ def test_preprocessed_surface_modified_post_export(
         ).export(surfacepath)
 
 
-def test_preprocessed_surface_fmucontext_not_case(rmsglobalconfig, monkeypatch):
+def test_preprocessed_surface_fmucontext_not_case(monkeypatch):
     """
     Test that an error is raised if ExportPreprocessedData is used
     in other fmu_context than 'case'
@@ -216,7 +216,7 @@ def test_preprocessed_surface_fmucontext_not_case(rmsglobalconfig, monkeypatch):
         dataio.ExportPreprocessedData(casepath="dummy")
 
 
-def test_preprocessed_surface_invalid_casepath(fmurun_prehook, rmsglobalconfig):
+def test_preprocessed_surface_invalid_casepath(fmurun_prehook):
     """Test that an error is raised if casepath is wrong or no case meta exist"""
 
     # error should be raised when running on a casepath without case metadata
@@ -307,33 +307,29 @@ def test_export_preprocessed_file_exportdata_casepath_on_export(
     set_ert_env_prehook(monkeypatch)
 
     # Use the ExportData class instead of the ExportPreprocessedData
-    edata = dataio.ExportData(config=rmsglobalconfig)
+    edata = dataio.ExportData(config=rmsglobalconfig, is_observation=True)
 
     # test that error is thrown when missing casepath
     with pytest.raises(TypeError, match="No 'casepath' argument provided"):
-        edata.export(surfacepath, is_observation=True)
+        edata.export(surfacepath)
 
     # test that export() works if casepath is provided
     with pytest.warns(FutureWarning, match="no longer supported"):
-        filepath = Path(
-            edata.export(surfacepath, is_observation=True, casepath=fmurun_prehook)
-        )
+        filepath = Path(edata.export(surfacepath, casepath=fmurun_prehook))
     assert filepath.exists()
     metafile = filepath.parent / f".{filepath.name}.yml"
     assert metafile.exists()
 
     # Use the ExportData class instead of the ExportPreprocessedData
-    edata = dataio.ExportData(config=rmsglobalconfig)
+    edata = dataio.ExportData(config=rmsglobalconfig, is_observation=True)
 
     # test that error is thrown when missing casepath
     with pytest.raises(TypeError, match="No 'casepath' argument provided"):
-        edata.generate_metadata(surfacepath, is_observation=True)
+        edata.generate_metadata(surfacepath)
 
     # test that generate_metadata() works if casepath is provided
     with pytest.warns(FutureWarning, match="no longer supported"):
-        meta = edata.generate_metadata(
-            surfacepath, is_observation=True, casepath=fmurun_prehook
-        )
+        meta = edata.generate_metadata(surfacepath, casepath=fmurun_prehook)
 
     assert "fmu" in meta
     assert "merged" in meta["tracklog"][-1]["event"]

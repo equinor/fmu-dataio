@@ -337,7 +337,6 @@ def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, reg
         expfile = edata.export(
             use_regsurf,
             name="mymap_" + str(i),
-            realization=i,
             timedata=[[20300201], [19990204]],
         )
         aggs.append(expfile)

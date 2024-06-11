@@ -58,8 +58,8 @@ def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path
     """
     monkeypatch.chdir(tmp_path)
     answer = ["ZONE", "LICENCE"]
-    exd = ExportData(config=globalconfig2, content="volumes")
-    path = exd.export(mock_volumes, name="baretull")
+    exd = ExportData(config=globalconfig2, content="volumes", name="baretull")
+    path = exd.export(mock_volumes)
     assert_correct_table_index(path, answer)
 
 
@@ -74,8 +74,8 @@ def test_derive_summary_index_pandas(
     """
     monkeypatch.chdir(tmp_path)
     answer = ["DATE"]
-    exd = ExportData(config=globalconfig2, content="timeseries")
-    path = exd.export(mock_summary, name="baretull")
+    exd = ExportData(config=globalconfig2, content="timeseries", name="baretull")
+    path = exd.export(mock_summary)
     assert_correct_table_index(path, answer)
 
 
@@ -92,8 +92,8 @@ def test_derive_summary_index_pyarrow(
 
     monkeypatch.chdir(tmp_path)
     answer = ["DATE"]
-    exd = ExportData(config=globalconfig2, content="timeseries")
-    path = exd.export(Table.from_pandas(mock_summary), name="baretull")
+    exd = ExportData(config=globalconfig2, content="timeseries", name="baretull")
+    path = exd.export(Table.from_pandas(mock_summary))
     assert_correct_table_index(path, answer)
 
 
@@ -106,8 +106,10 @@ def test_set_from_exportdata(mock_volumes, globalconfig2, monkeypatch, tmp_path)
     """
     monkeypatch.chdir(tmp_path)
     index = ["OTHER"]
-    exd = ExportData(config=globalconfig2, table_index=index, content="timeseries")
-    path = exd.export(mock_volumes, name="baretull")
+    exd = ExportData(
+        config=globalconfig2, table_index=index, content="timeseries", name="baretull"
+    )
+    path = exd.export(mock_volumes)
     assert_correct_table_index(path, index)
 
 
@@ -120,8 +122,10 @@ def test_set_from_export(mock_volumes, globalconfig2, monkeypatch, tmp_path):
     """
     monkeypatch.chdir(tmp_path)
     index = ["OTHER"]
-    exd = ExportData(config=globalconfig2, content="timeseries")
-    path = exd.export(mock_volumes, name="baretull", table_index=index)
+    exd = ExportData(
+        config=globalconfig2, content="timeseries", table_index=index, name="baretull"
+    )
+    path = exd.export(mock_volumes)
     assert_correct_table_index(path, index)
 
 
@@ -136,9 +140,11 @@ def test_set_table_index_not_in_table(
     """
     monkeypatch.chdir(tmp_path)
     index = ["banana"]
-    exd = ExportData(config=globalconfig2, content="timeseries")
+    exd = ExportData(
+        config=globalconfig2, content="timeseries", table_index=index, name="baretull"
+    )
     with pytest.raises(KeyError) as k_err:
-        exd.export(mock_volumes, name="baretull", table_index=index)
+        exd.export(mock_volumes)
     assert k_err.value.args[0] == "banana is not in table"
 
 
