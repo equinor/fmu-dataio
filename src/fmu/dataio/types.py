@@ -65,18 +65,6 @@ Efolder: TypeAlias = Literal[
     "dictionaries",
 ]
 
-Subtype: TypeAlias = Literal[
-    "RegularSurface",
-    "Polygons",
-    "Points",
-    "RegularCube",
-    "CPGrid",
-    "CPGridProperty",
-    "DataFrame",
-    "JSON",
-    "ArrowTable",
-]
-
 Layout: TypeAlias = Literal[
     "regular",
     "unset",

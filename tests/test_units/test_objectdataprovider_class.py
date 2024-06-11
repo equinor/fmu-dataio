@@ -46,7 +46,7 @@ def test_objectdata_regularsurface_validate_extension(regsurf, edataobj1):
     """Test a valid extension for RegularSurface object."""
 
     ext = objectdata_provider_factory(regsurf, edataobj1)._validate_get_ext(
-        "irap_binary", "RegularSurface", ValidFormats().surface
+        "irap_binary", ValidFormats.surface
     )
 
     assert ext == ".gri"
@@ -57,7 +57,7 @@ def test_objectdata_regularsurface_validate_extension_shall_fail(regsurf, edatao
 
     with pytest.raises(ConfigurationError):
         objectdata_provider_factory(regsurf, edataobj1)._validate_get_ext(
-            "some_invalid", "RegularSurface", ValidFormats().surface
+            "some_invalid", ValidFormats.surface
         )
 
 
@@ -79,10 +79,7 @@ def test_objectdata_regularsurface_derive_objectdata(regsurf, edataobj1):
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     assert isinstance(objdata, RegularSurfaceDataProvider)
     assert objdata.classname.value == "surface"
-
-    res = objdata.get_objectdata()
-    assert res.subtype == "RegularSurface"
-    assert res.extension == ".gri"
+    assert objdata.extension == ".gri"
 
 
 def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):

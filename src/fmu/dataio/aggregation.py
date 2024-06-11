@@ -244,8 +244,7 @@ class AggregatedData:
         }
         etemp = dataio.ExportData(config=config, name=self.name)
 
-        objectdata_provider = objectdata_provider_factory(obj=obj, dataio=etemp)
-        objdata = objectdata_provider.get_objectdata()
+        objdata = objectdata_provider_factory(obj=obj, dataio=etemp)
 
         template["tracklog"] = [generate_meta_tracklog()[0].model_dump(mode="json")]
         template["file"] = {
@@ -262,7 +261,7 @@ class AggregatedData:
             template["data"]["name"] = self.name
         if self.tagname:
             template["data"]["tagname"] = self.tagname
-        if bbox := objectdata_provider.get_bbox():
+        if bbox := objdata.get_bbox():
             template["data"]["bbox"] = bbox.model_dump(mode="json", exclude_none=True)
 
         self._metadata = template

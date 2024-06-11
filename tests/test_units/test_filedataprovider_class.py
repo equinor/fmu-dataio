@@ -215,7 +215,6 @@ def test_filedata_provider(regsurf, tmp_path):
     objdata = objectdata_provider_factory(regsurf, cfg)
     objdata.name = "name"
     objdata.efolder = "efolder"
-    objdata.extension = ".ext"
     t1 = "19000101"
     t2 = "20240101"
     objdata.time0 = datetime.strptime(t1, "%Y%m%d")
@@ -227,9 +226,9 @@ def test_filedata_provider(regsurf, tmp_path):
     assert isinstance(filemeta, meta.File)
     assert (
         str(filemeta.relative_path)
-        == f"share/results/efolder/parent--name--tag--{t2}_{t1}.ext"
+        == f"share/results/efolder/parent--name--tag--{t2}_{t1}.gri"
     )
-    absdata = tmp_path / f"share/results/efolder/parent--name--tag--{t2}_{t1}.ext"
+    absdata = tmp_path / f"share/results/efolder/parent--name--tag--{t2}_{t1}.gri"
     assert filemeta.absolute_path == absdata
 
 
