@@ -755,7 +755,8 @@ class ExportData:
         self._update_check_settings(kwargs)
 
         if isinstance(obj, (str, Path)):
-            assert self.casepath is not None
+            if self.casepath is None:
+                raise TypeError("No 'casepath' argument provided")
             _future_warning_preprocessed()
             return ExportPreprocessedData(
                 config=self.config,
@@ -804,7 +805,9 @@ class ExportData:
                 "The return_symlink option is deprecated and can safely be removed."
             )
         if isinstance(obj, (str, Path)):
-            assert self.casepath is not None
+            self._update_check_settings(kwargs)
+            if self.casepath is None:
+                raise TypeError("No 'casepath' argument provided")
             _future_warning_preprocessed()
             return ExportPreprocessedData(
                 config=self.config,
