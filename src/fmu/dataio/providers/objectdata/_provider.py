@@ -168,19 +168,24 @@ class DictionaryDataProvider(ObjectDataProvider):
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.dictionary
 
-    def get_spec(self) -> None:
-        """Derive data.spec for dict."""
+    @property
+    def extension(self) -> str:
+        return self._validate_get_ext(self.fmt, ValidFormats.dictionary)
+
+    @property
+    def fmt(self) -> str:
+        return self.dataio.dict_fformat
 
     def get_bbox(self) -> None:
         """Derive data.bbox for dict."""
 
+    def get_spec(self) -> None:
+        """Derive data.spec for dict."""
+
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data for dict."""
         return DerivedObjectDescriptor(
-            subtype="JSON",
             layout="dictionary",
             efolder="dictionaries",
-            fmt=(fmt := self.dataio.dict_fformat),
-            extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
             table_index=None,
         )

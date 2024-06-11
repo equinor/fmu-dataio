@@ -64,6 +64,17 @@ class DataFrameDataProvider(ObjectDataProvider):
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.table
 
+    @property
+    def extension(self) -> str:
+        return self._validate_get_ext(self.fmt, ValidFormats.table)
+
+    @property
+    def fmt(self) -> str:
+        return self.dataio.table_fformat
+
+    def get_bbox(self) -> None:
+        """Derive data.bbox for pd.DataFrame."""
+
     def get_spec(self) -> TableSpecification:
         """Derive data.spec for pd.DataFrame."""
         logger.info("Get spec for pd.DataFrame (tables)")
@@ -72,18 +83,12 @@ class DataFrameDataProvider(ObjectDataProvider):
             size=int(self.obj.size),
         )
 
-    def get_bbox(self) -> None:
-        """Derive data.bbox for pd.DataFrame."""
-
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data for pd.DataFrame."""
         table_index = _derive_index(self.dataio.table_index, list(self.obj.columns))
         return DerivedObjectDescriptor(
-            subtype="DataFrame",
             layout="table",
             efolder="tables",
-            fmt=(fmt := self.dataio.table_fformat),
-            extension=self._validate_get_ext(fmt, "DataFrame", ValidFormats().table),
             table_index=table_index,
         )
 
@@ -96,6 +101,17 @@ class ArrowTableDataProvider(ObjectDataProvider):
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.table
 
+    @property
+    def extension(self) -> str:
+        return self._validate_get_ext(self.fmt, ValidFormats.table)
+
+    @property
+    def fmt(self) -> str:
+        return self.dataio.arrow_fformat
+
+    def get_bbox(self) -> None:
+        """Derive data.bbox for pyarrow.Table."""
+
     def get_spec(self) -> TableSpecification:
         """Derive data.spec for pyarrow.Table."""
         logger.info("Get spec for pyarrow (tables)")
@@ -104,17 +120,11 @@ class ArrowTableDataProvider(ObjectDataProvider):
             size=self.obj.num_columns * self.obj.num_rows,
         )
 
-    def get_bbox(self) -> None:
-        """Derive data.bbox for pyarrow.Table."""
-
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data from pyarrow.Table."""
         table_index = _derive_index(self.dataio.table_index, self.obj.column_names)
         return DerivedObjectDescriptor(
-            subtype="ArrowTable",
             layout="table",
             efolder="tables",
-            fmt=(fmt := self.dataio.arrow_fformat),
-            extension=self._validate_get_ext(fmt, "ArrowTable", ValidFormats().table),
             table_index=table_index,
         )

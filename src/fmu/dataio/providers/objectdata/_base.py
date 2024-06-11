@@ -4,10 +4,10 @@ from abc import abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Final, TypeVar
+from typing import TYPE_CHECKING, Final
 from warnings import warn
 
-from fmu.dataio._definitions import ConfigurationError
+from fmu.dataio._definitions import ConfigurationError, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import generate_description
 from fmu.dataio.datastructure._internal.internal import AllowedContent, UnsetAnyContent
@@ -24,20 +24,15 @@ if TYPE_CHECKING:
     from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
     from fmu.dataio.datastructure.meta.enums import FMUClassEnum
     from fmu.dataio.datastructure.meta.specification import AnySpecification
-    from fmu.dataio.types import Efolder, Inferrable, Layout, Subtype
+    from fmu.dataio.types import Efolder, Inferrable, Layout
 
 logger: Final = null_logger(__name__)
-
-V = TypeVar("V")
 
 
 @dataclass
 class DerivedObjectDescriptor:
-    subtype: Subtype
     layout: Layout
     efolder: Efolder | str
-    fmt: str
-    extension: str
     table_index: list[str] | None
 
 
@@ -76,8 +71,6 @@ class ObjectDataProvider(Provider):
     _metadata: dict = field(default_factory=dict)
     name: str = field(default="")
     efolder: str = field(default="")
-    extension: str = field(default="")
-    fmt: str = field(default="")
     time0: datetime | None = field(default=None)
     time1: datetime | None = field(default=None)
 
@@ -87,8 +80,6 @@ class ObjectDataProvider(Provider):
         obj_data = self.get_objectdata()
 
         self.name = named_stratigraphy.name
-        self.extension = obj_data.extension
-        self.fmt = obj_data.fmt
         self.efolder = obj_data.efolder
 
         if self.dataio.forcefolder:
@@ -148,6 +139,40 @@ class ObjectDataProvider(Provider):
         self._metadata["is_observation"] = self.dataio.is_observation
         self._metadata["description"] = generate_description(self.dataio.description)
         logger.info("Derive all metadata for data object... DONE")
+
+    @property
+    @abstractmethod
+    def classname(self) -> FMUClassEnum:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def extension(self) -> str:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def fmt(self) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_bbox(self) -> BoundingBox2D | BoundingBox3D | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_spec(self) -> AnySpecification | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_objectdata(self) -> DerivedObjectDescriptor:
+        raise NotImplementedError
+
+    def get_metadata(self) -> AnyContent | UnsetAnyContent:
+        return (
+            UnsetAnyContent.model_validate(self._metadata)
+            if self._metadata["content"] == "unset"
+            else AnyContent.model_validate(self._metadata)
+        )
 
     def _get_validated_content(self, content: str | dict | None) -> AllowedContent:
         """Check content and return a validated model."""
@@ -254,37 +279,13 @@ class ObjectDataProvider(Provider):
 
         return Time(t0=start, t1=stop)
 
-    @property
-    @abstractmethod
-    def classname(self) -> FMUClassEnum:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_spec(self) -> AnySpecification | None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_bbox(self) -> BoundingBox2D | BoundingBox3D | None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        raise NotImplementedError
-
-    def get_metadata(self) -> AnyContent | UnsetAnyContent:
-        return (
-            UnsetAnyContent.model_validate(self._metadata)
-            if self._metadata["content"] == "unset"
-            else AnyContent.model_validate(self._metadata)
-        )
-
     @staticmethod
-    def _validate_get_ext(fmt: str, subtype: str, validator: dict[str, V]) -> V:
+    def _validate_get_ext(fmt: str, validator: ValidFormats) -> str:
         """Validate that fmt (file format) matches data and return legal extension."""
         try:
-            return validator[fmt]
+            return validator.value[fmt]
         except KeyError:
             raise ConfigurationError(
                 f"The file format {fmt} is not supported. ",
-                f"Valid {subtype} formats are: {list(validator.keys())}",
+                f"Valid formats are: {list(validator.value.keys())}",
             )

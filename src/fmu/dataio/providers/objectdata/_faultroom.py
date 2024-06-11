@@ -26,6 +26,14 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
     def classname(self) -> FMUClassEnum:
         return FMUClassEnum.surface
 
+    @property
+    def extension(self) -> str:
+        return self._validate_get_ext(self.fmt, ValidFormats.dictionary)
+
+    @property
+    def fmt(self) -> str:
+        return self.dataio.dict_fformat
+
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for FaultRoomSurface."""
         logger.info("Get bbox for FaultRoomSurface")
@@ -53,10 +61,7 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
     def get_objectdata(self) -> DerivedObjectDescriptor:
         """Derive object data for FaultRoomSurface"""
         return DerivedObjectDescriptor(
-            subtype="JSON",
             layout="faultroom_triangulated",
             efolder="maps",
-            fmt=(fmt := self.dataio.dict_fformat),
-            extension=self._validate_get_ext(fmt, "JSON", ValidFormats().dictionary),
             table_index=None,
         )

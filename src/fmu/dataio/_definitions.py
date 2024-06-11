@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import Enum, unique
 from typing import Final, Type
 
@@ -21,52 +20,43 @@ class ConfigurationError(ValueError):
     pass
 
 
-@dataclass
-class ValidFormats:
-    surface: dict[str, str] = field(
-        default_factory=lambda: {
-            "irap_binary": ".gri",
-        }
-    )
-    grid: dict[str, str] = field(
-        default_factory=lambda: {
-            "hdf": ".hdf",
-            "roff": ".roff",
-        }
-    )
-    cube: dict[str, str] = field(
-        default_factory=lambda: {
-            "segy": ".segy",
-        }
-    )
-    table: dict[str, str] = field(
-        default_factory=lambda: {
-            "hdf": ".hdf",
-            "csv": ".csv",
-            "parquet": ".parquet",
-        }
-    )
-    polygons: dict[str, str] = field(
-        default_factory=lambda: {
-            "hdf": ".hdf",
-            "csv": ".csv",  # columns will be X Y Z, ID
-            "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, ... POLY_ID
-            "irap_ascii": ".pol",
-        }
-    )
-    points: dict[str, str] = field(
-        default_factory=lambda: {
-            "hdf": ".hdf",
-            "csv": ".csv",  # columns will be X Y Z
-            "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS
-            "irap_ascii": ".poi",
-        }
-    )
-    dictionary: dict[str, str] = field(
-        default_factory=lambda: {
-            "json": ".json",
-        }
-    )
+class ValidFormats(Enum):
+    surface = {
+        "irap_binary": ".gri",
+    }
+
+    grid = {
+        "hdf": ".hdf",
+        "roff": ".roff",
+    }
+
+    cube = {
+        "segy": ".segy",
+    }
+
+    table = {
+        "hdf": ".hdf",
+        "csv": ".csv",
+        "parquet": ".parquet",
+    }
+
+    polygons = {
+        "hdf": ".hdf",
+        "csv": ".csv",  # columns will be X Y Z, ID
+        "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, ... POLY_ID
+        "irap_ascii": ".pol",
+    }
+
+    points = {
+        "hdf": ".hdf",
+        "csv": ".csv",  # columns will be X Y Z
+        "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS
+        "irap_ascii": ".poi",
+    }
+
+    dictionary = {
+        "json": ".json",
+    }
 
 
 STANDARD_TABLE_INDEX_COLUMNS: Final[dict[str, list[str]]] = {
