@@ -1,6 +1,8 @@
 """Explicitly test all allowed contents."""
 
+import pytest
 from fmu.dataio.dataio import ExportData
+from pydantic import ValidationError
 
 # generic testing of functionality related to content is done elsewhere,
 # mainly in test_dataio.py.
@@ -64,6 +66,28 @@ def test_content_fluid_contact(regsurf, globalconfig2):
     ).generate_metadata(regsurf)
 
     assert meta["data"]["content"] == "fluid_contact"
+
+
+def test_content_fluid_contact_case_insensitive(regsurf, globalconfig2):
+    """Test export of the fluid_contact content."""
+    with pytest.warns(UserWarning, match=r"contains uppercase.+value to 'owc'"):
+        meta = ExportData(
+            config=globalconfig2,
+            name="MyName",
+            content={"fluid_contact": {"contact": "OWC"}},
+        ).generate_metadata(regsurf)
+
+    assert meta["data"]["fluid_contact"]["contact"] == "owc"
+
+
+def test_content_fluid_contact_raises_on_invalid_contact(regsurf, globalconfig2):
+    """Test export of the fluid_contact content."""
+    with pytest.raises(ValidationError, match="fluid_contact"):
+        ExportData(
+            config=globalconfig2,
+            name="MyName",
+            content={"fluid_contact": {"contact": "OEC"}},
+        ).generate_metadata(regsurf)
 
 
 def test_content_kh_product(regsurf, globalconfig2):

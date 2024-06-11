@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import (
@@ -9,6 +10,7 @@ from pydantic import (
     GetJsonSchemaHandler,
     NaiveDatetime,
     RootModel,
+    field_validator,
     model_validator,
 )
 from pydantic_core import CoreSchema
@@ -77,6 +79,18 @@ class FluidContact(BaseModel):
         examples=["owc", "fwl"],
     )
     truncated: bool = Field(default=False)
+
+    @field_validator("contact", mode="before")
+    def contact_to_lowercase(cls, v: str) -> str:
+        if any(c.isupper() for c in v):
+            warnings.warn(
+                f"You've defined the fluid contact as '{v}' which contains uppercase "
+                "characters. In a future version we may require that fluid contacts "
+                "should be all lowercase. To ensure future compatibility you should "
+                f"change this value to '{v.lower()}'.",
+                UserWarning,
+            )
+        return v.lower()
 
 
 class FieldOutline(BaseModel):
