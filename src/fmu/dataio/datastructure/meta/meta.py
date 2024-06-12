@@ -159,12 +159,10 @@ class FMUModel(BaseModel):
         default=None,
         description="This is a free text description of the model setup",
     )
-    name: Optional[str] = Field(
-        default=None,
+    name: str = Field(
         examples=["Drogon"],
     )
-    revision: Optional[str] = Field(
-        default=None,
+    revision: str = Field(
         examples=["21.0.0.dev"],
     )
 

@@ -38,16 +38,6 @@ Detailed information:
     )
 
 
-class Model(BaseModel):
-    """
-    Represents a basic model configuration with a name and revision.
-    """
-
-    name: str
-    revision: str
-    description: Optional[List[str]] = Field(default=None)
-
-
 class Ssdl(BaseModel):
     """
     Defines the configuration for the SSDL.
@@ -131,7 +121,7 @@ class GlobalConfiguration(BaseModel):
 
     access: Access
     masterdata: meta.Masterdata
-    model: Model
+    model: meta.FMUModel
     stratigraphy: Optional[Stratigraphy] = Field(
         default=None,
     )

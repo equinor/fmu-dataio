@@ -1179,36 +1179,24 @@
           "title": "Description"
         },
         "name": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
           "examples": [
             "Drogon"
           ],
-          "title": "Name"
+          "title": "Name",
+          "type": "string"
         },
         "revision": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
           "examples": [
             "21.0.0.dev"
           ],
-          "title": "Revision"
+          "title": "Revision",
+          "type": "string"
         }
       },
+      "required": [
+        "name",
+        "revision"
+      ],
       "title": "FMUModel",
       "type": "object"
     },
