@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import xtgeo
 
-from fmu.dataio._definitions import ExportFolder, ValidFormats
+from fmu.dataio._definitions import ExportFolder, Layout, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import npfloat_to_float
 from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
@@ -22,7 +22,6 @@ from fmu.dataio.datastructure.meta.specification import (
 )
 
 from ._base import (
-    DerivedObjectDescriptor,
     ObjectDataProvider,
 )
 
@@ -51,6 +50,14 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
     @property
     def fmt(self) -> str:
         return self.dataio.surface_fformat
+
+    @property
+    def layout(self) -> Layout:
+        return Layout.regular
+
+    @property
+    def table_index(self) -> None:
+        """Return the table index."""
 
     def get_bbox(self) -> BoundingBox2D | BoundingBox3D:
         """
@@ -94,13 +101,6 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
             undef=1.0e30,
         )
 
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data for xtgeo.RegularSurface."""
-        return DerivedObjectDescriptor(
-            layout="regular",
-            table_index=None,
-        )
-
 
 @dataclass
 class PolygonsDataProvider(ObjectDataProvider):
@@ -121,6 +121,14 @@ class PolygonsDataProvider(ObjectDataProvider):
     @property
     def fmt(self) -> str:
         return self.dataio.polygons_fformat
+
+    @property
+    def layout(self) -> Layout:
+        return Layout.unset
+
+    @property
+    def table_index(self) -> None:
+        """Return the table index."""
 
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Polygons"""
@@ -146,13 +154,6 @@ class PolygonsDataProvider(ObjectDataProvider):
             ).size
         )
 
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data for xtgeo.Polygons."""
-        return DerivedObjectDescriptor(
-            layout="unset",
-            table_index=None,
-        )
-
 
 @dataclass
 class PointsDataProvider(ObjectDataProvider):
@@ -173,6 +174,14 @@ class PointsDataProvider(ObjectDataProvider):
     @property
     def fmt(self) -> str:
         return self.dataio.points_fformat
+
+    @property
+    def layout(self) -> Layout:
+        return Layout.unset
+
+    @property
+    def table_index(self) -> None:
+        """Return the table index."""
 
     @property
     def obj_dataframe(self) -> pd.DataFrame:
@@ -203,13 +212,6 @@ class PointsDataProvider(ObjectDataProvider):
             size=int(df.size),
         )
 
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data for xtgeo.Points."""
-        return DerivedObjectDescriptor(
-            layout="unset",
-            table_index=None,
-        )
-
 
 @dataclass
 class CubeDataProvider(ObjectDataProvider):
@@ -230,6 +232,14 @@ class CubeDataProvider(ObjectDataProvider):
     @property
     def fmt(self) -> str:
         return self.dataio.cube_fformat
+
+    @property
+    def layout(self) -> Layout:
+        return Layout.regular
+
+    @property
+    def table_index(self) -> None:
+        """Return the table index."""
 
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Cube."""
@@ -282,13 +292,6 @@ class CubeDataProvider(ObjectDataProvider):
             undef=npfloat_to_float(required["undef"]),
         )
 
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data for xtgeo.Cube."""
-        return DerivedObjectDescriptor(
-            layout="regular",
-            table_index=None,
-        )
-
 
 @dataclass
 class CPGridDataProvider(ObjectDataProvider):
@@ -309,6 +312,14 @@ class CPGridDataProvider(ObjectDataProvider):
     @property
     def fmt(self) -> str:
         return self.dataio.grid_fformat
+
+    @property
+    def layout(self) -> Layout:
+        return Layout.cornerpoint
+
+    @property
+    def table_index(self) -> None:
+        """Return the table index."""
 
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for xtgeo.Grid."""
@@ -345,13 +356,6 @@ class CPGridDataProvider(ObjectDataProvider):
             zscale=npfloat_to_float(required["zscale"]),
         )
 
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data for xtgeo.Grid."""
-        return DerivedObjectDescriptor(
-            layout="cornerpoint",
-            table_index=None,
-        )
-
 
 @dataclass
 class CPGridPropertyDataProvider(ObjectDataProvider):
@@ -373,6 +377,14 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
     def fmt(self) -> str:
         return self.dataio.grid_fformat
 
+    @property
+    def layout(self) -> Layout:
+        return Layout.cornerpoint
+
+    @property
+    def table_index(self) -> None:
+        """Return the table index."""
+
     def get_bbox(self) -> None:
         """Derive data.bbox for xtgeo.GridProperty."""
 
@@ -384,11 +396,4 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
             nrow=self.obj.nrow,
             ncol=self.obj.ncol,
             nlay=self.obj.nlay,
-        )
-
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data for xtgeo.GridProperty."""
-        return DerivedObjectDescriptor(
-            layout="cornerpoint",
-            table_index=None,
         )
