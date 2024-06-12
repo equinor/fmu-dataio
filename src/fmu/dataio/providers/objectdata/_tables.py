@@ -8,11 +8,10 @@ import pandas as pd
 from fmu.dataio._definitions import (
     STANDARD_TABLE_INDEX_COLUMNS,
     ExportFolder,
-    Layout,
     ValidFormats,
 )
 from fmu.dataio._logging import null_logger
-from fmu.dataio.datastructure.meta.enums import FMUClassEnum
+from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
 from fmu.dataio.datastructure.meta.specification import TableSpecification
 
 from ._base import (

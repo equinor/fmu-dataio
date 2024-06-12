@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Final
 
-from fmu.dataio._definitions import ExportFolder, Layout, ValidFormats
+from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure.meta.content import BoundingBox3D
-from fmu.dataio.datastructure.meta.enums import FMUClassEnum
+from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
 from fmu.dataio.datastructure.meta.specification import FaultRoomSurfaceSpecification
 from fmu.dataio.readers import FaultRoomSurface
 

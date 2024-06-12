@@ -4,6 +4,17 @@ from enum import Enum, IntEnum
 from typing import Type
 
 
+class AccessLevel(str, Enum):
+    asset = "asset"
+    internal = "internal"
+    restricted = "restricted"
+
+
+class AxisOrientation(IntEnum):
+    normal = 1
+    flipped = -1
+
+
 class ContentEnum(str, Enum):
     depth = "depth"
     facies_thickness = "facies_thickness"
@@ -52,12 +63,10 @@ class FMUClassEnum(str, Enum):
     dictionary = "dictionary"
 
 
-class AccessLevel(str, Enum):
-    asset = "asset"
-    internal = "internal"
-    restricted = "restricted"
-
-
-class AxisOrientation(IntEnum):
-    normal = 1
-    flipped = -1
+class Layout(str, Enum):
+    regular = "regular"
+    unset = "unset"
+    cornerpoint = "cornerpoint"
+    table = "table"
+    dictionary = "dictionary"
+    faultroom_triangulated = "faultroom_triangulated"

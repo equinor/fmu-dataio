@@ -92,9 +92,9 @@ from typing import TYPE_CHECKING, Final
 import pandas as pd
 import xtgeo
 
-from fmu.dataio._definitions import ExportFolder, Layout, ValidFormats
+from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio.datastructure.meta.enums import FMUClassEnum
+from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (

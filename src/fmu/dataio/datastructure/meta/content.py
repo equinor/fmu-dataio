@@ -197,9 +197,9 @@ class Content(BaseModel):
     is_prediction: bool = Field(
         title="Is prediction flag",
     )
-    layout: Optional[str] = Field(
+    layout: Optional[enums.Layout] = Field(
         default=None,
-        examples=["regular"],
+        examples=["regular", "cornerpoint"],
     )
     name: str = Field(
         description=(
