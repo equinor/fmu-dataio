@@ -13,9 +13,6 @@ from textwrap import dedent
 from typing import List, Literal, Optional, Union
 
 from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION, FmuContext
-from fmu.dataio.datastructure.configuration.global_configuration import (
-    Model as GlobalConfigurationModel,
-)
 from fmu.dataio.datastructure.meta import meta
 from pydantic import (
     AnyHttpUrl,
@@ -109,8 +106,8 @@ class JsonSchemaMetadata(BaseModel, populate_by_name=True):
     source: str = Field(default=SOURCE)
 
 
-class FMUModel(BaseModel):
-    model: GlobalConfigurationModel
+class FMUModelCase(BaseModel):
+    model: meta.FMUModel
     case: meta.FMUCase
 
 
@@ -173,6 +170,6 @@ class CaseSchema(JsonSchemaMetadata):
     class_: Literal["case"] = Field(alias="class", default="case")
     masterdata: meta.Masterdata
     access: meta.Access
-    fmu: FMUModel
+    fmu: FMUModelCase
     description: Optional[List[str]] = Field(default=None)
     tracklog: List[meta.TracklogEvent]

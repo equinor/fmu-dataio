@@ -120,8 +120,8 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         case_meta = internal.CaseSchema(
             masterdata=meta.Masterdata.model_validate(self.config["masterdata"]),
             access=meta.Access.model_validate(self.config["access"]),
-            fmu=internal.FMUModel(
-                model=global_configuration.Model.model_validate(
+            fmu=internal.FMUModelCase(
+                model=meta.FMUModel.model_validate(
                     self.config["model"],
                 ),
                 case=meta.FMUCase(

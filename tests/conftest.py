@@ -300,7 +300,7 @@ def fixture_globalconfig1():
             ssdl=global_configuration.Ssdl(rep_include=False),
             classification=global_configuration.enums.AccessLevel.internal,
         ),
-        model=global_configuration.Model(
+        model=global_configuration.meta.FMUModel(
             name="Test",
             revision="AUTO",
         ),
