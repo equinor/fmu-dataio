@@ -4,7 +4,7 @@ from abc import abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Any, Final
 from warnings import warn
 
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
@@ -20,10 +20,9 @@ from fmu.dataio.datastructure.meta.enums import ContentEnum
 from fmu.dataio.providers._base import Provider
 
 if TYPE_CHECKING:
-    from fmu.dataio._definitions import Layout
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
-    from fmu.dataio.datastructure.meta.enums import FMUClassEnum
+    from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
     from fmu.dataio.datastructure.meta.specification import AnySpecification
     from fmu.dataio.types import Inferrable
 
@@ -62,7 +61,7 @@ class ObjectDataProvider(Provider):
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
     # as instance properties in addition (for simplicity in other classes/functions)
-    _metadata: dict = field(default_factory=dict)
+    _metadata: AnyContent | UnsetAnyContent | None = field(default=None)
     name: str = field(default="")
     time0: datetime | None = field(default=None)
     time1: datetime | None = field(default=None)
@@ -80,53 +79,44 @@ class ObjectDataProvider(Provider):
 
         content_model = self._get_validated_content(self.dataio.content)
         named_stratigraphy = self._get_named_stratigraphy()
-
         self.name = named_stratigraphy.name
-        self._metadata["name"] = self.name
-        self._metadata["stratigraphic"] = named_stratigraphy.stratigraphic
-        self._metadata["offset"] = named_stratigraphy.offset
-        self._metadata["alias"] = named_stratigraphy.alias
-        self._metadata["top"] = named_stratigraphy.top
-        self._metadata["base"] = named_stratigraphy.base
 
-        self._metadata["content"] = (usecontent := content_model.content)
+        metadata: dict[str, Any] = {}
+        metadata["name"] = self.name
+        metadata["stratigraphic"] = named_stratigraphy.stratigraphic
+        metadata["offset"] = named_stratigraphy.offset
+        metadata["alias"] = named_stratigraphy.alias
+        metadata["top"] = named_stratigraphy.top
+        metadata["base"] = named_stratigraphy.base
+
+        metadata["content"] = (usecontent := content_model.content)
         if content_model.content_incl_specific:
-            self._metadata[usecontent] = getattr(
+            metadata[usecontent] = getattr(
                 content_model.content_incl_specific, usecontent, None
             )
 
-        self._metadata["tagname"] = self.dataio.tagname
-        self._metadata["format"] = self.fmt
-        self._metadata["layout"] = self.layout
-        self._metadata["unit"] = self.dataio.unit or ""
-        self._metadata["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
-        self._metadata["depth_reference"] = list(self.dataio.vertical_domain.values())[
-            0
-        ]
+        metadata["tagname"] = self.dataio.tagname
+        metadata["format"] = self.fmt
+        metadata["layout"] = self.layout
+        metadata["unit"] = self.dataio.unit or ""
+        metadata["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
+        metadata["depth_reference"] = list(self.dataio.vertical_domain.values())[0]
 
-        self._metadata["spec"] = (
-            spec.model_dump(mode="json", exclude_none=True)
-            if (spec := self.get_spec())
-            else None
-        )
-        self._metadata["bbox"] = (
-            bbox.model_dump(mode="json", exclude_none=True)
-            if (bbox := self.get_bbox())
-            else None
-        )
-        self._metadata["time"] = (
-            timedata.model_dump(mode="json", exclude_none=True)
-            if (timedata := self._get_timedata())
-            else None
-        )
+        metadata["spec"] = self.get_spec()
+        metadata["bbox"] = self.get_bbox()
+        metadata["time"] = self._get_timedata()
+        metadata["table_index"] = self.table_index
+        metadata["undef_is_zero"] = self.dataio.undef_is_zero
 
-        self._metadata["table_index"] = self.table_index
-        self._metadata["undef_is_zero"] = self.dataio.undef_is_zero
+        metadata["is_prediction"] = self.dataio.is_prediction
+        metadata["is_observation"] = self.dataio.is_observation
+        metadata["description"] = generate_description(self.dataio.description)
 
-        # timedata:
-        self._metadata["is_prediction"] = self.dataio.is_prediction
-        self._metadata["is_observation"] = self.dataio.is_observation
-        self._metadata["description"] = generate_description(self.dataio.description)
+        self._metadata = (
+            UnsetAnyContent.model_validate(metadata)
+            if metadata["content"] == "unset"
+            else AnyContent.model_validate(metadata)
+        )
         logger.info("Derive all metadata for data object... DONE")
 
     @property
@@ -168,11 +158,8 @@ class ObjectDataProvider(Provider):
         raise NotImplementedError
 
     def get_metadata(self) -> AnyContent | UnsetAnyContent:
-        return (
-            UnsetAnyContent.model_validate(self._metadata)
-            if self._metadata["content"] == "unset"
-            else AnyContent.model_validate(self._metadata)
-        )
+        assert self._metadata is not None
+        return self._metadata
 
     def _get_validated_content(self, content: str | dict | None) -> AllowedContent:
         """Check content and return a validated model."""

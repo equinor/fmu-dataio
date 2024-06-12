@@ -7,11 +7,11 @@ import numpy as np
 import pandas as pd
 import xtgeo
 
-from fmu.dataio._definitions import ExportFolder, Layout, ValidFormats
+from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import npfloat_to_float
 from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
-from fmu.dataio.datastructure.meta.enums import FMUClassEnum
+from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
 from fmu.dataio.datastructure.meta.specification import (
     CPGridPropertySpecification,
     CPGridSpecification,
@@ -21,9 +21,7 @@ from fmu.dataio.datastructure.meta.specification import (
     SurfaceSpecification,
 )
 
-from ._base import (
-    ObjectDataProvider,
-)
+from ._base import ObjectDataProvider
 
 if TYPE_CHECKING:
     import pandas as pd

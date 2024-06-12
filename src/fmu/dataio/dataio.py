@@ -22,6 +22,7 @@ from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._utils import (
     detect_inside_rms,  # dataio_examples,
+    drop_nones,
     export_file,
     export_metadata_file,
     prettyprint_dict,
@@ -768,8 +769,10 @@ class ExportData:
 
         self._update_fmt_flag()
         fmudata = self._get_fmu_provider() if self._fmurun else None
-        self._metadata = generate_export_metadata(
-            obj, self, fmudata, compute_md5=compute_md5
+        self._metadata = drop_nones(
+            generate_export_metadata(
+                obj, self, fmudata, compute_md5=compute_md5
+            ).model_dump(mode="json", exclude_none=True, by_alias=True)
         )
 
         logger.info("The metadata are now ready!")

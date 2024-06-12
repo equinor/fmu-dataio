@@ -17,7 +17,6 @@ from pydantic import AnyHttpUrl, TypeAdapter
 from . import types
 from ._definitions import SCHEMA, SOURCE, VERSION, FmuContext
 from ._logging import null_logger
-from ._utils import drop_nones
 from .datastructure._internal import internal
 from .datastructure.meta import meta
 from .exceptions import InvalidMetadataError
@@ -109,8 +108,7 @@ def generate_export_metadata(
     dataio: ExportData,
     fmudata: FmuProvider | None = None,
     compute_md5: bool = True,
-    skip_null: bool = True,
-) -> dict:  # TODO! -> skip_null?
+) -> internal.DataClassMeta:
     """
     Main function to generate the full metadata
 
@@ -141,7 +139,7 @@ def generate_export_metadata(
     objdata = objectdata_provider_factory(obj, dataio)
     masterdata = dataio.config.get("masterdata")
 
-    metadata = internal.DataClassMeta(
+    return internal.DataClassMeta(
         schema_=TypeAdapter(AnyHttpUrl).validate_strings(SCHEMA),  # type: ignore[call-arg]
         version=VERSION,
         source=SOURCE,
@@ -154,6 +152,4 @@ def generate_export_metadata(
         tracklog=generate_meta_tracklog(),
         display=_get_meta_display(dataio, objdata),
         preprocessed=dataio.fmu_context == FmuContext.PREPROCESSED,
-    ).model_dump(mode="json", exclude_none=True, by_alias=True)
-
-    return metadata if not skip_null else drop_nones(metadata)
+    )

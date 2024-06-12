@@ -666,7 +666,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -674,9 +674,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -1331,7 +1331,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -1339,9 +1339,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -1613,7 +1613,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -1621,9 +1621,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -1895,7 +1895,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -1903,9 +1903,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -2279,7 +2279,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -2287,9 +2287,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -2580,7 +2580,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -2588,9 +2588,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -2982,7 +2982,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -2990,9 +2990,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -3337,7 +3337,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -3345,9 +3345,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -3556,6 +3556,18 @@
       "title": "Layer",
       "type": "object"
     },
+    "Layout": {
+      "enum": [
+        "regular",
+        "unset",
+        "cornerpoint",
+        "table",
+        "dictionary",
+        "faultroom_triangulated"
+      ],
+      "title": "Layout",
+      "type": "string"
+    },
     "LiftCurvesContent": {
       "properties": {
         "alias": {
@@ -3647,7 +3659,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -3655,9 +3667,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -3941,7 +3953,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -3949,9 +3961,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -4223,7 +4235,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -4231,9 +4243,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -4525,7 +4537,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -4533,9 +4545,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -4807,7 +4819,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -4815,9 +4827,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -5139,7 +5151,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -5147,9 +5159,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -5421,7 +5433,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -5429,9 +5441,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -5758,7 +5770,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -5766,9 +5778,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -6040,7 +6052,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -6048,9 +6060,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -6410,7 +6422,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -6418,9 +6430,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -6806,7 +6818,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -6814,9 +6826,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -7281,7 +7293,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -7289,9 +7301,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -7591,7 +7603,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -7599,9 +7611,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -7873,7 +7885,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -7881,9 +7893,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -8213,7 +8225,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -8221,9 +8233,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -8508,7 +8520,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -8516,9 +8528,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
@@ -8790,7 +8802,7 @@
         "layout": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/Layout"
             },
             {
               "type": "null"
@@ -8798,9 +8810,9 @@
           ],
           "default": null,
           "examples": [
-            "regular"
-          ],
-          "title": "Layout"
+            "regular",
+            "cornerpoint"
+          ]
         },
         "name": {
           "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
