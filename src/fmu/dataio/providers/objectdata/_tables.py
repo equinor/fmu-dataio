@@ -8,6 +8,7 @@ import pandas as pd
 from fmu.dataio._definitions import (
     STANDARD_TABLE_INDEX_COLUMNS,
     ExportFolder,
+    Layout,
     ValidFormats,
 )
 from fmu.dataio._logging import null_logger
@@ -15,7 +16,6 @@ from fmu.dataio.datastructure.meta.enums import FMUClassEnum
 from fmu.dataio.datastructure.meta.specification import TableSpecification
 
 from ._base import (
-    DerivedObjectDescriptor,
     ObjectDataProvider,
 )
 
@@ -80,6 +80,15 @@ class DataFrameDataProvider(ObjectDataProvider):
     def fmt(self) -> str:
         return self.dataio.table_fformat
 
+    @property
+    def layout(self) -> Layout:
+        return Layout.table
+
+    @property
+    def table_index(self) -> list[str]:
+        """Return the table index."""
+        return _derive_index(self.dataio.table_index, list(self.obj.columns))
+
     def get_bbox(self) -> None:
         """Derive data.bbox for pd.DataFrame."""
 
@@ -89,14 +98,6 @@ class DataFrameDataProvider(ObjectDataProvider):
         return TableSpecification(
             columns=list(self.obj.columns),
             size=int(self.obj.size),
-        )
-
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data for pd.DataFrame."""
-        table_index = _derive_index(self.dataio.table_index, list(self.obj.columns))
-        return DerivedObjectDescriptor(
-            layout="table",
-            table_index=table_index,
         )
 
 
@@ -120,6 +121,15 @@ class ArrowTableDataProvider(ObjectDataProvider):
     def fmt(self) -> str:
         return self.dataio.arrow_fformat
 
+    @property
+    def layout(self) -> Layout:
+        return Layout.table
+
+    @property
+    def table_index(self) -> list[str]:
+        """Return the table index."""
+        return _derive_index(self.dataio.table_index, list(self.obj.column_names))
+
     def get_bbox(self) -> None:
         """Derive data.bbox for pyarrow.Table."""
 
@@ -129,12 +139,4 @@ class ArrowTableDataProvider(ObjectDataProvider):
         return TableSpecification(
             columns=list(self.obj.column_names),
             size=self.obj.num_columns * self.obj.num_rows,
-        )
-
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data from pyarrow.Table."""
-        table_index = _derive_index(self.dataio.table_index, self.obj.column_names)
-        return DerivedObjectDescriptor(
-            layout="table",
-            table_index=table_index,
         )

@@ -20,23 +20,18 @@ from fmu.dataio.datastructure.meta.enums import ContentEnum
 from fmu.dataio.providers._base import Provider
 
 if TYPE_CHECKING:
+    from fmu.dataio._definitions import Layout
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D
     from fmu.dataio.datastructure.meta.enums import FMUClassEnum
     from fmu.dataio.datastructure.meta.specification import AnySpecification
-    from fmu.dataio.types import Inferrable, Layout
+    from fmu.dataio.types import Inferrable
 
 logger: Final = null_logger(__name__)
 
 
 @dataclass
-class DerivedObjectDescriptor:
-    layout: Layout
-    table_index: list[str] | None
-
-
-@dataclass
-class DerivedNamedStratigraphy:
+class NamedStratigraphy:
     name: str
     alias: list[str] = field(default_factory=list)
 
@@ -73,12 +68,6 @@ class ObjectDataProvider(Provider):
     time1: datetime | None = field(default=None)
 
     def __post_init__(self) -> None:
-        content_model = self._get_validated_content(self.dataio.content)
-        named_stratigraphy = self._get_named_stratigraphy()
-        obj_data = self.get_objectdata()
-
-        self.name = named_stratigraphy.name
-
         if self.dataio.forcefolder:
             if self.dataio.forcefolder.startswith("/"):
                 raise ValueError("Can't use absolute path as 'forcefolder'")
@@ -89,6 +78,10 @@ class ObjectDataProvider(Provider):
             logger.info(msg)
             warn(msg, UserWarning)
 
+        content_model = self._get_validated_content(self.dataio.content)
+        named_stratigraphy = self._get_named_stratigraphy()
+
+        self.name = named_stratigraphy.name
         self._metadata["name"] = self.name
         self._metadata["stratigraphic"] = named_stratigraphy.stratigraphic
         self._metadata["offset"] = named_stratigraphy.offset
@@ -104,7 +97,7 @@ class ObjectDataProvider(Provider):
 
         self._metadata["tagname"] = self.dataio.tagname
         self._metadata["format"] = self.fmt
-        self._metadata["layout"] = obj_data.layout
+        self._metadata["layout"] = self.layout
         self._metadata["unit"] = self.dataio.unit or ""
         self._metadata["vertical_domain"] = list(self.dataio.vertical_domain.keys())[0]
         self._metadata["depth_reference"] = list(self.dataio.vertical_domain.values())[
@@ -127,7 +120,7 @@ class ObjectDataProvider(Provider):
             else None
         )
 
-        self._metadata["table_index"] = obj_data.table_index
+        self._metadata["table_index"] = self.table_index
         self._metadata["undef_is_zero"] = self.dataio.undef_is_zero
 
         # timedata:
@@ -156,16 +149,22 @@ class ObjectDataProvider(Provider):
     def fmt(self) -> str:
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def layout(self) -> Layout:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def table_index(self) -> list[str] | None:
+        raise NotImplementedError
+
     @abstractmethod
     def get_bbox(self) -> BoundingBox2D | BoundingBox3D | None:
         raise NotImplementedError
 
     @abstractmethod
     def get_spec(self) -> AnySpecification | None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_objectdata(self) -> DerivedObjectDescriptor:
         raise NotImplementedError
 
     def get_metadata(self) -> AnyContent | UnsetAnyContent:
@@ -200,7 +199,7 @@ class ObjectDataProvider(Provider):
             {"content": ContentEnum(usecontent), "content_incl_specific": content}
         )
 
-    def _get_named_stratigraphy(self) -> DerivedNamedStratigraphy:
+    def _get_named_stratigraphy(self) -> NamedStratigraphy:
         """Derive the name and stratigraphy for the object; may have several sources.
 
         If not in input settings it is tried to be inferred from the xtgeo/pandas/...
@@ -219,10 +218,10 @@ class ObjectDataProvider(Provider):
         stratigraphy = self.dataio.config.get("stratigraphy", {})
 
         if name not in stratigraphy:
-            return DerivedNamedStratigraphy(name=name)
+            return NamedStratigraphy(name=name)
 
         named_stratigraphy = stratigraphy.get(name)
-        rv = DerivedNamedStratigraphy(
+        rv = NamedStratigraphy(
             name=named_stratigraphy.get("name", name),
             alias=named_stratigraphy.get("alias", []),
             stratigraphic=named_stratigraphy.get("stratigraphic", False),

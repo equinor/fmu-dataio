@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Final
 
-from fmu.dataio._definitions import ExportFolder, ValidFormats
+from fmu.dataio._definitions import ExportFolder, Layout, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure.meta.content import BoundingBox3D
 from fmu.dataio.datastructure.meta.enums import FMUClassEnum
@@ -11,7 +11,6 @@ from fmu.dataio.datastructure.meta.specification import FaultRoomSurfaceSpecific
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
-    DerivedObjectDescriptor,
     ObjectDataProvider,
 )
 
@@ -38,6 +37,14 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
     def fmt(self) -> str:
         return self.dataio.dict_fformat
 
+    @property
+    def layout(self) -> Layout:
+        return Layout.faultroom_triangulated
+
+    @property
+    def table_index(self) -> None:
+        """Return the table index."""
+
     def get_bbox(self) -> BoundingBox3D:
         """Derive data.bbox for FaultRoomSurface."""
         logger.info("Get bbox for FaultRoomSurface")
@@ -60,11 +67,4 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
             juxtaposition_fw=self.obj.juxtaposition_fw,
             properties=self.obj.properties,
             name=self.obj.name,
-        )
-
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data for FaultRoomSurface"""
-        return DerivedObjectDescriptor(
-            layout="faultroom_triangulated",
-            table_index=None,
         )

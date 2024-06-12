@@ -69,6 +69,15 @@ class ExportFolder(str, Enum):
     tables = "tables"
 
 
+class Layout(str, Enum):
+    regular = "regular"
+    unset = "unset"
+    cornerpoint = "cornerpoint"
+    table = "table"
+    dictionary = "dictionary"
+    faultroom_triangulated = "faultroom_triangulated"
+
+
 STANDARD_TABLE_INDEX_COLUMNS: Final[dict[str, list[str]]] = {
     "volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
     "rft": ["measured_depth", "well", "time"],

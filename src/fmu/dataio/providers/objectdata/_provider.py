@@ -92,13 +92,12 @@ from typing import TYPE_CHECKING, Final
 import pandas as pd
 import xtgeo
 
-from fmu.dataio._definitions import ExportFolder, ValidFormats
+from fmu.dataio._definitions import ExportFolder, Layout, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure.meta.enums import FMUClassEnum
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
-    DerivedObjectDescriptor,
     ObjectDataProvider,
 )
 from ._faultroom import FaultRoomSurfaceProvider
@@ -180,15 +179,16 @@ class DictionaryDataProvider(ObjectDataProvider):
     def fmt(self) -> str:
         return self.dataio.dict_fformat
 
+    @property
+    def layout(self) -> Layout:
+        return Layout.dictionary
+
+    @property
+    def table_index(self) -> None:
+        """Return the table index."""
+
     def get_bbox(self) -> None:
         """Derive data.bbox for dict."""
 
     def get_spec(self) -> None:
         """Derive data.spec for dict."""
-
-    def get_objectdata(self) -> DerivedObjectDescriptor:
-        """Derive object data for dict."""
-        return DerivedObjectDescriptor(
-            layout="dictionary",
-            table_index=None,
-        )

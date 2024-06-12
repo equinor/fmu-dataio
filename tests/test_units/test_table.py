@@ -150,8 +150,7 @@ def test_table_index_real_summary(edataobj3, drogon_summary):
         drogon_summary (pd.Dataframe): dataframe with summary data from sumo
     """
     objdata = objectdata_provider_factory(drogon_summary, edataobj3)
-    res = objdata.get_objectdata()
-    assert res.table_index == ["DATE"], "Incorrect table index "
+    assert objdata.table_index == ["DATE"], "Incorrect table index "
 
 
 def test_table_wellpicks(wellpicks, globalconfig1):
