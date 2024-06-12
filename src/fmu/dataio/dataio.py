@@ -759,7 +759,6 @@ class ExportData:
                 raise TypeError("No 'casepath' argument provided")
             _future_warning_preprocessed()
             return ExportPreprocessedData(
-                config=self.config,
                 casepath=self.casepath,
                 is_observation=self.is_observation,
             ).generate_metadata(obj)
@@ -810,7 +809,6 @@ class ExportData:
                 raise TypeError("No 'casepath' argument provided")
             _future_warning_preprocessed()
             return ExportPreprocessedData(
-                config=self.config,
                 casepath=self.casepath,
                 is_observation=self.is_observation,
             ).export(obj)

@@ -169,24 +169,26 @@ class FmuProvider(Provider):
         """Construct the metadata FMU block for an ERT forward job."""
         logger.debug("Generate ERT metadata...")
 
-        if self._casepath is None or self.model is None:
-            raise InvalidMetadataError("Missing casepath or model description")
+        if self._casepath is None:
+            raise InvalidMetadataError("Missing casepath")
 
-        case_meta = self._get_fmucase_meta()
+        case_meta = self._get_case_meta()
 
         if self.fmu_context != FmuContext.REALIZATION:
             return internal.FMUClassMetaData(
-                case=case_meta,
+                case=case_meta.fmu.case,
                 context=self._get_fmucontext_meta(),
-                model=self._get_fmumodel_meta(),
+                model=self._get_fmumodel_meta() if self.model else case_meta.fmu.model,
                 workflow=self._get_workflow_meta() if self.workflow else None,
             )
 
-        iter_uuid, real_uuid = self._get_iteration_and_real_uuid(case_meta.uuid)
+        iter_uuid, real_uuid = self._get_iteration_and_real_uuid(
+            case_meta.fmu.case.uuid
+        )
         return internal.FMUClassMetaData(
-            case=case_meta,
+            case=case_meta.fmu.case,
             context=self._get_fmucontext_meta(),
-            model=self._get_fmumodel_meta(),
+            model=self._get_fmumodel_meta() if self.model else case_meta.fmu.model,
             workflow=self._get_workflow_meta() if self.workflow else None,
             iteration=self._get_iteration_meta(iter_uuid),
             realization=self._get_realization_meta(real_uuid),
@@ -270,15 +272,14 @@ class FmuProvider(Provider):
         real_uuid = _utils.uuid_from_string(f"{case_uuid}{iter_uuid}{self._real_id}")
         return iter_uuid, real_uuid
 
-    def _get_fmucase_meta(self) -> meta.FMUCase:
+    def _get_case_meta(self) -> internal.CaseSchema:
         """Parse and validate the CASE metadata."""
         logger.debug("Loading case metadata file and return pydantic case model")
         assert self._casepath is not None
         case_metafile = self._casepath / ERT_RELATIVE_CASE_METADATA_FILE
-        case_meta = internal.CaseSchema.model_validate(
+        return internal.CaseSchema.model_validate(
             ut.yaml_load(case_metafile, loader="standard")
         )
-        return case_meta.fmu.case
 
     def _get_realization_meta(self, real_uuid: UUID) -> meta.Realization:
         return meta.Realization(

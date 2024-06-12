@@ -56,9 +56,7 @@ def test_export_preprocessed_surfacefile(
 
     # run the re-export of the preprocessed data inside an mocked FMU run
     set_ert_env_prehook(monkeypatch)
-    edata = dataio.ExportPreprocessedData(
-        config=rmsglobalconfig, is_observation=True, casepath=fmurun_prehook
-    )
+    edata = dataio.ExportPreprocessedData(is_observation=True, casepath=fmurun_prehook)
     # generate the updated metadata
     metadata = edata.generate_metadata(surfacepath)
 
@@ -106,9 +104,7 @@ def test_export_to_results_folder(
 
     # run the re-export of the preprocessed data inside an mocked FMU run
     set_ert_env_prehook(monkeypatch)
-    edata = dataio.ExportPreprocessedData(
-        config=rmsglobalconfig, is_observation=False, casepath=fmurun_prehook
-    )
+    edata = dataio.ExportPreprocessedData(is_observation=False, casepath=fmurun_prehook)
 
     # check that the export has been to the case/share/results folder
     relative_path = PREPROCESSED_SURFACEPATH.replace("preprocessed", "results")
@@ -138,9 +134,7 @@ def test_outdated_metadata(fmurun_prehook, rmsglobalconfig, regsurf, monkeypatch
     # run the re-export of the preprocessed data inside an mocked FMU run
     set_ert_env_prehook(monkeypatch)
 
-    edata = dataio.ExportPreprocessedData(
-        config=rmsglobalconfig, is_observation=True, casepath=fmurun_prehook
-    )
+    edata = dataio.ExportPreprocessedData(is_observation=True, casepath=fmurun_prehook)
     # error should be raised when trying to use the generate_metadata function
     with pytest.raises(InvalidMetadataError, match="outdated"):
         edata.generate_metadata(surfacepath)
@@ -166,9 +160,7 @@ def test_export_without_existing_meta(
 
     # delete the metafile
     metafile.unlink()
-    edata = dataio.ExportPreprocessedData(
-        config=rmsglobalconfig, is_observation=True, casepath=fmurun_prehook
-    )
+    edata = dataio.ExportPreprocessedData(is_observation=True, casepath=fmurun_prehook)
     # test that error is raised when creating metadata
     with pytest.raises(RuntimeError, match="Could not detect existing metadata"):
         edata.generate_metadata(surfacepath)
@@ -204,7 +196,7 @@ def test_preprocessed_surface_modified_post_export(
     # should issue warning
     with pytest.warns(UserWarning, match="seem to have been modified"):
         dataio.ExportPreprocessedData(
-            config=rmsglobalconfig, is_observation=True, casepath=fmurun_prehook
+            is_observation=True, casepath=fmurun_prehook
         ).export(surfacepath)
 
 
@@ -216,12 +208,12 @@ def test_preprocessed_surface_fmucontext_not_case(rmsglobalconfig, monkeypatch):
 
     # error should be raised when outside of FMU
     with pytest.raises(RuntimeError, match="Only possible to run re-export"):
-        dataio.ExportPreprocessedData(config=rmsglobalconfig, casepath="dummy")
+        dataio.ExportPreprocessedData(casepath="dummy")
 
     # error should be raised when running on forward_model in FMU
     set_ert_env_forward(monkeypatch)
     with pytest.raises(RuntimeError, match="Only possible to run re-export"):
-        dataio.ExportPreprocessedData(config=rmsglobalconfig, casepath="dummy")
+        dataio.ExportPreprocessedData(casepath="dummy")
 
 
 def test_preprocessed_surface_invalid_casepath(fmurun_prehook, rmsglobalconfig):
@@ -229,16 +221,16 @@ def test_preprocessed_surface_invalid_casepath(fmurun_prehook, rmsglobalconfig):
 
     # error should be raised when running on a casepath without case metadata
     with pytest.raises(ValueError, match="Could not detect valid case metadata"):
-        dataio.ExportPreprocessedData(config=rmsglobalconfig, casepath="dummy")
+        dataio.ExportPreprocessedData(casepath="dummy")
 
     # shall work when casepath that contains case matadata is provided
-    dataio.ExportPreprocessedData(config=rmsglobalconfig, casepath=fmurun_prehook)
+    dataio.ExportPreprocessedData(casepath=fmurun_prehook)
 
     # delete the case matadata and see that it fails
     metacase_file = fmurun_prehook / ERT_RELATIVE_CASE_METADATA_FILE
     metacase_file.unlink()
     with pytest.raises(ValueError, match="Could not detect valid case metadata"):
-        dataio.ExportPreprocessedData(config=rmsglobalconfig, casepath=fmurun_prehook)
+        dataio.ExportPreprocessedData(casepath=fmurun_prehook)
 
 
 def test_export_non_preprocessed_data(
@@ -262,7 +254,7 @@ def test_export_non_preprocessed_data(
     # check that the error is given
     with pytest.raises(RuntimeError, match="is not supported"):
         dataio.ExportPreprocessedData(
-            config=rmsglobalconfig, is_observation=True, casepath=fmurun_prehook
+            is_observation=True, casepath=fmurun_prehook
         ).generate_metadata(surfacepath)
 
 
