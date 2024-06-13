@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g6ab1f02 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g7c81bd8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -328,7 +328,16 @@
 <span class="sd">            standard folder for Cube output with &quot;seismics&quot;. Use with care and avoid if</span>
 <span class="sd">            possible!</span>
 
-<span class="sd">        grid_model: Currently allowed but planned for deprecation</span>
+<span class="sd">        geometry: Optional, and for grid properties only, which may need a</span>
+<span class="sd">            reference to the 3D grid geometry object. The value shall</span>
+<span class="sd">            point to an existing file which is already exported with dataio,</span>
+<span class="sd">            and hence has an assosiated metadata file. The grid name will be derived</span>
+<span class="sd">            from the grid metadata, if present, and applied as part of the gridproperty</span>
+<span class="sd">            file name (same behaviour as the `parent` key; replacing this).</span>
+<span class="sd">            Note that this key may replace the usage of both the `parent` key and the</span>
+<span class="sd">            `grid_model` key in the near future.</span>
+
+<span class="sd">        grid_model: Currently allowed but planned for deprecation. See `geometry`.</span>
 
 <span class="sd">        table_index: This applies to Pandas (table) data only, and is a list of the</span>
 <span class="sd">            column names to use as index columns e.g. [&quot;ZONE&quot;, &quot;REGION&quot;].</span>
@@ -347,8 +356,12 @@
 <span class="sd">            if &quot;TopValysar&quot; is the model name and the actual name is &quot;Valysar Top Fm.&quot;</span>
 <span class="sd">            that latter name will be used.</span>
 
-<span class="sd">        parent: Optional. This key is required for datatype GridProperty, and</span>
-<span class="sd">            refers to the name of the grid geometry.</span>
+<span class="sd">        parent: Optional. This key is required for datatype GridProperty, unless the</span>
+<span class="sd">            `geometry` is given, and refers to the name of the grid geometry. It will</span>
+<span class="sd">            only be added in the filename, and not as genuine metadata entry.</span>
+<span class="sd">            This key is a candidate for deprecation, and users shall use the</span>
+<span class="sd">            `geometry` key instead. If both `parent` and `geometry` is given, the grid</span>
+<span class="sd">            name derived from the `geometry` object will have predence.</span>
 
 <span class="sd">        rep_include: Optional. If True then the data object will be available in REP.</span>
 <span class="sd">            Default is False.</span>
@@ -444,6 +457,7 @@
     <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">fmu_context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">forcefolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">geometry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">grid_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">is_observation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">is_prediction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
@@ -933,7 +947,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g6ab1f02).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g7c81bd8).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

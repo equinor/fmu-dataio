@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.content &mdash; fmu.dataio 0.1.dev1+g6ab1f02 documentation</title>
+  <title>fmu.dataio.datastructure.meta.content &mdash; fmu.dataio 0.1.dev1+g7c81bd8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -201,6 +201,11 @@
     <span class="p">)</span></div>
 
 
+<span class="k">class</span> <span class="nc">Geometry</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;MyGrid&quot;</span><span class="p">])</span>
+    <span class="n">relative_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;some/relative/path/mygrid.roff&quot;</span><span class="p">])</span>
+
+
 <div class="viewcode-block" id="GridModel"><a class="viewcode-back" href="../../../../../datastructure.html#fmu.dataio.datastructure.meta.content.GridModel">[docs]</a><span class="k">class</span> <span class="nc">GridModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;MyGrid&quot;</span><span class="p">])</span></div>
 
@@ -270,7 +275,10 @@
 
     <span class="n">alias</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-    <span class="c1"># Only valid for cooridate based meta.</span>
+    <span class="c1"># only relevant for grid properties</span>
+    <span class="n">geometry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Geometry</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># Only valid for coordinate based meta.</span>
     <span class="n">bbox</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">BoundingBox3D</span><span class="p">,</span> <span class="n">BoundingBox2D</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
@@ -279,7 +287,6 @@
     <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;irap_binary&quot;</span><span class="p">],</span>
     <span class="p">)</span>
-
     <span class="n">grid_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GridModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">is_observation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Is observation flag&quot;</span><span class="p">,</span>
@@ -525,7 +532,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g6ab1f02).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g7c81bd8).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

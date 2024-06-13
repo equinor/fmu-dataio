@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+g6ab1f02 documentation</title>
+  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+g7c81bd8 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -234,6 +234,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.content"><code class="docutils literal notranslate"><span class="pre">Content.content</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.description"><code class="docutils literal notranslate"><span class="pre">Content.description</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.format"><code class="docutils literal notranslate"><span class="pre">Content.format</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.geometry"><code class="docutils literal notranslate"><span class="pre">Content.geometry</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.grid_model"><code class="docutils literal notranslate"><span class="pre">Content.grid_model</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.is_observation"><code class="docutils literal notranslate"><span class="pre">Content.is_observation</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.is_prediction"><code class="docutils literal notranslate"><span class="pre">Content.is_prediction</span></code></a></li>
@@ -1489,6 +1490,7 @@ validated to form a valid model.</p>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.content" title="fmu.dataio.datastructure.meta.content.Content.content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">content</span> <span class="pre">(fmu.dataio.datastructure.meta.enums.ContentEnum)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.description" title="fmu.dataio.datastructure.meta.content.Content.description"><code class="xref py py-obj docutils literal notranslate"><span class="pre">description</span> <span class="pre">(List[str]</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.format" title="fmu.dataio.datastructure.meta.content.Content.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format</span> <span class="pre">(str)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.geometry" title="fmu.dataio.datastructure.meta.content.Content.geometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry</span> <span class="pre">(fmu.dataio.datastructure.meta.content.Geometry</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.grid_model" title="fmu.dataio.datastructure.meta.content.Content.grid_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid_model</span> <span class="pre">(fmu.dataio.datastructure.meta.content.GridModel</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.is_observation" title="fmu.dataio.datastructure.meta.content.Content.is_observation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_observation</span> <span class="pre">(bool)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.is_prediction" title="fmu.dataio.datastructure.meta.content.Content.is_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_prediction</span> <span class="pre">(bool)</span></code></a></p></li>
@@ -1537,6 +1539,11 @@ validated to form a valid model.</p>
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.content.Content.format">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.content.Content.format" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.content.Content.geometry">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">geometry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[Geometry]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.content.Content.geometry" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -2922,7 +2929,7 @@ validated to form a valid model.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g6ab1f02).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g7c81bd8).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
