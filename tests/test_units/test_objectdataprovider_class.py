@@ -1,9 +1,11 @@
 """Test the _ObjectData class from the _objectdata.py module"""
 
 import os
+from pathlib import Path
 
 import fmu.dataio as dataio
 import pytest
+import yaml
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
 from fmu.dataio.providers.objectdata._provider import (
     objectdata_provider_factory,
@@ -141,4 +143,8 @@ def test_regsurf_preprocessed_observation(
     edata, mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
     set_ert_env_prehook(monkeypatch)
     case_meta = _run_case_fmu(fmurun_prehook, mysurf)
-    assert edata._metadata["data"] == case_meta["data"]
+
+    out = Path(mysurf)
+    with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
+        metadata = yaml.safe_load(f)
+    assert metadata["data"] == case_meta["data"]

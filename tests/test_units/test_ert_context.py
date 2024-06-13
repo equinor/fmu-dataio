@@ -8,10 +8,12 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from pathlib import Path
 
 import fmu.dataio.dataio as dataio
 import pandas as pd
 import pytest
+import yaml
 from fmu.dataio._utils import prettyprint_dict
 
 logger = logging.getLogger(__name__)
@@ -115,8 +117,11 @@ def test_regsurf_export_file_fmurun(fmurun_w_casemetadata, rmsglobalconfig, regs
     )
     logger.info("Output is %s", output)
 
-    assert edata._metadata["access"]["ssdl"]["access_level"] == "restricted"
-    assert edata._metadata["data"]["unit"] == "forthnite"
+    out = Path(edata.export(regsurf))
+    with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
+        metadata = yaml.safe_load(f)
+    assert metadata["access"]["ssdl"]["access_level"] == "restricted"
+    assert metadata["data"]["unit"] == "forthnite"
 
 
 # ======================================================================================

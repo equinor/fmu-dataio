@@ -535,12 +535,13 @@ def test_exportdata_no_iter_folder(
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._fmurun is True
 
-    edata.export(regsurf)
-
-    assert edata._metadata["fmu"]["realization"]["name"] == "realization-1"
-    assert edata._metadata["fmu"]["realization"]["id"] == 1
-    assert edata._metadata["fmu"]["iteration"]["name"] == "iter-0"
-    assert edata._metadata["fmu"]["iteration"]["id"] == 0
+    out = Path(edata.export(regsurf))
+    with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
+        metadata = yaml.safe_load(f)
+    assert metadata["fmu"]["realization"]["name"] == "realization-1"
+    assert metadata["fmu"]["realization"]["id"] == 1
+    assert metadata["fmu"]["iteration"]["name"] == "iter-0"
+    assert metadata["fmu"]["iteration"]["id"] == 0
 
 
 def test_fmucontext_case_casepath(fmurun_prehook, rmsglobalconfig, regsurf):
