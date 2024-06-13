@@ -13,6 +13,7 @@ import fmu.dataio.dataio as dataio
 import fmu.dataio.readers as readers
 import pandas as pd
 import pytest
+import yaml
 from fmu.dataio._definitions import FmuContext
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
@@ -224,8 +225,11 @@ def test_regsurf_export_file_fmurun(
     )
     logger.info("Output is %s", output)
 
-    assert edata._metadata["access"]["ssdl"]["access_level"] == "restricted"
-    assert edata._metadata["data"]["unit"] == "forthnite"
+    out = Path(edata.export(regsurf))
+    with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
+        metadata = yaml.safe_load(f)
+    assert metadata["access"]["ssdl"]["access_level"] == "restricted"
+    assert metadata["data"]["unit"] == "forthnite"
 
 
 # ======================================================================================

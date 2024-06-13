@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import os
 import warnings
-from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, ClassVar, Dict, Final, List, Literal, Optional, Union
@@ -22,7 +21,6 @@ from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._utils import (
     detect_inside_rms,  # dataio_examples,
-    drop_nones,
     export_file,
     export_metadata_file,
     prettyprint_dict,
@@ -377,7 +375,6 @@ class ExportData:
     _usefmtflag: str = field(default="", init=False)
 
     # storing resulting state variables for instance, non-public:
-    _metadata: dict = field(default_factory=dict, init=False)
     _pwd: Path = field(default_factory=Path, init=False)
     _config_is_valid: bool = field(default=True, init=False)
     _fmurun: bool = field(default=False, init=False)
@@ -769,15 +766,10 @@ class ExportData:
 
         self._update_fmt_flag()
         fmudata = self._get_fmu_provider() if self._fmurun else None
-        self._metadata = drop_nones(
-            generate_export_metadata(
-                obj, self, fmudata, compute_md5=compute_md5
-            ).model_dump(mode="json", exclude_none=True, by_alias=True)
-        )
 
-        logger.info("The metadata are now ready!")
-
-        return deepcopy(self._metadata)
+        return generate_export_metadata(
+            obj, self, fmudata, compute_md5=compute_md5
+        ).model_dump(mode="json", exclude_none=True, by_alias=True)
 
     def export(
         self,
