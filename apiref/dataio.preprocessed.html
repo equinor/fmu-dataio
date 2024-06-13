@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.preprocessed module &mdash; fmu.dataio 0.1.dev1+ge8656c6 documentation</title>
+  <title>dataio.preprocessed module &mdash; fmu.dataio 0.1.dev1+gcd37c8c documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
@@ -113,7 +113,7 @@
 <span id="dataio-preprocessed-module"></span><h1>dataio.preprocessed module<a class="headerlink" href="#module-dataio.preprocessed" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="dataio.preprocessed.ExportPreprocessedData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.preprocessed.</span></span><span class="sig-name descname"><span class="pre">ExportPreprocessedData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">casepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_observation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fmudata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/preprocessed.html#ExportPreprocessedData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.preprocessed.ExportPreprocessedData" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.preprocessed.</span></span><span class="sig-name descname"><span class="pre">ExportPreprocessedData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">casepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_observation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fmudata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/preprocessed.html#ExportPreprocessedData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.preprocessed.ExportPreprocessedData" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Export a preprocessed file and its metadata into a FMU run at case level.</p>
 <p>The existing metadata will be validated and three fields will be updated
@@ -126,7 +126,7 @@ that the file and metadata are stored in the ‘share/preprocessed/’ folder.</
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Required dictionary with ‘model’ information; ‘name’ and ‘revision’.
+<li><p><strong>config</strong> – Required dictionary with ‘model’ information; ‘name’ and ‘revision’.
 Example is {‘model’: {‘name’: ‘mymodelname’, ‘revision’: ‘1.0.0’}}
 Normally read from FMU global variables (via fmuconfig).</p></li>
 <li><p><strong>casepath</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Required casepath for the active ERT experiment. The case needs to
@@ -137,11 +137,6 @@ has been run prior to using this class.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dataio.preprocessed.ExportPreprocessedData.config">
-<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#dataio.preprocessed.ExportPreprocessedData.config" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.preprocessed.ExportPreprocessedData.casepath">
 <span class="sig-name descname"><span class="pre">casepath</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> <span class="pre">|</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></em><a class="headerlink" href="#dataio.preprocessed.ExportPreprocessedData.casepath" title="Permalink to this definition"></a></dt>
@@ -197,7 +192,7 @@ the file will still be copied but metadata will not be created.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+ge8656c6).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gcd37c8c).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
