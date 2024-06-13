@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g1838fa7 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g6ab1f02 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -474,7 +474,7 @@
 
     <span class="c1"># Need to store these temporarily in variables until we stop</span>
     <span class="c1"># updating state of the class also on export and generate_metadata</span>
-    <span class="n">_classification</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span> <span class="o">=</span> <span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span><span class="o">.</span><span class="n">internal</span>
+    <span class="n">_classification</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">Classification</span> <span class="o">=</span> <span class="n">enums</span><span class="o">.</span><span class="n">Classification</span><span class="o">.</span><span class="n">internal</span>
     <span class="n">_rep_include</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># &lt;&lt; NB! storing ACTUAL casepath:</span>
@@ -530,9 +530,9 @@
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ran __post_init__&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_classification</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_get_classification</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">enums</span><span class="o">.</span><span class="n">Classification</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the security classification as an AccessLevel.</span>
+<span class="sd">        Get the security classification.</span>
 <span class="sd">        The order of how the classification is set is:</span>
 <span class="sd">        1. from classification argument if present</span>
 <span class="sd">        2. from access_ssdl argument (deprecated) if present</span>
@@ -555,17 +555,17 @@
             <span class="c1"># note the one below here will never be used, because that</span>
             <span class="c1"># means the config is invalid and no metadata will be produced</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using default classification &#39;internal&#39;&quot;</span><span class="p">)</span>
-            <span class="n">classification</span> <span class="o">=</span> <span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span><span class="o">.</span><span class="n">internal</span>
+            <span class="n">classification</span> <span class="o">=</span> <span class="n">enums</span><span class="o">.</span><span class="n">Classification</span><span class="o">.</span><span class="n">internal</span>
 
-        <span class="k">if</span> <span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span><span class="p">(</span><span class="n">classification</span><span class="p">)</span> <span class="o">==</span> <span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span><span class="o">.</span><span class="n">asset</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">enums</span><span class="o">.</span><span class="n">Classification</span><span class="p">(</span><span class="n">classification</span><span class="p">)</span> <span class="o">==</span> <span class="n">enums</span><span class="o">.</span><span class="n">Classification</span><span class="o">.</span><span class="n">asset</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;The value &#39;asset&#39; for access.ssdl.access_level is deprecated. &quot;</span>
                 <span class="s2">&quot;Please use &#39;restricted&#39; in input arguments or global variables &quot;</span>
                 <span class="s2">&quot;to silence this warning.&quot;</span><span class="p">,</span>
                 <span class="ne">FutureWarning</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">return</span> <span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span><span class="o">.</span><span class="n">restricted</span>
-        <span class="k">return</span> <span class="n">enums</span><span class="o">.</span><span class="n">AccessLevel</span><span class="p">(</span><span class="n">classification</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">enums</span><span class="o">.</span><span class="n">Classification</span><span class="o">.</span><span class="n">restricted</span>
+        <span class="k">return</span> <span class="n">enums</span><span class="o">.</span><span class="n">Classification</span><span class="p">(</span><span class="n">classification</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_rep_include</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -933,7 +933,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g1838fa7).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g6ab1f02).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
