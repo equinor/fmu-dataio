@@ -293,7 +293,7 @@ def test_metadata_populate_wrong_config(globalconfig1, regsurf):
 def test_metadata_populate_wrong_argument(globalconfig1):
     """Test error in access_ssdl in arguments."""
 
-    with pytest.raises(ValueError, match="is not a valid AccessLevel"):
+    with pytest.raises(ValueError, match="is not a valid Classification"):
         dio.ExportData(
             config=globalconfig1,
             access_ssdl={"access_level": "wrong"},
@@ -350,7 +350,7 @@ def test_metadata_access_illegal_input(globalconfig1):
     """Test giving illegal input, should provide empty access field"""
 
     # Input is "secret"
-    with pytest.raises(ValueError, match="is not a valid AccessLevel"):
+    with pytest.raises(ValueError, match="is not a valid Classification"):
         dio.ExportData(
             config=globalconfig1,
             access_ssdl={"access_level": "secret"},
@@ -358,7 +358,7 @@ def test_metadata_access_illegal_input(globalconfig1):
         )
 
     # Input is "open". Not allowed, shall fail.
-    with pytest.raises(ValueError, match="is not a valid AccessLevel"):
+    with pytest.raises(ValueError, match="is not a valid Classification"):
         dio.ExportData(
             config=globalconfig1,
             access_ssdl={"access_level": "open"},
