@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+gcd37c8c documentation</title>
+  <title>Meta export datastructure &mdash; fmu.dataio 0.1.dev1+g1838fa7 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
@@ -1492,7 +1492,7 @@ validated to form a valid model.</p>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.grid_model" title="fmu.dataio.datastructure.meta.content.Content.grid_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid_model</span> <span class="pre">(fmu.dataio.datastructure.meta.content.GridModel</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.is_observation" title="fmu.dataio.datastructure.meta.content.Content.is_observation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_observation</span> <span class="pre">(bool)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.is_prediction" title="fmu.dataio.datastructure.meta.content.Content.is_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_prediction</span> <span class="pre">(bool)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.layout" title="fmu.dataio.datastructure.meta.content.Content.layout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.layout" title="fmu.dataio.datastructure.meta.content.Content.layout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout</span> <span class="pre">(fmu.dataio.datastructure.meta.enums.Layout</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.name" title="fmu.dataio.datastructure.meta.content.Content.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.offset" title="fmu.dataio.datastructure.meta.content.Content.offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset</span> <span class="pre">(float)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#fmu.dataio.datastructure.meta.content.Content.spec" title="fmu.dataio.datastructure.meta.content.Content.spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec</span> <span class="pre">(fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.CPGridSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.PointSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.CubeSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.PolygonsSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.SurfaceSpecification</span> <span class="pre">|</span> <span class="pre">fmu.dataio.datastructure.meta.specification.TableSpecification</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
@@ -1556,7 +1556,7 @@ validated to form a valid model.</p>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="fmu.dataio.datastructure.meta.content.Content.layout">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">layout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.content.Content.layout" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">layout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[enums.Layout]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#fmu.dataio.datastructure.meta.content.Content.layout" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -2922,7 +2922,7 @@ validated to form a valid model.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gcd37c8c).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g1838fa7).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
