@@ -298,7 +298,7 @@ def fixture_globalconfig1():
         access=global_configuration.Access(
             asset=global_configuration.Asset(name="Test"),
             ssdl=global_configuration.Ssdl(rep_include=False),
-            classification=global_configuration.enums.AccessLevel.internal,
+            classification=global_configuration.enums.Classification.internal,
         ),
         model=global_configuration.meta.FMUModel(
             name="Test",

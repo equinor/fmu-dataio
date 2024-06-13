@@ -43,7 +43,7 @@ class Ssdl(BaseModel):
     Defines the configuration for the SSDL.
     """
 
-    access_level: Optional[enums.AccessLevel] = Field(default=None)
+    access_level: Optional[enums.Classification] = Field(default=None)
     rep_include: Optional[bool] = Field(
         default=False,
     )
@@ -64,7 +64,7 @@ class Access(BaseModel, use_enum_values=True):
 
     asset: Asset
     ssdl: Optional[Ssdl] = Field(default=None)
-    classification: Optional[enums.AccessLevel] = Field(default=None)
+    classification: Optional[enums.Classification] = Field(default=None)
 
     @model_validator(mode="after")
     def _validate_classification_ssdl_access_level(self) -> Access:

@@ -4,7 +4,7 @@ from enum import Enum, IntEnum
 from typing import Type
 
 
-class AccessLevel(str, Enum):
+class Classification(str, Enum):
     asset = "asset"
     internal = "internal"
     restricted = "restricted"

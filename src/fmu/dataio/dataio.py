@@ -384,7 +384,7 @@ class ExportData:
 
     # Need to store these temporarily in variables until we stop
     # updating state of the class also on export and generate_metadata
-    _classification: enums.AccessLevel = enums.AccessLevel.internal
+    _classification: enums.Classification = enums.Classification.internal
     _rep_include: bool = field(default=False, init=False)
 
     # << NB! storing ACTUAL casepath:
@@ -440,9 +440,9 @@ class ExportData:
 
         logger.info("Ran __post_init__")
 
-    def _get_classification(self) -> enums.AccessLevel:
+    def _get_classification(self) -> enums.Classification:
         """
-        Get the security classification as an AccessLevel.
+        Get the security classification.
         The order of how the classification is set is:
         1. from classification argument if present
         2. from access_ssdl argument (deprecated) if present
@@ -465,17 +465,17 @@ class ExportData:
             # note the one below here will never be used, because that
             # means the config is invalid and no metadata will be produced
             logger.info("Using default classification 'internal'")
-            classification = enums.AccessLevel.internal
+            classification = enums.Classification.internal
 
-        if enums.AccessLevel(classification) == enums.AccessLevel.asset:
+        if enums.Classification(classification) == enums.Classification.asset:
             warnings.warn(
                 "The value 'asset' for access.ssdl.access_level is deprecated. "
                 "Please use 'restricted' in input arguments or global variables "
                 "to silence this warning.",
                 FutureWarning,
             )
-            return enums.AccessLevel.restricted
-        return enums.AccessLevel(classification)
+            return enums.Classification.restricted
+        return enums.Classification(classification)
 
     def _get_rep_include(self) -> bool:
         """

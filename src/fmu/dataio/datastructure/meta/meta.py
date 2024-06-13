@@ -31,13 +31,13 @@ class Ssdl(BaseModel):
     Sub-Surface Data Lake
     """
 
-    access_level: enums.AccessLevel
+    access_level: enums.Classification
     rep_include: bool
 
 
 class Access(BaseModel):
     asset: Asset
-    classification: Optional[enums.AccessLevel] = Field(default=None)
+    classification: Optional[enums.Classification] = Field(default=None)
 
 
 class SsdlAccess(Access):

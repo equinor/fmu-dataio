@@ -48,7 +48,7 @@
         "classification": {
           "anyOf": [
             {
-              "$ref": "#/$defs/AccessLevel"
+              "$ref": "#/$defs/Classification"
             },
             {
               "type": "null"
@@ -62,15 +62,6 @@
       ],
       "title": "Access",
       "type": "object"
-    },
-    "AccessLevel": {
-      "enum": [
-        "asset",
-        "internal",
-        "restricted"
-      ],
-      "title": "AccessLevel",
-      "type": "string"
     },
     "Aggregation": {
       "properties": {
@@ -403,6 +394,15 @@
       ],
       "title": "CPGridSpecification",
       "type": "object"
+    },
+    "Classification": {
+      "enum": [
+        "asset",
+        "internal",
+        "restricted"
+      ],
+      "title": "Classification",
+      "type": "string"
     },
     "Context": {
       "description": "The internal FMU context in which this data object was produced",
@@ -6661,7 +6661,7 @@
       "description": "Sub-Surface Data Lake",
       "properties": {
         "access_level": {
-          "$ref": "#/$defs/AccessLevel"
+          "$ref": "#/$defs/Classification"
         },
         "rep_include": {
           "title": "Rep Include",
@@ -6683,7 +6683,7 @@
         "classification": {
           "anyOf": [
             {
-              "$ref": "#/$defs/AccessLevel"
+              "$ref": "#/$defs/Classification"
             },
             {
               "type": "null"
