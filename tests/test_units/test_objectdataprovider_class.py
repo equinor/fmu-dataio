@@ -118,7 +118,7 @@ def test_regsurf_preprocessed_observation(
         )
         return edata, edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, rmsglobalconfig, surfacepath):
+    def _run_case_fmu(fmurun_prehook, surfacepath):
         """Run FMU workflow, using the preprocessed data as case data.
 
         When re-using metadata, the input object to dataio shall not be a XTGeo or
@@ -132,16 +132,12 @@ def test_regsurf_preprocessed_observation(
         os.chdir(fmurun_prehook)
 
         casepath = fmurun_prehook
-        edata = dataio.ExportPreprocessedData(
-            config=rmsglobalconfig,
-            is_observation=True,
-            casepath=casepath,
-        )
+        edata = dataio.ExportPreprocessedData(is_observation=True, casepath=casepath)
         return edata.generate_metadata(surfacepath)
 
     # run two stage process
     remove_ert_env(monkeypatch)
     edata, mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
     set_ert_env_prehook(monkeypatch)
-    case_meta = _run_case_fmu(fmurun_prehook, rmsglobalconfig, mysurf)
+    case_meta = _run_case_fmu(fmurun_prehook, mysurf)
     assert edata._metadata["data"] == case_meta["data"]

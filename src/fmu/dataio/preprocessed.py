@@ -59,7 +59,6 @@ class ExportPreprocessedData:
             "casepath/share/observations" folder, otherwise on casepath/share/result.
     """
 
-    config: dict
     casepath: str | Path
     is_observation: bool = True
 
@@ -73,7 +72,6 @@ class ExportPreprocessedData:
             )
 
         self._fmudata = FmuProvider(
-            model=self.config.get("model"),
             fmu_context=FmuContext.CASE,
             casepath_proposed=Path(self.casepath),
             workflow=None,

@@ -27,9 +27,7 @@ def test_fmuprovider_no_provider():
         casepath_proposed="",
         workflow=WORKFLOW,
     )
-    with pytest.raises(
-        InvalidMetadataError, match="Missing casepath or model description"
-    ):
+    with pytest.raises(InvalidMetadataError, match="Missing casepath"):
         myfmu.get_metadata()
 
 
@@ -45,16 +43,20 @@ def test_fmuprovider_model_info_in_metadata(fmurun_w_casemetadata):
     assert "model" in meta.model_fields_set
     assert meta.model.model_dump(mode="json", exclude_none=True) == GLOBAL_CONFIG_MODEL
 
+
+def test_fmuprovider_no_model_info_use_case(fmurun_w_casemetadata):
+    """Test that if no model info it is picking up from the case metadata."""
+
     myfmu = FmuProvider(
         model=None,
         fmu_context=FmuContext.REALIZATION,
         workflow=WORKFLOW,
     )
 
-    with pytest.raises(
-        InvalidMetadataError, match="Missing casepath or model description"
-    ):
-        meta = myfmu.get_metadata()
+    meta = myfmu.get_metadata()
+    casemeta = myfmu._get_case_meta()
+    assert meta.model.name == casemeta.fmu.model.name
+    assert meta.model.revision == casemeta.fmu.model.revision
 
 
 def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
@@ -72,9 +74,7 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
         )
 
     assert myfmu.get_casepath() is None
-    with pytest.raises(
-        InvalidMetadataError, match="Missing casepath or model description"
-    ):
+    with pytest.raises(InvalidMetadataError, match="Missing casepath"):
         myfmu.get_metadata()
 
 
@@ -211,9 +211,7 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
             model=GLOBAL_CONFIG_MODEL,
             fmu_context=FmuContext.REALIZATION,
         )
-    with pytest.raises(
-        InvalidMetadataError, match="Missing casepath or model description"
-    ):
+    with pytest.raises(InvalidMetadataError, match="Missing casepath"):
         myfmu.get_metadata()
 
 

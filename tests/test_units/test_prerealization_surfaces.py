@@ -86,7 +86,7 @@ def test_regsurf_preprocessed_observation(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, rmsglobalconfig, surfacepath):
+    def _run_case_fmu(fmurun_prehook, surfacepath):
         """Run FMU workflow, using the preprocessed data as case data.
 
         When re-using metadata, the input object to dataio shall not be a XTGeo or
@@ -102,11 +102,7 @@ def test_regsurf_preprocessed_observation(
 
         casepath = fmurun_prehook
 
-        edata = dataio.ExportPreprocessedData(
-            config=rmsglobalconfig,  # read from global config
-            is_observation=True,
-            casepath=casepath,
-        )
+        edata = dataio.ExportPreprocessedData(is_observation=True, casepath=casepath)
         metadata = edata.generate_metadata(surfacepath)
         logger.info("Casepath folder is now %s", casepath)
         logger.debug("\n%s", utils.prettyprint_dict(metadata))
@@ -135,7 +131,7 @@ def test_regsurf_preprocessed_observation(
     remove_ert_env(monkeypatch)
     mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
     set_ert_env_prehook(monkeypatch)
-    _run_case_fmu(fmurun_prehook, rmsglobalconfig, mysurf)
+    _run_case_fmu(fmurun_prehook, mysurf)
 
     logger.info("Preprocessed surface is %s", mysurf)
 
@@ -206,19 +202,13 @@ def test_regsurf_preprocessed_filename_retained(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(
-        fmurun_prehook,
-        rmsglobalconfig,
-        surfacepath,
-        exproot,
-    ):
+    def _run_case_fmu(fmurun_prehook, surfacepath, exproot):
         """Run FMU workflow, using the preprocessed data on a subfolder."""
 
         os.chdir(fmurun_prehook)
         logger.info("Active folder is %s", fmurun_prehook)
 
         edata = dataio.ExportPreprocessedData(
-            config=rmsglobalconfig,  # read from global config
             is_observation=True,
             casepath=fmurun_prehook,
         )
@@ -233,12 +223,7 @@ def test_regsurf_preprocessed_filename_retained(
         rmssetup, rmsglobalconfig, regsurf, parent, name, tagname, exproot
     )
     set_ert_env_prehook(monkeypatch)
-    _run_case_fmu(
-        fmurun_prehook,
-        rmsglobalconfig,
-        mysurf,
-        exproot,
-    )
+    _run_case_fmu(fmurun_prehook, mysurf, exproot)
 
 
 def test_regsurf_preprocessed_observation_subfolder(
@@ -278,14 +263,14 @@ def test_regsurf_preprocessed_observation_subfolder(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, rmsglobalconfig, surfacepath):
+    def _run_case_fmu(fmurun_prehook, surfacepath):
         """Run FMU workflow, using the preprocessed data on a subfolder."""
 
         os.chdir(fmurun_prehook)
         logger.info("Active folder is %s", fmurun_prehook)
 
         edata = dataio.ExportPreprocessedData(
-            config=rmsglobalconfig, casepath=fmurun_prehook, is_observation=True
+            casepath=fmurun_prehook, is_observation=True
         )
         metadata = edata.generate_metadata(surfacepath)
         # check that the relative path is identical to existing except the share folder
@@ -300,7 +285,7 @@ def test_regsurf_preprocessed_observation_subfolder(
     mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
 
     set_ert_env_prehook(monkeypatch)
-    _run_case_fmu(fmurun_prehook, rmsglobalconfig, mysurf)
+    _run_case_fmu(fmurun_prehook, mysurf)
 
 
 @inside_rms
@@ -379,16 +364,13 @@ def test_access_settings_retained(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, rmsglobalconfig, surfacepath):
+    def _run_case_fmu(fmurun_prehook, surfacepath):
         """Run FMU workflow, test that access is retained from preprocessed."""
 
         os.chdir(fmurun_prehook)
         logger.info("Active folder is %s", fmurun_prehook)
 
-        edata = dataio.ExportPreprocessedData(
-            config=rmsglobalconfig,
-            casepath=fmurun_prehook,
-        )
+        edata = dataio.ExportPreprocessedData(casepath=fmurun_prehook)
         metadata = edata.generate_metadata(surfacepath)
 
         # access shall be inherited from preprocessed data
@@ -398,4 +380,4 @@ def test_access_settings_retained(
     remove_ert_env(monkeypatch)
     surfacepath = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
     set_ert_env_prehook(monkeypatch)
-    _run_case_fmu(fmurun_prehook, rmsglobalconfig, surfacepath)
+    _run_case_fmu(fmurun_prehook, surfacepath)
