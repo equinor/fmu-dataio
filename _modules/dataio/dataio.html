@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g1294f0e documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g66a533e documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -596,6 +596,12 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_ssdl</span><span class="p">[</span><span class="s2">&quot;rep_include&quot;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="s2">&quot;rep_include&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;access&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ssdl&quot;</span><span class="p">,</span> <span class="p">{}):</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Setting &#39;rep_include&#39; from the config is deprecated. Use the &quot;</span>
+                <span class="s2">&quot;&#39;rep_include&#39; argument instead (default value is False). To silence &quot;</span>
+                <span class="s2">&quot;this warning remove the &#39;access.ssdl.rep_include&#39; from the config.&quot;</span><span class="p">,</span>
+                <span class="ne">FutureWarning</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;rep_include is set from config&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;access&quot;</span><span class="p">][</span><span class="s2">&quot;ssdl&quot;</span><span class="p">][</span><span class="s2">&quot;rep_include&quot;</span><span class="p">]</span>
 
@@ -939,7 +945,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g1294f0e).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g66a533e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
