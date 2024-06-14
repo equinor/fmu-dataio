@@ -393,6 +393,29 @@ def test_metadata_access_no_input(globalconfig1, regsurf):
     assert mymeta.access.classification == "internal"  # mirrored
 
 
+def test_metadata_rep_include_deprecation(globalconfig1, regsurf):
+    """Test warnings for deprecated rep_include field in config."""
+    configcopy = deepcopy(globalconfig1)
+
+    configcopy["access"]["ssdl"]["rep_include"] = True
+    with pytest.warns(FutureWarning, match="'rep_include' argument"):
+        edata = dio.ExportData(config=configcopy, content="depth")
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta.access.ssdl.rep_include is True
+
+    configcopy["access"]["ssdl"]["rep_include"] = False
+    with pytest.warns(FutureWarning, match="'rep_include' argument"):
+        edata = dio.ExportData(config=configcopy, content="depth")
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta.access.ssdl.rep_include is False
+
+    # check that default value is used if not present
+    del configcopy["access"]["ssdl"]["rep_include"]
+    edata = dio.ExportData(config=globalconfig1, content="depth")
+    mymeta = generate_export_metadata(regsurf, edata)
+    assert mymeta.access.ssdl.rep_include is False  # default
+
+
 # --------------------------------------------------------------------------------------
 # DISPLAY block
 # --------------------------------------------------------------------------------------

@@ -506,6 +506,12 @@ class ExportData:
             return self.access_ssdl["rep_include"]
 
         if "rep_include" in self.config.get("access", {}).get("ssdl", {}):
+            warn(
+                "Setting 'rep_include' from the config is deprecated. Use the "
+                "'rep_include' argument instead (default value is False). To silence "
+                "this warning remove the 'access.ssdl.rep_include' from the config.",
+                FutureWarning,
+            )
             logger.debug("rep_include is set from config")
             return self.config["access"]["ssdl"]["rep_include"]
 
