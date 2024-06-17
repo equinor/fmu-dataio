@@ -47,10 +47,6 @@ class ExportPreprocessedData:
     that the file and metadata are stored in the 'share/preprocessed/' folder.
 
     Args:
-        config: Required dictionary with 'model' information; 'name' and 'revision'.
-            Example is {'model': {'name': 'mymodelname', 'revision': '1.0.0'}}
-            Normally read from FMU global variables (via fmuconfig).
-
         casepath: Required casepath for the active ERT experiment. The case needs to
             contain valid case metadata i.e. the ERT workflow 'WF_CREATE_CASE_METADATA'
             has been run prior to using this class.
