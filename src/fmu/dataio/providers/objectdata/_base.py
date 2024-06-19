@@ -226,7 +226,7 @@ class ObjectDataProvider(Provider):
             top=named_stratigraphy.get("top"),
             base=named_stratigraphy.get("base"),
         )
-        if rv.name != "name":
+        if name not in rv.alias:
             rv.alias.append(name)
 
         return rv

@@ -798,3 +798,27 @@ def test_content_property_as_string_future_warning(globalconfig2, regsurf):
     edata = ExportData(content="property", config=globalconfig2)
     with pytest.warns(FutureWarning):
         edata.generate_metadata(regsurf)
+
+
+def test_append_to_alias_list(globalconfig2, regsurf):
+    """
+    Test that the name input is added to the alias list when present in
+    the stratigraphy. And check that the alias list is not appended to if it
+    contains the name already.
+    """
+
+    name = "TopVolantis"
+    strat = globalconfig2["stratigraphy"][name]
+    assert name not in strat["alias"]
+
+    # generate metadata twice on the same ExportData instance
+    # to check that the alias list is not appended the second time
+    edata = ExportData(content="depth", config=globalconfig2, name=name)
+    meta = edata.generate_metadata(regsurf)
+    meta2 = edata.generate_metadata(regsurf)
+
+    assert meta["data"]["alias"] == meta2["data"]["alias"]
+
+    # also check that the name input was added to the alias list
+    assert name not in strat["alias"]
+    assert name in meta["data"]["alias"]
