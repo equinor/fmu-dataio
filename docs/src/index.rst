@@ -40,5 +40,6 @@ post-processing services, new and improved cloud-only version of Webviz and much
    overview
    preparations
    examples
+   rms_oneliners
    apiref/modules
    datamodel/index
