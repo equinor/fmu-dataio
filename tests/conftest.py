@@ -47,6 +47,14 @@ def _current_function_name():
     return inspect.currentframe().f_back.f_code.co_name
 
 
+@pytest.fixture(scope="function", autouse=True)
+def return_to_original_directory():
+    # store original folder, and restore after each function (before and after yield)
+    original_directory = os.getcwd()
+    yield
+    os.chdir(original_directory)
+
+
 @pytest.fixture
 def set_export_data_inside_rms(monkeypatch):
     monkeypatch.setattr(ExportData, "_inside_rms", True)
@@ -211,6 +219,22 @@ def rmssetup(tmp_path_factory, global_config2_path):
     rmspath = tmppath / "rms/model"
     rmspath.mkdir(parents=True, exist_ok=True)
     shutil.copy(global_config2_path, rmspath)
+
+    logger.debug("Ran %s", _current_function_name())
+
+    return rmspath
+
+
+@pytest.fixture(scope="module")
+def rmssetup_with_fmuconfig(tmp_path_factory, global_config2_path):
+    """Create the folder structure to mimic RMS project and standard global config."""
+
+    tmppath = tmp_path_factory.mktemp("revision")
+    rmspath = tmppath / "rms/model"
+    rmspath.mkdir(parents=True, exist_ok=True)
+    fmuconfigpath = tmppath / "fmuconfig/output"
+    fmuconfigpath.mkdir(parents=True, exist_ok=True)
+    shutil.copy(global_config2_path, fmuconfigpath)
 
     logger.debug("Ran %s", _current_function_name())
 

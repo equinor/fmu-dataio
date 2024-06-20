@@ -69,8 +69,8 @@ autoclass_content = "class"
 # Sort members by input order in classes
 autodoc_member_order = "bysource"
 autodoc_default_flags = ["members", "show_inheritance"]
-# Mocking ert, pydantic module
-autodoc_mock_imports = ["ert", "pydantic"]
+# Mocking ert, rms, pydantic module
+autodoc_mock_imports = ["ert", "pydantic", "rmsapi", "_rmsapi", "roxar", "_roxar"]
 
 napoleon_include_special_with_doc = False
 
@@ -84,6 +84,7 @@ master_doc = "index"
 project = "fmu.dataio"
 current_year = date.today().year
 copyright = f"Equinor {current_year} (fmu-dataio release {release})"
+
 
 exclude_patterns = ["_build"]
 
