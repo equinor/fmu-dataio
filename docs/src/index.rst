@@ -41,7 +41,4 @@ post-processing services, new and improved cloud-only version of Webviz and much
    preparations
    examples
    apiref/modules
-   datamodel
-   datastructure
-
-
+   datamodel/index

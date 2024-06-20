@@ -50,7 +50,8 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
-docs/apiref/
+docs/src/apiref/
+docs/src/datamodel/model
 
 # PyBuilder
 target/

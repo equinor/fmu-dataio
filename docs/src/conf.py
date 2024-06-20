@@ -4,16 +4,16 @@
 # pylint: skip-file
 import os
 import sys
-
-cwd = os.getcwd()
-project_root = os.path.dirname(cwd) + "/src/fmu"
-sys.path.insert(0, project_root)
-print(sys.path)
+from pathlib import Path
 
 from datetime import date
 
 import fmu.dataio
 import fmu.dataio.dataio
+
+sys.path.insert(0, os.path.abspath("../../src/fmu"))
+sys.path.insert(1, os.path.abspath("../ext"))
+
 
 # -- General configuration ---------------------------------------------
 
@@ -22,29 +22,45 @@ release = fmu.dataio.__version__
 
 extensions = [
     "myst_parser",
-    "sphinxcontrib.apidoc",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.napoleon",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.mathjax",
+    "pydantic_autosummary",
     "sphinx.ext.autodoc",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
-    "sphinxcontrib.autodoc_pydantic",
     "sphinx_togglebutton",
+    "sphinxcontrib.apidoc",
+    "sphinxcontrib.autodoc_pydantic",
 ]
 
 autosummary_generate = True
+autosummary_imported_members = True
+add_module_names = False
 
 togglebutton_hint = "Expand"
 
-apidoc_module_dir = "../src/fmu/dataio"
+apidoc_module_dir = "../../src/fmu/dataio"
 apidoc_output_dir = "apiref"
-apidoc_excluded_paths = ["tests"]
+apidoc_excluded_paths = [
+    "case",
+    "datastructure",
+    "hook_implementations",
+    "providers",
+    "scripts",
+    "tests",
+    "types",
+    "version",
+]
 apidoc_separate_modules = True
 apidoc_module_first = True
 apidoc_extra_args = ["-H", "API reference for fmu.dataio"]
 
-autoclass_content = "both"
+autoclass_content = "class"
+# Sort members by input order in classes
+autodoc_member_order = "bysource"
+autodoc_default_flags = ["members", "show_inheritance"]
+# Mocking ert, pydantic module
+autodoc_mock_imports = ["ert", "pydantic"]
 
 napoleon_include_special_with_doc = False
 
@@ -59,22 +75,16 @@ project = "fmu.dataio"
 current_year = date.today().year
 copyright = f"Equinor {current_year} (fmu-dataio release {release})"
 
-
-# Sort members by input order in classes
-autodoc_member_order = "bysource"
-autodoc_default_flags = ["members", "show_inheritance"]
-
-# Mocking ert module
-autodoc_mock_imports = ["ert"]
-
 exclude_patterns = ["_build"]
 
 pygments_style = "sphinx"
 
 html_theme = "sphinx_rtd_theme"
-
 html_theme_options = {
     "style_nav_header_background": "#C0C0C0",
+    "navigation_depth": -1,
+    "collapse_navigation": False,
+    "titles_only": True,
 }
 
 
