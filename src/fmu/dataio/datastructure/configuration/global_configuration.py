@@ -9,7 +9,6 @@ from __future__ import annotations
 import warnings
 from typing import Any, Dict, List, Optional
 
-from fmu.dataio.datastructure.meta import enums, meta
 from pydantic import (
     BaseModel,
     Field,
@@ -18,6 +17,8 @@ from pydantic import (
     field_validator,
     model_validator,
 )
+
+from fmu.dataio.datastructure.meta import enums, meta
 
 
 def validation_error_warning(err: ValidationError) -> None:

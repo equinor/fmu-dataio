@@ -12,8 +12,6 @@ import warnings
 from textwrap import dedent
 from typing import List, Literal, Optional, Union
 
-from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
-from fmu.dataio.datastructure.meta import meta
 from pydantic import (
     AnyHttpUrl,
     BaseModel,
@@ -21,6 +19,9 @@ from pydantic import (
     TypeAdapter,
     model_validator,
 )
+
+from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
+from fmu.dataio.datastructure.meta import meta
 
 
 def property_warn() -> None:

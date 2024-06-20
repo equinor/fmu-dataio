@@ -17,16 +17,18 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
-      - name: Install and build docs
+      - name: Install fmu-dataio
         run: |
-          pip install pip -U && pip install wheel -U
+          pip install -U pip
           pip install .[docs]
-          pip install xtgeo
-          pip install git+https://github.com/equinor/fmu-config
-          sh examples/run_examples.sh
-          sphinx-build -b html docs build/docs/html
+
+      - name: Generate examples
+        run: sh examples/run_examples.sh
+
+      - name: Build documentation
+        run: sphinx-build -b html docs/src build/docs/html
 
       - name: Update GitHub pages
         if: github.repository_owner == 'equinor' && github.ref == 'refs/heads/main'
