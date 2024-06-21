@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g72f2883 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g68b9ca8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -276,10 +276,11 @@
 <span class="sd">            ``{&quot;access_level&quot;: &quot;restricted&quot;, &quot;rep_include&quot;: False}``</span>
 <span class="sd">            Deprecated and replaced by &#39;classification&#39; and &#39;rep_include&#39; arguments.</span>
 
-<span class="sd">        casepath: To override the automatic and actual ``rootpath``. Absolute path to</span>
-<span class="sd">            the case root. If not provided, the rootpath will be attempted parsed from</span>
-<span class="sd">            the file structure or by other means. See also fmu_context, where &quot;case&quot;</span>
-<span class="sd">            may need an explicit casepath!</span>
+<span class="sd">        casepath: Optional path to a case directory that contains valid case metadata</span>
+<span class="sd">            &quot;fmu_case.yml&quot; in folder &quot;&lt;casepath&gt;/share/metadata/&quot;.</span>
+<span class="sd">            Note for the fmu_context ``case`` the ``casepath`` is required, while</span>
+<span class="sd">            for fmu_context ``realization`` it will be attempted inferred from</span>
+<span class="sd">            an ERT environment variable.</span>
 
 <span class="sd">        classification: Optional. Security classification level of the data object.</span>
 <span class="sd">            If present it will override the default found in the config.</span>
@@ -303,16 +304,14 @@
 <span class="sd">            Example is &quot;depth&quot; or {&quot;fluid_contact&quot;: {&quot;xxx&quot;: &quot;yyy&quot;, &quot;zzz&quot;: &quot;uuu&quot;}}.</span>
 <span class="sd">            Content is checked agains a white-list for validation!</span>
 
-<span class="sd">        fmu_context: In normal forward models, the fmu_context is ``realization`` which</span>
-<span class="sd">            is default and will put data per realization. Other contexts may be ``case``</span>
-<span class="sd">            which will put data relative to the case root (see also casepath). Another</span>
-<span class="sd">            important context is &quot;preprocessed&quot; which will output to a dedicated</span>
-<span class="sd">            &quot;preprocessed&quot; folder instead, and metadata will be partially re-used in</span>
-<span class="sd">            an ERT model run. If a non-FMU run is detected (e.g. you run from project),</span>
-<span class="sd">            fmu-dataio will detect that and set actual context to None as fall-back</span>
-<span class="sd">            (unless preprocessed is specified). If this key is not explicitly given it</span>
-<span class="sd">            will be inferred to be either &quot;case&quot;/&quot;realization&quot;/&quot;non-fmu&quot; based on the</span>
-<span class="sd">            presence of ERT environment variables.</span>
+<span class="sd">        fmu_context: Optional string with value ``realization`` or ``case``. If not</span>
+<span class="sd">            explicitly given it will be inferred based on the presence of ERT</span>
+<span class="sd">            environment variables.</span>
+<span class="sd">            The fmu_context ``realization`` will export data per realization, and should</span>
+<span class="sd">            be used in normal ERT forward models, while the fmu_context ``case``</span>
+<span class="sd">            will export data relative to the case directory. Note that for the</span>
+<span class="sd">            fmu_context ``case`` the case directory needs to be provided through the</span>
+<span class="sd">            argument ``casepath``.</span>
 
 <span class="sd">        description: A multiline description of the data either as a string or a list</span>
 <span class="sd">            of strings.</span>
@@ -323,7 +322,7 @@
 <span class="sd">            possible to output to a non-standard folder relative to casepath/rootpath,</span>
 <span class="sd">            as dependent on the both fmu_context and the is_observations boolean value.</span>
 <span class="sd">            A typical use-case is forcefolder=&quot;seismic&quot; which will replace the &quot;cubes&quot;</span>
-<span class="sd">            standard folder for Cube output with &quot;seismics&quot;. Use with care and avoid if</span>
+<span class="sd">            standard folder for Cube output with &quot;seismic&quot;. Use with care and avoid if</span>
 <span class="sd">            possible!</span>
 
 <span class="sd">        geometry: Optional, and for grid properties only, which may need a</span>
@@ -343,9 +342,9 @@
 <span class="sd">        is_prediction: True (default) if model prediction data</span>
 
 <span class="sd">        is_observation: Default is False. If True, then disk storage will be on the</span>
-<span class="sd">            &quot;share/observations&quot; folder, otherwise on share/result. An exception arise</span>
-<span class="sd">            if fmu_context is &quot;preprocessed&quot;, then the folder will be set to</span>
-<span class="sd">            &quot;share/processed&quot; irrespective the value of is_observation.</span>
+<span class="sd">            &quot;share/observations&quot; folder, otherwise on &quot;share/result&quot;. An exception arise</span>
+<span class="sd">            if ``preprocessed=True``, then the folder will be set to</span>
+<span class="sd">            &quot;share/preprocessed&quot; irrespective the value of ``is_observation``.</span>
 
 <span class="sd">        name: Optional but recommended. The name of the object. If not set it is tried</span>
 <span class="sd">            to be inferred from the xtgeo/pandas/... object. The name is then checked</span>
@@ -360,6 +359,10 @@
 <span class="sd">            This key is a candidate for deprecation, and users shall use the</span>
 <span class="sd">            `geometry` key instead. If both `parent` and `geometry` is given, the grid</span>
 <span class="sd">            name derived from the `geometry` object will have predence.</span>
+
+<span class="sd">        preprocessed: Default is False. If True, the data exported are output to a</span>
+<span class="sd">            dedicated &quot;share/preprocessed&quot; folder, and metadata can be partially re-used</span>
+<span class="sd">            in an ERT model run using the ``ExportPreprocessedData`` class.</span>
 
 <span class="sd">        rep_include: Optional. If True then the data object will be available in REP.</span>
 <span class="sd">            Default is False.</span>
@@ -462,6 +465,7 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">undef_is_zero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">parent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">preprocessed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">realization</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># deprecated</span>
     <span class="n">rep_include</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">reuse_metadata_rule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># deprecated</span>
@@ -720,6 +724,16 @@
                 <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">==</span> <span class="s2">&quot;preprocessed&quot;</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Using the &#39;fmu_context&#39; argument with value &#39;preprocessed&#39; is &quot;</span>
+                <span class="s2">&quot;deprecated and will be removed in the future. Use the more explicit &quot;</span>
+                <span class="s2">&quot;&#39;preprocessed&#39; argument instead: ExportData(preprocessed=True)&quot;</span><span class="p">,</span>
+                <span class="ne">FutureWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preprocessed</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="n">env_fmu_context</span> <span class="o">=</span> <span class="n">get_fmu_context_from_environment</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fmu context from input is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fmu context from environment is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">env_fmu_context</span><span class="p">)</span>
@@ -731,18 +745,23 @@
                 <span class="n">env_fmu_context</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">=</span> <span class="n">env_fmu_context</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">=</span> <span class="n">FmuContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;FMU context is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">!=</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">PREPROCESSED</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Requested fmu_context is &lt;</span><span class="si">%s</span><span class="s2">&gt; but since this is detected as a non &quot;</span>
-                <span class="s2">&quot;FMU run, the actual context is force set to &lt;</span><span class="si">%s</span><span class="s2">&gt;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FMU run, the actual context is force set to non-fmu&quot;</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">,</span>
-                <span class="n">FmuContext</span><span class="o">.</span><span class="n">NON_FMU</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">=</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">NON_FMU</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">=</span> <span class="n">FmuContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;FMU context is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">==</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">REALIZATION</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Can&#39;t export preprocessed data in a fmu_context=&#39;realization&#39;.&quot;</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">!=</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">CASE</span> <span class="ow">and</span> <span class="n">env_fmu_context</span> <span class="o">==</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">CASE</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
@@ -945,7 +964,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g72f2883).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g68b9ca8).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
