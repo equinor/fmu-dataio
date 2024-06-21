@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.preprocessed &mdash; fmu.dataio 0.1.dev1+g625cb95 documentation</title>
+  <title>dataio.preprocessed &mdash; fmu.dataio 0.1.dev1+g395ffb4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -99,12 +99,12 @@
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
 
-<span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="n">FmuContext</span>
 <span class="kn">from</span> <span class="nn">._logging</span> <span class="kn">import</span> <span class="n">null_logger</span>
 <span class="kn">from</span> <span class="nn">._metadata</span> <span class="kn">import</span> <span class="n">generate_meta_tracklog</span>
 <span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="n">export_metadata_file</span><span class="p">,</span> <span class="n">md5sum</span>
 <span class="kn">from</span> <span class="nn">.datastructure._internal</span> <span class="kn">import</span> <span class="n">internal</span>
 <span class="kn">from</span> <span class="nn">.datastructure.meta</span> <span class="kn">import</span> <span class="n">meta</span>
+<span class="kn">from</span> <span class="nn">.datastructure.meta.enums</span> <span class="kn">import</span> <span class="n">FmuContext</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InvalidMetadataError</span>
 <span class="kn">from</span> <span class="nn">.providers._filedata</span> <span class="kn">import</span> <span class="n">ShareFolder</span>
 <span class="kn">from</span> <span class="nn">.providers._fmu</span> <span class="kn">import</span> <span class="p">(</span>
@@ -151,14 +151,14 @@
     <span class="n">_fmudata</span><span class="p">:</span> <span class="n">FmuProvider</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">get_fmu_context_from_environment</span><span class="p">()</span> <span class="o">!=</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">CASE</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">get_fmu_context_from_environment</span><span class="p">()</span> <span class="o">!=</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">case</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;Only possible to run re-export of preprocessed data inside FMU &quot;</span>
                 <span class="s2">&quot;using a pre-simulation workflow in ERT.&quot;</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_fmudata</span> <span class="o">=</span> <span class="n">FmuProvider</span><span class="p">(</span>
-            <span class="n">fmu_context</span><span class="o">=</span><span class="n">FmuContext</span><span class="o">.</span><span class="n">CASE</span><span class="p">,</span>
+            <span class="n">fmu_context</span><span class="o">=</span><span class="n">FmuContext</span><span class="o">.</span><span class="n">case</span><span class="p">,</span>
             <span class="n">casepath_proposed</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">),</span>
             <span class="n">workflow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
@@ -360,7 +360,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g625cb95).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g395ffb4).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g625cb95 documentation</title>
+  <title>fmu.dataio.datastructure.meta.meta &mdash; fmu.dataio 0.1.dev1+g395ffb4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/autodoc_pydantic.css" />
@@ -428,11 +428,7 @@
 <span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The internal FMU context in which this data object was produced&quot;&quot;&quot;</span>
 
-    <span class="n">stage</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
-        <span class="s2">&quot;case&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;iteration&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;realization&quot;</span><span class="p">,</span>
-    <span class="p">]</span>
+    <span class="n">stage</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">FmuContext</span>
 
 
 <span class="k">class</span> <span class="nc">FMUClassMetaCase</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -690,7 +686,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g625cb95).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g395ffb4).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

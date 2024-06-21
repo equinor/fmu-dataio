@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g625cb95 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g395ffb4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -103,10 +103,7 @@
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">types</span>
-<span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">FmuContext</span><span class="p">,</span>
-    <span class="n">ValidationError</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">._definitions</span> <span class="kn">import</span> <span class="n">ValidationError</span>
 <span class="kn">from</span> <span class="nn">._logging</span> <span class="kn">import</span> <span class="n">null_logger</span>
 <span class="kn">from</span> <span class="nn">._metadata</span> <span class="kn">import</span> <span class="n">generate_export_metadata</span>
 <span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="p">(</span>
@@ -121,6 +118,7 @@
 <span class="kn">from</span> <span class="nn">.case</span> <span class="kn">import</span> <span class="n">InitializeCase</span>
 <span class="kn">from</span> <span class="nn">.datastructure.configuration</span> <span class="kn">import</span> <span class="n">global_configuration</span>
 <span class="kn">from</span> <span class="nn">.datastructure.meta</span> <span class="kn">import</span> <span class="n">enums</span>
+<span class="kn">from</span> <span class="nn">.datastructure.meta.enums</span> <span class="kn">import</span> <span class="n">FmuContext</span>
 <span class="kn">from</span> <span class="nn">.preprocessed</span> <span class="kn">import</span> <span class="n">ExportPreprocessedData</span>
 <span class="kn">from</span> <span class="nn">.providers._fmu</span> <span class="kn">import</span> <span class="n">FmuProvider</span><span class="p">,</span> <span class="n">get_fmu_context_from_environment</span>
 
@@ -501,7 +499,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_show_deprecations_or_notimplemented</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span> <span class="o">=</span> <span class="n">get_fmu_context_from_environment</span><span class="p">()</span> <span class="o">!=</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">NON_FMU</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span> <span class="o">=</span> <span class="n">get_fmu_context_from_environment</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
         <span class="c1"># set defaults for mutable keys</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vertical_domain</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">}</span>
@@ -749,21 +747,21 @@
         <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Requested fmu_context is &lt;</span><span class="si">%s</span><span class="s2">&gt; but since this is detected as a non &quot;</span>
-                <span class="s2">&quot;FMU run, the actual context is force set to non-fmu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FMU run, the actual context is force set to None&quot;</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">=</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">NON_FMU</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">=</span> <span class="n">FmuContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;FMU context is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">==</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">REALIZATION</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">==</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">realization</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Can&#39;t export preprocessed data in a fmu_context=&#39;realization&#39;.&quot;</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">!=</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">CASE</span> <span class="ow">and</span> <span class="n">env_fmu_context</span> <span class="o">==</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">CASE</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span> <span class="o">!=</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">case</span> <span class="ow">and</span> <span class="n">env_fmu_context</span> <span class="o">==</span> <span class="n">FmuContext</span><span class="o">.</span><span class="n">case</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;fmu_context is set to &#39;realization&#39;, but unable to detect &quot;</span>
                 <span class="s2">&quot;ERT runpath from environment variable. &quot;</span>
@@ -815,23 +813,25 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="s2">&quot;inside RMS flag is </span><span class="si">%s</span><span class="s2"> (actual: </span><span class="si">%s</span><span class="s2">))&quot;</span><span class="p">,</span> <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span><span class="p">,</span> <span class="n">INSIDE_RMS</span>
         <span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">,</span> <span class="n">FmuContext</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span> <span class="ow">and</span> <span class="p">(</span>
-            <span class="n">casepath</span> <span class="o">:=</span> <span class="n">FmuProvider</span><span class="p">(</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">,</span> <span class="n">FmuContext</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">casepath</span> <span class="o">:=</span> <span class="n">FmuProvider</span><span class="p">(</span>
                 <span class="n">fmu_context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fmu_context</span><span class="p">,</span>
                 <span class="n">casepath_proposed</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">get_casepath</span><span class="p">()</span>
-        <span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Run from ERT&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">casepath</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">get_casepath</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Run from ERT&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">casepath</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="ow">or</span> <span class="n">INSIDE_RMS</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Run from inside RMS&quot;</span><span class="p">)</span>
             <span class="n">ExportData</span><span class="o">.</span><span class="n">_inside_rms</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running outside FMU context, using pwd as roothpath&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Running outside FMU context or casepath with valid case metadata &quot;</span>
+            <span class="s2">&quot;could not be detected, will use pwd as roothpath.&quot;</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pwd</span>
 
     <span class="k">def</span> <span class="nf">_get_fmu_provider</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FmuProvider</span><span class="p">:</span>
@@ -964,7 +964,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g625cb95).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g395ffb4).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
