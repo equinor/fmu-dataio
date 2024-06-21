@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from enum import Enum, unique
-from typing import Final, Type
+from enum import Enum
+from typing import Final
 
 SCHEMA: Final = (
     "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json"
@@ -75,31 +75,3 @@ STANDARD_TABLE_INDEX_COLUMNS: Final[dict[str, list[str]]] = {
     "timeseries": ["DATE"],  # summary
     "wellpicks": ["WELL", "HORIZON"],
 }
-
-
-@unique
-class FmuContext(str, Enum):
-    """
-    Use a Enum class for fmu_context entries.
-
-    The different entries will impact where data is exported:
-    REALIZATION: To realization-N/iter_M/share
-    CASE: To casename/share, but will also work on project disk
-    ITERATION: To casename/itername/share, only applicable for aggregated data
-    NON_FMU: Not ran in a FMU setting, e.g. interactive RMS.
-    """
-
-    REALIZATION = "realization"
-    CASE = "case"
-    ITERATION = "iteration"
-    NON_FMU = "non-fmu"
-
-    @classmethod
-    def list_valid_values(cls) -> list[str]:
-        return [m.value for m in cls]
-
-    @classmethod
-    def _missing_(cls: Type[FmuContext], value: object) -> None:
-        raise ValueError(
-            f"Invalid FmuContext {value=}. Valid entries are {cls.list_valid_values()}"
-        )

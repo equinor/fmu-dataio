@@ -338,11 +338,7 @@ class Display(BaseModel):
 class Context(BaseModel):
     """The internal FMU context in which this data object was produced"""
 
-    stage: Literal[
-        "case",
-        "iteration",
-        "realization",
-    ]
+    stage: enums.FmuContext
 
 
 class FMUClassMetaCase(BaseModel):

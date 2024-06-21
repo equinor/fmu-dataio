@@ -9,9 +9,9 @@ from typing import ClassVar, Final, Literal, Optional, Union
 from pydantic import ValidationError
 
 from . import _utils, dataio, types
-from ._definitions import FmuContext
 from ._logging import null_logger
 from ._metadata import generate_meta_tracklog
+from .datastructure.meta.enums import FmuContext
 from .providers.objectdata._provider import objectdata_provider_factory
 
 logger: Final = null_logger(__name__)
@@ -230,7 +230,7 @@ class AggregatedData:
         template["fmu"]["aggregation"]["id"] = self.aggregation_id
 
         # fmu.context.stage should be 'iteration'
-        template["fmu"]["context"]["stage"] = FmuContext.ITERATION.value
+        template["fmu"]["context"]["stage"] = FmuContext.iteration.value
 
         # next, the new object will trigger update of: 'file', 'data' (some fields) and
         # 'tracklog'.

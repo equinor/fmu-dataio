@@ -13,10 +13,7 @@ from typing import Any, ClassVar, Dict, Final, List, Literal, Optional, Union
 from warnings import warn
 
 from . import types
-from ._definitions import (
-    FmuContext,
-    ValidationError,
-)
+from ._definitions import ValidationError
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._utils import (
@@ -31,6 +28,7 @@ from .aggregation import AggregatedData
 from .case import InitializeCase
 from .datastructure.configuration import global_configuration
 from .datastructure.meta import enums
+from .datastructure.meta.enums import FmuContext
 from .preprocessed import ExportPreprocessedData
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 
@@ -411,7 +409,7 @@ class ExportData:
 
         self._show_deprecations_or_notimplemented()
 
-        self._fmurun = get_fmu_context_from_environment() != FmuContext.NON_FMU
+        self._fmurun = get_fmu_context_from_environment() is not None
 
         # set defaults for mutable keys
         self.vertical_domain = {"depth": "msl"}
@@ -659,21 +657,21 @@ class ExportData:
         elif not self._fmurun:
             logger.warning(
                 "Requested fmu_context is <%s> but since this is detected as a non "
-                "FMU run, the actual context is force set to non-fmu",
+                "FMU run, the actual context is force set to None",
                 self.fmu_context,
             )
-            self.fmu_context = FmuContext.NON_FMU
+            self.fmu_context = None
 
         else:
             self.fmu_context = FmuContext(self.fmu_context.lower())
             logger.info("FMU context is %s", self.fmu_context)
 
-        if self.preprocessed and self.fmu_context == FmuContext.REALIZATION:
+        if self.preprocessed and self.fmu_context == FmuContext.realization:
             raise ValueError(
                 "Can't export preprocessed data in a fmu_context='realization'."
             )
 
-        if self.fmu_context != FmuContext.CASE and env_fmu_context == FmuContext.CASE:
+        if self.fmu_context != FmuContext.case and env_fmu_context == FmuContext.case:
             warn(
                 "fmu_context is set to 'realization', but unable to detect "
                 "ERT runpath from environment variable. "
@@ -725,23 +723,25 @@ class ExportData:
         logger.debug(
             "inside RMS flag is %s (actual: %s))", ExportData._inside_rms, INSIDE_RMS
         )
-        assert isinstance(self.fmu_context, FmuContext)
 
-        if self._fmurun and (
-            casepath := FmuProvider(
+        if self._fmurun:
+            assert isinstance(self.fmu_context, FmuContext)
+            if casepath := FmuProvider(
                 fmu_context=self.fmu_context,
                 casepath_proposed=Path(self.casepath) if self.casepath else None,
-            ).get_casepath()
-        ):
-            logger.info("Run from ERT")
-            return casepath.absolute()
+            ).get_casepath():
+                logger.info("Run from ERT")
+                return casepath.absolute()
 
         if ExportData._inside_rms or INSIDE_RMS:
             logger.info("Run from inside RMS")
             ExportData._inside_rms = True
             return self._pwd.parent.parent.absolute().resolve()
 
-        logger.info("Running outside FMU context, using pwd as roothpath")
+        logger.info(
+            "Running outside FMU context or casepath with valid case metadata "
+            "could not be detected, will use pwd as roothpath."
+        )
         return self._pwd
 
     def _get_fmu_provider(self) -> FmuProvider:

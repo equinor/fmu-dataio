@@ -13,7 +13,6 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Optional
 
-from fmu.dataio._definitions import FmuContext
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import (
     compute_md5_using_temp_file,
@@ -76,7 +75,8 @@ class FileDataProvider(Provider):
     def get_metadata(self) -> meta.File:
         rootpath = (
             self.runpath
-            if self.runpath and self.dataio.fmu_context == FmuContext.REALIZATION
+            if self.runpath
+            and self.dataio.fmu_context == meta.enums.FmuContext.realization
             else self.dataio._rootpath
         )
         share_folders = self._get_share_folders()
