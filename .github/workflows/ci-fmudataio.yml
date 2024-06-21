@@ -32,7 +32,7 @@ jobs:
         if: matrix.python-version != '3.12'
         run:
           pip install \
-            "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
+            "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git@1.0.7"
 
       - name: Full test
         run: pytest -v
