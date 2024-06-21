@@ -83,16 +83,15 @@ class FmuContext(str, Enum):
     Use a Enum class for fmu_context entries.
 
     The different entries will impact where data is exported:
-    REALIZATION = "To realization-N/iter_M/share"
-    CASE = "To casename/share, but will also work on project disk"
-    PREPROCESSED = "To share/preprocessed; from interactive runs but re-used later"
-    NON_FMU = "Not ran in a FMU setting, e.g. interactive RMS"
-
+    REALIZATION: To realization-N/iter_M/share
+    CASE: To casename/share, but will also work on project disk
+    ITERATION: To casename/itername/share, only applicable for aggregated data
+    NON_FMU: Not ran in a FMU setting, e.g. interactive RMS.
     """
 
     REALIZATION = "realization"
     CASE = "case"
-    PREPROCESSED = "preprocessed"
+    ITERATION = "iteration"
     NON_FMU = "non-fmu"
 
     @classmethod

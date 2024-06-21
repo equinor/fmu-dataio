@@ -113,7 +113,7 @@ def test_regsurf_preprocessed_observation(
         os.chdir(rmssetup)
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
-            fmu_context="preprocessed",
+            preprocessed=True,
             name="TopVolantis",
             content="depth",
             is_observation=True,

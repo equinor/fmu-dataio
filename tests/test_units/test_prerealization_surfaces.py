@@ -4,7 +4,7 @@ These outputs may need an active 'fmu_context' key in order to come into the rig
 folder and classification, but there are various ways to to this:
 
 1) Have files in a folder without any metadata; cf fmu_context="case"
-2) Have files with pregenerated matadata in a folder; cf fmu_context="preprocessed"
+2) Have files with pregenerated matadata in a folder; cf preprocessed=True
 
 These objects are normally made as hook workflows before ERT has ran any forward jobs
 and are typically used to compare results.
@@ -67,7 +67,7 @@ def test_regsurf_preprocessed_observation(
         os.chdir(rmssetup)
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
-            fmu_context="preprocessed",
+            preprocessed=True,
             name="TopVolantis",
             content="depth",
             is_observation=True,
@@ -183,7 +183,7 @@ def test_regsurf_preprocessed_filename_retained(
         os.chdir(rmssetup)
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
-            fmu_context="preprocessed",
+            preprocessed=True,
             content="depth",
             parent=parent,
             timedata=[[20240802, "moni"], [20200909, "base"]],
@@ -245,7 +245,7 @@ def test_regsurf_preprocessed_observation_subfolder(
         os.chdir(rmssetup)
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
-            fmu_context="preprocessed",
+            preprocessed=True,
             name="preprocessedmap",
             content="depth",
             is_observation=True,
@@ -298,7 +298,7 @@ def test_preprocessed_with_abs_forcefolder_shall_fail(
     os.chdir(rmssetup)
     edata = dataio.ExportData(
         config=rmsglobalconfig,  # read from global config
-        fmu_context="preprocessed",
+        preprocessed=True,
         name="some",
         content="depth",
         is_observation=True,
@@ -318,7 +318,7 @@ def test_preprocessed_with_rel_forcefolder_ok(rmssetup, rmsglobalconfig, regsurf
     os.chdir(rmssetup)
     edata = dataio.ExportData(
         config=rmsglobalconfig,  # read from global config
-        fmu_context="preprocessed",
+        preprocessed=True,
         name="some",
         content="depth",
         is_observation=True,
@@ -351,7 +351,7 @@ def test_access_settings_retained(
         os.chdir(rmssetup)
         edata = dataio.ExportData(
             config=rmsglobalconfig,
-            fmu_context="preprocessed",
+            preprocessed=True,
             name="preprocessedmap",
             content="depth",
             access_ssdl={"access_level": "restricted"},  # access != config

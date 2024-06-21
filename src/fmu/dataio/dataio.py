@@ -186,10 +186,11 @@ class ExportData:
             ``{"access_level": "restricted", "rep_include": False}``
             Deprecated and replaced by 'classification' and 'rep_include' arguments.
 
-        casepath: To override the automatic and actual ``rootpath``. Absolute path to
-            the case root. If not provided, the rootpath will be attempted parsed from
-            the file structure or by other means. See also fmu_context, where "case"
-            may need an explicit casepath!
+        casepath: Optional path to a case directory that contains valid case metadata
+            "fmu_case.yml" in folder "<casepath>/share/metadata/".
+            Note for the fmu_context ``case`` the ``casepath`` is required, while
+            for fmu_context ``realization`` it will be attempted inferred from
+            an ERT environment variable.
 
         classification: Optional. Security classification level of the data object.
             If present it will override the default found in the config.
@@ -213,16 +214,14 @@ class ExportData:
             Example is "depth" or {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}.
             Content is checked agains a white-list for validation!
 
-        fmu_context: In normal forward models, the fmu_context is ``realization`` which
-            is default and will put data per realization. Other contexts may be ``case``
-            which will put data relative to the case root (see also casepath). Another
-            important context is "preprocessed" which will output to a dedicated
-            "preprocessed" folder instead, and metadata will be partially re-used in
-            an ERT model run. If a non-FMU run is detected (e.g. you run from project),
-            fmu-dataio will detect that and set actual context to None as fall-back
-            (unless preprocessed is specified). If this key is not explicitly given it
-            will be inferred to be either "case"/"realization"/"non-fmu" based on the
-            presence of ERT environment variables.
+        fmu_context: Optional string with value ``realization`` or ``case``. If not
+            explicitly given it will be inferred based on the presence of ERT
+            environment variables.
+            The fmu_context ``realization`` will export data per realization, and should
+            be used in normal ERT forward models, while the fmu_context ``case``
+            will export data relative to the case directory. Note that for the
+            fmu_context ``case`` the case directory needs to be provided through the
+            argument ``casepath``.
 
         description: A multiline description of the data either as a string or a list
             of strings.
@@ -233,7 +232,7 @@ class ExportData:
             possible to output to a non-standard folder relative to casepath/rootpath,
             as dependent on the both fmu_context and the is_observations boolean value.
             A typical use-case is forcefolder="seismic" which will replace the "cubes"
-            standard folder for Cube output with "seismics". Use with care and avoid if
+            standard folder for Cube output with "seismic". Use with care and avoid if
             possible!
 
         geometry: Optional, and for grid properties only, which may need a
@@ -253,9 +252,9 @@ class ExportData:
         is_prediction: True (default) if model prediction data
 
         is_observation: Default is False. If True, then disk storage will be on the
-            "share/observations" folder, otherwise on share/result. An exception arise
-            if fmu_context is "preprocessed", then the folder will be set to
-            "share/processed" irrespective the value of is_observation.
+            "share/observations" folder, otherwise on "share/result". An exception arise
+            if ``preprocessed=True``, then the folder will be set to
+            "share/preprocessed" irrespective the value of ``is_observation``.
 
         name: Optional but recommended. The name of the object. If not set it is tried
             to be inferred from the xtgeo/pandas/... object. The name is then checked
@@ -270,6 +269,10 @@ class ExportData:
             This key is a candidate for deprecation, and users shall use the
             `geometry` key instead. If both `parent` and `geometry` is given, the grid
             name derived from the `geometry` object will have predence.
+
+        preprocessed: Default is False. If True, the data exported are output to a
+            dedicated "share/preprocessed" folder, and metadata can be partially re-used
+            in an ERT model run using the ``ExportPreprocessedData`` class.
 
         rep_include: Optional. If True then the data object will be available in REP.
             Default is False.
@@ -372,6 +375,7 @@ class ExportData:
     name: str = ""
     undef_is_zero: bool = False
     parent: str = ""
+    preprocessed: bool = False
     realization: Optional[int] = None  # deprecated
     rep_include: Optional[bool] = None
     reuse_metadata_rule: Optional[str] = None  # deprecated
@@ -630,6 +634,16 @@ class ExportData:
                 UserWarning,
             )
 
+        if self.fmu_context == "preprocessed":
+            warnings.warn(
+                "Using the 'fmu_context' argument with value 'preprocessed' is "
+                "deprecated and will be removed in the future. Use the more explicit "
+                "'preprocessed' argument instead: ExportData(preprocessed=True)",
+                FutureWarning,
+            )
+            self.preprocessed = True
+            self.fmu_context = None
+
         env_fmu_context = get_fmu_context_from_environment()
         logger.debug("fmu context from input is %s", self.fmu_context)
         logger.debug("fmu context from environment is %s", env_fmu_context)
@@ -641,18 +655,23 @@ class ExportData:
                 env_fmu_context,
             )
             self.fmu_context = env_fmu_context
-        else:
-            self.fmu_context = FmuContext(self.fmu_context.lower())
-        logger.info("FMU context is %s", self.fmu_context)
 
-        if not self._fmurun and self.fmu_context != FmuContext.PREPROCESSED:
+        elif not self._fmurun:
             logger.warning(
                 "Requested fmu_context is <%s> but since this is detected as a non "
-                "FMU run, the actual context is force set to <%s>",
+                "FMU run, the actual context is force set to non-fmu",
                 self.fmu_context,
-                FmuContext.NON_FMU,
             )
             self.fmu_context = FmuContext.NON_FMU
+
+        else:
+            self.fmu_context = FmuContext(self.fmu_context.lower())
+            logger.info("FMU context is %s", self.fmu_context)
+
+        if self.preprocessed and self.fmu_context == FmuContext.REALIZATION:
+            raise ValueError(
+                "Can't export preprocessed data in a fmu_context='realization'."
+            )
 
         if self.fmu_context != FmuContext.CASE and env_fmu_context == FmuContext.CASE:
             warn(
