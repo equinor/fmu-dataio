@@ -56,13 +56,13 @@ def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, reg
     monkeypatch.chdir(tmp_path)
 
     with pytest.warns(UserWarning, match=pydantic_warning()):
-        edata = ExportData(config={}, content="depth")
+        edata = ExportData(config={}, content="depth", name="mysurface")
 
     meta = edata.generate_metadata(regsurf)
     assert "masterdata" not in meta
 
     # check that obj is created but no metadata is found
-    out = edata.export(regsurf, name="mysurface")
+    out = edata.export(regsurf)
     assert "mysurface" in out
     assert Path(out).exists()
     with pytest.raises(OSError, match="Cannot find requested metafile"):
@@ -81,10 +81,10 @@ def test_config_miss_required_fields(monkeypatch, tmp_path, globalconfig1, regsu
     del cfg["model"]
 
     with pytest.warns(UserWarning, match=pydantic_warning()):
-        edata = ExportData(config=cfg, content="depth")
+        edata = ExportData(config=cfg, content="depth", name="mysurface")
 
     with pytest.warns(UserWarning):
-        out = edata.export(regsurf, name="mysurface")
+        out = edata.export(regsurf)
 
     assert "mysurface" in out
 
@@ -175,9 +175,9 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
     with pytest.warns(UserWarning, match=expected_msg):
         ExportData(config=globalconfig1, content="depth", **kval)
 
-    # under override
-    with pytest.warns(UserWarning, match=expected_msg):
-        edata = ExportData(config=globalconfig1, content="depth")
+    # under override should give FutureWarning for these
+    edata = ExportData(config=globalconfig1, content="depth")
+    with pytest.warns(FutureWarning, match="move them up to initialization"):
         edata.generate_metadata(regsurf, **kval)
 
 
@@ -308,7 +308,8 @@ def test_content_given_init_or_later(globalconfig1, regsurf):
     assert mymeta["data"]["content"] == "time"
 
     # override by adding content at generate_metadata
-    mymeta = eobj.generate_metadata(regsurf, content="depth")
+    with pytest.warns(FutureWarning, match="move them up to initialization"):
+        mymeta = eobj.generate_metadata(regsurf, content="depth")
 
     assert mymeta["data"]["content"] == "depth"  # last content shall win
 
@@ -479,7 +480,8 @@ def test_workflow_as_string(fmurun_w_casemetadata, monkeypatch, globalconfig1, r
 
     # doing actual export with a few ovverides
     edata = ExportData(config=globalconfig1)
-    meta = edata.generate_metadata(regsurf, workflow="My test workflow")
+    with pytest.warns(FutureWarning, match="move them up to initialization"):
+        meta = edata.generate_metadata(regsurf, workflow="My test workflow")
     assert meta["fmu"]["workflow"]["reference"] == workflow
 
 
@@ -496,8 +498,9 @@ def test_set_display_name(regsurf, globalconfig2):
     assert mymeta["data"]["name"] == "MyName"
     assert mymeta["display"]["name"] == "MyDisplayName"
 
-    # also test when setting directly in the method call
-    mymeta = eobj.generate_metadata(regsurf, display_name="MyOtherDisplayName")
+    # also test when setting directly in the method call (not allowed in the future)
+    with pytest.warns(FutureWarning, match="move them up to initialization"):
+        mymeta = eobj.generate_metadata(regsurf, display_name="MyOtherDisplayName")
 
     assert mymeta["data"]["name"] == "MyName"
     assert mymeta["display"]["name"] == "MyOtherDisplayName"
@@ -564,7 +567,9 @@ def test_fmucontext_case_casepath(fmurun_prehook, rmsglobalconfig, regsurf):
     assert "fmu" not in meta
 
     # no warning when casepath is provided and metadata is valid
-    meta = edata.generate_metadata(regsurf, casepath=fmurun_prehook)
+    # should however issue a warning to move it to initialization
+    with pytest.warns(FutureWarning, match="move them up to initialization"):
+        meta = edata.generate_metadata(regsurf, casepath=fmurun_prehook)
     assert "fmu" in meta
     assert meta["fmu"]["case"]["name"] == "somecasename"
 

@@ -117,8 +117,8 @@ def test_export_dict_w_meta(globalconfig2, dictionary, request, monkeypatch, tmp
     name = dictionary
     in_dict = request.getfixturevalue(dictionary)
     print(f"{name}: {in_dict}")
-    exd = ExportData(config=globalconfig2, content="parameters")
-    out_dict, out_meta = read_dict_and_meta(exd.export(in_dict, name=name))
+    exd = ExportData(config=globalconfig2, content="parameters", name=name)
+    out_dict, out_meta = read_dict_and_meta(exd.export(in_dict))
     assert in_dict == out_dict
     assert_dict_correct(out_dict, out_meta, name)
 
@@ -134,10 +134,10 @@ def test_invalid_dict(
     """
     monkeypatch.chdir(tmp_path)
     in_dict = {"volumes": drogon_volumes, "summary": drogon_summary}
-    exd = ExportData(config=globalconfig2, content="parameters")
+    exd = ExportData(config=globalconfig2, content="parameters", name="invalid")
     with pytest.raises(TypeError) as exc_info:
         print(exc_info)
-        exd.export(in_dict, name="invalid")
+        exd.export(in_dict)
         assert exc_info[1] == "Object of type Table is not JSON serializable"
 
 
