@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 0.1.dev1+g395ffb4 documentation</title>
+  <title>dataio.dataio module &mdash; fmu.dataio 0.1.dev1+gd072a18 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
@@ -137,26 +137,26 @@ will be /some/path/.mymap.gri.yml (or json?)</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.dataio.</span></span><span class="sig-name descname"><span class="pre">ExportData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_ssdl=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">casepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classification=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_reference='msl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmu_context=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcefolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_model=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_observation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_prediction=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undef_is_zero=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocessed=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realization=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep_include=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse_metadata_rule=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runpath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagname=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timedata=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity='DEPRECATED'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_domain=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_index=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_classification=Classification.internal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for exporting data with rich metadata in FMU.</p>
-<p>This class sets up the general metadata content to be applied in export. The idea is
-that one ExportData instance can be re-used for several similar export() jobs. For
-example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edata</span> <span class="o">=</span> <span class="n">dataio</span><span class="o">.</span><span class="n">ExportData</span><span class="p">(</span>
-    <span class="n">config</span><span class="o">=</span><span class="n">CFG</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">vertical_domain</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">},</span>
-    <span class="n">timedata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">tagname</span><span class="o">=</span><span class="s2">&quot;faultlines&quot;</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms structural model&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;TopOne&quot;</span><span class="p">,</span> <span class="n">TopTwo</span><span class="s2">&quot;, &quot;</span><span class="n">TopThree</span><span class="s2">&quot;]:</span>
+<p>This class sets up the general metadata content to be applied in export.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;TopOne&quot;</span><span class="p">,</span> <span class="n">TopTwo</span><span class="s2">&quot;, &quot;</span><span class="n">TopThree</span><span class="s2">&quot;]:</span>
     <span class="n">poly</span> <span class="o">=</span> <span class="n">xtgeo</span><span class="o">.</span><span class="n">polygons_from_roxar</span><span class="p">(</span><span class="n">PRJ</span><span class="p">,</span> <span class="n">hname</span><span class="p">,</span> <span class="n">POL_FOLDER</span><span class="p">)</span>
 
-    <span class="n">out</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">ed</span> <span class="o">=</span> <span class="n">dataio</span><span class="o">.</span><span class="n">ExportData</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">CFG</span><span class="p">,</span>
+        <span class="n">content</span><span class="o">=</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="n">vertical_domain</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">},</span>
+        <span class="n">timedata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">is_prediction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">is_observation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">tagname</span><span class="o">=</span><span class="s2">&quot;faultlines&quot;</span><span class="p">,</span>
+        <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;rms structural model&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span>
+    <span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Almost all keyword settings like <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">tagname</span></code> etc can be set in both the
-ExportData instance and directly in the <code class="docutils literal notranslate"><span class="pre">generate_metadata</span></code> or <code class="docutils literal notranslate"><span class="pre">export()</span></code>
-function, to provide flexibility for different use cases. If both are set, the
-<code class="docutils literal notranslate"><span class="pre">export()</span></code> setting will win followed by <code class="docutils literal notranslate"><span class="pre">generate_metadata()</span> <span class="pre">and</span> <span class="pre">finally</span>
-<span class="pre">ExportData()</span></code>.</p>
 <p>A note on ‘pwd’ and ‘rootpath’ and ‘casepath’: The ‘pwd’ is the process working
 directory, which is folder where the process (script) starts. The ‘rootpath’ is the
 folder from which relative file names are relative to and is normally auto-detected.
@@ -566,8 +566,8 @@ a Pandas Dataframe, a PyArrow table, etc.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – XTGeo instance, a Pandas Dataframe instance or other supported object.</p></li>
 <li><p><strong>compute_md5</strong> – If True, compute a MD5 checksum for the exported file.</p></li>
-<li><p><strong>**kwargs</strong> – For other arguments, see ExportData() input keys. If they
-exist both places, this function will override!</p></li>
+<li><p><strong>**kwargs</strong> – Using other ExportData() input keys is now deprecated, input the
+arguments when initializing the ExportData() instance instead.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -597,8 +597,8 @@ data, but with a . in front and “yml” and suffix, e.g.:</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – XTGeo instance, a Pandas Dataframe instance or other supported object.</p></li>
-<li><p><strong>**kwargs</strong> – For other arguments, see ExportData() input keys. If they
-exist both places, this function will override!</p></li>
+<li><p><strong>**kwargs</strong> – Using other ExportData() input keys is now deprecated, input the
+arguments when initializing the ExportData() instance instead.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -625,7 +625,7 @@ exist both places, this function will override!</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g395ffb4).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gd072a18).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+g395ffb4 documentation</title>
+  <title>dataio.dataio &mdash; fmu.dataio 0.1.dev1+gd072a18 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
@@ -212,26 +212,25 @@
 <span class="k">class</span> <span class="nc">ExportData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for exporting data with rich metadata in FMU.</span>
 
-<span class="sd">    This class sets up the general metadata content to be applied in export. The idea is</span>
-<span class="sd">    that one ExportData instance can be re-used for several similar export() jobs. For</span>
-<span class="sd">    example::</span>
-
-<span class="sd">        edata = dataio.ExportData(</span>
-<span class="sd">            config=CFG, content=&quot;depth&quot;, unit=&quot;m&quot;, vertical_domain={&quot;depth&quot;: &quot;msl&quot;},</span>
-<span class="sd">            timedata=None, is_prediction=True, is_observation=False,</span>
-<span class="sd">            tagname=&quot;faultlines&quot;, workflow=&quot;rms structural model&quot;,</span>
-<span class="sd">        )</span>
+<span class="sd">    This class sets up the general metadata content to be applied in export.</span>
+<span class="sd">    For example::</span>
 
 <span class="sd">        for name in [&quot;TopOne&quot;, TopTwo&quot;, &quot;TopThree&quot;]:</span>
 <span class="sd">            poly = xtgeo.polygons_from_roxar(PRJ, hname, POL_FOLDER)</span>
 
-<span class="sd">            out = ed.export(poly, name=name)</span>
-
-<span class="sd">    Almost all keyword settings like ``name``, ``tagname`` etc can be set in both the</span>
-<span class="sd">    ExportData instance and directly in the ``generate_metadata`` or ``export()``</span>
-<span class="sd">    function, to provide flexibility for different use cases. If both are set, the</span>
-<span class="sd">    ``export()`` setting will win followed by ``generate_metadata() and finally</span>
-<span class="sd">    ExportData()``.</span>
+<span class="sd">            ed = dataio.ExportData(</span>
+<span class="sd">                config=CFG,</span>
+<span class="sd">                content=&quot;depth&quot;,</span>
+<span class="sd">                unit=&quot;m&quot;,</span>
+<span class="sd">                vertical_domain={&quot;depth&quot;: &quot;msl&quot;},</span>
+<span class="sd">                timedata=None,</span>
+<span class="sd">                is_prediction=True,</span>
+<span class="sd">                is_observation=False,</span>
+<span class="sd">                tagname=&quot;faultlines&quot;,</span>
+<span class="sd">                workflow=&quot;rms structural model&quot;,</span>
+<span class="sd">                name=name</span>
+<span class="sd">            )</span>
+<span class="sd">            out = ed.export(poly)</span>
 
 <span class="sd">    A note on &#39;pwd&#39; and &#39;rootpath&#39; and &#39;casepath&#39;: The &#39;pwd&#39; is the process working</span>
 <span class="sd">    directory, which is folder where the process (script) starts. The &#39;rootpath&#39; is the</span>
@@ -797,6 +796,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_and_establish_fmucontext</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_establish_rootpath</span><span class="p">()</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_classification</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_classification</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rep_include</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rep_include</span><span class="p">()</span>
+
     <span class="k">def</span> <span class="nf">_establish_rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Establish the rootpath. The rootpath is the folder that acts as the</span>
@@ -864,8 +866,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            obj: XTGeo instance, a Pandas Dataframe instance or other supported object.</span>
 <span class="sd">            compute_md5: If True, compute a MD5 checksum for the exported file.</span>
-<span class="sd">            **kwargs: For other arguments, see ExportData() input keys. If they</span>
-<span class="sd">                exist both places, this function will override!</span>
+<span class="sd">            **kwargs: Using other ExportData() input keys is now deprecated, input the</span>
+<span class="sd">                arguments when initializing the ExportData() instance instead.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A dictionary with all metadata.</span>
@@ -879,7 +881,14 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generate metadata...&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;KW args </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_check_settings</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;In the future it will not be possible to enter following arguments &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;inside the export() / generate_metadata() methods: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Please move them up to initialization of the ExportData instance.&quot;</span><span class="p">,</span>
+                <span class="ne">FutureWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_check_settings</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">casepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -889,9 +898,6 @@
                 <span class="n">casepath</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">casepath</span><span class="p">,</span>
                 <span class="n">is_observation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_observation</span><span class="p">,</span>
             <span class="p">)</span><span class="o">.</span><span class="n">generate_metadata</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_classification</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_classification</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rep_include</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rep_include</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_fmt_flag</span><span class="p">()</span>
         <span class="n">fmudata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fmu_provider</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmurun</span> <span class="k">else</span> <span class="kc">None</span>
@@ -917,8 +923,8 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            obj: XTGeo instance, a Pandas Dataframe instance or other supported object.</span>
-<span class="sd">            **kwargs: For other arguments, see ExportData() input keys. If they</span>
-<span class="sd">                exist both places, this function will override!</span>
+<span class="sd">            **kwargs: Using other ExportData() input keys is now deprecated, input the</span>
+<span class="sd">                arguments when initializing the ExportData() instance instead.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            String: full path to exported item.</span>
@@ -964,7 +970,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g395ffb4).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gd072a18).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
