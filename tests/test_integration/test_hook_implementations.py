@@ -2,7 +2,7 @@ import os
 
 import fmu.dataio.hook_implementations.jobs
 from ert.shared.plugins.plugin_manager import ErtPluginManager
-from fmu.dataio.scripts import create_case_metadata
+from fmu.dataio.scripts import copy_preprocessed, create_case_metadata
 
 
 def test_hook_implementations():
@@ -10,6 +10,7 @@ def test_hook_implementations():
         plugins=[
             fmu.dataio.hook_implementations.jobs,
             create_case_metadata,
+            copy_preprocessed,
         ]
     )
 
@@ -17,7 +18,7 @@ def test_hook_implementations():
     installable_fms = plugin_manager.get_installable_jobs()
     assert set(installable_fms) == expected_forward_models
 
-    expected_workflow_jobs = {"WF_CREATE_CASE_METADATA"}
+    expected_workflow_jobs = {"WF_CREATE_CASE_METADATA", "WF_COPY_PREPROCESSED_DATAIO"}
     installable_workflow_jobs = plugin_manager.get_installable_workflow_jobs()
     for wf_name, wf_location in installable_workflow_jobs.items():
         assert wf_name in expected_workflow_jobs
@@ -31,6 +32,7 @@ def test_hook_implementations_docs():
         plugins=[
             fmu.dataio.hook_implementations.jobs,
             create_case_metadata,
+            copy_preprocessed,
         ]
     )
 

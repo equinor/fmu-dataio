@@ -56,7 +56,15 @@ def fmu_snakeoil_project(tmp_path, monkeypatch, base_ert_config, global_config2_
         "<USER>",  # ert username
         encoding="utf-8",
     )
-
+    pathlib.Path(
+        tmp_path / "ert/bin/workflows/xhook_copy_preprocessed_data"
+    ).write_text(
+        "WF_COPY_PREPROCESSED_DATAIO "
+        "<SCRATCH>/<USER>/<CASE_DIR> "  # ert case root
+        "<CONFIG_PATH> "  # ert config path
+        "../../share/preprocessed ",  # inpath
+        encoding="utf-8",
+    )
     pathlib.Path(tmp_path / "ert/model/snakeoil.ert").write_text(
         base_ert_config, encoding="utf-8"
     )
