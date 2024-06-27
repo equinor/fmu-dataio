@@ -114,57 +114,73 @@ class User(BaseModel):
     )
 
 
-class FMUCase(BaseModel):
-    name: str = Field(
-        description="The case name",
-        examples=["MyCaseName"],
-    )
-    user: User = Field(
-        description="The user name used in ERT",
-    )
-    uuid: UUID = Field(
-        examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
-    )
-    description: Optional[List[str]] = Field(
-        default=None,
-    )
+class Case(BaseModel):
+    """The ``fmu.case`` block contains information about the case from which this data
+    object was exported.
+
+    A case represent a set of iterations that belong together, either by being part of
+    the same run (i.e. history matching) or by being placed together by the user,
+    corresponding to /scratch/<asset>/<user>/<my case name>/.
+
+    .. note:: If an FMU data object is exported outside the case context, this block
+       will not be present.
+    """
+
+    name: str = Field(examples=["MyCaseName"])
+    """The name of the case."""
+
+    user: User
+    """A block holding information about the user.
+    See :class:`User`."""
+
+    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    """The unique identifier of this case. Currently made by fmu.dataio."""
+
+    description: Optional[List[str]] = Field(default=None)
+    """A free-text description of this case."""
 
 
 class Iteration(BaseModel):
-    id: Optional[int] = Field(
-        default=None,
-        description=(
-            "The internal identification of this iteration, e.g. the iteration number"
-        ),
-    )
-    name: str = Field(
-        description="The convential name of this iteration, e.g. iter-0 or pred",
-        examples=["iter-0"],
-    )
-    uuid: UUID = Field(
-        examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
-    )
+    """The ``fmu.iteration`` block contains information about the iteration this data
+    object belongs to."""
+
+    id: Optional[int] = Field(default=None)
+    """The internal identification of this iteration, typically represented by an
+    integer."""
+
+    name: str = Field(examples=["iter-0"])
+    """The name of the iteration. This is typically reflecting the folder name on
+    scratch. In ERT, custom names for iterations are supported, e.g. "pred"."""
+
+    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    """The unique identifier of this case. Currently made by fmu.dataio."""
+
     restart_from: Optional[UUID] = Field(
         default=None,
-        description=(
-            "A uuid reference to another iteration that this "
-            "iteration was restarted from"
-        ),
         examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
     )
+    """A uuid reference to another iteration that this iteration was restarted
+    from"""
 
 
-class FMUModel(BaseModel):
-    description: Optional[List[str]] = Field(
-        default=None,
-        description="This is a free text description of the model setup",
-    )
-    name: str = Field(
-        examples=["Drogon"],
-    )
-    revision: str = Field(
-        examples=["21.0.0.dev"],
-    )
+class Model(BaseModel):
+    """The ``fmu.model`` block contains information about the model used.
+
+    .. note::
+       Synonyms for "model" in this context are "template", "setup", etc. The term
+       "model" is ultra-generic but was chosen before e.g. "template" as the latter
+       deviates from daily communications and is, if possible, even more generic
+       than "model".
+    """
+
+    description: Optional[List[str]] = Field(default=None)
+    """This is a free text description of the model setup"""
+
+    name: str = Field(examples=["Drogon"])
+    """The name of the model."""
+
+    revision: str = Field(examples=["21.0.0.dev"])
+    """The revision of the model."""
 
 
 class RealizationJobListing(BaseModel):
@@ -186,71 +202,112 @@ class RealizationJobListing(BaseModel):
 
 
 class Realization(BaseModel):
-    id: int = Field(
-        description="The unique number of this realization as used in FMU",
-    )
-    name: str = Field(
-        description="The convential name of this iteration, e.g. iter-0 or pred",
-        examples=["iter-0"],
-    )
-    parameters: Optional[Parameters] = Field(
-        default=None,
-        description="Parameters for this realization",
-    )
-    jobs: Optional[object] = Field(
-        default=None,
-        description=(
-            "Content directly taken from the ERT jobs.json file for this realization"
-        ),
-    )
+    """The ``fmu.realization`` block contains information about the realization this
+    data object belongs to."""
+
+    id: int
+    """The internal ID of the realization, typically represented by an integer."""
+
+    name: str = Field(examples=["iter-0"])
+    """The name of the realization. This is typically reflecting the folder name on
+    scratch. We recommend to use ``fmu.realization.id`` for all usage except purely
+    visual appearance."""
+
+    parameters: Optional[Parameters] = Field(default=None)
+    """These are the parameters used in this realization. It is a direct pass of
+    ``parameters.txt`` and will contain key:value pairs representing the design
+    parameters. See :class:`Parameters`."""
+
+    jobs: Optional[object] = Field(default=None)
+    """Content directly taken from the ERT jobs.json file for this realization."""
+
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    """The universally unique identifier for this realization. It is a hash of
+    ``fmu.case.uuid`` and ``fmu.iteration.uuid`` and ``fmu.realization.id``."""
 
 
 class CountryItem(BaseModel):
-    identifier: str = Field(
-        examples=["Norway"],
-    )
+    """Reference to a country known to SMDA."""
+
+    identifier: str = Field(examples=["Norway"])
+    """Identifier known to SMDA."""
+
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    """Identifier known to SMDA."""
 
 
 class DiscoveryItem(BaseModel):
-    short_identifier: str = Field(
-        examples=["SomeDiscovery"],
-    )
+    """Reference to a discovery known to SMDA."""
+
+    short_identifier: str = Field(examples=["SomeDiscovery"])
+    """Identifier known to SMDA."""
+
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    """Identifier known to SMDA."""
 
 
 class FieldItem(BaseModel):
-    identifier: str = Field(
-        examples=["OseFax"],
-    )
+    """Reference to a field known to SMDA."""
+
+    identifier: str = Field(examples=["OseFax"])
+    """Identifier known to SMDA."""
+
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    """Identifier known to SMDA."""
 
 
 class CoordinateSystem(BaseModel):
-    identifier: str = Field(
-        examples=["ST_WGS84_UTM37N_P32637"],
-    )
+    """Reference to coordinate system known to SMDA."""
+
+    identifier: str = Field(examples=["ST_WGS84_UTM37N_P32637"])
+    """Identifier known to SMDA."""
+
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    """Identifier known to SMDA."""
 
 
 class StratigraphicColumn(BaseModel):
-    identifier: str = Field(
-        examples=["DROGON_2020"],
-    )
+    """Reference to stratigraphic column known to SMDA."""
+
+    identifier: str = Field(examples=["DROGON_2020"])
+    """Identifier known to SMDA."""
+
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    """Identifier known to SMDA."""
 
 
 class Smda(BaseModel):
+    """Block containing SMDA-related attributes."""
+
     coordinate_system: CoordinateSystem
+    """Reference to coordinate system known to SMDA.
+    See :class:`CoordinateSystem`."""
+
     country: List[CountryItem]
+    """A list referring to countries known to SMDA. First item is primary.
+    See :class:`CountryItem`."""
+
     discovery: List[DiscoveryItem]
+    """A list referring to discoveries known to SMDA. First item is primary.
+    See :class:`DiscoveryItem`."""
+
     field: List[FieldItem]
+    """A list referring to fields known to SMDA. First item is primary.
+    See :class:`FieldItem`."""
+
     stratigraphic_column: StratigraphicColumn
+    """Reference to stratigraphic column known to SMDA.
+    See :class:`StratigraphicColumn`."""
 
 
 class Masterdata(BaseModel):
+    """The ``masterdata`` block contains information related to masterdata.
+    Currently, smda holds the masterdata.
+    """
+
     smda: Smda
+    """Block containing SMDA-related attributes.
+    See :class:`Smda`."""
 
 
 class VersionInformation(BaseModel):
@@ -259,10 +316,9 @@ class VersionInformation(BaseModel):
 
 class SystemInformationOperatingSystem(BaseModel):
     """
-    This model encapsulates various pieces of
-    system-related information using Python's platform module. It provides a
-    structured way to access details about the system's hardware, operating
-    system, and interpreter version information.
+    This model encapsulates various pieces of system-related information using Python's
+    platform module. It provides a structured way to access details about the system's
+    hardware, operating system, and interpreter version information.
     """
 
     hostname: str = Field(
@@ -315,6 +371,10 @@ class SystemInformation(BaseModel):
 
 
 class TracklogEvent(BaseModel):
+    """The ``tracklog`` block contains a record of events recorded on these data.
+    This data object describes a tracklog event.
+    """
+
     # TODO: Update ex. to inc. timezone
     # update NaiveDatetime ->  AwareDatetime
     # On upload, sumo adds timezone if its lacking.
@@ -341,23 +401,25 @@ class Context(BaseModel):
     stage: enums.FmuContext
 
 
-class FMUClassMetaCase(BaseModel):
+class FMUCaseAttributes(BaseModel):
     """
-    The FMU block records properties that are specific to FMU
-    """
-
-    case: FMUCase
-    model: FMUModel
-
-
-class FMUClassMetaData(BaseModel):
-    """
-    The FMU block records properties that are specific to FMU
+    The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU
+    results data model can be applied to data from *other* sources - in which the
+    fmu-specific stuff may not make sense or be applicable.
     """
 
-    case: FMUCase
+    case: Case
+    model: Model
+
+
+class FMUAttributes(FMUCaseAttributes):
+    """
+    The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU
+    results data model can be applied to data from *other* sources - in which the
+    fmu-specific stuff may not make sense or be applicable.
+    """
+
     context: Context
-    model: FMUModel
     iteration: Optional[Iteration] = Field(default=None)
     workflow: Optional[Workflow] = Field(default=None)
     aggregation: Optional[Aggregation] = Field(default=None)
@@ -393,27 +455,52 @@ class FMUClassMetaData(BaseModel):
         return json_schema
 
 
-class ClassMeta(BaseModel):
+class MetadataBase(BaseModel):
+    """Base model for all root metadata models generated."""
+
     class_: enums.FMUClassEnum = Field(
         alias="class",
-        title="Metadata class",
+        title="metadata_class",
     )
+
     masterdata: Masterdata
+    """The ``masterdata`` block contains information related to masterdata.
+    See :class:`Masterdata`."""
+
     tracklog: List[TracklogEvent]
-    source: Literal["fmu"] = Field(description="Data source (FMU)")
-    version: Literal["0.8.0"] = Field(title="FMU results metadata version")
+    """The ``tracklog`` block contains a record of events recorded on these data.
+    See :class:`TracklogEvent`."""
+
+    source: Literal["fmu"]
+    """The source of this data. Defaults to 'fmu'."""
+
+    version: Literal["0.8.0"]
+    """The version of the schema that generated this data."""
 
 
-class FMUCaseClassMeta(ClassMeta):
+class CaseMetadata(MetadataBase):
+    """The FMU metadata model for an FMU case.
+
+    A case represent a set of iterations that belong together, either by being part of
+    the same run (i.e. history matching) or by being placed together by the user,
+    corresponding to /scratch/<asset>/<user>/<my case name>/.
+    """
+
     class_: Literal[enums.FMUClassEnum.case] = Field(
         alias="class",
-        title="Metadata class",
+        title="metadata_class",
     )
-    fmu: FMUClassMetaCase
+
+    fmu: FMUCaseAttributes
+    """The ``fmu`` block contains all attributes specific to FMU.
+    See :class:`FMUCaseAttributes`."""
+
     access: Access
 
 
-class FMUDataClassMeta(ClassMeta):
+class ObjectMetadata(MetadataBase):
+    """The FMU metadata model for a given data object."""
+
     class_: Literal[
         enums.FMUClassEnum.surface,
         enums.FMUClassEnum.table,
@@ -426,14 +513,13 @@ class FMUDataClassMeta(ClassMeta):
         enums.FMUClassEnum.dictionary,
     ] = Field(
         alias="class",
-        title="Metadata class",
+        title="metadata_class",
     )
 
-    # The presence of the a feild controlls what kind of
-    # FMUObj it is. The fmu_discriminator will inspects
-    # the obj. and returns a tag that tells pydantic
-    # what model to use.
-    fmu: FMUClassMetaData
+    fmu: FMUAttributes
+    """The ``fmu`` block contains all attributes specific to FMU.
+    See :class:`FMUAttributes`."""
+
     access: SsdlAccess
     data: content.AnyContent
     file: File
@@ -444,8 +530,8 @@ class Root(
     RootModel[
         Annotated[
             Union[
-                FMUCaseClassMeta,
-                FMUDataClassMeta,
+                CaseMetadata,
+                ObjectMetadata,
             ],
             Field(discriminator="class_"),
         ]
@@ -496,9 +582,10 @@ def _remove_discriminator_mapping(obj: Dict) -> Dict:
 
 def _remove_format_path(obj: T) -> T:
     """
-    Removes entries with key "format" and value "path" from dictionaries. This adjustment
-    is necessary because JSON Schema does not recognize the "format": "path", while OpenAPI does.
-    This function is used in contexts where OpenAPI specifications are not applicable.
+    Removes entries with key "format" and value "path" from dictionaries. This
+    adjustment is necessary because JSON Schema does not recognize the "format":
+    "path", while OpenAPI does. This function is used in contexts where OpenAPI
+    specifications are not applicable.
     """
 
     if isinstance(obj, dict):
@@ -515,7 +602,6 @@ def _remove_format_path(obj: T) -> T:
 
 
 def dump() -> Dict:
-    # ruff: noqa: E501
     """
     Dumps the export root model to JSON format for schema validation and
     usage in FMU data structures.
@@ -530,7 +616,7 @@ def dump() -> Dict:
             implementations.
             If changes are satisfactory and do not introduce issues, commit
             them to maintain schema consistency.
-    """
+    """  # noqa: E501
     schema = dict(
         ChainMap(
             {

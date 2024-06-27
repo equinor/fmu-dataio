@@ -108,8 +108,8 @@ class JsonSchemaMetadata(BaseModel, populate_by_name=True):
 
 
 class FMUModelCase(BaseModel):
-    model: meta.FMUModel
-    case: meta.FMUCase
+    model: meta.Model
+    case: meta.Case
 
 
 class Context(BaseModel, use_enum_values=True):
@@ -137,7 +137,7 @@ class UnsetAnyContent(meta.content.AnyContent):
     root: UnsetContent  # type: ignore
 
 
-class FMUClassMetaData(meta.FMUClassMetaData):
+class FMUClassMetaData(meta.FMUAttributes):
     # This class is identical to the one used in the schema
     # exept for more fmu context values beeing allowed internally
     context: Context  # type: ignore

@@ -302,8 +302,8 @@ class FmuProvider(Provider):
     def _get_fmucontext_meta(self) -> internal.Context:
         return internal.Context(stage=self.fmu_context)
 
-    def _get_fmumodel_meta(self) -> meta.FMUModel:
-        return meta.FMUModel.model_validate(self.model)
+    def _get_fmumodel_meta(self) -> meta.Model:
+        return meta.Model.model_validate(self.model)
 
     def _get_workflow_meta(self) -> meta.Workflow:
         assert self.workflow is not None
