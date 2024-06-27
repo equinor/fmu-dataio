@@ -395,6 +395,95 @@
       "title": "CPGridSpecification",
       "type": "object"
     },
+    "Case": {
+      "description": "The ``fmu.case`` block contains information about the case from which this data\nobject was exported.\n\nA case represent a set of iterations that belong together, either by being part of\nthe same run (i.e. history matching) or by being placed together by the user,\ncorresponding to /scratch/<asset>/<user>/<my case name>/.\n\n.. note:: If an FMU data object is exported outside the case context, this block\n   will not be present.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "name": {
+          "examples": [
+            "MyCaseName"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/$defs/User"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "user",
+        "uuid"
+      ],
+      "title": "Case",
+      "type": "object"
+    },
+    "CaseMetadata": {
+      "description": "The FMU metadata model for an FMU case.\n\nA case represent a set of iterations that belong together, either by being part of\nthe same run (i.e. history matching) or by being placed together by the user,\ncorresponding to /scratch/<asset>/<user>/<my case name>/.",
+      "properties": {
+        "access": {
+          "$ref": "#/$defs/Access"
+        },
+        "class": {
+          "const": "case",
+          "title": "metadata_class"
+        },
+        "fmu": {
+          "$ref": "#/$defs/FMUCaseAttributes"
+        },
+        "masterdata": {
+          "$ref": "#/$defs/Masterdata"
+        },
+        "source": {
+          "const": "fmu",
+          "title": "Source"
+        },
+        "tracklog": {
+          "items": {
+            "$ref": "#/$defs/TracklogEvent"
+          },
+          "title": "Tracklog",
+          "type": "array"
+        },
+        "version": {
+          "const": "0.8.0",
+          "title": "Version"
+        }
+      },
+      "required": [
+        "class",
+        "masterdata",
+        "tracklog",
+        "source",
+        "version",
+        "fmu",
+        "access"
+      ],
+      "title": "CaseMetadata",
+      "type": "object"
+    },
     "Classification": {
       "enum": [
         "asset",
@@ -418,6 +507,7 @@
       "type": "object"
     },
     "CoordinateSystem": {
+      "description": "Reference to coordinate system known to SMDA.",
       "properties": {
         "identifier": {
           "examples": [
@@ -443,6 +533,7 @@
       "type": "object"
     },
     "CountryItem": {
+      "description": "Reference to a country known to SMDA.",
       "properties": {
         "identifier": {
           "examples": [
@@ -864,6 +955,7 @@
       "type": "object"
     },
     "DiscoveryItem": {
+      "description": "Reference to a discovery known to SMDA.",
       "properties": {
         "short_identifier": {
           "examples": [
@@ -906,118 +998,7 @@
       "title": "Display",
       "type": "object"
     },
-    "FMUCase": {
-      "properties": {
-        "description": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Description"
-        },
-        "name": {
-          "description": "The case name",
-          "examples": [
-            "MyCaseName"
-          ],
-          "title": "Name",
-          "type": "string"
-        },
-        "user": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/User"
-            }
-          ],
-          "description": "The user name used in ERT"
-        },
-        "uuid": {
-          "examples": [
-            "15ce3b84-766f-4c93-9050-b154861f9100"
-          ],
-          "format": "uuid",
-          "title": "Uuid",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "user",
-        "uuid"
-      ],
-      "title": "FMUCase",
-      "type": "object"
-    },
-    "FMUCaseClassMeta": {
-      "properties": {
-        "access": {
-          "$ref": "#/$defs/Access"
-        },
-        "class": {
-          "const": "case",
-          "title": "Metadata class"
-        },
-        "fmu": {
-          "$ref": "#/$defs/FMUClassMetaCase"
-        },
-        "masterdata": {
-          "$ref": "#/$defs/Masterdata"
-        },
-        "source": {
-          "const": "fmu",
-          "description": "Data source (FMU)",
-          "title": "Source"
-        },
-        "tracklog": {
-          "items": {
-            "$ref": "#/$defs/TracklogEvent"
-          },
-          "title": "Tracklog",
-          "type": "array"
-        },
-        "version": {
-          "const": "0.8.0",
-          "title": "FMU results metadata version"
-        }
-      },
-      "required": [
-        "class",
-        "masterdata",
-        "tracklog",
-        "source",
-        "version",
-        "fmu",
-        "access"
-      ],
-      "title": "FMUCaseClassMeta",
-      "type": "object"
-    },
-    "FMUClassMetaCase": {
-      "description": "The FMU block records properties that are specific to FMU",
-      "properties": {
-        "case": {
-          "$ref": "#/$defs/FMUCase"
-        },
-        "model": {
-          "$ref": "#/$defs/FMUModel"
-        }
-      },
-      "required": [
-        "case",
-        "model"
-      ],
-      "title": "FMUClassMetaCase",
-      "type": "object"
-    },
-    "FMUClassMetaData": {
+    "FMUAttributes": {
       "dependencies": {
         "aggregation": {
           "not": {
@@ -1034,7 +1015,7 @@
           }
         }
       },
-      "description": "The FMU block records properties that are specific to FMU",
+      "description": "The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU\nresults data model can be applied to data from *other* sources - in which the\nfmu-specific stuff may not make sense or be applicable.",
       "properties": {
         "aggregation": {
           "anyOf": [
@@ -1048,7 +1029,7 @@
           "default": null
         },
         "case": {
-          "$ref": "#/$defs/FMUCase"
+          "$ref": "#/$defs/Case"
         },
         "context": {
           "$ref": "#/$defs/Context"
@@ -1065,7 +1046,7 @@
           "default": null
         },
         "model": {
-          "$ref": "#/$defs/FMUModel"
+          "$ref": "#/$defs/Model"
         },
         "realization": {
           "anyOf": [
@@ -1092,117 +1073,27 @@
       },
       "required": [
         "case",
-        "context",
+        "model",
+        "context"
+      ],
+      "title": "FMUAttributes",
+      "type": "object"
+    },
+    "FMUCaseAttributes": {
+      "description": "The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU\nresults data model can be applied to data from *other* sources - in which the\nfmu-specific stuff may not make sense or be applicable.",
+      "properties": {
+        "case": {
+          "$ref": "#/$defs/Case"
+        },
+        "model": {
+          "$ref": "#/$defs/Model"
+        }
+      },
+      "required": [
+        "case",
         "model"
       ],
-      "title": "FMUClassMetaData",
-      "type": "object"
-    },
-    "FMUDataClassMeta": {
-      "properties": {
-        "access": {
-          "$ref": "#/$defs/SsdlAccess"
-        },
-        "class": {
-          "enum": [
-            "surface",
-            "table",
-            "cpgrid",
-            "cpgrid_property",
-            "polygons",
-            "cube",
-            "well",
-            "points",
-            "dictionary"
-          ],
-          "title": "Metadata class",
-          "type": "string"
-        },
-        "data": {
-          "$ref": "#/$defs/AnyContent"
-        },
-        "display": {
-          "$ref": "#/$defs/Display"
-        },
-        "file": {
-          "$ref": "#/$defs/File"
-        },
-        "fmu": {
-          "$ref": "#/$defs/FMUClassMetaData"
-        },
-        "masterdata": {
-          "$ref": "#/$defs/Masterdata"
-        },
-        "source": {
-          "const": "fmu",
-          "description": "Data source (FMU)",
-          "title": "Source"
-        },
-        "tracklog": {
-          "items": {
-            "$ref": "#/$defs/TracklogEvent"
-          },
-          "title": "Tracklog",
-          "type": "array"
-        },
-        "version": {
-          "const": "0.8.0",
-          "title": "FMU results metadata version"
-        }
-      },
-      "required": [
-        "class",
-        "masterdata",
-        "tracklog",
-        "source",
-        "version",
-        "fmu",
-        "access",
-        "data",
-        "file",
-        "display"
-      ],
-      "title": "FMUDataClassMeta",
-      "type": "object"
-    },
-    "FMUModel": {
-      "properties": {
-        "description": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "This is a free text description of the model setup",
-          "title": "Description"
-        },
-        "name": {
-          "examples": [
-            "Drogon"
-          ],
-          "title": "Name",
-          "type": "string"
-        },
-        "revision": {
-          "examples": [
-            "21.0.0.dev"
-          ],
-          "title": "Revision",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "revision"
-      ],
-      "title": "FMUModel",
+      "title": "FMUCaseAttributes",
       "type": "object"
     },
     "FMUTimeObject": {
@@ -2185,6 +2076,7 @@
       "type": "object"
     },
     "FieldItem": {
+      "description": "Reference to a field known to SMDA.",
       "properties": {
         "identifier": {
           "examples": [
@@ -3295,6 +3187,7 @@
       "type": "object"
     },
     "Iteration": {
+      "description": "The ``fmu.iteration`` block contains information about the iteration this data\nobject belongs to.",
       "properties": {
         "id": {
           "anyOf": [
@@ -3306,11 +3199,9 @@
             }
           ],
           "default": null,
-          "description": "The internal identification of this iteration, e.g. the iteration number",
           "title": "Id"
         },
         "name": {
-          "description": "The convential name of this iteration, e.g. iter-0 or pred",
           "examples": [
             "iter-0"
           ],
@@ -3328,7 +3219,6 @@
             }
           ],
           "default": null,
-          "description": "A uuid reference to another iteration that this iteration was restarted from",
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
@@ -3977,6 +3867,7 @@
       "type": "object"
     },
     "Masterdata": {
+      "description": "The ``masterdata`` block contains information related to masterdata.\nCurrently, smda holds the masterdata.",
       "properties": {
         "smda": {
           "$ref": "#/$defs/Smda"
@@ -3986,6 +3877,46 @@
         "smda"
       ],
       "title": "Masterdata",
+      "type": "object"
+    },
+    "Model": {
+      "description": "The ``fmu.model`` block contains information about the model used.\n\n.. note::\n   Synonyms for \"model\" in this context are \"template\", \"setup\", etc. The term\n   \"model\" is ultra-generic but was chosen before e.g. \"template\" as the latter\n   deviates from daily communications and is, if possible, even more generic\n   than \"model\".",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "name": {
+          "examples": [
+            "Drogon"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "revision": {
+          "examples": [
+            "21.0.0.dev"
+          ],
+          "title": "Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "revision"
+      ],
+      "title": "Model",
       "type": "object"
     },
     "NamedAreaContent": {
@@ -4279,6 +4210,73 @@
         "stratigraphic"
       ],
       "title": "NamedAreaContent",
+      "type": "object"
+    },
+    "ObjectMetadata": {
+      "description": "The FMU metadata model for a given data object.",
+      "properties": {
+        "access": {
+          "$ref": "#/$defs/SsdlAccess"
+        },
+        "class": {
+          "enum": [
+            "surface",
+            "table",
+            "cpgrid",
+            "cpgrid_property",
+            "polygons",
+            "cube",
+            "well",
+            "points",
+            "dictionary"
+          ],
+          "title": "metadata_class",
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/$defs/AnyContent"
+        },
+        "display": {
+          "$ref": "#/$defs/Display"
+        },
+        "file": {
+          "$ref": "#/$defs/File"
+        },
+        "fmu": {
+          "$ref": "#/$defs/FMUAttributes"
+        },
+        "masterdata": {
+          "$ref": "#/$defs/Masterdata"
+        },
+        "source": {
+          "const": "fmu",
+          "title": "Source"
+        },
+        "tracklog": {
+          "items": {
+            "$ref": "#/$defs/TracklogEvent"
+          },
+          "title": "Tracklog",
+          "type": "array"
+        },
+        "version": {
+          "const": "0.8.0",
+          "title": "Version"
+        }
+      },
+      "required": [
+        "class",
+        "masterdata",
+        "tracklog",
+        "source",
+        "version",
+        "fmu",
+        "access",
+        "data",
+        "file",
+        "display"
+      ],
+      "title": "ObjectMetadata",
       "type": "object"
     },
     "PVTContent": {
@@ -5817,9 +5815,9 @@
       "type": "object"
     },
     "Realization": {
+      "description": "The ``fmu.realization`` block contains information about the realization this\ndata object belongs to.",
       "properties": {
         "id": {
-          "description": "The unique number of this realization as used in FMU",
           "title": "Id",
           "type": "integer"
         },
@@ -5831,11 +5829,9 @@
             }
           ],
           "default": null,
-          "description": "Content directly taken from the ERT jobs.json file for this realization",
           "title": "Jobs"
         },
         "name": {
-          "description": "The convential name of this iteration, e.g. iter-0 or pred",
           "examples": [
             "iter-0"
           ],
@@ -5851,8 +5847,7 @@
               "type": "null"
             }
           ],
-          "default": null,
-          "description": "Parameters for this realization"
+          "default": null
         },
         "uuid": {
           "examples": [
@@ -6843,6 +6838,7 @@
       "type": "object"
     },
     "Smda": {
+      "description": "Block containing SMDA-related attributes.",
       "properties": {
         "coordinate_system": {
           "$ref": "#/$defs/CoordinateSystem"
@@ -6928,6 +6924,7 @@
       "type": "object"
     },
     "StratigraphicColumn": {
+      "description": "Reference to stratigraphic column known to SMDA.",
       "properties": {
         "identifier": {
           "examples": [
@@ -7357,7 +7354,7 @@
       "type": "object"
     },
     "SystemInformationOperatingSystem": {
-      "description": "This model encapsulates various pieces of\nsystem-related information using Python's platform module. It provides a\nstructured way to access details about the system's hardware, operating\nsystem, and interpreter version information.",
+      "description": "This model encapsulates various pieces of system-related information using Python's\nplatform module. It provides a structured way to access details about the system's\nhardware, operating system, and interpreter version information.",
       "properties": {
         "hostname": {
           "description": "The network name of the computer, possibly not fully qualified.",
@@ -8346,6 +8343,7 @@
       "type": "object"
     },
     "TracklogEvent": {
+      "description": "The ``tracklog`` block contains a record of events recorded on these data.\nThis data object describes a tracklog event.",
       "properties": {
         "datetime": {
           "examples": [
@@ -9327,10 +9325,10 @@
   },
   "oneOf": [
     {
-      "$ref": "#/$defs/FMUCaseClassMeta"
+      "$ref": "#/$defs/CaseMetadata"
     },
     {
-      "$ref": "#/$defs/FMUDataClassMeta"
+      "$ref": "#/$defs/ObjectMetadata"
     }
   ],
   "then": {

@@ -122,7 +122,7 @@ class GlobalConfiguration(BaseModel):
 
     access: Access
     masterdata: meta.Masterdata
-    model: meta.FMUModel
+    model: meta.Model
     stratigraphy: Optional[Stratigraphy] = Field(
         default=None,
     )
