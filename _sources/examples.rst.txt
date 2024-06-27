@@ -17,7 +17,7 @@ This is a snippet of the ``global_variables.yml`` file which holds the static me
 
 .. toggle::
 
-   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/fmuconfig/output/global_variables.yml
+   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/fmuconfig/output/global_variables.yml
       :language: yaml
 
 |
@@ -28,14 +28,14 @@ Exporting fault polygons
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_faultpolygons.py
+.. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_faultpolygons.py
    :language: python
 
 Press + to see generated YAML file.
 
 .. toggle::
 
-   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/polygons/.volantis_gp_top--faultlines.pol.yml
+   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/polygons/.volantis_gp_top--faultlines.pol.yml
       :language: yaml
 
 |
@@ -46,7 +46,7 @@ Exporting average maps from grid properties
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_propmaps.py
+.. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_propmaps.py
    :language: python
 
 
@@ -54,7 +54,7 @@ Press + to see generated YAML file for metadata.
 
 .. toggle::
 
-   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/maps/.therys--average_porosity.gri.yml
+   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/maps/.therys--average_porosity.gri.yml
       :language: yaml
 
 |
@@ -65,7 +65,7 @@ Exporting 3D grids with properties
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_grid3d.py
+.. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_grid3d.py
    :language: python
 
 Press + to see generated YAML files for metadata.
@@ -73,12 +73,12 @@ Press + to see generated YAML files for metadata.
 
 .. toggle::
 
-   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.geogrid.roff.yml
+   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.geogrid.roff.yml
       :language: yaml
 
 .. toggle::
 
-   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.facies.roff.yml
+   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.geogrid--facies.roff.yml
       :language: yaml
 
 |
@@ -89,12 +89,12 @@ Exporting volume tables RMS or file
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_volumetables.py
+.. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_volumetables.py
    :language: python
 
 .. toggle::
 
-   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/tables/.geogrid--volumes.csv.yml
+   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/tables/.geogrid--volumes.csv.yml
       :language: yaml
 
 |
@@ -108,12 +108,12 @@ The FaultRoom plugin for RMS produces special json files that e.g. can be viewed
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_faultroom_surfaces.py
+.. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_faultroom_surfaces.py
    :language: python
 
 .. toggle::
 
-   .. literalinclude:: ../examples/s/d/nn/xcase/realization-0/iter-0/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
+   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
       :language: yaml
 
 |
@@ -146,7 +146,7 @@ robust by centralizing the definitions and handling of metadata.
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../examples/s/d/nn/_project/aggregate_surfaces.py
+.. literalinclude:: ../../examples/s/d/nn/_project/aggregate_surfaces.py
    :language: python
 
 |

@@ -65,4 +65,4 @@ is stored in *every* exported .yml file. This may seem counter-intuitive and dif
 from a relational database (where this information would typically be stored once, and
 referred to when needed).
 
-The FMU results data model is further documented `here <./datamodel.html>`__
+The FMU results data model is further documented `here <./datamodel/index.html>`__.

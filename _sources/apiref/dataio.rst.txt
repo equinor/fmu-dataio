@@ -6,15 +6,6 @@ dataio package
    :undoc-members:
    :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   dataio.providers
-   dataio.scripts
-
 Submodules
 ----------
 

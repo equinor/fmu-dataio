@@ -1,29 +1,30 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dataio.dataio module &mdash; fmu.dataio 0.1.dev1+gd072a18 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+  <title>dataio.dataio module &mdash; fmu.dataio 0.1.dev1+g63b6b3e documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
       <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
 
   
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=8e3d0c3b"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script>let toggleHintShow = 'Expand';</script>
         <script>let toggleHintHide = 'Click to hide';</script>
         <script>let toggleOpenOnPrint = 'true';</script>
-        <script src="../_static/togglebutton.js"></script>
+        <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
         <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -63,24 +64,612 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API reference for fmu.dataio</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="dataio.html">dataio package</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="dataio.html#subpackages">Subpackages</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="dataio.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="dataio.aggregation.html">dataio.aggregation module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="dataio.case.html">dataio.case module</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">dataio.dataio module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="dataio.exceptions.html">dataio.exceptions module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="dataio.preprocessed.html">dataio.preprocessed module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="dataio.readers.html">dataio.readers module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="dataio.types.html">dataio.types module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="dataio.version.html">dataio.version module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.aggregation.html">dataio.aggregation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.case.html">dataio.case module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dataio.dataio module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.exceptions.html">dataio.exceptions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.preprocessed.html">dataio.preprocessed module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.readers.html">dataio.readers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.types.html">dataio.types module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataio.version.html">dataio.version module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../datamodel/index.html">The FMU results data model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../datamodel/model/fmu.dataio.datastructure.meta.meta.FMUDataClassMeta.html">FMUDataClassMeta</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/fmu.dataio.datastructure.meta.meta.Display.html">Display</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/fmu.dataio.datastructure.meta.meta.TracklogEvent.html">TracklogEvent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/TracklogEvent/fmu.dataio.datastructure.meta.meta.SystemInformation.html">SystemInformation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/TracklogEvent/SystemInformation/fmu.dataio.datastructure.meta.meta.VersionInformation.html">VersionInformation</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/TracklogEvent/SystemInformation/fmu.dataio.datastructure.meta.meta.SystemInformationOperatingSystem.html">SystemInformationOperatingSystem</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/TracklogEvent/fmu.dataio.datastructure.meta.meta.User.html">User</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/fmu.dataio.datastructure.meta.meta.Masterdata.html">Masterdata</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/Masterdata/fmu.dataio.datastructure.meta.meta.Smda.html">Smda</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.DiscoveryItem.html">DiscoveryItem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.CountryItem.html">CountryItem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.CoordinateSystem.html">CoordinateSystem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.FieldItem.html">FieldItem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.StratigraphicColumn.html">StratigraphicColumn</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/fmu.dataio.datastructure.meta.meta.File.html">File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/fmu.dataio.datastructure.meta.meta.SsdlAccess.html">SsdlAccess</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/SsdlAccess/fmu.dataio.datastructure.meta.meta.Asset.html">Asset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/SsdlAccess/fmu.dataio.datastructure.meta.meta.Ssdl.html">Ssdl</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/fmu.dataio.datastructure.meta.meta.FMUClassMetaData.html">FMUClassMetaData</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/FMUClassMetaData/fmu.dataio.datastructure.meta.meta.Iteration.html">Iteration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/FMUClassMetaData/fmu.dataio.datastructure.meta.meta.Aggregation.html">Aggregation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/FMUClassMetaData/Aggregation/fmu.dataio.datastructure.meta.meta.Parameters.html">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/FMUClassMetaData/fmu.dataio.datastructure.meta.meta.FMUModel.html">FMUModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/FMUClassMetaData/fmu.dataio.datastructure.meta.meta.Workflow.html">Workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/FMUClassMetaData/fmu.dataio.datastructure.meta.meta.Realization.html">Realization</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/FMUClassMetaData/Realization/fmu.dataio.datastructure.meta.meta.Parameters.html">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/FMUClassMetaData/fmu.dataio.datastructure.meta.meta.FMUCase.html">FMUCase</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/FMUClassMetaData/FMUCase/fmu.dataio.datastructure.meta.meta.User.html">User</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/FMUClassMetaData/fmu.dataio.datastructure.meta.meta.Context.html">Context</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/fmu.dataio.datastructure.meta.content.AnyContent.html">AnyContent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.FluidContactContent.html">FluidContactContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.FluidContact.html">FluidContact</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.DepthContent.html">DepthContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.FaciesThicknessContent.html">FaciesThicknessContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.FieldRegionContent.html">FieldRegionContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.FieldRegion.html">FieldRegion</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.ThicknessContent.html">ThicknessContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.TimeSeriesContent.html">TimeSeriesContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.PVTContent.html">PVTContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.RFTContent.html">RFTContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.SubcropContent.html">SubcropContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.VolumesContent.html">VolumesContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.VelocityContent.html">VelocityContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.FaultPropertiesContent.html">FaultPropertiesContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.KPProductContent.html">KPProductContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.ParametersContent.html">ParametersContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.TimeContent.html">TimeContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.SeismicContent.html">SeismicContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.Seismic.html">Seismic</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.PropertyContent.html">PropertyContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.FieldOutlineContent.html">FieldOutlineContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.FieldOutline.html">FieldOutline</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.PinchoutContent.html">PinchoutContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.RelpermContent.html">RelpermContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.LiftCurvesContent.html">LiftCurvesContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.WellPicksContent.html">WellPicksContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.RegionsContent.html">RegionsContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.NamedAreaContent.html">NamedAreaContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/fmu.dataio.datastructure.meta.content.FaultLinesContent.html">FaultLinesContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUDataClassMeta/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../datamodel.html">The FMU results data model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../datastructure.html">Meta export datastructure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../datamodel/model/fmu.dataio.datastructure.meta.meta.FMUCaseClassMeta.html">FMUCaseClassMeta</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/fmu.dataio.datastructure.meta.meta.Masterdata.html">Masterdata</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/Masterdata/fmu.dataio.datastructure.meta.meta.Smda.html">Smda</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.DiscoveryItem.html">DiscoveryItem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.CountryItem.html">CountryItem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.CoordinateSystem.html">CoordinateSystem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.FieldItem.html">FieldItem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.StratigraphicColumn.html">StratigraphicColumn</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/fmu.dataio.datastructure.meta.meta.Access.html">Access</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/Access/fmu.dataio.datastructure.meta.meta.Asset.html">Asset</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/fmu.dataio.datastructure.meta.meta.FMUClassMetaCase.html">FMUClassMetaCase</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/FMUClassMetaCase/fmu.dataio.datastructure.meta.meta.FMUModel.html">FMUModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/FMUClassMetaCase/fmu.dataio.datastructure.meta.meta.FMUCase.html">FMUCase</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/FMUClassMetaCase/FMUCase/fmu.dataio.datastructure.meta.meta.User.html">User</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/fmu.dataio.datastructure.meta.meta.TracklogEvent.html">TracklogEvent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/TracklogEvent/fmu.dataio.datastructure.meta.meta.SystemInformation.html">SystemInformation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/TracklogEvent/SystemInformation/fmu.dataio.datastructure.meta.meta.VersionInformation.html">VersionInformation</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/TracklogEvent/SystemInformation/fmu.dataio.datastructure.meta.meta.SystemInformationOperatingSystem.html">SystemInformationOperatingSystem</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../datamodel/model/FMUCaseClassMeta/TracklogEvent/fmu.dataio.datastructure.meta.meta.User.html">User</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -110,12 +699,12 @@
            <div itemprop="articleBody">
              
   <section id="module-dataio.dataio">
-<span id="dataio-dataio-module"></span><h1>dataio.dataio module<a class="headerlink" href="#module-dataio.dataio" title="Permalink to this heading"></a></h1>
+<span id="dataio-dataio-module"></span><h1>dataio.dataio module<a class="headerlink" href="#module-dataio.dataio" title="Link to this heading"></a></h1>
 <p>Module for DataIO class.</p>
 <p>The metadata spec is documented as a JSON schema, stored under schema/.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dataio.dataio.read_metadata">
-<span class="sig-prename descclassname"><span class="pre">dataio.dataio.</span></span><span class="sig-name descname"><span class="pre">read_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#read_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.read_metadata" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">read_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#read_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.read_metadata" title="Link to this definition"></a></dt>
 <dd><p>Read the metadata as a dictionary given a filename.</p>
 <p>If the filename is e.g. /some/path/mymap.gri, the assosiated metafile
 will be /some/path/.mymap.gri.yml (or json?)</p>
@@ -134,7 +723,7 @@ will be /some/path/.mymap.gri.yml (or json?)</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataio.dataio.</span></span><span class="sig-name descname"><span class="pre">ExportData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_ssdl=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">casepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classification=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_reference='msl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmu_context=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcefolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_model=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_observation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_prediction=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undef_is_zero=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocessed=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realization=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep_include=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse_metadata_rule=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runpath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagname=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timedata=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity='DEPRECATED'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_domain=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_index=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_classification=Classification.internal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExportData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_ssdl=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">casepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classification=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_reference='msl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmu_context=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcefolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_model=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_observation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_prediction=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undef_is_zero=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocessed=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realization=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep_include=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse_metadata_rule=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runpath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagname=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timedata=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity='DEPRECATED'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_domain=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_index=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_classification=Classification.internal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for exporting data with rich metadata in FMU.</p>
 <p>This class sets up the general metadata content to be applied in export.
@@ -315,247 +904,247 @@ shown as t0:</p>
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.allow_forcefolder_absolute">
-<span class="sig-name descname"><span class="pre">allow_forcefolder_absolute</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.allow_forcefolder_absolute" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">allow_forcefolder_absolute</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.allow_forcefolder_absolute" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.arrow_fformat">
-<span class="sig-name descname"><span class="pre">arrow_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'parquet'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.arrow_fformat" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">arrow_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'parquet'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.arrow_fformat" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.case_folder">
-<span class="sig-name descname"><span class="pre">case_folder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'share/metadata'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.case_folder" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">case_folder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'share/metadata'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.case_folder" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.createfolder">
-<span class="sig-name descname"><span class="pre">createfolder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#dataio.dataio.ExportData.createfolder" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">createfolder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#dataio.dataio.ExportData.createfolder" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.cube_fformat">
-<span class="sig-name descname"><span class="pre">cube_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'segy'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.cube_fformat" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">cube_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'segy'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.cube_fformat" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.filename_timedata_reverse">
-<span class="sig-name descname"><span class="pre">filename_timedata_reverse</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.filename_timedata_reverse" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">filename_timedata_reverse</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.filename_timedata_reverse" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.grid_fformat">
-<span class="sig-name descname"><span class="pre">grid_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'roff'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.grid_fformat" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">grid_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'roff'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.grid_fformat" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.include_ertjobs">
-<span class="sig-name descname"><span class="pre">include_ertjobs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.include_ertjobs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">include_ertjobs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.include_ertjobs" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.legacy_time_format">
-<span class="sig-name descname"><span class="pre">legacy_time_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.legacy_time_format" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">legacy_time_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.legacy_time_format" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.meta_format">
-<span class="sig-name descname"><span class="pre">meta_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'yaml'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'json'</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'yaml'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.meta_format" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">meta_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'yaml'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'json'</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'yaml'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.meta_format" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.polygons_fformat">
-<span class="sig-name descname"><span class="pre">polygons_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csv'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.polygons_fformat" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">polygons_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csv'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.polygons_fformat" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.points_fformat">
-<span class="sig-name descname"><span class="pre">points_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csv'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.points_fformat" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">points_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csv'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.points_fformat" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.surface_fformat">
-<span class="sig-name descname"><span class="pre">surface_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'irap_binary'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.surface_fformat" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">surface_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'irap_binary'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.surface_fformat" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.table_fformat">
-<span class="sig-name descname"><span class="pre">table_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csv'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.table_fformat" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">table_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csv'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.table_fformat" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.dict_fformat">
-<span class="sig-name descname"><span class="pre">dict_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'json'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.dict_fformat" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dict_fformat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'json'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.dict_fformat" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.table_include_index">
-<span class="sig-name descname"><span class="pre">table_include_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.table_include_index" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">table_include_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.table_include_index" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.verifyfolder">
-<span class="sig-name descname"><span class="pre">verifyfolder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#dataio.dataio.ExportData.verifyfolder" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">verifyfolder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#dataio.dataio.ExportData.verifyfolder" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.access_ssdl">
-<span class="sig-name descname"><span class="pre">access_ssdl</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#dataio.dataio.ExportData.access_ssdl" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">access_ssdl</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#dataio.dataio.ExportData.access_ssdl" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.aggregation">
-<span class="sig-name descname"><span class="pre">aggregation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.aggregation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">aggregation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.aggregation" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.casepath">
-<span class="sig-name descname"><span class="pre">casepath</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><span class="pre">,</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.casepath" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">casepath</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><span class="pre">,</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.casepath" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.classification">
-<span class="sig-name descname"><span class="pre">classification</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.classification" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">classification</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.classification" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.config">
-<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#dataio.dataio.ExportData.config" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#dataio.dataio.ExportData.config" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.content">
-<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.content" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.content" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.depth_reference">
-<span class="sig-name descname"><span class="pre">depth_reference</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'msl'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.depth_reference" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">depth_reference</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'msl'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.depth_reference" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.description">
-<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.description" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.description" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.display_name">
-<span class="sig-name descname"><span class="pre">display_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.display_name" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">display_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.display_name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.fmu_context">
-<span class="sig-name descname"><span class="pre">fmu_context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.fmu_context" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fmu_context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.fmu_context" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.forcefolder">
-<span class="sig-name descname"><span class="pre">forcefolder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.forcefolder" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forcefolder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.forcefolder" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.geometry">
-<span class="sig-name descname"><span class="pre">geometry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.geometry" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">geometry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.geometry" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.grid_model">
-<span class="sig-name descname"><span class="pre">grid_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.grid_model" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">grid_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.grid_model" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.is_observation">
-<span class="sig-name descname"><span class="pre">is_observation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.is_observation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_observation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.is_observation" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.is_prediction">
-<span class="sig-name descname"><span class="pre">is_prediction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#dataio.dataio.ExportData.is_prediction" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_prediction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#dataio.dataio.ExportData.is_prediction" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.name" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.undef_is_zero">
-<span class="sig-name descname"><span class="pre">undef_is_zero</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.undef_is_zero" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">undef_is_zero</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.undef_is_zero" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.parent">
-<span class="sig-name descname"><span class="pre">parent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.parent" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">parent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.parent" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.preprocessed">
-<span class="sig-name descname"><span class="pre">preprocessed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.preprocessed" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">preprocessed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dataio.dataio.ExportData.preprocessed" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.realization">
-<span class="sig-name descname"><span class="pre">realization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.realization" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">realization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.realization" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.rep_include">
-<span class="sig-name descname"><span class="pre">rep_include</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.rep_include" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rep_include</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.rep_include" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.reuse_metadata_rule">
-<span class="sig-name descname"><span class="pre">reuse_metadata_rule</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.reuse_metadata_rule" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reuse_metadata_rule</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.reuse_metadata_rule" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.runpath">
-<span class="sig-name descname"><span class="pre">runpath</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><span class="pre">,</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.runpath" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">runpath</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><span class="pre">,</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.runpath" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.subfolder">
-<span class="sig-name descname"><span class="pre">subfolder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.subfolder" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">subfolder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.subfolder" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.tagname">
-<span class="sig-name descname"><span class="pre">tagname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.tagname" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">tagname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.tagname" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.timedata">
-<span class="sig-name descname"><span class="pre">timedata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.timedata" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">timedata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.timedata" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.unit">
-<span class="sig-name descname"><span class="pre">unit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.unit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">unit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dataio.dataio.ExportData.unit" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.verbosity">
-<span class="sig-name descname"><span class="pre">verbosity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DEPRECATED'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.verbosity" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">verbosity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DEPRECATED'</span></em><a class="headerlink" href="#dataio.dataio.ExportData.verbosity" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.vertical_domain">
-<span class="sig-name descname"><span class="pre">vertical_domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#dataio.dataio.ExportData.vertical_domain" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">vertical_domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#dataio.dataio.ExportData.vertical_domain" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.workflow">
-<span class="sig-name descname"><span class="pre">workflow</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">],</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.workflow" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">workflow</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">],</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.workflow" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.table_index">
-<span class="sig-name descname"><span class="pre">table_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.table_index" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">table_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dataio.dataio.ExportData.table_index" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.generate_metadata">
-<span class="sig-name descname"><span class="pre">generate_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData.generate_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData.generate_metadata" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData.generate_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData.generate_metadata" title="Link to this definition"></a></dt>
 <dd><p>Generate and return the complete metadata for a provided object.</p>
 <p>An object may be a map, 3D grid, cube, table, etc which is of a known and
 supported type.</p>
@@ -584,7 +1173,7 @@ a temporary file, which may be time-consuming if the file is large.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dataio.dataio.ExportData.export">
-<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_symlink</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData.export" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_symlink</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dataio/dataio.html#ExportData.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dataio.dataio.ExportData.export" title="Link to this definition"></a></dt>
 <dd><p>Export data objects of ‘known’ type to FMU storage solution with metadata.</p>
 <p>This function will also collect the data spesific class metadata. For “classic”
 files, the metadata will be stored i a YAML file with same name stem as the
@@ -625,7 +1214,7 @@ arguments when initializing the ExportData() instance instead.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+gd072a18).</p>
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g63b6b3e).</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

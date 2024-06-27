@@ -1,0 +1,36 @@
+SystemInformation
+=================
+
+.. currentmodule:: fmu.dataio.datastructure.meta.meta
+
+.. autosummary::
+   :toctree: SystemInformation
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+      ~fmu.dataio.datastructure.meta.meta.VersionInformation
+   
+      ~fmu.dataio.datastructure.meta.meta.SystemInformationOperatingSystem
+   
+   
+
+.. autopydantic_model:: SystemInformation
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   

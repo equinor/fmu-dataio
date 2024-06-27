@@ -1,0 +1,34 @@
+FMUCase
+=======
+
+.. currentmodule:: fmu.dataio.datastructure.meta.meta
+
+.. autosummary::
+   :toctree: FMUCase
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+      ~fmu.dataio.datastructure.meta.meta.User
+   
+   
+
+.. autopydantic_model:: FMUCase
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   

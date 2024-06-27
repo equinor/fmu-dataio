@@ -1,0 +1,46 @@
+﻿FMUDataClassMeta
+================
+
+.. currentmodule:: fmu.dataio.datastructure.meta.meta
+
+.. autosummary::
+   :toctree: FMUDataClassMeta
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+      ~fmu.dataio.datastructure.meta.meta.Display
+   
+      ~fmu.dataio.datastructure.meta.meta.TracklogEvent
+   
+      ~fmu.dataio.datastructure.meta.meta.Masterdata
+   
+      ~fmu.dataio.datastructure.meta.meta.File
+   
+      ~fmu.dataio.datastructure.meta.meta.SsdlAccess
+   
+      ~fmu.dataio.datastructure.meta.meta.FMUClassMetaData
+   
+      ~fmu.dataio.datastructure.meta.content.AnyContent
+   
+   
+
+.. autopydantic_model:: FMUDataClassMeta
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   

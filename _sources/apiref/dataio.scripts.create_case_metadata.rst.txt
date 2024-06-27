@@ -1,7 +1,0 @@
-dataio.scripts.create\_case\_metadata module
-============================================
-
-.. automodule:: dataio.scripts.create_case_metadata
-   :members:
-   :undoc-members:
-   :show-inheritance:
