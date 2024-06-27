@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
-# flake8: noqa
-# pylint: skip-file
+import logging
 import os
 import sys
-from pathlib import Path
-
 from datetime import date
 
 import fmu.dataio
@@ -13,6 +10,19 @@ import fmu.dataio.dataio
 
 sys.path.insert(0, os.path.abspath("../../src/fmu"))
 sys.path.insert(1, os.path.abspath("../ext"))
+
+
+class PydanticAutodocFilter(logging.Filter):
+    """A logging filter to suppress warnings about duplicate object descriptions when
+    generating Pydantic model documentation. These warnings are a result of generating a
+    new nested model document wherever one occurs, even if this Pydantic model is used
+    in multiple places."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        return "duplicate object description" not in record.getMessage()
+
+
+logging.getLogger("sphinx").addFilter(PydanticAutodocFilter())
 
 
 # -- General configuration ---------------------------------------------
