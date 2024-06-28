@@ -1,0 +1,46 @@
+FMUAttributes
+=============
+
+.. currentmodule:: fmu.dataio.datastructure.meta.meta
+
+.. autosummary::
+   :toctree: FMUAttributes
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+      ~fmu.dataio.datastructure.meta.meta.Aggregation
+   
+      ~fmu.dataio.datastructure.meta.meta.Iteration
+   
+      ~fmu.dataio.datastructure.meta.meta.Model
+   
+      ~fmu.dataio.datastructure.meta.meta.Workflow
+   
+      ~fmu.dataio.datastructure.meta.meta.Case
+   
+      ~fmu.dataio.datastructure.meta.meta.Context
+   
+      ~fmu.dataio.datastructure.meta.meta.Realization
+   
+   
+
+.. autopydantic_model:: FMUAttributes
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   
