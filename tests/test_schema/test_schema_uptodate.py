@@ -11,7 +11,7 @@ def test_schema_uptodate():
     the local `fmu_meta.json` with the output of `dump()`.
 
     To update the local schema, run:
-    `python3 -m fmu.dataio.datastructure.meta > schema/definitions/0.8.0/schema/fmu_meta.json`.
+    `./tools/update_schema`
     """
     with open("schema/definitions/0.8.0/schema/fmu_meta.json") as f:
         assert json.load(f) == dump()
