@@ -1,0 +1,15 @@
+dataio.export.rms package
+=========================
+
+.. automodule:: dataio.export.rms
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   dataio.export.rms.volumetrics

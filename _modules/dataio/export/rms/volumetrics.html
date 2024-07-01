@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dataio.export.rms.volumetrics &mdash; fmu.dataio 0.1.dev1+g4472510 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css?v=13237357" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/autodoc_pydantic.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=f9811302"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script>let toggleHintShow = 'Expand';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../../../../_static/togglebutton.js?v=4a39c7ea"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #C0C0C0" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            fmu.dataio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../preparations.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apiref/modules.html">API reference for fmu.dataio</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apiref/dataio.html">dataio package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apiref/dataio.export.html">dataio.export package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apiref/dataio.export.rms.html">dataio.export.rms package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../apiref/dataio.export.rms.volumetrics.html">dataio.export.rms.volumetrics module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apiref/dataio.aggregation.html">dataio.aggregation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apiref/dataio.case.html">dataio.case module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apiref/dataio.dataio.html">dataio.dataio module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apiref/dataio.exceptions.html">dataio.exceptions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apiref/dataio.preprocessed.html">dataio.preprocessed module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apiref/dataio.readers.html">dataio.readers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apiref/dataio.types.html">dataio.types module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apiref/dataio.version.html">dataio.version module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../datamodel/index.html">The FMU results data model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../datamodel/model/fmu.dataio.datastructure.meta.meta.ObjectMetadata.html">ObjectMetadata</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/fmu.dataio.datastructure.meta.content.AnyContent.html">AnyContent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.FieldRegionContent.html">FieldRegionContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.FieldRegion.html">FieldRegion</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldRegionContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.RelpermContent.html">RelpermContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RelpermContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.SubcropContent.html">SubcropContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SubcropContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.VolumesContent.html">VolumesContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VolumesContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.TimeSeriesContent.html">TimeSeriesContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeSeriesContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.FieldOutlineContent.html">FieldOutlineContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.FieldOutline.html">FieldOutline</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FieldOutlineContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.PinchoutContent.html">PinchoutContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PinchoutContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.PropertyContent.html">PropertyContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PropertyContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.ThicknessContent.html">ThicknessContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ThicknessContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.NamedAreaContent.html">NamedAreaContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/NamedAreaContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.VelocityContent.html">VelocityContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/VelocityContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.WellPicksContent.html">WellPicksContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/WellPicksContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.TimeContent.html">TimeContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/TimeContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.PVTContent.html">PVTContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/PVTContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.FaultPropertiesContent.html">FaultPropertiesContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultPropertiesContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.LiftCurvesContent.html">LiftCurvesContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/LiftCurvesContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.FluidContactContent.html">FluidContactContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.FluidContact.html">FluidContact</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FluidContactContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.SeismicContent.html">SeismicContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.Seismic.html">Seismic</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/SeismicContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.RegionsContent.html">RegionsContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RegionsContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.FaultLinesContent.html">FaultLinesContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaultLinesContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.KPProductContent.html">KPProductContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/KPProductContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.DepthContent.html">DepthContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/DepthContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.RFTContent.html">RFTContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/RFTContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.FaciesThicknessContent.html">FaciesThicknessContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/FaciesThicknessContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/fmu.dataio.datastructure.meta.content.ParametersContent.html">ParametersContent</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.TableSpecification.html">TableSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification.html">FaultRoomSurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.Time.html">Time</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/Time/fmu.dataio.datastructure.meta.content.FMUTimeObject.html">FMUTimeObject</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.BoundingBox2D.html">BoundingBox2D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification.html">CPGridPropertySpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.CubeSpecification.html">CubeSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.CPGridSpecification.html">CPGridSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.PointSpecification.html">PointSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.GridModel.html">GridModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.Geometry.html">Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.BoundingBox3D.html">BoundingBox3D</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.SurfaceSpecification.html">SurfaceSpecification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.content.Layer.html">Layer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/AnyContent/ParametersContent/fmu.dataio.datastructure.meta.specification.PolygonsSpecification.html">PolygonsSpecification</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/fmu.dataio.datastructure.meta.meta.Display.html">Display</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/fmu.dataio.datastructure.meta.meta.Masterdata.html">Masterdata</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/Masterdata/fmu.dataio.datastructure.meta.meta.Smda.html">Smda</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.StratigraphicColumn.html">StratigraphicColumn</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.CoordinateSystem.html">CoordinateSystem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.DiscoveryItem.html">DiscoveryItem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.CountryItem.html">CountryItem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.FieldItem.html">FieldItem</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/fmu.dataio.datastructure.meta.meta.FMUAttributes.html">FMUAttributes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/FMUAttributes/fmu.dataio.datastructure.meta.meta.Iteration.html">Iteration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/FMUAttributes/fmu.dataio.datastructure.meta.meta.Aggregation.html">Aggregation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/FMUAttributes/Aggregation/fmu.dataio.datastructure.meta.meta.Parameters.html">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/FMUAttributes/fmu.dataio.datastructure.meta.meta.Workflow.html">Workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/FMUAttributes/fmu.dataio.datastructure.meta.meta.Context.html">Context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/FMUAttributes/fmu.dataio.datastructure.meta.meta.Model.html">Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/FMUAttributes/fmu.dataio.datastructure.meta.meta.Case.html">Case</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/FMUAttributes/Case/fmu.dataio.datastructure.meta.meta.User.html">User</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/FMUAttributes/fmu.dataio.datastructure.meta.meta.Realization.html">Realization</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/FMUAttributes/Realization/fmu.dataio.datastructure.meta.meta.Parameters.html">Parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/fmu.dataio.datastructure.meta.meta.SsdlAccess.html">SsdlAccess</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/SsdlAccess/fmu.dataio.datastructure.meta.meta.Ssdl.html">Ssdl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/SsdlAccess/fmu.dataio.datastructure.meta.meta.Asset.html">Asset</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/fmu.dataio.datastructure.meta.meta.File.html">File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/fmu.dataio.datastructure.meta.meta.TracklogEvent.html">TracklogEvent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/TracklogEvent/fmu.dataio.datastructure.meta.meta.SystemInformation.html">SystemInformation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/TracklogEvent/SystemInformation/fmu.dataio.datastructure.meta.meta.SystemInformationOperatingSystem.html">SystemInformationOperatingSystem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/TracklogEvent/SystemInformation/fmu.dataio.datastructure.meta.meta.VersionInformation.html">VersionInformation</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/ObjectMetadata/TracklogEvent/fmu.dataio.datastructure.meta.meta.User.html">User</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../datamodel/model/fmu.dataio.datastructure.meta.meta.CaseMetadata.html">CaseMetadata</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/fmu.dataio.datastructure.meta.meta.Masterdata.html">Masterdata</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/Masterdata/fmu.dataio.datastructure.meta.meta.Smda.html">Smda</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.StratigraphicColumn.html">StratigraphicColumn</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.CoordinateSystem.html">CoordinateSystem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.DiscoveryItem.html">DiscoveryItem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.CountryItem.html">CountryItem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/Masterdata/Smda/fmu.dataio.datastructure.meta.meta.FieldItem.html">FieldItem</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/fmu.dataio.datastructure.meta.meta.FMUCaseAttributes.html">FMUCaseAttributes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/FMUCaseAttributes/fmu.dataio.datastructure.meta.meta.Model.html">Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/FMUCaseAttributes/fmu.dataio.datastructure.meta.meta.Case.html">Case</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/FMUCaseAttributes/Case/fmu.dataio.datastructure.meta.meta.User.html">User</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/fmu.dataio.datastructure.meta.meta.Access.html">Access</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/Access/fmu.dataio.datastructure.meta.meta.Asset.html">Asset</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/fmu.dataio.datastructure.meta.meta.TracklogEvent.html">TracklogEvent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/TracklogEvent/fmu.dataio.datastructure.meta.meta.SystemInformation.html">SystemInformation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/TracklogEvent/SystemInformation/fmu.dataio.datastructure.meta.meta.SystemInformationOperatingSystem.html">SystemInformationOperatingSystem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/TracklogEvent/SystemInformation/fmu.dataio.datastructure.meta.meta.VersionInformation.html">VersionInformation</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../datamodel/model/CaseMetadata/TracklogEvent/fmu.dataio.datastructure.meta.meta.User.html">User</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #C0C0C0" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">fmu.dataio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dataio.export.rms.volumetrics</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dataio.export.rms.volumetrics</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Final</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">parse</span> <span class="k">as</span> <span class="n">versionparse</span>
+
+<span class="kn">import</span> <span class="nn">fmu.dataio</span> <span class="k">as</span> <span class="nn">dio</span>
+<span class="kn">from</span> <span class="nn">fmu.config.utilities</span> <span class="kn">import</span> <span class="n">yaml_load</span>
+<span class="kn">from</span> <span class="nn">fmu.dataio._logging</span> <span class="kn">import</span> <span class="n">null_logger</span>
+
+<span class="kn">from</span> <span class="nn">._conditional_rms_imports</span> <span class="kn">import</span> <span class="n">import_rms_package</span>
+
+<span class="n">_modules</span> <span class="o">=</span> <span class="n">import_rms_package</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">_modules</span><span class="p">:</span>
+    <span class="n">rmsapi</span> <span class="o">=</span> <span class="n">_modules</span><span class="p">[</span><span class="s2">&quot;rmsapi&quot;</span><span class="p">]</span>
+    <span class="n">jobs</span> <span class="o">=</span> <span class="n">_modules</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span>
+
+
+<span class="n">_logger</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">null_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># rename columns to FMU standard</span>
+<span class="n">_RENAME_COLUMNS_FROM_RMS</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Proj. real.&quot;</span><span class="p">:</span> <span class="s2">&quot;REAL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Zone&quot;</span><span class="p">:</span> <span class="s2">&quot;ZONE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Segment&quot;</span><span class="p">:</span> <span class="s2">&quot;REGION&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Boundary&quot;</span><span class="p">:</span> <span class="s2">&quot;LICENSE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Facies&quot;</span><span class="p">:</span> <span class="s2">&quot;FACIES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BulkOil&quot;</span><span class="p">:</span> <span class="s2">&quot;BULK_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NetOil&quot;</span><span class="p">:</span> <span class="s2">&quot;NET_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PoreOil&quot;</span><span class="p">:</span> <span class="s2">&quot;PORV_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HCPVOil&quot;</span><span class="p">:</span> <span class="s2">&quot;HCPV_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;STOIIP&quot;</span><span class="p">:</span> <span class="s2">&quot;STOIIP_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AssociatedGas&quot;</span><span class="p">:</span> <span class="s2">&quot;ASSOCIATEDGAS_OIL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BulkGas&quot;</span><span class="p">:</span> <span class="s2">&quot;BULK_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NetGas&quot;</span><span class="p">:</span> <span class="s2">&quot;NET_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PoreGas&quot;</span><span class="p">:</span> <span class="s2">&quot;PORV_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HCPVGas&quot;</span><span class="p">:</span> <span class="s2">&quot;HCPV_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GIIP&quot;</span><span class="p">:</span> <span class="s2">&quot;GIIP_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AssociatedLiquid&quot;</span><span class="p">:</span> <span class="s2">&quot;ASSOCIATEDOIL_GAS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bulk&quot;</span><span class="p">:</span> <span class="s2">&quot;BULK_TOTAL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Net&quot;</span><span class="p">:</span> <span class="s2">&quot;NET_TOTAL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Pore&quot;</span><span class="p">:</span> <span class="s2">&quot;PORV_TOTAL&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">_ExportVolumetricsRMS</span><span class="p">:</span>
+    <span class="n">project</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="n">grid_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">volume_job_name</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="c1"># optional and defaulted</span>
+    <span class="n">global_config</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">=</span> <span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span>
+    <span class="n">forcefolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># allowed until deprecated</span>
+    <span class="n">subfolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">tagname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;vol&quot;</span>
+    <span class="n">classification</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;restricted&quot;</span>
+    <span class="n">workflow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rms volumetric run&quot;</span>
+
+    <span class="c1"># internal storage instance variables</span>
+    <span class="n">_global_config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_volume_job</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_volume_table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;metric&quot;</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Process data, estiblish state prior to export.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_rmsapi_version</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_global_config</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rms_volume_job_settings</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_read_volume_table_name_from_rms</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_voltable_as_dataframe</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_units</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn_if_forcefolder</span><span class="p">()</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Process data... DONE&quot;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_rmsapi_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if we are working in a RMS API, and also check RMS versions?&quot;&quot;&quot;</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Check API version...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">versionparse</span><span class="p">(</span><span class="n">rmsapi</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">versionparse</span><span class="p">(</span><span class="s2">&quot;1.7&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;You need at least API version 1.7 (RMS 13.1) to use this function.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Check API version... DONE&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_global_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the global config data by reading the file.&quot;&quot;&quot;</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Set global config...&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_config</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Set global config (from input dictionary)... DONE!&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">global_config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_config</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">global_config_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot find file for global config: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">global_config</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_global_config</span> <span class="o">=</span> <span class="n">yaml_load</span><span class="p">(</span><span class="n">global_config_path</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Read config from yaml... DONE&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_rms_volume_job_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get information out from the RMS job API.&quot;&quot;&quot;</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;RMS VOLJOB settings...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_volume_job</span> <span class="o">=</span> <span class="n">jobs</span><span class="o">.</span><span class="n">Job</span><span class="o">.</span><span class="n">get_job</span><span class="p">(</span>
+            <span class="n">owner</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Grid models&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span><span class="p">,</span> <span class="s2">&quot;Grid&quot;</span><span class="p">],</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;Volumetrics&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">volume_job_name</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">get_arguments</span><span class="p">()</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;RMS VOLJOB settings... DONE&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_read_volume_table_name_from_rms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the volume table name from RMS.&quot;&quot;&quot;</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Read volume table name from RMS...&quot;</span><span class="p">)</span>
+        <span class="n">voltable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volume_job</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Report&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">voltable</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">voltable</span> <span class="o">=</span> <span class="n">voltable</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_volume_table_name</span> <span class="o">=</span> <span class="n">voltable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ReportTableName&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volume_table_name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;You need to configure output to Report file: Report table &quot;</span>
+                <span class="s2">&quot;in the volumetric job. Provide a table name and rerun the job.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;The volume table name is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volume_table_name</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Read volume table name from RMS... DONE&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_voltable_as_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert table to pandas dataframe&quot;&quot;&quot;</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Read values and convert to pandas dataframe...&quot;</span><span class="p">)</span>
+        <span class="n">dict_values</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">volumetric_tables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_volume_table_name</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">get_data_table</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Dict values are: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dict_values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dict_values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataframe</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">_RENAME_COLUMNS_FROM_RMS</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataframe</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;REAL&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Read values and convert to pandas dataframe... DONE&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;See if the RMS project is defined in metric or feet.&quot;&quot;&quot;</span>
+
+        <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">project_units</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Units are </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_units</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_warn_if_forcefolder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcefolder</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;A &#39;forcefolder&#39; is set. This is strongly discouraged and will be &quot;</span>
+                <span class="s2">&quot;removed in coming versions&quot;</span><span class="p">,</span>
+                <span class="ne">FutureWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_export_volume_table</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Do the actual volume table export using dataio setup.&quot;&quot;&quot;</span>
+
+        <span class="n">edata</span> <span class="o">=</span> <span class="n">dio</span><span class="o">.</span><span class="n">ExportData</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_global_config</span><span class="p">,</span>
+            <span class="n">content</span><span class="o">=</span><span class="s2">&quot;volumes&quot;</span><span class="p">,</span>
+            <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m3&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_units</span> <span class="o">==</span> <span class="s2">&quot;metric&quot;</span> <span class="k">else</span> <span class="s2">&quot;ft3&quot;</span><span class="p">,</span>
+            <span class="n">vertical_domain</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="s2">&quot;msl&quot;</span><span class="p">},</span>
+            <span class="n">workflow</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="p">,</span>
+            <span class="n">forcefolder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">forcefolder</span><span class="p">,</span>
+            <span class="n">classification</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classification</span><span class="p">,</span>
+            <span class="n">tagname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tagname</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span><span class="si">}</span><span class="s2">_volumes&quot;</span><span class="p">,</span>
+            <span class="n">rep_include</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">edata</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataframe</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Volume result to: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;volume_table&quot;</span><span class="p">:</span> <span class="n">out</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export the volume table.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_volume_table</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="export_rms_volumetrics">
+<a class="viewcode-back" href="../../../../apiref/dataio.export.rms.volumetrics.html#dataio.export.rms.export_rms_volumetrics">[docs]</a>
+<span class="k">def</span> <span class="nf">export_rms_volumetrics</span><span class="p">(</span>
+    <span class="n">project</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">grid_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">volume_job_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">global_config</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">=</span> <span class="s2">&quot;../../fmuconfig/output/global_variables.yml&quot;</span><span class="p">,</span>
+    <span class="n">forcefolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># unsure if we shall allow this?</span>
+    <span class="n">subfolder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">tagname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">classification</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;restricted&quot;</span><span class="p">,</span>
+    <span class="n">workflow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rms volumetric run&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simplified interface when exporting volume tables (and assosiated data) from RMS.</span>
+
+<span class="sd">    As the export_volumetrics may have multiple output (storing both tables, maps and</span>
+<span class="sd">    3D grids), the output from this function is always a dictionary. The table is</span>
+<span class="sd">    mandatory output, while maps and 3D grid data are optional (not yet implemented).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        project: The &#39;magic&#39; project variable in RMS.</span>
+<span class="sd">        grid_name: Name of 3D grid model in RMS.</span>
+<span class="sd">        volume_job_name: Name of the volume job.</span>
+<span class="sd">        global_config: Optional. The global config can either point to the</span>
+<span class="sd">            global_variables file, or it can be a dictionary. As default, it assumes</span>
+<span class="sd">            a the current standard in FMU:</span>
+<span class="sd">            ``&#39;../../fmuconfig/output/global_variables.yml&#39;``</span>
+<span class="sd">        forcefolder: Optional. As default, volume tables will be exported to the agreed</span>
+<span class="sd">            file structure, and the folder name will be &#39;tables&#39;. This can be</span>
+<span class="sd">            overriden here, but there will be warnings. For optional assosiated</span>
+<span class="sd">            volume maps and grids, the default folder names cannot be changed.</span>
+<span class="sd">        subfolder: Name of subfolder for local storage, below the standard folder.</span>
+<span class="sd">        name: Optional. Name of export item. Is defaulted to name of grid + &#39;_volumes&#39;.</span>
+<span class="sd">        tagname: Optional. Defaulted to &#39;vol&#39; for this function. Tagnames are part of</span>
+<span class="sd">            file names, and should not be applied as metadata.</span>
+<span class="sd">        classification: Optional. Use &#39;internal&#39; or &#39;restricted&#39; (default).</span>
+<span class="sd">        workflow: Optional. Information about the work flow; defaulted to</span>
+<span class="sd">            &#39;rms volumetrics&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_ExportVolumetricsRMS</span><span class="p">(</span>
+        <span class="n">project</span><span class="p">,</span>
+        <span class="n">grid_name</span><span class="p">,</span>
+        <span class="n">volume_job_name</span><span class="p">,</span>
+        <span class="n">global_config</span><span class="o">=</span><span class="n">global_config</span><span class="p">,</span>
+        <span class="n">forcefolder</span><span class="o">=</span><span class="n">forcefolder</span><span class="p">,</span>
+        <span class="n">subfolder</span><span class="o">=</span><span class="n">subfolder</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">tagname</span><span class="o">=</span><span class="n">tagname</span><span class="p">,</span>
+        <span class="n">classification</span><span class="o">=</span><span class="n">classification</span><span class="p">,</span>
+        <span class="n">workflow</span><span class="o">=</span><span class="n">workflow</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">export</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Equinor 2024 (fmu-dataio release 0.1.dev1+g4472510).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+dataio.export package
+=====================
+
+.. automodule:: dataio.export
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   dataio.export.rms
