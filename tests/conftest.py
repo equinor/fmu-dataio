@@ -211,8 +211,8 @@ def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory, rootpath):
     return rmspath
 
 
-@pytest.fixture(scope="module")
-def rmssetup(tmp_path_factory, global_config2_path):
+@pytest.fixture(scope="function")
+def rmssetup(tmp_path_factory, global_config2_path, monkeypatch):
     """Create the folder structure to mimic RMS project."""
 
     tmppath = tmp_path_factory.mktemp("revision")
@@ -222,10 +222,11 @@ def rmssetup(tmp_path_factory, global_config2_path):
 
     logger.debug("Ran %s", _current_function_name())
 
+    monkeypatch.chdir(rmspath)
     return rmspath
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def rmssetup_with_fmuconfig(tmp_path_factory, global_config2_path):
     """Create the folder structure to mimic RMS project and standard global config."""
 
@@ -241,11 +242,10 @@ def rmssetup_with_fmuconfig(tmp_path_factory, global_config2_path):
     return rmspath
 
 
-@pytest.fixture(name="rmsglobalconfig", scope="module")
+@pytest.fixture(name="rmsglobalconfig", scope="function")
 def fixture_rmsglobalconfig(rmssetup):
     """Read global config."""
     # read the global config
-    os.chdir(rmssetup)
     logger.debug("Global config is %s", str(rmssetup / "global_variables.yml"))
     with open("global_variables.yml", encoding="utf8") as stream:
         global_cfg = yaml.safe_load(stream)
@@ -255,7 +255,7 @@ def fixture_rmsglobalconfig(rmssetup):
     return global_cfg
 
 
-@pytest.fixture(name="globalvars_norwegian_letters", scope="module")
+@pytest.fixture(name="globalvars_norwegian_letters", scope="function")
 def fixture_globalvars_norwegian_letters(tmp_path_factory, rootpath):
     """Read a global config with norwegian special letters w/ fmu.config utilities."""
 
