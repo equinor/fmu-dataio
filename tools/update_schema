@@ -1,0 +1,139 @@
+#!/usr/bin/env python
+
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any, Final
+
+from fmu.dataio.datastructure.meta import dump
+
+GREEN = "\033[32m"
+RED = "\033[31m"
+YELLOW = "\033[93m"
+NC = "\033[0m"
+BOLD = "\033[1m"
+SUCCESS = f"[{BOLD}{GREEN}✔{NC}]"
+FAILURE = f"[{BOLD}{RED}✖{NC}]"
+INFO = f"[{BOLD}{YELLOW}+{NC}]"
+
+
+# TODO: This version should come from the package when schema versioning exists
+SCHEMA_VERSION: Final = "0.8.0"
+# TODO: This should be updated to 'fmu_results.json' when legacy schema deprecated
+SCHEMA_FILENAME: Final = "fmu_meta.json"
+
+
+def _get_parser() -> argparse.ArgumentParser:
+    """Construct parser object."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--version",
+        "-v",
+        type=str,
+        help=f"The version of the schema being output. Default is {SCHEMA_VERSION}",
+        default=SCHEMA_VERSION,
+    )
+    parser.add_argument(
+        "--filename",
+        "-f",
+        type=str,
+        help=f"The filename of the schema being output. Default is {SCHEMA_FILENAME}.",
+        default=SCHEMA_FILENAME,
+    )
+    parser.add_argument(
+        "--diff",
+        "-d",
+        action="store_true",
+        help="Show a diff between the current schema and the new one in output.",
+    )
+    parser.add_argument(
+        "--test",
+        "-t",
+        action="store_true",
+        help="Run as normal, but don't write the file.",
+    )
+    return parser
+
+
+def _get_output_path(version: str) -> Path:
+    """Returns a Path with the appropriate output location, without the filename."""
+    root = Path(__file__).parent.parent.resolve()  # absolute path of ../../
+    return root / "schema" / "definitions" / version / "schema"
+
+
+def _load_json(filepath: Path) -> dict[str, Any]:
+    with open(filepath, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _check_output_filepath(filepath: Path, new_schema: dict[str, Any]) -> None:
+    if not filepath.exists():
+        print(f"{INFO} no pre-existing schema file at '{filepath}'")
+        return
+
+    current_schema = _load_json(filepath)
+    if new_schema == current_schema:
+        print(
+            f"{SUCCESS} new schema is the same as the existing schema, "
+            "no update required"
+        )
+        sys.exit()
+
+
+def _check_output_path(path: Path, is_test: bool) -> None:
+    if path.exists():
+        if path.is_dir():
+            return
+        print(f"{FAILURE} path '{path}' exists but is not a directory, aborting")
+        sys.exit(1)
+
+    print(f"{INFO} path '{path}' does not exist, creating it ...", end="", flush=True)
+    if not is_test:
+        path.mkdir(parents=True, exist_ok=True)
+    print(
+        f"\r{SUCCESS} path '{path}' does not exist, creating it ... done",
+        flush=True,
+    )
+
+
+def main() -> None:
+    parser = _get_parser()
+    args = parser.parse_args()
+
+    new_schema = dump()
+
+    output_path = _get_output_path(args.version)
+    output_filepath = output_path / args.filename
+
+    _check_output_path(output_path, args.test)
+    _check_output_filepath(output_filepath, new_schema)
+
+    print(
+        f"{INFO} writing schema version {BOLD}{args.version}{NC} "
+        f"as {BOLD}{args.filename}{NC} ...",
+        end="",
+        flush=True,
+    )
+    if not args.test:
+        with open(output_filepath, "w", encoding="utf-8") as f:
+            f.write(json.dumps(new_schema, indent=2, sort_keys=True))
+    print(
+        f"\r{SUCCESS} writing schema version {BOLD}{args.version}{NC} "
+        f"as {BOLD}{args.filename}{NC} ... done",
+        flush=True,
+    )
+    print(f"{SUCCESS} written to '{output_filepath}'")
+
+    if args.diff:
+        command = ["git", "diff", str(output_filepath)]
+        print(f"{INFO} running `{' '.join(command)}` ...")
+        output = subprocess.run(command, capture_output=True, text=True)
+        print(output.stdout)
+
+
+if __name__ == "__main__":
+    main()
