@@ -1,10 +1,10 @@
-VersionInformation
-==================
+Version
+=======
 
 .. currentmodule:: fmu.dataio.datastructure.meta.meta
 
 .. autosummary::
-   :toctree: VersionInformation
+   :toctree: Version
    :recursive:
 
    .. toctree::
@@ -14,7 +14,7 @@ VersionInformation
    
    
 
-.. autopydantic_model:: VersionInformation
+.. autopydantic_model:: Version
    :members:
    :inherited-members: BaseModel
    :model-show-config-summary: False

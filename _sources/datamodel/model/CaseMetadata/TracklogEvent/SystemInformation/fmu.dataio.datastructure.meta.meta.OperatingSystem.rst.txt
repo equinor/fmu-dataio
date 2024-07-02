@@ -1,10 +1,10 @@
-SystemInformationOperatingSystem
-================================
+OperatingSystem
+===============
 
 .. currentmodule:: fmu.dataio.datastructure.meta.meta
 
 .. autosummary::
-   :toctree: SystemInformationOperatingSystem
+   :toctree: OperatingSystem
    :recursive:
 
    .. toctree::
@@ -14,7 +14,7 @@ SystemInformationOperatingSystem
    
    
 
-.. autopydantic_model:: SystemInformationOperatingSystem
+.. autopydantic_model:: OperatingSystem
    :members:
    :inherited-members: BaseModel
    :model-show-config-summary: False
