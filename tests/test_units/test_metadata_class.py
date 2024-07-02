@@ -13,7 +13,7 @@ from fmu.dataio._metadata import (
 )
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.datastructure.meta.meta import (
-    SystemInformationOperatingSystem,
+    OperatingSystem,
     TracklogEvent,
 )
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
@@ -95,7 +95,7 @@ def test_generate_meta_tracklog_operating_system(edataobj1, regsurf):
     parsed = TracklogEvent.model_validate(tracklog[0])
     assert isinstance(
         parsed.sysinfo.operating_system,
-        SystemInformationOperatingSystem,
+        OperatingSystem,
     )
 
 

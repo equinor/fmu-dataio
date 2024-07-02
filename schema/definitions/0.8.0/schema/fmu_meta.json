@@ -41,6 +41,7 @@
   ],
   "$defs": {
     "Access": {
+      "description": "The ``access`` block contains information related to access control for\nthis data object.",
       "properties": {
         "asset": {
           "$ref": "#/$defs/Asset"
@@ -64,9 +65,9 @@
       "type": "object"
     },
     "Aggregation": {
+      "description": "The ``fmu.aggregation`` block contains information about an aggregation\nperformed over an ensemble.",
       "properties": {
         "id": {
-          "description": "The ID of this aggregation",
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
@@ -75,7 +76,6 @@
           "type": "string"
         },
         "operation": {
-          "description": "The aggregation performed",
           "title": "Operation",
           "type": "string"
         },
@@ -88,11 +88,9 @@
               "type": "null"
             }
           ],
-          "default": null,
-          "description": "Parameters for this realization"
+          "default": null
         },
         "realization_ids": {
-          "description": "Array of realization ids included in this aggregation",
           "items": {
             "type": "integer"
           },
@@ -204,6 +202,7 @@
       "title": "AnyContent"
     },
     "Asset": {
+      "description": "A block containing information about the owner asset of these data.",
       "properties": {
         "name": {
           "examples": [
@@ -494,7 +493,7 @@
       "type": "string"
     },
     "Context": {
-      "description": "The internal FMU context in which this data object was produced",
+      "description": "The ``fmu.context`` block contains the FMU context in which this data object\nwas produced.",
       "properties": {
         "stage": {
           "$ref": "#/$defs/FmuContext"
@@ -981,6 +980,7 @@
       "type": "object"
     },
     "Display": {
+      "description": "The ``display`` block contains information related to how this data object\nshould/could be displayed. As a general rule, the consumer of data is responsible\nfor figuring out how a specific data object shall be displayed. However, we use\nthis block to communicate preferences from the data producers perspective.\n\nWe also maintain this block due to legacy reasons. No data filtering logic should\nbe placed on the ``display`` block.",
       "properties": {
         "name": {
           "anyOf": [
@@ -2725,7 +2725,7 @@
       "type": "object"
     },
     "File": {
-      "description": "Block describing the file as the data appear in FMU context",
+      "description": "The ``file`` block contains references to this data object as a file on a disk.\nA filename in this context can be actual, or abstract. Particularly the\n``relative_path`` is, and will most likely remain, an important identifier for\nindividual file objects within an FMU case - irrespective of the existance of an\nactual file system. For this reason, the ``relative_path`` - as well as the\n``checksum_md5`` will be generated even if a file is not saved to disk. The\n``absolute_path`` will only be generated in the case of actually creating a file on\ndisk and is not required under this schema.",
       "properties": {
         "absolute_path": {
           "anyOf": [
@@ -2737,7 +2737,6 @@
             }
           ],
           "default": null,
-          "description": "The absolute file path",
           "examples": [
             "/abs/path/share/results/maps/volantis_gp_base--depth.gri"
           ],
@@ -2764,14 +2763,12 @@
               "type": "null"
             }
           ],
-          "description": "md5 checksum of the file or bytestring",
           "examples": [
             "kjhsdfvsdlfk23knerknvk23"
           ],
           "title": "Checksum Md5"
         },
         "relative_path": {
-          "description": "The file path relative to RUNPATH",
           "examples": [
             "share/results/maps/volantis_gp_base--depth.gri"
           ],
@@ -2800,7 +2797,6 @@
             }
           ],
           "default": null,
-          "description": "Size of file object in bytes",
           "title": "Size Bytes"
         }
       },
@@ -4279,6 +4275,55 @@
       "title": "ObjectMetadata",
       "type": "object"
     },
+    "OperatingSystem": {
+      "description": "The ``operating_system`` block contains information about the OS on which the\nensemble was run.",
+      "properties": {
+        "hostname": {
+          "examples": [
+            "st-123.equinor.com"
+          ],
+          "title": "Hostname",
+          "type": "string"
+        },
+        "operating_system": {
+          "examples": [
+            "Darwin-18.7.0-x86_64-i386-64bit"
+          ],
+          "title": "Operating System",
+          "type": "string"
+        },
+        "release": {
+          "examples": [
+            "18.7.0"
+          ],
+          "title": "Release",
+          "type": "string"
+        },
+        "system": {
+          "examples": [
+            "GNU/Linux"
+          ],
+          "title": "System",
+          "type": "string"
+        },
+        "version": {
+          "examples": [
+            "#1 SMP Tue Aug 27 21:37:59 PDT 2019"
+          ],
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hostname",
+        "operating_system",
+        "release",
+        "system",
+        "version"
+      ],
+      "title": "OperatingSystem",
+      "type": "object"
+    },
     "PVTContent": {
       "properties": {
         "alias": {
@@ -4589,6 +4634,7 @@
           }
         ]
       },
+      "description": "The ``parameters`` block contains the parameters used in a realization. It is a\ndirect pass of ``parameters.txt`` and will contain key:value pairs representing the\nparameters.",
       "title": "Parameters",
       "type": "object"
     },
@@ -6879,7 +6925,7 @@
       "type": "object"
     },
     "Ssdl": {
-      "description": "Sub-Surface Data Lake",
+      "description": "A block containing information related to SSDL. Note that this is kept due to\nlegacy.",
       "properties": {
         "access_level": {
           "$ref": "#/$defs/Classification"
@@ -6897,6 +6943,7 @@
       "type": "object"
     },
     "SsdlAccess": {
+      "description": "The ``access`` block contains information related to access control for\nthis data object, with legacy SSDL settings..",
       "properties": {
         "asset": {
           "$ref": "#/$defs/Asset"
@@ -7309,11 +7356,12 @@
       "type": "object"
     },
     "SystemInformation": {
+      "description": "The ```sysinfo`` block contains information about the system upon which these\ndata were exported from.",
       "properties": {
         "fmu-dataio": {
           "anyOf": [
             {
-              "$ref": "#/$defs/VersionInformation"
+              "$ref": "#/$defs/Version"
             },
             {
               "type": "null"
@@ -7327,7 +7375,7 @@
         "komodo": {
           "anyOf": [
             {
-              "$ref": "#/$defs/VersionInformation"
+              "$ref": "#/$defs/Version"
             },
             {
               "type": "null"
@@ -7341,7 +7389,7 @@
         "operating_system": {
           "anyOf": [
             {
-              "$ref": "#/$defs/SystemInformationOperatingSystem"
+              "$ref": "#/$defs/OperatingSystem"
             },
             {
               "type": "null"
@@ -7351,60 +7399,6 @@
         }
       },
       "title": "SystemInformation",
-      "type": "object"
-    },
-    "SystemInformationOperatingSystem": {
-      "description": "This model encapsulates various pieces of system-related information using Python's\nplatform module. It provides a structured way to access details about the system's\nhardware, operating system, and interpreter version information.",
-      "properties": {
-        "hostname": {
-          "description": "The network name of the computer, possibly not fully qualified.",
-          "examples": [
-            "Johns-MacBook-Pro.local"
-          ],
-          "title": "Hostname",
-          "type": "string"
-        },
-        "operating_system": {
-          "description": "A detailed string identifying the underlying platform with as much useful information as possible.",
-          "examples": [
-            "Darwin-18.7.0-x86_64-i386-64bit"
-          ],
-          "title": "Platform",
-          "type": "string"
-        },
-        "release": {
-          "description": "The system's release version, such as a version number or a name.",
-          "examples": [
-            "18.7.0"
-          ],
-          "title": "Release",
-          "type": "string"
-        },
-        "system": {
-          "description": "The name of the operating system.",
-          "examples": [
-            "Darwin"
-          ],
-          "title": "System",
-          "type": "string"
-        },
-        "version": {
-          "description": "The specific release version of the system.",
-          "examples": [
-            "#1 SMP Tue Aug 27 21:37:59 PDT 2019"
-          ],
-          "title": "Version",
-          "type": "string"
-        }
-      },
-      "required": [
-        "hostname",
-        "operating_system",
-        "release",
-        "system",
-        "version"
-      ],
-      "title": "SystemInformationOperatingSystem",
       "type": "object"
     },
     "TableSpecification": {
@@ -8385,13 +8379,14 @@
       "type": "object"
     },
     "User": {
+      "description": "The ``user`` block holds information about the user.",
       "properties": {
         "id": {
           "examples": [
             "peesv",
-            "jlov"
+            "jriv"
           ],
-          "title": "User ID",
+          "title": "Id",
           "type": "string"
         }
       },
@@ -8694,7 +8689,8 @@
       "title": "VelocityContent",
       "type": "object"
     },
-    "VersionInformation": {
+    "Version": {
+      "description": "A generic block that contains a string representing the version of\nsomething.",
       "properties": {
         "version": {
           "title": "Version",
@@ -8704,7 +8700,7 @@
       "required": [
         "version"
       ],
-      "title": "VersionInformation",
+      "title": "Version",
       "type": "object"
     },
     "VolumesContent": {
@@ -9294,9 +9290,9 @@
       "type": "object"
     },
     "Workflow": {
+      "description": "The ``fmu.workflow`` block refers to specific subworkflows within the large\nFMU workflow being ran. This has not been standardized, mainly due to the lack of\nprogrammatic access to the workflows being run in important software within FMU.\n\n.. note:: A key usage of ``fmu.workflow.reference`` is related to ensuring\n   uniqueness of data objects.",
       "properties": {
         "reference": {
-          "description": "Reference to the part of the FMU workflow that produced this",
           "title": "Reference",
           "type": "string"
         }
