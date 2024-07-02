@@ -12,15 +12,15 @@ Smda
 
    
    
-      ~fmu.dataio.datastructure.meta.meta.DiscoveryItem
+      ~fmu.dataio.datastructure.meta.meta.FieldItem
    
       ~fmu.dataio.datastructure.meta.meta.CoordinateSystem
-   
-      ~fmu.dataio.datastructure.meta.meta.FieldItem
    
       ~fmu.dataio.datastructure.meta.meta.StratigraphicColumn
    
       ~fmu.dataio.datastructure.meta.meta.CountryItem
+   
+      ~fmu.dataio.datastructure.meta.meta.DiscoveryItem
    
    
 
