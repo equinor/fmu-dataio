@@ -28,7 +28,6 @@ logger.info("Inside RMS status %s", dataio.ExportData._inside_rms)
 def test_regsurf_generate_metadata(rmssetup, rmsglobalconfig, regsurf):
     """Test generating metadata for a surface pretend inside RMS"""
     logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     logger.debug(prettyprint_dict(rmsglobalconfig["access"]))
 
@@ -47,7 +46,6 @@ def test_regsurf_generate_metadata(rmssetup, rmsglobalconfig, regsurf):
 def test_regsurf_generate_metadata_change_content(rmssetup, rmsglobalconfig, regsurf):
     """As above but change a key in the generate_metadata"""
     logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth")
     meta1 = edata.generate_metadata(regsurf)
@@ -74,7 +72,6 @@ def test_regsurf_generate_metadata_change_content_invalid(rmsglobalconfig, regsu
 def test_regsurf_export_file(rmssetup, rmsglobalconfig, regsurf):
     """Export the regular surface to file with correct metadata."""
     logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth"
@@ -91,9 +88,6 @@ def test_regsurf_export_file(rmssetup, rmsglobalconfig, regsurf):
 @inside_rms
 def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
     """Export the regular surface to file with correct metadata and name."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
-
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
     )
@@ -111,10 +105,8 @@ def test_regsurf_export_file_set_name(rmssetup, rmsglobalconfig, regsurf):
 
 
 @inside_rms
-def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
+def test_regsurf_metadata_with_timedata(rmsglobalconfig, regsurf):
     """Export a regular surface to file with correct metadata and name and timedata."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -144,12 +136,10 @@ def test_regsurf_metadata_with_timedata(rmssetup, rmsglobalconfig, regsurf):
 
 
 @inside_rms
-def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsurf):
+def test_regsurf_metadata_with_timedata_legacy(rmsglobalconfig, regsurf):
     """Export the regular surface to file with correct metadata timedata, legacy ver."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
-
     dataio.ExportData.legacy_time_format = True
+
     # should raise userwarning
     with pytest.warns(UserWarning, match="now deprecated"):
         edata = dataio.ExportData(
@@ -176,16 +166,11 @@ def test_regsurf_metadata_with_timedata_legacy(rmssetup, rmsglobalconfig, regsur
 
 
 @inside_rms
-def test_regsurf_export_file_fmurun(
-    rmsrun_fmu_w_casemetadata, rmsglobalconfig, regsurf
-):
+def test_regsurf_export_file_fmurun(rmsglobalconfig, regsurf):
     """Being in RMS and in an active FMU ERT run with case metadata present.
 
     Export the regular surface to file with correct metadata and name.
     """
-
-    logger.info("Active folder is %s", rmsrun_fmu_w_casemetadata)
-    os.chdir(rmsrun_fmu_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -224,10 +209,8 @@ def test_regsurf_export_file_fmurun(
 
 
 @inside_rms
-def test_polys_export_file_set_name(rmssetup, rmsglobalconfig, polygons):
+def test_polys_export_file_set_name(rmsglobalconfig, polygons):
     """Export the polygon to file with correct metadata and name."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
@@ -242,11 +225,8 @@ def test_polys_export_file_set_name(rmssetup, rmsglobalconfig, polygons):
 
 
 @inside_rms
-def test_points_export_file_set_name(rmssetup, rmsglobalconfig, points):
+def test_points_export_file_set_name(rmsglobalconfig, points):
     """Export the points to file with correct metadata and name."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
-
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
     )
@@ -263,10 +243,8 @@ def test_points_export_file_set_name(rmssetup, rmsglobalconfig, points):
 
 
 @inside_rms
-def test_points_export_file_set_name_xtgeoheaders(rmssetup, rmsglobalconfig, points):
+def test_points_export_file_set_name_xtgeoheaders(rmsglobalconfig, points):
     """Export the points to file with correct metadata and name but here xtgeo var."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     dataio.ExportData.points_fformat = "csv|xtgeo"
 
@@ -294,10 +272,8 @@ def test_points_export_file_set_name_xtgeoheaders(rmssetup, rmsglobalconfig, poi
 
 
 @inside_rms
-def test_cube_export_file_set_name(rmssetup, rmsglobalconfig, cube):
+def test_cube_export_file_set_name(rmsglobalconfig, cube):
     """Export the cube to file with correct metadata and name."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth", name="MyCube")
 
@@ -310,11 +286,8 @@ def test_cube_export_file_set_name(rmssetup, rmsglobalconfig, cube):
 
 
 @inside_rms
-def test_cube_export_file_set_name_as_observation(rmssetup, rmsglobalconfig, cube):
+def test_cube_export_file_set_name_as_observation(rmsglobalconfig, cube):
     """Export the cube to file with correct metadata and name, is_observation."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
-
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", is_observation=True, name="MyCube"
     )
@@ -328,15 +301,11 @@ def test_cube_export_file_set_name_as_observation(rmssetup, rmsglobalconfig, cub
 
 
 @inside_rms
-def test_cube_export_file_set_name_as_observation_forcefolder(
-    rmssetup, rmsglobalconfig, cube
-):
+def test_cube_export_file_set_name_as_observation_forcefolder(rmsglobalconfig, cube):
     """Export the cube to file with correct metadata and name, is_observation.
 
     In addition, use forcefolder to apply "seismic" instead of cube
     """
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -358,13 +327,11 @@ def test_cube_export_file_set_name_as_observation_forcefolder(
 
 
 @inside_rms
-def test_cube_export_as_case(rmssetup, rmsglobalconfig, cube):
+def test_cube_export_as_case(rmsglobalconfig, cube):
     """Export the cube to file with correct metadata and name, is_observation.
 
     In addition try fmu_context=case; when inside rms this should be reset to "non-fmu"
     """
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -384,10 +351,8 @@ def test_cube_export_as_case(rmssetup, rmsglobalconfig, cube):
 
 
 @inside_rms
-def test_case_symlink_realization_raises_error(rmssetup, rmsglobalconfig, monkeypatch):
+def test_case_symlink_realization_raises_error(rmsglobalconfig):
     """Test that fmu_context="case_symlink_realization" raises error."""
-    logger.info("Active folder is %s", rmssetup)
-    monkeypatch.chdir(rmssetup)
 
     with pytest.raises(ValueError, match="no longer a supported option"):
         dataio.ExportData(
@@ -399,16 +364,12 @@ def test_case_symlink_realization_raises_error(rmssetup, rmsglobalconfig, monkey
 
 
 @inside_rms
-def test_cube_export_as_observation_forcefolder_w_added_folder(
-    rmssetup, rmsglobalconfig, cube
-):
+def test_cube_export_as_observation_forcefolder_w_added_folder(rmsglobalconfig, cube):
     """Export the cube to file with correct metadata and name, is_observation.
 
     In addition, use forcefolder with extra folder "xxx" (alternative to 'subfolder'
     key).
     """
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -429,15 +390,11 @@ def test_cube_export_as_observation_forcefolder_w_added_folder(
 
 
 @inside_rms
-def test_cube_export_as_observation_forcefolder_w_true_subfolder(
-    rmssetup, rmsglobalconfig, cube
-):
+def test_cube_export_as_observation_forcefolder_w_true_subfolder(rmsglobalconfig, cube):
     """Export the cube to file with correct metadata and name, is_observation.
 
     In addition, use forcefolder and subfolders in combination.
     """
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -461,9 +418,7 @@ def test_cube_export_as_observation_forcefolder_w_true_subfolder(
 
 
 @inside_rms
-def test_cube_export_as_observation_forcefolder_w_subfolder_case(
-    rmssetup, rmsglobalconfig, cube
-):
+def test_cube_export_as_observation_forcefolder_w_subfolder_case(rmsglobalconfig, cube):
     """Export the cube to file with correct metadata and name, is_observation.
 
     In addition, use forcefolder with subfolders to apply "seismic" instead of cube
@@ -472,8 +427,6 @@ def test_cube_export_as_observation_forcefolder_w_subfolder_case(
     When inside RMS interactive, the case may be unresolved and hence the folder
     shall be as is.
     """
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -499,11 +452,8 @@ def test_cube_export_as_observation_forcefolder_w_subfolder_case(
 
 
 @inside_rms
-def test_grid_export_file_set_name(rmssetup, rmsglobalconfig, grid):
+def test_grid_export_file_set_name(rmsglobalconfig, grid):
     """Export the grid to file with correct metadata and name."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
-
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth", name="MyGrid")
 
     output = edata.export(grid)
@@ -515,10 +465,8 @@ def test_grid_export_file_set_name(rmssetup, rmsglobalconfig, grid):
 
 
 @inside_rms
-def test_gridproperty_export_file_set_name(rmssetup, rmsglobalconfig, gridproperty):
+def test_gridproperty_export_file_set_name(rmsglobalconfig, gridproperty):
     """Export the gridprop to file with correct metadata and name."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyGridProperty"
@@ -533,12 +481,8 @@ def test_gridproperty_export_file_set_name(rmssetup, rmsglobalconfig, gridproper
 
 
 @inside_rms
-def test_gridproperty_export_with_geometry(
-    rmssetup, rmsglobalconfig, grid, gridproperty
-):
+def test_gridproperty_export_with_geometry(rmsglobalconfig, grid, gridproperty):
     """Export the the grid and the gridprop(s) with connected geometry."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     grd_edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyGrid"
@@ -598,10 +542,8 @@ def test_gridproperty_export_with_geometry(
 
 
 @inside_rms
-def test_dataframe_export_file_set_name(rmssetup, rmsglobalconfig, dataframe):
+def test_dataframe_export_file_set_name(rmsglobalconfig, dataframe):
     """Export the dataframe to file with correct metadata and name."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyDataframe"
@@ -619,11 +561,8 @@ def test_dataframe_export_file_set_name(rmssetup, rmsglobalconfig, dataframe):
 
 
 @inside_rms
-def test_pyarrow_export_file_set_name(rmssetup, rmsglobalconfig, arrowtable):
+def test_pyarrow_export_file_set_name(rmsglobalconfig, arrowtable):
     """Export the arrow to file with correct metadata and name."""
-    logger.info("Active folder is %s", rmssetup)
-    os.chdir(rmssetup)
-
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyArrowtable"
     )
