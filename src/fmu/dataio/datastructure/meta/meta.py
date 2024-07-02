@@ -234,29 +234,6 @@ class Model(BaseModel):
     """The revision of the model."""
 
 
-class RealizationJobListing(BaseModel):
-    """
-    Directly pass "jobs.json". Temporarily deactivated in fmu-dataio pending
-    further alignment with ERT.
-    """
-
-    arg_types: List[str]
-    argList: List[Path]
-    error_file: Optional[Path]
-    executable: Path
-    license_path: Optional[Path]
-    max_arg: int
-    max_running_minutes: Optional[int]
-    max_running: Optional[int]
-    min_arg: int
-    name: str
-    start_file: Optional[str]
-    stderr: Optional[str]
-    stdin: Optional[str]
-    stdout: Optional[str]
-    target_file: Optional[Path]
-
-
 class Realization(BaseModel):
     """
     The ``fmu.realization`` block contains information about the realization this
