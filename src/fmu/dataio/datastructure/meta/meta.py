@@ -23,52 +23,83 @@ T = TypeVar("T", Dict, List, object)
 
 
 class Asset(BaseModel):
+    """A block containing information about the owner asset of these data."""
+
     name: str = Field(examples=["Drogon"])
+    """A string referring to a known asset name."""
 
 
 class Ssdl(BaseModel):
     """
-    Sub-Surface Data Lake
+    A block containing information related to SSDL. Note that this is kept due to
+    legacy.
     """
 
     access_level: enums.Classification
+    """The SSDL access level. See :class:`enums.Classification`."""
+
     rep_include: bool
+    """Flag if this data is to be shown in REP or not."""
 
 
 class Access(BaseModel):
+    """
+    The ``access`` block contains information related to access control for
+    this data object.
+    """
+
     asset: Asset
+    """A block containing information about the owner asset of these data.
+    See :class:`Asset`."""
+
     classification: Optional[enums.Classification] = Field(default=None)
+    """The access classification level. See :class:`enums.Classification`."""
 
 
 class SsdlAccess(Access):
+    """
+    The ``access`` block contains information related to access control for
+    this data object, with legacy SSDL settings..
+    """
+
     ssdl: Ssdl
+    """A block containing information related to SSDL. See :class:`Ssdl`."""
 
 
 class File(BaseModel):
     """
-    Block describing the file as the data appear in FMU context
+    The ``file`` block contains references to this data object as a file on a disk.
+    A filename in this context can be actual, or abstract. Particularly the
+    ``relative_path`` is, and will most likely remain, an important identifier for
+    individual file objects within an FMU case - irrespective of the existance of an
+    actual file system. For this reason, the ``relative_path`` - as well as the
+    ``checksum_md5`` will be generated even if a file is not saved to disk. The
+    ``absolute_path`` will only be generated in the case of actually creating a file on
+    disk and is not required under this schema.
     """
 
     absolute_path: Optional[Path] = Field(
         default=None,
-        description="The absolute file path",
         examples=["/abs/path/share/results/maps/volantis_gp_base--depth.gri"],
     )
+    """The absolute path of a file, e.g. /scratch/field/user/case/etc."""
+
     relative_path: Path = Field(
-        description="The file path relative to RUNPATH",
         examples=["share/results/maps/volantis_gp_base--depth.gri"],
     )
-    checksum_md5: Optional[str] = Field(
-        description="md5 checksum of the file or bytestring",
-        examples=["kjhsdfvsdlfk23knerknvk23"],
-    )
-    size_bytes: Optional[int] = Field(
-        default=None,
-        description="Size of file object in bytes",
-    )
+    """The path of a file relative to the case root."""
+
+    checksum_md5: Optional[str] = Field(examples=["kjhsdfvsdlfk23knerknvk23"])
+    """A valid MD5 checksum of the file."""
+
+    size_bytes: Optional[int] = Field(default=None)
+    """Size of file object in bytes"""
 
     relative_path_symlink: Optional[Path] = Field(default=None)
+    """The path to a symlink of the relative path."""
+
     absolute_path_symlink: Optional[Path] = Field(default=None)
+    """The path to a symlink of the absolute path."""
 
     @model_validator(mode="before")
     @classmethod
@@ -81,41 +112,59 @@ class File(BaseModel):
 
 
 class Parameters(RootModel):
+    """
+    The ``parameters`` block contains the parameters used in a realization. It is a
+    direct pass of ``parameters.txt`` and will contain key:value pairs representing the
+    parameters.
+    """
+
     root: Dict[str, Union[Parameters, int, float, str]]
+    """A dictionary representing parameters as-is from parameters.txt."""
 
 
 class Aggregation(BaseModel):
-    id: UUID = Field(
-        description="The ID of this aggregation",
-        examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
-    )
-    operation: str = Field(
-        description="The aggregation performed",
-    )
-    realization_ids: List[int] = Field(
-        description="Array of realization ids included in this aggregation"
-    )
-    parameters: Optional[Parameters] = Field(
-        default=None,
-        description="Parameters for this realization",
-    )
+    """
+    The ``fmu.aggregation`` block contains information about an aggregation
+    performed over an ensemble.
+    """
+
+    id: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    """The unique identifier of an aggregation."""
+
+    operation: str
+    """A string representing the type of aggregation performed."""
+
+    realization_ids: List[int]
+    """An array of realization ids included in this aggregation."""
+
+    parameters: Optional[Parameters] = Field(default=None)
+    """Parameters for this realization. See :class:`Parameters`."""
 
 
 class Workflow(BaseModel):
-    reference: str = Field(
-        description="Reference to the part of the FMU workflow that produced this"
-    )
+    """
+    The ``fmu.workflow`` block refers to specific subworkflows within the large
+    FMU workflow being ran. This has not been standardized, mainly due to the lack of
+    programmatic access to the workflows being run in important software within FMU.
+
+    .. note:: A key usage of ``fmu.workflow.reference`` is related to ensuring
+       uniqueness of data objects.
+    """
+
+    reference: str
+    """A string referring to which workflow this data object was exported by."""
 
 
 class User(BaseModel):
-    id: str = Field(
-        examples=["peesv", "jlov"],
-        title="User ID",
-    )
+    """The ``user`` block holds information about the user."""
+
+    id: str = Field(examples=["peesv", "jriv"])
+    """A user identity reference.."""
 
 
 class Case(BaseModel):
-    """The ``fmu.case`` block contains information about the case from which this data
+    """
+    The ``fmu.case`` block contains information about the case from which this data
     object was exported.
 
     A case represent a set of iterations that belong together, either by being part of
@@ -141,8 +190,10 @@ class Case(BaseModel):
 
 
 class Iteration(BaseModel):
-    """The ``fmu.iteration`` block contains information about the iteration this data
-    object belongs to."""
+    """
+    The ``fmu.iteration`` block contains information about the iteration this data
+    object belongs to.
+    """
 
     id: Optional[int] = Field(default=None)
     """The internal identification of this iteration, typically represented by an
@@ -184,6 +235,11 @@ class Model(BaseModel):
 
 
 class RealizationJobListing(BaseModel):
+    """
+    Directly pass "jobs.json". Temporarily deactivated in fmu-dataio pending
+    further alignment with ERT.
+    """
+
     arg_types: List[str]
     argList: List[Path]
     error_file: Optional[Path]
@@ -202,8 +258,10 @@ class RealizationJobListing(BaseModel):
 
 
 class Realization(BaseModel):
-    """The ``fmu.realization`` block contains information about the realization this
-    data object belongs to."""
+    """
+    The ``fmu.realization`` block contains information about the realization this
+    data object belongs to.
+    """
 
     id: int
     """The internal ID of the realization, typically represented by an integer."""
@@ -310,64 +368,60 @@ class Masterdata(BaseModel):
     See :class:`Smda`."""
 
 
-class VersionInformation(BaseModel):
+class Version(BaseModel):
+    """
+    A generic block that contains a string representing the version of
+    something.
+    """
+
     version: str
+    """A string representing the version."""
 
 
-class SystemInformationOperatingSystem(BaseModel):
+class OperatingSystem(BaseModel):
     """
-    This model encapsulates various pieces of system-related information using Python's
-    platform module. It provides a structured way to access details about the system's
-    hardware, operating system, and interpreter version information.
+    The ``operating_system`` block contains information about the OS on which the
+    ensemble was run.
     """
 
-    hostname: str = Field(
-        title="Hostname",
-        description="The network name of the computer, possibly not fully qualified.",
-        examples=["Johns-MacBook-Pro.local"],
-    )
+    hostname: str = Field(examples=["st-123.equinor.com"])
+    """A string containing the network name of the machine."""
 
-    operating_system: str = Field(
-        title="Platform",
-        description=(
-            "A detailed string identifying the underlying platform "
-            "with as much useful information as possible."
-        ),
-        examples=["Darwin-18.7.0-x86_64-i386-64bit"],
-    )
+    operating_system: str = Field(examples=["Darwin-18.7.0-x86_64-i386-64bit"])
+    """A string containing the name of the operating system implementation."""
 
-    release: str = Field(
-        title="Release",
-        description="The system's release version, such as a version number or a name.",
-        examples=["18.7.0"],
-    )
+    release: str = Field(examples=["18.7.0"])
+    """A string containing the level of the operating system."""
 
-    system: str = Field(
-        title="System",
-        description="The name of the operating system.",
-        examples=["Darwin"],
-    )
+    system: str = Field(examples=["GNU/Linux"])
+    """A string containing the name of the operating system kernel."""
 
-    version: str = Field(
-        title="Version",
-        description="The specific release version of the system.",
-        examples=["#1 SMP Tue Aug 27 21:37:59 PDT 2019"],
-    )
+    version: str = Field(examples=["#1 SMP Tue Aug 27 21:37:59 PDT 2019"])
+    """The specific release version of the system."""
 
 
 class SystemInformation(BaseModel):
-    fmu_dataio: Optional[VersionInformation] = Field(
+    """
+    The ```sysinfo`` block contains information about the system upon which these
+    data were exported from.
+    """
+
+    fmu_dataio: Optional[Version] = Field(
         alias="fmu-dataio",
         default=None,
         examples=["1.2.3"],
     )
-    komodo: Optional[VersionInformation] = Field(
+    """The version of fmu-dataio used to export the data. See :class:`Version`."""
+
+    komodo: Optional[Version] = Field(
         default=None,
         examples=["2023.12.05-py38"],
     )
-    operating_system: Optional[SystemInformationOperatingSystem] = Field(
-        default=None,
-    )
+    """The version of Komodo in which the the ensemble was run from."""
+
+    operating_system: Optional[OperatingSystem] = Field(default=None)
+    """The operating system from which the ensemble was started from.
+    See :class:`OperatingSystem`."""
 
 
 class TracklogEvent(BaseModel):
@@ -382,23 +436,45 @@ class TracklogEvent(BaseModel):
     datetime: Union[NaiveDatetime, AwareDatetime] = Field(
         examples=["2020-10-28T14:28:02"],
     )
-    event: str = Field(
-        examples=["created", "updated", "merged"],
-    )
+    """A datetime representation recording when the event occurred."""
+
+    event: str = Field(examples=["created", "updated", "merged"])
+    """A string containing a reference to the type of event being logged."""
+
     user: User
+    """The user who caused the event to happen. See :class:`User`."""
+
     sysinfo: Optional[SystemInformation] = Field(
         default_factory=SystemInformation,
     )
+    """Information about the system on which the event occurred.
+    See :class:`SystemInformation`."""
 
 
 class Display(BaseModel):
+    """
+    The ``display`` block contains information related to how this data object
+    should/could be displayed. As a general rule, the consumer of data is responsible
+    for figuring out how a specific data object shall be displayed. However, we use
+    this block to communicate preferences from the data producers perspective.
+
+    We also maintain this block due to legacy reasons. No data filtering logic should
+    be placed on the ``display`` block.
+    """
+
     name: Optional[str] = Field(default=None)
+    """A display-friendly version of ``data.name``."""
 
 
 class Context(BaseModel):
-    """The internal FMU context in which this data object was produced"""
+    """
+    The ``fmu.context`` block contains the FMU context in which this data object
+    was produced.
+    """
 
     stage: enums.FmuContext
+    """The stage of an FMU experiment in which this data was produced.
+    See :class:`enums.FmuContext`."""
 
 
 class FMUCaseAttributes(BaseModel):
@@ -409,7 +485,12 @@ class FMUCaseAttributes(BaseModel):
     """
 
     case: Case
+    """The ``fmu.case`` block contains information about the case from which this data
+    object was exported. See :class:`Case`."""
+
     model: Model
+    """The ``fmu.model`` block contains information about the model used.
+    See :class:`Model`."""
 
 
 class FMUAttributes(FMUCaseAttributes):
@@ -420,10 +501,24 @@ class FMUAttributes(FMUCaseAttributes):
     """
 
     context: Context
+    """The ``fmu.context`` block contains the FMU context in which this data object
+    was produced. See :class:`Context`.  """
+
     iteration: Optional[Iteration] = Field(default=None)
+    """The ``fmu.iteration`` block contains information about the iteration this data
+    object belongs to. See :class:`Iteration`. """
+
     workflow: Optional[Workflow] = Field(default=None)
+    """The ``fmu.workflow`` block refers to specific subworkflows within the large
+    FMU workflow being ran. See :class:`Workflow`."""
+
     aggregation: Optional[Aggregation] = Field(default=None)
+    """The ``fmu.aggregation`` block contains information about an aggregation
+    performed over an ensemble. See :class:`Aggregation`."""
+
     realization: Optional[Realization] = Field(default=None)
+    """The ``fmu.realization`` block contains information about the realization this
+    data object belongs to. See :class:`Realization`."""
 
     @model_validator(mode="before")
     @classmethod
@@ -490,12 +585,15 @@ class CaseMetadata(MetadataBase):
         alias="class",
         title="metadata_class",
     )
+    """The class of this metadata object. In this case, always an FMU case."""
 
     fmu: FMUCaseAttributes
     """The ``fmu`` block contains all attributes specific to FMU.
     See :class:`FMUCaseAttributes`."""
 
     access: Access
+    """The ``access`` block contains information related to access control for
+    this data object. See :class:`Access`."""
 
 
 class ObjectMetadata(MetadataBase):
@@ -515,15 +613,28 @@ class ObjectMetadata(MetadataBase):
         alias="class",
         title="metadata_class",
     )
+    """The class of the data object being exported and described by the metadata
+    contained herein."""
 
     fmu: FMUAttributes
     """The ``fmu`` block contains all attributes specific to FMU.
     See :class:`FMUAttributes`."""
 
     access: SsdlAccess
+    """The ``access`` block contains information related to access control for
+    this data object. See :class:`SsdlAccess`."""
+
     data: content.AnyContent
+    """The ``data`` block contains information about the data contains in this
+    object. See :class:`content.AnyContent`."""
+
     file: File
+    """ The ``file`` block contains references to this data object as a file on a disk.
+    See :class:`File`."""
+
     display: Display
+    """ The ``display`` block contains information related to how this data object
+    should/could be displayed. See :class:`Display`."""
 
 
 class Root(

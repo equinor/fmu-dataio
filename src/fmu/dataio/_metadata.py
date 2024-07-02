@@ -42,11 +42,11 @@ def generate_meta_tracklog(
             event=event,
             user=meta.User.model_construct(id=getpass.getuser()),
             sysinfo=meta.SystemInformation.model_construct(
-                fmu_dataio=meta.VersionInformation.model_construct(version=__version__),
-                komodo=meta.VersionInformation.model_construct(version=kr)
+                fmu_dataio=meta.Version.model_construct(version=__version__),
+                komodo=meta.Version.model_construct(version=kr)
                 if (kr := os.environ.get("KOMODO_RELEASE"))
                 else None,
-                operating_system=meta.SystemInformationOperatingSystem.model_construct(
+                operating_system=meta.OperatingSystem.model_construct(
                     hostname=platform.node(),
                     operating_system=platform.platform(),
                     release=platform.release(),
