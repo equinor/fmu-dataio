@@ -117,7 +117,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             warnings.warn(exists_warning, UserWarning)
             return {}
 
-        case_meta = internal.CaseSchema(
+        self._metadata = internal.CaseSchema(
             masterdata=meta.Masterdata.model_validate(self.config["masterdata"]),
             access=meta.Access.model_validate(self.config["access"]),
             fmu=internal.FMUModelCase(
@@ -139,9 +139,6 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             by_alias=True,
         )
 
-        self._metadata = _utils.drop_nones(case_meta)
-
-        logger.info("The case metadata are now ready!")
         return copy.deepcopy(self._metadata)
 
     def export(self) -> str:
