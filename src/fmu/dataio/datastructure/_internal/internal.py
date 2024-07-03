@@ -117,7 +117,7 @@ class Context(BaseModel, use_enum_values=True):
 
 
 # Remove the two models below when content is required as input.
-class UnsetContent(meta.content.Content):
+class UnsetContent(meta.content.Data):
     content: Literal["unset"]  # type: ignore
 
     @model_validator(mode="after")
@@ -133,7 +133,7 @@ class UnsetContent(meta.content.Content):
         return self
 
 
-class UnsetAnyContent(meta.content.AnyContent):
+class UnsetAnyContent(meta.content.AnyData):
     root: UnsetContent  # type: ignore
 
 
@@ -160,7 +160,7 @@ class DataClassMeta(JsonSchemaMetadata):
     fmu: Optional[FMUClassMetaData]
     masterdata: Optional[meta.Masterdata]
     access: Optional[meta.SsdlAccess]
-    data: Union[meta.content.AnyContent, UnsetAnyContent]
+    data: Union[meta.content.AnyData, UnsetAnyContent]
     file: meta.File
     display: meta.Display
     tracklog: List[meta.TracklogEvent]

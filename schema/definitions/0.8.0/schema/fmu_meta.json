@@ -106,7 +106,7 @@
       "title": "Aggregation",
       "type": "object"
     },
-    "AnyContent": {
+    "AnyData": {
       "dependencies": {
         "base": {
           "required": [
@@ -119,90 +119,91 @@
           ]
         }
       },
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class, ``AnyData``, is a root model that allows for data with more specific\ncontent types to be placed within it. It can contain the metadata for any data\nobject.\n\nSee :class:`Data` to get an overview of all of the subfields used in the ``data``\nblock. Between the different content types, only the ``data.content`` field will\ndiffer. This field indicates the type of content the data are representing.",
       "discriminator": {
         "propertyName": "content"
       },
       "oneOf": [
         {
-          "$ref": "#/$defs/DepthContent"
+          "$ref": "#/$defs/DepthData"
         },
         {
-          "$ref": "#/$defs/FaciesThicknessContent"
+          "$ref": "#/$defs/FaciesThicknessData"
         },
         {
-          "$ref": "#/$defs/FaultLinesContent"
+          "$ref": "#/$defs/FaultLinesData"
         },
         {
-          "$ref": "#/$defs/FieldOutlineContent"
+          "$ref": "#/$defs/FieldOutlineData"
         },
         {
-          "$ref": "#/$defs/FieldRegionContent"
+          "$ref": "#/$defs/FieldRegionData"
         },
         {
-          "$ref": "#/$defs/FluidContactContent"
+          "$ref": "#/$defs/FluidContactData"
         },
         {
-          "$ref": "#/$defs/KPProductContent"
+          "$ref": "#/$defs/KPProductData"
         },
         {
-          "$ref": "#/$defs/LiftCurvesContent"
+          "$ref": "#/$defs/LiftCurvesData"
         },
         {
-          "$ref": "#/$defs/NamedAreaContent"
+          "$ref": "#/$defs/NamedAreaData"
         },
         {
-          "$ref": "#/$defs/ParametersContent"
+          "$ref": "#/$defs/ParametersData"
         },
         {
-          "$ref": "#/$defs/PinchoutContent"
+          "$ref": "#/$defs/PinchoutData"
         },
         {
-          "$ref": "#/$defs/PropertyContent"
+          "$ref": "#/$defs/PropertyData"
         },
         {
-          "$ref": "#/$defs/FaultPropertiesContent"
+          "$ref": "#/$defs/FaultPropertiesData"
         },
         {
-          "$ref": "#/$defs/PVTContent"
+          "$ref": "#/$defs/PVTData"
         },
         {
-          "$ref": "#/$defs/RegionsContent"
+          "$ref": "#/$defs/RegionsData"
         },
         {
-          "$ref": "#/$defs/RelpermContent"
+          "$ref": "#/$defs/RelpermData"
         },
         {
-          "$ref": "#/$defs/RFTContent"
+          "$ref": "#/$defs/RFTData"
         },
         {
-          "$ref": "#/$defs/SeismicContent"
+          "$ref": "#/$defs/SeismicData"
         },
         {
-          "$ref": "#/$defs/SubcropContent"
+          "$ref": "#/$defs/SubcropData"
         },
         {
-          "$ref": "#/$defs/ThicknessContent"
+          "$ref": "#/$defs/ThicknessData"
         },
         {
-          "$ref": "#/$defs/TimeContent"
+          "$ref": "#/$defs/TimeData"
         },
         {
-          "$ref": "#/$defs/TimeSeriesContent"
+          "$ref": "#/$defs/TimeSeriesData"
         },
         {
-          "$ref": "#/$defs/VelocityContent"
+          "$ref": "#/$defs/VelocityData"
         },
         {
-          "$ref": "#/$defs/VolumesContent"
+          "$ref": "#/$defs/VolumesData"
         },
         {
-          "$ref": "#/$defs/WellPicksContent"
+          "$ref": "#/$defs/WellPicksData"
         }
       ],
-      "title": "AnyContent"
+      "title": "AnyData"
     },
     "Asset": {
-      "description": "A block containing information about the owner asset of these data.",
+      "description": "The ``access.asset`` block contains information about the owner asset of\nthese data.",
       "properties": {
         "name": {
           "examples": [
@@ -506,7 +507,7 @@
       "type": "object"
     },
     "CoordinateSystem": {
-      "description": "Reference to coordinate system known to SMDA.",
+      "description": "The ``masterdata.smda.coordinate_system`` block contains the coordinate\nsystem known to SMDA.",
       "properties": {
         "identifier": {
           "examples": [
@@ -532,7 +533,7 @@
       "type": "object"
     },
     "CountryItem": {
-      "description": "Reference to a country known to SMDA.",
+      "description": "A single country in the ``smda.masterdata.country`` list of countries\nknown to SMDA.",
       "properties": {
         "identifier": {
           "examples": [
@@ -650,7 +651,8 @@
       "title": "CubeSpecification",
       "type": "object"
     },
-    "DepthContent": {
+    "DepthData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for depth type.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -751,11 +753,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -774,7 +776,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -820,7 +821,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -852,7 +852,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -871,7 +870,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -910,7 +908,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -936,25 +933,26 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
         "is_prediction",
-        "name",
-        "stratigraphic",
         "depth_reference"
       ],
-      "title": "DepthContent",
+      "title": "DepthData",
       "type": "object"
     },
     "DiscoveryItem": {
-      "description": "Reference to a discovery known to SMDA.",
+      "description": "A single discovery in the ``masterdata.smda.discovery`` list of discoveries\nknown to SMDA.",
       "properties": {
         "short_identifier": {
           "examples": [
@@ -1096,47 +1094,8 @@
       "title": "FMUCaseAttributes",
       "type": "object"
     },
-    "FMUTimeObject": {
-      "description": "Time stamp for data object.",
-      "properties": {
-        "label": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "examples": [
-            "base",
-            "monitor",
-            "mylabel"
-          ],
-          "title": "Label"
-        },
-        "value": {
-          "anyOf": [
-            {
-              "format": "date-time",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "examples": [
-            "2020-10-28T14:28:02"
-          ],
-          "title": "Value"
-        }
-      },
-      "title": "FMUTimeObject",
-      "type": "object"
-    },
-    "FaciesThicknessContent": {
+    "FaciesThicknessData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for facies thickness.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -1228,11 +1187,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -1251,7 +1210,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -1297,7 +1255,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -1329,7 +1286,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -1348,7 +1304,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -1387,7 +1342,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -1413,23 +1367,25 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "FaciesThicknessContent",
+      "title": "FaciesThicknessData",
       "type": "object"
     },
-    "FaultLinesContent": {
+    "FaultLinesData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for fault lines.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -1521,11 +1477,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -1544,7 +1500,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -1590,7 +1545,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -1622,7 +1576,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -1641,7 +1594,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -1680,7 +1632,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -1706,23 +1657,25 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "FaultLinesContent",
+      "title": "FaultLinesData",
       "type": "object"
     },
-    "FaultPropertiesContent": {
+    "FaultPropertiesData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for fault properties.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -1814,11 +1767,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -1837,7 +1790,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -1883,7 +1835,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -1915,7 +1866,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -1934,7 +1884,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -1973,7 +1922,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -1999,20 +1947,21 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "FaultPropertiesContent",
+      "title": "FaultPropertiesData",
       "type": "object"
     },
     "FaultRoomSurfaceSpecification": {
@@ -2076,7 +2025,7 @@
       "type": "object"
     },
     "FieldItem": {
-      "description": "Reference to a field known to SMDA.",
+      "description": "A single field in the ``masterdata.smda.field`` list of fields\nknown to SMDA.",
       "properties": {
         "identifier": {
           "examples": [
@@ -2115,7 +2064,8 @@
       "title": "FieldOutline",
       "type": "object"
     },
-    "FieldOutlineContent": {
+    "FieldOutlineData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for field outlines.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -2210,11 +2160,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -2233,7 +2183,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -2279,7 +2228,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -2311,7 +2259,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -2330,7 +2277,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -2369,7 +2315,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -2395,21 +2340,22 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
         "is_prediction",
-        "name",
-        "stratigraphic",
         "field_outline"
       ],
-      "title": "FieldOutlineContent",
+      "title": "FieldOutlineData",
       "type": "object"
     },
     "FieldRegion": {
@@ -2427,7 +2373,8 @@
       "title": "FieldRegion",
       "type": "object"
     },
-    "FieldRegionContent": {
+    "FieldRegionData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for field regions.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -2522,11 +2469,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -2545,7 +2492,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -2591,7 +2537,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -2623,7 +2568,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -2642,7 +2586,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -2681,7 +2624,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -2707,21 +2649,22 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
         "is_prediction",
-        "name",
-        "stratigraphic",
         "field_region"
       ],
-      "title": "FieldRegionContent",
+      "title": "FieldRegionData",
       "type": "object"
     },
     "File": {
@@ -2836,7 +2779,8 @@
       "title": "FluidContact",
       "type": "object"
     },
-    "FluidContactContent": {
+    "FluidContactData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for fluid contacts.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -2931,11 +2875,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -2954,7 +2898,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -3000,7 +2943,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -3032,7 +2974,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -3051,7 +2992,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -3090,7 +3030,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -3116,21 +3055,22 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
         "is_prediction",
-        "name",
-        "stratigraphic",
         "fluid_contact"
       ],
-      "title": "FluidContactContent",
+      "title": "FluidContactData",
       "type": "object"
     },
     "FmuContext": {
@@ -3236,7 +3176,8 @@
       "title": "Iteration",
       "type": "object"
     },
-    "KPProductContent": {
+    "KPProductData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for KP products.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -3328,11 +3269,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -3351,7 +3292,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -3397,7 +3337,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -3429,7 +3368,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -3448,7 +3386,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -3487,7 +3424,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -3513,26 +3449,27 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "KPProductContent",
+      "title": "KPProductData",
       "type": "object"
     },
     "Layer": {
+      "description": "Used to represent a layer, i.e. top or bottom, of a given stratigraphic\ninterval.",
       "properties": {
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -3546,7 +3483,6 @@
         },
         "stratigraphic": {
           "default": false,
-          "description": "True if data object represents an entity in the stratigraphic colum",
           "title": "Stratigraphic",
           "type": "boolean"
         }
@@ -3569,7 +3505,8 @@
       "title": "Layout",
       "type": "string"
     },
-    "LiftCurvesContent": {
+    "LiftCurvesData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for lift curves.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -3661,11 +3598,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -3684,7 +3621,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -3730,7 +3666,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -3762,7 +3697,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -3781,7 +3715,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -3820,7 +3753,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -3846,24 +3778,25 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "LiftCurvesContent",
+      "title": "LiftCurvesData",
       "type": "object"
     },
     "Masterdata": {
-      "description": "The ``masterdata`` block contains information related to masterdata.\nCurrently, smda holds the masterdata.",
+      "description": "The ``masterdata`` block contains information related to masterdata.\nCurrently, SMDA holds the masterdata.",
       "properties": {
         "smda": {
           "$ref": "#/$defs/Smda"
@@ -3915,7 +3848,8 @@
       "title": "Model",
       "type": "object"
     },
-    "NamedAreaContent": {
+    "NamedAreaData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for named areas.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -4007,11 +3941,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -4030,7 +3964,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -4076,7 +4009,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -4108,7 +4040,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -4127,7 +4058,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -4166,7 +4096,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -4192,20 +4121,21 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "NamedAreaContent",
+      "title": "NamedAreaData",
       "type": "object"
     },
     "ObjectMetadata": {
@@ -4230,7 +4160,7 @@
           "type": "string"
         },
         "data": {
-          "$ref": "#/$defs/AnyContent"
+          "$ref": "#/$defs/AnyData"
         },
         "display": {
           "$ref": "#/$defs/Display"
@@ -4324,7 +4254,8 @@
       "title": "OperatingSystem",
       "type": "object"
     },
-    "PVTContent": {
+    "PVTData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for pvt data.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -4416,11 +4347,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -4439,7 +4370,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -4485,7 +4415,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -4517,7 +4446,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -4536,7 +4464,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -4575,7 +4502,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -4601,20 +4527,21 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "PVTContent",
+      "title": "PVTData",
       "type": "object"
     },
     "Parameters": {
@@ -4638,7 +4565,8 @@
       "title": "Parameters",
       "type": "object"
     },
-    "ParametersContent": {
+    "ParametersData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for parameters.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -4730,11 +4658,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -4753,7 +4681,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -4799,7 +4726,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -4831,7 +4757,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -4850,7 +4775,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -4889,7 +4813,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -4915,23 +4838,25 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "ParametersContent",
+      "title": "ParametersData",
       "type": "object"
     },
-    "PinchoutContent": {
+    "PinchoutData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for pinchouts.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -5023,11 +4948,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -5046,7 +4971,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -5092,7 +5016,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -5124,7 +5047,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -5143,7 +5065,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -5182,7 +5103,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -5208,20 +5128,21 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "PinchoutContent",
+      "title": "PinchoutData",
       "type": "object"
     },
     "PointSpecification": {
@@ -5274,7 +5195,8 @@
       "title": "PolygonsSpecification",
       "type": "object"
     },
-    "PropertyContent": {
+    "PropertyData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for property data.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -5366,11 +5288,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -5389,7 +5311,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -5435,7 +5356,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -5467,7 +5387,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -5486,7 +5405,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -5525,7 +5443,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -5551,23 +5468,25 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "PropertyContent",
+      "title": "PropertyData",
       "type": "object"
     },
-    "RFTContent": {
+    "RFTData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for rft data.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -5659,11 +5578,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -5682,7 +5601,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -5728,7 +5646,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -5760,7 +5677,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -5779,7 +5695,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -5818,7 +5733,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -5844,20 +5758,21 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "RFTContent",
+      "title": "RFTData",
       "type": "object"
     },
     "Realization": {
@@ -5912,7 +5827,8 @@
       "title": "Realization",
       "type": "object"
     },
-    "RegionsContent": {
+    "RegionsData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for regions.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -6004,11 +5920,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -6027,7 +5943,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -6073,7 +5988,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -6105,7 +6019,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -6124,7 +6037,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -6163,7 +6075,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -6189,23 +6100,25 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "RegionsContent",
+      "title": "RegionsData",
       "type": "object"
     },
-    "RelpermContent": {
+    "RelpermData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for relperm.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -6297,11 +6210,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -6320,7 +6233,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -6366,7 +6278,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -6398,7 +6309,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -6417,7 +6327,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -6456,7 +6365,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -6482,20 +6390,21 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "RelpermContent",
+      "title": "RelpermData",
       "type": "object"
     },
     "Seismic": {
@@ -6586,7 +6495,8 @@
       "title": "Seismic",
       "type": "object"
     },
-    "SeismicContent": {
+    "SeismicData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for seismics.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -6678,11 +6588,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -6701,7 +6611,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -6750,7 +6659,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -6782,7 +6690,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -6801,7 +6708,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -6840,7 +6746,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -6866,25 +6771,26 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
         "is_prediction",
-        "name",
-        "stratigraphic",
         "seismic"
       ],
-      "title": "SeismicContent",
+      "title": "SeismicData",
       "type": "object"
     },
     "Smda": {
-      "description": "Block containing SMDA-related attributes.",
+      "description": "The ``masterdata.smda`` block contains SMDA-related attributes.",
       "properties": {
         "coordinate_system": {
           "$ref": "#/$defs/CoordinateSystem"
@@ -6925,7 +6831,7 @@
       "type": "object"
     },
     "Ssdl": {
-      "description": "A block containing information related to SSDL. Note that this is kept due to\nlegacy.",
+      "description": "The ``access.ssdl`` block contains information related to SSDL.\nNote that this is kept due to legacy.",
       "properties": {
         "access_level": {
           "$ref": "#/$defs/Classification"
@@ -6943,7 +6849,7 @@
       "type": "object"
     },
     "SsdlAccess": {
-      "description": "The ``access`` block contains information related to access control for\nthis data object, with legacy SSDL settings..",
+      "description": "The ``access`` block contains information related to access control for\nthis data object, with legacy SSDL settings.",
       "properties": {
         "asset": {
           "$ref": "#/$defs/Asset"
@@ -6971,7 +6877,7 @@
       "type": "object"
     },
     "StratigraphicColumn": {
-      "description": "Reference to stratigraphic column known to SMDA.",
+      "description": "The ``masterdata.smda.stratigraphic_column`` block contains the\nstratigraphic column known to SMDA.",
       "properties": {
         "identifier": {
           "examples": [
@@ -6996,7 +6902,8 @@
       "title": "StratigraphicColumn",
       "type": "object"
     },
-    "SubcropContent": {
+    "SubcropData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for subcrops.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -7088,11 +6995,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -7111,7 +7018,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -7157,7 +7063,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -7189,7 +7094,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -7208,7 +7112,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -7247,7 +7150,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -7273,20 +7175,21 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "SubcropContent",
+      "title": "SubcropData",
       "type": "object"
     },
     "SurfaceSpecification": {
@@ -7356,7 +7259,7 @@
       "type": "object"
     },
     "SystemInformation": {
-      "description": "The ```sysinfo`` block contains information about the system upon which these\ndata were exported from.",
+      "description": "The ``tracklog.sysinfo`` block contains information about the system upon which\nthese data were exported from.",
       "properties": {
         "fmu-dataio": {
           "anyOf": [
@@ -7429,7 +7332,8 @@
       "title": "TableSpecification",
       "type": "object"
     },
-    "ThicknessContent": {
+    "ThicknessData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for thickness.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -7521,11 +7425,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -7544,7 +7448,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -7590,7 +7493,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -7622,7 +7524,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -7641,7 +7542,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -7680,7 +7580,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -7706,20 +7605,21 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "ThicknessContent",
+      "title": "ThicknessData",
       "type": "object"
     },
     "Time": {
@@ -7727,7 +7627,7 @@
         "t0": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FMUTimeObject"
+              "$ref": "#/$defs/Timestamp"
             },
             {
               "type": "null"
@@ -7738,7 +7638,7 @@
         "t1": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FMUTimeObject"
+              "$ref": "#/$defs/Timestamp"
             },
             {
               "type": "null"
@@ -7750,7 +7650,8 @@
       "title": "Time",
       "type": "object"
     },
-    "TimeContent": {
+    "TimeData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for time.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -7842,11 +7743,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -7865,7 +7766,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -7911,7 +7811,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -7943,7 +7842,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -7962,7 +7860,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -8001,7 +7898,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -8027,23 +7923,25 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "TimeContent",
+      "title": "TimeData",
       "type": "object"
     },
-    "TimeSeriesContent": {
+    "TimeSeriesData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for time series.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -8135,11 +8033,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -8158,7 +8056,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -8204,7 +8101,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -8236,7 +8132,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -8255,7 +8150,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -8294,7 +8188,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -8320,20 +8213,61 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "TimeSeriesContent",
+      "title": "TimeSeriesData",
+      "type": "object"
+    },
+    "Timestamp": {
+      "description": "Time stamp for data object.",
+      "properties": {
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "base",
+            "monitor",
+            "mylabel"
+          ],
+          "title": "Label"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "2020-10-28T14:28:02"
+          ],
+          "title": "Value"
+        }
+      },
+      "title": "Timestamp",
       "type": "object"
     },
     "TracklogEvent": {
@@ -8396,7 +8330,8 @@
       "title": "User",
       "type": "object"
     },
-    "VelocityContent": {
+    "VelocityData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for velocities.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -8488,11 +8423,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -8511,7 +8446,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -8557,7 +8491,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -8589,7 +8522,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -8608,7 +8540,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -8647,7 +8578,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -8673,20 +8603,21 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "VelocityContent",
+      "title": "VelocityData",
       "type": "object"
     },
     "Version": {
@@ -8703,7 +8634,8 @@
       "title": "Version",
       "type": "object"
     },
-    "VolumesContent": {
+    "VolumesData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for volumes.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -8795,11 +8727,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -8818,7 +8750,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -8864,7 +8795,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -8896,7 +8826,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -8915,7 +8844,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -8954,7 +8882,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -8980,23 +8907,25 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "VolumesContent",
+      "title": "VolumesData",
       "type": "object"
     },
-    "WellPicksContent": {
+    "WellPicksData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for well picks.",
       "properties": {
         "alias": {
           "anyOf": [
@@ -9088,11 +9017,11 @@
           "default": null
         },
         "is_observation": {
-          "title": "Is observation flag",
+          "title": "Is Observation",
           "type": "boolean"
         },
         "is_prediction": {
-          "title": "Is prediction flag",
+          "title": "Is Prediction",
           "type": "boolean"
         },
         "layout": {
@@ -9111,7 +9040,6 @@
           ]
         },
         "name": {
-          "description": "Name of the data object. If stratigraphic, match the entry in the stratigraphic column",
           "examples": [
             "VIKING GP. Top"
           ],
@@ -9157,7 +9085,6 @@
           "title": "Spec"
         },
         "stratigraphic": {
-          "description": "True if data object represents an entity in the stratigraphic column",
           "title": "Stratigraphic",
           "type": "boolean"
         },
@@ -9189,7 +9116,6 @@
             }
           ],
           "default": null,
-          "description": "Column names in the table which can be used for indexing",
           "examples": [
             [
               "ZONE",
@@ -9208,7 +9134,6 @@
             }
           ],
           "default": null,
-          "description": "A semi-human readable tag for internal usage and uniqueness",
           "examples": [
             "ds_extract_geogrid",
             "ds_post_strucmod"
@@ -9247,7 +9172,6 @@
             }
           ],
           "default": null,
-          "description": "Flag if undefined values are to be interpreted as zero",
           "title": "Undef Is Zero"
         },
         "unit": {
@@ -9273,20 +9197,21 @@
           ],
           "default": null,
           "examples": [
-            "depth"
+            "depth",
+            "time"
           ],
           "title": "Vertical Domain"
         }
       },
       "required": [
         "content",
+        "name",
+        "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction",
-        "name",
-        "stratigraphic"
+        "is_prediction"
       ],
-      "title": "WellPicksContent",
+      "title": "WellPicksData",
       "type": "object"
     },
     "Workflow": {

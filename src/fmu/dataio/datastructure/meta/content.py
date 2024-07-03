@@ -19,7 +19,7 @@ from typing_extensions import Annotated
 from . import enums, specification
 
 
-class FMUTimeObject(BaseModel):
+class Timestamp(BaseModel):
     """
     Time stamp for data object.
     """
@@ -35,8 +35,8 @@ class FMUTimeObject(BaseModel):
 
 
 class Time(BaseModel):
-    t0: Optional[FMUTimeObject] = None
-    t1: Optional[FMUTimeObject] = None
+    t0: Optional[Timestamp] = None
+    t1: Optional[Timestamp] = None
 
 
 class Seismic(BaseModel):
@@ -121,23 +121,20 @@ class GridModel(BaseModel):
 
 
 class Layer(BaseModel):
-    name: str = Field(
-        description=(
-            "Name of the data object. If stratigraphic, "
-            "match the entry in the stratigraphic column"
-        ),
-        examples=["VIKING GP. Top"],
-    )
-    offset: float = Field(
-        allow_inf_nan=False,
-        default=0,
-    )
-    stratigraphic: bool = Field(
-        default=False,
-        description=(
-            "True if data object represents an entity in the stratigraphic colum"
-        ),
-    )
+    """Used to represent a layer, i.e. top or bottom, of a given stratigraphic
+    interval."""
+
+    name: str = Field(examples=["VIKING GP. Top"])
+    """This is the identifying name of this data object. For surfaces, this is typically
+    the horizon name or similar. Shall be compliant with the stratigraphic column if
+    applicable."""
+
+    offset: float = Field(allow_inf_nan=False, default=0)
+    """If a specific horizon is represented with an offset, e.g.
+    "2 m below Top Volantis"."""
+
+    stratigraphic: bool = Field(default=False)
+    """True if this is defined in the stratigraphic column."""
 
 
 class BoundingBox2D(BaseModel):
@@ -180,228 +177,435 @@ class BoundingBox3D(BoundingBox2D):
     )
 
 
-class Content(BaseModel):
-    content: enums.ContentEnum = Field(description="The contents of this data object")
+class Data(BaseModel):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class is derived from for more specific content types that are discriminated
+    upon by the ``data.content`` field.
+    """
+
+    content: enums.ContentEnum
+    """The type of content these data represent."""
+
+    name: str = Field(examples=["VIKING GP. Top"])
+    """This is the identifying name of this data object. For surfaces, this is typically
+    the horizon name or similar. Shall be compliant with the stratigraphic column if
+    applicable.
+    """
 
     alias: Optional[List[str]] = Field(default=None)
+    """Other known-as names for ``data.name``. Typically names used within specific
+    software, e.g. RMS and others."""
 
-    # only relevant for grid properties
-    geometry: Optional[Geometry] = Field(default=None)
-
-    # Only valid for coordinate based meta.
-    bbox: Optional[Union[BoundingBox3D, BoundingBox2D]] = Field(default=None)
-
-    description: Optional[List[str]] = Field(
+    tagname: Optional[str] = Field(
         default=None,
+        examples=["ds_extract_geogrid", "ds_post_strucmod"],
     )
-    format: str = Field(
-        examples=["irap_binary"],
-    )
+    """An identifier for this/these data object(s). Similar to the second part of the
+    generated filename in disk-oriented FMU data standard.
+
+    You should avoid using tagname as metadata in queries since its value is free-form.
+    The intention with tagname is mostly backward compatibility with legacy scratch-file
+    naming rules in FMU.
+    """
+
+    stratigraphic_alias: Optional[List[str]] = Field(default=None)
+    """A list of strings representing stratigraphic aliases for this ``data.name``. E.g.
+    the top of the uppermost member of a formation will be alias to the top of the
+    formation."""
+
+    stratigraphic: bool
+    """True if this is defined in the stratigraphic column."""
+
+    description: Optional[List[str]] = Field(default=None)
+    """A list of strings, freetext description of this data, if applicable."""
+
+    geometry: Optional[Geometry] = Field(default=None)
+    """The geometry of the object, i.e. the grid that an object representing a grid
+    property is derivative of. See :class:`Geometry`."""
+
+    bbox: Optional[Union[BoundingBox3D, BoundingBox2D]] = Field(default=None)
+    """A block containing the bounding box for this data. Only applicable if the
+    object is coordinate-based. See :class:`BoundingBox3D` and :class:`BoudingBox2D`."""
+
+    format: str = Field(examples=["irap_binary"])
+    """A reference to a known file format."""
+
     grid_model: Optional[GridModel] = Field(default=None)
-    is_observation: bool = Field(
-        title="Is observation flag",
-    )
-    is_prediction: bool = Field(
-        title="Is prediction flag",
-    )
+    """A block containing information pertaining to grid model content.
+    See :class:`GridModel`.
+    .. warning:: This has currently no function and is likely to be deprecated."""
+
+    is_observation: bool
+    """True if this is an observation."""
+
+    is_prediction: bool
+    """True if this is a prediction."""
+
     layout: Optional[enums.Layout] = Field(
         default=None,
         examples=["regular", "cornerpoint"],
     )
-    name: str = Field(
-        description=(
-            "Name of the data object. If stratigraphic, "
-            "match the entry in the stratigraphic column"
-        ),
-        examples=["VIKING GP. Top"],
-    )
-    offset: float = Field(
-        default=0.0,
-        allow_inf_nan=False,
-    )
-    spec: Optional[specification.AnySpecification] = Field(default=None)
-    stratigraphic_alias: Optional[List[str]] = Field(default=None)
-    stratigraphic: bool = Field(
-        description=(
-            "True if data object represents an entity in the stratigraphic column"
-        ),
-    )
-    tagname: Optional[str] = Field(
-        default=None,
-        description="A semi-human readable tag for internal usage and uniqueness",
-        examples=["ds_extract_geogrid", "ds_post_strucmod"],
-    )
-    time: Optional[Time] = Field(default=None)
+    """A reference to the layout of the data object. See :class:`enums.Layout`."""
 
-    undef_is_zero: Optional[bool] = Field(
-        default=None,
-        description="Flag if undefined values are to be interpreted as zero",
-    )
-    unit: str = Field(
-        default="",
-        examples=["m"],
-    )
+    offset: float = Field(default=0.0, allow_inf_nan=False)
+    """If a specific horizon is represented with an offset, e.g.
+    "2 m below Top Volantis"."""
+
+    spec: Optional[specification.AnySpecification] = Field(default=None)
+    """A block containing the specs for this object, if applicable.
+    See :class:`specification.AnySpecification`."""
+
+    time: Optional[Time] = Field(default=None)
+    """A block containing lists of objects describing timestamp information for this
+    data object, if applicable, like Flow simulator restart dates, or dates for seismic
+    4D surveys.  See :class:`Time`.
+    .. note:: ``data.time`` items can currently hold a maximum of two values."""
+
+    undef_is_zero: Optional[bool] = Field(default=None)
+    """Flag if undefined values are to be interpreted as zero"""
+
+    unit: str = Field(default="", examples=["m"])
+    """A reference to a known unit."""
+
     vertical_domain: Optional[Literal["depth", "time"]] = Field(
         default=None,
-        examples=["depth"],
+        examples=["depth", "time"],
     )
-    # Only valid for contents with class table
+    """A reference to a known vertical domain."""
+
     table_index: Optional[List[str]] = Field(
         default=None,
-        description="Column names in the table which can be used for indexing",
         examples=[["ZONE", "REGION"]],
     )
+    """Column names in the table which can be used for indexing. Only applicable if the
+    data object is a table."""
 
-    # Both must be set, or none.
     base: Optional[Layer] = None
+    """If the data represent an interval, this field can be used to represent its base.
+    See :class:`Layer`.
+    .. note:: ``top`` is required to use with this."""
+
     top: Optional[Layer] = None
+    """If the data represent an interval, this field can be used to represent its top.
+    See :class:`Layer`.
+    .. note:: ``base`` is required to use with this."""
 
 
-class DepthContent(Content):
+class DepthData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for depth type.
+    """
+
     content: Literal[enums.ContentEnum.depth]
+    """The type of content these data represent."""
+
     depth_reference: Literal["msl", "sb", "rkb"]
+    """A reference to a known depth reference."""
 
 
-class FaciesThicknessContent(Content):
+class FaciesThicknessData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for facies thickness.
+    """
+
     content: Literal[enums.ContentEnum.facies_thickness]
+    """The type of content these data represent."""
 
 
-class FaultLinesContent(Content):
+class FaultLinesData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for fault lines.
+    """
+
     content: Literal[enums.ContentEnum.fault_lines]
+    """The type of content these data represent."""
 
 
-class FaultPropertiesContent(Content):
+class FaultPropertiesData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for fault properties.
+    """
+
     content: Literal[enums.ContentEnum.fault_properties]
+    """The type of content these data represent."""
 
 
-class FieldOutlineContent(Content):
+class FieldOutlineData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for field outlines.
+    """
+
     content: Literal[enums.ContentEnum.field_outline]
-    field_outline: FieldOutline = Field(
-        description="Conditional field",
-    )
+    """The type of content these data represent."""
+
+    field_outline: FieldOutline
+    """A block describing a field outline. See :class:`FieldOutline`."""
 
 
-class FieldRegionContent(Content):
+class FieldRegionData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for field regions.
+    """
+
     content: Literal[enums.ContentEnum.field_region]
-    field_region: FieldRegion = Field(
-        description="Conditional field",
-    )
+    """The type of content these data represent."""
+
+    field_region: FieldRegion
+    """A block describing a field region. See :class:`FieldRegion`."""
 
 
-class FluidContactContent(Content):
+class FluidContactData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for fluid contacts.
+    """
+
     content: Literal[enums.ContentEnum.fluid_contact]
-    fluid_contact: FluidContact = Field(
-        description="Conditional field",
-    )
+    """The type of content these data represent."""
+
+    fluid_contact: FluidContact
+    """A block describing a fluid contact. See :class:`FluidContact`."""
 
 
-class KPProductContent(Content):
+class KPProductData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for KP products.
+    """
+
     content: Literal[enums.ContentEnum.khproduct]
+    """The type of content these data represent."""
 
 
-class LiftCurvesContent(Content):
+class LiftCurvesData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for lift curves.
+    """
+
     content: Literal[enums.ContentEnum.lift_curves]
+    """The type of content these data represent."""
 
 
-class NamedAreaContent(Content):
+class NamedAreaData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for named areas.
+    """
+
     content: Literal[enums.ContentEnum.named_area]
+    """The type of content these data represent."""
 
 
-class ParametersContent(Content):
+class ParametersData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for parameters.
+    """
+
     content: Literal[enums.ContentEnum.parameters]
+    """The type of content these data represent."""
 
 
-class PinchoutContent(Content):
+class PinchoutData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for pinchouts.
+    """
+
     content: Literal[enums.ContentEnum.pinchout]
+    """The type of content these data represent."""
 
 
-class PropertyContent(Content):
+class PropertyData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for property data.
+    """
+
     content: Literal[enums.ContentEnum.property]
+    """The type of content these data represent."""
 
 
-class PVTContent(Content):
+class PVTData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for pvt data.
+    """
+
     content: Literal[enums.ContentEnum.pvt]
+    """The type of content these data represent."""
 
 
-class RegionsContent(Content):
+class RegionsData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for regions.
+    """
+
     content: Literal[enums.ContentEnum.regions]
+    """The type of content these data represent."""
 
 
-class RelpermContent(Content):
+class RelpermData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for relperm.
+    """
+
     content: Literal[enums.ContentEnum.relperm]
+    """The type of content these data represent."""
 
 
-class RFTContent(Content):
+class RFTData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for rft data.
+    """
+
     content: Literal[enums.ContentEnum.rft]
+    """The type of content these data represent."""
 
 
-class SeismicContent(Content):
+class SeismicData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for seismics.
+    """
+
     content: Literal[enums.ContentEnum.seismic]
-    seismic: Seismic = Field(
-        description="Conditional field",
-    )
+    """The type of content these data represent."""
+
+    seismic: Seismic
+    """A block describing seismic data. See :class:`Seismic`."""
 
 
-class SubcropContent(Content):
+class SubcropData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for subcrops.
+    """
+
     content: Literal[enums.ContentEnum.subcrop]
+    """The type of content these data represent."""
 
 
-class ThicknessContent(Content):
+class ThicknessData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for thickness.
+    """
+
     content: Literal[enums.ContentEnum.thickness]
+    """The type of content these data represent."""
 
 
-class TimeContent(Content):
+class TimeData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for time.
+    """
+
     content: Literal[enums.ContentEnum.time]
+    """The type of content these data represent."""
 
 
-class TimeSeriesContent(Content):
+class TimeSeriesData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for time series.
+    """
+
     content: Literal[enums.ContentEnum.timeseries]
+    """The type of content these data represent."""
 
 
-class TransmissibilitiesContent(Content):
+class TransmissibilitiesData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for transmissibilities.
+    """
+
     content: Literal[enums.ContentEnum.transmissibilities]
+    """The type of content these data represent."""
 
 
-class VelocityContent(Content):
+class VelocityData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for velocities.
+    """
+
     content: Literal[enums.ContentEnum.velocity]
+    """The type of content these data represent."""
 
 
-class VolumesContent(Content):
+class VolumesData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for volumes.
+    """
+
     content: Literal[enums.ContentEnum.volumes]
+    """The type of content these data represent."""
 
 
-class WellPicksContent(Content):
+class WellPicksData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for well picks.
+    """
+
     content: Literal[enums.ContentEnum.wellpicks]
+    """The type of content these data represent."""
 
 
-class AnyContent(RootModel):
+class AnyData(RootModel):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class, ``AnyData``, is a root model that allows for data with more specific
+    content types to be placed within it. It can contain the metadata for any data
+    object.
+
+    See :class:`Data` to get an overview of all of the subfields used in the ``data``
+    block. Between the different content types, only the ``data.content`` field will
+    differ. This field indicates the type of content the data are representing.
+    """
+
     root: Annotated[
         Union[
-            DepthContent,
-            FaciesThicknessContent,
-            FaultLinesContent,
-            FieldOutlineContent,
-            FieldRegionContent,
-            FluidContactContent,
-            KPProductContent,
-            LiftCurvesContent,
-            NamedAreaContent,
-            ParametersContent,
-            PinchoutContent,
-            PropertyContent,
-            FaultPropertiesContent,
-            PVTContent,
-            RegionsContent,
-            RelpermContent,
-            RFTContent,
-            SeismicContent,
-            SubcropContent,
-            ThicknessContent,
-            TimeContent,
-            TimeSeriesContent,
-            VelocityContent,
-            VolumesContent,
-            WellPicksContent,
+            DepthData,
+            FaciesThicknessData,
+            FaultLinesData,
+            FieldOutlineData,
+            FieldRegionData,
+            FluidContactData,
+            KPProductData,
+            LiftCurvesData,
+            NamedAreaData,
+            ParametersData,
+            PinchoutData,
+            PropertyData,
+            FaultPropertiesData,
+            PVTData,
+            RegionsData,
+            RelpermData,
+            RFTData,
+            SeismicData,
+            SubcropData,
+            ThicknessData,
+            TimeData,
+            TimeSeriesData,
+            VelocityData,
+            VolumesData,
+            WellPicksData,
         ],
         Field(discriminator="content"),
     ]
