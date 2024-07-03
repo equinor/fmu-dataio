@@ -12,9 +12,9 @@ from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import generate_description
 from fmu.dataio.datastructure._internal.internal import AllowedContent, UnsetAnyContent
 from fmu.dataio.datastructure.meta.content import (
-    AnyContent,
-    FMUTimeObject,
+    AnyData,
     Time,
+    Timestamp,
 )
 from fmu.dataio.datastructure.meta.enums import ContentEnum
 from fmu.dataio.providers._base import Provider
@@ -65,7 +65,7 @@ class ObjectDataProvider(Provider):
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
     # as instance properties in addition (for simplicity in other classes/functions)
-    _metadata: AnyContent | UnsetAnyContent | None = field(default=None)
+    _metadata: AnyData | UnsetAnyContent | None = field(default=None)
     name: str = field(default="")
     time0: datetime | None = field(default=None)
     time1: datetime | None = field(default=None)
@@ -120,7 +120,7 @@ class ObjectDataProvider(Provider):
         self._metadata = (
             UnsetAnyContent.model_validate(metadata)
             if metadata["content"] == "unset"
-            else AnyContent.model_validate(metadata)
+            else AnyData.model_validate(metadata)
         )
         logger.info("Derive all metadata for data object... DONE")
 
@@ -166,7 +166,7 @@ class ObjectDataProvider(Provider):
     def get_spec(self) -> AnySpecification | None:
         raise NotImplementedError
 
-    def get_metadata(self) -> AnyContent | UnsetAnyContent:
+    def get_metadata(self) -> AnyData | UnsetAnyContent:
         assert self._metadata is not None
         return self._metadata
 
@@ -231,14 +231,14 @@ class ObjectDataProvider(Provider):
 
         return rv
 
-    def _get_fmu_time_object(self, timedata_item: list[str]) -> FMUTimeObject:
+    def _get_fmu_time_object(self, timedata_item: list[str]) -> Timestamp:
         """
-        Returns a FMUTimeObject from a timedata item on list
+        Returns a Timestamp from a timedata item on list
         format: ["20200101", "monitor"] where the first item is a date and
         the last item is an optional label
         """
         value, *label = timedata_item
-        return FMUTimeObject(
+        return Timestamp(
             value=datetime.strptime(str(value), "%Y%m%d"),
             label=label[0] if label else None,
         )

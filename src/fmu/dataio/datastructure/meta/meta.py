@@ -23,7 +23,8 @@ T = TypeVar("T", Dict, List, object)
 
 
 class Asset(BaseModel):
-    """A block containing information about the owner asset of these data."""
+    """The ``access.asset`` block contains information about the owner asset of
+    these data."""
 
     name: str = Field(examples=["Drogon"])
     """A string referring to a known asset name."""
@@ -31,8 +32,8 @@ class Asset(BaseModel):
 
 class Ssdl(BaseModel):
     """
-    A block containing information related to SSDL. Note that this is kept due to
-    legacy.
+    The ``access.ssdl`` block contains information related to SSDL.
+    Note that this is kept due to legacy.
     """
 
     access_level: enums.Classification
@@ -59,7 +60,7 @@ class Access(BaseModel):
 class SsdlAccess(Access):
     """
     The ``access`` block contains information related to access control for
-    this data object, with legacy SSDL settings..
+    this data object, with legacy SSDL settings.
     """
 
     ssdl: Ssdl
@@ -159,7 +160,7 @@ class User(BaseModel):
     """The ``user`` block holds information about the user."""
 
     id: str = Field(examples=["peesv", "jriv"])
-    """A user identity reference.."""
+    """A user identity reference."""
 
 
 class Case(BaseModel):
@@ -262,7 +263,8 @@ class Realization(BaseModel):
 
 
 class CountryItem(BaseModel):
-    """Reference to a country known to SMDA."""
+    """A single country in the ``smda.masterdata.country`` list of countries
+    known to SMDA."""
 
     identifier: str = Field(examples=["Norway"])
     """Identifier known to SMDA."""
@@ -272,7 +274,8 @@ class CountryItem(BaseModel):
 
 
 class DiscoveryItem(BaseModel):
-    """Reference to a discovery known to SMDA."""
+    """A single discovery in the ``masterdata.smda.discovery`` list of discoveries
+    known to SMDA."""
 
     short_identifier: str = Field(examples=["SomeDiscovery"])
     """Identifier known to SMDA."""
@@ -282,7 +285,8 @@ class DiscoveryItem(BaseModel):
 
 
 class FieldItem(BaseModel):
-    """Reference to a field known to SMDA."""
+    """A single field in the ``masterdata.smda.field`` list of fields
+    known to SMDA."""
 
     identifier: str = Field(examples=["OseFax"])
     """Identifier known to SMDA."""
@@ -292,7 +296,8 @@ class FieldItem(BaseModel):
 
 
 class CoordinateSystem(BaseModel):
-    """Reference to coordinate system known to SMDA."""
+    """The ``masterdata.smda.coordinate_system`` block contains the coordinate
+    system known to SMDA."""
 
     identifier: str = Field(examples=["ST_WGS84_UTM37N_P32637"])
     """Identifier known to SMDA."""
@@ -302,7 +307,8 @@ class CoordinateSystem(BaseModel):
 
 
 class StratigraphicColumn(BaseModel):
-    """Reference to stratigraphic column known to SMDA."""
+    """The ``masterdata.smda.stratigraphic_column`` block contains the
+    stratigraphic column known to SMDA."""
 
     identifier: str = Field(examples=["DROGON_2020"])
     """Identifier known to SMDA."""
@@ -312,7 +318,7 @@ class StratigraphicColumn(BaseModel):
 
 
 class Smda(BaseModel):
-    """Block containing SMDA-related attributes."""
+    """The ``masterdata.smda`` block contains SMDA-related attributes."""
 
     coordinate_system: CoordinateSystem
     """Reference to coordinate system known to SMDA.
@@ -337,12 +343,11 @@ class Smda(BaseModel):
 
 class Masterdata(BaseModel):
     """The ``masterdata`` block contains information related to masterdata.
-    Currently, smda holds the masterdata.
+    Currently, SMDA holds the masterdata.
     """
 
     smda: Smda
-    """Block containing SMDA-related attributes.
-    See :class:`Smda`."""
+    """Block containing SMDA-related attributes. See :class:`Smda`."""
 
 
 class Version(BaseModel):
@@ -379,8 +384,8 @@ class OperatingSystem(BaseModel):
 
 class SystemInformation(BaseModel):
     """
-    The ```sysinfo`` block contains information about the system upon which these
-    data were exported from.
+    The ``tracklog.sysinfo`` block contains information about the system upon which
+    these data were exported from.
     """
 
     fmu_dataio: Optional[Version] = Field(
@@ -601,9 +606,9 @@ class ObjectMetadata(MetadataBase):
     """The ``access`` block contains information related to access control for
     this data object. See :class:`SsdlAccess`."""
 
-    data: content.AnyContent
-    """The ``data`` block contains information about the data contains in this
-    object. See :class:`content.AnyContent`."""
+    data: content.AnyData
+    """The ``data`` block contains information about the data contained in this
+    object. See :class:`content.AnyData`."""
 
     file: File
     """ The ``file`` block contains references to this data object as a file on a disk.
@@ -664,7 +669,7 @@ def _remove_discriminator_mapping(obj: Dict) -> Dict:
     failures in applications like `sumo-core`.
     """
     del obj["discriminator"]["mapping"]
-    del obj["$defs"]["AnyContent"]["discriminator"]["mapping"]
+    del obj["$defs"]["AnyData"]["discriminator"]["mapping"]
     return obj
 
 
