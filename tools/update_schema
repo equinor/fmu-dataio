@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 from typing import Any, Final
 
-from fmu.dataio.datastructure.meta import dump
+from fmu.dataio._model import dump
 
 GREEN = "\033[32m"
 RED = "\033[31m"

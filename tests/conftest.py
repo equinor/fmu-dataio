@@ -14,8 +14,8 @@ import pytest
 import xtgeo
 import yaml
 from fmu.config import utilities as ut
+from fmu.dataio._model import fields, global_configuration
 from fmu.dataio.dataio import ExportData, read_metadata
-from fmu.dataio.datastructure.configuration import global_configuration
 from fmu.dataio.providers._fmu import FmuEnv
 
 from .utils import _metadata_examples
@@ -294,25 +294,25 @@ def fixture_casesetup(tmp_path_factory):
 def fixture_globalconfig1():
     """Minimalistic global config variables no. 1 in ExportData class."""
     return global_configuration.GlobalConfiguration(
-        masterdata=global_configuration.meta.Masterdata(
-            smda=global_configuration.meta.Smda(
-                coordinate_system=global_configuration.meta.CoordinateSystem(
+        masterdata=fields.Masterdata(
+            smda=fields.Smda(
+                coordinate_system=fields.CoordinateSystem(
                     identifier="ST_WGS84_UTM37N_P32637",
                     uuid="15ce3b84-766f-4c93-9050-b154861f9100",
                 ),
                 country=[
-                    global_configuration.meta.CountryItem(
+                    fields.CountryItem(
                         identifier="Norway",
                         uuid="ad214d85-8a1d-19da-e053-c918a4889309",
                     ),
                 ],
                 discovery=[
-                    global_configuration.meta.DiscoveryItem(
+                    fields.DiscoveryItem(
                         short_identifier="abdcef",
                         uuid="56c92484-8798-4f1f-9f14-d237a3e1a4ff",
                     ),
                 ],
-                stratigraphic_column=global_configuration.meta.StratigraphicColumn(
+                stratigraphic_column=fields.StratigraphicColumn(
                     identifier="TestStratigraphicColumn",
                     uuid="56c92484-8798-4f1f-9f14-d237a3e1a4ff",
                 ),
@@ -323,7 +323,7 @@ def fixture_globalconfig1():
             asset=global_configuration.Asset(name="Test"),
             classification=global_configuration.enums.Classification.internal,
         ),
-        model=global_configuration.meta.Model(
+        model=fields.Model(
             name="Test",
             revision="AUTO",
         ),

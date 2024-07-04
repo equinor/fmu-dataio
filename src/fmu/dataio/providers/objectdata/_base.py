@@ -9,25 +9,25 @@ from warnings import warn
 
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import generate_description
-from fmu.dataio.datastructure._internal.internal import AllowedContent, UnsetAnyContent
-from fmu.dataio.datastructure.meta.content import (
+from fmu.dataio._model.data import (
     AnyData,
     Time,
     Timestamp,
 )
-from fmu.dataio.datastructure.meta.enums import Content
+from fmu.dataio._model.enums import Content
+from fmu.dataio._model.internal import AllowedContent, UnsetAnyContent
+from fmu.dataio._utils import generate_description
 from fmu.dataio.providers._base import Provider
 
 if TYPE_CHECKING:
-    from fmu.dataio.dataio import ExportData
-    from fmu.dataio.datastructure.meta.content import (
+    from fmu.dataio._model.data import (
         BoundingBox2D,
         BoundingBox3D,
         Geometry,
     )
-    from fmu.dataio.datastructure.meta.enums import FMUClass, Layout
-    from fmu.dataio.datastructure.meta.specification import AnySpecification
+    from fmu.dataio._model.enums import FMUClass, Layout
+    from fmu.dataio._model.specification import AnySpecification
+    from fmu.dataio.dataio import ExportData
     from fmu.dataio.types import Inferrable
 
 logger: Final = null_logger(__name__)

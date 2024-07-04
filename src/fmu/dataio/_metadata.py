@@ -16,8 +16,7 @@ from pydantic import AnyHttpUrl, TypeAdapter
 
 from ._definitions import SCHEMA, SOURCE, VERSION
 from ._logging import null_logger
-from .datastructure._internal import internal
-from .datastructure.meta import meta
+from ._model import fields, internal
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers.objectdata._provider import objectdata_provider_factory
@@ -34,25 +33,31 @@ logger: Final = null_logger(__name__)
 
 def generate_meta_tracklog(
     event: Literal["created", "merged"] = "created",
-) -> list[meta.TracklogEvent]:
+) -> list[fields.TracklogEvent]:
     """Initialize the tracklog with the 'created' event only."""
     return [
-        meta.TracklogEvent.model_construct(
+        fields.TracklogEvent.model_construct(
             datetime=datetime.datetime.now(timezone.utc),
             event=event,
-            user=meta.User.model_construct(id=getpass.getuser()),
-            sysinfo=meta.SystemInformation.model_construct(
-                fmu_dataio=meta.Version.model_construct(version=__version__),
-                komodo=meta.Version.model_construct(version=kr)
-                if (kr := os.environ.get("KOMODO_RELEASE"))
-                else None,
-                operating_system=meta.OperatingSystem.model_construct(
-                    hostname=platform.node(),
-                    operating_system=platform.platform(),
-                    release=platform.release(),
-                    system=platform.system(),
-                    version=platform.version(),
-                ),
+            user=fields.User.model_construct(id=getpass.getuser()),
+            sysinfo=(
+                fields.SystemInformation.model_construct(
+                    fmu_dataio=fields.Version.model_construct(version=__version__),
+                    komodo=(
+                        fields.Version.model_construct(version=kr)
+                        if (kr := os.environ.get("KOMODO_RELEASE"))
+                        else None
+                    ),
+                    operating_system=(
+                        fields.OperatingSystem.model_construct(
+                            hostname=platform.node(),
+                            operating_system=platform.platform(),
+                            release=platform.release(),
+                            system=platform.system(),
+                            version=platform.version(),
+                        )
+                    ),
+                )
             ),
         )
     ]
@@ -64,7 +69,7 @@ def _get_meta_filedata(
     objdata: ObjectDataProvider,
     fmudata: FmuProvider | None,
     compute_md5: bool,
-) -> meta.File:
+) -> fields.File:
     """Derive metadata for the file."""
     return FileDataProvider(
         dataio=dataio,
@@ -82,25 +87,27 @@ def _get_meta_fmu(fmudata: FmuProvider) -> internal.FMUClassMetaData | None:
         return None
 
 
-def _get_meta_access(dataio: ExportData) -> meta.SsdlAccess:
-    return meta.SsdlAccess(
-        asset=meta.Asset(
+def _get_meta_access(dataio: ExportData) -> fields.SsdlAccess:
+    return fields.SsdlAccess(
+        asset=fields.Asset(
             name=dataio.config.get("access", {}).get("asset", {}).get("name", "")
         ),
         classification=dataio._classification,
-        ssdl=meta.Ssdl(
+        ssdl=fields.Ssdl(
             access_level=dataio._classification,
             rep_include=dataio._rep_include,
         ),
     )
 
 
-def _get_meta_masterdata(masterdata: dict) -> meta.Masterdata:
-    return meta.Masterdata.model_validate(masterdata)
+def _get_meta_masterdata(masterdata: dict) -> fields.Masterdata:
+    return fields.Masterdata.model_validate(masterdata)
 
 
-def _get_meta_display(dataio: ExportData, objdata: ObjectDataProvider) -> meta.Display:
-    return meta.Display(name=dataio.display_name or objdata.name)
+def _get_meta_display(
+    dataio: ExportData, objdata: ObjectDataProvider
+) -> fields.Display:
+    return fields.Display(name=dataio.display_name or objdata.name)
 
 
 def generate_export_metadata(

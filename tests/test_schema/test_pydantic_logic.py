@@ -4,7 +4,7 @@ import logging
 from copy import deepcopy
 
 import pytest
-from fmu.dataio.datastructure.meta import Root, content
+from fmu.dataio._model import Root, data
 from pydantic import ValidationError
 
 from ..utils import _metadata_examples
@@ -390,16 +390,16 @@ def test_zmin_zmax_not_present_for_surfaces(metadata_examples):
 
     # assert validation with no changes and check that bbox is 3D
     model = Root.model_validate(example_surface)
-    assert isinstance(model.root.data.root.bbox, content.BoundingBox3D)
+    assert isinstance(model.root.data.root.bbox, data.BoundingBox3D)
 
     # assert validation works with zmin/zmax = None, bbox should be 2D
     example_surface["data"]["bbox"]["zmin"] = None
     example_surface["data"]["bbox"]["zmax"] = None
     model = Root.model_validate(example_surface)
-    assert isinstance(model.root.data.root.bbox, content.BoundingBox2D)
+    assert isinstance(model.root.data.root.bbox, data.BoundingBox2D)
 
     # assert validation works without zmin/zmax, bbox should be 2D
     del example_surface["data"]["bbox"]["zmin"]
     del example_surface["data"]["bbox"]["zmax"]
     model = Root.model_validate(example_surface)
-    assert isinstance(model.root.data.root.bbox, content.BoundingBox2D)
+    assert isinstance(model.root.data.root.bbox, data.BoundingBox2D)

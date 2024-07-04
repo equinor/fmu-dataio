@@ -14,10 +14,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final, Optional
 
 from fmu.dataio._logging import null_logger
+from fmu.dataio._model import enums, fields
 from fmu.dataio._utils import (
     compute_md5_using_temp_file,
 )
-from fmu.dataio.datastructure.meta import meta
 
 from ._base import Provider
 
@@ -72,11 +72,10 @@ class FileDataProvider(Provider):
 
         return geom.name if geom else self.dataio.parent
 
-    def get_metadata(self) -> meta.File:
+    def get_metadata(self) -> fields.File:
         rootpath = (
             self.runpath
-            if self.runpath
-            and self.dataio.fmu_context == meta.enums.FMUContext.realization
+            if self.runpath and self.dataio.fmu_context == enums.FMUContext.realization
             else self.dataio._rootpath
         )
         share_folders = self._get_share_folders()
@@ -85,8 +84,8 @@ class FileDataProvider(Provider):
         absolute_path = self._add_filename_to_path(export_folder)
         relative_path = absolute_path.relative_to(self.dataio._rootpath)
 
-        logger.info("Returning metadata pydantic model meta.File")
-        return meta.File(
+        logger.info("Returning metadata pydantic model fields.File")
+        return fields.File(
             absolute_path=absolute_path.resolve(),
             relative_path=relative_path,
             checksum_md5=self._compute_md5() if self.compute_md5 else None,

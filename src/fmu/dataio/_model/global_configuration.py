@@ -18,7 +18,7 @@ from pydantic import (
     model_validator,
 )
 
-from fmu.dataio.datastructure.meta import enums, meta
+from . import enums, fields
 
 
 def validation_error_warning(err: ValidationError) -> None:
@@ -93,12 +93,8 @@ class StratigraphyElement(BaseModel):
 
     name: str
     stratigraphic: bool
-    alias: Optional[List[str]] = Field(
-        default=None,
-    )
-    stratigraphic_alias: Optional[List[str]] = Field(
-        default=None,
-    )
+    alias: Optional[List[str]] = Field(default=None)
+    stratigraphic_alias: Optional[List[str]] = Field(default=None)
 
     @field_validator("alias", "stratigraphic_alias", mode="before")
     @classmethod
@@ -119,11 +115,9 @@ class GlobalConfiguration(BaseModel):
     """
 
     access: Access
-    masterdata: meta.Masterdata
-    model: meta.Model
-    stratigraphy: Optional[Stratigraphy] = Field(
-        default=None,
-    )
+    masterdata: fields.Masterdata
+    model: fields.Model
+    stratigraphy: Optional[Stratigraphy] = Field(default=None)
 
 
 def is_valid(obj: object) -> bool:
