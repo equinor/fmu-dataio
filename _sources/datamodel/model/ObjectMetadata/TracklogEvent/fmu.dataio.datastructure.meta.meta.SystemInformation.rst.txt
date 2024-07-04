@@ -12,9 +12,9 @@ SystemInformation
 
    
    
-      ~fmu.dataio.datastructure.meta.meta.OperatingSystem
-   
       ~fmu.dataio.datastructure.meta.meta.Version
+   
+      ~fmu.dataio.datastructure.meta.meta.OperatingSystem
    
    
 

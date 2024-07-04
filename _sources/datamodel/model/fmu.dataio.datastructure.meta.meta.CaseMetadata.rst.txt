@@ -12,13 +12,13 @@
 
    
    
-      ~fmu.dataio.datastructure.meta.meta.Access
-   
       ~fmu.dataio.datastructure.meta.meta.FMUCaseAttributes
+   
+      ~fmu.dataio.datastructure.meta.meta.TracklogEvent
    
       ~fmu.dataio.datastructure.meta.meta.Masterdata
    
-      ~fmu.dataio.datastructure.meta.meta.TracklogEvent
+      ~fmu.dataio.datastructure.meta.meta.Access
    
    
 
