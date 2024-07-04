@@ -220,7 +220,10 @@ def test_preprocessed_surface_invalid_casepath(fmurun_prehook):
     """Test that an error is raised if casepath is wrong or no case meta exist"""
 
     # error should be raised when running on a casepath without case metadata
-    with pytest.raises(ValueError, match="Could not detect valid case metadata"):
+    # note UserWarning is emitted initially by ExportData
+    with pytest.warns(UserWarning), pytest.raises(
+        ValueError, match="Could not detect valid case metadata"
+    ):
         dataio.ExportPreprocessedData(casepath="dummy")
 
     # shall work when casepath that contains case matadata is provided
@@ -229,7 +232,9 @@ def test_preprocessed_surface_invalid_casepath(fmurun_prehook):
     # delete the case matadata and see that it fails
     metacase_file = fmurun_prehook / ERT_RELATIVE_CASE_METADATA_FILE
     metacase_file.unlink()
-    with pytest.raises(ValueError, match="Could not detect valid case metadata"):
+    with pytest.warns(UserWarning), pytest.raises(
+        ValueError, match="Could not detect valid case metadata"
+    ):
         dataio.ExportPreprocessedData(casepath=fmurun_prehook)
 
 
@@ -307,10 +312,14 @@ def test_export_preprocessed_file_exportdata_casepath_on_export(
     set_ert_env_prehook(monkeypatch)
 
     # Use the ExportData class instead of the ExportPreprocessedData
-    edata = dataio.ExportData(config=rmsglobalconfig, is_observation=True)
+    with pytest.warns(UserWarning, match="case metadata"):
+        edata = dataio.ExportData(config=rmsglobalconfig, is_observation=True)
 
     # test that error is thrown when missing casepath
-    with pytest.raises(TypeError, match="No 'casepath' argument provided"):
+    # (UserWarning initially in ExportData)
+    with pytest.warns(UserWarning, match="case metadata"), pytest.raises(
+        TypeError, match="No 'casepath' argument provided"
+    ):
         edata.export(surfacepath)
 
     # test that export() works if casepath is provided
@@ -321,14 +330,15 @@ def test_export_preprocessed_file_exportdata_casepath_on_export(
     assert metafile.exists()
 
     # Use the ExportData class instead of the ExportPreprocessedData
-    edata = dataio.ExportData(config=rmsglobalconfig, is_observation=True)
+    with pytest.warns(UserWarning, match="case metadata"):
+        edata = dataio.ExportData(config=rmsglobalconfig, is_observation=True)
 
     # test that error is thrown when missing casepath
     with pytest.raises(TypeError, match="No 'casepath' argument provided"):
         edata.generate_metadata(surfacepath)
 
     # test that generate_metadata() works if casepath is provided
-    with pytest.warns(FutureWarning, match="no longer supported"):
+    with pytest.warns(FutureWarning):
         meta = edata.generate_metadata(surfacepath, casepath=fmurun_prehook)
 
     assert "fmu" in meta

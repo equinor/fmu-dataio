@@ -45,6 +45,7 @@ def test_incl_jobs_warning(rmsglobalconfig):
             config=rmsglobalconfig,
             content="depth",
         )
+    dataio.ExportData.include_ertjobs = False
 
 
 def test_regsurf_metadata_with_timedata(
@@ -94,7 +95,8 @@ def test_regsurf_export_file_fmurun(fmurun_w_casemetadata, rmsglobalconfig, regs
         workflow="My test workflow",
         unit="myunit",
         content="depth",
-        access_ssdl={"access_level": "restricted", "rep_include": False},
+        classification="restricted",
+        rep_include=False,
     )  # read from global config
 
     assert edata.unit == "myunit"
@@ -320,14 +322,15 @@ def test_cube_export_file_is_observation_forcefolder_abs(
     os.chdir(fmurun_w_casemetadata)
 
     dataio.ExportData.allow_forcefolder_absolute = True
-    edata = dataio.ExportData(
-        config=rmsglobalconfig,
-        content="depth",
-        is_observation=True,
-        fmu_context="realization",
-        forcefolder="/tmp/seismic",
-        name="MyCube",
-    )
+    with pytest.warns(UserWarning, match="deprecated"):
+        edata = dataio.ExportData(
+            config=rmsglobalconfig,
+            content="depth",
+            is_observation=True,
+            fmu_context="realization",
+            forcefolder="/tmp/seismic",
+            name="MyCube",
+        )
 
     with pytest.raises(ValueError, match="Can't use absolute path as 'forcefolder'"):
         output = edata.export(cube)
@@ -370,8 +373,9 @@ def test_gridproperty_export_file_set_name(
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyGridProperty"
     )
-
-    output = edata.export(gridproperty)
+    # check that user warning is given to provide a grid geometry
+    with pytest.warns(FutureWarning, match="linking it to a geometry"):
+        output = edata.export(gridproperty)
     logger.info("Output is %s", output)
 
     assert str(output) == str(

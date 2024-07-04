@@ -21,12 +21,13 @@ GLOBAL_CONFIG_MODEL = {"name": "Model2", "revision": "22.1.0"}
 def test_fmuprovider_no_provider():
     """Testing the FmuProvider where no ERT context is found from env variables."""
 
-    myfmu = FmuProvider(
-        model=GLOBAL_CONFIG_MODEL,
-        fmu_context=FMUContext.realization,
-        casepath_proposed="",
-        workflow=WORKFLOW,
-    )
+    with pytest.warns(UserWarning, match="Could not auto detect"):
+        myfmu = FmuProvider(
+            model=GLOBAL_CONFIG_MODEL,
+            fmu_context=FMUContext.realization,
+            casepath_proposed="",
+            workflow=WORKFLOW,
+        )
     with pytest.raises(InvalidMetadataError, match="Missing casepath"):
         myfmu.get_metadata()
 
@@ -65,7 +66,7 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
     Since there are mot metadata here, this will issue a warning
     """
     os.chdir(fmurun)
-    with pytest.warns(UserWarning, match="Case metadata does not exist"):
+    with pytest.warns(UserWarning, match="case metadata"):
         myfmu = FmuProvider(
             model=GLOBAL_CONFIG_MODEL,
             fmu_context=FMUContext.realization,
@@ -206,7 +207,7 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
     """
     os.chdir(fmurun)
 
-    with pytest.warns(UserWarning, match="Case metadata does not exist"):
+    with pytest.warns(UserWarning, match="case metadata"):
         myfmu = FmuProvider(
             model=GLOBAL_CONFIG_MODEL,
             fmu_context=FMUContext.realization,
@@ -227,7 +228,7 @@ def test_fmuprovider_case_run(fmurun_prehook):
     # make sure that no runpath environment value is present
     assert FmuEnv.RUNPATH.value is None
 
-    with pytest.warns(UserWarning, match="Could not auto detect the casepath"):
+    with pytest.warns(UserWarning, match="Could not auto detect the case metadata"):
         FmuProvider(
             model=GLOBAL_CONFIG_MODEL,
             fmu_context=FMUContext.case,
@@ -281,10 +282,10 @@ def test_fmuprovider_invalid_restart_env(
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "/path/to/somewhere/invalid")
 
     os.chdir(fmurun_pred)
-    fmu_restart = FmuProvider(
-        model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization
-    )
-    meta = fmu_restart.get_metadata()
+    with pytest.warns(UserWarning, match="RESTART_FROM_PATH environment variable"):
+        meta = FmuProvider(
+            model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization
+        ).get_metadata()
     assert meta.iteration.restart_from is None
 
 
@@ -307,7 +308,7 @@ def test_fmuprovider_no_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_p
     assert restart_meta.iteration.restart_from is None
 
 
-def test_fmuprovider_workflow_reference(fmurun_w_casemetadata):
+def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
     """Testing the handling of workflow reference input.
 
     Metadata definitions of fmu.workflow is that it is a dictionary with 'reference'
@@ -333,7 +334,9 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata):
 
     # workflow as a dict should give future warning
     with pytest.warns(FutureWarning, match="The 'workflow' argument"):
-        dataio.ExportData(workflow={"reference": "workflow as dict"})
+        dataio.ExportData(
+            config=globalconfig2, workflow={"reference": "workflow as dict"}
+        )
 
     # test that workflow as a dict still gives valid results
     myfmu_meta = FmuProvider(

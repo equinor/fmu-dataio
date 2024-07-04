@@ -172,7 +172,8 @@ def test_metadata_populate_masterdata_is_empty(globalconfig1, regsurf):
     config = deepcopy(globalconfig1)
     del config["masterdata"]  # to force missing masterdata
 
-    some = dio.ExportData(config=config, content="depth")
+    with pytest.warns(UserWarning, match="The global config"):
+        some = dio.ExportData(config=config, content="depth")
 
     assert not some._config_is_valid
 
@@ -206,8 +207,8 @@ def test_metadata_populate_access_miss_cfg_access(globalconfig1, regsurf):
 
     cfg1_edited = deepcopy(globalconfig1)
     del cfg1_edited["access"]
-
-    edata = dio.ExportData(config=cfg1_edited, content="depth")
+    with pytest.warns(UserWarning, match="The global config"):
+        edata = dio.ExportData(config=cfg1_edited, content="depth")
     assert not edata._config_is_valid
 
     mymeta = generate_export_metadata(regsurf, edata)
@@ -234,7 +235,8 @@ def test_metadata_populate_from_argument(globalconfig1, regsurf):
 
     edata = dio.ExportData(
         config=globalconfig1,
-        access_ssdl={"access_level": "restricted", "rep_include": True},
+        classification="restricted",
+        rep_include=True,
         content="depth",
     )
     mymeta = generate_export_metadata(regsurf, edata)
@@ -251,12 +253,10 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1, regsurf):
 
     # test assumptions
     assert globalconfig1["access"]["classification"] == "internal"
-    assert globalconfig1["access"]["ssdl"]["rep_include"] is False
+    assert "ssdl" not in globalconfig1["access"]  # no ssdl.rep_include
 
     # rep_include only, but in config
-    edata = dio.ExportData(
-        config=globalconfig1, access_ssdl={"rep_include": True}, content="depth"
-    )
+    edata = dio.ExportData(config=globalconfig1, rep_include=True, content="depth")
 
     mymeta = generate_export_metadata(regsurf, edata)
     assert mymeta.access.ssdl.rep_include is True
@@ -266,7 +266,7 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1, regsurf):
     # access_level only, but in config
     edata = dio.ExportData(
         config=globalconfig1,
-        access_ssdl={"access_level": "restricted"},
+        classification="restricted",
         content="depth",
     )
     mymeta = generate_export_metadata(regsurf, edata)
@@ -298,7 +298,7 @@ def test_metadata_populate_wrong_argument(globalconfig1):
     with pytest.raises(ValueError, match="is not a valid Classification"):
         dio.ExportData(
             config=globalconfig1,
-            access_ssdl={"access_level": "wrong"},
+            classification="wrong",
             content="depth",
         )
 
@@ -309,7 +309,8 @@ def test_metadata_access_correct_input(globalconfig1, regsurf):
     edata = dio.ExportData(
         config=globalconfig1,
         content="depth",
-        access_ssdl={"access_level": "restricted", "rep_include": False},
+        classification="restricted",
+        rep_include=False,
     )
     mymeta = generate_export_metadata(regsurf, edata)
     assert mymeta.access.ssdl.rep_include is False
@@ -320,7 +321,8 @@ def test_metadata_access_correct_input(globalconfig1, regsurf):
     edata = dio.ExportData(
         config=globalconfig1,
         content="depth",
-        access_ssdl={"access_level": "internal", "rep_include": True},
+        classification="internal",
+        rep_include=True,
     )
     mymeta = generate_export_metadata(regsurf, edata)
     assert mymeta.access.ssdl.rep_include is True
@@ -338,7 +340,7 @@ def test_metadata_access_deprecated_input(globalconfig1, regsurf):
     ):
         edata = dio.ExportData(
             config=globalconfig1,
-            access_ssdl={"access_level": "asset"},
+            classification="asset",
             content="depth",
         )
     assert edata._config_is_valid
@@ -355,7 +357,7 @@ def test_metadata_access_illegal_input(globalconfig1):
     with pytest.raises(ValueError, match="is not a valid Classification"):
         dio.ExportData(
             config=globalconfig1,
-            access_ssdl={"access_level": "secret"},
+            classification="secret",
             content="depth",
         )
 
@@ -363,7 +365,7 @@ def test_metadata_access_illegal_input(globalconfig1):
     with pytest.raises(ValueError, match="is not a valid Classification"):
         dio.ExportData(
             config=globalconfig1,
-            access_ssdl={"access_level": "open"},
+            classification="open",
             content="depth",
         )
 
@@ -371,14 +373,16 @@ def test_metadata_access_illegal_input(globalconfig1):
 def test_metadata_access_no_input(globalconfig1, regsurf):
     """Test not giving any input arguments."""
 
-    # test assumption, deprected access.ssdl.access_level not present in config
-    assert "access_level" not in globalconfig1["access"]["ssdl"]
+    # test assumption, deprected access.ssdl not present in config
+    assert "ssdl" not in globalconfig1["access"]
 
     # No input, revert to config
     configcopy = deepcopy(globalconfig1)
     configcopy["access"]["classification"] = "restricted"
-    configcopy["access"]["ssdl"]["rep_include"] = True
-    edata = dio.ExportData(config=configcopy, content="depth")
+    configcopy["access"]["ssdl"] = {"rep_include": True}
+    # rep_include from config is deprecated
+    with pytest.warns(FutureWarning, match="Use the 'rep_include' argument"):
+        edata = dio.ExportData(config=configcopy, content="depth")
     mymeta = generate_export_metadata(regsurf, edata)
     assert mymeta.access.ssdl.rep_include is True
     assert mymeta.access.ssdl.access_level == "restricted"
@@ -387,7 +391,6 @@ def test_metadata_access_no_input(globalconfig1, regsurf):
     # No input, no config, shall default to "internal" and False
     configcopy = deepcopy(globalconfig1)
     del configcopy["access"]["classification"]
-    del configcopy["access"]["ssdl"]["rep_include"]
     edata = dio.ExportData(config=globalconfig1, content="depth")
     mymeta = generate_export_metadata(regsurf, edata)
     assert mymeta.access.ssdl.rep_include is False  # default
@@ -398,14 +401,14 @@ def test_metadata_access_no_input(globalconfig1, regsurf):
 def test_metadata_rep_include_deprecation(globalconfig1, regsurf):
     """Test warnings for deprecated rep_include field in config."""
     configcopy = deepcopy(globalconfig1)
-
-    configcopy["access"]["ssdl"]["rep_include"] = True
+    # add rep_include to the config
+    configcopy["access"]["ssdl"] = {"rep_include": True}
     with pytest.warns(FutureWarning, match="'rep_include' argument"):
         edata = dio.ExportData(config=configcopy, content="depth")
     mymeta = generate_export_metadata(regsurf, edata)
     assert mymeta.access.ssdl.rep_include is True
 
-    configcopy["access"]["ssdl"]["rep_include"] = False
+    configcopy["access"]["ssdl"] = {"rep_include": False}
     with pytest.warns(FutureWarning, match="'rep_include' argument"):
         edata = dio.ExportData(config=configcopy, content="depth")
     mymeta = generate_export_metadata(regsurf, edata)

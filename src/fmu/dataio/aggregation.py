@@ -239,11 +239,15 @@ class AggregatedData:
         # initialize a temporary ExportData without warnings so that we can get to the
         # objectdata_provider
         config = {
-            "access": template["access"],
+            "access": {  # only asset and classification should be picked up
+                "asset": template["access"]["asset"],
+                "classification": template["access"]["classification"],
+            },
             "masterdata": template["masterdata"],
             "model": template["fmu"]["model"],
         }
-        etemp = dataio.ExportData(config=config, name=self.name)
+        dummy_content = "depth"  # will not be used, but will silence warning
+        etemp = dataio.ExportData(config=config, name=self.name, content=dummy_content)
 
         objdata = objectdata_provider_factory(obj=obj, dataio=etemp)
 

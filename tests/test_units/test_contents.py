@@ -86,7 +86,7 @@ def test_content_fluid_contact_raises_on_invalid_contact(regsurf, globalconfig2)
         ExportData(
             config=globalconfig2,
             name="MyName",
-            content={"fluid_contact": {"contact": "OEC"}},
+            content={"fluid_contact": {"contact": "oec"}},
         ).generate_metadata(regsurf)
 
 
@@ -148,11 +148,13 @@ def test_content_pinchout(polygons, globalconfig2):
 
 def test_content_property(gridproperty, globalconfig2):
     """Test export of the property content."""
-    meta = ExportData(
-        config=globalconfig2,
-        name="MyName",
-        content="property",
-    ).generate_metadata(gridproperty)
+    # gives FutureWarning regarding missing geometry and content not being dict
+    with pytest.warns(FutureWarning):
+        meta = ExportData(
+            config=globalconfig2,
+            name="MyName",
+            content="property",
+        ).generate_metadata(gridproperty)
 
     assert meta["data"]["content"] == "property"
 
@@ -160,11 +162,13 @@ def test_content_property(gridproperty, globalconfig2):
 def test_content_property_as_dict(gridproperty, globalconfig2):
     """Test export of the property content."""
     content_specifc = {"attribute": "porosity", "is_discrete": False}
-    meta = ExportData(
-        config=globalconfig2,
-        name="MyName",
-        content={"property": content_specifc},
-    ).generate_metadata(gridproperty)
+    # should give FutureWarning whan not linked to a grid
+    with pytest.warns(FutureWarning, match="linking it to a geometry"):
+        meta = ExportData(
+            config=globalconfig2,
+            name="MyName",
+            content={"property": content_specifc},
+        ).generate_metadata(gridproperty)
 
     assert meta["data"]["content"] == "property"
     # TODO: add next line when schema defines content_specific for property
@@ -174,11 +178,13 @@ def test_content_property_as_dict(gridproperty, globalconfig2):
 def test_content_seismic_as_dict(gridproperty, globalconfig2):
     """Test export of the property content."""
     content_specifc = {"attribute": "amplitude", "calculation": "mean"}
-    meta = ExportData(
-        config=globalconfig2,
-        name="MyName",
-        content={"seismic": content_specifc},
-    ).generate_metadata(gridproperty)
+
+    with pytest.warns(FutureWarning, match="linking it to a geometry"):
+        meta = ExportData(
+            config=globalconfig2,
+            name="MyName",
+            content={"seismic": content_specifc},
+        ).generate_metadata(gridproperty)
 
     assert meta["data"]["content"] == "seismic"
     assert meta["data"]["seismic"] == content_specifc

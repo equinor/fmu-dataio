@@ -97,8 +97,8 @@ def test_copy_preprocessed_no_casemeta(
         "sys.argv",
         ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
     )
-
-    ert.__main__.main()
+    with pytest.warns(UserWarning, match="metadata"):
+        ert.__main__.main()
 
     _stdout, stderr = capsys.readouterr()
     assert "ValueError: Could not detect valid case metadata" in stderr
@@ -161,7 +161,8 @@ def test_copy_preprocessed_no_preprocessed_meta(
 
     monkeypatch.chdir(fmu_snakeoil_project)
     # an invalid config will trigger no metadata to be created
-    _export_preprocessed_data({"wrong": "config"}, regsurf)
+    with pytest.warns(UserWarning):
+        _export_preprocessed_data({"wrong": "config"}, regsurf)
 
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
     _add_create_case_workflow("snakeoil.ert")

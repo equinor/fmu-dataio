@@ -221,11 +221,15 @@ class FmuProvider(Provider):
                 return self._runpath.parent
 
         if self.fmu_context == FMUContext.case:
-            # TODO: Change to ValueError when no longer kwargs are accepted in export()
-            warn("Could not auto detect the casepath, please provide it as input.")
+            # TODO: add ValueError when no longer kwargs are accepted in export()
+            ...
 
         logger.debug("No case metadata, issue a warning!")
-        warn("Case metadata does not exist, metadata will be empty!", UserWarning)
+        warn(
+            "Could not auto detect the case metadata, please provide the "
+            "'casepath' as input. Metadata will be empty!",
+            UserWarning,
+        )
         return None
 
     def _get_restart_data_uuid(self) -> UUID | None:

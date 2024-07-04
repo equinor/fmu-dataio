@@ -321,7 +321,6 @@ def fixture_globalconfig1():
         ),
         access=global_configuration.Access(
             asset=global_configuration.Asset(name="Test"),
-            ssdl=global_configuration.Ssdl(rep_include=False),
             classification=global_configuration.enums.Classification.internal,
         ),
         model=global_configuration.meta.Model(
@@ -389,6 +388,7 @@ def fixture_edataobj2(globalconfig2):
         forcefolder=None,
         subfolder="",
         fmu_context="realization",
+        rep_include=True,
     )
 
     eobj.surface_fformat = "irap_binary"
@@ -563,17 +563,16 @@ def fixture_arrowtable():
 
 # helper function for the two fixtures below
 def _create_aggregated_surface_dataset(rmsglobalconfig, regsurf, content):
-    edata = dio.ExportData(
-        config=rmsglobalconfig,  # read from global config
-        content=content,
-    )
-
     aggs = []
     # create "forward" files
     for i in range(10):  # TODO! 10
         use_regsurf = regsurf.copy()
         use_regsurf.values += float(i)
-        expfile = edata.export(use_regsurf, name=f"mymap_{i}")
+        expfile = dio.ExportData(
+            config=rmsglobalconfig,
+            content=content,
+            name=f"mymap_{i}",
+        ).export(use_regsurf)
         aggs.append(expfile)
 
     # next task is to do an aggradation, and now the metadata already exists

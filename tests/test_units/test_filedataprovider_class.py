@@ -169,10 +169,10 @@ def test_get_filestem_shall_fail(
         assert message in str(msg)
 
 
-def test_get_share_folders(regsurf):
+def test_get_share_folders(regsurf, globalconfig2):
     """Testing the get_share_folders method."""
 
-    edataobj1 = ExportData(name="some")
+    edataobj1 = ExportData(config=globalconfig2, name="some", content="depth")
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
@@ -189,10 +189,12 @@ def test_get_share_folders(regsurf):
     )
 
 
-def test_get_share_folders_with_subfolder(regsurf):
+def test_get_share_folders_with_subfolder(regsurf, globalconfig2):
     """Testing the private _get_path method, creating the path."""
 
-    edataobj1 = ExportData(name="some", subfolder="sub")
+    edataobj1 = ExportData(
+        config=globalconfig2, name="some", subfolder="sub", content="depth"
+    )
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
@@ -206,14 +208,21 @@ def test_get_share_folders_with_subfolder(regsurf):
     assert str(fmeta.absolute_path.parent).endswith("share/results/maps/sub")
 
 
-def test_filedata_provider(regsurf, tmp_path):
+def test_filedata_provider(regsurf, tmp_path, globalconfig2):
     """Testing the derive_filedata function."""
 
     os.chdir(tmp_path)
 
-    cfg = ExportData(name="", parent="parent", tagname="tag", forcefolder="efolder")
-
-    objdata = objectdata_provider_factory(regsurf, cfg)
+    cfg = ExportData(
+        config=globalconfig2,
+        name="",
+        parent="parent",
+        tagname="tag",
+        forcefolder="efolder",
+        content="depth",
+    )
+    with pytest.warns(UserWarning, match="folder name is overrided"):
+        objdata = objectdata_provider_factory(regsurf, cfg)
     objdata.name = "name"
     t1 = "19000101"
     t2 = "20240101"
@@ -232,11 +241,11 @@ def test_filedata_provider(regsurf, tmp_path):
     assert filemeta.absolute_path == absdata
 
 
-def test_filedata_has_nonascii_letters(regsurf, tmp_path):
+def test_filedata_has_nonascii_letters(regsurf, tmp_path, globalconfig2):
     """Testing the get_metadata function."""
 
     os.chdir(tmp_path)
-    edataobj1 = ExportData(name="mynõme")
+    edataobj1 = ExportData(config=globalconfig2, name="mynõme", content="depth")
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "anynõme"
