@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
     from .readers import FaultRoomSurface
 
-
     # Local proxies due to xtgeo at the time of writing
     # not having stubs/marked itself as a typed library.
     # Ref.: https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-library-stubs-or-py-typed-marker
