@@ -11,7 +11,7 @@ from fmu.dataio._definitions import (
     ValidFormats,
 )
 from fmu.dataio._logging import null_logger
-from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
+from fmu.dataio.datastructure.meta.enums import FMUClass, Layout
 from fmu.dataio.datastructure.meta.specification import TableSpecification
 
 from ._base import (
@@ -64,8 +64,8 @@ class DataFrameDataProvider(ObjectDataProvider):
     obj: pd.DataFrame
 
     @property
-    def classname(self) -> FMUClassEnum:
-        return FMUClassEnum.table
+    def classname(self) -> FMUClass:
+        return FMUClass.table
 
     @property
     def efolder(self) -> str:
@@ -108,8 +108,8 @@ class ArrowTableDataProvider(ObjectDataProvider):
     obj: pyarrow.Table
 
     @property
-    def classname(self) -> FMUClassEnum:
-        return FMUClassEnum.table
+    def classname(self) -> FMUClass:
+        return FMUClass.table
 
     @property
     def efolder(self) -> str:

@@ -6,7 +6,7 @@ from typing import Final
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure.meta.content import BoundingBox3D
-from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
+from fmu.dataio.datastructure.meta.enums import FMUClass, Layout
 from fmu.dataio.datastructure.meta.specification import FaultRoomSurfaceSpecification
 from fmu.dataio.readers import FaultRoomSurface
 
@@ -22,8 +22,8 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
     obj: FaultRoomSurface
 
     @property
-    def classname(self) -> FMUClassEnum:
-        return FMUClassEnum.surface
+    def classname(self) -> FMUClass:
+        return FMUClass.surface
 
     @property
     def efolder(self) -> str:

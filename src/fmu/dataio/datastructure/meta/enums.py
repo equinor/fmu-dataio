@@ -5,17 +5,23 @@ from typing import Type
 
 
 class Classification(str, Enum):
+    """The security classification for a given data object."""
+
     asset = "asset"
     internal = "internal"
     restricted = "restricted"
 
 
 class AxisOrientation(IntEnum):
+    """The axis orientation for a given data object."""
+
     normal = 1
     flipped = -1
 
 
-class ContentEnum(str, Enum):
+class Content(str, Enum):
+    """The content type of a given data object."""
+
     depth = "depth"
     facies_thickness = "facies_thickness"
     fault_lines = "fault_lines"
@@ -44,13 +50,15 @@ class ContentEnum(str, Enum):
     wellpicks = "wellpicks"
 
     @classmethod
-    def _missing_(cls: Type[ContentEnum], value: object) -> None:
+    def _missing_(cls: Type[Content], value: object) -> None:
         raise ValueError(
             f"Invalid 'content' {value=}. Valid entries are {[m.value for m in cls]}"
         )
 
 
-class FMUClassEnum(str, Enum):
+class FMUClass(str, Enum):
+    """The class of a data object by FMU convention or standards."""
+
     case = "case"
     surface = "surface"
     table = "table"
@@ -64,6 +72,8 @@ class FMUClassEnum(str, Enum):
 
 
 class Layout(str, Enum):
+    """The layout of a given data object."""
+
     regular = "regular"
     unset = "unset"
     cornerpoint = "cornerpoint"
@@ -72,7 +82,9 @@ class Layout(str, Enum):
     faultroom_triangulated = "faultroom_triangulated"
 
 
-class FmuContext(str, Enum):
+class FMUContext(str, Enum):
+    """The context in which FMU was being run when data were generated."""
+
     case = "case"
     iteration = "iteration"
     realization = "realization"

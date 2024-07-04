@@ -454,9 +454,9 @@ class Context(BaseModel):
     was produced.
     """
 
-    stage: enums.FmuContext
+    stage: enums.FMUContext
     """The stage of an FMU experiment in which this data was produced.
-    See :class:`enums.FmuContext`."""
+    See :class:`enums.FMUContext`."""
 
 
 class FMUCaseAttributes(BaseModel):
@@ -535,7 +535,7 @@ class FMUAttributes(FMUCaseAttributes):
 class MetadataBase(BaseModel):
     """Base model for all root metadata models generated."""
 
-    class_: enums.FMUClassEnum = Field(
+    class_: enums.FMUClass = Field(
         alias="class",
         title="metadata_class",
     )
@@ -563,7 +563,7 @@ class CaseMetadata(MetadataBase):
     corresponding to /scratch/<asset>/<user>/<my case name>/.
     """
 
-    class_: Literal[enums.FMUClassEnum.case] = Field(
+    class_: Literal[enums.FMUClass.case] = Field(
         alias="class",
         title="metadata_class",
     )
@@ -582,15 +582,15 @@ class ObjectMetadata(MetadataBase):
     """The FMU metadata model for a given data object."""
 
     class_: Literal[
-        enums.FMUClassEnum.surface,
-        enums.FMUClassEnum.table,
-        enums.FMUClassEnum.cpgrid,
-        enums.FMUClassEnum.cpgrid_property,
-        enums.FMUClassEnum.polygons,
-        enums.FMUClassEnum.cube,
-        enums.FMUClassEnum.well,
-        enums.FMUClassEnum.points,
-        enums.FMUClassEnum.dictionary,
+        enums.FMUClass.surface,
+        enums.FMUClass.table,
+        enums.FMUClass.cpgrid,
+        enums.FMUClass.cpgrid_property,
+        enums.FMUClass.polygons,
+        enums.FMUClass.cube,
+        enums.FMUClass.well,
+        enums.FMUClass.points,
+        enums.FMUClass.dictionary,
     ] = Field(
         alias="class",
         title="metadata_class",
@@ -633,7 +633,7 @@ class Root(
     @model_validator(mode="after")
     def _check_class_data_spec(self) -> Root:
         if (
-            self.root.class_ in (enums.FMUClassEnum.table, enums.FMUClassEnum.surface)
+            self.root.class_ in (enums.FMUClass.table, enums.FMUClass.surface)
             and hasattr(self.root, "data")
             and self.root.data.root.spec is None
         ):

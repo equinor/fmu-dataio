@@ -76,7 +76,7 @@ class FileDataProvider(Provider):
         rootpath = (
             self.runpath
             if self.runpath
-            and self.dataio.fmu_context == meta.enums.FmuContext.realization
+            and self.dataio.fmu_context == meta.enums.FMUContext.realization
             else self.dataio._rootpath
         )
         share_folders = self._get_share_folders()
