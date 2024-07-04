@@ -12,9 +12,9 @@ TracklogEvent
 
    
    
-      ~fmu.dataio.datastructure.meta.meta.User
-   
       ~fmu.dataio.datastructure.meta.meta.SystemInformation
+   
+      ~fmu.dataio.datastructure.meta.meta.User
    
    
 
