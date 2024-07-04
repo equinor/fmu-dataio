@@ -658,15 +658,6 @@
           "const": "depth",
           "title": "Content"
         },
-        "depth_reference": {
-          "enum": [
-            "msl",
-            "sb",
-            "rkb"
-          ],
-          "title": "Depth Reference",
-          "type": "string"
-        },
         "description": {
           "anyOf": [
             {
@@ -681,6 +672,22 @@
           ],
           "default": null,
           "title": "Description"
+        },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
         },
         "format": {
           "examples": [
@@ -878,23 +885,7 @@
           "type": "string"
         },
         "vertical_domain": {
-          "anyOf": [
-            {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "examples": [
-            "depth",
-            "time"
-          ],
+          "const": "depth",
           "title": "Vertical Domain"
         }
       },
@@ -905,7 +896,7 @@
         "format",
         "is_observation",
         "is_prediction",
-        "depth_reference"
+        "vertical_domain"
       ],
       "title": "DepthData",
       "type": "object"
@@ -954,6 +945,15 @@
       },
       "title": "Display",
       "type": "object"
+    },
+    "DomainReference": {
+      "enum": [
+        "msl",
+        "sb",
+        "rkb"
+      ],
+      "title": "DomainReference",
+      "type": "string"
     },
     "FMUAttributes": {
       "dependencies": {
@@ -1126,6 +1126,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -1324,11 +1340,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -1338,8 +1350,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -1416,6 +1427,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -1614,11 +1641,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -1628,8 +1651,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -1706,6 +1728,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -1904,11 +1942,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -1918,8 +1952,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -2089,6 +2122,22 @@
           ],
           "default": null,
           "title": "Description"
+        },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
         },
         "field_outline": {
           "$ref": "#/$defs/FieldOutline"
@@ -2291,11 +2340,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -2305,8 +2350,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -2397,6 +2441,22 @@
           ],
           "default": null,
           "title": "Description"
+        },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
         },
         "field_region": {
           "$ref": "#/$defs/FieldRegion"
@@ -2599,11 +2659,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -2613,8 +2669,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -2803,6 +2858,22 @@
           ],
           "default": null,
           "title": "Description"
+        },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
         },
         "fluid_contact": {
           "$ref": "#/$defs/FluidContact"
@@ -3005,11 +3076,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -3019,8 +3086,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -3194,6 +3260,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -3392,11 +3474,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -3406,8 +3484,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -3524,6 +3601,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -3722,11 +3815,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -3736,8 +3825,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -3867,6 +3955,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -4065,11 +4169,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -4079,8 +4179,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -4273,6 +4372,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -4471,11 +4586,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -4485,8 +4596,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -4584,6 +4694,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -4782,11 +4908,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -4796,8 +4918,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -4874,6 +4995,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -5072,11 +5209,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -5086,8 +5219,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -5211,6 +5343,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -5409,11 +5557,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -5423,8 +5567,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -5501,6 +5644,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -5699,11 +5858,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -5713,8 +5868,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -5843,6 +5997,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -6041,11 +6211,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -6055,8 +6221,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -6133,6 +6298,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -6331,11 +6512,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -6345,8 +6522,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -6510,6 +6686,22 @@
           ],
           "default": null,
           "title": "Description"
+        },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
         },
         "format": {
           "examples": [
@@ -6712,11 +6904,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -6726,8 +6914,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -6917,6 +7104,22 @@
           ],
           "default": null,
           "title": "Description"
+        },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
         },
         "format": {
           "examples": [
@@ -7116,11 +7319,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -7130,8 +7329,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -7333,6 +7531,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -7531,11 +7745,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -7545,8 +7755,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -7652,6 +7861,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -7848,23 +8073,7 @@
           "type": "string"
         },
         "vertical_domain": {
-          "anyOf": [
-            {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "examples": [
-            "depth",
-            "time"
-          ],
+          "const": "time",
           "title": "Vertical Domain"
         }
       },
@@ -7874,7 +8083,8 @@
         "stratigraphic",
         "format",
         "is_observation",
-        "is_prediction"
+        "is_prediction",
+        "vertical_domain"
       ],
       "title": "TimeData",
       "type": "object"
@@ -7942,6 +8152,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -8140,11 +8366,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -8154,8 +8376,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -8332,6 +8553,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -8530,11 +8767,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -8544,8 +8777,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -8572,6 +8804,14 @@
       ],
       "title": "Version",
       "type": "object"
+    },
+    "VerticalDomain": {
+      "enum": [
+        "depth",
+        "time"
+      ],
+      "title": "VerticalDomain",
+      "type": "string"
     },
     "VolumesData": {
       "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for volumes.",
@@ -8636,6 +8876,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -8834,11 +9090,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -8848,8 +9100,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [
@@ -8926,6 +9177,22 @@
           "default": null,
           "title": "Description"
         },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
         "format": {
           "examples": [
             "irap_binary"
@@ -9124,11 +9391,7 @@
         "vertical_domain": {
           "anyOf": [
             {
-              "enum": [
-                "depth",
-                "time"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/VerticalDomain"
             },
             {
               "type": "null"
@@ -9138,8 +9401,7 @@
           "examples": [
             "depth",
             "time"
-          ],
-          "title": "Vertical Domain"
+          ]
         }
       },
       "required": [

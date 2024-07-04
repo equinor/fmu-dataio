@@ -485,6 +485,75 @@ def test_workflow_as_string(fmurun_w_casemetadata, monkeypatch, globalconfig1, r
     assert meta["fmu"]["workflow"]["reference"] == workflow
 
 
+def test_vertical_domain(regsurf, globalconfig1):
+    """test inputting vertical_domain and domain_reference in various ways"""
+
+    # test that giving vertical_domain and domain_reference as strings
+    mymeta = ExportData(
+        config=globalconfig1,
+        vertical_domain="time",
+        domain_reference="rkb",
+    ).generate_metadata(regsurf)
+    assert mymeta["data"]["vertical_domain"] == "time"
+    assert mymeta["data"]["domain_reference"] == "rkb"
+
+    # test giving vertical_domain as dictionary
+    with pytest.warns(FutureWarning, match="deprecated"):
+        mymeta = ExportData(
+            config=globalconfig1, vertical_domain={"time": "sb"}
+        ).generate_metadata(regsurf)
+    assert mymeta["data"]["vertical_domain"] == "time"
+    assert mymeta["data"]["domain_reference"] == "sb"
+
+    # test excluding vertical_domain and domain_reference
+    mymeta = ExportData(config=globalconfig1).generate_metadata(regsurf)
+    assert "vertical_domain" not in mymeta["data"]
+    assert mymeta["data"]["domain_reference"] == "msl"  # default value
+
+    # test invalid input
+    with pytest.raises(pydantic.ValidationError, match="vertical_domain"):
+        ExportData(config=globalconfig1, vertical_domain="wrong").generate_metadata(
+            regsurf
+        )
+    with pytest.raises(pydantic.ValidationError, match="domain_reference"):
+        ExportData(config=globalconfig1, domain_reference="wrong").generate_metadata(
+            regsurf
+        )
+    with pytest.raises(pydantic.ValidationError, match="2 validation errors"):
+        ExportData(
+            config=globalconfig1, vertical_domain={"invalid": 5}
+        ).generate_metadata(regsurf)
+
+
+def test_vertical_domain_vs_depth_time_content(regsurf, globalconfig1):
+    """Test the vertical_domain vs content depth/time"""
+
+    # test content depth/time sets vertical_domain
+    eobj = ExportData(config=globalconfig1, content="depth")
+    mymeta = eobj.generate_metadata(regsurf)
+    assert mymeta["data"]["vertical_domain"] == "depth"
+    assert mymeta["data"]["domain_reference"] == "msl"  # default value
+
+    eobj = ExportData(config=globalconfig1, content="depth", domain_reference="sb")
+    mymeta = eobj.generate_metadata(regsurf)
+    assert mymeta["data"]["vertical_domain"] == "depth"
+    assert mymeta["data"]["domain_reference"] == "sb"
+
+    eobj = ExportData(config=globalconfig1, content="time")
+    mymeta = eobj.generate_metadata(regsurf)
+    assert mymeta["data"]["vertical_domain"] == "time"
+    assert mymeta["data"]["domain_reference"] == "msl"  # default value
+
+    # test mismatch between content and vertical_domain
+    with pytest.warns(UserWarning, match="'vertical_domain' will be set to 'depth'"):
+        eobj = ExportData(config=globalconfig1, content="depth", vertical_domain="time")
+        mymeta = eobj.generate_metadata(regsurf)
+
+    with pytest.warns(UserWarning, match="'vertical_domain' will be set to 'time'"):
+        eobj = ExportData(config=globalconfig1, content="time", vertical_domain="depth")
+        mymeta = eobj.generate_metadata(regsurf)
+
+
 def test_set_display_name(regsurf, globalconfig2):
     """Test that giving the display_name argument sets display.name."""
     eobj = ExportData(

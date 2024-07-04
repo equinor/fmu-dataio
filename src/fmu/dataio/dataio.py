@@ -220,6 +220,10 @@ class ExportData:
             fmu_context ``case`` the case directory needs to be provided through the
             argument ``casepath``.
 
+        domain_reference: Optional, reference for the vertical scale of the data.
+            Valid references are "msl"/"sb"/"rkb", and the default is "msl".
+            Note use the ``vertical_domain`` key to set the domain (depth or time).
+
         description: A multiline description of the data either as a string or a list
             of strings.
 
@@ -290,8 +294,10 @@ class ExportData:
             [[20200101, "monitor"], [20180101, "base"]] or just [[2021010]]. The output
             to metadata will from version 0.9 be different (API change)
 
-        vertical_domain: This is dictionary with a key and a reference e.g.
-            {"depth": "msl"} which is default if missing.
+        vertical_domain: Optional. String with vertical domain either "time" or "depth".
+            It is also possible to provide a reference for the vertical scale, see the
+            domain_reference key. Note that if the ``content`` is "depth" or "time"
+            the vertical_domain will be set accordingly.
 
         workflow: Short tag desciption of workflow (as description)
 
@@ -360,7 +366,8 @@ class ExportData:
     classification: Optional[str] = None
     config: dict = field(default_factory=dict)
     content: Optional[Union[dict, str]] = None
-    depth_reference: str = "msl"
+    depth_reference: str = "msl"  # deprecated
+    domain_reference: str = "msl"
     description: Union[str, list] = ""
     display_name: Optional[str] = None
     fmu_context: Optional[str] = None
@@ -382,7 +389,7 @@ class ExportData:
     timedata: Optional[List[list]] = None
     unit: Optional[str] = ""
     verbosity: str = "DEPRECATED"  # remove in version 2
-    vertical_domain: dict = field(default_factory=dict)
+    vertical_domain: Optional[Union[str, dict]] = None  # dict input is deprecated
     workflow: Optional[Union[str, Dict[str, str]]] = None
     table_index: Optional[list] = None
 
@@ -409,9 +416,6 @@ class ExportData:
         self._show_deprecations_or_notimplemented()
 
         self._fmurun = get_fmu_context_from_environment() is not None
-
-        # set defaults for mutable keys
-        self.vertical_domain = {"depth": "msl"}
 
         # if input is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
@@ -542,6 +546,17 @@ class ExportData:
                 "removal in fmu-dataio version 2. Use 'casepath' instead!",
                 UserWarning,
             )
+        if isinstance(self.vertical_domain, dict):
+            warn(
+                "Using the 'vertical_domain' argument to set both the vertical domain "
+                "and the reference will be deprecated. Set the 'vertical_domain' "
+                "argument to a string with value either 'time'/'depth', and provide "
+                "the domain reference through the 'domain_reference' argument instead.",
+                FutureWarning,
+            )
+            self.vertical_domain, self.domain_reference = list(
+                self.vertical_domain.items()
+            )[0]
 
         if self.grid_model:
             warn(
@@ -611,6 +626,12 @@ class ExportData:
         if self.include_ertjobs:
             warn(
                 "The 'include_ertjobs' option is deprecated and should be removed.",
+                UserWarning,
+            )
+        if self.depth_reference:
+            warn(
+                "The 'depth_reference' key has no function. Use the 'domain_reference' "
+                "key instead to set the reference for the given 'vertical_domain'.",
                 UserWarning,
             )
 

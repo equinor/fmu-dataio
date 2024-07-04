@@ -282,11 +282,17 @@ class Data(BaseModel):
     unit: str = Field(default="", examples=["m"])
     """A reference to a known unit."""
 
-    vertical_domain: Optional[Literal["depth", "time"]] = Field(
+    vertical_domain: Optional[enums.VerticalDomain] = Field(
         default=None,
         examples=["depth", "time"],
     )
     """A reference to a known vertical domain."""
+
+    domain_reference: Optional[enums.DomainReference] = Field(
+        default=None,
+        examples=["msl", "sb", "rkb"],
+    )
+    """The reference for the vertical scale of the data."""
 
     table_index: Optional[List[str]] = Field(
         default=None,
@@ -317,8 +323,19 @@ class DepthData(Data):
     content: Literal[enums.Content.depth]
     """The type of content these data represent."""
 
-    depth_reference: Literal["msl", "sb", "rkb"]
-    """A reference to a known depth reference."""
+    vertical_domain: Literal[enums.VerticalDomain.depth]
+    """A reference to a known vertical domain."""
+
+    @field_validator("vertical_domain", mode="before")
+    @classmethod
+    def set_vertical_domain(cls, v: str) -> Literal[enums.VerticalDomain.depth]:
+        """For DepthData the domain should be 'depth'"""
+        if v and v != enums.VerticalDomain.depth:
+            warnings.warn(
+                f"The value of 'vertical_domain' is '{v}'. Since this is a "
+                "'depth' content the 'vertical_domain' will be set to 'depth'."
+            )
+        return enums.VerticalDomain.depth
 
 
 class FaciesThicknessData(Data):
@@ -531,6 +548,20 @@ class TimeData(Data):
 
     content: Literal[enums.Content.time]
     """The type of content these data represent."""
+
+    vertical_domain: Literal[enums.VerticalDomain.time]
+    """A reference to a known vertical domain."""
+
+    @field_validator("vertical_domain", mode="before")
+    @classmethod
+    def set_vertical_domain(cls, v: str) -> Literal[enums.VerticalDomain.time]:
+        """For TimeData the domain should be 'time'"""
+        if v and v != enums.VerticalDomain.time:
+            warnings.warn(
+                f"The value of 'vertical_domain' is '{v}'. Since this is a "
+                "'time' content the 'vertical_domain' will be set to 'time'."
+            )
+        return enums.VerticalDomain.time
 
 
 class TimeSeriesData(Data):

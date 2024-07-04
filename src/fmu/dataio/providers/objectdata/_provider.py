@@ -49,7 +49,7 @@ data:
     layout: regular # / cornerpoint / structured / etc
     unit: m
     vertical_domain: depth # / time / null
-    depth_reference: msl # / seabed / etc # mandatory when vertical_domain is depth?
+    domain_reference: msl # / seabed / etc # mandatory when vertical_domain is depth?
     grid_model: # Making this an object to allow for expanding in the future
         name: MyGrid # important for data identification, also for other data types
     spec: # class/layout dependent, optional? Can spec be expanded to work for all
