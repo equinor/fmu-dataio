@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from pprint import pformat
 
 import pytz
-from fmu.dataio.datastructure import meta
+from fmu.dataio._model import Root
 from fmu.sumo.explorer import Explorer
 from pydantic import ValidationError
 from tqdm import tqdm
@@ -77,7 +77,7 @@ async def main(
             pbar.update()
 
             try:
-                parsed = meta.Root.model_validate(obj)
+                parsed = Root.model_validate(obj)
             except ValidationError as e:
                 pbar.write(pformat(obj))
                 pbar.write(str(e))

@@ -8,7 +8,7 @@ import pydantic
 import pytest
 
 # from conftest import pretend_ert_env_run1
-from fmu.dataio.datastructure.meta.enums import FMUContext
+from fmu.dataio._model.enums import FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import RESTART_PATH_ENVNAME, FmuEnv, FmuProvider
 

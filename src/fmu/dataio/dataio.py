@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 from ._definitions import ValidationError
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
+from ._model import enums, global_configuration
 from ._utils import (
     detect_inside_rms,  # dataio_examples,
     export_file,
@@ -38,9 +39,6 @@ from ._utils import (
 )
 from .aggregation import AggregatedData
 from .case import InitializeCase
-from .datastructure.configuration import global_configuration
-from .datastructure.meta import enums
-from .datastructure.meta.enums import FMUContext
 from .preprocessed import ExportPreprocessedData
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 
@@ -695,15 +693,18 @@ class ExportData:
             self.fmu_context = None
 
         else:
-            self.fmu_context = FMUContext(self.fmu_context.lower())
+            self.fmu_context = enums.FMUContext(self.fmu_context.lower())
             logger.info("FMU context is %s", self.fmu_context)
 
-        if self.preprocessed and self.fmu_context == FMUContext.realization:
+        if self.preprocessed and self.fmu_context == enums.FMUContext.realization:
             raise ValueError(
                 "Can't export preprocessed data in a fmu_context='realization'."
             )
 
-        if self.fmu_context != FMUContext.case and env_fmu_context == FMUContext.case:
+        if (
+            self.fmu_context != enums.FMUContext.case
+            and env_fmu_context == enums.FMUContext.case
+        ):
             warn(
                 "fmu_context is set to 'realization', but unable to detect "
                 "ERT runpath from environment variable. "
@@ -760,7 +761,7 @@ class ExportData:
         )
 
         if self._fmurun:
-            assert isinstance(self.fmu_context, FMUContext)
+            assert isinstance(self.fmu_context, enums.FMUContext)
             if casepath := FmuProvider(
                 fmu_context=self.fmu_context,
                 casepath_proposed=Path(self.casepath) if self.casepath else None,
@@ -780,7 +781,7 @@ class ExportData:
         return self._pwd
 
     def _get_fmu_provider(self) -> FmuProvider:
-        assert isinstance(self.fmu_context, FMUContext)
+        assert isinstance(self.fmu_context, enums.FMUContext)
         return FmuProvider(
             model=self.config.get("model"),
             fmu_context=self.fmu_context,

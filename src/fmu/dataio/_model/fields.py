@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from collections import ChainMap
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Literal, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 from uuid import UUID
 
 from pydantic import (
@@ -14,14 +13,11 @@ from pydantic import (
     RootModel,
     model_validator,
 )
-from typing_extensions import Annotated
 
-from . import content, enums
+from . import enums
 
 if TYPE_CHECKING:
     from pydantic_core import CoreSchema
-
-T = TypeVar("T", Dict, List, object)
 
 
 class Asset(BaseModel):
@@ -461,7 +457,7 @@ class Context(BaseModel):
     See :class:`enums.FMUContext`."""
 
 
-class FMUCaseAttributes(BaseModel):
+class FMUBase(BaseModel):
     """
     The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU
     results data model can be applied to data from *other* sources - in which the
@@ -477,7 +473,7 @@ class FMUCaseAttributes(BaseModel):
     See :class:`Model`."""
 
 
-class FMUAttributes(FMUCaseAttributes):
+class FMU(FMUBase):
     """
     The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU
     results data model can be applied to data from *other* sources - in which the
@@ -532,239 +528,3 @@ class FMUAttributes(FMUCaseAttributes):
             }
         )
         return json_schema
-
-
-class MetadataBase(BaseModel):
-    """Base model for all root metadata models generated."""
-
-    class_: enums.FMUClass = Field(
-        alias="class",
-        title="metadata_class",
-    )
-
-    masterdata: Masterdata
-    """The ``masterdata`` block contains information related to masterdata.
-    See :class:`Masterdata`."""
-
-    tracklog: List[TracklogEvent]
-    """The ``tracklog`` block contains a record of events recorded on these data.
-    See :class:`TracklogEvent`."""
-
-    source: Literal["fmu"]
-    """The source of this data. Defaults to 'fmu'."""
-
-    version: Literal["0.8.0"]
-    """The version of the schema that generated this data."""
-
-
-class CaseMetadata(MetadataBase):
-    """The FMU metadata model for an FMU case.
-
-    A case represent a set of iterations that belong together, either by being part of
-    the same run (i.e. history matching) or by being placed together by the user,
-    corresponding to /scratch/<asset>/<user>/<my case name>/.
-    """
-
-    class_: Literal[enums.FMUClass.case] = Field(
-        alias="class",
-        title="metadata_class",
-    )
-    """The class of this metadata object. In this case, always an FMU case."""
-
-    fmu: FMUCaseAttributes
-    """The ``fmu`` block contains all attributes specific to FMU.
-    See :class:`FMUCaseAttributes`."""
-
-    access: Access
-    """The ``access`` block contains information related to access control for
-    this data object. See :class:`Access`."""
-
-
-class ObjectMetadata(MetadataBase):
-    """The FMU metadata model for a given data object."""
-
-    class_: Literal[
-        enums.FMUClass.surface,
-        enums.FMUClass.table,
-        enums.FMUClass.cpgrid,
-        enums.FMUClass.cpgrid_property,
-        enums.FMUClass.polygons,
-        enums.FMUClass.cube,
-        enums.FMUClass.well,
-        enums.FMUClass.points,
-        enums.FMUClass.dictionary,
-    ] = Field(
-        alias="class",
-        title="metadata_class",
-    )
-    """The class of the data object being exported and described by the metadata
-    contained herein."""
-
-    fmu: FMUAttributes
-    """The ``fmu`` block contains all attributes specific to FMU.
-    See :class:`FMUAttributes`."""
-
-    access: SsdlAccess
-    """The ``access`` block contains information related to access control for
-    this data object. See :class:`SsdlAccess`."""
-
-    data: content.AnyData
-    """The ``data`` block contains information about the data contained in this
-    object. See :class:`content.AnyData`."""
-
-    file: File
-    """ The ``file`` block contains references to this data object as a file on a disk.
-    See :class:`File`."""
-
-    display: Display
-    """ The ``display`` block contains information related to how this data object
-    should/could be displayed. See :class:`Display`."""
-
-
-class Root(
-    RootModel[
-        Annotated[
-            Union[
-                CaseMetadata,
-                ObjectMetadata,
-            ],
-            Field(discriminator="class_"),
-        ]
-    ]
-):
-    @model_validator(mode="after")
-    def _check_class_data_spec(self) -> Root:
-        if (
-            self.root.class_ in (enums.FMUClass.table, enums.FMUClass.surface)
-            and hasattr(self.root, "data")
-            and self.root.data.root.spec is None
-        ):
-            raise ValueError(
-                "When 'class' is 'table' or 'surface', "
-                "'data' must contain the 'spec' field."
-            )
-        return self
-
-    @classmethod
-    def __get_pydantic_json_schema__(
-        cls,
-        core_schema: CoreSchema,
-        handler: GetJsonSchemaHandler,
-    ) -> Dict[str, object]:
-        json_schema = super().__get_pydantic_json_schema__(core_schema, handler)
-        json_schema = handler.resolve_ref_schema(json_schema)
-        json_schema.update(
-            {
-                "if": {"properties": {"class": {"enum": ["table", "surface"]}}},
-                "then": {"properties": {"data": {"required": ["spec"]}}},
-            }
-        )
-        return json_schema
-
-
-def _remove_discriminator_mapping(obj: Dict) -> Dict:
-    """
-    Modifies a provided JSON schema object by specifically
-    removing the `discriminator.mapping` fields. This alteration aims
-    to ensure compatibility with the AJV Validator by addressing and
-    resolving schema validation errors that previously led to startup
-    failures in applications like `sumo-core`.
-    """
-    del obj["discriminator"]["mapping"]
-    del obj["$defs"]["AnyData"]["discriminator"]["mapping"]
-    return obj
-
-
-def _remove_format_path(obj: T) -> T:
-    """
-    Removes entries with key "format" and value "path" from dictionaries. This
-    adjustment is necessary because JSON Schema does not recognize the "format":
-    "path", while OpenAPI does. This function is used in contexts where OpenAPI
-    specifications are not applicable.
-    """
-
-    if isinstance(obj, dict):
-        return {
-            k: _remove_format_path(v)
-            for k, v in obj.items()
-            if not (k == "format" and v == "path")
-        }
-
-    if isinstance(obj, list):
-        return [_remove_format_path(element) for element in obj]
-
-    return obj
-
-
-def dump() -> Dict:
-    """
-    Dumps the export root model to JSON format for schema validation and
-    usage in FMU data structures.
-
-    To update the schema:
-        1. Run the following CLI command to dump the updated schema:
-            `python3 -m fmu.dataio.datastructure.meta > schema/definitions/0.8.0/schema/fmu_meta.json`
-        2. Check the diff for changes. Adding fields usually indicates non-breaking
-            changes and is generally safe. However, if fields are removed, it could
-            indicate breaking changes that may affect dependent systems. Perform a
-            quality control (QC) check to ensure these changes do not break existing
-            implementations.
-            If changes are satisfactory and do not introduce issues, commit
-            them to maintain schema consistency.
-    """  # noqa: E501
-    schema = dict(
-        ChainMap(
-            {
-                "$contractual": [
-                    "access",
-                    "class",
-                    "data.alias",
-                    "data.bbox",
-                    "data.content",
-                    "data.format",
-                    "data.grid_model",
-                    "data.is_observation",
-                    "data.is_prediction",
-                    "data.name",
-                    "data.offset",
-                    "data.seismic.attribute",
-                    "data.spec.columns",
-                    "data.stratigraphic",
-                    "data.stratigraphic_alias",
-                    "data.tagname",
-                    "data.time",
-                    "data.vertical_domain",
-                    "file.checksum_md5",
-                    "file.relative_path",
-                    "file.size_bytes",
-                    "fmu.aggregation.operation",
-                    "fmu.aggregation.realization_ids",
-                    "fmu.case",
-                    "fmu.context.stage",
-                    "fmu.iteration.name",
-                    "fmu.iteration.uuid",
-                    "fmu.model",
-                    "fmu.realization.id",
-                    "fmu.realization.name",
-                    "fmu.realization.uuid",
-                    "fmu.workflow",
-                    "masterdata",
-                    "source",
-                    "tracklog.datetime",
-                    "tracklog.event",
-                    "tracklog.user.id",
-                    "version",
-                ],
-                # schema must be present for "dependencies" key to work.
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "$id": "fmu_meta.json",
-            },
-            Root.model_json_schema(),
-        )
-    )
-
-    return _remove_format_path(
-        _remove_discriminator_mapping(
-            schema,
-        ),
-    )

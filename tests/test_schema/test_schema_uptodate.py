@@ -1,6 +1,6 @@
 import json
 
-from fmu.dataio.datastructure.meta import dump
+from fmu.dataio._model import dump
 
 
 def test_schema_uptodate():

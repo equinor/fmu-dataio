@@ -11,9 +11,8 @@ from pydantic import ValidationError
 
 from . import _metadata, _utils
 from ._logging import null_logger
-from .datastructure._internal import internal
-from .datastructure.configuration import global_configuration
-from .datastructure.meta import meta
+from ._model import global_configuration, internal
+from ._model.fields import Access, Case, Masterdata, Model, User
 
 logger: Final = null_logger(__name__)
 
@@ -118,16 +117,16 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
             return {}
 
         self._metadata = internal.CaseSchema(
-            masterdata=meta.Masterdata.model_validate(self.config["masterdata"]),
-            access=meta.Access.model_validate(self.config["access"]),
+            masterdata=Masterdata.model_validate(self.config["masterdata"]),
+            access=Access.model_validate(self.config["access"]),
             fmu=internal.FMUModelCase(
-                model=meta.Model.model_validate(
+                model=Model.model_validate(
                     self.config["model"],
                 ),
-                case=meta.Case(
+                case=Case(
                     name=self.casename,
                     uuid=self._case_uuid(),
-                    user=meta.User(id=self.caseuser),
+                    user=User(id=self.caseuser),
                     description=None,
                 ),
             ),

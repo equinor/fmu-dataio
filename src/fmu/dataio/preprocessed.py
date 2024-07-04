@@ -11,10 +11,10 @@ from pydantic import ValidationError
 
 from ._logging import null_logger
 from ._metadata import generate_meta_tracklog
+from ._model import internal
+from ._model.enums import FMUContext
+from ._model.fields import File
 from ._utils import export_metadata_file, md5sum
-from .datastructure._internal import internal
-from .datastructure.meta import meta
-from .datastructure.meta.enums import FMUContext
 from .exceptions import InvalidMetadataError
 from .providers._filedata import ShareFolder
 from .providers._fmu import (
@@ -145,10 +145,10 @@ class ExportPreprocessedData:
                 "data to prevent mismatch between the file and its metadata."
             )
 
-    def _get_meta_file(self, objfile: Path, checksum_md5: str) -> meta.File:
-        """Return a meta.File model with updated paths and checksum_md5"""
+    def _get_meta_file(self, objfile: Path, checksum_md5: str) -> File:
+        """Return a File model with updated paths and checksum_md5"""
         relative_path = self._get_relative_export_path(existing_path=objfile)
-        return meta.File(
+        return File(
             absolute_path=self.casepath / relative_path,
             relative_path=relative_path,
             checksum_md5=checksum_md5,

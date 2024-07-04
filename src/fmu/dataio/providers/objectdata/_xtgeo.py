@@ -9,10 +9,9 @@ import numpy as np
 
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
-from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D, Geometry
-from fmu.dataio.datastructure.meta.enums import FMUClass, Layout
-from fmu.dataio.datastructure.meta.specification import (
+from fmu.dataio._model.data import BoundingBox2D, BoundingBox3D, Geometry
+from fmu.dataio._model.enums import FMUClass, Layout
+from fmu.dataio._model.specification import (
     CPGridPropertySpecification,
     CPGridSpecification,
     CubeSpecification,
@@ -20,6 +19,7 @@ from fmu.dataio.datastructure.meta.specification import (
     PolygonsSpecification,
     SurfaceSpecification,
 )
+from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
 
 from ._base import ObjectDataProvider
 

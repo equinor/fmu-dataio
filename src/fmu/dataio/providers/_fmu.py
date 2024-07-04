@@ -38,9 +38,8 @@ from warnings import warn
 from fmu.config import utilities as ut
 from fmu.dataio import _utils
 from fmu.dataio._logging import null_logger
-from fmu.dataio.datastructure._internal import internal
-from fmu.dataio.datastructure.meta import meta
-from fmu.dataio.datastructure.meta.enums import FMUContext
+from fmu.dataio._model import fields, internal
+from fmu.dataio._model.enums import FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 
 from ._base import Provider
@@ -257,7 +256,7 @@ class FmuProvider(Provider):
             f"{restart_metadata.fmu.case.uuid}{restart_path.name}"
         )
 
-    def _get_ert_parameters(self) -> meta.Parameters | None:
+    def _get_ert_parameters(self) -> fields.Parameters | None:
         logger.debug("Read ERT parameters")
         assert self._runpath is not None
         parameters_file = self._runpath / "parameters.txt"
@@ -269,7 +268,7 @@ class FmuProvider(Provider):
         logger.debug("parameters.txt parsed.")
         # BUG(?): value can contain Nones, loop in fn. below
         # does contains check, will fail.
-        return meta.Parameters(root=_utils.nested_parameters_dict(params))  # type: ignore
+        return fields.Parameters(root=_utils.nested_parameters_dict(params))  # type: ignore
 
     def _get_iteration_and_real_uuid(self, case_uuid: UUID) -> tuple[UUID, UUID]:
         iter_uuid = _utils.uuid_from_string(f"{case_uuid}{self._iter_name}")
@@ -285,16 +284,16 @@ class FmuProvider(Provider):
             ut.yaml_load(case_metafile, loader="standard")
         )
 
-    def _get_realization_meta(self, real_uuid: UUID) -> meta.Realization:
-        return meta.Realization(
+    def _get_realization_meta(self, real_uuid: UUID) -> fields.Realization:
+        return fields.Realization(
             id=self._real_id,
             name=self._real_name,
             parameters=self._get_ert_parameters(),
             uuid=real_uuid,
         )
 
-    def _get_iteration_meta(self, iter_uuid: UUID) -> meta.Iteration:
-        return meta.Iteration(
+    def _get_iteration_meta(self, iter_uuid: UUID) -> fields.Iteration:
+        return fields.Iteration(
             id=self._iter_id,
             name=self._iter_name,
             uuid=iter_uuid,
@@ -306,11 +305,11 @@ class FmuProvider(Provider):
     def _get_fmucontext_meta(self) -> internal.Context:
         return internal.Context(stage=self.fmu_context)
 
-    def _get_fmumodel_meta(self) -> meta.Model:
-        return meta.Model.model_validate(self.model)
+    def _get_fmumodel_meta(self) -> fields.Model:
+        return fields.Model.model_validate(self.model)
 
-    def _get_workflow_meta(self) -> meta.Workflow:
+    def _get_workflow_meta(self) -> fields.Workflow:
         assert self.workflow is not None
         if isinstance(self.workflow, dict):
-            return meta.Workflow.model_validate(self.workflow)
-        return meta.Workflow(reference=self.workflow)
+            return fields.Workflow.model_validate(self.workflow)
+        return fields.Workflow(reference=self.workflow)

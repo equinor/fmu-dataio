@@ -11,11 +11,11 @@ from fmu.dataio._metadata import (
     VERSION,
     generate_export_metadata,
 )
-from fmu.dataio._utils import prettyprint_dict
-from fmu.dataio.datastructure.meta.meta import (
+from fmu.dataio._model.fields import (
     OperatingSystem,
     TracklogEvent,
 )
+from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 
 # pylint: disable=no-member

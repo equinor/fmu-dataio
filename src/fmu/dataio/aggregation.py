@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from . import _utils, dataio, types
 from ._logging import null_logger
 from ._metadata import generate_meta_tracklog
-from .datastructure.meta.enums import FMUContext
+from ._model.enums import FMUContext
 from .providers.objectdata._provider import objectdata_provider_factory
 
 logger: Final = null_logger(__name__)

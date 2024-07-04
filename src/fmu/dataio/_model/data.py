@@ -15,7 +15,8 @@ from pydantic import (
 )
 from typing_extensions import Annotated
 
-from . import enums, specification
+from . import enums
+from .specification import AnySpecification
 
 if TYPE_CHECKING:
     from pydantic_core import CoreSchema
@@ -240,7 +241,8 @@ class Data(BaseModel):
 
     bbox: Optional[Union[BoundingBox3D, BoundingBox2D]] = Field(default=None)
     """A block containing the bounding box for this data. Only applicable if the
-    object is coordinate-based. See :class:`BoundingBox3D` and :class:`BoudingBox2D`."""
+    object is coordinate-based. See :class:`BoundingBox3D` and
+    :class:`BoundingBox2D`."""
 
     format: str = Field(examples=["irap_binary"])
     """A reference to a known file format."""
@@ -267,9 +269,9 @@ class Data(BaseModel):
     """If a specific horizon is represented with an offset, e.g.
     "2 m below Top Volantis"."""
 
-    spec: Optional[specification.AnySpecification] = Field(default=None)
+    spec: Optional[AnySpecification] = Field(default=None)
     """A block containing the specs for this object, if applicable.
-    See :class:`specification.AnySpecification`."""
+    See :class:`AnySpecification`."""
 
     time: Optional[Time] = Field(default=None)
     """A block containing lists of objects describing timestamp information for this

@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import ExportFolder
-from fmu.dataio.datastructure.meta import meta
+from fmu.dataio._model import fields
 from fmu.dataio.providers._filedata import FileDataProvider
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 
@@ -232,7 +232,7 @@ def test_filedata_provider(regsurf, tmp_path, globalconfig2):
     fdata = FileDataProvider(cfg, objdata)
     filemeta = fdata.get_metadata()
 
-    assert isinstance(filemeta, meta.File)
+    assert isinstance(filemeta, fields.File)
     assert (
         str(filemeta.relative_path)
         == f"share/results/efolder/parent--name--tag--{t2}_{t1}.gri"

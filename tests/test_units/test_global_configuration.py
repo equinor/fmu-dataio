@@ -1,5 +1,5 @@
 import pytest
-from fmu.dataio.datastructure.configuration import global_configuration
+from fmu.dataio._model import global_configuration
 from hypothesis import given, strategies
 
 

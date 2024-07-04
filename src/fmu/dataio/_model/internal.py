@@ -21,7 +21,8 @@ from pydantic import (
 )
 
 from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
-from fmu.dataio.datastructure.meta import meta
+
+from . import data, enums, fields
 
 
 def property_warn() -> None:
@@ -39,7 +40,7 @@ def property_warn() -> None:
     )
 
 
-class AllowedContentSeismic(meta.content.Seismic):
+class AllowedContentSeismic(data.Seismic):
     # Deprecated
     offset: Optional[str] = Field(default=None)
 
@@ -62,15 +63,15 @@ class AllowedContentProperty(BaseModel):
 
 
 class ContentRequireSpecific(BaseModel):
-    field_outline: Optional[meta.content.FieldOutline] = Field(default=None)
-    field_region: Optional[meta.content.FieldRegion] = Field(default=None)
-    fluid_contact: Optional[meta.content.FluidContact] = Field(default=None)
+    field_outline: Optional[data.FieldOutline] = Field(default=None)
+    field_region: Optional[data.FieldRegion] = Field(default=None)
+    fluid_contact: Optional[data.FluidContact] = Field(default=None)
     property: Optional[AllowedContentProperty] = Field(default=None)
     seismic: Optional[AllowedContentSeismic] = Field(default=None)
 
 
 class AllowedContent(BaseModel):
-    content: Union[meta.enums.Content, Literal["unset"]]
+    content: Union[enums.Content, Literal["unset"]]
     content_incl_specific: Optional[ContentRequireSpecific] = Field(default=None)
 
     @model_validator(mode="before")
@@ -81,7 +82,7 @@ class AllowedContent(BaseModel):
 
         if content in ContentRequireSpecific.model_fields and not content_specific:
             # 'property' should be included below after a deprecation period
-            if content == meta.enums.Content.property:
+            if content == enums.Content.property:
                 property_warn()
             else:
                 raise ValueError(f"Content {content} requires additional input")
@@ -108,21 +109,21 @@ class JsonSchemaMetadata(BaseModel, populate_by_name=True):
 
 
 class FMUModelCase(BaseModel):
-    model: meta.Model
-    case: meta.Case
+    model: fields.Model
+    case: fields.Case
 
 
 class Context(BaseModel, use_enum_values=True):
-    stage: meta.enums.FMUContext
+    stage: enums.FMUContext
 
 
 # Remove the two models below when content is required as input.
-class UnsetContent(meta.content.Data):
+class UnsetContent(data.Data):
     content: Literal["unset"]  # type: ignore
 
     @model_validator(mode="after")
     def _deprecation_warning(self) -> UnsetContent:
-        valid_contents = [m.value for m in meta.enums.Content]
+        valid_contents = [m.value for m in enums.Content]
         warnings.warn(
             "The <content> is not provided which will produce invalid metadata. "
             "It is strongly recommended that content is given explicitly! "
@@ -133,11 +134,11 @@ class UnsetContent(meta.content.Data):
         return self
 
 
-class UnsetAnyContent(meta.content.AnyData):
+class UnsetAnyContent(data.AnyData):
     root: UnsetContent  # type: ignore
 
 
-class FMUClassMetaData(meta.FMUAttributes):
+class FMUClassMetaData(fields.FMU):
     # This class is identical to the one used in the schema
     # exept for more fmu context values beeing allowed internally
     context: Context  # type: ignore
@@ -147,30 +148,30 @@ class DataClassMeta(JsonSchemaMetadata):
     # TODO: aim to use meta.FMUDataClassMeta as base
     # class and disallow creating invalid metadata.
     class_: Literal[
-        meta.enums.FMUClass.surface,
-        meta.enums.FMUClass.table,
-        meta.enums.FMUClass.cpgrid,
-        meta.enums.FMUClass.cpgrid_property,
-        meta.enums.FMUClass.polygons,
-        meta.enums.FMUClass.cube,
-        meta.enums.FMUClass.well,
-        meta.enums.FMUClass.points,
-        meta.enums.FMUClass.dictionary,
+        enums.FMUClass.surface,
+        enums.FMUClass.table,
+        enums.FMUClass.cpgrid,
+        enums.FMUClass.cpgrid_property,
+        enums.FMUClass.polygons,
+        enums.FMUClass.cube,
+        enums.FMUClass.well,
+        enums.FMUClass.points,
+        enums.FMUClass.dictionary,
     ] = Field(alias="class")
     fmu: Optional[FMUClassMetaData]
-    masterdata: Optional[meta.Masterdata]
-    access: Optional[meta.SsdlAccess]
-    data: Union[meta.content.AnyData, UnsetAnyContent]
-    file: meta.File
-    display: meta.Display
-    tracklog: List[meta.TracklogEvent]
+    masterdata: Optional[fields.Masterdata]
+    access: Optional[fields.SsdlAccess]
+    data: Union[data.AnyData, UnsetAnyContent]
+    file: fields.File
+    display: fields.Display
+    tracklog: List[fields.TracklogEvent]
     preprocessed: Optional[bool] = Field(alias="_preprocessed", default=None)
 
 
 class CaseSchema(JsonSchemaMetadata):
     class_: Literal["case"] = Field(alias="class", default="case")
-    masterdata: meta.Masterdata
-    access: meta.Access
+    masterdata: fields.Masterdata
+    access: fields.Access
     fmu: FMUModelCase
     description: Optional[List[str]] = Field(default=None)
-    tracklog: List[meta.TracklogEvent]
+    tracklog: List[fields.TracklogEvent]
