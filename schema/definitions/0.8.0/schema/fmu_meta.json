@@ -220,6 +220,7 @@
       "type": "object"
     },
     "AxisOrientation": {
+      "description": "The axis orientation for a given data object.",
       "enum": [
         1,
         -1
@@ -231,22 +232,18 @@
       "description": "Contains the 2D coordinates within which a data object is contained.",
       "properties": {
         "xmax": {
-          "description": "Maximum x-coordinate",
           "title": "Xmax",
           "type": "number"
         },
         "xmin": {
-          "description": "Minimum x-coordinate",
           "title": "Xmin",
           "type": "number"
         },
         "ymax": {
-          "description": "Maximum y-coordinate",
           "title": "Ymax",
           "type": "number"
         },
         "ymin": {
-          "description": "Minimum y-coordinate",
           "title": "Ymin",
           "type": "number"
         }
@@ -264,32 +261,26 @@
       "description": "Contains the 3D coordinates within which a data object is contained.",
       "properties": {
         "xmax": {
-          "description": "Maximum x-coordinate",
           "title": "Xmax",
           "type": "number"
         },
         "xmin": {
-          "description": "Minimum x-coordinate",
           "title": "Xmin",
           "type": "number"
         },
         "ymax": {
-          "description": "Maximum y-coordinate",
           "title": "Ymax",
           "type": "number"
         },
         "ymin": {
-          "description": "Minimum y-coordinate",
           "title": "Ymin",
           "type": "number"
         },
         "zmax": {
-          "description": "Maximum z-coordinate. For regular surfaces this field represents the maximum surface value and it will be absent if all values are undefined.",
           "title": "Zmax",
           "type": "number"
         },
         "zmin": {
-          "description": "Minimum z-coordinate. For regular surfaces this field represents the minimum surface value and it will be absent if all values are undefined.",
           "title": "Zmin",
           "type": "number"
         }
@@ -309,17 +300,14 @@
       "description": "Specifies relevant values describing a corner point grid property object.",
       "properties": {
         "ncol": {
-          "description": "The number of columns",
           "title": "Ncol",
           "type": "integer"
         },
         "nlay": {
-          "description": "The number of layers",
           "title": "Nlay",
           "type": "integer"
         },
         "nrow": {
-          "description": "The number of rows",
           "title": "Nrow",
           "type": "integer"
         }
@@ -336,47 +324,38 @@
       "description": "Specifies relevant values describing a corner point grid object.",
       "properties": {
         "ncol": {
-          "description": "The number of columns",
           "title": "Ncol",
           "type": "integer"
         },
         "nlay": {
-          "description": "The number of layers",
           "title": "Nlay",
           "type": "integer"
         },
         "nrow": {
-          "description": "The number of rows",
           "title": "Nrow",
           "type": "integer"
         },
         "xscale": {
-          "description": "Scaling factor for the x-axis",
           "title": "Xscale",
           "type": "number"
         },
         "xshift": {
-          "description": "Shift along the x-axis",
           "title": "Xshift",
           "type": "number"
         },
         "yscale": {
-          "description": "Scaling factor for the y-axis",
           "title": "Yscale",
           "type": "number"
         },
         "yshift": {
-          "description": "Shift along the y-axis",
           "title": "Yshift",
           "type": "number"
         },
         "zscale": {
-          "description": "Scaling factor for the z-axis",
           "title": "Zscale",
           "type": "number"
         },
         "zshift": {
-          "description": "Shift along the z-axis",
           "title": "Zshift",
           "type": "number"
         }
@@ -485,6 +464,7 @@
       "type": "object"
     },
     "Classification": {
+      "description": "The security classification for a given data object.",
       "enum": [
         "asset",
         "internal",
@@ -497,7 +477,7 @@
       "description": "The ``fmu.context`` block contains the FMU context in which this data object\nwas produced.",
       "properties": {
         "stage": {
-          "$ref": "#/$defs/FmuContext"
+          "$ref": "#/$defs/FMUContext"
         }
       },
       "required": [
@@ -562,73 +542,52 @@
       "description": "Specifies relevant values describing a cube object, i.e. a seismic cube.",
       "properties": {
         "ncol": {
-          "description": "The number of columns",
           "title": "Ncol",
           "type": "integer"
         },
         "nlay": {
-          "description": "The number of layers",
           "title": "Nlay",
           "type": "integer"
         },
         "nrow": {
-          "description": "The number of rows",
           "title": "Nrow",
           "type": "integer"
         },
         "rotation": {
-          "description": "Rotation angle",
           "title": "Rotation",
           "type": "number"
         },
         "undef": {
-          "description": "Value representing undefined data",
           "title": "Undef",
           "type": "number"
         },
         "xinc": {
-          "description": "Increment along the x-axis",
           "title": "Xinc",
           "type": "number"
         },
         "xori": {
-          "description": "Origin along the x-axis",
           "title": "Xori",
           "type": "number"
         },
         "yflip": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/AxisOrientation"
-            }
-          ],
-          "description": "Flip along the y-axis, -1 or 1"
+          "$ref": "#/$defs/AxisOrientation"
         },
         "yinc": {
-          "description": "Increment along the y-axis",
           "title": "Yinc",
           "type": "number"
         },
         "yori": {
-          "description": "Origin along the y-axis",
           "title": "Yori",
           "type": "number"
         },
         "zflip": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/AxisOrientation"
-            }
-          ],
-          "description": "Flip along the z-axis, -1 or 1"
+          "$ref": "#/$defs/AxisOrientation"
         },
         "zinc": {
-          "description": "Increment along the z-axis",
           "title": "Zinc",
           "type": "number"
         },
         "zori": {
-          "description": "Origin along the z-axis",
           "title": "Zori",
           "type": "number"
         }
@@ -1093,6 +1052,16 @@
       ],
       "title": "FMUCaseAttributes",
       "type": "object"
+    },
+    "FMUContext": {
+      "description": "The context in which FMU was being run when data were generated.",
+      "enum": [
+        "case",
+        "iteration",
+        "realization"
+      ],
+      "title": "FMUContext",
+      "type": "string"
     },
     "FaciesThicknessData": {
       "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for facies thickness.",
@@ -1968,7 +1937,6 @@
       "description": "Specifies relevant values describing a Faultroom surface object.",
       "properties": {
         "faults": {
-          "description": "Names of faults",
           "items": {
             "type": "string"
           },
@@ -1976,7 +1944,6 @@
           "type": "array"
         },
         "horizons": {
-          "description": "List of horizon names",
           "items": {
             "type": "string"
           },
@@ -1984,7 +1951,6 @@
           "type": "array"
         },
         "juxtaposition_fw": {
-          "description": "List of zones included in footwall juxtaposition",
           "items": {
             "type": "string"
           },
@@ -1992,7 +1958,6 @@
           "type": "array"
         },
         "juxtaposition_hw": {
-          "description": "List of zones included in hangingwall juxtaposition",
           "items": {
             "type": "string"
           },
@@ -2000,12 +1965,10 @@
           "type": "array"
         },
         "name": {
-          "description": "A name id of the faultroom usage",
           "title": "Name",
           "type": "string"
         },
         "properties": {
-          "description": "List of properties along fault plane",
           "items": {
             "type": "string"
           },
@@ -2051,7 +2014,7 @@
       "type": "object"
     },
     "FieldOutline": {
-      "description": "Conditional field",
+      "description": "A block describing a field outline. Shall be present if ``data.content``\n== \"field_outline\"",
       "properties": {
         "contact": {
           "title": "Contact",
@@ -2359,10 +2322,9 @@
       "type": "object"
     },
     "FieldRegion": {
-      "description": "Conditional field",
+      "description": "A block describing a field region. Shall be present if ``data.content``\n== \"field_region\"",
       "properties": {
         "id": {
-          "description": "The ID of the region",
           "title": "Id",
           "type": "integer"
         }
@@ -2751,7 +2713,7 @@
       "type": "object"
     },
     "FluidContact": {
-      "description": "Conditional field",
+      "description": "A block describing a fluid contact. Shall be present if ``data.content``\n== ``fluid_contact``.",
       "properties": {
         "contact": {
           "enum": [
@@ -3073,16 +3035,8 @@
       "title": "FluidContactData",
       "type": "object"
     },
-    "FmuContext": {
-      "enum": [
-        "case",
-        "iteration",
-        "realization"
-      ],
-      "title": "FmuContext",
-      "type": "string"
-    },
     "Geometry": {
+      "description": "The geometry of the object, i.e. the grid that an object representing a grid\nproperty is derivative of.",
       "properties": {
         "name": {
           "examples": [
@@ -3107,6 +3061,7 @@
       "type": "object"
     },
     "GridModel": {
+      "description": "A block containing information pertaining to grid model content.\nSee :class:`GridModel`.\n\n.. warning:: This has currently no function and is likely to be deprecated.",
       "properties": {
         "name": {
           "examples": [
@@ -3494,6 +3449,7 @@
       "type": "object"
     },
     "Layout": {
+      "description": "The layout of a given data object.",
       "enum": [
         "regular",
         "unset",
@@ -5160,11 +5116,9 @@
               "type": "null"
             }
           ],
-          "description": "List of columns present in a table.",
           "title": "Attributes"
         },
         "size": {
-          "description": "Size of data object.",
           "examples": [
             1,
             9999
@@ -5184,7 +5138,6 @@
       "description": "Specifies relevant values describing a polygon object.",
       "properties": {
         "npolys": {
-          "description": "The number of individual polygons in the data object",
           "title": "Npolys",
           "type": "integer"
         }
@@ -6408,7 +6361,7 @@
       "type": "object"
     },
     "Seismic": {
-      "description": "Conditional field",
+      "description": "A block describing seismic data. Shall be present if ``data.content``\n== ``seismic``.",
       "properties": {
         "attribute": {
           "anyOf": [
@@ -7196,50 +7149,37 @@
       "description": "Specifies relevant values describing a regular surface object.",
       "properties": {
         "ncol": {
-          "description": "The number of columns",
           "title": "Ncol",
           "type": "integer"
         },
         "nrow": {
-          "description": "The number of rows",
           "title": "Nrow",
           "type": "integer"
         },
         "rotation": {
-          "description": "Rotation angle",
           "title": "Rotation",
           "type": "number"
         },
         "undef": {
-          "description": "Value representing undefined data",
           "title": "Undef",
           "type": "number"
         },
         "xinc": {
-          "description": "Increment along the x-axis",
           "title": "Xinc",
           "type": "number"
         },
         "xori": {
-          "description": "Origin along the x-axis",
           "title": "Xori",
           "type": "number"
         },
         "yflip": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/AxisOrientation"
-            }
-          ],
-          "description": "Flip along the y-axis, -1 or 1"
+          "$ref": "#/$defs/AxisOrientation"
         },
         "yinc": {
-          "description": "Increment along the y-axis",
           "title": "Yinc",
           "type": "number"
         },
         "yori": {
-          "description": "Origin along the y-axis",
           "title": "Yori",
           "type": "number"
         }
@@ -7308,7 +7248,6 @@
       "description": "Specifies relevant values describing a generic tabular data object.",
       "properties": {
         "columns": {
-          "description": "List of columns present in a table.",
           "items": {
             "type": "string"
           },
@@ -7316,7 +7255,6 @@
           "type": "array"
         },
         "size": {
-          "description": "Size of data object.",
           "examples": [
             1,
             9999
@@ -7623,6 +7561,7 @@
       "type": "object"
     },
     "Time": {
+      "description": "A block containing lists of objects describing timestamp information for this\ndata object, if applicable, like Flow simulator restart dates, or dates for seismic\n4D surveys.  See :class:`Time`.\n\n.. note:: ``data.time`` items can currently hold a maximum of two values.",
       "properties": {
         "t0": {
           "anyOf": [
@@ -8231,7 +8170,7 @@
       "type": "object"
     },
     "Timestamp": {
-      "description": "Time stamp for data object.",
+      "description": "A timestamp object contains a datetime representation of the time\nbeing marked and a string label for this timestamp.",
       "properties": {
         "label": {
           "anyOf": [

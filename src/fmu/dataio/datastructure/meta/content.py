@@ -20,65 +20,73 @@ from . import enums, specification
 
 
 class Timestamp(BaseModel):
-    """
-    Time stamp for data object.
-    """
+    """A timestamp object contains a datetime representation of the time
+    being marked and a string label for this timestamp."""
 
     label: Optional[str] = Field(
         default=None,
         examples=["base", "monitor", "mylabel"],
     )
+    """A string label corresponding to the timestamp."""
+
     value: Optional[Union[NaiveDatetime, AwareDatetime]] = Field(
         default=None,
         examples=["2020-10-28T14:28:02"],
     )
+    """A datetime representation."""
 
 
 class Time(BaseModel):
+    """A block containing lists of objects describing timestamp information for this
+    data object, if applicable, like Flow simulator restart dates, or dates for seismic
+    4D surveys.  See :class:`Time`.
+
+    .. note:: ``data.time`` items can currently hold a maximum of two values."""
+
     t0: Optional[Timestamp] = None
+    """The first timestamp. See :class:`Timestamp`."""
+
     t1: Optional[Timestamp] = None
+    """The second timestamp. See :class:`Timestamp`."""
 
 
 class Seismic(BaseModel):
     """
-    Conditional field
+    A block describing seismic data. Shall be present if ``data.content``
+    == ``seismic``.
     """
 
-    attribute: Optional[str] = Field(
-        default=None,
-        examples=["amplitude_timeshifted"],
-    )
-    calculation: Optional[str] = Field(
-        default=None,
-        examples=["mean"],
-    )
-    filter_size: Optional[float] = Field(
-        allow_inf_nan=False,
-        default=None,
-    )
-    scaling_factor: Optional[float] = Field(
-        allow_inf_nan=False,
-        default=None,
-    )
-    stacking_offset: Optional[str] = Field(
-        default=None,
-        examples=["0-15"],
-    )
-    zrange: Optional[float] = Field(
-        allow_inf_nan=False,
-        default=None,
-    )
+    attribute: Optional[str] = Field(default=None, examples=["amplitude_timeshifted"])
+    """A known seismic attribute."""
+
+    calculation: Optional[str] = Field(default=None, examples=["mean"])
+    """The type of calculation applied."""
+
+    filter_size: Optional[float] = Field(allow_inf_nan=False, default=None)
+    """The filter size applied."""
+
+    scaling_factor: Optional[float] = Field(allow_inf_nan=False, default=None)
+    """The scaling factor applied."""
+
+    stacking_offset: Optional[str] = Field(default=None, examples=["0-15"])
+    """The stacking offset applied."""
+
+    zrange: Optional[float] = Field(allow_inf_nan=False, default=None)
+    """The z-range of these data."""
 
 
 class FluidContact(BaseModel):
     """
-    Conditional field
+    A block describing a fluid contact. Shall be present if ``data.content``
+    == ``fluid_contact``.
     """
 
-    contact: Literal["owc", "fwl", "goc", "fgl"] = Field(
-        examples=["owc", "fwl"],
-    )
+    contact: Literal["owc", "fwl", "goc", "fgl"] = Field(examples=["owc", "fwl"])
+    """A known type of contact."""
+
     truncated: bool = Field(default=False)
+    """If True, this is a representation of a contact surface which is truncated to
+    stratigraphy."""
 
     @field_validator("contact", mode="before")
     def contact_to_lowercase(cls, v: str) -> str:
@@ -95,29 +103,45 @@ class FluidContact(BaseModel):
 
 class FieldOutline(BaseModel):
     """
-    Conditional field
+    A block describing a field outline. Shall be present if ``data.content``
+    == "field_outline"
     """
 
     contact: str
+    """A known type of fluid contact used to define the field outline."""
 
 
 class FieldRegion(BaseModel):
     """
-    Conditional field
+    A block describing a field region. Shall be present if ``data.content``
+    == "field_region"
     """
 
-    id: int = Field(
-        description="The ID of the region",
-    )
+    id: int
+    """A known id of the region."""
 
 
 class Geometry(BaseModel):
+    """
+    The geometry of the object, i.e. the grid that an object representing a grid
+    property is derivative of.
+    """
+
     name: str = Field(examples=["MyGrid"])
+    """The name of the grid representing the geometry being linked to."""
+
     relative_path: str = Field(examples=["some/relative/path/mygrid.roff"])
+    """The relative path to the grid on disk."""
 
 
 class GridModel(BaseModel):
+    """A block containing information pertaining to grid model content.
+    See :class:`GridModel`.
+
+    .. warning:: This has currently no function and is likely to be deprecated."""
+
     name: str = Field(examples=["MyGrid"])
+    """A name reference to this data."""
 
 
 class Layer(BaseModel):
@@ -140,41 +164,29 @@ class Layer(BaseModel):
 class BoundingBox2D(BaseModel):
     """Contains the 2D coordinates within which a data object is contained."""
 
-    xmin: float = Field(
-        description="Minimum x-coordinate",
-        allow_inf_nan=False,
-    )
-    xmax: float = Field(
-        description="Maximum x-coordinate",
-        allow_inf_nan=False,
-    )
-    ymin: float = Field(
-        description="Minimum y-coordinate",
-        allow_inf_nan=False,
-    )
-    ymax: float = Field(
-        description="Maximum y-coordinate",
-        allow_inf_nan=False,
-    )
+    xmin: float = Field(allow_inf_nan=False)
+    """Minimum x-coordinate"""
+
+    xmax: float = Field(allow_inf_nan=False)
+    """Maximum x-coordinate"""
+
+    ymin: float = Field(allow_inf_nan=False)
+    """Minimum y-coordinate"""
+
+    ymax: float = Field(allow_inf_nan=False)
+    """Maximum y-coordinate"""
 
 
 class BoundingBox3D(BoundingBox2D):
     """Contains the 3D coordinates within which a data object is contained."""
 
-    zmin: float = Field(
-        description=(
-            "Minimum z-coordinate. For regular surfaces this field represents the "
-            "minimum surface value and it will be absent if all values are undefined."
-        ),
-        allow_inf_nan=False,
-    )
-    zmax: float = Field(
-        description=(
-            "Maximum z-coordinate. For regular surfaces this field represents the "
-            "maximum surface value and it will be absent if all values are undefined."
-        ),
-        allow_inf_nan=False,
-    )
+    zmin: float = Field(allow_inf_nan=False)
+    """Minimum z-coordinate. For regular surfaces this field represents the
+    "minimum surface value and it will be absent if all values are undefined."""
+
+    zmax: float = Field(allow_inf_nan=False)
+    """Maximum z-coordinate. For regular surfaces this field represents the
+    maximum surface value and it will be absent if all values are undefined."""
 
 
 class Data(BaseModel):
@@ -184,7 +196,7 @@ class Data(BaseModel):
     upon by the ``data.content`` field.
     """
 
-    content: enums.ContentEnum
+    content: enums.Content
     """The type of content these data represent."""
 
     name: str = Field(examples=["VIKING GP. Top"])
@@ -234,6 +246,7 @@ class Data(BaseModel):
     grid_model: Optional[GridModel] = Field(default=None)
     """A block containing information pertaining to grid model content.
     See :class:`GridModel`.
+
     .. warning:: This has currently no function and is likely to be deprecated."""
 
     is_observation: bool
@@ -260,6 +273,7 @@ class Data(BaseModel):
     """A block containing lists of objects describing timestamp information for this
     data object, if applicable, like Flow simulator restart dates, or dates for seismic
     4D surveys.  See :class:`Time`.
+
     .. note:: ``data.time`` items can currently hold a maximum of two values."""
 
     undef_is_zero: Optional[bool] = Field(default=None)
@@ -284,11 +298,13 @@ class Data(BaseModel):
     base: Optional[Layer] = None
     """If the data represent an interval, this field can be used to represent its base.
     See :class:`Layer`.
+
     .. note:: ``top`` is required to use with this."""
 
     top: Optional[Layer] = None
     """If the data represent an interval, this field can be used to represent its top.
     See :class:`Layer`.
+
     .. note:: ``base`` is required to use with this."""
 
 
@@ -298,7 +314,7 @@ class DepthData(Data):
     This class contains metadata for depth type.
     """
 
-    content: Literal[enums.ContentEnum.depth]
+    content: Literal[enums.Content.depth]
     """The type of content these data represent."""
 
     depth_reference: Literal["msl", "sb", "rkb"]
@@ -311,7 +327,7 @@ class FaciesThicknessData(Data):
     This class contains metadata for facies thickness.
     """
 
-    content: Literal[enums.ContentEnum.facies_thickness]
+    content: Literal[enums.Content.facies_thickness]
     """The type of content these data represent."""
 
 
@@ -321,7 +337,7 @@ class FaultLinesData(Data):
     This class contains metadata for fault lines.
     """
 
-    content: Literal[enums.ContentEnum.fault_lines]
+    content: Literal[enums.Content.fault_lines]
     """The type of content these data represent."""
 
 
@@ -331,7 +347,7 @@ class FaultPropertiesData(Data):
     This class contains metadata for fault properties.
     """
 
-    content: Literal[enums.ContentEnum.fault_properties]
+    content: Literal[enums.Content.fault_properties]
     """The type of content these data represent."""
 
 
@@ -341,7 +357,7 @@ class FieldOutlineData(Data):
     This class contains metadata for field outlines.
     """
 
-    content: Literal[enums.ContentEnum.field_outline]
+    content: Literal[enums.Content.field_outline]
     """The type of content these data represent."""
 
     field_outline: FieldOutline
@@ -354,7 +370,7 @@ class FieldRegionData(Data):
     This class contains metadata for field regions.
     """
 
-    content: Literal[enums.ContentEnum.field_region]
+    content: Literal[enums.Content.field_region]
     """The type of content these data represent."""
 
     field_region: FieldRegion
@@ -367,7 +383,7 @@ class FluidContactData(Data):
     This class contains metadata for fluid contacts.
     """
 
-    content: Literal[enums.ContentEnum.fluid_contact]
+    content: Literal[enums.Content.fluid_contact]
     """The type of content these data represent."""
 
     fluid_contact: FluidContact
@@ -380,7 +396,7 @@ class KPProductData(Data):
     This class contains metadata for KP products.
     """
 
-    content: Literal[enums.ContentEnum.khproduct]
+    content: Literal[enums.Content.khproduct]
     """The type of content these data represent."""
 
 
@@ -390,7 +406,7 @@ class LiftCurvesData(Data):
     This class contains metadata for lift curves.
     """
 
-    content: Literal[enums.ContentEnum.lift_curves]
+    content: Literal[enums.Content.lift_curves]
     """The type of content these data represent."""
 
 
@@ -400,7 +416,7 @@ class NamedAreaData(Data):
     This class contains metadata for named areas.
     """
 
-    content: Literal[enums.ContentEnum.named_area]
+    content: Literal[enums.Content.named_area]
     """The type of content these data represent."""
 
 
@@ -410,7 +426,7 @@ class ParametersData(Data):
     This class contains metadata for parameters.
     """
 
-    content: Literal[enums.ContentEnum.parameters]
+    content: Literal[enums.Content.parameters]
     """The type of content these data represent."""
 
 
@@ -420,7 +436,7 @@ class PinchoutData(Data):
     This class contains metadata for pinchouts.
     """
 
-    content: Literal[enums.ContentEnum.pinchout]
+    content: Literal[enums.Content.pinchout]
     """The type of content these data represent."""
 
 
@@ -430,7 +446,7 @@ class PropertyData(Data):
     This class contains metadata for property data.
     """
 
-    content: Literal[enums.ContentEnum.property]
+    content: Literal[enums.Content.property]
     """The type of content these data represent."""
 
 
@@ -440,7 +456,7 @@ class PVTData(Data):
     This class contains metadata for pvt data.
     """
 
-    content: Literal[enums.ContentEnum.pvt]
+    content: Literal[enums.Content.pvt]
     """The type of content these data represent."""
 
 
@@ -450,7 +466,7 @@ class RegionsData(Data):
     This class contains metadata for regions.
     """
 
-    content: Literal[enums.ContentEnum.regions]
+    content: Literal[enums.Content.regions]
     """The type of content these data represent."""
 
 
@@ -460,7 +476,7 @@ class RelpermData(Data):
     This class contains metadata for relperm.
     """
 
-    content: Literal[enums.ContentEnum.relperm]
+    content: Literal[enums.Content.relperm]
     """The type of content these data represent."""
 
 
@@ -470,7 +486,7 @@ class RFTData(Data):
     This class contains metadata for rft data.
     """
 
-    content: Literal[enums.ContentEnum.rft]
+    content: Literal[enums.Content.rft]
     """The type of content these data represent."""
 
 
@@ -480,7 +496,7 @@ class SeismicData(Data):
     This class contains metadata for seismics.
     """
 
-    content: Literal[enums.ContentEnum.seismic]
+    content: Literal[enums.Content.seismic]
     """The type of content these data represent."""
 
     seismic: Seismic
@@ -493,7 +509,7 @@ class SubcropData(Data):
     This class contains metadata for subcrops.
     """
 
-    content: Literal[enums.ContentEnum.subcrop]
+    content: Literal[enums.Content.subcrop]
     """The type of content these data represent."""
 
 
@@ -503,7 +519,7 @@ class ThicknessData(Data):
     This class contains metadata for thickness.
     """
 
-    content: Literal[enums.ContentEnum.thickness]
+    content: Literal[enums.Content.thickness]
     """The type of content these data represent."""
 
 
@@ -513,7 +529,7 @@ class TimeData(Data):
     This class contains metadata for time.
     """
 
-    content: Literal[enums.ContentEnum.time]
+    content: Literal[enums.Content.time]
     """The type of content these data represent."""
 
 
@@ -523,7 +539,7 @@ class TimeSeriesData(Data):
     This class contains metadata for time series.
     """
 
-    content: Literal[enums.ContentEnum.timeseries]
+    content: Literal[enums.Content.timeseries]
     """The type of content these data represent."""
 
 
@@ -533,7 +549,7 @@ class TransmissibilitiesData(Data):
     This class contains metadata for transmissibilities.
     """
 
-    content: Literal[enums.ContentEnum.transmissibilities]
+    content: Literal[enums.Content.transmissibilities]
     """The type of content these data represent."""
 
 
@@ -543,7 +559,7 @@ class VelocityData(Data):
     This class contains metadata for velocities.
     """
 
-    content: Literal[enums.ContentEnum.velocity]
+    content: Literal[enums.Content.velocity]
     """The type of content these data represent."""
 
 
@@ -553,7 +569,7 @@ class VolumesData(Data):
     This class contains metadata for volumes.
     """
 
-    content: Literal[enums.ContentEnum.volumes]
+    content: Literal[enums.Content.volumes]
     """The type of content these data represent."""
 
 
@@ -563,7 +579,7 @@ class WellPicksData(Data):
     This class contains metadata for well picks.
     """
 
-    content: Literal[enums.ContentEnum.wellpicks]
+    content: Literal[enums.Content.wellpicks]
     """The type of content these data represent."""
 
 

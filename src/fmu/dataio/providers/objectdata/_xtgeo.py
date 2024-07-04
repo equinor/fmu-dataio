@@ -13,7 +13,7 @@ from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
 from fmu.dataio.datastructure.meta.content import BoundingBox2D, BoundingBox3D, Geometry
-from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
+from fmu.dataio.datastructure.meta.enums import FMUClass, Layout
 from fmu.dataio.datastructure.meta.specification import (
     CPGridPropertySpecification,
     CPGridSpecification,
@@ -51,8 +51,8 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
     obj: xtgeo.RegularSurface
 
     @property
-    def classname(self) -> FMUClassEnum:
-        return FMUClassEnum.surface
+    def classname(self) -> FMUClass:
+        return FMUClass.surface
 
     @property
     def efolder(self) -> str:
@@ -125,8 +125,8 @@ class PolygonsDataProvider(ObjectDataProvider):
     obj: xtgeo.Polygons
 
     @property
-    def classname(self) -> FMUClassEnum:
-        return FMUClassEnum.polygons
+    def classname(self) -> FMUClass:
+        return FMUClass.polygons
 
     @property
     def efolder(self) -> str:
@@ -181,8 +181,8 @@ class PointsDataProvider(ObjectDataProvider):
     obj: xtgeo.Points
 
     @property
-    def classname(self) -> FMUClassEnum:
-        return FMUClassEnum.points
+    def classname(self) -> FMUClass:
+        return FMUClass.points
 
     @property
     def efolder(self) -> str:
@@ -242,8 +242,8 @@ class CubeDataProvider(ObjectDataProvider):
     obj: xtgeo.Cube
 
     @property
-    def classname(self) -> FMUClassEnum:
-        return FMUClassEnum.cube
+    def classname(self) -> FMUClass:
+        return FMUClass.cube
 
     @property
     def efolder(self) -> str:
@@ -325,8 +325,8 @@ class CPGridDataProvider(ObjectDataProvider):
     obj: xtgeo.Grid
 
     @property
-    def classname(self) -> FMUClassEnum:
-        return FMUClassEnum.cpgrid
+    def classname(self) -> FMUClass:
+        return FMUClass.cpgrid
 
     @property
     def efolder(self) -> str:
@@ -392,8 +392,8 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
     obj: xtgeo.GridProperty
 
     @property
-    def classname(self) -> FMUClassEnum:
-        return FMUClassEnum.cpgrid_property
+    def classname(self) -> FMUClass:
+        return FMUClass.cpgrid_property
 
     @property
     def efolder(self) -> str:

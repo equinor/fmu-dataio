@@ -70,7 +70,7 @@ class ContentRequireSpecific(BaseModel):
 
 
 class AllowedContent(BaseModel):
-    content: Union[meta.enums.ContentEnum, Literal["unset"]]
+    content: Union[meta.enums.Content, Literal["unset"]]
     content_incl_specific: Optional[ContentRequireSpecific] = Field(default=None)
 
     @model_validator(mode="before")
@@ -81,7 +81,7 @@ class AllowedContent(BaseModel):
 
         if content in ContentRequireSpecific.model_fields and not content_specific:
             # 'property' should be included below after a deprecation period
-            if content == meta.enums.ContentEnum.property:
+            if content == meta.enums.Content.property:
                 property_warn()
             else:
                 raise ValueError(f"Content {content} requires additional input")
@@ -113,7 +113,7 @@ class FMUModelCase(BaseModel):
 
 
 class Context(BaseModel, use_enum_values=True):
-    stage: meta.enums.FmuContext
+    stage: meta.enums.FMUContext
 
 
 # Remove the two models below when content is required as input.
@@ -122,7 +122,7 @@ class UnsetContent(meta.content.Data):
 
     @model_validator(mode="after")
     def _deprecation_warning(self) -> UnsetContent:
-        valid_contents = [m.value for m in meta.enums.ContentEnum]
+        valid_contents = [m.value for m in meta.enums.Content]
         warnings.warn(
             "The <content> is not provided which will produce invalid metadata. "
             "It is strongly recommended that content is given explicitly! "
@@ -147,15 +147,15 @@ class DataClassMeta(JsonSchemaMetadata):
     # TODO: aim to use meta.FMUDataClassMeta as base
     # class and disallow creating invalid metadata.
     class_: Literal[
-        meta.enums.FMUClassEnum.surface,
-        meta.enums.FMUClassEnum.table,
-        meta.enums.FMUClassEnum.cpgrid,
-        meta.enums.FMUClassEnum.cpgrid_property,
-        meta.enums.FMUClassEnum.polygons,
-        meta.enums.FMUClassEnum.cube,
-        meta.enums.FMUClassEnum.well,
-        meta.enums.FMUClassEnum.points,
-        meta.enums.FMUClassEnum.dictionary,
+        meta.enums.FMUClass.surface,
+        meta.enums.FMUClass.table,
+        meta.enums.FMUClass.cpgrid,
+        meta.enums.FMUClass.cpgrid_property,
+        meta.enums.FMUClass.polygons,
+        meta.enums.FMUClass.cube,
+        meta.enums.FMUClass.well,
+        meta.enums.FMUClass.points,
+        meta.enums.FMUClass.dictionary,
     ] = Field(alias="class")
     fmu: Optional[FMUClassMetaData]
     masterdata: Optional[meta.Masterdata]

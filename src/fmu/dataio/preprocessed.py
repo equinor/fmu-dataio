@@ -14,7 +14,7 @@ from ._metadata import generate_meta_tracklog
 from ._utils import export_metadata_file, md5sum
 from .datastructure._internal import internal
 from .datastructure.meta import meta
-from .datastructure.meta.enums import FmuContext
+from .datastructure.meta.enums import FMUContext
 from .exceptions import InvalidMetadataError
 from .providers._filedata import ShareFolder
 from .providers._fmu import (
@@ -61,14 +61,14 @@ class ExportPreprocessedData:
     _fmudata: FmuProvider | None = field(default=None)
 
     def __post_init__(self) -> None:
-        if get_fmu_context_from_environment() != FmuContext.case:
+        if get_fmu_context_from_environment() != FMUContext.case:
             raise RuntimeError(
                 "Only possible to run re-export of preprocessed data inside FMU "
                 "using a pre-simulation workflow in ERT."
             )
 
         self._fmudata = FmuProvider(
-            fmu_context=FmuContext.case,
+            fmu_context=FMUContext.case,
             casepath_proposed=Path(self.casepath),
             workflow=None,
         )

@@ -8,7 +8,7 @@ import pydantic
 import pytest
 
 # from conftest import pretend_ert_env_run1
-from fmu.dataio.datastructure.meta.enums import FmuContext
+from fmu.dataio.datastructure.meta.enums import FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import RESTART_PATH_ENVNAME, FmuEnv, FmuProvider
 
@@ -23,7 +23,7 @@ def test_fmuprovider_no_provider():
 
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
-        fmu_context=FmuContext.realization,
+        fmu_context=FMUContext.realization,
         casepath_proposed="",
         workflow=WORKFLOW,
     )
@@ -36,7 +36,7 @@ def test_fmuprovider_model_info_in_metadata(fmurun_w_casemetadata):
 
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
-        fmu_context=FmuContext.realization,
+        fmu_context=FMUContext.realization,
         workflow=WORKFLOW,
     )
     meta = myfmu.get_metadata()
@@ -49,7 +49,7 @@ def test_fmuprovider_no_model_info_use_case(fmurun_w_casemetadata):
 
     myfmu = FmuProvider(
         model=None,
-        fmu_context=FmuContext.realization,
+        fmu_context=FMUContext.realization,
         workflow=WORKFLOW,
     )
 
@@ -68,7 +68,7 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
     with pytest.warns(UserWarning, match="Case metadata does not exist"):
         myfmu = FmuProvider(
             model=GLOBAL_CONFIG_MODEL,
-            fmu_context=FmuContext.realization,
+            fmu_context=FMUContext.realization,
             casepath_proposed="",  # if casepath is undef, try deduce from, _ERT_RUNPATH
             workflow=WORKFLOW,
         )
@@ -87,7 +87,7 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(fmurun_w_casemetadata):
     (fmurun_w_casemetadata / "parameters.txt").unlink()
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
-        fmu_context=FmuContext.realization,
+        fmu_context=FMUContext.realization,
         workflow=WORKFLOW,
     )
     with pytest.warns(UserWarning, match="parameters.txt file was not found"):
@@ -104,7 +104,7 @@ def test_fmuprovider_arbitrary_iter_name(fmurun_w_casemetadata_pred):
     os.chdir(fmurun_w_casemetadata_pred)
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
-        fmu_context=FmuContext.realization,
+        fmu_context=FMUContext.realization,
         workflow=WORKFLOW,
     )
     assert myfmu._case_name == "ertrun1"
@@ -123,7 +123,7 @@ def test_fmuprovider_get_real_and_iter_from_env(fmurun_non_equal_real_and_iter):
     os.chdir(fmurun_non_equal_real_and_iter)
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
-        fmu_context=FmuContext.realization,
+        fmu_context=FMUContext.realization,
         workflow=WORKFLOW,
     )
     assert myfmu._runpath == fmurun_non_equal_real_and_iter
@@ -139,7 +139,7 @@ def test_fmuprovider_no_iter_folder(fmurun_no_iter_folder):
 
     os.chdir(fmurun_no_iter_folder)
     myfmu = FmuProvider(
-        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.realization, workflow=WORKFLOW
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization, workflow=WORKFLOW
     )
     assert myfmu._runpath == fmurun_no_iter_folder
     assert myfmu._casepath == fmurun_no_iter_folder.parent
@@ -190,7 +190,7 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
     logger.debug("Case root proposed is: %s", caseroot)
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
-        fmu_context=FmuContext.case,
+        fmu_context=FMUContext.case,
         workflow=WORKFLOW,
         casepath_proposed=caseroot,
     )
@@ -209,7 +209,7 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
     with pytest.warns(UserWarning, match="Case metadata does not exist"):
         myfmu = FmuProvider(
             model=GLOBAL_CONFIG_MODEL,
-            fmu_context=FmuContext.realization,
+            fmu_context=FMUContext.realization,
         )
     with pytest.raises(InvalidMetadataError, match="Missing casepath"):
         myfmu.get_metadata()
@@ -230,13 +230,13 @@ def test_fmuprovider_case_run(fmurun_prehook):
     with pytest.warns(UserWarning, match="Could not auto detect the casepath"):
         FmuProvider(
             model=GLOBAL_CONFIG_MODEL,
-            fmu_context=FmuContext.case,
+            fmu_context=FMUContext.case,
         )
 
     # providing the casepath is the solution, and no error is thrown
     myfmu = FmuProvider(
         model=GLOBAL_CONFIG_MODEL,
-        fmu_context=FmuContext.case,
+        fmu_context=FMUContext.case,
         casepath_proposed=fmurun_prehook,
     )
     meta = myfmu.get_metadata()
@@ -251,7 +251,7 @@ def test_fmuprovider_valid_restart_env(monkeypatch, fmurun_w_casemetadata, fmuru
     """
     os.chdir(fmurun_w_casemetadata)
     fmu_restart_from = FmuProvider(
-        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.realization
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization
     )
     meta_restart_from = fmu_restart_from.get_metadata()
 
@@ -259,7 +259,7 @@ def test_fmuprovider_valid_restart_env(monkeypatch, fmurun_w_casemetadata, fmuru
 
     os.chdir(fmurun_pred)
     fmu_restart = FmuProvider(
-        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.realization
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization
     )
 
     meta_restart = fmu_restart.get_metadata()
@@ -276,13 +276,13 @@ def test_fmuprovider_invalid_restart_env(
     """
     os.chdir(fmurun_w_casemetadata)
 
-    _ = FmuProvider(model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.realization)
+    _ = FmuProvider(model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization)
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "/path/to/somewhere/invalid")
 
     os.chdir(fmurun_pred)
     fmu_restart = FmuProvider(
-        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.realization
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization
     )
     meta = fmu_restart.get_metadata()
     assert meta.iteration.restart_from is None
@@ -295,14 +295,14 @@ def test_fmuprovider_no_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_p
     """
     os.chdir(fmurun_w_casemetadata)
 
-    _ = FmuProvider(model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.realization)
+    _ = FmuProvider(model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization)
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "/path/to/somewhere/invalid")
     monkeypatch.delenv(RESTART_PATH_ENVNAME)
 
     os.chdir(fmurun_pred)
     restart_meta = FmuProvider(
-        model=GLOBAL_CONFIG_MODEL, fmu_context=FmuContext.realization
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization
     ).get_metadata()
     assert restart_meta.iteration.restart_from is None
 

@@ -16,7 +16,7 @@ from fmu.dataio.datastructure.meta.content import (
     Time,
     Timestamp,
 )
-from fmu.dataio.datastructure.meta.enums import ContentEnum
+from fmu.dataio.datastructure.meta.enums import Content
 from fmu.dataio.providers._base import Provider
 
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
         BoundingBox3D,
         Geometry,
     )
-    from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
+    from fmu.dataio.datastructure.meta.enums import FMUClass, Layout
     from fmu.dataio.datastructure.meta.specification import AnySpecification
     from fmu.dataio.types import Inferrable
 
@@ -126,7 +126,7 @@ class ObjectDataProvider(Provider):
 
     @property
     @abstractmethod
-    def classname(self) -> FMUClassEnum:
+    def classname(self) -> FMUClass:
         raise NotImplementedError
 
     @property
@@ -179,7 +179,7 @@ class ObjectDataProvider(Provider):
             return AllowedContent(content="unset")
 
         if isinstance(content, str):
-            return AllowedContent(content=ContentEnum(content))
+            return AllowedContent(content=Content(content))
 
         if len(content) > 1:
             raise ValueError(
@@ -192,7 +192,7 @@ class ObjectDataProvider(Provider):
         logger.debug("content_specific is %s", content_specific)
 
         return AllowedContent.model_validate(
-            {"content": ContentEnum(usecontent), "content_incl_specific": content}
+            {"content": Content(usecontent), "content_incl_specific": content}
         )
 
     def _get_named_stratigraphy(self) -> NamedStratigraphy:

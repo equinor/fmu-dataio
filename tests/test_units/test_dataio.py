@@ -12,7 +12,7 @@ import pytest
 import yaml
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ExportData, read_metadata
-from fmu.dataio.datastructure.meta.enums import FmuContext
+from fmu.dataio.datastructure.meta.enums import FMUContext
 from fmu.dataio.providers._fmu import FmuEnv
 
 # pylint: disable=no-member
@@ -596,7 +596,7 @@ def test_fmu_context_not_given_fetch_from_env_realization(
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._fmurun is True
-    assert edata.fmu_context == FmuContext.realization
+    assert edata.fmu_context == FMUContext.realization
 
 
 def test_fmu_context_not_given_fetch_from_env_case(
@@ -616,7 +616,7 @@ def test_fmu_context_not_given_fetch_from_env_case(
     # test that it runs properly when casepath is provided
     edata = ExportData(config=rmsglobalconfig, content="depth", casepath=fmurun_prehook)
     assert edata._fmurun is True
-    assert edata.fmu_context == FmuContext.case
+    assert edata.fmu_context == FMUContext.case
     assert edata._rootpath == fmurun_prehook
 
 
@@ -689,7 +689,7 @@ def test_fmu_context_preprocessed_deprecation_inside_fmu(
             casepath=fmurun_prehook,
         )
     assert edata.preprocessed is True
-    assert edata.fmu_context == FmuContext.case
+    assert edata.fmu_context == FMUContext.case
 
     meta = edata.generate_metadata(regsurf)
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
@@ -727,7 +727,7 @@ def test_preprocessed_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig, regsurf
     )
     assert edata._fmurun is True
     assert edata.preprocessed is True
-    assert edata.fmu_context == FmuContext.case
+    assert edata.fmu_context == FMUContext.case
 
     meta = edata.generate_metadata(regsurf)
     # check that the relative file is at case level and has a preprocessed folder

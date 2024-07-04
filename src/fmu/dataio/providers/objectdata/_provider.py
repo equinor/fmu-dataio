@@ -94,7 +94,7 @@ import xtgeo
 
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio.datastructure.meta.enums import FMUClassEnum, Layout
+from fmu.dataio.datastructure.meta.enums import FMUClass, Layout
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
@@ -164,8 +164,8 @@ class DictionaryDataProvider(ObjectDataProvider):
     obj: dict
 
     @property
-    def classname(self) -> FMUClassEnum:
-        return FMUClassEnum.dictionary
+    def classname(self) -> FMUClass:
+        return FMUClass.dictionary
 
     @property
     def efolder(self) -> str:
