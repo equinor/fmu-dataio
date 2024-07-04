@@ -9,10 +9,22 @@ import os
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, ClassVar, Dict, Final, List, Literal, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Dict,
+    Final,
+    List,
+    Literal,
+    Optional,
+    Union,
+)
 from warnings import warn
 
-from . import types
+if TYPE_CHECKING:
+    from . import types
+
 from ._definitions import ValidationError
 from ._logging import null_logger
 from ._metadata import generate_export_metadata

@@ -14,19 +14,19 @@ from typing import TYPE_CHECKING, Final, Literal
 
 from pydantic import AnyHttpUrl, TypeAdapter
 
-from . import types
 from ._definitions import SCHEMA, SOURCE, VERSION
 from ._logging import null_logger
 from .datastructure._internal import internal
 from .datastructure.meta import meta
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
-from .providers._fmu import FmuProvider
 from .providers.objectdata._provider import objectdata_provider_factory
 from .version import __version__
 
 if TYPE_CHECKING:
+    from . import types
     from .dataio import ExportData
+    from .providers._fmu import FmuProvider
     from .providers.objectdata._base import ObjectDataProvider
 
 logger: Final = null_logger(__name__)

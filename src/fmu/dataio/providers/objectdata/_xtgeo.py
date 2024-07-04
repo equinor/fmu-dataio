@@ -6,8 +6,6 @@ from textwrap import dedent
 from typing import TYPE_CHECKING, Final
 
 import numpy as np
-import pandas as pd
-import xtgeo
 
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
@@ -27,6 +25,7 @@ from ._base import ObjectDataProvider
 
 if TYPE_CHECKING:
     import pandas as pd
+    import xtgeo
 
 logger: Final = null_logger(__name__)
 

@@ -3,8 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final
 
-import pandas as pd
-
 from fmu.dataio._definitions import (
     STANDARD_TABLE_INDEX_COLUMNS,
     ExportFolder,
@@ -19,6 +17,7 @@ from ._base import (
 )
 
 if TYPE_CHECKING:
+    import pandas as pd
     import pyarrow
 
 logger: Final = null_logger(__name__)
