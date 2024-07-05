@@ -1,18 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio.datastructure.meta.content import BoundingBox3D
 from fmu.dataio.datastructure.meta.enums import FMUClass, Layout
 from fmu.dataio.datastructure.meta.specification import FaultRoomSurfaceSpecification
-from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
     ObjectDataProvider,
 )
+
+if TYPE_CHECKING:
+    from fmu.dataio.readers import FaultRoomSurface
 
 logger: Final = null_logger(__name__)
 
