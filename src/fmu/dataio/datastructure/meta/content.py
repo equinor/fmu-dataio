@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
 
 from pydantic import (
     AwareDatetime,
@@ -13,10 +13,12 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from pydantic_core import CoreSchema
 from typing_extensions import Annotated
 
 from . import enums, specification
+
+if TYPE_CHECKING:
+    from pydantic_core import CoreSchema
 
 
 class Timestamp(BaseModel):

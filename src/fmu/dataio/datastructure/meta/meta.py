@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import ChainMap
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Dict, List, Literal, Optional, TypeVar, Union
 from uuid import UUID
 
 from pydantic import (
@@ -14,10 +14,12 @@ from pydantic import (
     RootModel,
     model_validator,
 )
-from pydantic_core import CoreSchema
 from typing_extensions import Annotated
 
 from . import content, enums
+
+if TYPE_CHECKING:
+    from pydantic_core import CoreSchema
 
 T = TypeVar("T", Dict, List, object)
 
