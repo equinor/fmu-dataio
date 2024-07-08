@@ -1,0 +1,46 @@
+FMU
+===
+
+.. currentmodule:: fmu.dataio._model.fields
+
+.. autosummary::
+   :toctree: FMU
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+      ~fmu.dataio._model.fields.Aggregation
+   
+      ~fmu.dataio._model.fields.Workflow
+   
+      ~fmu.dataio._model.fields.Context
+   
+      ~fmu.dataio._model.fields.Case
+   
+      ~fmu.dataio._model.fields.Realization
+   
+      ~fmu.dataio._model.fields.Iteration
+   
+      ~fmu.dataio._model.fields.Model
+   
+   
+
+.. autopydantic_model:: FMU
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   

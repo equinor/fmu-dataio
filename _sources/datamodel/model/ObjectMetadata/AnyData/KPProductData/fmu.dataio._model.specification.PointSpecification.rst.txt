@@ -1,0 +1,32 @@
+PointSpecification
+==================
+
+.. currentmodule:: fmu.dataio._model.specification
+
+.. autosummary::
+   :toctree: PointSpecification
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+   
+
+.. autopydantic_model:: PointSpecification
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   

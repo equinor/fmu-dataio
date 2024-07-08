@@ -1,0 +1,34 @@
+Masterdata
+==========
+
+.. currentmodule:: fmu.dataio._model.fields
+
+.. autosummary::
+   :toctree: Masterdata
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+      ~fmu.dataio._model.fields.Smda
+   
+   
+
+.. autopydantic_model:: Masterdata
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   
