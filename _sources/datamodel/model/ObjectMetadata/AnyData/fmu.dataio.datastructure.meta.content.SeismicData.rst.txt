@@ -12,15 +12,9 @@ SeismicData
 
    
    
-      ~fmu.dataio.datastructure.meta.content.Geometry
-   
-      ~fmu.dataio.datastructure.meta.specification.PolygonsSpecification
-   
-      ~fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification
-   
-      ~fmu.dataio.datastructure.meta.content.Seismic
-   
       ~fmu.dataio.datastructure.meta.specification.CPGridSpecification
+   
+      ~fmu.dataio.datastructure.meta.content.BoundingBox3D
    
       ~fmu.dataio.datastructure.meta.specification.PointSpecification
    
@@ -28,19 +22,25 @@ SeismicData
    
       ~fmu.dataio.datastructure.meta.content.Layer
    
-      ~fmu.dataio.datastructure.meta.content.Time
-   
-      ~fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification
-   
-      ~fmu.dataio.datastructure.meta.content.BoundingBox3D
-   
-      ~fmu.dataio.datastructure.meta.specification.SurfaceSpecification
-   
-      ~fmu.dataio.datastructure.meta.content.BoundingBox2D
+      ~fmu.dataio.datastructure.meta.content.Geometry
    
       ~fmu.dataio.datastructure.meta.specification.TableSpecification
    
+      ~fmu.dataio.datastructure.meta.content.BoundingBox2D
+   
+      ~fmu.dataio.datastructure.meta.content.Seismic
+   
       ~fmu.dataio.datastructure.meta.content.GridModel
+   
+      ~fmu.dataio.datastructure.meta.specification.SurfaceSpecification
+   
+      ~fmu.dataio.datastructure.meta.content.Time
+   
+      ~fmu.dataio.datastructure.meta.specification.FaultRoomSurfaceSpecification
+   
+      ~fmu.dataio.datastructure.meta.specification.PolygonsSpecification
+   
+      ~fmu.dataio.datastructure.meta.specification.CPGridPropertySpecification
    
    
 
