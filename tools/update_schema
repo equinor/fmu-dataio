@@ -56,6 +56,11 @@ def _get_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run as normal, but don't write the file.",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force the script to overwrite the current schema with the new schema.",
+    )
     return parser
 
 
@@ -67,7 +72,16 @@ def _get_output_path(version: str) -> Path:
 
 def _load_json(filepath: Path) -> dict[str, Any]:
     with open(filepath, encoding="utf-8") as f:
-        return json.load(f)
+        try:
+            return json.load(f)
+        except json.JSONDecodeError as json_decode_error:
+            print(
+                f"{FAILURE} Parsing existing json schema failed: The json is malformed. "
+                "If you know why, re-run the command with argument '--force' "
+                "to overwrite with the new schema.\n"
+                f"{FAILURE} Json parsing error: '{json_decode_error.msg}.'"
+            )
+            sys.exit() 
 
 
 def _check_output_filepath(filepath: Path, new_schema: dict[str, Any]) -> None:
@@ -110,8 +124,14 @@ def main() -> None:
     output_filepath = output_path / args.filename
 
     _check_output_path(output_path, args.test)
-    _check_output_filepath(output_filepath, new_schema)
-
+    if not args.force:
+        _check_output_filepath(output_filepath, new_schema)
+    else:
+        print(
+            f"{INFO} The '--force' argument flag has been set: "
+            "Forcing override and skipping check of current json schema."
+        )
+    
     print(
         f"{INFO} writing schema version {BOLD}{args.version}{NC} "
         f"as {BOLD}{args.filename}{NC} ...",
