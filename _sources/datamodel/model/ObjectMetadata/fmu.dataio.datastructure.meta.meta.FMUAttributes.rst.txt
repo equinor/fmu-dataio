@@ -12,19 +12,19 @@ FMUAttributes
 
    
    
+      ~fmu.dataio.datastructure.meta.meta.Iteration
+   
       ~fmu.dataio.datastructure.meta.meta.Workflow
    
-      ~fmu.dataio.datastructure.meta.meta.Context
+      ~fmu.dataio.datastructure.meta.meta.Realization
    
       ~fmu.dataio.datastructure.meta.meta.Aggregation
    
+      ~fmu.dataio.datastructure.meta.meta.Context
+   
       ~fmu.dataio.datastructure.meta.meta.Case
    
-      ~fmu.dataio.datastructure.meta.meta.Iteration
-   
       ~fmu.dataio.datastructure.meta.meta.Model
-   
-      ~fmu.dataio.datastructure.meta.meta.Realization
    
    
 

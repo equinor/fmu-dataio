@@ -12,9 +12,9 @@ SsdlAccess
 
    
    
-      ~fmu.dataio.datastructure.meta.meta.Ssdl
-   
       ~fmu.dataio.datastructure.meta.meta.Asset
+   
+      ~fmu.dataio.datastructure.meta.meta.Ssdl
    
    
 
