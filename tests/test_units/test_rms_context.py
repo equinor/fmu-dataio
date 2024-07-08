@@ -66,7 +66,10 @@ def test_regsurf_generate_metadata_change_content_invalid(rmsglobalconfig, regsu
         config=rmsglobalconfig, content="depth"
     )  # read from global config
 
-    with pytest.raises(ValidationError):
+    # will warn about deprecated pattern, then raise
+    with pytest.warns(FutureWarning, match="to initialization"), pytest.raises(
+        ValidationError
+    ):
         _ = edata.generate_metadata(regsurf, blablabla="time")
 
 
@@ -189,7 +192,8 @@ def test_regsurf_export_file_fmurun(
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
-        access_ssdl={"access_level": "restricted", "rep_include": False},
+        classification="restricted",
+        rep_include=False,
         content="depth",
         workflow="My test workflow",
         unit="myunit",
@@ -523,8 +527,8 @@ def test_gridproperty_export_file_set_name(rmssetup, rmsglobalconfig, gridproper
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyGridProperty"
     )
-
-    output = edata.export(gridproperty)
+    with pytest.warns(FutureWarning, match="linking it to a geometry"):
+        output = edata.export(gridproperty)
     logger.info("Output is %s", output)
 
     assert str(output) == str(
@@ -567,14 +571,15 @@ def test_gridproperty_export_with_geometry(
     )
 
     # try with both parent and geometry, and geometry name shall win
-    grdprop_edata_2 = dataio.ExportData(
-        config=rmsglobalconfig,
-        content={"property": {"is_discrete": False}},
-        name="MyProperty",
-        geometry=grid_output,
-        parent="this_is_parent",
-    )
-    output = grdprop_edata_2.export(gridproperty)
+    with pytest.warns(UserWarning, match="'parent' will here be ignored"):
+        grdprop_edata_2 = dataio.ExportData(
+            config=rmsglobalconfig,
+            content={"property": {"is_discrete": False}},
+            name="MyProperty",
+            geometry=grid_output,
+            parent="this_is_parent",
+        )
+        output = grdprop_edata_2.export(gridproperty)
 
     assert "mygrid" in output
     assert "this_is_parent" not in output
@@ -586,7 +591,8 @@ def test_gridproperty_export_with_geometry(
         name="MyProperty",
         parent="this_is_parent",
     )
-    output = grdprop_edata_3.export(gridproperty)
+    with pytest.warns(FutureWarning, match="linking it to a geometry"):
+        output = grdprop_edata_3.export(gridproperty)
 
     assert "mygrid" not in output
     assert "this_is_parent" in output

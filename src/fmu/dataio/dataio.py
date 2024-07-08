@@ -378,7 +378,7 @@ class ExportData:
     classification: Optional[str] = None
     config: dict = field(default_factory=dict)
     content: Optional[Union[dict, str]] = None
-    depth_reference: str = "msl"  # deprecated
+    depth_reference: Optional[str] = None  # deprecated
     domain_reference: str = "msl"
     description: Union[str, list] = ""
     display_name: Optional[str] = None
@@ -522,7 +522,7 @@ class ExportData:
             logger.debug("rep_include is set from access_ssdl input")
             return self.access_ssdl["rep_include"]
 
-        if "rep_include" in self.config.get("access", {}).get("ssdl", {}):
+        if self.config.get("access", {}).get("ssdl", {}).get("rep_include") is not None:
             warn(
                 "Setting 'rep_include' from the config is deprecated. Use the "
                 "'rep_include' argument instead (default value is False). To silence "

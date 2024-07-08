@@ -324,21 +324,17 @@ def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, reg
 
     os.chdir(fmurun_w_casemetadata)
 
-    edata = dataio.ExportData(
-        config=rmsglobalconfig,
-        content="depth",  # read from global config
-    )
-
     aggs = []
     # create "forward" files
     for i in range(10):
         use_regsurf = regsurf.copy()
         use_regsurf.values += float(i)
-        expfile = edata.export(
-            use_regsurf,
+        expfile = dataio.ExportData(
+            config=rmsglobalconfig,
+            content="depth",
             name="mymap_" + str(i),
             timedata=[[20300201], [19990204]],
-        )
+        ).export(use_regsurf)
         aggs.append(expfile)
 
     # next task is to do an aggradation, and now the metadata already exists

@@ -346,7 +346,7 @@ def test_access_settings_retained(
         logger.info("Active folder is %s", rmssetup)
 
         # Confirm assumption: Access level in config is "internal"
-        assert rmsglobalconfig["access"]["ssdl"]["access_level"] == "internal"
+        assert rmsglobalconfig["access"]["classification"] == "internal"
 
         os.chdir(rmssetup)
         edata = dataio.ExportData(
@@ -354,7 +354,7 @@ def test_access_settings_retained(
             preprocessed=True,
             name="preprocessedmap",
             content="depth",
-            access_ssdl={"access_level": "restricted"},  # access != config
+            classification="restricted",  # access != config
         )
 
         metadata = edata.generate_metadata(regsurf)

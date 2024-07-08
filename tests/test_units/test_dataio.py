@@ -20,17 +20,6 @@ from fmu.dataio.providers._fmu import FmuEnv
 logger = logging.getLogger(__name__)
 
 
-def pydantic_warning() -> str:
-    return r"""The global configuration has one or more errors that makes it
-impossible to create valid metadata. The data will still be exported but no
-metadata will be made. You are strongly encouraged to correct your
-configuration. Invalid configuration may be disallowed in future versions.
-
-Detailed information:
-\d+ validation error(s)? for GlobalConfiguration
-"""
-
-
 def test_generate_metadata_simple(globalconfig1):
     """Test generating metadata"""
 
@@ -55,14 +44,15 @@ def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, reg
 
     monkeypatch.chdir(tmp_path)
 
-    with pytest.warns(UserWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match="The global config"):
         edata = ExportData(config={}, content="depth", name="mysurface")
 
     meta = edata.generate_metadata(regsurf)
     assert "masterdata" not in meta
 
     # check that obj is created but no metadata is found
-    out = edata.export(regsurf)
+    with pytest.warns(UserWarning, match="without metadata"):
+        out = edata.export(regsurf)
     assert "mysurface" in out
     assert Path(out).exists()
     with pytest.raises(OSError, match="Cannot find requested metafile"):
@@ -80,7 +70,7 @@ def test_config_miss_required_fields(monkeypatch, tmp_path, globalconfig1, regsu
     del cfg["masterdata"]
     del cfg["model"]
 
-    with pytest.warns(UserWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match="The global config"):
         edata = ExportData(config=cfg, content="depth", name="mysurface")
 
     with pytest.warns(UserWarning):
@@ -123,7 +113,7 @@ def test_config_stratigraphy_empty_name(globalconfig2):
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["name"] = None
 
-    with pytest.warns(UserWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match="The global config"):
         ExportData(config=cfg, content="depth")
 
 
@@ -132,12 +122,12 @@ def test_config_stratigraphy_stratigraphic_not_bool(globalconfig2):
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic"] = None
 
-    with pytest.warns(UserWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match="The global config"):
         ExportData(config=cfg, content="depth")
 
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic"] = "a string"
 
-    with pytest.warns(UserWarning, match=pydantic_warning()):
+    with pytest.warns(UserWarning, match="The global config"):
         ExportData(config=cfg, content="depth")
 
 
@@ -177,7 +167,9 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
 
     # under override should give FutureWarning for these
     edata = ExportData(config=globalconfig1, content="depth")
-    with pytest.warns(FutureWarning, match="move them up to initialization"):
+    with pytest.warns(UserWarning, match=expected_msg), pytest.warns(
+        FutureWarning, match="move them up to initialization"
+    ):
         edata.generate_metadata(regsurf, **kval)
 
 
@@ -192,6 +184,7 @@ def test_access_ssdl_vs_classification_rep_include(globalconfig1, regsurf):
         exp = ExportData(
             config=globalconfig1,
             access_ssdl={"access_level": "restricted", "rep_include": True},
+            content="depth",
         )
         mymeta = exp.generate_metadata(regsurf)
         assert mymeta["access"]["classification"] == "restricted"
@@ -199,19 +192,38 @@ def test_access_ssdl_vs_classification_rep_include(globalconfig1, regsurf):
 
     # 'access_ssdl' is not allowed together with any combination of
     # 'classification' / 'rep_include' arguments
-    with pytest.raises(ValueError, match="is not supported"):
+    with pytest.warns(FutureWarning, match="deprecated"), pytest.raises(
+        ValueError, match="is not supported"
+    ):
         ExportData(
-            access_ssdl={"access_level": "restricted"}, classification="internal"
+            access_ssdl={"access_level": "restricted"},
+            classification="internal",
+            content="depth",
         )
-    with pytest.raises(ValueError, match="is not supported"):
-        ExportData(access_ssdl={"rep_include": True}, rep_include=True)
+    with pytest.warns(FutureWarning, match="deprecated"), pytest.raises(
+        ValueError, match="is not supported"
+    ):
+        ExportData(
+            access_ssdl={"rep_include": True},
+            rep_include=True,
+            content="depth",
+        )
 
-    with pytest.raises(ValueError, match="is not supported"):
-        ExportData(access_ssdl={"access_level": "restricted"}, rep_include=False)
+    with pytest.warns(FutureWarning, match="deprecated"), pytest.raises(
+        ValueError, match="is not supported"
+    ):
+        ExportData(
+            access_ssdl={"access_level": "restricted"},
+            rep_include=False,
+            content="depth",
+        )
 
     # using 'classification' / 'rep_include' as arguments is the preferred pattern
     exp = ExportData(
-        config=globalconfig1, classification="restricted", rep_include=True
+        config=globalconfig1,
+        classification="restricted",
+        rep_include=True,
+        content="depth",
     )
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["classification"] == "restricted"
@@ -224,34 +236,37 @@ def test_classification(globalconfig1, regsurf):
     # test assumptions
     config = deepcopy(globalconfig1)
     assert config["access"]["classification"] == "internal"
-    assert "access_level" not in config["access"]["ssdl"]
+    assert "ssdl" not in config["access"]
 
     # test that classification can be given directly and will override config
-    exp = ExportData(config=config, classification="restricted")
+    exp = ExportData(config=config, classification="restricted", content="depth")
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["classification"] == "restricted"
 
     # test that classification can be given through deprecated access_ssdl
     with pytest.warns(FutureWarning, match="'access_ssdl' argument is deprecated"):
-        exp = ExportData(config=config, access_ssdl={"access_level": "restricted"})
+        exp = ExportData(
+            config=config, access_ssdl={"access_level": "restricted"}, content="depth"
+        )
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["classification"] == "restricted"
 
     # test that classification is taken from 'classification' in config if not provided
-    exp = ExportData(config=config)
+    exp = ExportData(config=config, content="depth")
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["classification"] == "internal"
 
     # test that classification is taken from access.ssdl.access_level
     # in config if classification is not present
     del config["access"]["classification"]
-    config["access"]["ssdl"]["access_level"] = "restricted"
-    exp = ExportData(config=config)
+    config["access"]["ssdl"] = {"access_level": "restricted"}
+    exp = ExportData(config=config, content="depth")
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["classification"] == "restricted"
 
     # verify that classification is defaulted to internal
-    exp = ExportData(config={})
+    with pytest.warns(UserWarning):
+        exp = ExportData(config={}, content="depth")
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["classification"] == "internal"
 
@@ -260,33 +275,36 @@ def test_rep_include(globalconfig1, regsurf):
     """Test that 'classification' is set correctly."""
 
     # test assumptions
-    assert globalconfig1["access"]["ssdl"]["rep_include"] is False
+    assert "ssdl" not in globalconfig1["access"]  # means no rep_include
 
     # test that rep_include can be given directly and will override config
-    exp = ExportData(config=globalconfig1, rep_include=True)
+    exp = ExportData(config=globalconfig1, rep_include=True, content="depth")
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["ssdl"]["rep_include"] is True
 
     # test that rep_include can be given through access_ssdl
     with pytest.warns(FutureWarning, match="'access_ssdl' argument is deprecated"):
-        exp = ExportData(config=globalconfig1, access_ssdl={"rep_include": True})
+        exp = ExportData(
+            config=globalconfig1, access_ssdl={"rep_include": True}, content="depth"
+        )
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["ssdl"]["rep_include"] is True
 
     # test that rep_include is taken from config if not provided
-    exp = ExportData(config=globalconfig1)
+    exp = ExportData(config=globalconfig1, content="depth")
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["ssdl"]["rep_include"] is False
 
     # test that rep_include is defaulted False
-    exp = ExportData(config={})
+    with pytest.warns(UserWarning):
+        exp = ExportData(config={}, content="depth")
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["ssdl"]["rep_include"] is False
 
 
 def test_unit_is_none(globalconfig1, regsurf):
     """Test that unit=None works and is translated into an enpty string"""
-    eobj = ExportData(config=globalconfig1, unit=None)
+    eobj = ExportData(config=globalconfig1, unit=None, content="depth")
     meta = eobj.generate_metadata(regsurf)
     assert meta["data"]["unit"] == ""
 
@@ -437,6 +455,7 @@ def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
     }
 
 
+@pytest.mark.filterwarnings("ignore: Number of maps nodes are 0")
 def test_surfaces_with_non_finite_values(
     globalconfig1, regsurf_masked_only, regsurf_nan_only, regsurf
 ):
@@ -474,12 +493,12 @@ def test_workflow_as_string(fmurun_w_casemetadata, monkeypatch, globalconfig1, r
     workflow = "My test workflow"
 
     # check that it works in ExportData
-    edata = ExportData(config=globalconfig1, workflow=workflow)
+    edata = ExportData(config=globalconfig1, workflow=workflow, content="depth")
     meta = edata.generate_metadata(regsurf)
     assert meta["fmu"]["workflow"]["reference"] == workflow
 
     # doing actual export with a few ovverides
-    edata = ExportData(config=globalconfig1)
+    edata = ExportData(config=globalconfig1, content="depth")
     with pytest.warns(FutureWarning, match="move them up to initialization"):
         meta = edata.generate_metadata(regsurf, workflow="My test workflow")
     assert meta["fmu"]["workflow"]["reference"] == workflow
@@ -493,6 +512,7 @@ def test_vertical_domain(regsurf, globalconfig1):
         config=globalconfig1,
         vertical_domain="time",
         domain_reference="rkb",
+        content="time",
     ).generate_metadata(regsurf)
     assert mymeta["data"]["vertical_domain"] == "time"
     assert mymeta["data"]["domain_reference"] == "rkb"
@@ -500,28 +520,32 @@ def test_vertical_domain(regsurf, globalconfig1):
     # test giving vertical_domain as dictionary
     with pytest.warns(FutureWarning, match="deprecated"):
         mymeta = ExportData(
-            config=globalconfig1, vertical_domain={"time": "sb"}
+            config=globalconfig1, vertical_domain={"time": "sb"}, content="thickness"
         ).generate_metadata(regsurf)
     assert mymeta["data"]["vertical_domain"] == "time"
     assert mymeta["data"]["domain_reference"] == "sb"
 
     # test excluding vertical_domain and domain_reference
-    mymeta = ExportData(config=globalconfig1).generate_metadata(regsurf)
+    mymeta = ExportData(config=globalconfig1, content="thickness").generate_metadata(
+        regsurf
+    )
     assert "vertical_domain" not in mymeta["data"]
     assert mymeta["data"]["domain_reference"] == "msl"  # default value
 
     # test invalid input
     with pytest.raises(pydantic.ValidationError, match="vertical_domain"):
-        ExportData(config=globalconfig1, vertical_domain="wrong").generate_metadata(
-            regsurf
-        )
-    with pytest.raises(pydantic.ValidationError, match="domain_reference"):
-        ExportData(config=globalconfig1, domain_reference="wrong").generate_metadata(
-            regsurf
-        )
-    with pytest.raises(pydantic.ValidationError, match="2 validation errors"):
         ExportData(
-            config=globalconfig1, vertical_domain={"invalid": 5}
+            config=globalconfig1, vertical_domain="wrong", content="thickness"
+        ).generate_metadata(regsurf)
+    with pytest.raises(pydantic.ValidationError, match="domain_reference"):
+        ExportData(
+            config=globalconfig1, domain_reference="wrong", content="thickness"
+        ).generate_metadata(regsurf)
+    with pytest.warns(FutureWarning, match="deprecated"), pytest.raises(
+        pydantic.ValidationError, match="2 validation errors"
+    ):
+        ExportData(
+            config=globalconfig1, vertical_domain={"invalid": 5}, content="thickness"
         ).generate_metadata(regsurf)
 
 
@@ -668,9 +692,7 @@ def test_fmu_context_not_given_fetch_from_env_realization(
     assert edata.fmu_context == FMUContext.realization
 
 
-def test_fmu_context_not_given_fetch_from_env_case(
-    fmurun_prehook, rmsglobalconfig, regsurf
-):
+def test_fmu_context_not_given_fetch_from_env_case(fmurun_prehook, rmsglobalconfig):
     """
     Test fmu_context not explicitly given, should be set to "case" when
     inside fmu and RUNPATH value not detected from the environment variables.
@@ -832,8 +854,10 @@ def test_norwegian_letters_globalconfig(
     # read file as global config
 
     monkeypatch.setenv("FMU_GLOBAL_CONFIG", cfg_asfile)
-    edata2 = ExportData(content="depth")  # the env variable will override this
-    meta2 = edata2.generate_metadata(regsurf, name="TopBlåbær")
+    edata2 = ExportData(
+        content="depth", name="TopBlåbær"
+    )  # the env variable will override this
+    meta2 = edata2.generate_metadata(regsurf)
     logger.debug("\n %s", prettyprint_dict(meta2))
     assert meta2["data"]["name"] == "TopBlåbær"
     assert meta2["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
@@ -901,9 +925,11 @@ def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsu
     ExportData._inside_rms = True
     ExportData.allow_forcefolder_absolute = False
 
-    edata = ExportData(config=globalconfig2, content="depth", forcefolder="/tmp/what")
+    edata = ExportData(
+        config=globalconfig2, content="depth", forcefolder="/tmp/what", name="x"
+    )
     with pytest.raises(ValueError, match="Can't use absolute path as 'forcefolder'"):
-        edata.generate_metadata(regsurf, name="x")
+        edata.generate_metadata(regsurf)
 
     with pytest.warns(UserWarning, match="is deprecated"):
         ExportData.allow_forcefolder_absolute = True

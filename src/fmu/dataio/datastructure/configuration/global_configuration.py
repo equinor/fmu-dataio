@@ -45,9 +45,7 @@ class Ssdl(BaseModel):
     """
 
     access_level: Optional[enums.Classification] = Field(default=None)
-    rep_include: Optional[bool] = Field(
-        default=False,
-    )
+    rep_include: Optional[bool] = Field(default=None)
 
 
 class Asset(BaseModel):
