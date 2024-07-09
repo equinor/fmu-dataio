@@ -81,7 +81,7 @@ def _load_json(filepath: Path) -> dict[str, Any]:
                 "to overwrite with the new schema.\n"
                 f"{FAILURE} Json parsing error: '{json_decode_error.msg}.'"
             )
-            sys.exit() 
+            sys.exit(1) 
 
 
 def _check_output_filepath(filepath: Path, new_schema: dict[str, Any]) -> None:
