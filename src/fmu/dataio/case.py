@@ -17,17 +17,17 @@ from ._model.fields import Access, Case, Masterdata, Model, User
 logger: Final = null_logger(__name__)
 
 # ######################################################################################
-# InitializeCase.
+# CreateCaseMetada.
 #
-# The InitializeCase is used for making the case matadata prior to any other actions,
+# The CreateCaseMetada is used for making the case matadata prior to any other actions,
 # e.g. forward jobs. However, case metadata file may already exist, and in that case
 # this class should only emit a message or warning.
 # ######################################################################################
 
 
 @dataclass
-class InitializeCase:  # pylint: disable=too-few-public-methods
-    """Initialize metadata for an FMU Case.
+class CreateCaseMetada:  # pylint: disable=too-few-public-methods
+    """Create metadata for an FMU Case.
 
     In ERT this is typically ran as an hook workflow in advance.
 
@@ -69,7 +69,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         except ValidationError as e:
             global_configuration.validation_error_warning(e)
             raise
-        logger.info("Ran __post_init__ for InitializeCase")
+        logger.info("Ran __post_init__ for CreateCaseMetada")
 
     def _establish_metadata_files(self) -> bool:
         """Checks if the metadata files and directories are established and creates
@@ -88,7 +88,7 @@ class InitializeCase:  # pylint: disable=too-few-public-methods
         """
         Generates and persists a unique UUID for a new case.
 
-        Upon initialization of a new case, this UUID is stored in case
+        Upon creation of a new case, this UUID is stored in case
         metadata and written to disk, ensuring it remains constant for the case across
         runs and exports. It is foundational for tracking cases and embedding
         identifiers into file metadata.

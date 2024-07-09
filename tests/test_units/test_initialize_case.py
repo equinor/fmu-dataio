@@ -10,14 +10,14 @@ from pathlib import Path
 
 import pytest
 import yaml
-from fmu.dataio import InitializeCase
+from fmu.dataio import CreateCaseMetada
 from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
 
-def test_initialize_case_barebone(globalconfig2):
-    icase = InitializeCase(
+def test_crease_case_metadata_barebone(globalconfig2):
+    icase = CreateCaseMetada(
         config=globalconfig2, rootfolder="", casename="", caseuser="MyUser"
     )
     assert icase.config == globalconfig2
@@ -27,12 +27,12 @@ def test_initialize_case_barebone(globalconfig2):
     assert not icase.description
 
 
-def test_initialize_case_post_init(monkeypatch, fmurun, globalconfig2):
+def test_create_case_metadata_post_init(monkeypatch, fmurun, globalconfig2):
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
     logger.info("Active folder is %s", fmurun)
 
-    icase = InitializeCase(
+    icase = CreateCaseMetada(
         config=globalconfig2,
         rootfolder=caseroot,
         casename="mycase",
@@ -47,7 +47,9 @@ def test_initialize_case_post_init(monkeypatch, fmurun, globalconfig2):
 
 
 @pytest.mark.filterwarnings("ignore:The global configuration")
-def test_initialize_case_post_init_bad_globalconfig(monkeypatch, fmurun, globalconfig2):
+def test_create_case_metadata_post_init_bad_globalconfig(
+    monkeypatch, fmurun, globalconfig2
+):
     monkeypatch.chdir(fmurun)
     logger.info("Active folder is %s", fmurun)
     caseroot = fmurun.parent.parent
@@ -57,7 +59,7 @@ def test_initialize_case_post_init_bad_globalconfig(monkeypatch, fmurun, globalc
     del config["masterdata"]
 
     with pytest.raises(ValidationError, match="masterdata"):
-        InitializeCase(
+        CreateCaseMetada(
             config=config,
             rootfolder=caseroot,
             casename="mycase",
@@ -65,14 +67,16 @@ def test_initialize_case_post_init_bad_globalconfig(monkeypatch, fmurun, globalc
         )
 
 
-def test_initialize_case_establish_metadata_files(monkeypatch, fmurun, globalconfig2):
+def test_create_case_metadata_establish_metadata_files(
+    monkeypatch, fmurun, globalconfig2
+):
     """Tests that the required directories are made when establishing the case"""
     monkeypatch.chdir(fmurun)
     logger.info("Active folder is %s", fmurun)
     caseroot = fmurun.parent.parent
     logger.info("Case folder is now %s", caseroot)
 
-    icase = InitializeCase(
+    icase = CreateCaseMetada(
         config=globalconfig2, rootfolder=caseroot, casename="mycase", caseuser="user"
     )
     share_metadata = caseroot / "share/metadata"
@@ -82,7 +86,7 @@ def test_initialize_case_establish_metadata_files(monkeypatch, fmurun, globalcon
     assert not icase._metafile.exists()
 
 
-def test_initialize_case_establish_metadata_files_exists(
+def test_create_case_metadata_establish_metadata_files_exists(
     monkeypatch, fmurun, globalconfig2
 ):
     """Tests that _establish_metadata_files returns correctly if the share/metadata
@@ -92,7 +96,7 @@ def test_initialize_case_establish_metadata_files_exists(
     caseroot = fmurun.parent.parent
     logger.info("Case folder is now %s", caseroot)
 
-    icase = InitializeCase(
+    icase = CreateCaseMetada(
         config=globalconfig2, rootfolder=caseroot, casename="mycase", caseuser="user"
     )
     (caseroot / "share/metadata").mkdir(parents=True, exist_ok=True)
@@ -104,13 +108,13 @@ def test_initialize_case_establish_metadata_files_exists(
     assert icase._metafile.exists()
 
 
-def test_initialize_case_generate_metadata(monkeypatch, fmurun, globalconfig2):
+def test_create_case_metadata_generate_metadata(monkeypatch, fmurun, globalconfig2):
     monkeypatch.chdir(fmurun)
     logger.info("Active folder is %s", fmurun)
     myroot = fmurun.parent.parent.parent / "mycase"
     logger.info("Case folder is now %s", myroot)
 
-    icase = InitializeCase(
+    icase = CreateCaseMetada(
         config=globalconfig2, rootfolder=myroot, casename="mycase", caseuser="user"
     )
     metadata = icase.generate_metadata()
@@ -119,14 +123,14 @@ def test_initialize_case_generate_metadata(monkeypatch, fmurun, globalconfig2):
     assert metadata["fmu"]["case"]["user"]["id"] == "user"
 
 
-def test_initialize_case_generate_metadata_warn_if_exists(
+def test_create_case_metadata_generate_metadata_warn_if_exists(
     monkeypatch, fmurun_w_casemetadata, globalconfig2
 ):
     monkeypatch.chdir(fmurun_w_casemetadata)
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     casemetafolder = fmurun_w_casemetadata.parent.parent
 
-    icase = InitializeCase(
+    icase = CreateCaseMetada(
         config=globalconfig2,
         rootfolder=casemetafolder,
         casename="abc",
@@ -136,11 +140,11 @@ def test_initialize_case_generate_metadata_warn_if_exists(
         icase.generate_metadata()
 
 
-def test_initialize_case_with_export(monkeypatch, globalconfig2, fmurun):
+def test_create_case_metadata_with_export(monkeypatch, globalconfig2, fmurun):
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
 
-    icase = InitializeCase(
+    icase = CreateCaseMetada(
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName",
@@ -158,11 +162,13 @@ def test_initialize_case_with_export(monkeypatch, globalconfig2, fmurun):
     assert metadata["masterdata"]["smda"]["field"][0]["identifier"] == "DROGON"
 
 
-def test_initialize_case_export_with_norsk_alphabet(monkeypatch, globalconfig2, fmurun):
+def test_create_case_metadata_export_with_norsk_alphabet(
+    monkeypatch, globalconfig2, fmurun
+):
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
 
-    icase = InitializeCase(
+    icase = CreateCaseMetada(
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName_with_Æ",
