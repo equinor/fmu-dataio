@@ -17,16 +17,16 @@ from ._model.fields import Access, Case, Masterdata, Model, User
 logger: Final = null_logger(__name__)
 
 # ######################################################################################
-# CreateCaseMetada.
+# CreateCaseMetadata.
 #
-# The CreateCaseMetada is used for making the case matadata prior to any other actions,
-# e.g. forward jobs. However, case metadata file may already exist, and in that case
-# this class should only emit a message or warning.
+# The CreateCaseMetadata is used for making the case matadata prior to any other
+# actions, e.g. forward jobs. However, case metadata file may already exist,
+# and in that case this class should only emit a message or warning.
 # ######################################################################################
 
 
 @dataclass
-class CreateCaseMetada:  # pylint: disable=too-few-public-methods
+class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
     """Create metadata for an FMU Case.
 
     In ERT this is typically ran as an hook workflow in advance.
@@ -69,7 +69,7 @@ class CreateCaseMetada:  # pylint: disable=too-few-public-methods
         except ValidationError as e:
             global_configuration.validation_error_warning(e)
             raise
-        logger.info("Ran __post_init__ for CreateCaseMetada")
+        logger.info("Ran __post_init__ for CreateCaseMetadata")
 
     def _establish_metadata_files(self) -> bool:
         """Checks if the metadata files and directories are established and creates

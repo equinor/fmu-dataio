@@ -10,14 +10,14 @@ from pathlib import Path
 
 import pytest
 import yaml
-from fmu.dataio import CreateCaseMetada
+from fmu.dataio import CreateCaseMetadata
 from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
 
 def test_crease_case_metadata_barebone(globalconfig2):
-    icase = CreateCaseMetada(
+    icase = CreateCaseMetadata(
         config=globalconfig2, rootfolder="", casename="", caseuser="MyUser"
     )
     assert icase.config == globalconfig2
@@ -32,7 +32,7 @@ def test_create_case_metadata_post_init(monkeypatch, fmurun, globalconfig2):
     caseroot = fmurun.parent.parent
     logger.info("Active folder is %s", fmurun)
 
-    icase = CreateCaseMetada(
+    icase = CreateCaseMetadata(
         config=globalconfig2,
         rootfolder=caseroot,
         casename="mycase",
@@ -59,7 +59,7 @@ def test_create_case_metadata_post_init_bad_globalconfig(
     del config["masterdata"]
 
     with pytest.raises(ValidationError, match="masterdata"):
-        CreateCaseMetada(
+        CreateCaseMetadata(
             config=config,
             rootfolder=caseroot,
             casename="mycase",
@@ -76,7 +76,7 @@ def test_create_case_metadata_establish_metadata_files(
     caseroot = fmurun.parent.parent
     logger.info("Case folder is now %s", caseroot)
 
-    icase = CreateCaseMetada(
+    icase = CreateCaseMetadata(
         config=globalconfig2, rootfolder=caseroot, casename="mycase", caseuser="user"
     )
     share_metadata = caseroot / "share/metadata"
@@ -96,7 +96,7 @@ def test_create_case_metadata_establish_metadata_files_exists(
     caseroot = fmurun.parent.parent
     logger.info("Case folder is now %s", caseroot)
 
-    icase = CreateCaseMetada(
+    icase = CreateCaseMetadata(
         config=globalconfig2, rootfolder=caseroot, casename="mycase", caseuser="user"
     )
     (caseroot / "share/metadata").mkdir(parents=True, exist_ok=True)
@@ -114,7 +114,7 @@ def test_create_case_metadata_generate_metadata(monkeypatch, fmurun, globalconfi
     myroot = fmurun.parent.parent.parent / "mycase"
     logger.info("Case folder is now %s", myroot)
 
-    icase = CreateCaseMetada(
+    icase = CreateCaseMetadata(
         config=globalconfig2, rootfolder=myroot, casename="mycase", caseuser="user"
     )
     metadata = icase.generate_metadata()
@@ -130,7 +130,7 @@ def test_create_case_metadata_generate_metadata_warn_if_exists(
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     casemetafolder = fmurun_w_casemetadata.parent.parent
 
-    icase = CreateCaseMetada(
+    icase = CreateCaseMetadata(
         config=globalconfig2,
         rootfolder=casemetafolder,
         casename="abc",
@@ -144,7 +144,7 @@ def test_create_case_metadata_with_export(monkeypatch, globalconfig2, fmurun):
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
 
-    icase = CreateCaseMetada(
+    icase = CreateCaseMetadata(
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName",
@@ -168,7 +168,7 @@ def test_create_case_metadata_export_with_norsk_alphabet(
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
 
-    icase = CreateCaseMetada(
+    icase = CreateCaseMetadata(
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName_with_Æ",

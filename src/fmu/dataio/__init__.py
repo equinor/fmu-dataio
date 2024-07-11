@@ -2,7 +2,7 @@
 
 from fmu.dataio.dataio import (
     AggregatedData,
-    CreateCaseMetada,
+    CreateCaseMetadata,
     ExportData,
     read_metadata,
 )
@@ -18,7 +18,7 @@ except ImportError:
 __all__ = [
     "AggregatedData",
     "ExportData",
-    "CreateCaseMetada",
+    "CreateCaseMetadata",
     "read_metadata",
     "ExportPreprocessedData",
 ]

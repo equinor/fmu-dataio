@@ -173,7 +173,7 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
     caseroot.mkdir(parents=True)
     os.chdir(caseroot)
 
-    icase = dataio.CreateCaseMetada(
+    icase = dataio.CreateCaseMetadata(
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName",
