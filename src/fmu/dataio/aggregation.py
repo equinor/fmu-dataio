@@ -64,7 +64,7 @@ class AggregatedData:
     tagname: str = ""
     verbosity: str = "DEPRECATED"  # keep for while
 
-    _metadata: dict = field(default_factory=dict, init=False)
+    _metadata: internal.DataClassMeta = field(init=False)
     _metafile: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self) -> None:
