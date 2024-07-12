@@ -159,7 +159,7 @@ def test_fmuprovider_no_iter_folder(fmurun_no_iter_folder):
 
 
 def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
-    """The fmu run case metadata is initialized with Initialize case; then get provider.
+    """The fmu run case metadata is created with Create case; then get provider.
 
     A typical prehook section in a ERT run is to establish case metadata, and then
     subsequent hook workflows should still recognize this as an ERT run, altough
@@ -173,7 +173,7 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
     caseroot.mkdir(parents=True)
     os.chdir(caseroot)
 
-    icase = dataio.InitializeCase(
+    icase = dataio.CreateCaseMetadata(
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName",

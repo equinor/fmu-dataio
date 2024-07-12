@@ -7,7 +7,7 @@ Note that FMU may potentially have different providers, e.g. ERT versions
 or it can detect that no FMU providers are present (e.g. just ran from RMS interactive)
 
 Note that establishing the FMU case metadata for a run, is currently *not* done
-here; this is done by code in the InitializeCase class.
+here; this is done by code in the CreateCaseMetadata class.
 
 From ERT v. 5 (?), the following env variables are provided in startup (example):
 

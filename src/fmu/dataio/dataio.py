@@ -38,7 +38,7 @@ from ._utils import (
     some_config_from_env,
 )
 from .aggregation import AggregatedData
-from .case import InitializeCase
+from .case import CreateCaseMetadata
 from .preprocessed import ExportPreprocessedData
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 
@@ -54,7 +54,7 @@ SETTINGS_ENVNAME: Final = (
 logger: Final = null_logger(__name__)
 
 AggregatedData: Final = AggregatedData  # Backwards compatibility alias
-InitializeCase: Final = InitializeCase  # Backwards compatibility alias
+CreateCaseMetadata: Final = CreateCaseMetadata  # Backwards compatibility alias
 
 
 # ======================================================================================

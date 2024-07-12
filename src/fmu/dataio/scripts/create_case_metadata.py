@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Final
 
 import yaml
 
-from fmu.dataio import InitializeCase
+from fmu.dataio import CreateCaseMetadata
 
 try:
     from ert.shared.plugins.plugin_manager import hook_implementation
@@ -115,7 +115,7 @@ def create_metadata(args: argparse.Namespace) -> str:
     ) as f:
         global_variables = yaml.safe_load(f)
 
-    return InitializeCase(
+    return CreateCaseMetadata(
         config=global_variables,
         rootfolder=args.ert_caseroot,
         casename=args.ert_casename,
