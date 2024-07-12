@@ -7,7 +7,6 @@ import hashlib
 import json
 import os
 import uuid
-from copy import deepcopy
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, Final, Literal
@@ -369,32 +368,6 @@ def some_config_from_env(envvar: str = "FMU_GLOBAL_CONFIG") -> dict | None:
 def read_named_envvar(envvar: str) -> str | None:
     """Read a specific (named) environment variable."""
     return os.environ.get(envvar, None)
-
-
-def filter_validate_metadata(metadata_in: dict) -> dict:
-    """Validate metadatadict at topmost_level and strip away any alien keys."""
-
-    valids = [
-        "$schema",
-        "version",
-        "source",
-        "tracklog",
-        "class",
-        "fmu",
-        "file",
-        "data",
-        "display",
-        "access",
-        "masterdata",
-    ]
-
-    metadata = deepcopy(metadata_in)
-
-    for key in metadata_in:
-        if key not in valids:
-            del metadata[key]
-
-    return metadata
 
 
 def generate_description(desc: str | list | None = None) -> list | None:

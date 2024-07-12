@@ -11,7 +11,9 @@ from pydantic import ValidationError
 from . import _utils, dataio, types
 from ._logging import null_logger
 from ._metadata import generate_meta_tracklog
+from ._model import internal
 from ._model.enums import FMUContext
+from .exceptions import InvalidMetadataError
 from .providers.objectdata._provider import objectdata_provider_factory
 
 logger: Final = null_logger(__name__)
@@ -194,7 +196,7 @@ class AggregatedData:
 
         return relname, absname
 
-    def _generate_aggrd_metadata(
+    def _set_metadata(
         self,
         obj: types.Inferrable,
         real_ids: list[int],
@@ -216,8 +218,8 @@ class AggregatedData:
         if not self.operation:
             raise ValueError("The 'operation' key has no value")
 
-        # use first as template but filter away invalid entries first:
-        template = _utils.filter_validate_metadata(self.source_metadata[0])
+        # use first as template
+        template = copy.deepcopy(self.source_metadata[0])
 
         relpath, abspath = self._construct_filename(template)
 
@@ -251,15 +253,16 @@ class AggregatedData:
 
         objdata = objectdata_provider_factory(obj=obj, dataio=etemp)
 
-        template["tracklog"] = [generate_meta_tracklog()[0].model_dump(mode="json")]
+        template["tracklog"] = [generate_meta_tracklog()[0]]
         template["file"] = {
             "relative_path": str(relpath),
             "absolute_path": str(abspath) if abspath else None,
+            "checksum_md5": (
+                None
+                if not compute_md5
+                else _utils.compute_md5_using_temp_file(obj, objdata.extension)
+            ),
         }
-        if compute_md5:
-            template["file"]["checksum_md5"] = _utils.compute_md5_using_temp_file(
-                obj, objdata.extension
-            )
 
         # data section
         if self.name:
@@ -267,9 +270,15 @@ class AggregatedData:
         if self.tagname:
             template["data"]["tagname"] = self.tagname
         if bbox := objdata.get_bbox():
-            template["data"]["bbox"] = bbox.model_dump(mode="json", exclude_none=True)
+            template["data"]["bbox"] = bbox
 
-        self._metadata = template
+        try:
+            self._metadata = internal.DataClassMeta.model_validate(template)
+        except ValidationError as err:
+            raise InvalidMetadataError(
+                f"The existing metadata for the aggregated data is invalid. "
+                f"Detailed information: \n{str(err)}"
+            ) from err
 
     # ==================================================================================
     # Public methods:
@@ -296,12 +305,19 @@ class AggregatedData:
                 a temporary export of the data, and may be time consuming for large
                 data.
 
-            skip_null: If True (default), None values in putput will be skipped
+            skip_null: This input parameter has been deprecated. If set to False,
+              a deprecation warning will be raised.
             **kwargs: See AggregatedData() arguments; initial will be overridden by
                 settings here.
         """
         logger.info("Generate metadata for class")
         self._update_settings(kwargs)
+
+        if not skip_null:
+            warnings.warn(
+                "The input parameter 'skip_null' has been deprecated. "
+                "Setting this to False will not have any effect."
+            )
 
         # get input realization numbers:
         real_ids = []
@@ -317,13 +333,10 @@ class AggregatedData:
             uuids.append(xuuid)
 
         # first config file as template
-        self._generate_aggrd_metadata(obj, real_ids, uuids, compute_md5)
-        if skip_null:
-            self._metadata = _utils.drop_nones(self._metadata)
+        self._set_metadata(obj, real_ids, uuids, compute_md5)
 
-        return copy.deepcopy(self._metadata)
+        return self._metadata.model_dump(mode="json", exclude_none=True, by_alias=True)
 
-    # alias method
     def generate_aggregation_metadata(
         self,
         obj: types.Inferrable,
@@ -348,7 +361,7 @@ class AggregatedData:
         """
         self._update_settings(kwargs)
 
-        metadata = self.generate_metadata(obj, compute_md5=False)
+        metadata = self.generate_metadata(obj, compute_md5=True)
 
         abspath = metadata["file"].get("absolute_path", None)
 
@@ -362,15 +375,11 @@ class AggregatedData:
         outfile.parent.mkdir(parents=True, exist_ok=True)
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
-        logger.info("Export to file and compute MD5 sum")
-        # inject the computed md5 checksum in metadata
-        metadata["file"]["checksum_md5"] = _utils.export_file_compute_checksum_md5(
-            obj, outfile
-        )
+        logger.info("Export to file and export metadata file.")
+        _utils.export_file(obj, outfile)
 
         _utils.export_metadata_file(metafile, metadata, savefmt=self.meta_format)
         logger.info("Actual file is:   %s", outfile)
         logger.info("Metadata file is: %s", metafile)
 
-        self._metadata = metadata
         return str(outfile)
