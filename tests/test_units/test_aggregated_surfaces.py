@@ -20,15 +20,17 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, aggr_surfs_mean):
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
 
+    aggregation_uuid = str(utils.uuid_from_string("1234"))
+
     aggdata = dataio.AggregatedData(
         source_metadata=metas,
         operation="mean",
         name="myaggrd",
-        aggregation_id="1234",
+        aggregation_id=aggregation_uuid,
     )
     newmeta = aggdata.generate_metadata(aggr_mean)
     logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
-    assert newmeta["fmu"]["aggregation"]["id"] == "1234"
+    assert newmeta["fmu"]["aggregation"]["id"] == aggregation_uuid
     assert newmeta["fmu"]["context"]["stage"] == "iteration"
 
 
@@ -46,15 +48,17 @@ def test_regsurf_aggregated_content_seismic(
     aggr_mean, metas = aggr_sesimic_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
 
+    aggregation_uuid = str(utils.uuid_from_string("1234"))
+
     aggdata = dataio.AggregatedData(
         source_metadata=metas,
         operation="mean",
         name="myaggrd",
-        aggregation_id="1234",
+        aggregation_id=aggregation_uuid,
     )
     newmeta = aggdata.generate_metadata(aggr_mean)
     logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
-    assert newmeta["fmu"]["aggregation"]["id"] == "1234"
+    assert newmeta["fmu"]["aggregation"]["id"] == aggregation_uuid
     assert newmeta["fmu"]["context"]["stage"] == "iteration"
 
 
@@ -71,20 +75,25 @@ def test_regsurf_aggregated_export(fmurun_w_casemetadata, aggr_surfs_mean):
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
 
+    aggregation_uuid = str(utils.uuid_from_string("1234"))
+
     aggdata = dataio.AggregatedData(
         source_metadata=metas,
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        aggregation_id="1234",
+        aggregation_id=aggregation_uuid,
     )
 
     mypath = aggdata.export(aggr_mean)
 
-    logger.info("Relative path: %s", aggdata._metadata["file"]["relative_path"])
-    logger.info("Absolute path: %s", aggdata._metadata["file"]["absolute_path"])
+    logger.info("Relative path: %s", aggdata._metadata.file.relative_path)
+    logger.info("Absolute path: %s", aggdata._metadata.file.absolute_path)
     logger.debug(
-        "Final metadata after export:\n%s", utils.prettyprint_dict(aggdata._metadata)
+        "Final metadata after export:\n%s",
+        utils.prettyprint_dict(
+            aggdata._metadata.model_dump(mode="json", exclude_none=True, by_alias=True)
+        ),
     )
 
     assert "iter-0/share/results/maps/myaggrd--mean.gri" in mypath
@@ -99,12 +108,14 @@ def test_regsurf_aggregated_alt_keys(fmurun_w_casemetadata, aggr_surfs_mean):
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
 
+    aggregation_uuid = str(utils.uuid_from_string("1234"))
+
     meta1 = dataio.AggregatedData(
         source_metadata=metas,
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        aggregation_id="1234",
+        aggregation_id=aggregation_uuid,
     ).generate_metadata(aggr_mean)
 
     # alternative
@@ -114,7 +125,7 @@ def test_regsurf_aggregated_alt_keys(fmurun_w_casemetadata, aggr_surfs_mean):
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        aggregation_id="1234",
+        aggregation_id=aggregation_uuid,
     )
 
     # alternative with export
@@ -125,9 +136,9 @@ def test_regsurf_aggregated_alt_keys(fmurun_w_casemetadata, aggr_surfs_mean):
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        aggregation_id="1234",
+        aggregation_id=aggregation_uuid,
     )
-    meta3 = aggdata3._metadata
+    meta3 = aggdata3._metadata.model_dump(mode="json", exclude_none=True, by_alias=True)
 
     del meta1["tracklog"]
     del meta2["tracklog"]
@@ -152,13 +163,15 @@ def test_regsurf_aggr_export_give_casepath(fmurun_w_casemetadata, aggr_surfs_mea
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
 
+    aggregation_uuid = str(utils.uuid_from_string("1234abcd"))
+
     aggdata = dataio.AggregatedData(
         source_metadata=metas,
         casepath=casepath,
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        aggregation_id="1234abcd",
+        aggregation_id=aggregation_uuid,
     )
 
     mypath = aggdata.export(aggr_mean)
@@ -210,12 +223,14 @@ def test_regsurf_aggr_export_abspath_none(fmurun_w_casemetadata, aggr_surfs_mean
     # manipulate first metadata record so mimic abspath is None
     metas[0]["file"]["absolute_path"] = None
 
+    aggregation_uuid = str(utils.uuid_from_string("1234abcd"))
+
     aggdata = dataio.AggregatedData(
         source_metadata=metas,
         operation="mean",
         name="myaggrd",
         tagname="mean",
-        aggregation_id="1234abcd",
+        aggregation_id=aggregation_uuid,
     )
 
     newmeta = aggdata.generate_metadata(aggr_mean)
@@ -257,18 +272,20 @@ def test_regsurf_aggregated_aggregation_id(fmurun_w_casemetadata, aggr_surfs_mea
     assert "id" in newmeta["fmu"]["aggregation"]
     assert newmeta["fmu"]["aggregation"]["id"] != "1234"  # shall be uuid
 
+    aggregation_uuid = str(utils.uuid_from_string("1234"))
+
     # let aggregation_id argument be used as aggregation_id
     aggdata = dataio.AggregatedData(
         source_metadata=metas,
         operation="mean",
         name="myaggrd2",
-        aggregation_id="1234",
+        aggregation_id=aggregation_uuid,
     )
     newmeta = aggdata.generate_metadata(aggr_mean)
     logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
-    assert newmeta["fmu"]["aggregation"]["id"] == "1234"
+    assert newmeta["fmu"]["aggregation"]["id"] == aggregation_uuid
 
-    # Raise when given aggregation_id is not a string 1
+    # Raise when given aggregation_id is not a uuid string
     with pytest.raises(ValueError):
         aggdata = dataio.AggregatedData(
             source_metadata=metas,
@@ -278,7 +295,7 @@ def test_regsurf_aggregated_aggregation_id(fmurun_w_casemetadata, aggr_surfs_mea
         )
         newmeta = aggdata.generate_metadata(aggr_mean)
 
-    # Raise when given aggregation_id is not a string 2
+    # Raise when given aggregation_id is not a uuid string 2
     with pytest.raises(ValueError):
         aggdata = dataio.AggregatedData(
             source_metadata=metas,
@@ -351,11 +368,13 @@ def test_regsurf_aggregated_diffdata(fmurun_w_casemetadata, rmsglobalconfig, reg
     aggregated = surfs.statistics()
     logger.info("Aggr. mean is %s", aggregated["mean"].values.mean())  # shall be 1238.5
 
+    aggregation_uuid = str(utils.uuid_from_string("789politipoliti"))
+
     aggdata = dataio.AggregatedData(
         source_metadata=metas,
         operation="mean",
         name="myaggrd",
-        aggregation_id="789politipoliti",
+        aggregation_id=aggregation_uuid,
     )
     newmeta = aggdata.generate_metadata(aggregated["mean"])
     logger.info("New metadata:\n%s", utils.prettyprint_dict(newmeta))

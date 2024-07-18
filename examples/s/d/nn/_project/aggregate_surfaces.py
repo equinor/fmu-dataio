@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import fmu.dataio
+import fmu.dataio._utils
 import numpy as np
 import xtgeo
 import yaml
@@ -54,7 +55,7 @@ def main():
     operations = ["mean", "min", "max", "std"]
 
     # This is the ID we assign to this set of aggregations
-    aggregation_id = "something_very_unique"  # IRL this will usually be a uuid
+    aggregation_id = str(fmu.dataio._utils.uuid_from_string("something_very_unique"))
 
     # Initialize an AggregatedData object for this set of aggregations
     exp = fmu.dataio.AggregatedData(
