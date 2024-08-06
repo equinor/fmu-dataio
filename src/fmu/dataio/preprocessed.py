@@ -11,7 +11,7 @@ from pydantic import ValidationError
 
 from ._logging import null_logger
 from ._metadata import generate_meta_tracklog
-from ._model import internal
+from ._model import enums, internal
 from ._model.enums import FMUContext
 from ._model.fields import File
 from ._utils import export_metadata_file, md5sum
@@ -185,7 +185,7 @@ class ExportPreprocessedData:
         meta_existing["file"] = self._get_meta_file(objfile, checksum_md5_file)
 
         # update the tracklog block
-        tracklog_entry = generate_meta_tracklog(event="merged")
+        tracklog_entry = generate_meta_tracklog(enums.TrackLogEventType.merged)
         meta_existing["tracklog"].extend(tracklog_entry)
 
         try:

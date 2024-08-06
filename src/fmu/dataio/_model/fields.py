@@ -418,8 +418,8 @@ class TracklogEvent(BaseModel):
     )
     """A datetime representation recording when the event occurred."""
 
-    event: str = Field(examples=["created", "updated", "merged"])
-    """A string containing a reference to the type of event being logged."""
+    event: enums.TrackLogEventType
+    """The type of event being logged. See :class:`enums.TrackLogEventType`."""
 
     user: User
     """The user who caused the event to happen. See :class:`User`."""

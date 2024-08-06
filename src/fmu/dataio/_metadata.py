@@ -10,13 +10,13 @@ import getpass
 import os
 import platform
 from datetime import timezone
-from typing import TYPE_CHECKING, Final, Literal
+from typing import TYPE_CHECKING, Final
 
 from pydantic import AnyHttpUrl, TypeAdapter
 
 from ._definitions import SCHEMA, SOURCE, VERSION
 from ._logging import null_logger
-from ._model import fields, internal
+from ._model import enums, fields, internal
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers.objectdata._provider import objectdata_provider_factory
@@ -32,7 +32,7 @@ logger: Final = null_logger(__name__)
 
 
 def generate_meta_tracklog(
-    event: Literal["created", "merged"] = "created",
+    event: enums.TrackLogEventType = enums.TrackLogEventType.created,
 ) -> list[fields.TracklogEvent]:
     """Initialize the tracklog with the 'created' event only."""
     return [
