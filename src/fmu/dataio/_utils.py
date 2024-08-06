@@ -50,28 +50,6 @@ def dataio_examples() -> bool:
     return "RUN_DATAIO_EXAMPLES" in os.environ
 
 
-def drop_nones(dinput: dict) -> dict:
-    """Recursively drop Nones in dict dinput and return a new dict."""
-    # https://stackoverflow.com/a/65379092
-    dd = {}
-    for key, val in dinput.items():
-        if isinstance(val, dict) and val:
-            dd[key] = drop_nones(val)
-        elif isinstance(val, (list, set, tuple)):
-            # note: Nones in lists are not dropped
-            # simply add "if vv is not None" at the end if required
-
-            dd[key] = type(val)(
-                drop_nones(vv) if isinstance(vv, dict) else vv for vv in val
-            )  # type: ignore
-        elif val is not None:
-            if isinstance(val, dict) and not val:  # avoid empty {}
-                pass
-            else:
-                dd[key] = val
-    return dd
-
-
 def export_metadata_file(
     file: Path,
     metadata: dict,
@@ -87,7 +65,7 @@ def export_metadata_file(
         with open(file, "w", encoding="utf8") as stream:
             stream.write(
                 yaml.safe_dump(
-                    drop_nones(metadata),
+                    metadata,
                     allow_unicode=True,
                 )
             )
@@ -95,7 +73,7 @@ def export_metadata_file(
         with open(file.replace(file.with_suffix(".json")), "w") as stream:
             stream.write(
                 json.dumps(
-                    drop_nones(metadata),
+                    metadata,
                     default=str,
                     indent=2,
                     ensure_ascii=False,
