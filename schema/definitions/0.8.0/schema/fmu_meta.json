@@ -8430,6 +8430,16 @@
       "title": "Timestamp",
       "type": "object"
     },
+    "TrackLogEventType": {
+      "description": "The type of event being logged",
+      "enum": [
+        "created",
+        "updated",
+        "merged"
+      ],
+      "title": "TrackLogEventType",
+      "type": "string"
+    },
     "TracklogEvent": {
       "description": "The ``tracklog`` block contains a record of events recorded on these data.\nThis data object describes a tracklog event.",
       "properties": {
@@ -8442,13 +8452,7 @@
           "type": "string"
         },
         "event": {
-          "examples": [
-            "created",
-            "updated",
-            "merged"
-          ],
-          "title": "Event",
-          "type": "string"
+          "$ref": "#/$defs/TrackLogEventType"
         },
         "sysinfo": {
           "anyOf": [

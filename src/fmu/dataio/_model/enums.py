@@ -99,3 +99,11 @@ class DomainReference(str, Enum):
     msl = "msl"
     sb = "sb"
     rkb = "rkb"
+
+
+class TrackLogEventType(str, Enum):
+    """The type of event being logged"""
+
+    created = "created"
+    updated = "updated"
+    merged = "merged"

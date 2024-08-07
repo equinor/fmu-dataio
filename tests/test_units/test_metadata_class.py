@@ -11,6 +11,7 @@ from fmu.dataio._metadata import (
     VERSION,
     generate_export_metadata,
 )
+from fmu.dataio._model import enums
 from fmu.dataio._model.fields import (
     OperatingSystem,
     TracklogEvent,
@@ -47,10 +48,10 @@ def test_generate_meta_tracklog_fmu_dataio_version(regsurf, edataobj1):
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog, list)
-    assert len(tracklog) == 1  # assume "created"
+    assert len(tracklog) == 1  # assume enums.TrackLogEventType.created
 
     parsed = TracklogEvent.model_validate(tracklog[0])
-    assert parsed.event == "created"
+    assert parsed.event == enums.TrackLogEventType.created
 
     # datetime in tracklog shall include time zone offset
     assert parsed.datetime.tzinfo is not None
@@ -70,10 +71,10 @@ def test_generate_meta_tracklog_komodo_version(edataobj1, regsurf, monkeypatch):
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog, list)
-    assert len(tracklog) == 1  # assume "created"
+    assert len(tracklog) == 1  # assume enums.TrackLogEventType.created
 
     parsed = TracklogEvent.model_validate(tracklog[0])
-    assert parsed.event == "created"
+    assert parsed.event == enums.TrackLogEventType.created
 
     # datetime in tracklog shall include time zone offset
     assert parsed.datetime.tzinfo is not None
@@ -90,7 +91,7 @@ def test_generate_meta_tracklog_operating_system(edataobj1, regsurf):
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog, list)
-    assert len(tracklog) == 1  # assume "created"
+    assert len(tracklog) == 1  # assume enums.TrackLogEventType.created
 
     parsed = TracklogEvent.model_validate(tracklog[0])
     assert isinstance(
