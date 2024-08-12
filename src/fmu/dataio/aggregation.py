@@ -8,9 +8,10 @@ from typing import ClassVar, Final, Literal, Optional, Union
 
 from pydantic import ValidationError
 
+from fmu.dataio._model import fields
+
 from . import _utils, dataio, types
 from ._logging import null_logger
-from ._metadata import generate_meta_tracklog
 from ._model import internal
 from ._model.enums import FMUContext
 from .exceptions import InvalidMetadataError
@@ -253,7 +254,7 @@ class AggregatedData:
 
         objdata = objectdata_provider_factory(obj=obj, dataio=etemp)
 
-        template["tracklog"] = [generate_meta_tracklog()[0]]
+        template["tracklog"] = [fields.Tracklog.initialize_metadata_tracklog()[0]]
         template["file"] = {
             "relative_path": str(relpath),
             "absolute_path": str(abspath) if abspath else None,

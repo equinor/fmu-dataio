@@ -164,7 +164,7 @@ class DataClassMeta(JsonSchemaMetadata):
     data: Union[data.AnyData, UnsetAnyContent]
     file: fields.File
     display: fields.Display
-    tracklog: List[fields.TracklogEvent]
+    tracklog: fields.Tracklog
     preprocessed: Optional[bool] = Field(alias="_preprocessed", default=None)
 
 
@@ -174,4 +174,4 @@ class CaseSchema(JsonSchemaMetadata):
     access: fields.Access
     fmu: FMUModelCase
     description: Optional[List[str]] = Field(default=None)
-    tracklog: List[fields.TracklogEvent]
+    tracklog: fields.Tracklog

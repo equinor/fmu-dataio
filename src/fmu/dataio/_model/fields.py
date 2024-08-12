@@ -1,7 +1,19 @@
 from __future__ import annotations
 
+import datetime
+import getpass
+import os
+import platform
+from datetime import timezone
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Optional,
+    Union,
+)
 from uuid import UUID
 
 from pydantic import (
@@ -14,7 +26,9 @@ from pydantic import (
     model_validator,
 )
 
-from . import enums
+from fmu.dataio.version import __version__
+
+from . import enums, fields
 
 if TYPE_CHECKING:
     from pydantic_core import CoreSchema
@@ -402,6 +416,69 @@ class SystemInformation(BaseModel):
     operating_system: Optional[OperatingSystem] = Field(default=None)
     """The operating system from which the ensemble was started from.
     See :class:`OperatingSystem`."""
+
+
+class Tracklog(RootModel):
+    """The ``tracklog`` block contains a record of events recorded on these data.
+    This data object describes the list of tracklog events, in addition to functionality
+    for consturcting a tracklog and adding new records to it.
+    """
+
+    root: List[TracklogEvent]
+
+    def __getitem__(self, item: int) -> TracklogEvent:
+        return self.root[item]
+
+    def __iter__(
+        self,
+    ) -> Any:
+        # Using ´Any´ as return type here as mypy is having issues
+        # resolving the correct type
+        return iter(self.root)
+
+    @classmethod
+    def initialize_metadata_tracklog(cls) -> Tracklog:
+        """Initialize the tracklog object with a list of TracklogEvents
+        with event type 'created'"""
+        return cls(
+            cls._generate_metadata_tracklog_events(enums.TrackLogEventType.created)
+        )
+
+    def extend(self, event: enums.TrackLogEventType) -> None:
+        """Extend the tracklog with a new tracklog record."""
+        self.root.extend(self._generate_metadata_tracklog_events(event))
+
+    @staticmethod
+    def _generate_metadata_tracklog_events(
+        event: enums.TrackLogEventType,
+    ) -> list[fields.TracklogEvent]:
+        """Generate new tracklog events with the given event type"""
+        return [
+            fields.TracklogEvent.model_construct(
+                datetime=datetime.datetime.now(timezone.utc),
+                event=event,
+                user=fields.User.model_construct(id=getpass.getuser()),
+                sysinfo=(
+                    fields.SystemInformation.model_construct(
+                        fmu_dataio=fields.Version.model_construct(version=__version__),
+                        komodo=(
+                            fields.Version.model_construct(version=kr)
+                            if (kr := os.environ.get("KOMODO_RELEASE"))
+                            else None
+                        ),
+                        operating_system=(
+                            fields.OperatingSystem.model_construct(
+                                hostname=platform.node(),
+                                operating_system=platform.platform(),
+                                release=platform.release(),
+                                system=platform.system(),
+                                version=platform.version(),
+                            )
+                        ),
+                    )
+                ),
+            )
+        ]
 
 
 class TracklogEvent(BaseModel):

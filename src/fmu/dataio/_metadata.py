@@ -5,22 +5,16 @@ This contains the _MetaData class which collects and holds all relevant metadata
 
 from __future__ import annotations
 
-import datetime
-import getpass
-import os
-import platform
-from datetime import timezone
 from typing import TYPE_CHECKING, Final
 
 from pydantic import AnyHttpUrl, TypeAdapter
 
 from ._definitions import SCHEMA, SOURCE, VERSION
 from ._logging import null_logger
-from ._model import enums, fields, internal
+from ._model import fields, internal
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers.objectdata._provider import objectdata_provider_factory
-from .version import __version__
 
 if TYPE_CHECKING:
     from . import types
@@ -29,38 +23,6 @@ if TYPE_CHECKING:
     from .providers.objectdata._base import ObjectDataProvider
 
 logger: Final = null_logger(__name__)
-
-
-def generate_meta_tracklog(
-    event: enums.TrackLogEventType = enums.TrackLogEventType.created,
-) -> list[fields.TracklogEvent]:
-    """Initialize the tracklog with the 'created' event only."""
-    return [
-        fields.TracklogEvent.model_construct(
-            datetime=datetime.datetime.now(timezone.utc),
-            event=event,
-            user=fields.User.model_construct(id=getpass.getuser()),
-            sysinfo=(
-                fields.SystemInformation.model_construct(
-                    fmu_dataio=fields.Version.model_construct(version=__version__),
-                    komodo=(
-                        fields.Version.model_construct(version=kr)
-                        if (kr := os.environ.get("KOMODO_RELEASE"))
-                        else None
-                    ),
-                    operating_system=(
-                        fields.OperatingSystem.model_construct(
-                            hostname=platform.node(),
-                            operating_system=platform.platform(),
-                            release=platform.release(),
-                            system=platform.system(),
-                            version=platform.version(),
-                        )
-                    ),
-                )
-            ),
-        )
-    ]
 
 
 def _get_meta_filedata(
@@ -156,7 +118,7 @@ def generate_export_metadata(
         access=_get_meta_access(dataio),
         data=objdata.get_metadata(),
         file=_get_meta_filedata(dataio, obj, objdata, fmudata, compute_md5),
-        tracklog=generate_meta_tracklog(),
+        tracklog=fields.Tracklog.initialize_metadata_tracklog(),
         display=_get_meta_display(dataio, objdata),
         preprocessed=dataio.preprocessed,
     )

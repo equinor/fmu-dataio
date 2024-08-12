@@ -9,7 +9,9 @@ from typing import ClassVar, Final, Literal, Optional, Union
 
 from pydantic import ValidationError
 
-from . import _metadata, _utils
+from fmu.dataio._model import fields
+
+from . import _utils
 from ._logging import null_logger
 from ._model import global_configuration, internal
 from ._model.fields import Access, Case, Masterdata, Model, User
@@ -130,7 +132,7 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
                     description=None,
                 ),
             ),
-            tracklog=_metadata.generate_meta_tracklog(),
+            tracklog=fields.Tracklog.initialize_metadata_tracklog(),
             description=_utils.generate_description(self.description),
         ).model_dump(
             mode="json",
