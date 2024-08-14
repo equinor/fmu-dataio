@@ -421,7 +421,7 @@ class SystemInformation(BaseModel):
 class Tracklog(RootModel):
     """The ``tracklog`` block contains a record of events recorded on these data.
     This data object describes the list of tracklog events, in addition to functionality
-    for consturcting a tracklog and adding new records to it.
+    for constructing a tracklog and adding new records to it.
     """
 
     root: List[TracklogEvent]
@@ -437,19 +437,17 @@ class Tracklog(RootModel):
         return iter(self.root)
 
     @classmethod
-    def initialize_metadata_tracklog(cls) -> Tracklog:
-        """Initialize the tracklog object with a list of TracklogEvents
-        with event type 'created'"""
-        return cls(
-            cls._generate_metadata_tracklog_events(enums.TrackLogEventType.created)
-        )
+    def initialize(cls) -> Tracklog:
+        """Initialize the tracklog object with a list containing one
+        TracklogEvent of type 'created'"""
+        return cls(cls._generate_tracklog_events(enums.TrackLogEventType.created))
 
     def extend(self, event: enums.TrackLogEventType) -> None:
         """Extend the tracklog with a new tracklog record."""
-        self.root.extend(self._generate_metadata_tracklog_events(event))
+        self.root.extend(self._generate_tracklog_events(event))
 
     @staticmethod
-    def _generate_metadata_tracklog_events(
+    def _generate_tracklog_events(
         event: enums.TrackLogEventType,
     ) -> list[fields.TracklogEvent]:
         """Generate new tracklog events with the given event type"""

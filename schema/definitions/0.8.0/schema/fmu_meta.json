@@ -8433,7 +8433,7 @@
       "type": "string"
     },
     "Tracklog": {
-      "description": "The ``tracklog`` block contains a record of events recorded on these data.\nThis data object describes the list of tracklog events, in addition to functionality\nfor consturcting a tracklog and adding new records to it.",
+      "description": "The ``tracklog`` block contains a record of events recorded on these data.\nThis data object describes the list of tracklog events, in addition to functionality\nfor constructing a tracklog and adding new records to it.",
       "items": {
         "$ref": "#/$defs/TracklogEvent"
       },

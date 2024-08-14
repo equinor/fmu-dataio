@@ -254,7 +254,7 @@ class AggregatedData:
 
         objdata = objectdata_provider_factory(obj=obj, dataio=etemp)
 
-        template["tracklog"] = [fields.Tracklog.initialize_metadata_tracklog()[0]]
+        template["tracklog"] = [fields.Tracklog.initialize()[0]]
         template["file"] = {
             "relative_path": str(relpath),
             "absolute_path": str(abspath) if abspath else None,

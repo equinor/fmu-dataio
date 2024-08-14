@@ -132,7 +132,7 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
                     description=None,
                 ),
             ),
-            tracklog=fields.Tracklog.initialize_metadata_tracklog(),
+            tracklog=fields.Tracklog.initialize(),
             description=_utils.generate_description(self.description),
         ).model_dump(
             mode="json",
