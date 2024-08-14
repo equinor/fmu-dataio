@@ -22,7 +22,7 @@ from .fields import (
     FMUBase,
     Masterdata,
     SsdlAccess,
-    TracklogEvent,
+    Tracklog,
 )
 
 if TYPE_CHECKING:
@@ -41,9 +41,9 @@ class MetadataBase(BaseModel):
     """The ``masterdata`` block contains information related to masterdata.
     See :class:`Masterdata`."""
 
-    tracklog: List[TracklogEvent]
+    tracklog: Tracklog
     """The ``tracklog`` block contains a record of events recorded on these data.
-    See :class:`TracklogEvent`."""
+    See :class:`Tracklog`."""
 
     source: Literal["fmu"]
     """The source of this data. Defaults to 'fmu'."""

@@ -440,11 +440,7 @@
           "title": "Source"
         },
         "tracklog": {
-          "items": {
-            "$ref": "#/$defs/TracklogEvent"
-          },
-          "title": "Tracklog",
-          "type": "array"
+          "$ref": "#/$defs/Tracklog"
         },
         "version": {
           "const": "0.8.0",
@@ -4234,11 +4230,7 @@
           "title": "Source"
         },
         "tracklog": {
-          "items": {
-            "$ref": "#/$defs/TracklogEvent"
-          },
-          "title": "Tracklog",
-          "type": "array"
+          "$ref": "#/$defs/Tracklog"
         },
         "version": {
           "const": "0.8.0",
@@ -8439,6 +8431,14 @@
       ],
       "title": "TrackLogEventType",
       "type": "string"
+    },
+    "Tracklog": {
+      "description": "The ``tracklog`` block contains a record of events recorded on these data.\nThis data object describes the list of tracklog events, in addition to functionality\nfor constructing a tracklog and adding new records to it.",
+      "items": {
+        "$ref": "#/$defs/TracklogEvent"
+      },
+      "title": "Tracklog",
+      "type": "array"
     },
     "TracklogEvent": {
       "description": "The ``tracklog`` block contains a record of events recorded on these data.\nThis data object describes a tracklog event.",

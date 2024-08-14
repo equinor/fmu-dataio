@@ -47,8 +47,8 @@ def test_generate_meta_tracklog_fmu_dataio_version(regsurf, edataobj1):
     mymeta = generate_export_metadata(regsurf, edataobj1)
     tracklog = mymeta.tracklog
 
-    assert isinstance(tracklog, list)
-    assert len(tracklog) == 1  # assume enums.TrackLogEventType.created
+    assert isinstance(tracklog.root, list)
+    assert len(tracklog.root) == 1  # assume enums.TrackLogEventType.created
 
     parsed = TracklogEvent.model_validate(tracklog[0])
     assert parsed.event == enums.TrackLogEventType.created
@@ -70,8 +70,8 @@ def test_generate_meta_tracklog_komodo_version(edataobj1, regsurf, monkeypatch):
     mymeta = generate_export_metadata(regsurf, edataobj1)
     tracklog = mymeta.tracklog
 
-    assert isinstance(tracklog, list)
-    assert len(tracklog) == 1  # assume enums.TrackLogEventType.created
+    assert isinstance(tracklog.root, list)
+    assert len(tracklog.root) == 1  # assume enums.TrackLogEventType.created
 
     parsed = TracklogEvent.model_validate(tracklog[0])
     assert parsed.event == enums.TrackLogEventType.created
@@ -90,8 +90,8 @@ def test_generate_meta_tracklog_operating_system(edataobj1, regsurf):
     mymeta = generate_export_metadata(regsurf, edataobj1)
     tracklog = mymeta.tracklog
 
-    assert isinstance(tracklog, list)
-    assert len(tracklog) == 1  # assume enums.TrackLogEventType.created
+    assert isinstance(tracklog.root, list)
+    assert len(tracklog.root) == 1  # assume enums.TrackLogEventType.created
 
     parsed = TracklogEvent.model_validate(tracklog[0])
     assert isinstance(
