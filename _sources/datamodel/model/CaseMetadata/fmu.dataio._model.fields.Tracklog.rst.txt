@@ -1,10 +1,10 @@
-SystemInformation
-=================
+Tracklog
+========
 
 .. currentmodule:: fmu.dataio._model.fields
 
 .. autosummary::
-   :toctree: SystemInformation
+   :toctree: Tracklog
    :recursive:
 
    .. toctree::
@@ -12,13 +12,11 @@ SystemInformation
 
    
    
-      ~fmu.dataio._model.fields.Version
-   
-      ~fmu.dataio._model.fields.OperatingSystem
+      ~fmu.dataio._model.fields.TracklogEvent
    
    
 
-.. autopydantic_model:: SystemInformation
+.. autopydantic_model:: Tracklog
    :members:
    :inherited-members: BaseModel
    :model-show-config-summary: False
