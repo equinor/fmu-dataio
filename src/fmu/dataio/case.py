@@ -14,7 +14,8 @@ from fmu.dataio._model import fields
 from . import _utils
 from ._logging import null_logger
 from ._model import global_configuration, internal
-from ._model.fields import Access, Case, Masterdata, Model, User
+from ._model.fields import Access, Case, Ert, Experiment, Masterdata, Model, User
+from .providers._fmu import FmuEnv
 
 logger: Final = null_logger(__name__)
 
@@ -130,6 +131,13 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
                     uuid=self._case_uuid(),
                     user=User(id=self.caseuser),
                     description=None,
+                ),
+                ert=Ert(
+                    experiment=Experiment(
+                        id=uuid.UUID(FmuEnv.EXPERIMENT_ID.value)
+                        if FmuEnv.EXPERIMENT_ID.value
+                        else None
+                    )
                 ),
             ),
             tracklog=fields.Tracklog.initialize(),

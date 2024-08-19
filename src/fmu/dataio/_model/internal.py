@@ -111,6 +111,7 @@ class JsonSchemaMetadata(BaseModel, populate_by_name=True):
 class FMUModelCase(BaseModel):
     model: fields.Model
     case: fields.Case
+    ert: Optional[fields.Ert] = Field(default=None)
 
 
 class Context(BaseModel, use_enum_values=True):

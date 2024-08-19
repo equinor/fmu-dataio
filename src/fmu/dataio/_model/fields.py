@@ -202,6 +202,22 @@ class Case(BaseModel):
     """A free-text description of this case."""
 
 
+class Ert(BaseModel):
+    """The ``fmu.ert`` block contains information about the current ert run."""
+
+    experiment: Optional[Experiment] = Field(default=None)
+    """Reference to the ert experiment.
+    See :class:`Experiment`."""
+
+
+class Experiment(BaseModel):
+    """The ``fmu.ert.experiment`` block contains information about
+    the current ert experiment run."""
+
+    id: Optional[UUID] = Field(default=None)
+    """The unique identifier of this ert experiment run."""
+
+
 class Iteration(BaseModel):
     """
     The ``fmu.iteration`` block contains information about the iteration this data
@@ -542,6 +558,10 @@ class FMUBase(BaseModel):
     case: Case
     """The ``fmu.case`` block contains information about the case from which this data
     object was exported. See :class:`Case`."""
+
+    ert: Optional[Ert] = Field(default=None)
+    """The ``fmu.ert`` block contains information about the current ert run
+    object was exported. See :class:`Ert`."""
 
     model: Model
     """The ``fmu.model`` block contains information about the model used.
