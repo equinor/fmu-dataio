@@ -23,8 +23,7 @@ INFO = f"[{BOLD}{YELLOW}+{NC}]"
 
 # TODO: This version should come from the package when schema versioning exists
 SCHEMA_VERSION: Final = "0.8.0"
-# TODO: This should be updated to 'fmu_results.json' when legacy schema deprecated
-SCHEMA_FILENAME: Final = "fmu_meta.json"
+SCHEMA_FILENAME: Final = "fmu_results.json"
 
 
 def _get_parser() -> argparse.ArgumentParser:
@@ -81,7 +80,7 @@ def _load_json(filepath: Path) -> dict[str, Any]:
                 "to overwrite with the new schema.\n"
                 f"{FAILURE} Json parsing error: '{json_decode_error.msg}.'"
             )
-            sys.exit(1) 
+            sys.exit(1)
 
 
 def _check_output_filepath(filepath: Path, new_schema: dict[str, Any]) -> None:
@@ -131,7 +130,7 @@ def main() -> None:
             f"{INFO} The '--force' argument flag has been set: "
             "Forcing override and skipping check of current json schema."
         )
-    
+
     print(
         f"{INFO} writing schema version {BOLD}{args.version}{NC} "
         f"as {BOLD}{args.filename}{NC} ...",

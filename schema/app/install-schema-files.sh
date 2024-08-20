@@ -31,6 +31,12 @@ find ./definitions -type d -name schema -print | \
                 #echo "creating $sdir/$ffile"
                 cat "$file" | jq '.["$id"]='\""$id"\" > "$sdir"/"$ffile"
             done
+
+        # Temporarily copy the fmu_results.json schema to fmu_meta.json
+        # TODO: Remove once Sumo has switched to fmu_results.json
+        id="$URIPREFIX"/"$sdir"/fmu_meta.json
+        cat "$sdir"/fmu_results.json | jq '.["$id"]='\""$id"\" > "$sdir"/fmu_meta.json
+
     done
 
 

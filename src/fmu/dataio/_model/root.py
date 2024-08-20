@@ -249,7 +249,7 @@ def dump() -> dict:
                 ],
                 # schema must be present for "dependencies" key to work.
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "$id": "fmu_meta.json",
+                "$id": "fmu_results.json",
             },
             Root.model_json_schema(),
         )
