@@ -3,9 +3,10 @@
 import logging
 from pathlib import Path
 
-import fmu.dataio as dataio
 import pytest
 import yaml
+
+import fmu.dataio as dataio
 from fmu.dataio import _utils as utils
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE

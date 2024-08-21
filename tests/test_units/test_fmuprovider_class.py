@@ -3,9 +3,10 @@
 import logging
 import os
 
-import fmu.dataio as dataio
 import pydantic
 import pytest
+
+import fmu.dataio as dataio
 
 # from conftest import pretend_ert_env_run1
 from fmu.dataio._model.enums import FMUContext

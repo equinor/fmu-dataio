@@ -13,8 +13,9 @@ and are typically used to compare results.
 import logging
 import os
 
-import fmu.dataio as dataio
 import pytest
+
+import fmu.dataio as dataio
 from fmu.dataio import _utils as utils
 
 from ..conftest import remove_ert_env, set_ert_env_prehook

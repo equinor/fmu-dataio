@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import fmu.dataio
-import fmu.dataio._utils
 import numpy as np
 import xtgeo
 import yaml
+
+import fmu.dataio
+import fmu.dataio._utils
 
 
 def main():

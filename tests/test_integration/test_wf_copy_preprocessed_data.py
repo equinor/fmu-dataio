@@ -1,7 +1,8 @@
 import ert.__main__
-import fmu.dataio as dataio
 import pytest
 import yaml
+
+import fmu.dataio as dataio
 
 
 def _export_preprocessed_data(config, regsurf):

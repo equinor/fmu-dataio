@@ -3,8 +3,9 @@
 import logging
 from copy import deepcopy
 
-import fmu.dataio as dio
 import pytest
+
+import fmu.dataio as dio
 from fmu.dataio._metadata import (
     SCHEMA,
     SOURCE,

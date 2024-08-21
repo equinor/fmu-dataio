@@ -1,6 +1,7 @@
 """Test the readers module"""
 
 import pytest
+
 from fmu.dataio import readers
 
 

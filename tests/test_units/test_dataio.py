@@ -10,6 +10,7 @@ from pathlib import Path
 import pydantic
 import pytest
 import yaml
+
 from fmu.dataio._model.enums import FMUContext
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ExportData, read_metadata

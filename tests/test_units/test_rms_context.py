@@ -9,11 +9,12 @@ import os
 import shutil
 from pathlib import Path
 
-import fmu.dataio.dataio as dataio
-import fmu.dataio.readers as readers
 import pandas as pd
 import pytest
 import yaml
+
+import fmu.dataio.dataio as dataio
+import fmu.dataio.readers as readers
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
 

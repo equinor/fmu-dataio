@@ -3,9 +3,10 @@
 
 import sys
 
-from fmu.dataio._model import Root
 from orjson import dumps
 from yaml import safe_load
+
+from fmu.dataio._model import Root
 
 
 def read(file):

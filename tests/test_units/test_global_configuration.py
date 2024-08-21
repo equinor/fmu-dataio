@@ -1,6 +1,7 @@
 import pytest
-from fmu.dataio._model import global_configuration
 from hypothesis import given, strategies
+
+from fmu.dataio._model import global_configuration
 
 
 @given(

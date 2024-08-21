@@ -10,10 +10,11 @@ from datetime import datetime, timedelta
 from pprint import pformat
 
 import pytz
-from fmu.dataio._model import Root
-from fmu.sumo.explorer import Explorer
 from pydantic import ValidationError
 from tqdm import tqdm
+
+from fmu.dataio._model import Root
+from fmu.sumo.explorer import Explorer
 
 
 async def get(
