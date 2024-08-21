@@ -240,7 +240,7 @@ of one or more ensembles, which will appear in the same folder structure on /scr
 Example: ``/scratch/<asset>/<user>/<CASE>/...``.
 
 For each FMU case, a set of metadata is generated and stored on
-/scratch/<case_directory>/share/metadata/fmu_results.yml. The case metadata are read by
+/scratch/<case_directory>/share/metadata/fmu_case.yml. The case metadata are read by
 individual export jobs, and, if you opt to upload data into Sumo, the case metadata are
 used to register the case. Case metadata are made by a hooked (pre-sim) ERT workflow
 running ``PRE_SIMULATION``.
@@ -298,7 +298,7 @@ Now, load this workflow in your ERT config file and make it a HOOK workflow:
 
 You can now start ERT to verify that the workflow is loading and working. You should see
 the workflow appear in the workflows dropdown, and when you run a case, you should see
-case metadata appear in ``scratch/<field>/<casedir>/share/metadata/fmu_results.yml``.
+case metadata appear in ``scratch/<field>/<casedir>/share/metadata/fmu_case.yml``.
 
 
 Include a data export job
