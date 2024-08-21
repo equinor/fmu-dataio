@@ -3,9 +3,10 @@
 import os
 from pathlib import Path
 
-import fmu.dataio as dataio
 import pytest
 import yaml
+
+import fmu.dataio as dataio
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
 from fmu.dataio.providers.objectdata._provider import (
     objectdata_provider_factory,

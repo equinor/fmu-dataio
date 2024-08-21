@@ -1,8 +1,9 @@
 """Explicitly test all allowed contents."""
 
 import pytest
-from fmu.dataio.dataio import ExportData
 from pydantic import ValidationError
+
+from fmu.dataio.dataio import ExportData
 
 # generic testing of functionality related to content is done elsewhere,
 # mainly in test_dataio.py.

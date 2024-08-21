@@ -10,8 +10,9 @@ from pathlib import Path
 
 import pytest
 import yaml
-from fmu.dataio import CreateCaseMetadata
 from pydantic import ValidationError
+
+from fmu.dataio import CreateCaseMetadata
 
 logger = logging.getLogger(__name__)
 

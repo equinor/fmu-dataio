@@ -8,8 +8,9 @@ The input maps is poro_average.grid
 import logging
 from pathlib import Path
 
-import fmu.dataio as dataio
 import xtgeo
+
+import fmu.dataio as dataio
 from fmu.config import utilities as ut
 
 logger = logging.getLogger(__name__)

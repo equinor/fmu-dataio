@@ -3,11 +3,11 @@
 import os
 from pathlib import Path
 
-import fmu.dataio as dataio
 import pandas as pd
 import pytest
-from fmu.dataio._logging import null_logger
 
+import fmu.dataio as dataio
+from fmu.dataio._logging import null_logger
 from tests.utils import inside_rms
 
 logger = null_logger(__name__)

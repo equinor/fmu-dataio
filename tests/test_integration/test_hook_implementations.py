@@ -1,7 +1,8 @@
 import os
 
-import fmu.dataio.hook_implementations.jobs
 from ert.shared.plugins.plugin_manager import ErtPluginManager
+
+import fmu.dataio.hook_implementations.jobs
 from fmu.dataio.scripts import copy_preprocessed, create_case_metadata
 
 

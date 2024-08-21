@@ -3,8 +3,9 @@
 import logging
 import pathlib
 
-import fmu.dataio as dataio
 import xtgeo
+
+import fmu.dataio as dataio
 from fmu.config import utilities as ut
 
 logging.basicConfig(level=logging.DEBUG)

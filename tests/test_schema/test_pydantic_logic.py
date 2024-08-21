@@ -4,8 +4,9 @@ import logging
 from copy import deepcopy
 
 import pytest
-from fmu.dataio._model import Root, data
 from pydantic import ValidationError
+
+from fmu.dataio._model import Root, data
 
 from ..utils import _metadata_examples
 

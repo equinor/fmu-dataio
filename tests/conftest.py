@@ -7,12 +7,13 @@ import os
 import shutil
 from pathlib import Path
 
-import fmu.dataio as dio
 import numpy as np
 import pandas as pd
 import pytest
 import xtgeo
 import yaml
+
+import fmu.dataio as dio
 from fmu.config import utilities as ut
 from fmu.dataio._model import fields, global_configuration
 from fmu.dataio.dataio import ExportData, read_metadata

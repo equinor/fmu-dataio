@@ -3,10 +3,11 @@
 import logging
 import os
 
-import fmu.dataio._utils as utils
-import fmu.dataio.dataio as dataio
 import pytest
 import xtgeo
+
+import fmu.dataio._utils as utils
+import fmu.dataio.dataio as dataio
 
 logger = logging.getLogger(__name__)
 

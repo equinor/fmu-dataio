@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import ExportFolder
 from fmu.dataio._model import fields

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+
 from fmu.config.utilities import yaml_load
 from fmu.dataio import ExportData
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
