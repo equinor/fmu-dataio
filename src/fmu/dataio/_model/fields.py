@@ -134,6 +134,14 @@ class Parameters(RootModel):
     root: Dict[str, Union[Parameters, int, float, str]]
     """A dictionary representing parameters as-is from parameters.txt."""
 
+    def __iter__(self) -> Any:
+        # Using ´Any´ as return type here as mypy is having issues
+        # resolving the correct type
+        return iter(self.root)
+
+    def __getitem__(self, item: str) -> Union[Parameters, int, float, str]:
+        return self.root[item]
+
 
 class Aggregation(BaseModel):
     """

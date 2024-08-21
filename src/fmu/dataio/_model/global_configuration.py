@@ -108,6 +108,14 @@ class Stratigraphy(RootModel[Dict[str, StratigraphyElement]]):
     A collection of StratigraphyElement instances, accessible by keys.
     """
 
+    def __iter__(self) -> Any:
+        # Using ´Any´ as return type here as mypy is having issues
+        # resolving the correct type
+        return iter(self.root)
+
+    def __getitem__(self, item: str) -> StratigraphyElement:
+        return self.root[item]
+
 
 class GlobalConfiguration(BaseModel):
     """
