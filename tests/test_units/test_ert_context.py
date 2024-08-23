@@ -37,7 +37,7 @@ def test_regsurf_generate_metadata(fmurun_w_casemetadata, rmsglobalconfig, regsu
 
 
 def test_incl_jobs_warning(rmsglobalconfig):
-    """Check that usning the deprecated class variable include_ertjobs gives warning."""
+    """Check that using the deprecated class variable include_ertjobs gives warning."""
 
     dataio.ExportData.include_ertjobs = True
 

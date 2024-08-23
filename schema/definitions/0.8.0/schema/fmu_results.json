@@ -1087,17 +1087,6 @@
         "case": {
           "$ref": "#/$defs/Case"
         },
-        "ert": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Ert"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
         "model": {
           "$ref": "#/$defs/Model"
         }

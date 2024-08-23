@@ -559,10 +559,6 @@ class FMUBase(BaseModel):
     """The ``fmu.case`` block contains information about the case from which this data
     object was exported. See :class:`Case`."""
 
-    ert: Optional[Ert] = Field(default=None)
-    """The ``fmu.ert`` block contains information about the current ert run
-    object was exported. See :class:`Ert`."""
-
     model: Model
     """The ``fmu.model`` block contains information about the model used.
     See :class:`Model`."""
@@ -594,6 +590,10 @@ class FMU(FMUBase):
     realization: Optional[Realization] = Field(default=None)
     """The ``fmu.realization`` block contains information about the realization this
     data object belongs to. See :class:`Realization`."""
+
+    ert: Optional[Ert] = Field(default=None)
+    """The ``fmu.ert`` block contains information about the current ert run
+    See :class:`Ert`."""
 
     @model_validator(mode="before")
     @classmethod

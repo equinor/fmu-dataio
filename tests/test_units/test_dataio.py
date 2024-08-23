@@ -1000,3 +1000,33 @@ def test_append_to_alias_list(globalconfig2, regsurf):
     # also check that the name input was added to the alias list
     assert name not in strat["alias"]
     assert name in meta["data"]["alias"]
+
+
+def test_ert_experiment_id_present_in_generated_metadata(
+    fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
+):
+    """Test that the ert experiment id has been set correctly
+    in the generated metadata"""
+
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    edata = ExportData(config=globalconfig1, content="depth")
+    meta = edata.generate_metadata(regsurf)
+    expected_id = "6a8e1e0f-9315-46bb-9648-8de87151f4c7"
+    assert meta["fmu"]["ert"]["experiment"]["id"] == expected_id
+
+
+def test_ert_experiment_id_present_in_exported_metadata(
+    fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
+):
+    """Test that the ert experiment id has been set correctly
+    in the exported metadata"""
+
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    edata = ExportData(config=globalconfig1, content="depth")
+    out = Path(edata.export(regsurf))
+    with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
+        export_meta = yaml.safe_load(f)
+    expected_id = "6a8e1e0f-9315-46bb-9648-8de87151f4c7"
+    assert export_meta["fmu"]["ert"]["experiment"]["id"] == expected_id

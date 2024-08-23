@@ -141,23 +141,6 @@ def test_create_case_metadata_generate_metadata_warn_if_exists(
         icase.generate_metadata()
 
 
-def test_create_case_metadata_generate_metadata_with_experiment_id(
-    monkeypatch, fmurun, globalconfig2
-):
-    monkeypatch.chdir(fmurun)
-    logger.info("Active folder is %s", fmurun)
-    myroot = fmurun.parent.parent.parent / "mycase"
-    logger.info("Case folder is now %s", myroot)
-
-    icase = CreateCaseMetadata(
-        config=globalconfig2, rootfolder=myroot, casename="mycase", caseuser="user"
-    )
-    metadata = icase.generate_metadata()
-    experiment_id_expected = "6a8e1e0f-9315-46bb-9648-8de87151f4c7"
-    assert metadata
-    assert metadata["fmu"]["ert"]["experiment"]["id"] == experiment_id_expected
-
-
 def test_create_case_metadata_with_export(monkeypatch, globalconfig2, fmurun):
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
@@ -212,25 +195,3 @@ def test_create_case_metadata_export_with_norsk_alphabet(
         metadata_string = stream.read()
 
     assert "æøå" in metadata_string
-
-
-def test_create_case_metadata_with_export_with_experiment_id(
-    monkeypatch, globalconfig2, fmurun
-):
-    monkeypatch.chdir(fmurun)
-    caseroot = fmurun.parent.parent
-
-    icase = CreateCaseMetadata(
-        config=globalconfig2,
-        rootfolder=caseroot,
-        casename="MyCaseName",
-        caseuser="MyUser",
-        description="Some description",
-    )
-    fmu_case_yml = Path(icase.export())
-
-    with open(fmu_case_yml) as stream:
-        metadata = yaml.safe_load(stream)
-
-    experiment_id_expected = "6a8e1e0f-9315-46bb-9648-8de87151f4c7"
-    assert metadata["fmu"]["ert"]["experiment"]["id"] == experiment_id_expected
