@@ -400,7 +400,7 @@ class ExportData:
     unit: Optional[str] = ""
     verbosity: str = "DEPRECATED"  # remove in version 2
     vertical_domain: Optional[Union[str, dict]] = None  # dict input is deprecated
-    workflow: Optional[Union[str, Dict[str, str]]] = None
+    workflow: Optional[Union[str, Dict[str, str]]] = None  # dict input is deprecated
     table_index: Optional[list] = None
 
     # some keys that are modified version of input, prepended with _use
