@@ -951,6 +951,44 @@
       "title": "DomainReference",
       "type": "string"
     },
+    "Ert": {
+      "description": "The ``fmu.ert`` block contains information about the current ert run.",
+      "properties": {
+        "experiment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Experiment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Ert",
+      "type": "object"
+    },
+    "Experiment": {
+      "description": "The ``fmu.ert.experiment`` block contains information about\nthe current ert experiment run.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        }
+      },
+      "title": "Experiment",
+      "type": "object"
+    },
     "FMU": {
       "dependencies": {
         "aggregation": {
@@ -986,6 +1024,17 @@
         },
         "context": {
           "$ref": "#/$defs/Context"
+        },
+        "ert": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Ert"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "iteration": {
           "anyOf": [

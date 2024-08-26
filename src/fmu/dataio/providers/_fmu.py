@@ -29,6 +29,7 @@ _ERT_RUNPATH:   /scratch/fmu/jriv/01_drogon_ahm/realization-0/iter-0/
 from __future__ import annotations
 
 import os
+import uuid
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
@@ -179,6 +180,7 @@ class FmuProvider(Provider):
                 context=self._get_fmucontext_meta(),
                 model=self._get_fmumodel_meta() if self.model else case_meta.fmu.model,
                 workflow=self._get_workflow_meta() if self.workflow else None,
+                ert=self._get_ert_meta(),
             )
 
         iter_uuid, real_uuid = self._get_iteration_and_real_uuid(
@@ -191,12 +193,23 @@ class FmuProvider(Provider):
             workflow=self._get_workflow_meta() if self.workflow else None,
             iteration=self._get_iteration_meta(iter_uuid),
             realization=self._get_realization_meta(real_uuid),
+            ert=self._get_ert_meta(),
         )
 
     @staticmethod
     def _get_runpath_from_env() -> Path | None:
         """get runpath as an absolute path if detected from the enviroment"""
         return Path(runpath).resolve() if (runpath := FmuEnv.RUNPATH.value) else None
+
+    @staticmethod
+    def _get_ert_meta() -> fields.Ert:
+        return fields.Ert(
+            experiment=fields.Experiment(
+                id=uuid.UUID(FmuEnv.EXPERIMENT_ID.value)
+                if FmuEnv.EXPERIMENT_ID.value
+                else None
+            )
+        )
 
     def _validate_and_establish_casepath(self) -> Path | None:
         """If casepath is not given, then try update _casepath (if in realization).
