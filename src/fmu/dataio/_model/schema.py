@@ -140,7 +140,7 @@ class InternalFMU(fields.FMU):
 
 
 class InternalObjectMetadata(JsonSchemaMetadata):
-    # TODO: aim to use InternalFMU as base
+    # TODO: aim to use root.ObjectMetadata as base
     # class and disallow creating invalid metadata.
     class_: Literal[
         enums.FMUClass.surface,
