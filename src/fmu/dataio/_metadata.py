@@ -11,7 +11,7 @@ from pydantic import AnyHttpUrl, TypeAdapter
 
 from ._definitions import SCHEMA, SOURCE, VERSION
 from ._logging import null_logger
-from ._model import fields, internal
+from ._model import fields, schema
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers.objectdata._provider import objectdata_provider_factory
@@ -42,7 +42,7 @@ def _get_meta_filedata(
     ).get_metadata()
 
 
-def _get_meta_fmu(fmudata: FmuProvider) -> internal.FMUClassMetaData | None:
+def _get_meta_fmu(fmudata: FmuProvider) -> schema.InternalFMU | None:
     try:
         return fmudata.get_metadata()
     except InvalidMetadataError:
@@ -77,7 +77,7 @@ def generate_export_metadata(
     dataio: ExportData,
     fmudata: FmuProvider | None = None,
     compute_md5: bool = True,
-) -> internal.DataClassMeta:
+) -> schema.InternalObjectMetadata:
     """
     Main function to generate the full metadata
 
@@ -108,7 +108,7 @@ def generate_export_metadata(
     objdata = objectdata_provider_factory(obj, dataio)
     masterdata = dataio.config.get("masterdata")
 
-    return internal.DataClassMeta(
+    return schema.InternalObjectMetadata(
         schema_=TypeAdapter(AnyHttpUrl).validate_strings(SCHEMA),  # type: ignore[call-arg]
         version=VERSION,
         source=SOURCE,

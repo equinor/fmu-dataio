@@ -1,5 +1,5 @@
 """
-This module, `datastructure._internal`, contains internal data structures that
+This module, `_model.schema`, contains internal data structures that
 are designed to depend on external modules, but not the other way around.
 This design ensures modularity and flexibility, allowing external modules
 to be potentially separated into their own repositories without dependencies
@@ -108,21 +108,16 @@ class JsonSchemaMetadata(BaseModel, populate_by_name=True):
     source: str = Field(default=SOURCE)
 
 
-class FMUModelCase(BaseModel):
-    model: fields.Model
-    case: fields.Case
-
-
 class Context(BaseModel, use_enum_values=True):
     stage: enums.FMUContext
 
 
 # Remove the two models below when content is required as input.
-class UnsetContent(data.Data):
+class InternalUnsetData(data.Data):
     content: Literal["unset"]  # type: ignore
 
     @model_validator(mode="after")
-    def _deprecation_warning(self) -> UnsetContent:
+    def _deprecation_warning(self) -> InternalUnsetData:
         valid_contents = [m.value for m in enums.Content]
         warnings.warn(
             "The <content> is not provided which will produce invalid metadata. "
@@ -134,18 +129,18 @@ class UnsetContent(data.Data):
         return self
 
 
-class UnsetAnyContent(data.AnyData):
-    root: UnsetContent  # type: ignore
+class InternalAnyData(data.AnyData):
+    root: InternalUnsetData  # type: ignore
 
 
-class FMUClassMetaData(fields.FMU):
+class InternalFMU(fields.FMU):
     # This class is identical to the one used in the schema
     # exept for more fmu context values beeing allowed internally
     context: Context  # type: ignore
 
 
-class DataClassMeta(JsonSchemaMetadata):
-    # TODO: aim to use meta.FMUDataClassMeta as base
+class InternalObjectMetadata(JsonSchemaMetadata):
+    # TODO: aim to use InternalFMU as base
     # class and disallow creating invalid metadata.
     class_: Literal[
         enums.FMUClass.surface,
@@ -158,20 +153,20 @@ class DataClassMeta(JsonSchemaMetadata):
         enums.FMUClass.points,
         enums.FMUClass.dictionary,
     ] = Field(alias="class")
-    fmu: Optional[FMUClassMetaData]
+    fmu: Optional[InternalFMU]
     masterdata: Optional[fields.Masterdata]
     access: Optional[fields.SsdlAccess]
-    data: Union[data.AnyData, UnsetAnyContent]
+    data: Union[data.AnyData, InternalAnyData]
     file: fields.File
     display: fields.Display
     tracklog: fields.Tracklog
     preprocessed: Optional[bool] = Field(alias="_preprocessed", default=None)
 
 
-class CaseSchema(JsonSchemaMetadata):
+class InternalCaseMetadata(JsonSchemaMetadata):
     class_: Literal["case"] = Field(alias="class", default="case")
     masterdata: fields.Masterdata
     access: fields.Access
-    fmu: FMUModelCase
+    fmu: fields.FMUBase
     description: Optional[List[str]] = Field(default=None)
     tracklog: fields.Tracklog

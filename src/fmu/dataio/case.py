@@ -13,7 +13,7 @@ from fmu.dataio._model import fields
 
 from . import _utils
 from ._logging import null_logger
-from ._model import global_configuration, internal
+from ._model import global_configuration, schema
 from ._model.fields import Access, Case, Masterdata, Model, User
 
 logger: Final = null_logger(__name__)
@@ -118,10 +118,10 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
             warnings.warn(exists_warning, UserWarning)
             return {}
 
-        self._metadata = internal.CaseSchema(
+        self._metadata = schema.InternalCaseMetadata(
             masterdata=Masterdata.model_validate(self.config["masterdata"]),
             access=Access.model_validate(self.config["access"]),
-            fmu=internal.FMUModelCase(
+            fmu=fields.FMUBase(
                 model=Model.model_validate(
                     self.config["model"],
                 ),
