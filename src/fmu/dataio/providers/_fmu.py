@@ -39,7 +39,7 @@ from warnings import warn
 from fmu.config import utilities as ut
 from fmu.dataio import _utils
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model import fields, internal
+from fmu.dataio._model import fields, schema
 from fmu.dataio._model.enums import FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 
@@ -165,7 +165,7 @@ class FmuProvider(Provider):
         """Return runpath for a FMU run."""
         return self._runpath
 
-    def get_metadata(self) -> internal.FMUClassMetaData:
+    def get_metadata(self) -> schema.InternalFMU:
         """Construct the metadata FMU block for an ERT forward job."""
         logger.debug("Generate ERT metadata...")
 
@@ -175,7 +175,7 @@ class FmuProvider(Provider):
         case_meta = self._get_case_meta()
 
         if self.fmu_context != FMUContext.realization:
-            return internal.FMUClassMetaData(
+            return schema.InternalFMU(
                 case=case_meta.fmu.case,
                 context=self._get_fmucontext_meta(),
                 model=self._get_fmumodel_meta() if self.model else case_meta.fmu.model,
@@ -186,7 +186,7 @@ class FmuProvider(Provider):
         iter_uuid, real_uuid = self._get_iteration_and_real_uuid(
             case_meta.fmu.case.uuid
         )
-        return internal.FMUClassMetaData(
+        return schema.InternalFMU(
             case=case_meta.fmu.case,
             context=self._get_fmucontext_meta(),
             model=self._get_fmumodel_meta() if self.model else case_meta.fmu.model,
@@ -262,7 +262,7 @@ class FmuProvider(Provider):
             )
             return None
 
-        restart_metadata = internal.CaseSchema.model_validate(
+        restart_metadata = schema.InternalCaseMetadata.model_validate(
             ut.yaml_load(restart_case_metafile, loader="standard")
         )
         return _utils.uuid_from_string(
@@ -288,12 +288,12 @@ class FmuProvider(Provider):
         real_uuid = _utils.uuid_from_string(f"{case_uuid}{iter_uuid}{self._real_id}")
         return iter_uuid, real_uuid
 
-    def _get_case_meta(self) -> internal.CaseSchema:
+    def _get_case_meta(self) -> schema.InternalCaseMetadata:
         """Parse and validate the CASE metadata."""
         logger.debug("Loading case metadata file and return pydantic case model")
         assert self._casepath is not None
         case_metafile = self._casepath / ERT_RELATIVE_CASE_METADATA_FILE
-        return internal.CaseSchema.model_validate(
+        return schema.InternalCaseMetadata.model_validate(
             ut.yaml_load(case_metafile, loader="standard")
         )
 
@@ -315,8 +315,8 @@ class FmuProvider(Provider):
             else None,
         )
 
-    def _get_fmucontext_meta(self) -> internal.Context:
-        return internal.Context(stage=self.fmu_context)
+    def _get_fmucontext_meta(self) -> schema.Context:
+        return schema.Context(stage=self.fmu_context)
 
     def _get_fmumodel_meta(self) -> fields.Model:
         return fields.Model.model_validate(self.model)
