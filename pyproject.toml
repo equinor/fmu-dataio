@@ -53,7 +53,7 @@ dev = [
     "hypothesis",
     "mypy",
     "pandas-stubs",
-    "pyarrow-stubs",
+    "pyarrow-stubs==10.0.1.9",
     "pydocstyle",
     "pytest-cov",
     "pytest-mock",
