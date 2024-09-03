@@ -15,7 +15,10 @@ from fmu.dataio._model.data import (
     Timestamp,
 )
 from fmu.dataio._model.enums import Content
-from fmu.dataio._model.global_configuration import StratigraphyElement
+from fmu.dataio._model.global_configuration import (
+    GlobalConfiguration,
+    StratigraphyElement,
+)
 from fmu.dataio._model.schema import AllowedContent, InternalAnyData
 from fmu.dataio._utils import generate_description
 from fmu.dataio.providers._base import Provider
@@ -198,18 +201,18 @@ class ObjectDataProvider(Provider):
         elif isinstance(obj_name := getattr(self.obj, "name", ""), str):
             name = obj_name
 
-        # next check if usename has a "truename" and/or aliases from the config
-        stratigraphy = self.dataio.config.get("stratigraphy", {})
+        if (
+            isinstance(self.dataio.config, GlobalConfiguration)
+            and (strat := self.dataio.config.stratigraphy)
+            and name in strat
+        ):
+            if (alias := strat[name].alias) is None:
+                strat[name].alias = [name]
+            elif name not in alias:
+                alias.append(name)
+            return strat[name]
 
-        if name not in stratigraphy:
-            return StratigraphyElement(name=name)
-
-        if not stratigraphy[name].get("alias"):
-            stratigraphy[name]["alias"] = [name]
-        elif name not in stratigraphy[name]["alias"]:
-            stratigraphy[name]["alias"].append(name)
-
-        return StratigraphyElement.model_validate(stratigraphy[name])
+        return StratigraphyElement(name=name)
 
     def _get_fmu_time_object(self, timedata_item: list[str]) -> Timestamp:
         """
