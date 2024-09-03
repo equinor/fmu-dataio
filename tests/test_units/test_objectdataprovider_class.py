@@ -26,19 +26,19 @@ def test_objectdata_regularsurface_derive_named_stratigraphy(regsurf, edataobj1)
     # mimic the stripped parts of configuations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj1)
 
-    res = objdata._get_named_stratigraphy()
+    res = objdata._get_stratigraphy_element()
 
     assert res.name == "Whatever Top"
     assert "TopWhatever" in res.alias
     assert res.stratigraphic is True
 
 
-def test_objectdata_regularsurface_get_named_stratigraphy_differ(regsurf, edataobj2):
+def test_objectdata_regularsurface_get_stratigraphy_element_differ(regsurf, edataobj2):
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configuations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj2)
 
-    res = objdata._get_named_stratigraphy()
+    res = objdata._get_stratigraphy_element()
 
     assert res.name == "VOLANTIS GP. Top"
     assert "TopVolantis" in res.alias

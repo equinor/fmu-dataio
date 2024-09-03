@@ -18,7 +18,7 @@ from pydantic import (
     model_validator,
 )
 
-from . import enums, fields
+from . import data, enums, fields
 
 
 def validation_error_warning(err: ValidationError) -> None:
@@ -92,9 +92,12 @@ class StratigraphyElement(BaseModel):
     """
 
     name: str
-    stratigraphic: bool
-    alias: Optional[List[str]] = Field(default=None)
+    stratigraphic: bool = Field(default=False)
+    alias: Optional[List[str]] = Field(default_factory=list)
     stratigraphic_alias: Optional[List[str]] = Field(default=None)
+    offset: float = Field(default=0.0, allow_inf_nan=False)
+    top: Optional[data.Layer] = Field(default=None)
+    base: Optional[data.Layer] = Field(default=None)
 
     @field_validator("alias", "stratigraphic_alias", mode="before")
     @classmethod
@@ -118,6 +121,15 @@ class StratigraphyElement(BaseModel):
             )
             return [values]
         return values
+
+    @field_validator("top", "base", mode="before")
+    @classmethod
+    def _set_name_attribute_if_string_input(
+        cls, value: Dict | str | None
+    ) -> Dict | None:
+        if isinstance(value, str):
+            return {"name": value}
+        return value
 
 
 class Stratigraphy(RootModel[Dict[str, StratigraphyElement]]):
