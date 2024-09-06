@@ -98,9 +98,26 @@ class StratigraphyElement(BaseModel):
 
     @field_validator("alias", "stratigraphic_alias", mode="before")
     @classmethod
-    def _prune_nones(cls, values: Any) -> Any:
-        # For backwards compatibility.
-        return None if values is None else [v for v in values if v is not None]
+    def _prune_nones_and_adjust_input(cls, values: Any) -> Any:
+        # For backwards compatibility, remove after a deprecation period
+        if isinstance(values, list) and not all(values):
+            warnings.warn(
+                "The global config contains an empty list element in one of the "
+                "'alias' fields in the 'stratigraphy' section. Please remove the empty "
+                "element, and be aware that this will not be supported in the future.",
+                FutureWarning,
+            )
+            return [v for v in values if v is not None]
+
+        if isinstance(values, str):
+            warnings.warn(
+                "The global config contains string input for one of the 'alias' fields "
+                "in the 'stratigraphy' section. Please convert to a list instead as "
+                "this will not be supported in the future.",
+                FutureWarning,
+            )
+            return [values]
+        return values
 
 
 class Stratigraphy(RootModel[Dict[str, StratigraphyElement]]):
