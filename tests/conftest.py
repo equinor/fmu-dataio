@@ -321,7 +321,7 @@ def fixture_globalconfig1():
             )
         ),
         access=global_configuration.Access(
-            asset=global_configuration.Asset(name="Test"),
+            asset=fields.Asset(name="Test"),
             classification=global_configuration.enums.Classification.internal,
         ),
         model=fields.Model(
