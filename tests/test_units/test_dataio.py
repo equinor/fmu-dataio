@@ -1019,6 +1019,20 @@ def test_append_to_alias_list(globalconfig2, regsurf):
     assert name in meta["data"]["alias"]
 
 
+def test_alias_as_none(globalconfig2, regsurf):
+    """Test that 'alias: None' in the config works"""
+
+    config = deepcopy(globalconfig2)
+    name = "TopVolantis"
+    config["stratigraphy"][name]["alias"] = None
+
+    edata = ExportData(content="depth", config=config, name=name)
+    meta = edata.generate_metadata(regsurf)
+
+    assert meta["data"]["name"] == "VOLANTIS GP. Top"
+    assert meta["data"]["alias"] == [name]
+
+
 def test_ert_experiment_id_present_in_generated_metadata(
     fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
 ):
@@ -1047,3 +1061,56 @@ def test_ert_experiment_id_present_in_exported_metadata(
         export_meta = yaml.safe_load(f)
     expected_id = "6a8e1e0f-9315-46bb-9648-8de87151f4c7"
     assert export_meta["fmu"]["ert"]["experiment"]["id"] == expected_id
+
+
+def test_offset_top_base_present_in_exported_metadata(globalconfig1, regsurf):
+    """
+    Test that top, base and offset information provided from the config are
+    preserved in the exported metadata.
+    """
+    config = deepcopy(globalconfig1)
+    name = "TopWhatever"
+
+    # the globalconfig1 does not have this information so add it
+    config["stratigraphy"][name].update(
+        {
+            "top": {"name": "TheTopHorizon"},
+            "base": {"name": "TheBaseHorizon"},
+            "offset": 3.5,
+        }
+    )
+    edata = ExportData(config=config, content="depth", name=name)
+
+    # check that it is preserved after initialization with pydantic
+    assert "top" in edata.config["stratigraphy"][name]
+    assert "base" in edata.config["stratigraphy"][name]
+    assert "offset" in edata.config["stratigraphy"][name]
+
+    # check that it is preserved in the generated metadata
+    meta = edata.generate_metadata(regsurf)
+    assert meta["data"]["offset"] == 3.5
+    assert meta["data"]["top"]["name"] == "TheTopHorizon"
+    assert meta["data"]["base"]["name"] == "TheBaseHorizon"
+
+
+def test_top_base_as_strings_from_config(globalconfig1, regsurf):
+    """
+    Test that entering top, base as string is allowed and it sets
+    the name attribute automatically.
+    """
+    config = deepcopy(globalconfig1)
+    name = "TopWhatever"
+
+    # add top and base info as string input to the config
+    config["stratigraphy"][name].update(
+        {
+            "top": "TheTopHorizon",
+            "base": "TheBaseHorizon",
+        }
+    )
+    edata = ExportData(config=config, content="depth", name=name)
+
+    # check that the name attribute for top/base is set correctly
+    meta = edata.generate_metadata(regsurf)
+    assert meta["data"]["top"]["name"] == "TheTopHorizon"
+    assert meta["data"]["base"]["name"] == "TheBaseHorizon"

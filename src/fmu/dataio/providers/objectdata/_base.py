@@ -15,6 +15,7 @@ from fmu.dataio._model.data import (
     Timestamp,
 )
 from fmu.dataio._model.enums import Content
+from fmu.dataio._model.global_configuration import StratigraphyElement
 from fmu.dataio._model.schema import AllowedContent, InternalAnyData
 from fmu.dataio._utils import generate_description
 from fmu.dataio.providers._base import Provider
@@ -31,19 +32,6 @@ if TYPE_CHECKING:
     from fmu.dataio.types import Inferrable
 
 logger: Final = null_logger(__name__)
-
-
-@dataclass
-class NamedStratigraphy:
-    name: str
-    alias: list[str] = field(default_factory=list)
-
-    stratigraphic: bool = field(default=False)
-    stratigraphic_alias: list[str] = field(default_factory=list)
-
-    offset: float = field(default=0.0)
-    base: str | None = field(default=None)
-    top: str | None = field(default=None)
 
 
 @dataclass
@@ -82,16 +70,16 @@ class ObjectDataProvider(Provider):
             warn(msg, UserWarning)
 
         content_model = self._get_validated_content(self.dataio.content)
-        named_stratigraphy = self._get_named_stratigraphy()
-        self.name = named_stratigraphy.name
+        strat_element = self._get_stratigraphy_element()
+        self.name = strat_element.name
 
         metadata: dict[str, Any] = {}
         metadata["name"] = self.name
-        metadata["stratigraphic"] = named_stratigraphy.stratigraphic
-        metadata["offset"] = named_stratigraphy.offset
-        metadata["alias"] = named_stratigraphy.alias
-        metadata["top"] = named_stratigraphy.top
-        metadata["base"] = named_stratigraphy.base
+        metadata["stratigraphic"] = strat_element.stratigraphic
+        metadata["offset"] = strat_element.offset
+        metadata["alias"] = strat_element.alias
+        metadata["top"] = strat_element.top
+        metadata["base"] = strat_element.base
 
         metadata["content"] = (usecontent := content_model.content)
         if content_model.content_incl_specific:
@@ -195,7 +183,7 @@ class ObjectDataProvider(Provider):
             {"content": Content(usecontent), "content_incl_specific": content}
         )
 
-    def _get_named_stratigraphy(self) -> NamedStratigraphy:
+    def _get_stratigraphy_element(self) -> StratigraphyElement:
         """Derive the name and stratigraphy for the object; may have several sources.
 
         If not in input settings it is tried to be inferred from the xtgeo/pandas/...
@@ -214,22 +202,14 @@ class ObjectDataProvider(Provider):
         stratigraphy = self.dataio.config.get("stratigraphy", {})
 
         if name not in stratigraphy:
-            return NamedStratigraphy(name=name)
+            return StratigraphyElement(name=name)
 
-        named_stratigraphy = stratigraphy.get(name)
-        rv = NamedStratigraphy(
-            name=named_stratigraphy.get("name", name),
-            alias=named_stratigraphy.get("alias", []),
-            stratigraphic=named_stratigraphy.get("stratigraphic", False),
-            stratigraphic_alias=named_stratigraphy.get("stratigraphic_alias", []),
-            offset=named_stratigraphy.get("offset", 0.0),
-            top=named_stratigraphy.get("top"),
-            base=named_stratigraphy.get("base"),
-        )
-        if name not in rv.alias:
-            rv.alias.append(name)
+        if not stratigraphy[name].get("alias"):
+            stratigraphy[name]["alias"] = [name]
+        elif name not in stratigraphy[name]["alias"]:
+            stratigraphy[name]["alias"].append(name)
 
-        return rv
+        return StratigraphyElement.model_validate(stratigraphy[name])
 
     def _get_fmu_time_object(self, timedata_item: list[str]) -> Timestamp:
         """
