@@ -427,7 +427,11 @@
         },
         "class": {
           "const": "case",
-          "title": "metadata_class"
+          "enum": [
+            "case"
+          ],
+          "title": "metadata_class",
+          "type": "string"
         },
         "fmu": {
           "$ref": "#/$defs/FMUBase"
@@ -437,14 +441,22 @@
         },
         "source": {
           "const": "fmu",
-          "title": "Source"
+          "enum": [
+            "fmu"
+          ],
+          "title": "Source",
+          "type": "string"
         },
         "tracklog": {
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
           "const": "0.8.0",
-          "title": "Version"
+          "enum": [
+            "0.8.0"
+          ],
+          "title": "Version",
+          "type": "string"
         }
       },
       "required": [
@@ -652,7 +664,11 @@
         },
         "content": {
           "const": "depth",
-          "title": "Content"
+          "enum": [
+            "depth"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -882,7 +898,11 @@
         },
         "vertical_domain": {
           "const": "depth",
-          "title": "Vertical Domain"
+          "enum": [
+            "depth"
+          ],
+          "title": "Vertical Domain",
+          "type": "string"
         }
       },
       "required": [
@@ -1154,7 +1174,11 @@
         },
         "content": {
           "const": "facies_thickness",
-          "title": "Content"
+          "enum": [
+            "facies_thickness"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -1455,7 +1479,11 @@
         },
         "content": {
           "const": "fault_lines",
-          "title": "Content"
+          "enum": [
+            "fault_lines"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -1756,7 +1784,11 @@
         },
         "content": {
           "const": "fault_properties",
-          "title": "Content"
+          "enum": [
+            "fault_properties"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -2151,7 +2183,11 @@
         },
         "content": {
           "const": "field_outline",
-          "title": "Content"
+          "enum": [
+            "field_outline"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -2470,7 +2506,11 @@
         },
         "content": {
           "const": "field_region",
-          "title": "Content"
+          "enum": [
+            "field_region"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -2887,7 +2927,11 @@
         },
         "content": {
           "const": "fluid_contact",
-          "title": "Content"
+          "enum": [
+            "fluid_contact"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -3288,7 +3332,11 @@
         },
         "content": {
           "const": "khproduct",
-          "title": "Content"
+          "enum": [
+            "khproduct"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -3629,7 +3677,11 @@
         },
         "content": {
           "const": "lift_curves",
-          "title": "Content"
+          "enum": [
+            "lift_curves"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -3983,7 +4035,11 @@
         },
         "content": {
           "const": "named_area",
-          "title": "Content"
+          "enum": [
+            "named_area"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -4276,14 +4332,22 @@
         },
         "source": {
           "const": "fmu",
-          "title": "Source"
+          "enum": [
+            "fmu"
+          ],
+          "title": "Source",
+          "type": "string"
         },
         "tracklog": {
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
           "const": "0.8.0",
-          "title": "Version"
+          "enum": [
+            "0.8.0"
+          ],
+          "title": "Version",
+          "type": "string"
         }
       },
       "required": [
@@ -4396,7 +4460,11 @@
         },
         "content": {
           "const": "pvt",
-          "title": "Content"
+          "enum": [
+            "pvt"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -4718,7 +4786,11 @@
         },
         "content": {
           "const": "parameters",
-          "title": "Content"
+          "enum": [
+            "parameters"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -5019,7 +5091,11 @@
         },
         "content": {
           "const": "pinchout",
-          "title": "Content"
+          "enum": [
+            "pinchout"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -5367,7 +5443,11 @@
         },
         "content": {
           "const": "property",
-          "title": "Content"
+          "enum": [
+            "property"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -5668,7 +5748,11 @@
         },
         "content": {
           "const": "rft",
-          "title": "Content"
+          "enum": [
+            "rft"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -6021,7 +6105,11 @@
         },
         "content": {
           "const": "regions",
-          "title": "Content"
+          "enum": [
+            "regions"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -6322,7 +6410,11 @@
         },
         "content": {
           "const": "relperm",
-          "title": "Content"
+          "enum": [
+            "relperm"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -6711,7 +6803,11 @@
         },
         "content": {
           "const": "seismic",
-          "title": "Content"
+          "enum": [
+            "seismic"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -7129,7 +7225,11 @@
         },
         "content": {
           "const": "subcrop",
-          "title": "Content"
+          "enum": [
+            "subcrop"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -7555,7 +7655,11 @@
         },
         "content": {
           "const": "thickness",
-          "title": "Content"
+          "enum": [
+            "thickness"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -7885,7 +7989,11 @@
         },
         "content": {
           "const": "time",
-          "title": "Content"
+          "enum": [
+            "time"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -8115,7 +8223,11 @@
         },
         "vertical_domain": {
           "const": "time",
-          "title": "Vertical Domain"
+          "enum": [
+            "time"
+          ],
+          "title": "Vertical Domain",
+          "type": "string"
         }
       },
       "required": [
@@ -8176,7 +8288,11 @@
         },
         "content": {
           "const": "timeseries",
-          "title": "Content"
+          "enum": [
+            "timeseries"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -8589,7 +8705,11 @@
         },
         "content": {
           "const": "velocity",
-          "title": "Content"
+          "enum": [
+            "velocity"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -8912,7 +9032,11 @@
         },
         "content": {
           "const": "volumes",
-          "title": "Content"
+          "enum": [
+            "volumes"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -9213,7 +9337,11 @@
         },
         "content": {
           "const": "wellpicks",
-          "title": "Content"
+          "enum": [
+            "wellpicks"
+          ],
+          "title": "Content",
+          "type": "string"
         },
         "description": {
           "anyOf": [
