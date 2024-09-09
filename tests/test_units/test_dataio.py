@@ -83,12 +83,28 @@ def test_config_miss_required_fields(monkeypatch, tmp_path, globalconfig1, regsu
         read_metadata(out)
 
 
+def test_config_stratigraphy_alias_as_string(globalconfig2):
+    """
+    Test that 'alias' as string gives FutureWarning and is
+    correctly converted to a list.
+    """
+    cfg = deepcopy(globalconfig2)
+    cfg["stratigraphy"]["TopVolantis"]["alias"] = "TV"
+
+    with pytest.warns(FutureWarning, match="string input"):
+        exp = ExportData(config=cfg, content="depth", name="TopVolantis")
+
+    assert exp._config_is_valid
+    assert exp.config["stratigraphy"]["TopVolantis"]["alias"] == ["TV"]
+
+
 def test_config_stratigraphy_empty_entries_alias(globalconfig2, regsurf):
     """Test that empty entries in 'alias' is detected and warned and removed."""
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["alias"] += [None]
 
-    exp = ExportData(config=cfg, content="depth", name="TopVolantis")
+    with pytest.warns(FutureWarning, match="empty list element"):
+        exp = ExportData(config=cfg, content="depth", name="TopVolantis")
     metadata = exp.generate_metadata(regsurf)
 
     assert None not in metadata["data"]["alias"]
@@ -103,7 +119,8 @@ def test_config_stratigraphy_empty_entries_stratigraphic_alias(globalconfig2, re
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic_alias"] += [None]
 
-    exp = ExportData(config=cfg, content="depth")
+    with pytest.warns(FutureWarning, match="empty list element"):
+        exp = ExportData(config=cfg, content="depth")
     metadata = exp.generate_metadata(regsurf)
 
     assert None not in metadata["data"]["stratigraphic_alias"]
