@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import ClassVar, Final, Literal, Optional, Union
 
-from pydantic import ValidationError
+from pydantic import UUID4, ValidationError
 
 from fmu.dataio._model import fields
 
@@ -86,7 +86,7 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
         logger.info("The requested metafile is %s", self._metafile)
         return not self._metafile.exists()
 
-    def _case_uuid(self) -> uuid.UUID:
+    def _case_uuid(self) -> UUID4:
         """
         Generates and persists a unique UUID for a new case.
 
