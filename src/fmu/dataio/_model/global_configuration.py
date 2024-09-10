@@ -48,20 +48,12 @@ class Ssdl(BaseModel):
     rep_include: Optional[bool] = Field(default=None)
 
 
-class Asset(BaseModel):
-    """
-    Represents an asset configuration with a name.
-    """
-
-    name: str
-
-
 class Access(BaseModel, use_enum_values=True):
     """
     Manages access configurations, combining asset and SSDL information.
     """
 
-    asset: Asset
+    asset: fields.Asset
     ssdl: Optional[Ssdl] = Field(default=None)
     classification: Optional[enums.Classification] = Field(default=None)
 
