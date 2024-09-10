@@ -5,19 +5,19 @@ masterdata:
   smda:
     country:
     - identifier: Norway
-      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+      uuid: 2951acd3-28da-4d87-a067-f760a5802ee5
     discovery:
     - short_identifier: DROGON
-      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+      uuid: 2951acd3-28da-4d87-a067-f760a5802ee5
     field:
     - identifier: DROGON
-      uuid: 00000000-0000-0000-0000-000000000000
+      uuid: 2951acd3-28da-4d87-a067-f760a5802ee5
     coordinate_system:
       identifier: ST_WGS84_UTM37N_P32637
-      uuid: ad214d85-dac7-19da-e053-c918a4889309
+      uuid: c5d1511a-98f5-4343-9335-613e1842fa15
     stratigraphic_column:
       identifier: DROGON_2020
-      uuid: ad214d85-8a1d-19da-e053-c918a4889310
+      uuid: 2951acd3-28da-4d87-a067-f760a5802ee5
 access:
   asset:
     name: Drogon

@@ -46,19 +46,19 @@ This is an example of ``_masterdata.yml`` from Drogon. Adjust to your needs:
     smda:
       country:
         - identifier: Westeros
-          uuid: 00000000-0000-0000-0000-000000000000
+          uuid: 2951acd3-28da-4d87-a067-f760a5802ee5
       discovery:
         - short_identifier: DROGON
-          uuid: 00000000-0000-0000-0000-000000000000
+          uuid: 2951acd3-28da-4d87-a067-f760a5802ee5
       field:
         - identifier: DROGON
-          uuid: 00000000-0000-0000-0000-000000000000
+          uuid: 2951acd3-28da-4d87-a067-f760a5802ee5
       coordinate_system:
         identifier: ST_WGS84_UTM37N_P12345
-        uuid: 00000000-0000-0000-0000-000000000000
+        uuid: 2951acd3-28da-4d87-a067-f760a5802ee5
       stratigraphic_column:
         identifier: DROGON_2008
-        uuid: 00000000-0000-0000-0000-000000000000
+        uuid: 2951acd3-28da-4d87-a067-f760a5802ee5
 
 Note that ``country``, ``discovery`` and ``field`` are lists (can have more than one),
 while ``coordinate_system`` and ``stratigraphic_column`` are not.

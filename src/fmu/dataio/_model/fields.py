@@ -14,9 +14,9 @@ from typing import (
     Optional,
     Union,
 )
-from uuid import UUID
 
 from pydantic import (
+    UUID4,
     AwareDatetime,
     BaseModel,
     Field,
@@ -149,7 +149,7 @@ class Aggregation(BaseModel):
     performed over an ensemble.
     """
 
-    id: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    id: UUID4 = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """The unique identifier of an aggregation."""
 
     operation: str
@@ -203,7 +203,7 @@ class Case(BaseModel):
     """A block holding information about the user.
     See :class:`User`."""
 
-    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    uuid: UUID4 = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """The unique identifier of this case. Currently made by fmu.dataio."""
 
     description: Optional[List[str]] = Field(default=None)
@@ -222,7 +222,7 @@ class Experiment(BaseModel):
     """The ``fmu.ert.experiment`` block contains information about
     the current ert experiment run."""
 
-    id: Optional[UUID] = Field(default=None)
+    id: Optional[UUID4] = Field(default=None)
     """The unique identifier of this ert experiment run."""
 
 
@@ -240,10 +240,10 @@ class Iteration(BaseModel):
     """The name of the iteration. This is typically reflecting the folder name on
     scratch. In ERT, custom names for iterations are supported, e.g. "pred"."""
 
-    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    uuid: UUID4 = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """The unique identifier of this case. Currently made by fmu.dataio."""
 
-    restart_from: Optional[UUID] = Field(
+    restart_from: Optional[UUID4] = Field(
         default=None,
         examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
     )
@@ -293,7 +293,7 @@ class Realization(BaseModel):
     jobs: Optional[object] = Field(default=None)
     """Content directly taken from the ERT jobs.json file for this realization."""
 
-    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    uuid: UUID4 = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """The universally unique identifier for this realization. It is a hash of
     ``fmu.case.uuid`` and ``fmu.iteration.uuid`` and ``fmu.realization.id``."""
 
@@ -305,7 +305,7 @@ class CountryItem(BaseModel):
     identifier: str = Field(examples=["Norway"])
     """Identifier known to SMDA."""
 
-    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    uuid: UUID4 = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """Identifier known to SMDA."""
 
 
@@ -316,7 +316,7 @@ class DiscoveryItem(BaseModel):
     short_identifier: str = Field(examples=["SomeDiscovery"])
     """Identifier known to SMDA."""
 
-    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    uuid: UUID4 = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """Identifier known to SMDA."""
 
 
@@ -327,7 +327,7 @@ class FieldItem(BaseModel):
     identifier: str = Field(examples=["OseFax"])
     """Identifier known to SMDA."""
 
-    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    uuid: UUID4 = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """Identifier known to SMDA."""
 
 
@@ -338,7 +338,7 @@ class CoordinateSystem(BaseModel):
     identifier: str = Field(examples=["ST_WGS84_UTM37N_P32637"])
     """Identifier known to SMDA."""
 
-    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    uuid: UUID4 = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """Identifier known to SMDA."""
 
 
@@ -349,7 +349,7 @@ class StratigraphicColumn(BaseModel):
     identifier: str = Field(examples=["DROGON_2020"])
     """Identifier known to SMDA."""
 
-    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    uuid: UUID4 = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """Identifier known to SMDA."""
 
 

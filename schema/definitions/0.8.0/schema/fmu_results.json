@@ -71,7 +71,7 @@
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
-          "format": "uuid",
+          "format": "uuid4",
           "title": "Id",
           "type": "string"
         },
@@ -406,7 +406,7 @@
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
-          "format": "uuid",
+          "format": "uuid4",
           "title": "Uuid",
           "type": "string"
         }
@@ -508,7 +508,7 @@
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
-          "format": "uuid",
+          "format": "uuid4",
           "title": "Uuid",
           "type": "string"
         }
@@ -534,7 +534,7 @@
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
-          "format": "uuid",
+          "format": "uuid4",
           "title": "Uuid",
           "type": "string"
         }
@@ -931,7 +931,7 @@
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
-          "format": "uuid",
+          "format": "uuid4",
           "title": "Uuid",
           "type": "string"
         }
@@ -995,7 +995,7 @@
         "id": {
           "anyOf": [
             {
-              "format": "uuid",
+              "format": "uuid4",
               "type": "string"
             },
             {
@@ -2111,7 +2111,7 @@
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
-          "format": "uuid",
+          "format": "uuid4",
           "title": "Uuid",
           "type": "string"
         }
@@ -3257,7 +3257,7 @@
         "restart_from": {
           "anyOf": [
             {
-              "format": "uuid",
+              "format": "uuid4",
               "type": "string"
             },
             {
@@ -3274,7 +3274,7 @@
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
-          "format": "uuid",
+          "format": "uuid4",
           "title": "Uuid",
           "type": "string"
         }
@@ -6046,7 +6046,7 @@
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
-          "format": "uuid",
+          "format": "uuid4",
           "title": "Uuid",
           "type": "string"
         }
@@ -7167,7 +7167,7 @@
           "examples": [
             "15ce3b84-766f-4c93-9050-b154861f9100"
           ],
-          "format": "uuid",
+          "format": "uuid4",
           "title": "Uuid",
           "type": "string"
         }
