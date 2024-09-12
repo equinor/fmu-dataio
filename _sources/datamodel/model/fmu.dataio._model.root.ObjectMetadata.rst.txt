@@ -12,8 +12,6 @@
 
    
    
-      ~fmu.dataio._model.data.AnyData
-   
       ~fmu.dataio._model.fields.SsdlAccess
    
       ~fmu.dataio._model.fields.File
@@ -23,6 +21,8 @@
       ~fmu.dataio._model.fields.Tracklog
    
       ~fmu.dataio._model.fields.Display
+   
+      ~fmu.dataio._model.data.AnyData
    
       ~fmu.dataio._model.fields.FMU
    
