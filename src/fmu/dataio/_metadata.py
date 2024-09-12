@@ -12,6 +12,7 @@ from pydantic import AnyHttpUrl, TypeAdapter
 from ._definitions import SCHEMA, SOURCE, VERSION
 from ._logging import null_logger
 from ._model import fields, schema
+from ._model.global_configuration import GlobalConfiguration
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers.objectdata._provider import objectdata_provider_factory
@@ -51,8 +52,10 @@ def _get_meta_fmu(fmudata: FmuProvider) -> schema.InternalFMU | None:
 
 def _get_meta_access(dataio: ExportData) -> fields.SsdlAccess:
     return fields.SsdlAccess(
-        asset=fields.Asset(
-            name=dataio.config.get("access", {}).get("asset", {}).get("name", "")
+        asset=(
+            dataio.config.access.asset
+            if isinstance(dataio.config, GlobalConfiguration)
+            else fields.Asset(name="")
         ),
         classification=dataio._classification,
         ssdl=fields.Ssdl(
@@ -60,10 +63,6 @@ def _get_meta_access(dataio: ExportData) -> fields.SsdlAccess:
             rep_include=dataio._rep_include,
         ),
     )
-
-
-def _get_meta_masterdata(masterdata: dict) -> fields.Masterdata:
-    return fields.Masterdata.model_validate(masterdata)
 
 
 def _get_meta_display(
@@ -106,7 +105,6 @@ def generate_export_metadata(
     """
 
     objdata = objectdata_provider_factory(obj, dataio)
-    masterdata = dataio.config.get("masterdata")
 
     return schema.InternalObjectMetadata(
         schema_=TypeAdapter(AnyHttpUrl).validate_strings(SCHEMA),  # type: ignore[call-arg]
@@ -114,7 +112,11 @@ def generate_export_metadata(
         source=SOURCE,
         class_=objdata.classname,
         fmu=_get_meta_fmu(fmudata) if fmudata else None,
-        masterdata=_get_meta_masterdata(masterdata) if masterdata else None,
+        masterdata=(
+            dataio.config.masterdata
+            if isinstance(dataio.config, GlobalConfiguration)
+            else None
+        ),
         access=_get_meta_access(dataio),
         data=objdata.get_metadata(),
         file=_get_meta_filedata(dataio, obj, objdata, fmudata, compute_md5),

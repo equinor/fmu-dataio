@@ -177,7 +177,7 @@ def test_metadata_populate_masterdata_is_empty(globalconfig1, regsurf):
     with pytest.warns(UserWarning, match="The global config"):
         some = dio.ExportData(config=config, content="depth")
 
-    assert not some._config_is_valid
+    assert not some.config
 
     mymeta = generate_export_metadata(regsurf, some)
     assert "masterdata" not in mymeta
@@ -187,16 +187,10 @@ def test_metadata_populate_masterdata_is_present_ok(edataobj1, edataobj2, regsur
     """Testing the masterdata part with OK metdata."""
 
     mymeta = generate_export_metadata(regsurf, edataobj1)
-    assert (
-        mymeta.masterdata.model_dump(mode="json", exclude_none=True)
-        == edataobj1.config["masterdata"]
-    )
+    assert mymeta.masterdata == edataobj1.config.masterdata
 
     mymeta = generate_export_metadata(regsurf, edataobj2)
-    assert (
-        mymeta.masterdata.model_dump(mode="json", exclude_none=True)
-        == edataobj2.config["masterdata"]
-    )
+    assert mymeta.masterdata == edataobj2.config.masterdata
 
 
 # --------------------------------------------------------------------------------------
@@ -211,7 +205,7 @@ def test_metadata_populate_access_miss_cfg_access(globalconfig1, regsurf):
     del cfg1_edited["access"]
     with pytest.warns(UserWarning, match="The global config"):
         edata = dio.ExportData(config=cfg1_edited, content="depth")
-    assert not edata._config_is_valid
+    assert not edata.config
 
     mymeta = generate_export_metadata(regsurf, edata)
     # check that the default "internal" is used
@@ -287,7 +281,7 @@ def test_metadata_populate_wrong_config(globalconfig1, regsurf):
     with pytest.warns(UserWarning):
         edata = dio.ExportData(config=_config, content="depth")
 
-    assert not edata._config_is_valid
+    assert not edata.config
 
     # use default 'internal' if wrong in config
     meta = generate_export_metadata(regsurf, edata)
@@ -345,7 +339,7 @@ def test_metadata_access_deprecated_input(globalconfig1, regsurf):
             classification="asset",
             content="depth",
         )
-    assert edata._config_is_valid
+    assert edata.config
 
     mymeta = generate_export_metadata(regsurf, edata)
     assert mymeta.access.ssdl.access_level == "restricted"

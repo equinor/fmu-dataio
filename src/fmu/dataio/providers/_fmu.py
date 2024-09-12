@@ -103,7 +103,7 @@ class FmuProvider(Provider):
         workflow: Descriptive work flow info
     """
 
-    model: dict | None = None
+    model: fields.Model | None = None
     fmu_context: FMUContext = FMUContext.realization
     casepath_proposed: Optional[Path] = None
     workflow: Optional[Union[str, dict[str, str]]] = None
@@ -178,7 +178,7 @@ class FmuProvider(Provider):
             return schema.InternalFMU(
                 case=case_meta.fmu.case,
                 context=self._get_fmucontext_meta(),
-                model=self._get_fmumodel_meta() if self.model else case_meta.fmu.model,
+                model=self.model or case_meta.fmu.model,
                 workflow=self._get_workflow_meta() if self.workflow else None,
                 ert=self._get_ert_meta(),
             )
@@ -189,7 +189,7 @@ class FmuProvider(Provider):
         return schema.InternalFMU(
             case=case_meta.fmu.case,
             context=self._get_fmucontext_meta(),
-            model=self._get_fmumodel_meta() if self.model else case_meta.fmu.model,
+            model=self.model or case_meta.fmu.model,
             workflow=self._get_workflow_meta() if self.workflow else None,
             iteration=self._get_iteration_meta(iter_uuid),
             realization=self._get_realization_meta(real_uuid),
@@ -317,9 +317,6 @@ class FmuProvider(Provider):
 
     def _get_fmucontext_meta(self) -> schema.Context:
         return schema.Context(stage=self.fmu_context)
-
-    def _get_fmumodel_meta(self) -> fields.Model:
-        return fields.Model.model_validate(self.model)
 
     def _get_workflow_meta(self) -> fields.Workflow:
         assert self.workflow is not None

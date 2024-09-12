@@ -29,6 +29,7 @@ from ._definitions import ValidationError
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._model import enums, global_configuration
+from ._model.global_configuration import GlobalConfiguration
 from ._utils import (
     detect_inside_rms,  # dataio_examples,
     export_file,
@@ -374,7 +375,7 @@ class ExportData:
     aggregation: bool = False
     casepath: Optional[Union[str, Path]] = None
     classification: Optional[str] = None
-    config: dict = field(default_factory=dict)
+    config: dict | GlobalConfiguration = field(default_factory=dict)
     content: Optional[Union[dict, str]] = None
     depth_reference: Optional[str] = None  # deprecated
     domain_reference: str = "msl"
@@ -408,7 +409,6 @@ class ExportData:
 
     # storing resulting state variables for instance, non-public:
     _pwd: Path = field(default_factory=Path, init=False)
-    _config_is_valid: bool = field(default=True, init=False)
     _fmurun: bool = field(default=False, init=False)
 
     # Need to store these temporarily in variables until we stop
@@ -420,6 +420,7 @@ class ExportData:
     _rootpath: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self) -> None:
+        assert isinstance(self.config, dict)
         logger.info("Running __post_init__ ExportData")
         logger.debug("Global config is %s", prettyprint_dict(self.config))
 
@@ -442,12 +443,11 @@ class ExportData:
 
         self._validate_and_establish_fmucontext()
 
-        # check state of global config
-        self._config_is_valid = global_configuration.is_valid(self.config)
-        if self._config_is_valid:
-            # TODO: This needs refinement: _config_is_valid should be removed
-            self.config = global_configuration.roundtrip(self.config)
-        else:
+        try:
+            self.config = GlobalConfiguration.model_validate(self.config)
+        except global_configuration.ValidationError as e:
+            self.config = {}
+            global_configuration.validation_error_warning(e)
             warnings.warn(
                 "The global config file is lacking key information, hence no metadata "
                 "will be exported. Follow the simple 'Getting started' steps "
@@ -484,9 +484,10 @@ class ExportData:
             logger.info("Classification is set from access_ssdl input")
             classification = self.access_ssdl["access_level"]
 
-        elif self._config_is_valid:
+        elif isinstance(self.config, GlobalConfiguration):
             logger.info("Classification is set from config")
-            classification = self.config["access"]["classification"]
+            assert self.config.access.classification
+            classification = self.config.access.classification
         else:
             # note the one below here will never be used, because that
             # means the config is invalid and no metadata will be produced
@@ -520,7 +521,11 @@ class ExportData:
             logger.debug("rep_include is set from access_ssdl input")
             return self.access_ssdl["rep_include"]
 
-        if self.config.get("access", {}).get("ssdl", {}).get("rep_include") is not None:
+        if (
+            isinstance(self.config, GlobalConfiguration)
+            and (ssdl := self.config.access.ssdl)
+            and ssdl.rep_include is not None
+        ):
             warn(
                 "Setting 'rep_include' from the config is deprecated. Use the "
                 "'rep_include' argument instead (default value is False). To silence "
@@ -528,7 +533,7 @@ class ExportData:
                 FutureWarning,
             )
             logger.debug("rep_include is set from config")
-            return self.config["access"]["ssdl"]["rep_include"]
+            return ssdl.rep_include
 
         logger.debug("Using default 'rep_include'=False")
         return False
@@ -783,7 +788,11 @@ class ExportData:
     def _get_fmu_provider(self) -> FmuProvider:
         assert isinstance(self.fmu_context, enums.FMUContext)
         return FmuProvider(
-            model=self.config.get("model"),
+            model=(
+                self.config.model
+                if isinstance(self.config, GlobalConfiguration)
+                else None
+            ),
             fmu_context=self.fmu_context,
             casepath_proposed=Path(self.casepath) if self.casepath else None,
             workflow=self.workflow,
@@ -898,7 +907,7 @@ class ExportData:
         export_file(obj, outfile, flag=self._usefmtflag)
         logger.info("Actual file is:   %s", outfile)
 
-        if self._config_is_valid:
+        if isinstance(self.config, GlobalConfiguration):
             export_metadata_file(metafile, metadata, savefmt=self.meta_format)
             logger.info("Metadata file is: %s", metafile)
         else:

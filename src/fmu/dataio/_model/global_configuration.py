@@ -147,30 +147,3 @@ class GlobalConfiguration(BaseModel):
     masterdata: fields.Masterdata
     model: fields.Model
     stratigraphy: Optional[Stratigraphy] = Field(default=None)
-
-
-def is_valid(obj: object) -> bool:
-    """
-    Validates an object against the GlobalConfiguration schema.
-    """
-
-    try:
-        GlobalConfiguration.model_validate(obj)
-    except ValidationError as e:
-        validation_error_warning(e)
-        return False
-    return True
-
-
-def roundtrip(obj: Dict) -> Dict:
-    """
-    Performs a validation and serialization roundtrip of a given object.
-
-    This function validates the given object with the GlobalConfiguration model,
-    then serializes it back to a dictionary, excluding defaults, None values,
-    and unset values. This is useful for cleaning and validating configuration data.
-    """
-    return GlobalConfiguration.model_validate(obj).model_dump(
-        mode="json",
-        exclude_none=True,
-    )

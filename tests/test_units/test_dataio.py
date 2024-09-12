@@ -31,7 +31,7 @@ def test_generate_metadata_simple(globalconfig1):
 
     edata = ExportData(config=globalconfig1, content="depth")
 
-    assert edata.config["model"]["name"] == "Test"
+    assert edata.config.model.name == "Test"
 
     assert edata.meta_format == "yaml"
     assert edata.grid_fformat == "grdecl"
@@ -94,8 +94,8 @@ def test_config_stratigraphy_alias_as_string(globalconfig2):
     with pytest.warns(FutureWarning, match="string input"):
         exp = ExportData(config=cfg, content="depth", name="TopVolantis")
 
-    assert exp._config_is_valid
-    assert exp.config["stratigraphy"]["TopVolantis"]["alias"] == ["TV"]
+    assert exp.config
+    assert exp.config.stratigraphy["TopVolantis"].alias == ["TV"]
 
 
 def test_config_stratigraphy_empty_entries_alias(globalconfig2, regsurf):
@@ -622,12 +622,12 @@ def test_global_config_from_env(monkeypatch, global_config2_path, globalconfig1)
     monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(global_config2_path))
 
     edata = ExportData(content="depth")  # the env variable will override this
-    assert "smda" in edata.config["masterdata"]
-    assert edata.config["model"]["name"] == "ff"
+    assert getattr(edata.config.masterdata, "smda")
+    assert edata.config.model.name == "ff"
 
     # do not use global config from environment when explicitly given
     edata = ExportData(config=globalconfig1, content="depth")
-    assert edata.config["model"]["name"] == "Test"
+    assert edata.config.model.name == "Test"
 
 
 def test_fmurun_attribute_outside_fmu(rmsglobalconfig):
@@ -1082,9 +1082,9 @@ def test_offset_top_base_present_in_exported_metadata(globalconfig1, regsurf):
     edata = ExportData(config=config, content="depth", name=name)
 
     # check that it is preserved after initialization with pydantic
-    assert "top" in edata.config["stratigraphy"][name]
-    assert "base" in edata.config["stratigraphy"][name]
-    assert "offset" in edata.config["stratigraphy"][name]
+    assert edata.config.stratigraphy[name].top.name == "TheTopHorizon"
+    assert edata.config.stratigraphy[name].base.name == "TheBaseHorizon"
+    assert edata.config.stratigraphy[name].offset == 3.5
 
     # check that it is preserved in the generated metadata
     meta = edata.generate_metadata(regsurf)
