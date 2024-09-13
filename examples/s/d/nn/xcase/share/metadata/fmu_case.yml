@@ -20,19 +20,19 @@ masterdata:
   smda:
     country:
     - identifier: Norway
-      uuid: 2951acd3-28da-4d87-a067-f760a5802ee5
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
     discovery:
     - short_identifier: DROGON
-      uuid: 576790fe-d5a9-428a-8303-4013f4d440fa
+      uuid: bd214d85-8a1d-19da-e053-c918a4889309
     field:
     - identifier: DROGON
-      uuid: dbb55b20-7ac5-4704-a6e7-3a9fe43cb213
+      uuid: cd214d85-8a1d-19da-e053-c918a4889409
     coordinate_system:
       identifier: ST_WGS84_UTM37N_P32637
-      uuid: b2fa2a32-f9e1-4c11-adbe-254bbc4a863e
+      uuid: ed214d85-dac7-19da-e053-c918a4889509
     stratigraphic_column:
       identifier: DROGON_2020
-      uuid: dbb55b20-7ac5-4704-a6e7-3a9fe43cb213
+      uuid: fd214d85-8a1d-19da-e053-c918a4889609
 tracklog:
 - datetime: '2021-06-08T13:17:06.489681'
   event: created

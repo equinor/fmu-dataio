@@ -20,11 +20,11 @@ fmu:
       id: "adnj"
   iteration:
     id: 0
-    uuid: "8d328a0c-a16f-4158-b9a3-a94d0c69d182"
+    uuid: "dad9a25a-3ad0-0f0a-08f2-c6fe8aae4c45"
     name: "iter-0"
   realization:
     id: 0
-    uuid: "78e0b69b-4e50-4773-b72f-72579e23a764"
+    uuid: "28274007-fd40-29c4-c6ef-10e2414ccdcd"
     name: "realization-0"
 file:
   relative_path: "realization-0/iter-0/share/results/dictionaries/parameters.json"
@@ -56,16 +56,16 @@ masterdata:
   smda:
     country:
       - identifier: "Norway"
-        uuid: "2951acd3-28da-4d87-a067-f760a5802ee5"
+        uuid: "ad214d85-8a1d-19da-e053-c918a4889309"
     discovery:
       - short_identifier: "DROGON"
-        uuid: "2951acd3-28da-4d87-a067-f760a5802ee5"
+        uuid: "ad214d85-8a1d-19da-e053-c918a4889309"
     field:
       - identifier: "DROGON"
-        uuid: "ff30bd79-2185-400d-af91-4a9b72f61bf6"
+        uuid: "00000000-0000-0000-0000-000000000000"
     coordinate_system:
       identifier: "ST_WGS84_UTM37N_P32637"
-      uuid: "c5d1511a-98f5-4343-9335-613e1842fa15"
+      uuid: "ad214d85-dac7-19da-e053-c918a4889309"
     stratigraphic_column:
       identifier: "DROGON_HAS_NO_STRATCOLUMN"
-      uuid: "34211f05-7883-41eb-9271-3dc5a848b4d5"
+      uuid: "00000000-0000-0000-0000-000000000000"

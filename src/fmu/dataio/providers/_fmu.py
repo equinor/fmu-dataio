@@ -33,10 +33,8 @@ import uuid
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-from typing import Final, Optional, Union
+from typing import TYPE_CHECKING, Final, Optional, Union
 from warnings import warn
-
-from pydantic import UUID4
 
 from fmu.config import utilities as ut
 from fmu.dataio import _utils
@@ -46,6 +44,9 @@ from fmu.dataio._model.enums import FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 
 from ._base import Provider
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 # case metadata relative to casepath
 ERT_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
@@ -204,7 +205,7 @@ class FmuProvider(Provider):
     def _get_ert_meta() -> fields.Ert:
         return fields.Ert(
             experiment=fields.Experiment(
-                id=uuid.UUID(FmuEnv.EXPERIMENT_ID.value, version=4)
+                id=uuid.UUID(FmuEnv.EXPERIMENT_ID.value)
                 if FmuEnv.EXPERIMENT_ID.value
                 else None
             )
@@ -243,7 +244,7 @@ class FmuProvider(Provider):
         )
         return None
 
-    def _get_restart_data_uuid(self) -> UUID4 | None:
+    def _get_restart_data_uuid(self) -> UUID | None:
         """Load restart_from information"""
         assert self._runpath is not None
         logger.debug("Detected a restart run from environment variable")
@@ -282,7 +283,7 @@ class FmuProvider(Provider):
         # does contains check, will fail.
         return fields.Parameters(root=_utils.nested_parameters_dict(params))  # type: ignore
 
-    def _get_iteration_and_real_uuid(self, case_uuid: UUID4) -> tuple[UUID4, UUID4]:
+    def _get_iteration_and_real_uuid(self, case_uuid: UUID) -> tuple[UUID, UUID]:
         iter_uuid = _utils.uuid_from_string(f"{case_uuid}{self._iter_name}")
         real_uuid = _utils.uuid_from_string(f"{case_uuid}{iter_uuid}{self._real_id}")
         return iter_uuid, real_uuid
@@ -296,7 +297,7 @@ class FmuProvider(Provider):
             ut.yaml_load(case_metafile, loader="standard")
         )
 
-    def _get_realization_meta(self, real_uuid: UUID4) -> fields.Realization:
+    def _get_realization_meta(self, real_uuid: UUID) -> fields.Realization:
         return fields.Realization(
             id=self._real_id,
             name=self._real_name,
@@ -304,7 +305,7 @@ class FmuProvider(Provider):
             uuid=real_uuid,
         )
 
-    def _get_iteration_meta(self, iter_uuid: UUID4) -> fields.Iteration:
+    def _get_iteration_meta(self, iter_uuid: UUID) -> fields.Iteration:
         return fields.Iteration(
             id=self._iter_id,
             name=self._iter_name,

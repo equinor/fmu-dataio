@@ -304,7 +304,7 @@ def fixture_globalconfig1():
                 country=[
                     fields.CountryItem(
                         identifier="Norway",
-                        uuid="2951acd3-28da-4d87-a067-f760a5802ee5",
+                        uuid="ad214d85-8a1d-19da-e053-c918a4889309",
                     ),
                 ],
                 discovery=[
