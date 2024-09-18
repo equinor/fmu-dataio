@@ -419,6 +419,21 @@
       "title": "Case",
       "type": "object"
     },
+    "CaseContext": {
+      "properties": {
+        "stage": {
+          "const": "case",
+          "default": "case",
+          "enum": [
+            "case"
+          ],
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "title": "CaseContext",
+      "type": "object"
+    },
     "CaseMetadata": {
       "description": "The FMU metadata model for an FMU case.\n\nA case represent a set of iterations that belong together, either by being part of\nthe same run (i.e. history matching) or by being placed together by the user,\ncorresponding to /scratch/<asset>/<user>/<my case name>/.",
       "properties": {
@@ -1127,6 +1142,60 @@
       ],
       "title": "FMUContext",
       "type": "string"
+    },
+    "FMUIteration": {
+      "description": "The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU\nresults data model can be applied to data from *other* sources - in which the\nfmu-specific stuff may not make sense or be applicable.\nThis is a specialization of the FMU block for Iteration objects.",
+      "properties": {
+        "case": {
+          "$ref": "#/$defs/Case"
+        },
+        "context": {
+          "$ref": "#/$defs/CaseContext"
+        },
+        "iteration": {
+          "$ref": "#/$defs/Iteration"
+        },
+        "model": {
+          "$ref": "#/$defs/Model"
+        }
+      },
+      "required": [
+        "case",
+        "model",
+        "context",
+        "iteration"
+      ],
+      "title": "FMUIteration",
+      "type": "object"
+    },
+    "FMURealization": {
+      "description": "The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU\nresults data model can be applied to data from *other* sources - in which the\nfmu-specific stuff may not make sense or be applicable.\nThis is a specialization of the FMU block for Realization objects.",
+      "properties": {
+        "case": {
+          "$ref": "#/$defs/Case"
+        },
+        "context": {
+          "$ref": "#/$defs/IterationContext"
+        },
+        "iteration": {
+          "$ref": "#/$defs/Iteration"
+        },
+        "model": {
+          "$ref": "#/$defs/Model"
+        },
+        "realization": {
+          "$ref": "#/$defs/Realization"
+        }
+      },
+      "required": [
+        "case",
+        "model",
+        "context",
+        "iteration",
+        "realization"
+      ],
+      "title": "FMURealization",
+      "type": "object"
     },
     "FaciesThicknessData": {
       "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for facies thickness.",
@@ -3284,6 +3353,73 @@
         "uuid"
       ],
       "title": "Iteration",
+      "type": "object"
+    },
+    "IterationContext": {
+      "properties": {
+        "stage": {
+          "const": "iteration",
+          "default": "iteration",
+          "enum": [
+            "iteration"
+          ],
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "title": "IterationContext",
+      "type": "object"
+    },
+    "IterationMetadata": {
+      "description": "The FMU metadata model for an FMU Iteration.\n\nAn object representing a single Iteration of a specific case.",
+      "properties": {
+        "access": {
+          "$ref": "#/$defs/SsdlAccess"
+        },
+        "class": {
+          "const": "iteration",
+          "enum": [
+            "iteration"
+          ],
+          "title": "metadata_class",
+          "type": "string"
+        },
+        "fmu": {
+          "$ref": "#/$defs/FMUIteration"
+        },
+        "masterdata": {
+          "$ref": "#/$defs/Masterdata"
+        },
+        "source": {
+          "const": "fmu",
+          "enum": [
+            "fmu"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "tracklog": {
+          "$ref": "#/$defs/Tracklog"
+        },
+        "version": {
+          "const": "0.8.0",
+          "enum": [
+            "0.8.0"
+          ],
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "class",
+        "masterdata",
+        "tracklog",
+        "source",
+        "version",
+        "fmu",
+        "access"
+      ],
+      "title": "IterationMetadata",
       "type": "object"
     },
     "KPProductData": {
@@ -6057,6 +6193,58 @@
         "uuid"
       ],
       "title": "Realization",
+      "type": "object"
+    },
+    "RealizationMetadata": {
+      "description": "The FMU metadata model for an FMU Realization.\n\nAn object representing a single Realization of a specific Iteration.",
+      "properties": {
+        "access": {
+          "$ref": "#/$defs/SsdlAccess"
+        },
+        "class": {
+          "const": "realization",
+          "enum": [
+            "realization"
+          ],
+          "title": "metadata_class",
+          "type": "string"
+        },
+        "fmu": {
+          "$ref": "#/$defs/FMURealization"
+        },
+        "masterdata": {
+          "$ref": "#/$defs/Masterdata"
+        },
+        "source": {
+          "const": "fmu",
+          "enum": [
+            "fmu"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "tracklog": {
+          "$ref": "#/$defs/Tracklog"
+        },
+        "version": {
+          "const": "0.8.0",
+          "enum": [
+            "0.8.0"
+          ],
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "class",
+        "masterdata",
+        "tracklog",
+        "source",
+        "version",
+        "fmu",
+        "access"
+      ],
+      "title": "RealizationMetadata",
       "type": "object"
     },
     "RegionsData": {
@@ -9632,6 +9820,12 @@
     },
     {
       "$ref": "#/$defs/ObjectMetadata"
+    },
+    {
+      "$ref": "#/$defs/RealizationMetadata"
+    },
+    {
+      "$ref": "#/$defs/IterationMetadata"
     }
   ],
   "then": {

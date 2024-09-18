@@ -20,6 +20,8 @@ from .fields import (
     Display,
     File,
     FMUBase,
+    FMUIteration,
+    FMURealization,
     Masterdata,
     SsdlAccess,
     Tracklog,
@@ -72,6 +74,42 @@ class CaseMetadata(MetadataBase):
     this data object. See :class:`Access`."""
 
 
+class IterationMetadata(MetadataBase):
+    """The FMU metadata model for an FMU Iteration.
+
+    An object representing a single Iteration of a specific case.
+    """
+
+    class_: Literal[FMUClass.iteration] = Field(alias="class", title="metadata_class")
+    """The class of this metadata object. In this case, always an FMU iteration."""
+
+    fmu: FMUIteration
+    """The ``fmu`` block contains all attributes specific to FMU.
+    See :class:`FMU`."""
+
+    access: SsdlAccess
+    """The ``access`` block contains information related to access control for
+    this data object. See :class:`SsdlAccess`."""
+
+
+class RealizationMetadata(MetadataBase):
+    """The FMU metadata model for an FMU Realization.
+
+    An object representing a single Realization of a specific Iteration.
+    """
+
+    class_: Literal[FMUClass.realization] = Field(alias="class", title="metadata_class")
+    """The class of this metadata object. In this case, always an FMU realization."""
+
+    fmu: FMURealization
+    """The ``fmu`` block contains all attributes specific to FMU.
+    See :class:`FMU`."""
+
+    access: SsdlAccess
+    """The ``access`` block contains information related to access control for
+    this data object. See :class:`SsdlAccess`."""
+
+
 class ObjectMetadata(MetadataBase):
     """The FMU metadata model for a given data object."""
 
@@ -119,6 +157,8 @@ class Root(
             Union[
                 CaseMetadata,
                 ObjectMetadata,
+                RealizationMetadata,
+                IterationMetadata,
             ],
             Field(discriminator="class_"),
         ]
