@@ -121,10 +121,10 @@ class InternalUnsetData(data.Data):
         valid_contents = [m.value for m in enums.Content]
         warnings.warn(
             "The <content> is not provided which will produce invalid metadata. "
-            "It is strongly recommended that content is given explicitly! "
+            "In the future 'content' will be required explicitly! "
             f"\n\nValid contents are: {', '.join(valid_contents)} "
             "\n\nThis list can be extended upon request and need.",
-            UserWarning,
+            FutureWarning,
         )
         return self
 
