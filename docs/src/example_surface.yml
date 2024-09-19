@@ -39,14 +39,14 @@ fmu:
 
   iteration:
     id: 0 # always an int, will be 0 for e.g. "pred"
-    uid: 44cd1b84-766f-4c93-9050-g921861d9420--iter-0 # case.uuid + iteration.name
+    uuid: 44cd1b84-766f-4c93-9050-g921861d9420--iter-0 # case.uuid + iteration.name
     name: "iter-0" # /"pred"
     restart_from: 15ce3b84-766f-4c93-9050-b154861f9100--0 # fmu.case.id for another iteration/case
 
   realization: # could be expanded in the future?
     name: "realization-33"
     id: 33
-    uid: 44cd1b84-766f-4c93-9050-g921861d9420--0--33 # case.uuid + iteration.id + realization.id
+    uuid: 44cd1b84-766f-4c93-9050-g921861d9420--0--33 # case.uuid + iteration.id + realization.id
     parameters: # directly pass parameters.txt. This is potentially a lot of content, only a stub is included here.
       - SENSNAME: faultseal
       - SENSCASE: low
@@ -133,18 +133,6 @@ data: # The data block describes the actual data (e.g. surface). Only present in
 
 display:
   name: Top Volantis
-  line:
-    show: true
-    color: black
-  points:
-    show: false
-    color: null
-  contours:
-    show: true
-    color: black
-  fill:
-    show: true
-    colors: gist_earth
 
 access:
   asset:
@@ -152,6 +140,8 @@ access:
   ssdl:
     access_level: internal
     rep_include: true
+  classification: internal
+
 
 masterdata:
   smda:

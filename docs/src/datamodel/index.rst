@@ -348,7 +348,7 @@ Expand below to see a full example of valid metadata for surface exported from F
 
 .. toggle::
 
-   .. literalinclude:: ../../schema/definitions/0.8.0/examples/surface_depth.yml
+   .. literalinclude:: ../../../schema/definitions/0.8.0/examples/surface_depth.yml
       :language: yaml
 
 |

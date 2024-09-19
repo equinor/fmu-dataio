@@ -98,9 +98,7 @@ Example from Drogon:
 
     asset:
       name: Drogon
-    ssdl:
-      access_level: internal
-      rep_include: true
+    classification: internal
 
 
 Under ``asset.name`` you will put the name of your asset. If you plan to upload data to
@@ -111,18 +109,12 @@ Sumo, you will be told by the Sumo team what asset should be.
   piece of information that governs both ownership and access to data when stored in the
   cloud. Sometimes, asset is identical to "field" but frequently it is not.
 
-Under ``ssdl``, you will enter some defaults regarding data sharing with the Subsurface Data Lake.
-
-The ``ssdl.access_level`` sets the (default) sensitivity of exported data. Valid entries
-here are ``internal`` and ``restricted``. The ``ssdl.rep_include`` sets the default flag
-for signalling inclusion of exported data in the Reservoir Experience Platform. This is
-a boolean, and valid entries are ``True`` and ``False``.
+Under ``classification`` the (default) sensitivity of exported data is entered. Valid entries
+here are ``internal`` and ``restricted``. Note that this is only a default. You can override
+thie setting at any point when exporting data.
 
 .. note::
-  The ``access.ssdl.access_level`` is currently also used for access handling in Sumo.
-
-Note that these are defaults. You can override these settings at any point when exporting
-data, and also note that no data will be lifted to the datalake without explicit action by you.
+  The ``access.classification`` is currently also used for access handling in Sumo.
 
 
 global_variables.yml | **stratigraphy**
