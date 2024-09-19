@@ -7783,6 +7783,22 @@
           "title": "Columns",
           "type": "array"
         },
+        "num_columns": {
+          "examples": [
+            1,
+            9999
+          ],
+          "title": "Num Columns",
+          "type": "integer"
+        },
+        "num_rows": {
+          "examples": [
+            1,
+            9999
+          ],
+          "title": "Num Rows",
+          "type": "integer"
+        },
         "size": {
           "examples": [
             1,
@@ -7794,6 +7810,8 @@
       },
       "required": [
         "columns",
+        "num_columns",
+        "num_rows",
         "size"
       ],
       "title": "TableSpecification",

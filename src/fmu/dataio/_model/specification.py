@@ -65,8 +65,14 @@ class TableSpecification(BaseModel):
     columns: List[str]
     """List of columns present in a table."""
 
+    num_columns: int = Field(examples=[1, 9999])
+    """The number of columns in a table."""
+
+    num_rows: int = Field(examples=[1, 9999])
+    """The number of rows in a table.."""
+
     size: int = Field(examples=[1, 9999])
-    """Size of data object."""
+    """The total Size of the table, i.e. `rows x cols`."""
 
 
 class CPGridSpecification(RowColumnLayer):

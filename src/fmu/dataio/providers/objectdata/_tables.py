@@ -96,8 +96,11 @@ class DataFrameDataProvider(ObjectDataProvider):
     def get_spec(self) -> TableSpecification:
         """Derive data.spec for pd.DataFrame."""
         logger.info("Get spec for pd.DataFrame (tables)")
+        num_rows, num_columns = self.obj.shape
         return TableSpecification(
             columns=list(self.obj.columns),
+            num_columns=num_columns,
+            num_rows=num_rows,
             size=int(self.obj.size),
         )
 
@@ -142,5 +145,7 @@ class ArrowTableDataProvider(ObjectDataProvider):
         logger.info("Get spec for pyarrow (tables)")
         return TableSpecification(
             columns=list(self.obj.column_names),
+            num_columns=self.obj.num_columns,
+            num_rows=self.obj.num_rows,
             size=self.obj.num_columns * self.obj.num_rows,
         )

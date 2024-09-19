@@ -9,17 +9,17 @@ from fmu.dataio import ExportData
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 
 
-def _read_dict(file_path):
+def _read_dict(file_path: str) -> None:
     """Reads text file into dictionary
     Args:
         file_path (string): path to generated file
     Returns:
         dict: contents of file
     """
-    file_path = Path(file_path)
-    meta_path = file_path.parent / f".{file_path.name}.yml"
+    path = Path(file_path)
+    meta_path = path.parent / f".{path.name}.yml"
     meta = yaml_load(meta_path)
-    file_path.unlink()
+    path.unlink()
     meta_path.unlink()
     return meta
 
