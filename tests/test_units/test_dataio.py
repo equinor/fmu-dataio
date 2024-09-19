@@ -330,7 +330,7 @@ def test_unit_is_none(globalconfig1, regsurf):
 def test_content_not_given(globalconfig1, regsurf):
     """When content is not explicitly given, warning shall be issued."""
     eobj = ExportData(config=globalconfig1)
-    with pytest.warns(UserWarning, match="The <content> is not provided"):
+    with pytest.warns(FutureWarning, match="The <content> is not provided"):
         mymeta = eobj.generate_metadata(regsurf)
 
     assert mymeta["data"]["content"] == "unset"
