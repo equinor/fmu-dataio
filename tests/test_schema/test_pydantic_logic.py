@@ -428,9 +428,9 @@ def test_iteration(metadata_examples):
     with pytest.raises(ValidationError):
         Root.model_validate(_example)
 
-    # assert validation error when "fmu.context.stage" is not case
+    # assert validation error when "fmu.context.stage" is not iteration
     _example = deepcopy(example)
-    _example["fmu"]["context"]["stage"] = "realization"
+    _example["fmu"]["context"]["stage"] = "case"
 
     with pytest.raises(ValidationError):
         Root.model_validate(_example)
@@ -458,9 +458,9 @@ def test_realization(metadata_examples):
     with pytest.raises(ValidationError):
         Root.model_validate(_example)
 
-    # assert validation error when "fmu.context.stage" is not iteration
+    # assert validation error when "fmu.context.stage" is not realization
     _example = deepcopy(example)
-    _example["fmu"]["context"]["stage"] = "case"
+    _example["fmu"]["context"]["stage"] = "iteration"
 
     with pytest.raises(ValidationError):
         Root.model_validate(_example)

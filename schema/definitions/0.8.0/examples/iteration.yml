@@ -33,7 +33,7 @@ fmu: # the fmu-block contains information directly related to the FMU context
       - optional
 
   context:
-    stage: case
+    stage: iteration
 
   iteration:
     id: 0
@@ -44,9 +44,6 @@ access:
   asset:
     name: Drogon
   classification: internal
-  ssdl:
-    access_level: internal
-    rep_include: false
 
 masterdata:
   smda:
