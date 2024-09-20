@@ -8,6 +8,8 @@ a few lines will be needed.
 
 Currently only volumes are exposed, but this will be extended in the near future.
 
+.. _example-export-volumes-rms:
+
 Exporting volumetrics from RMS
 ------------------------------
 
