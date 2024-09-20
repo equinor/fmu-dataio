@@ -12,33 +12,33 @@ WellPicksData
 
    
    
+      ~fmu.dataio._model.data.Time
+   
+      ~fmu.dataio._model.specification.CPGridSpecification
+   
       ~fmu.dataio._model.data.BoundingBox3D
+   
+      ~fmu.dataio._model.specification.TableSpecification
+   
+      ~fmu.dataio._model.specification.SurfaceSpecification
+   
+      ~fmu.dataio._model.specification.CPGridPropertySpecification
+   
+      ~fmu.dataio._model.data.GridModel
    
       ~fmu.dataio._model.data.BoundingBox2D
    
-      ~fmu.dataio._model.data.Time
+      ~fmu.dataio._model.specification.CubeSpecification
    
       ~fmu.dataio._model.specification.FaultRoomSurfaceSpecification
    
       ~fmu.dataio._model.data.Geometry
    
-      ~fmu.dataio._model.specification.TableSpecification
-   
-      ~fmu.dataio._model.specification.CPGridSpecification
-   
-      ~fmu.dataio._model.specification.CPGridPropertySpecification
-   
-      ~fmu.dataio._model.data.Layer
-   
-      ~fmu.dataio._model.specification.CubeSpecification
-   
-      ~fmu.dataio._model.specification.SurfaceSpecification
-   
       ~fmu.dataio._model.specification.PolygonsSpecification
    
       ~fmu.dataio._model.specification.PointSpecification
    
-      ~fmu.dataio._model.data.GridModel
+      ~fmu.dataio._model.data.Layer
    
    
 
