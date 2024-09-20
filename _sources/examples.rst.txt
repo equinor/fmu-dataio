@@ -86,6 +86,9 @@ Press + to see generated YAML files for metadata.
 Exporting volume tables RMS or file
 -----------------------------------
 
+Below is an example of exporting volume tables from csv-files, while an example
+of easy export of RMS volumetrics can be found here :ref:`example-export-volumes-rms`.
+
 Python script
 ~~~~~~~~~~~~~
 
