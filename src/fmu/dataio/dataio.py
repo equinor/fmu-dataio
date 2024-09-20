@@ -446,15 +446,17 @@ class ExportData:
         try:
             self.config = GlobalConfiguration.model_validate(self.config)
         except global_configuration.ValidationError as e:
+            if "masterdata" not in self.config:
+                warnings.warn(
+                    "The global config file is lacking masterdata definitions, hence "
+                    "no metadata will be exported. Follow the simple 'Getting started' "
+                    "steps to do necessary preparations and enable metadata export: "
+                    "https://fmu-dataio.readthedocs.io/en/latest/preparations.html ",
+                    UserWarning,
+                )
+            else:
+                global_configuration.validation_error_warning(e)
             self.config = {}
-            global_configuration.validation_error_warning(e)
-            warnings.warn(
-                "The global config file is lacking key information, hence no metadata "
-                "will be exported. Follow the simple 'Getting started' steps "
-                "to do necessary preparations and enable metadata export: "
-                "https://fmu-dataio.readthedocs.io/en/latest/preparations.html ",
-                UserWarning,
-            )
 
         self._classification = self._get_classification()
         self._rep_include = self._get_rep_include()
