@@ -37,9 +37,10 @@ def main():
 
     ed = dataio.ExportData(
         config=CFG,
-        name="noname_here",
+        name="all",
         unit="fraction",
-        vertical_domain={"depth": "msl"},
+        vertical_domain="depth",
+        domain_reference="msl",
         content="property",
         timedata=None,
         is_prediction=True,
@@ -47,7 +48,7 @@ def main():
         tagname="average_poro",
         workflow="rms property model",
     )
-    fname = ed.export(surf, name="all")  # note that 'name' here will be used
+    fname = ed.export(surf)
     print(f"File name is {fname}")
 
     # -------------------------------------
@@ -60,7 +61,8 @@ def main():
         config=CFG,
         name="topvolantis",
         unit="m",
-        vertical_domain={"depth": "msl"},
+        vertical_domain="depth",
+        domain_reference="msl",
         content="depth",
         timedata=None,
         is_prediction=True,

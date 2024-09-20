@@ -27,9 +27,10 @@ def export_faultlines():
 
     ed = dataio.ExportData(
         config=CFG,
-        content="depth",
+        content="fault_lines",
         unit="m",
-        vertical_domain={"depth": "msl"},
+        vertical_domain="depth",
+        domain_reference="msl",
         timedata=None,
         is_prediction=True,
         is_observation=False,
