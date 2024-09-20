@@ -419,21 +419,6 @@
       "title": "Case",
       "type": "object"
     },
-    "CaseContext": {
-      "properties": {
-        "stage": {
-          "const": "case",
-          "default": "case",
-          "enum": [
-            "case"
-          ],
-          "title": "Stage",
-          "type": "string"
-        }
-      },
-      "title": "CaseContext",
-      "type": "object"
-    },
     "CaseMetadata": {
       "description": "The FMU metadata model for an FMU case.\n\nA case represent a set of iterations that belong together, either by being part of\nthe same run (i.e. history matching) or by being placed together by the user,\ncorresponding to /scratch/<asset>/<user>/<my case name>/.",
       "properties": {
@@ -1144,13 +1129,13 @@
       "type": "string"
     },
     "FMUIteration": {
-      "description": "The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU\nresults data model can be applied to data from *other* sources - in which the\nfmu-specific stuff may not make sense or be applicable.\nThis is a specialization of the FMU block for Iteration objects.",
+      "description": "The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU\nresults data model can be applied to data from *other* sources - in which the\nfmu-specific stuff may not make sense or be applicable.\nThis is a specialization of the FMU block for ``iteration`` objects.",
       "properties": {
         "case": {
           "$ref": "#/$defs/Case"
         },
         "context": {
-          "$ref": "#/$defs/CaseContext"
+          "$ref": "#/$defs/IterationContext"
         },
         "iteration": {
           "$ref": "#/$defs/Iteration"
@@ -1169,13 +1154,13 @@
       "type": "object"
     },
     "FMURealization": {
-      "description": "The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU\nresults data model can be applied to data from *other* sources - in which the\nfmu-specific stuff may not make sense or be applicable.\nThis is a specialization of the FMU block for Realization objects.",
+      "description": "The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU\nresults data model can be applied to data from *other* sources - in which the\nfmu-specific stuff may not make sense or be applicable.\nThis is a specialization of the FMU block for ``realization`` objects.",
       "properties": {
         "case": {
           "$ref": "#/$defs/Case"
         },
         "context": {
-          "$ref": "#/$defs/IterationContext"
+          "$ref": "#/$defs/RealizationContext"
         },
         "iteration": {
           "$ref": "#/$defs/Iteration"
@@ -3356,6 +3341,7 @@
       "type": "object"
     },
     "IterationContext": {
+      "description": "The ``fmu.context`` block contains the FMU context in which this data object\nwas produced. Here ``stage`` is required to be ``iteration``.",
       "properties": {
         "stage": {
           "const": "iteration",
@@ -3374,7 +3360,7 @@
       "description": "The FMU metadata model for an FMU Iteration.\n\nAn object representing a single Iteration of a specific case.",
       "properties": {
         "access": {
-          "$ref": "#/$defs/SsdlAccess"
+          "$ref": "#/$defs/Access"
         },
         "class": {
           "const": "iteration",
@@ -6195,11 +6181,27 @@
       "title": "Realization",
       "type": "object"
     },
+    "RealizationContext": {
+      "description": "The ``fmu.context`` block contains the FMU context in which this data object\nwas produced. Here ``stage`` is required to be ``realization``.",
+      "properties": {
+        "stage": {
+          "const": "realization",
+          "default": "realization",
+          "enum": [
+            "realization"
+          ],
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "title": "RealizationContext",
+      "type": "object"
+    },
     "RealizationMetadata": {
       "description": "The FMU metadata model for an FMU Realization.\n\nAn object representing a single Realization of a specific Iteration.",
       "properties": {
         "access": {
-          "$ref": "#/$defs/SsdlAccess"
+          "$ref": "#/$defs/Access"
         },
         "class": {
           "const": "realization",

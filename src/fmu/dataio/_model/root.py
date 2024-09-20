@@ -87,9 +87,9 @@ class IterationMetadata(MetadataBase):
     """The ``fmu`` block contains all attributes specific to FMU.
     See :class:`FMU`."""
 
-    access: SsdlAccess
+    access: Access
     """The ``access`` block contains information related to access control for
-    this data object. See :class:`SsdlAccess`."""
+    this data object. See :class:`Access`."""
 
 
 class RealizationMetadata(MetadataBase):
@@ -105,9 +105,9 @@ class RealizationMetadata(MetadataBase):
     """The ``fmu`` block contains all attributes specific to FMU.
     See :class:`FMU`."""
 
-    access: SsdlAccess
+    access: Access
     """The ``access`` block contains information related to access control for
-    this data object. See :class:`SsdlAccess`."""
+    this data object. See :class:`Access`."""
 
 
 class ObjectMetadata(MetadataBase):
