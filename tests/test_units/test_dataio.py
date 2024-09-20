@@ -48,7 +48,8 @@ def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, reg
     with pytest.warns(UserWarning, match="The global config"):
         edata = ExportData(config={}, content="depth", name="mysurface")
 
-    meta = edata.generate_metadata(regsurf)
+    with pytest.warns(FutureWarning):
+        meta = edata.generate_metadata(regsurf)
     assert "masterdata" not in meta
 
     # check that obj is created but no metadata is found
@@ -58,6 +59,93 @@ def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, reg
     assert Path(out).exists()
     with pytest.raises(OSError, match="Cannot find requested metafile"):
         read_metadata(out)
+
+
+def test_wrong_config_exports_correctly_ouside_fmu(
+    monkeypatch, tmp_path, globalconfig1, regsurf
+):
+    """
+    In case a config is invalid, objects are exported without metadata.
+    Test that the export path is correct and equal one with valid config,
+    outside an fmu run.
+    """
+
+    monkeypatch.chdir(tmp_path)
+    name = "mysurface"
+
+    with pytest.warns(UserWarning, match="The global config"), pytest.warns(
+        UserWarning, match="without metadata"
+    ):
+        objpath_cfg_invalid = ExportData(
+            config={},
+            content="depth",
+            name=name,
+        ).export(regsurf)
+
+    objpath_cfg_valid = ExportData(
+        config=globalconfig1,
+        content="depth",
+        name=name,
+    ).export(regsurf)
+
+    assert Path(objpath_cfg_invalid) == tmp_path / f"share/results/maps/{name}.gri"
+    assert Path(objpath_cfg_invalid).exists()
+    assert Path(objpath_cfg_valid).exists()
+    assert objpath_cfg_invalid == objpath_cfg_valid
+
+    # test that it works with deprecated pattern also
+    with pytest.warns(FutureWarning):
+        objpath_cfg_valid = ExportData(config=globalconfig1).export(
+            regsurf,
+            content="depth",
+            name=name,
+        )
+    assert objpath_cfg_invalid == objpath_cfg_valid
+
+
+def test_wrong_config_exports_correctly_in_fmu(
+    monkeypatch, fmurun_w_casemetadata, globalconfig1, regsurf
+):
+    """
+    In case a config is invalid, objects are exported without metadata.
+    Test that the export path is correct and equal to exports with valid config,
+    inside an fmu run.
+    """
+
+    monkeypatch.chdir(fmurun_w_casemetadata)
+    name = "mysurface"
+
+    with pytest.warns(UserWarning, match="The global config"), pytest.warns(
+        UserWarning, match="without metadata"
+    ):
+        objpath_cfg_invalid = ExportData(
+            config={},
+            content="depth",
+            name=name,
+        ).export(regsurf)
+
+    objpath_cfg_valid = ExportData(
+        config=globalconfig1,
+        content="depth",
+        name=name,
+    ).export(regsurf)
+
+    assert (
+        Path(objpath_cfg_invalid)
+        == fmurun_w_casemetadata / f"share/results/maps/{name}.gri"
+    )
+    assert Path(objpath_cfg_invalid).exists()
+    assert Path(objpath_cfg_valid).exists()
+    assert objpath_cfg_invalid == objpath_cfg_valid
+
+    # test that it works with deprecated pattern also
+    with pytest.warns(FutureWarning):
+        objpath_cfg_valid = ExportData(config=globalconfig1).export(
+            regsurf,
+            content="depth",
+            name=name,
+        )
+    assert objpath_cfg_invalid == objpath_cfg_valid
 
 
 def test_config_miss_required_fields(monkeypatch, tmp_path, globalconfig1, regsurf):
@@ -156,7 +244,7 @@ def test_update_check_settings_shall_fail(globalconfig1):
 
     newsettings = {"invalidkey": "some"}
     some = ExportData(config=globalconfig1, content="depth")
-    with pytest.raises(KeyError):
+    with pytest.warns(FutureWarning), pytest.raises(KeyError):
         some._update_check_settings(newsettings)
 
 
@@ -285,7 +373,8 @@ def test_classification(globalconfig1, regsurf):
     # verify that classification is defaulted to internal
     with pytest.warns(UserWarning):
         exp = ExportData(config={}, content="depth")
-    mymeta = exp.generate_metadata(regsurf)
+    with pytest.warns(FutureWarning):
+        mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["classification"] == "internal"
 
 
@@ -308,16 +397,19 @@ def test_rep_include(globalconfig1, regsurf):
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["ssdl"]["rep_include"] is True
 
-    # test that rep_include is taken from config if not provided
+    # test that rep_include is defaulted to false if not provided
     exp = ExportData(config=globalconfig1, content="depth")
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["ssdl"]["rep_include"] is False
 
-    # test that rep_include is defaulted False
-    with pytest.warns(UserWarning):
-        exp = ExportData(config={}, content="depth")
-    mymeta = exp.generate_metadata(regsurf)
-    assert mymeta["access"]["ssdl"]["rep_include"] is False
+    # add ssdl.rep_include to the config
+    config = deepcopy(globalconfig1)
+    config["access"]["ssdl"] = {"rep_include": True}
+
+    # test that rep_include can be read from config
+    with pytest.warns(FutureWarning, match="is deprecated"):
+        mymeta = ExportData(config=config, content="depth").generate_metadata(regsurf)
+    assert mymeta["access"]["ssdl"]["rep_include"] is True
 
 
 def test_unit_is_none(globalconfig1, regsurf):

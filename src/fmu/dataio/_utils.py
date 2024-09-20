@@ -90,6 +90,9 @@ def export_file(
 ) -> str:
     """Export a valid object to file"""
 
+    # create output folder if not existing
+    filename.parent.mkdir(parents=True, exist_ok=True)
+
     if filename.suffix == ".gri" and isinstance(obj, xtgeo.RegularSurface):
         obj.to_file(filename, fformat="irap_binary")
     elif filename.suffix == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):

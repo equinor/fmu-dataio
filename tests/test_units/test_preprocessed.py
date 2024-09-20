@@ -317,10 +317,7 @@ def test_export_preprocessed_file_exportdata_casepath_on_export(
         edata = dataio.ExportData(config=rmsglobalconfig, is_observation=True)
 
     # test that error is thrown when missing casepath
-    # (UserWarning initially in ExportData)
-    with pytest.warns(UserWarning, match="case metadata"), pytest.raises(
-        TypeError, match="No 'casepath' argument provided"
-    ):
+    with pytest.raises(TypeError, match="No 'casepath' argument provided"):
         edata.export(surfacepath)
 
     # test that export() works if casepath is provided
