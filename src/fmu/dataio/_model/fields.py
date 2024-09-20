@@ -11,6 +11,7 @@ from typing import (
     Any,
     Dict,
     List,
+    Literal,
     Optional,
     Union,
 )
@@ -556,6 +557,28 @@ class Context(BaseModel):
     See :class:`enums.FMUContext`."""
 
 
+class IterationContext(Context):
+    """
+    The ``fmu.context`` block contains the FMU context in which this data object
+    was produced. Here ``stage`` is required to be ``iteration``.
+    """
+
+    stage: Literal[enums.FMUContext.iteration] = Field(
+        default=enums.FMUContext.iteration
+    )
+
+
+class RealizationContext(Context):
+    """
+    The ``fmu.context`` block contains the FMU context in which this data object
+    was produced. Here ``stage`` is required to be ``realization``.
+    """
+
+    stage: Literal[enums.FMUContext.realization] = Field(
+        default=enums.FMUContext.realization
+    )
+
+
 class FMUBase(BaseModel):
     """
     The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU
@@ -570,6 +593,47 @@ class FMUBase(BaseModel):
     model: Model
     """The ``fmu.model`` block contains information about the model used.
     See :class:`Model`."""
+
+
+class FMUIteration(FMUBase):
+    """
+    The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU
+    results data model can be applied to data from *other* sources - in which the
+    fmu-specific stuff may not make sense or be applicable.
+    This is a specialization of the FMU block for ``iteration`` objects.
+    """
+
+    context: IterationContext
+    """The ``fmu.context`` block contains the FMU context in which this data object
+    was produced. See :class:`Context`. For ``iteration`` the context is ``iteration``.
+    """
+
+    iteration: Iteration
+    """The ``fmu.iteration`` block contains information about the iteration this data
+    object belongs to. See :class:`Iteration`. """
+
+
+class FMURealization(FMUBase):
+    """
+    The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU
+    results data model can be applied to data from *other* sources - in which the
+    fmu-specific stuff may not make sense or be applicable.
+    This is a specialization of the FMU block for ``realization`` objects.
+    """
+
+    context: RealizationContext
+    """The ``fmu.context`` block contains the FMU context in which this data object
+    was produced. See :class:`Context`. For ``realization`` the context is always
+    ``realization``.
+    """
+
+    iteration: Iteration
+    """The ``fmu.iteration`` block contains information about the iteration this data
+    object belongs to. See :class:`Iteration`. """
+
+    realization: Realization
+    """The ``fmu.realization`` block contains information about the realization this
+    data object belongs to. See :class:`Realization`."""
 
 
 class FMU(FMUBase):

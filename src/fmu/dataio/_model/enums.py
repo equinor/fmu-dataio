@@ -60,6 +60,8 @@ class FMUClass(str, Enum):
     """The class of a data object by FMU convention or standards."""
 
     case = "case"
+    realization = "realization"
+    iteration = "iteration"
     surface = "surface"
     table = "table"
     cpgrid = "cpgrid"
