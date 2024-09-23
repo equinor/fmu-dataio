@@ -77,7 +77,6 @@ data: # The data block describes the actual data (e.g. surface). Only present in
   vertical_domain: depth # / time / null
   depth_reference: msl # / seabed / etc
   spec: # class/layout dependent, optional? Can spec be expanded to work for all data types?
-    size: 123921
     columns:
       - X_UTME
       - Y_UTMN
@@ -85,6 +84,9 @@ data: # The data block describes the actual data (e.g. surface). Only present in
       - MD
       - WELL
       - HORIZON
+    num_columns: 6
+    num_rows: 20653
+    size: 123918
   table_index:
     - WELL
     - HORIZON

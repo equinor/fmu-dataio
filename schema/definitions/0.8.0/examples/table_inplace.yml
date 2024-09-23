@@ -112,11 +112,13 @@ data: # The data block describes the actual data (e.g. surface). Only present in
   grid_model: # Making this an object to allow for expanding in the future
     name: MyGrid # important for data identification, also important for other data types
   spec: # class/layout dependent, optional? Can spec be expanded to work for all data types?
-    size: 123921
     columns:
       - BULK_OIL
       - NET_OIL
       - PORE_OIL
+    num_columns: 3
+    num_rows: 41306
+    size: 123918
   is_prediction: true # A mechanism for separating pure QC output from actual predictions
   is_observation: false
   description:

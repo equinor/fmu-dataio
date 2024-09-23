@@ -416,6 +416,9 @@ def test_dataframe_export_file_set_name(
 
     metaout = dataio.read_metadata(output)
     assert metaout["data"]["spec"]["columns"] == ["COL1", "COL2"]
+    assert metaout["data"]["spec"]["num_columns"] == 2
+    assert metaout["data"]["spec"]["num_rows"] == 4
+    assert metaout["data"]["spec"]["size"] == 8
 
 
 def test_pyarrow_export_file_set_name(
@@ -443,3 +446,6 @@ def test_pyarrow_export_file_set_name(
 
         metaout = dataio.read_metadata(output)
         assert metaout["data"]["spec"]["columns"] == ["COL1", "COL2"]
+        assert metaout["data"]["spec"]["num_columns"] == 2
+        assert metaout["data"]["spec"]["num_rows"] == 4
+        assert metaout["data"]["spec"]["size"] == 8
