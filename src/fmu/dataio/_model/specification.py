@@ -72,7 +72,7 @@ class TableSpecification(BaseModel):
     """The number of rows in a table.."""
 
     size: int = Field(examples=[1, 9999])
-    """The total Size of the table, i.e. `rows x cols`."""
+    """The total size of the table, i.e. `rows x cols`."""
 
 
 class CPGridSpecification(RowColumnLayer):
