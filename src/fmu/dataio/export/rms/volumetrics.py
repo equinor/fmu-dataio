@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Final
@@ -191,7 +192,7 @@ class _ExportVolumetricsRMS:
         return self._export_volume_table()
 
 
-def export_rms_volumetrics(
+def export_volumetrics(
     project: Any,
     grid_name: str,
     volume_job_name: str,
@@ -242,3 +243,16 @@ def export_rms_volumetrics(
         classification=classification,
         workflow=workflow,
     ).export()
+
+
+# keep the old name for now but not log (will be removed soon as we expect close to
+# zero usage so far)
+def export_rms_volumetrics(*args, **kwargs) -> dict[str, str]:  # type: ignore
+    """Deprecated function. Use export_volumetrics instead."""
+    warnings.warn(
+        "export_rms_volumetrics is deprecated and will be removed in a future release. "
+        "Use export_volumetrics instead.",
+        FutureWarning,
+        stacklevel=2,
+    )
+    return export_volumetrics(*args, **kwargs)
