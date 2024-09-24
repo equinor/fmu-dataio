@@ -60,11 +60,11 @@ def test_rms_volumetrics_export_function(
 ):
     """Test the public function."""
 
-    from fmu.dataio.export.rms import export_rms_volumetrics
+    from fmu.dataio.export.rms import export_volumetrics
 
     os.chdir(rmssetup_with_fmuconfig)
 
-    result = export_rms_volumetrics(mock_project_variable, "Geogrid", "geogrid_volume")
+    result = export_volumetrics(mock_project_variable, "Geogrid", "geogrid_volume")
     vol_table_file = result["volume_table"]
 
     assert Path(vol_table_file).is_file()

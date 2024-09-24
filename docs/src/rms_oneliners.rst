@@ -20,11 +20,11 @@ Example:
 
 .. code-block:: python
 
-    from fmu.dataio.export.rms import export_rms_volumetrics
+    from fmu.dataio.export.rms import export_volumetrics
     ...
 
     # here 'Geogrid' is the grid model name, and 'geogrid_volumes' is the name of the volume job
-    outfiles = export_rms_volumetrics(project, "Geogrid", "geogrid_volumes")
+    outfiles = export_volumetrics(project, "Geogrid", "geogrid_volumes")
 
     print(f"Output volumes to {outfiles}")
 
@@ -32,7 +32,7 @@ Most ``dataio`` settings are here defaulted, but some keys can be altered option
 
 .. code-block:: python
 
-    outfiles = export_rms_volumetrics(
+    outfiles = export_volumetrics(
         project,
         "Geogrid",
         "geogrid_volumes",
