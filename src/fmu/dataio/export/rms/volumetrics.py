@@ -13,6 +13,7 @@ import fmu.dataio as dio
 from fmu.config.utilities import yaml_load
 from fmu.dataio._logging import null_logger
 
+from .._decorators import experimental
 from ._conditional_rms_imports import import_rms_package
 
 _modules = import_rms_package()
@@ -192,6 +193,7 @@ class _ExportVolumetricsRMS:
         return self._export_volume_table()
 
 
+@experimental
 def export_volumetrics(
     project: Any,
     grid_name: str,
@@ -229,6 +231,9 @@ def export_volumetrics(
         classification: Optional. Use 'internal' or 'restricted' (default).
         workflow: Optional. Information about the work flow; defaulted to
             'rms volumetrics'.
+
+    Note:
+        This function is experimental and may change in future versions.
     """
 
     return _ExportVolumetricsRMS(
