@@ -5,7 +5,6 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Final
-from warnings import warn
 
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
 from fmu.dataio._logging import null_logger
@@ -65,12 +64,7 @@ class ObjectDataProvider(Provider):
         if self.dataio.forcefolder:
             if self.dataio.forcefolder.startswith("/"):
                 raise ValueError("Can't use absolute path as 'forcefolder'")
-            msg = (
-                f"The standard folder name is overrided from {self.efolder} to "
-                f"{self.dataio.forcefolder}"
-            )
-            logger.info(msg)
-            warn(msg, UserWarning)
+            logger.info(f"Using forcefolder {self.dataio.forcefolder}")
 
         content_model = self._get_validated_content(self.dataio.content)
         strat_element = self._get_stratigraphy_element()

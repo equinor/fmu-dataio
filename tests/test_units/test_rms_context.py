@@ -348,8 +348,7 @@ def test_cube_export_file_set_name_as_observation_forcefolder(inside_rms_setup, 
     )
 
     # use forcefolder to apply share/observations/seismic which trigger a warning
-    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
-        output = edata.export(cube)
+    output = edata.export(cube)
 
     logger.info("Output after force is %s", output)
     assert str(output) == str(
@@ -411,8 +410,7 @@ def test_cube_export_as_observation_forcefolder_w_added_folder(inside_rms_setup,
     )
 
     # use forcefolder to apply share/observations/seismic
-    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
-        output = edata.export(cube)
+    output = edata.export(cube)
     logger.info("Output after force is %s", output)
 
     assert str(output) == str(
@@ -439,8 +437,7 @@ def test_cube_export_as_observation_forcefolder_w_true_subfolder(
     )
 
     # use forcefolder to apply share/observations/seismic
-    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
-        output = edata.export(cube)
+    output = edata.export(cube)
     logger.info("Output after force is %s", output)
 
     assert str(output) == str(
@@ -472,8 +469,7 @@ def test_cube_export_as_observation_forcefolder_w_subfolder_case(
     )
 
     # use forcefolder to apply share/observations/seismic
-    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
-        output = edata.export(cube)
+    output = edata.export(cube)
     logger.info("Output after force is %s", output)
 
     assert str(output) == str(

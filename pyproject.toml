@@ -69,7 +69,7 @@ docs = [
     "myst-parser",
     "pydocstyle",
     "sphinx-autodoc-typehints<1.23",
-    "sphinx-rtd-theme",
+    "sphinx-rtd-theme<3.0.0",
     "sphinx-togglebutton",
     "Sphinx",
     "sphinxcontrib-apidoc",

@@ -298,8 +298,7 @@ def test_cube_export_file_is_observation_forcefolder(
         name="MyCube",
     )
 
-    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
-        output = edata.export(cube)
+    output = edata.export(cube)
     logger.info("Output is %s", output)
 
     assert str(output) == str(
