@@ -86,9 +86,12 @@ def export_metadata_file(
 def export_file(
     obj: types.Inferrable,
     filename: Path,
-    flag: str | None = None,
+    fmt: str = "",
 ) -> str:
-    """Export a valid object to file"""
+    """
+    Export a valid object to file. If xtgeo is in the fmt string, xtgeo
+    xyz-column names will be preserved for xtgeo.Points and xtgeo.Polygons
+    """
 
     # create output folder if not existing
     filename.parent.mkdir(parents=True, exist_ok=True)
@@ -97,8 +100,7 @@ def export_file(
         obj.to_file(filename, fformat="irap_binary")
     elif filename.suffix == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
         out = obj.copy()  # to not modify incoming instance!
-        assert flag is not None
-        if "xtgeo" not in flag:
+        if "xtgeo" not in fmt:
             out.xname = "X"
             out.yname = "Y"
             out.zname = "Z"
@@ -154,15 +156,15 @@ def md5sum(fname: Path) -> str:
 def export_file_compute_checksum_md5(
     obj: types.Inferrable,
     filename: Path,
-    flag: str | None = None,
+    fmt: str = "",
 ) -> str:
     """Export and compute checksum"""
-    export_file(obj, filename, flag=flag)
+    export_file(obj, filename, fmt=fmt)
     return md5sum(filename)
 
 
 def compute_md5_using_temp_file(
-    obj: types.Inferrable, extension: str, flag: str = ""
+    obj: types.Inferrable, extension: str, fmt: str = ""
 ) -> str:
     """Compute an MD5 sum using a temporary file."""
     if not extension.startswith("."):
@@ -171,7 +173,7 @@ def compute_md5_using_temp_file(
     with NamedTemporaryFile(buffering=0, suffix=extension) as tf:
         logger.info("Compute MD5 sum for tmp file...: %s", tf.name)
         return export_file_compute_checksum_md5(
-            obj=obj, filename=Path(tf.name), flag=flag
+            obj=obj, filename=Path(tf.name), fmt=fmt
         )
 
 

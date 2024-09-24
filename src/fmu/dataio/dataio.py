@@ -407,9 +407,6 @@ class ExportData:
     workflow: Optional[Union[str, Dict[str, str]]] = None  # dict input is deprecated
     table_index: Optional[list] = None
 
-    # some keys that are modified version of input, prepended with _use
-    _usefmtflag: str = field(default="", init=False)
-
     # storing resulting state variables for instance, non-public:
     _pwd: Path = field(default_factory=Path, init=False)
     _fmurun: bool = field(default=False, init=False)
@@ -722,12 +719,6 @@ class ExportData:
                 UserWarning,
             )
 
-    def _update_fmt_flag(self) -> None:
-        # treat special handling of "xtgeo" in format name:
-        if self.points_fformat == "csv|xtgeo" or self.polygons_fformat == "csv|xtgeo":
-            self._usefmtflag = "xtgeo"
-        logger.info("Using flag format: <%s>", self._usefmtflag)
-
     def _update_check_settings(self, newsettings: dict) -> None:
         """Update instance settings (properties) from other routines."""
         # if no newsettings (kwargs) this rutine is not needed
@@ -819,18 +810,17 @@ class ExportData:
         is found using the FileDataProvider directly.
         A string with full path to the exported item is returned.
         """
-        self._update_fmt_flag()
-
         fmudata = self._get_fmu_provider() if self._fmurun else None
+        objdata = objectdata_provider_factory(obj, self)
 
         filemeta = FileDataProvider(
             dataio=self,
-            objdata=objectdata_provider_factory(obj, self),
+            objdata=objdata,
             runpath=fmudata.get_runpath() if fmudata else None,
         ).get_metadata()
 
         assert filemeta.absolute_path is not None  # for mypy
-        return export_file(obj, filename=filemeta.absolute_path, flag=self._usefmtflag)
+        return export_file(obj, filename=filemeta.absolute_path, fmt=objdata.fmt)
 
     # ==================================================================================
     # Public methods:
@@ -886,7 +876,6 @@ class ExportData:
                 is_observation=self.is_observation,
             ).generate_metadata(obj)
 
-        self._update_fmt_flag()
         fmudata = self._get_fmu_provider() if self._fmurun else None
 
         return generate_export_metadata(
@@ -942,7 +931,7 @@ class ExportData:
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / f".{outfile.name}.yml"
 
-        export_file(obj, outfile, flag=self._usefmtflag)
+        export_file(obj, outfile, fmt=metadata["data"].get("format", ""))
         logger.info("Actual file is:   %s", outfile)
 
         export_metadata_file(metafile, metadata, savefmt=self.meta_format)

@@ -112,7 +112,7 @@ class FileDataProvider(Provider):
         if self.obj is None:
             raise ValueError("Can't compute MD5 sum without an object.")
         return compute_md5_using_temp_file(
-            self.obj, self.objdata.extension, self.dataio._usefmtflag
+            self.obj, self.objdata.extension, fmt=self.objdata.fmt
         )
 
     def _add_filename_to_path(self, path: Path) -> Path:
