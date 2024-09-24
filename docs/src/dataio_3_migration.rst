@@ -197,6 +197,14 @@ Additionally
  - The ``return_symlink`` argument to ``export()`` is deprecated. It is redundant and can be removed.
 
 
+Getting partial metadata from generate_metadata() when config is invalid
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+It was previously possible to get partial metadata from ``generate_metadata()``
+when the global config file was invalid. This partial metadata was not valid according
+to the datamodel and could not be uploaded to Sumo. Creating invalid metadata is no
+longer supported, if the config is invalid an empty dictionary is returned instead.
+
+
 Providing settings through environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 It was previously possible to have a yml-file specifying global input arguments to 

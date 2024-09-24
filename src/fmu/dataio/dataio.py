@@ -41,7 +41,9 @@ from ._utils import (
 from .aggregation import AggregatedData
 from .case import CreateCaseMetadata
 from .preprocessed import ExportPreprocessedData
+from .providers._filedata import FileDataProvider
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
+from .providers.objectdata._provider import objectdata_provider_factory
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()
@@ -728,6 +730,16 @@ class ExportData:
 
     def _update_check_settings(self, newsettings: dict) -> None:
         """Update instance settings (properties) from other routines."""
+        # if no newsettings (kwargs) this rutine is not needed
+        if not newsettings:
+            return
+
+        warnings.warn(
+            "In the future it will not be possible to enter following arguments "
+            f"inside the export() / generate_metadata() methods: {list(newsettings)}. "
+            "Please move them up to initialization of the ExportData instance.",
+            FutureWarning,
+        )
         logger.info("Try new settings %s", newsettings)
 
         # derive legal input from dataclass signature
@@ -801,6 +813,25 @@ class ExportData:
             workflow=self.workflow,
         )
 
+    def _export_without_metadata(self, obj: types.Inferrable) -> str:
+        """
+        Export the object without a metadata file. The absolute export path
+        is found using the FileDataProvider directly.
+        A string with full path to the exported item is returned.
+        """
+        self._update_fmt_flag()
+
+        fmudata = self._get_fmu_provider() if self._fmurun else None
+
+        filemeta = FileDataProvider(
+            dataio=self,
+            objdata=objectdata_provider_factory(obj, self),
+            runpath=fmudata.get_runpath() if fmudata else None,
+        ).get_metadata()
+
+        assert filemeta.absolute_path is not None  # for mypy
+        return export_file(obj, filename=filemeta.absolute_path, flag=self._usefmtflag)
+
     # ==================================================================================
     # Public methods:
     # ==================================================================================
@@ -837,14 +868,14 @@ class ExportData:
         logger.info("Generate metadata...")
         logger.info("KW args %s", kwargs)
 
-        if kwargs:
+        if not isinstance(self.config, GlobalConfiguration):
             warnings.warn(
-                "In the future it will not be possible to enter following arguments "
-                f"inside the export() / generate_metadata() methods: {list(kwargs)}. "
-                "Please move them up to initialization of the ExportData instance.",
+                "From fmu.dataio version 3.0 it will not be possible to produce "
+                "metadata when the global config is invalid.",
                 FutureWarning,
             )
-            self._update_check_settings(kwargs)
+
+        self._update_check_settings(kwargs)
 
         if isinstance(obj, (str, Path)):
             if self.casepath is None:
@@ -899,21 +930,21 @@ class ExportData:
                 is_observation=self.is_observation,
             ).export(obj)
 
-        metadata = self.generate_metadata(obj, compute_md5=True, **kwargs)
         logger.info("Object type is: %s", type(obj))
 
+        # should only export object if config is not valid
+        if not isinstance(self.config, GlobalConfiguration):
+            warnings.warn("Data will be exported, but without metadata.", UserWarning)
+            self._update_check_settings(kwargs)
+            return self._export_without_metadata(obj)
+
+        metadata = self.generate_metadata(obj, compute_md5=True, **kwargs)
         outfile = Path(metadata["file"]["absolute_path"])
-        # create output folders if they don't exist
-        outfile.parent.mkdir(parents=True, exist_ok=True)
         metafile = outfile.parent / f".{outfile.name}.yml"
 
         export_file(obj, outfile, flag=self._usefmtflag)
         logger.info("Actual file is:   %s", outfile)
 
-        if isinstance(self.config, GlobalConfiguration):
-            export_metadata_file(metafile, metadata, savefmt=self.meta_format)
-            logger.info("Metadata file is: %s", metafile)
-        else:
-            warnings.warn("Data will be exported, but without metadata.", UserWarning)
-
+        export_metadata_file(metafile, metadata, savefmt=self.meta_format)
+        logger.info("Metadata file is: %s", metafile)
         return str(outfile)
