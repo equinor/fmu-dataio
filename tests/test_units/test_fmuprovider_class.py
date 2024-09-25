@@ -269,6 +269,30 @@ def test_fmuprovider_valid_restart_env(monkeypatch, fmurun_w_casemetadata, fmuru
     assert meta_restart.iteration.restart_from == meta_restart_from.iteration.uuid
 
 
+def test_fmuprovider_valid_relative_restart_env(
+    monkeypatch, fmurun_w_casemetadata, fmurun_pred
+):
+    """
+    Test giving a valid RESTART_FROM_PATH environment variable that contains
+    a relative path from the existing runpath, which is a common use case.
+    """
+    monkeypatch.chdir(fmurun_w_casemetadata)
+    meta_restart_from = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization
+    ).get_metadata()
+
+    # using a relative path as input
+    monkeypatch.setenv(RESTART_PATH_ENVNAME, "../iter-0")
+
+    monkeypatch.chdir(fmurun_pred)
+    meta_restart = FmuProvider(
+        model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization
+    ).get_metadata()
+
+    assert meta_restart.iteration.restart_from is not None
+    assert meta_restart.iteration.restart_from == meta_restart_from.iteration.uuid
+
+
 def test_fmuprovider_invalid_restart_env(
     monkeypatch, fmurun_w_casemetadata, fmurun_pred
 ):
@@ -283,7 +307,7 @@ def test_fmuprovider_invalid_restart_env(
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "/path/to/somewhere/invalid")
 
     os.chdir(fmurun_pred)
-    with pytest.warns(UserWarning, match="RESTART_FROM_PATH environment variable"):
+    with pytest.warns(UserWarning, match="non existing"):
         meta = FmuProvider(
             model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization
         ).get_metadata()
