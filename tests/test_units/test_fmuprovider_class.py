@@ -11,7 +11,12 @@ import fmu.dataio as dataio
 # from conftest import pretend_ert_env_run1
 from fmu.dataio._model.enums import FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
-from fmu.dataio.providers._fmu import RESTART_PATH_ENVNAME, FmuEnv, FmuProvider
+from fmu.dataio.providers._fmu import (
+    DEFAULT_ITER_NAME,
+    RESTART_PATH_ENVNAME,
+    FmuEnv,
+    FmuProvider,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -289,6 +294,26 @@ def test_fmuprovider_valid_relative_restart_env(
         model=GLOBAL_CONFIG_MODEL, fmu_context=FMUContext.realization
     ).get_metadata()
 
+    assert meta_restart.iteration.restart_from is not None
+    assert meta_restart.iteration.restart_from == meta_restart_from.iteration.uuid
+
+
+def test_fmuprovider_restart_env_no_iter_folder(
+    monkeypatch, fmurun_no_iter_folder, fmurun_pred
+):
+    """
+    Test giving a valid RESTART_FROM_PATH environment variable
+    for a fmu run without iteration folders
+    """
+    monkeypatch.chdir(fmurun_no_iter_folder)
+    meta_restart_from = FmuProvider(fmu_context=FMUContext.realization).get_metadata()
+    assert meta_restart_from.iteration.name == DEFAULT_ITER_NAME
+
+    # using a relative path as input
+    monkeypatch.setenv(RESTART_PATH_ENVNAME, str(fmurun_no_iter_folder))
+
+    monkeypatch.chdir(fmurun_pred)
+    meta_restart = FmuProvider(fmu_context=FMUContext.realization).get_metadata()
     assert meta_restart.iteration.restart_from is not None
     assert meta_restart.iteration.restart_from == meta_restart_from.iteration.uuid
 
