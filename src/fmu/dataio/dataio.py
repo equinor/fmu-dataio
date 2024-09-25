@@ -221,7 +221,7 @@ class ExportData:
             Note also: If missing or empty, export() may still be done, but without a
             metadata file (this feature may change in future releases).
 
-        content: Optional, default is "depth". Is a string or a dictionary with one key.
+        content: Optional. Is a string or a dictionary with one key.
             Example is "depth" or {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}.
             Content is checked agains a white-list for validation!
 
@@ -308,10 +308,10 @@ class ExportData:
             [[20200101, "monitor"], [20180101, "base"]] or just [[2021010]]. The output
             to metadata will from version 0.9 be different (API change)
 
-        vertical_domain: Optional. String with vertical domain either "time" or "depth".
-            It is also possible to provide a reference for the vertical scale, see the
-            domain_reference key. Note that if the ``content`` is "depth" or "time"
-            the vertical_domain will be set accordingly.
+        vertical_domain: Optional. String with vertical domain either "time" or "depth"
+           (default). It is also possible to provide a reference for the vertical scale,
+            see the domain_reference key. Note that if the ``content`` is "depth" or
+            "time" the vertical_domain will be set accordingly.
 
         workflow: Short tag desciption of workflow (as description)
 
@@ -403,7 +403,7 @@ class ExportData:
     timedata: Optional[List[list]] = None
     unit: Optional[str] = ""
     verbosity: str = "DEPRECATED"  # remove in version 2
-    vertical_domain: Optional[Union[str, dict]] = None  # dict input is deprecated
+    vertical_domain: Union[str, dict] = "depth"  # dict input is deprecated
     workflow: Optional[Union[str, Dict[str, str]]] = None  # dict input is deprecated
     table_index: Optional[list] = None
 

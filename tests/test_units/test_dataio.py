@@ -639,7 +639,7 @@ def test_vertical_domain(regsurf, globalconfig1):
     mymeta = ExportData(config=globalconfig1, content="thickness").generate_metadata(
         regsurf
     )
-    assert "vertical_domain" not in mymeta["data"]
+    assert mymeta["data"]["vertical_domain"] == "depth"  # default value
     assert mymeta["data"]["domain_reference"] == "msl"  # default value
 
     # test invalid input
