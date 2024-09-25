@@ -132,7 +132,7 @@ def register_on_sumo(
 
     sumo_conn = SumoConnection(sumo_env)
     logger.debug("Sumo connection established")
-    case = CaseOnDisk(case_metadata_path=case_metadata_path, sumo_connection=sumo_conn)
+    case = CaseOnDisk(case_metadata_path, sumo_conn)
     sumo_id = case.register()
 
     logger.info("Case registered on Sumo with ID: %s", sumo_id)
