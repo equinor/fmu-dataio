@@ -5487,6 +5487,7 @@
               "type": "null"
             }
           ],
+          "default": null,
           "title": "Attributes"
         },
         "size": {
@@ -5499,7 +5500,6 @@
         }
       },
       "required": [
-        "attributes",
         "size"
       ],
       "title": "PointSpecification",
@@ -7792,6 +7792,7 @@
               "type": "null"
             }
           ],
+          "default": null,
           "examples": [
             1,
             9999
@@ -7807,6 +7808,7 @@
               "type": "null"
             }
           ],
+          "default": null,
           "examples": [
             1,
             9999
@@ -7824,8 +7826,6 @@
       },
       "required": [
         "columns",
-        "num_columns",
-        "num_rows",
         "size"
       ],
       "title": "TableSpecification",

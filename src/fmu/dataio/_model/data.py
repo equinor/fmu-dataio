@@ -46,10 +46,10 @@ class Time(BaseModel):
 
     .. note:: ``data.time`` items can currently hold a maximum of two values."""
 
-    t0: Optional[Timestamp] = None
+    t0: Optional[Timestamp] = Field(default=None)
     """The first timestamp. See :class:`Timestamp`."""
 
-    t1: Optional[Timestamp] = None
+    t1: Optional[Timestamp] = Field(default=None)
     """The second timestamp. See :class:`Timestamp`."""
 
 
@@ -65,16 +65,16 @@ class Seismic(BaseModel):
     calculation: Optional[str] = Field(default=None, examples=["mean"])
     """The type of calculation applied."""
 
-    filter_size: Optional[float] = Field(allow_inf_nan=False, default=None)
+    filter_size: Optional[float] = Field(default=None, allow_inf_nan=False)
     """The filter size applied."""
 
-    scaling_factor: Optional[float] = Field(allow_inf_nan=False, default=None)
+    scaling_factor: Optional[float] = Field(default=None, allow_inf_nan=False)
     """The scaling factor applied."""
 
     stacking_offset: Optional[str] = Field(default=None, examples=["0-15"])
     """The stacking offset applied."""
 
-    zrange: Optional[float] = Field(allow_inf_nan=False, default=None)
+    zrange: Optional[float] = Field(default=None, allow_inf_nan=False)
     """The z-range of these data."""
 
 
@@ -305,13 +305,13 @@ class Data(BaseModel):
     """Column names in the table which can be used for indexing. Only applicable if the
     data object is a table."""
 
-    base: Optional[Layer] = None
+    base: Optional[Layer] = Field(default=None)
     """If the data represent an interval, this field can be used to represent its base.
     See :class:`Layer`.
 
     .. note:: ``top`` is required to use with this."""
 
-    top: Optional[Layer] = None
+    top: Optional[Layer] = Field(default=None)
     """If the data represent an interval, this field can be used to represent its top.
     See :class:`Layer`.
 

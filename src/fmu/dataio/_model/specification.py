@@ -52,7 +52,7 @@ class SurfaceSpecification(RowColumn):
 class PointSpecification(BaseModel):
     """Specifies relevant values describing an xyz points object."""
 
-    attributes: Optional[List[str]]
+    attributes: Optional[List[str]] = Field(default=None)
     """List of columns present in a table."""
 
     size: int = Field(examples=[1, 9999])
@@ -65,10 +65,10 @@ class TableSpecification(BaseModel):
     columns: List[str]
     """List of columns present in a table."""
 
-    num_columns: Optional[int] = Field(examples=[1, 9999])
+    num_columns: Optional[int] = Field(default=None, examples=[1, 9999])
     """The number of columns in a table."""
 
-    num_rows: Optional[int] = Field(examples=[1, 9999])
+    num_rows: Optional[int] = Field(default=None, examples=[1, 9999])
     """The number of rows in a table.."""
 
     size: int = Field(examples=[1, 9999])
