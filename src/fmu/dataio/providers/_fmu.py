@@ -36,6 +36,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final, Optional, Union
 from warnings import warn
 
+import pydantic
+
 from fmu.config import utilities as ut
 from fmu.dataio import _utils
 from fmu.dataio._logging import null_logger
@@ -248,26 +250,36 @@ class FmuProvider(Provider):
         """Load restart_from information"""
         assert self._runpath is not None
         logger.debug("Detected a restart run from environment variable")
-        restart_path = self._runpath / os.environ[RESTART_PATH_ENVNAME]
-        restart_case_metafile = (
-            restart_path.parent.parent / ERT_RELATIVE_CASE_METADATA_FILE
-        ).resolve()
+        restart_path = (self._runpath / os.environ[RESTART_PATH_ENVNAME]).resolve()
 
-        if not restart_case_metafile.exists():
+        if _casepath_has_metadata(restart_path.parent.parent):
+            restart_case_metafile = (
+                restart_path.parent.parent / ERT_RELATIVE_CASE_METADATA_FILE
+            )
+        else:
             warn(
-                f"{RESTART_PATH_ENVNAME} environment variable is set to "
-                f"{os.environ[RESTART_PATH_ENVNAME]} which is invalid. Metadata "
-                "restart_from will remain empty.",
+                f"Environment variable {RESTART_PATH_ENVNAME} resolves to the path "
+                f"{restart_path} which is non existing or points to an ERT run "
+                "without case metdata. Metadata 'restart_from' will remain empty.",
                 UserWarning,
             )
             return None
 
-        restart_metadata = schema.InternalCaseMetadata.model_validate(
-            ut.yaml_load(restart_case_metafile, loader="standard")
-        )
-        return _utils.uuid_from_string(
-            f"{restart_metadata.fmu.case.uuid}{restart_path.name}"
-        )
+        try:
+            restart_metadata = schema.InternalCaseMetadata.model_validate(
+                ut.yaml_load(restart_case_metafile)
+            )
+            return _utils.uuid_from_string(
+                f"{restart_metadata.fmu.case.uuid}{restart_path.name}"
+            )
+        except pydantic.ValidationError as err:
+            warn(
+                "The case metadata for the restart ensemble is invalid "
+                f"{restart_case_metafile}. Metadata 'restart_from' will remain empty. "
+                f"Detailed information: \n {str(err)}",
+                UserWarning,
+            )
+            return None
 
     def _get_ert_parameters(self) -> fields.Parameters | None:
         logger.debug("Read ERT parameters")
