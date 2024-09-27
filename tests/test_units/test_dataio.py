@@ -419,6 +419,7 @@ def test_unit_is_none(globalconfig1, regsurf):
     assert meta["data"]["unit"] == ""
 
 
+@pytest.mark.filterwarnings("ignore:Pydantic serializer warnings")
 def test_content_not_given(globalconfig1, regsurf):
     """When content is not explicitly given, warning shall be issued."""
     eobj = ExportData(config=globalconfig1)
