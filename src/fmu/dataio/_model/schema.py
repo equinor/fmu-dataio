@@ -129,10 +129,6 @@ class InternalUnsetData(data.Data):
         return self
 
 
-class InternalAnyData(data.AnyData):
-    root: InternalUnsetData  # type: ignore
-
-
 class InternalFMU(fields.FMU):
     # This class is identical to the one used in the schema
     # exept for more fmu context values beeing allowed internally
@@ -156,7 +152,7 @@ class InternalObjectMetadata(JsonSchemaMetadata):
     fmu: Optional[InternalFMU]
     masterdata: Optional[fields.Masterdata]
     access: Optional[fields.SsdlAccess]
-    data: Union[data.AnyData, InternalAnyData]
+    data: Union[InternalUnsetData, data.AnyData]  # keep InternalUnsetData first here
     file: fields.File
     display: fields.Display
     tracklog: fields.Tracklog
