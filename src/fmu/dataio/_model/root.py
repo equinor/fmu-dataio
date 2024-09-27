@@ -254,6 +254,7 @@ def dump() -> dict:
                     "data.bbox",
                     "data.content",
                     "data.format",
+                    "data.geometry",
                     "data.grid_model",
                     "data.is_observation",
                     "data.is_prediction",
