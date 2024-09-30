@@ -218,6 +218,10 @@ class Ert(BaseModel):
     """Reference to the ert experiment.
     See :class:`Experiment`."""
 
+    simulation_mode: Optional[enums.ErtSimulationMode] = Field(default=None)
+    """Reference to the ert simulation mode.
+    See :class:`SimulationMode`."""
+
 
 class Experiment(BaseModel):
     """The ``fmu.ert.experiment`` block contains information about

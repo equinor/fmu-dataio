@@ -32,7 +32,9 @@ def base_ert_config() -> str:
 
 
 @pytest.fixture
-def fmu_snakeoil_project(tmp_path, monkeypatch, base_ert_config, global_config2_path):
+def fmu_snakeoil_project(
+    tmp_path, monkeypatch, base_ert_config, global_config2_path, source_root
+):
     """Makes a skeleton FMU project structure into a tmp_path, copying global_config2
     into it with a basic ert config that can be appended onto."""
     monkeypatch.setenv("DATAIO_TMP_PATH", str(tmp_path))
@@ -42,7 +44,7 @@ def fmu_snakeoil_project(tmp_path, monkeypatch, base_ert_config, global_config2_
         os.makedirs(tmp_path / f"{app}/bin")
         os.makedirs(tmp_path / f"{app}/input")
         os.makedirs(tmp_path / f"{app}/model")
-    os.makedirs(tmp_path / "rms/model/snakeoil.rms13.1.2")
+    os.makedirs(tmp_path / "rms/model/snakeoil.rms14.2.2")
 
     os.makedirs(tmp_path / "fmuconfig/output")
     shutil.copy(global_config2_path, tmp_path / "fmuconfig/output/")
@@ -65,6 +67,29 @@ def fmu_snakeoil_project(tmp_path, monkeypatch, base_ert_config, global_config2_
         "../../share/preprocessed ",  # inpath
         encoding="utf-8",
     )
+
+    # Add EXPORT_A_SURFACE forward model
+    os.makedirs(tmp_path / "ert/bin/scripts")
+    shutil.copy(
+        source_root / "tests/data/snakeoil/export-a-surface",
+        tmp_path / "ert/bin/scripts/export-a-surface",
+    )
+    os.makedirs(tmp_path / "ert/output/maps/props")
+    shutil.copy(
+        source_root
+        / "examples/s/d/nn/xcase/realization-0/iter-0/rms"
+        / "output/maps/props/poro_average.gri",
+        tmp_path / "ert/output/maps/props/poro_average.gri",
+    )
+    os.makedirs(tmp_path / "ert/bin/jobs")
+    pathlib.Path(tmp_path / "ert/bin/jobs/EXPORT_A_SURFACE").write_text(
+        "STDERR EXPORT_A_SURFACE.stderr\n"
+        "STDOUT EXPORT_A_SURFACE.stdout\n"
+        "EXECUTABLE ../scripts/export-a-surface\n"
+        "ARGLIST <SNAKEOIL_PATH>\n",
+        encoding="utf-8",
+    )
+
     pathlib.Path(tmp_path / "ert/model/snakeoil.ert").write_text(
         base_ert_config, encoding="utf-8"
     )

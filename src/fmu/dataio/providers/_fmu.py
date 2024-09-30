@@ -42,7 +42,7 @@ from fmu.config import utilities as ut
 from fmu.dataio import _utils
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model import fields, schema
-from fmu.dataio._model.enums import FMUContext
+from fmu.dataio._model.enums import ErtSimulationMode, FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 
 from ._base import Provider
@@ -206,12 +206,18 @@ class FmuProvider(Provider):
 
     @staticmethod
     def _get_ert_meta() -> fields.Ert:
+        try:
+            sim_mode = ErtSimulationMode(FmuEnv.SIMULATION_MODE.value)
+        except ValueError:
+            sim_mode = None
+
         return fields.Ert(
             experiment=fields.Experiment(
                 id=uuid.UUID(FmuEnv.EXPERIMENT_ID.value)
                 if FmuEnv.EXPERIMENT_ID.value
                 else None
-            )
+            ),
+            simulation_mode=sim_mode,
         )
 
     def _validate_and_establish_casepath(self) -> Path | None:

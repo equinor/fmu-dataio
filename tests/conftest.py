@@ -48,6 +48,11 @@ def _current_function_name():
     return inspect.currentframe().f_back.f_code.co_name
 
 
+@pytest.fixture(scope="session")
+def source_root(request) -> Path:
+    return request.config.rootpath
+
+
 @pytest.fixture(scope="function", autouse=True)
 def return_to_original_directory():
     # store original folder, and restore after each function (before and after yield)
