@@ -7,22 +7,14 @@ import ert.__main__
 import pytest
 import yaml
 
-
-def _add_create_case_workflow(filepath):
-    with open(filepath, "a", encoding="utf-8") as f:
-        f.writelines(
-            [
-                "LOAD_WORKFLOW ../bin/workflows/xhook_create_case_metadata\n"
-                "HOOK_WORKFLOW xhook_create_case_metadata PRE_SIMULATION\n"
-            ]
-        )
+from .ert_config_utils import add_create_case_workflow
 
 
 def test_create_case_metadata_runs_successfully(
     fmu_snakeoil_project, monkeypatch, mocker
 ):
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    _add_create_case_workflow("snakeoil.ert")
+    add_create_case_workflow("snakeoil.ert")
 
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
@@ -48,7 +40,7 @@ def test_create_case_metadata_warns_without_overwriting(
     fmu_snakeoil_project, monkeypatch, mocker
 ):
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    _add_create_case_workflow("snakeoil.ert")
+    add_create_case_workflow("snakeoil.ert")
 
     share_metadata = fmu_snakeoil_project / "scratch/user/snakeoil/share/metadata"
     fmu_case_yml = share_metadata / "fmu_case.yml"
@@ -93,7 +85,7 @@ def test_create_case_metadata_enable_mocked_sumo(
         f.write(' "--sumo" "--sumo_env" <SUMO_ENV>')
 
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    _add_create_case_workflow("snakeoil.ert")
+    add_create_case_workflow("snakeoil.ert")
 
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]

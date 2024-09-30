@@ -759,6 +759,7 @@ def test_fmucontext_case_casepath(fmurun_prehook, rmsglobalconfig, regsurf):
     """
     assert FmuEnv.RUNPATH.value is None
     assert FmuEnv.EXPERIMENT_ID.value is not None
+    assert FmuEnv.SIMULATION_MODE.value is not None
 
     # will give warning when casepath not provided
     with pytest.warns(UserWarning, match="Could not auto detect"):
@@ -782,6 +783,7 @@ def test_fmurun_attribute_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig):
 
     # check that ERT environment variable is not set
     assert FmuEnv.ENSEMBLE_ID.value is not None
+    assert FmuEnv.SIMULATION_MODE.value is not None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._fmurun is True
@@ -795,6 +797,7 @@ def test_fmu_context_not_given_fetch_from_env_realization(
     inside fmu and RUNPATH value is detected from the environment variables.
     """
     assert FmuEnv.RUNPATH.value is not None
+    assert FmuEnv.SIMULATION_MODE.value is not None
     assert FmuEnv.EXPERIMENT_ID.value is not None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
@@ -808,6 +811,7 @@ def test_fmu_context_not_given_fetch_from_env_case(fmurun_prehook, rmsglobalconf
     inside fmu and RUNPATH value not detected from the environment variables.
     """
     assert FmuEnv.RUNPATH.value is None
+    assert FmuEnv.SIMULATION_MODE.value is not None
     assert FmuEnv.EXPERIMENT_ID.value is not None
 
     # will give warning when casepath not provided
@@ -828,6 +832,7 @@ def test_fmu_context_not_given_fetch_from_env_nonfmu(rmsglobalconfig):
     """
     assert FmuEnv.RUNPATH.value is None
     assert FmuEnv.EXPERIMENT_ID.value is None
+    assert FmuEnv.SIMULATION_MODE.value is None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._fmurun is False
@@ -1158,6 +1163,36 @@ def test_ert_experiment_id_present_in_exported_metadata(
         export_meta = yaml.safe_load(f)
     expected_id = "6a8e1e0f-9315-46bb-9648-8de87151f4c7"
     assert export_meta["fmu"]["ert"]["experiment"]["id"] == expected_id
+
+
+def test_ert_simulation_mode_present_in_generated_metadata(
+    fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
+):
+    """Test that the ert experiment id has been set correctly
+    in the generated metadata"""
+
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    edata = ExportData(config=globalconfig1, content="depth")
+    meta = edata.generate_metadata(regsurf)
+    print(meta["fmu"])
+    assert meta["fmu"]["ert"]["simulation_mode"] == "test_run"
+
+
+def test_ert_simulation_mode_present_in_exported_metadata(
+    fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
+):
+    """Test that the ert experiment id has been set correctly
+    in the exported metadata"""
+
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    edata = ExportData(config=globalconfig1, content="depth")
+    out = Path(edata.export(regsurf))
+    with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
+        export_meta = yaml.safe_load(f)
+    print(export_meta["fmu"])
+    assert export_meta["fmu"]["ert"]["simulation_mode"] == "test_run"
 
 
 def test_offset_top_base_present_in_exported_metadata(globalconfig1, regsurf):

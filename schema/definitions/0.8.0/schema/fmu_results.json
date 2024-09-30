@@ -1004,10 +1004,36 @@
             }
           ],
           "default": null
+        },
+        "simulation_mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErtSimulationMode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "Ert",
       "type": "object"
+    },
+    "ErtSimulationMode": {
+      "description": "The simulation mode ert was run in. These definitions come from\n`ert.mode_definitions`.",
+      "enum": [
+        "ensemble_experiment",
+        "ensemble_smoother",
+        "es_mda",
+        "evaluate_ensemble",
+        "iterative_ensemble_smoother",
+        "manual_update",
+        "test_run",
+        "workflow"
+      ],
+      "title": "ErtSimulationMode",
+      "type": "string"
     },
     "Experiment": {
       "description": "The ``fmu.ert.experiment`` block contains information about\nthe current ert experiment run.",

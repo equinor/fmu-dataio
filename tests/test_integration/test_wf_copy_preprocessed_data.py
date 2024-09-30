@@ -4,6 +4,11 @@ import yaml
 
 import fmu.dataio as dataio
 
+from .ert_config_utils import (
+    add_copy_preprocessed_workflow,
+    add_create_case_workflow,
+)
+
 
 def _export_preprocessed_data(config, regsurf):
     """Export preprocessed surfaces"""
@@ -23,26 +28,6 @@ def _export_preprocessed_data(config, regsurf):
     ).export(regsurf)
 
 
-def _add_create_case_workflow(filepath):
-    with open(filepath, "a", encoding="utf-8") as f:
-        f.writelines(
-            [
-                "LOAD_WORKFLOW ../bin/workflows/xhook_create_case_metadata\n"
-                "HOOK_WORKFLOW xhook_create_case_metadata PRE_SIMULATION\n"
-            ]
-        )
-
-
-def _add_copy_preprocessed_workflow(filepath):
-    with open(filepath, "a", encoding="utf-8") as f:
-        f.writelines(
-            [
-                "LOAD_WORKFLOW ../bin/workflows/xhook_copy_preprocessed_data\n"
-                "HOOK_WORKFLOW xhook_copy_preprocessed_data PRE_SIMULATION\n"
-            ]
-        )
-
-
 def test_copy_preprocessed_runs_successfully(
     fmu_snakeoil_project, monkeypatch, mocker, globalconfig2, regsurf
 ):
@@ -51,8 +36,8 @@ def test_copy_preprocessed_runs_successfully(
     _export_preprocessed_data(globalconfig2, regsurf)
 
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    _add_create_case_workflow("snakeoil.ert")
-    _add_copy_preprocessed_workflow("snakeoil.ert")
+    add_create_case_workflow("snakeoil.ert")
+    add_copy_preprocessed_workflow("snakeoil.ert")
 
     mocker.patch(
         "sys.argv",
@@ -92,7 +77,7 @@ def test_copy_preprocessed_no_casemeta(
     _export_preprocessed_data(globalconfig2, regsurf)
 
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    _add_copy_preprocessed_workflow("snakeoil.ert")
+    add_copy_preprocessed_workflow("snakeoil.ert")
 
     mocker.patch(
         "sys.argv",
@@ -114,8 +99,8 @@ def test_copy_preprocessed_no_preprocessed_files(
     """
 
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    _add_create_case_workflow("snakeoil.ert")
-    _add_copy_preprocessed_workflow("snakeoil.ert")
+    add_create_case_workflow("snakeoil.ert")
+    add_copy_preprocessed_workflow("snakeoil.ert")
 
     mocker.patch(
         "sys.argv",
@@ -142,7 +127,7 @@ def test_inpath_absolute_path_raises(fmu_snakeoil_project, monkeypatch, mocker, 
         )
 
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    _add_copy_preprocessed_workflow("snakeoil.ert")
+    add_copy_preprocessed_workflow("snakeoil.ert")
 
     mocker.patch(
         "sys.argv",
@@ -166,8 +151,8 @@ def test_copy_preprocessed_no_preprocessed_meta(
         _export_preprocessed_data({"wrong": "config"}, regsurf)
 
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    _add_create_case_workflow("snakeoil.ert")
-    _add_copy_preprocessed_workflow("snakeoil.ert")
+    add_create_case_workflow("snakeoil.ert")
+    add_copy_preprocessed_workflow("snakeoil.ert")
 
     mocker.patch(
         "sys.argv",
@@ -200,7 +185,7 @@ def test_deprecation_warning_global_variables(
         f.write(" '--global_variables_path' dummypath")
 
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    _add_copy_preprocessed_workflow("snakeoil.ert")
+    add_copy_preprocessed_workflow("snakeoil.ert")
 
     mocker.patch(
         "sys.argv",

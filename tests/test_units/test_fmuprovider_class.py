@@ -1,5 +1,6 @@
 """Test the FmuProvider class applied the _metadata.py module"""
 
+import importlib
 import logging
 import os
 
@@ -9,7 +10,7 @@ import pytest
 import fmu.dataio as dataio
 
 # from conftest import pretend_ert_env_run1
-from fmu.dataio._model.enums import FMUContext
+from fmu.dataio._model.enums import ErtSimulationMode, FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import (
     DEFAULT_ITER_NAME,
@@ -406,3 +407,19 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
         pydantic.ValidationError, match="Input should be a valid string"
     ):
         FmuProvider(model=GLOBAL_CONFIG_MODEL, workflow=123.4).get_metadata()
+
+
+def test_ert_simulation_modes_one_to_one() -> None:
+    """Ensure dataio known modes match those defined by Ert. These are currently defined
+    in `ert.mode_definitions`. `MODULE_MODE` is skipped due to seemingly being relevant
+    to Ert internally -- the modes are duplicated there."""
+    ert_mode_definitions = importlib.import_module("ert.mode_definitions")
+    ert_modes = {
+        getattr(ert_mode_definitions, name)
+        for name in dir(ert_mode_definitions)
+        if not name.startswith("__")
+        and name != "MODULE_MODE"
+        and isinstance(getattr(ert_mode_definitions, name), str)
+    }
+    dataio_known_modes = {mode.value for mode in ErtSimulationMode}
+    assert ert_modes == dataio_known_modes

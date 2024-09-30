@@ -56,6 +56,20 @@ class Content(str, Enum):
         )
 
 
+class ErtSimulationMode(str, Enum):
+    """The simulation mode ert was run in. These definitions come from
+    `ert.mode_definitions`."""
+
+    ensemble_experiment = "ensemble_experiment"
+    ensemble_smoother = "ensemble_smoother"
+    es_mda = "es_mda"
+    evaluate_ensemble = "evaluate_ensemble"
+    iterative_ensemble_smoother = "iterative_ensemble_smoother"
+    manual_update = "manual_update"
+    test_run = "test_run"
+    workflow = "workflow"
+
+
 class FMUClass(str, Enum):
     """The class of a data object by FMU convention or standards."""
 
