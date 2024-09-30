@@ -365,7 +365,7 @@ key questions you may have along the way.
 **My existing FMU workflow does not produce any metadata. Now I am told that it has to. What do I do?**
 First step: Start using fmu-dataio in your workflow. You will get a lot for free using it, amongst
 other things, metadata will start to appear from your workflow. To get started with fmu-dataio,
-see `the overview section <overview.html>`__.
+see :doc:`the overview section <../overview>`.
 
 **This data model is not what I would have chosen. How can I change it?**
 The FMU community (almost always) builds what the FMU community wants. The first step
