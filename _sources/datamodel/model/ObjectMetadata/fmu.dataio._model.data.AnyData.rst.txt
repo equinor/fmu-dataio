@@ -12,55 +12,55 @@ AnyData
 
    
    
-      ~fmu.dataio._model.data.PropertyData
-   
-      ~fmu.dataio._model.data.FaultLinesData
-   
-      ~fmu.dataio._model.data.FieldOutlineData
-   
-      ~fmu.dataio._model.data.SubcropData
-   
-      ~fmu.dataio._model.data.RFTData
+      ~fmu.dataio._model.data.ThicknessData
    
       ~fmu.dataio._model.data.FluidContactData
    
-      ~fmu.dataio._model.data.ParametersData
+      ~fmu.dataio._model.data.FaultPropertiesData
    
-      ~fmu.dataio._model.data.DepthData
-   
-      ~fmu.dataio._model.data.SeismicData
+      ~fmu.dataio._model.data.VelocityData
    
       ~fmu.dataio._model.data.FaciesThicknessData
    
-      ~fmu.dataio._model.data.ThicknessData
-   
-      ~fmu.dataio._model.data.RelpermData
-   
-      ~fmu.dataio._model.data.FaultPropertiesData
-   
-      ~fmu.dataio._model.data.WellPicksData
-   
-      ~fmu.dataio._model.data.RegionsData
+      ~fmu.dataio._model.data.SeismicData
    
       ~fmu.dataio._model.data.PVTData
-   
-      ~fmu.dataio._model.data.TimeSeriesData
-   
-      ~fmu.dataio._model.data.NamedAreaData
    
       ~fmu.dataio._model.data.KPProductData
    
       ~fmu.dataio._model.data.VolumesData
    
-      ~fmu.dataio._model.data.FieldRegionData
-   
       ~fmu.dataio._model.data.LiftCurvesData
    
-      ~fmu.dataio._model.data.VelocityData
+      ~fmu.dataio._model.data.WellPicksData
+   
+      ~fmu.dataio._model.data.SubcropData
+   
+      ~fmu.dataio._model.data.RFTData
+   
+      ~fmu.dataio._model.data.TimeData
+   
+      ~fmu.dataio._model.data.RegionsData
+   
+      ~fmu.dataio._model.data.RelpermData
+   
+      ~fmu.dataio._model.data.ParametersData
+   
+      ~fmu.dataio._model.data.FieldOutlineData
    
       ~fmu.dataio._model.data.PinchoutData
    
-      ~fmu.dataio._model.data.TimeData
+      ~fmu.dataio._model.data.DepthData
+   
+      ~fmu.dataio._model.data.FieldRegionData
+   
+      ~fmu.dataio._model.data.FaultLinesData
+   
+      ~fmu.dataio._model.data.NamedAreaData
+   
+      ~fmu.dataio._model.data.PropertyData
+   
+      ~fmu.dataio._model.data.TimeSeriesData
    
    
 
