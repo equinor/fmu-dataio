@@ -53,6 +53,7 @@ if TYPE_CHECKING:
 # case metadata relative to casepath
 ERT_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
 RESTART_PATH_ENVNAME: Final = "RESTART_FROM_PATH"
+DEFAULT_ITER_NAME: Final = "iter-0"
 
 logger: Final = null_logger(__name__)
 
@@ -145,7 +146,7 @@ class FmuProvider(Provider):
                     self._real_name = self._runpath.parent.name
                 else:
                     logger.debug("No iteration folder found, using default name iter-0")
-                    self._iter_name = "iter-0"
+                    self._iter_name = DEFAULT_ITER_NAME
                     self._real_name = self._runpath.name
 
                 logger.debug("Found iter name from runpath: %s", self._iter_name)
@@ -256,6 +257,12 @@ class FmuProvider(Provider):
             restart_case_metafile = (
                 restart_path.parent.parent / ERT_RELATIVE_CASE_METADATA_FILE
             )
+            restart_iter_name = restart_path.name
+        elif _casepath_has_metadata(restart_path.parent):
+            restart_case_metafile = (
+                restart_path.parent / ERT_RELATIVE_CASE_METADATA_FILE
+            )
+            restart_iter_name = DEFAULT_ITER_NAME
         else:
             warn(
                 f"Environment variable {RESTART_PATH_ENVNAME} resolves to the path "
@@ -270,7 +277,7 @@ class FmuProvider(Provider):
                 ut.yaml_load(restart_case_metafile)
             )
             return _utils.uuid_from_string(
-                f"{restart_metadata.fmu.case.uuid}{restart_path.name}"
+                f"{restart_metadata.fmu.case.uuid}{restart_iter_name}"
             )
         except pydantic.ValidationError as err:
             warn(
