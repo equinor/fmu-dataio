@@ -346,6 +346,11 @@ class AggregatedData:
         **kwargs: object,
     ) -> dict:
         """Alias method name, see ``generate_metadata``"""
+        warnings.warn(
+            "This method is deprecated and will be removed in the future. "
+            "Use the 'generate_metadata()' method directly instead.",
+            FutureWarning,
+        )
         return self.generate_metadata(
             obj, compute_md5=compute_md5, skip_null=skip_null, **kwargs
         )
