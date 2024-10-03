@@ -302,3 +302,6 @@ Changes to input arguments
 Changes to method arguments  
  - The ``skip_null`` argument to ``generate_metadata()`` is deprecated. It is redundant and can be removed.
 
+Deprecated methods
+ - The ``generate_aggregation_metadata()`` method is deprecated. Replace it with the identical 
+   ``generate_metadata()`` method instead.
