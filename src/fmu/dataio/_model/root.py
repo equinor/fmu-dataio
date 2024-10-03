@@ -278,6 +278,7 @@ def dump() -> dict:
                     "fmu.iteration.uuid",
                     "fmu.model",
                     "fmu.realization.id",
+                    "fmu.realization.is_reference",
                     "fmu.realization.name",
                     "fmu.realization.uuid",
                     "fmu.workflow",

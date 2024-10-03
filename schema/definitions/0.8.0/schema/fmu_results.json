@@ -30,6 +30,7 @@
     "fmu.iteration.uuid",
     "fmu.model",
     "fmu.realization.id",
+    "fmu.realization.is_reference",
     "fmu.realization.name",
     "fmu.realization.uuid",
     "fmu.workflow",
@@ -6139,6 +6140,18 @@
         "id": {
           "title": "Id",
           "type": "integer"
+        },
+        "is_reference": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Is Reference"
         },
         "jobs": {
           "anyOf": [
