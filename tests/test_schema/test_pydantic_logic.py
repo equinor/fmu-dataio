@@ -2,6 +2,7 @@
 
 import logging
 from copy import deepcopy
+from typing import get_args
 
 import pytest
 from pydantic import ValidationError
@@ -30,6 +31,22 @@ def test_schema_example_filenames(file, example):
 def test_validate(file, example):
     """Confirm that examples are valid against the schema"""
     Root.model_validate(example)
+
+
+def test_for_optional_fields_without_default(pydantic_models_from_root):
+    """Test that all optional fields have a default value"""
+    optionals_without_default = []
+    for model in pydantic_models_from_root:
+        for field_name, field_info in model.model_fields.items():
+            if (
+                type(None) in get_args(field_info.annotation)
+                and field_info.is_required()
+            ):
+                optionals_without_default.append(
+                    f"{model.__module__}.{model.__name__}.{field_name}"
+                )
+
+    assert not optionals_without_default
 
 
 def test_schema_file_block(metadata_examples):

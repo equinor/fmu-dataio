@@ -3,14 +3,16 @@
 import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pytest
 from xtgeo import Grid, Polygons, RegularSurface
 
 from fmu.dataio import _utils as utils
+from fmu.dataio._model import fields
 
-from ..utils import inside_rms
+from ..utils import _get_pydantic_models_from_annotation, inside_rms
 
 
 @pytest.mark.parametrize(
@@ -148,3 +150,29 @@ def test_read_named_envvar():
 
     os.environ["MYTESTENV"] = "mytestvalue"
     assert utils.read_named_envvar("MYTESTENV") == "mytestvalue"
+
+
+def test_get_pydantic_models_from_annotation():
+    annotation = Union[List[fields.Access], fields.File]
+    assert _get_pydantic_models_from_annotation(annotation) == [
+        fields.Access,
+        fields.File,
+    ]
+    annotation = Optional[Union[Dict[str, fields.Access], List[fields.File]]]
+    assert _get_pydantic_models_from_annotation(annotation) == [
+        fields.Access,
+        fields.File,
+    ]
+
+    annotation = List[Union[fields.Access, fields.File, fields.Tracklog]]
+    assert _get_pydantic_models_from_annotation(annotation) == [
+        fields.Access,
+        fields.File,
+        fields.Tracklog,
+    ]
+
+    annotation = List[List[List[List[fields.Tracklog]]]]
+    assert _get_pydantic_models_from_annotation(annotation) == [fields.Tracklog]
+
+    annotation = Union[str, List[int], Dict[str, int]]
+    assert not _get_pydantic_models_from_annotation(annotation)
