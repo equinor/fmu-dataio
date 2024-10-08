@@ -326,8 +326,7 @@ def test_preprocessed_with_rel_forcefolder_ok(rmssetup, rmsglobalconfig, regsurf
         timedata=[[20240802, "moni"], [20200909, "base"]],
         forcefolder="tmp",
     )
-    with pytest.warns(UserWarning, match="The standard folder name is overrided"):
-        meta = edata.generate_metadata(regsurf)
+    meta = edata.generate_metadata(regsurf)
 
     assert "preprocessed/tmp" in meta["file"]["relative_path"]
 

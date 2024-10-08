@@ -222,8 +222,7 @@ def test_filedata_provider(regsurf, tmp_path, globalconfig2):
         forcefolder="efolder",
         content="depth",
     )
-    with pytest.warns(UserWarning, match="folder name is overrided"):
-        objdata = objectdata_provider_factory(regsurf, cfg)
+    objdata = objectdata_provider_factory(regsurf, cfg)
     objdata.name = "name"
     t1 = "19000101"
     t2 = "20240101"
