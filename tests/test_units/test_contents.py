@@ -280,10 +280,15 @@ def test_content_timeseries(dataframe, globalconfig2):
     assert meta["data"]["content"] == "timeseries"
 
 
-def test_content_transmissibilities(gridproperty, globalconfig2):
+def test_content_transmissibilities(dataframe, globalconfig2):
     """Test export of the transmissibilities content."""
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content="transmissibilities",
+    ).generate_metadata(dataframe)
 
-    # not supported (?)
+    assert meta["data"]["content"] == "transmissibilities"
 
 
 def test_content_velocity(regsurf, globalconfig2):

@@ -654,6 +654,7 @@ class AnyData(RootModel):
             ThicknessData,
             TimeData,
             TimeSeriesData,
+            TransmissibilitiesData,
             VelocityData,
             VolumesData,
             WellPicksData,
