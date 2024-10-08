@@ -298,6 +298,21 @@ class Realization(BaseModel):
     """The universally unique identifier for this realization. It is a hash of
     ``fmu.case.uuid`` and ``fmu.iteration.uuid`` and ``fmu.realization.id``."""
 
+    is_reference: Optional[bool] = Field(default=None)
+    """
+    Flag used to determine if this realization is tagged as a reference.
+
+    Typically, a reference realization is one that includes prediction surfaces and
+    maintains all other input parameters at their default settings. However, caution
+    must be exercised when putting logic upon this field, as this is simply a selected
+    realization by the user and no guarantees of what the realization represents
+    can be made.
+
+    .. note::
+        Please note that users shall not set this flag in the metadata upon export;
+        it is intended to be configured through interactions with the Sumo GUI.
+    """
+
 
 class CountryItem(BaseModel):
     """A single country in the ``smda.masterdata.country`` list of countries
