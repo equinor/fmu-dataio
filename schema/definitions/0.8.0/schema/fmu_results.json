@@ -2859,18 +2859,11 @@
           "title": "Absolute Path Symlink"
         },
         "checksum_md5": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
           "examples": [
             "kjhsdfvsdlfk23knerknvk23"
           ],
-          "title": "Checksum Md5"
+          "title": "Checksum Md5",
+          "type": "string"
         },
         "relative_path": {
           "examples": [
