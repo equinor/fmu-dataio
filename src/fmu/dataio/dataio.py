@@ -816,6 +816,7 @@ class ExportData:
         filemeta = FileDataProvider(
             dataio=self,
             objdata=objdata,
+            obj=obj,
             runpath=fmudata.get_runpath() if fmudata else None,
         ).get_metadata()
 
@@ -842,17 +843,12 @@ class ExportData:
 
         Args:
             obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
-            compute_md5: If True, compute a MD5 checksum for the exported file.
+            compute_md5: Deprecated, a MD5 checksum will always be computed.
             **kwargs: Using other ExportData() input keys is now deprecated, input the
                 arguments when initializing the ExportData() instance instead.
 
         Returns:
             A dictionary with all metadata.
-
-        Note:
-            If the ``compute_md5`` key is False, the ``file.checksum_md5`` will be
-            empty. If true, the MD5 checksum will be generated based on export to
-            a temporary file, which may be time-consuming if the file is large.
         """
 
         logger.info("Generate metadata...")
@@ -863,6 +859,14 @@ class ExportData:
                 "From fmu.dataio version 3.0 it will not be possible to produce "
                 "metadata when the global config is invalid.",
                 FutureWarning,
+            )
+
+        if not compute_md5:
+            warnings.warn(
+                "Using the 'compute_md5=False' option to prevent an MD5 checksum "
+                "from being computed is now deprecated. This option has no longer "
+                "an effect and will be removed in the near future.",
+                UserWarning,
             )
 
         self._update_check_settings(kwargs)
@@ -879,7 +883,9 @@ class ExportData:
         fmudata = self._get_fmu_provider() if self._fmurun else None
 
         return generate_export_metadata(
-            obj, self, fmudata, compute_md5=compute_md5
+            obj=obj,
+            dataio=self,
+            fmudata=fmudata,
         ).model_dump(mode="json", exclude_none=True, by_alias=True)
 
     def export(
@@ -927,7 +933,7 @@ class ExportData:
             self._update_check_settings(kwargs)
             return self._export_without_metadata(obj)
 
-        metadata = self.generate_metadata(obj, compute_md5=True, **kwargs)
+        metadata = self.generate_metadata(obj, **kwargs)
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / f".{outfile.name}.yml"
 

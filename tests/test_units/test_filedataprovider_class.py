@@ -112,10 +112,7 @@ def test_get_filestem(
     edataobj1.parent = parentname
     edataobj1.name = ""
 
-    fdata = FileDataProvider(
-        edataobj1,
-        objdata,
-    )
+    fdata = FileDataProvider(edataobj1, objdata, regsurf)
 
     stem = fdata._get_filestem()
     assert stem == expected
@@ -163,7 +160,7 @@ def test_get_filestem_shall_fail(
     edataobj1.parent = parentname
     edataobj1.name = ""
 
-    fdata = FileDataProvider(edataobj1, objdata)
+    fdata = FileDataProvider(edataobj1, objdata, regsurf)
 
     with pytest.raises(ValueError) as msg:
         _ = fdata._get_filestem()
@@ -178,7 +175,7 @@ def test_get_share_folders(regsurf, globalconfig2):
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
 
-    fdata = FileDataProvider(edataobj1, objdata)
+    fdata = FileDataProvider(edataobj1, objdata, regsurf)
     share_folders = fdata._get_share_folders()
     assert isinstance(share_folders, Path)
     assert share_folders == Path(f"share/results/{ExportFolder.maps.value}")
@@ -200,7 +197,7 @@ def test_get_share_folders_with_subfolder(regsurf, globalconfig2):
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
 
-    fdata = FileDataProvider(edataobj1, objdata)
+    fdata = FileDataProvider(edataobj1, objdata, regsurf)
     share_folders = fdata._get_share_folders()
     assert share_folders == Path("share/results/maps/sub")
 
@@ -229,7 +226,7 @@ def test_filedata_provider(regsurf, tmp_path, globalconfig2):
     objdata.time0 = datetime.strptime(t1, "%Y%m%d")
     objdata.time1 = datetime.strptime(t2, "%Y%m%d")
 
-    fdata = FileDataProvider(cfg, objdata)
+    fdata = FileDataProvider(cfg, objdata, regsurf)
     filemeta = fdata.get_metadata()
 
     assert isinstance(filemeta, fields.File)
@@ -250,6 +247,6 @@ def test_filedata_has_nonascii_letters(regsurf, tmp_path, globalconfig2):
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "anynõme"
 
-    fdata = FileDataProvider(edataobj1, objdata)
+    fdata = FileDataProvider(edataobj1, objdata, regsurf)
     with pytest.raises(ValueError, match="Path has non-ascii elements"):
         fdata.get_metadata()

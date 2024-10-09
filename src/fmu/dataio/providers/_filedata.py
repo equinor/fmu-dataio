@@ -11,7 +11,7 @@ import warnings
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, Optional
+from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model import enums, fields
@@ -49,9 +49,8 @@ class FileDataProvider(Provider):
     # input
     dataio: ExportData
     objdata: ObjectDataProvider
+    obj: types.Inferrable
     runpath: Path | None = None
-    obj: Optional[types.Inferrable] = None
-    compute_md5: bool = False
 
     @property
     def name(self) -> str:
@@ -88,7 +87,7 @@ class FileDataProvider(Provider):
         return fields.File(
             absolute_path=absolute_path.resolve(),
             relative_path=relative_path,
-            checksum_md5=self._compute_md5() if self.compute_md5 else None,
+            checksum_md5=self._compute_md5(),
         )
 
     def _get_share_folders(self) -> Path:
