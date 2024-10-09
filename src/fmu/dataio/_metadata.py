@@ -31,7 +31,6 @@ def _get_meta_filedata(
     obj: types.Inferrable,
     objdata: ObjectDataProvider,
     fmudata: FmuProvider | None,
-    compute_md5: bool,
 ) -> fields.File:
     """Derive metadata for the file."""
     return FileDataProvider(
@@ -39,7 +38,6 @@ def _get_meta_filedata(
         objdata=objdata,
         runpath=fmudata.get_runpath() if fmudata else None,
         obj=obj,
-        compute_md5=compute_md5,
     ).get_metadata()
 
 
@@ -75,7 +73,6 @@ def generate_export_metadata(
     obj: types.Inferrable,
     dataio: ExportData,
     fmudata: FmuProvider | None = None,
-    compute_md5: bool = True,
 ) -> schema.InternalObjectMetadata:
     """
     Main function to generate the full metadata
@@ -119,7 +116,7 @@ def generate_export_metadata(
         ),
         access=_get_meta_access(dataio),
         data=objdata.get_metadata(),
-        file=_get_meta_filedata(dataio, obj, objdata, fmudata, compute_md5),
+        file=_get_meta_filedata(dataio, obj, objdata, fmudata),
         tracklog=fields.Tracklog.initialize(),
         display=_get_meta_display(dataio, objdata),
         preprocessed=dataio.preprocessed,

@@ -195,6 +195,8 @@ Change to this instead 👇:
 Additionally 
 
  - The ``return_symlink`` argument to ``export()`` is deprecated. It is redundant and can be removed.
+ - The ``compute_md5`` argument to ``generate_metadata()`` is deprecated and can be removed, as 
+   an MD5 checksum is always computed by default.
 
 
 Getting partial metadata from generate_metadata() when config is invalid
