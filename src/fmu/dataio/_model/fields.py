@@ -103,7 +103,7 @@ class File(BaseModel):
     )
     """The path of a file relative to the case root."""
 
-    checksum_md5: Optional[str] = Field(examples=["kjhsdfvsdlfk23knerknvk23"])
+    checksum_md5: str = Field(examples=["kjhsdfvsdlfk23knerknvk23"])
     """A valid MD5 checksum of the file."""
 
     size_bytes: Optional[int] = Field(default=None)
