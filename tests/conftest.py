@@ -15,11 +15,11 @@ import yaml
 
 import fmu.dataio as dio
 from fmu.config import utilities as ut
-from fmu.dataio._model import fields, global_configuration
+from fmu.dataio._model import Root, fields, global_configuration
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.providers._fmu import FmuEnv
 
-from .utils import _metadata_examples
+from .utils import _get_nested_pydantic_models, _metadata_examples
 
 logger = logging.getLogger(__name__)
 
@@ -699,3 +699,9 @@ def fixture_drogon_volumes(rootpath):
             rootpath / "tests/data/drogon/tabular/geogrid--vol.csv",
         )
     )
+
+
+@pytest.fixture(scope="session")
+def pydantic_models_from_root():
+    """Return all nested pydantic models from Root and downwards"""
+    return _get_nested_pydantic_models(Root)
