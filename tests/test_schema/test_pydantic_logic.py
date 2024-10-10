@@ -2,14 +2,14 @@
 
 import logging
 from copy import deepcopy
-from typing import get_args
+from typing import Literal, get_args, get_origin
 
 import pytest
 from pydantic import ValidationError
 
-from fmu.dataio._model import Root, data
+from fmu.dataio._model import Root, data, enums
 
-from ..utils import _metadata_examples
+from ..utils import _get_pydantic_models_from_annotation, _metadata_examples
 
 # pylint: disable=no-member
 
@@ -47,6 +47,40 @@ def test_for_optional_fields_without_default(pydantic_models_from_root):
                 )
 
     assert not optionals_without_default
+
+
+def test_all_content_enums_in_anydata():
+    """Test that all content enums are represented with a model in AnyData"""
+    anydata_models = _get_pydantic_models_from_annotation(
+        data.AnyData.model_fields["root"].annotation
+    )
+
+    content_enums_in_anydata = []
+    for model in anydata_models:
+        # content is used as discriminator in AnyData and
+        # should be present for all models
+        assert "content" in model.model_fields
+        content_annotation = model.model_fields["content"].annotation
+
+        # check that the annotation is a Literal
+        assert get_origin(content_annotation) == Literal
+
+        # get_args will unpack the enum from the Literal
+        # into a tuple, should only be one Literal value
+        assert len(get_args(content_annotation)) == 1
+
+        # the literal value should be an enum
+        content_enum = get_args(content_annotation)[0]
+        assert isinstance(content_enum, enums.Content)
+
+        content_enums_in_anydata.append(content_enum)
+
+    # finally check that all content enums are represented
+    for content_enum in enums.Content:
+        assert content_enum in content_enums_in_anydata
+
+    # and that number of models in AnyData matches number of content enums
+    assert len(anydata_models) == len(enums.Content)
 
 
 def test_schema_file_block(metadata_examples):
