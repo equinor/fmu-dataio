@@ -821,7 +821,8 @@ class ExportData:
         ).get_metadata()
 
         assert filemeta.absolute_path is not None  # for mypy
-        return export_file(obj, filename=filemeta.absolute_path, fmt=objdata.fmt)
+        export_file(obj, file=filemeta.absolute_path, fmt=objdata.fmt)
+        return str(filemeta.absolute_path)
 
     # ==================================================================================
     # Public methods:
