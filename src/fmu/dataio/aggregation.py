@@ -210,6 +210,14 @@ class AggregatedData:
             type(self.aggregation_id),
         )
 
+        if not compute_md5:
+            warnings.warn(
+                "Using the 'compute_md5=False' option to prevent an MD5 checksum "
+                "from being computed is now deprecated. This option has no longer "
+                "an effect and will be removed in the near future.",
+                UserWarning,
+            )
+
         if self.aggregation_id is None:
             self.aggregation_id = self._generate_aggr_uuid(uuids)
         else:
@@ -258,11 +266,7 @@ class AggregatedData:
         template["file"] = {
             "relative_path": str(relpath),
             "absolute_path": str(abspath) if abspath else None,
-            "checksum_md5": (
-                None
-                if not compute_md5
-                else _utils.compute_md5_using_temp_file(obj, objdata.extension)
-            ),
+            "checksum_md5": _utils.compute_md5_using_temp_file(obj, objdata.extension),
         }
 
         # data section
