@@ -303,7 +303,9 @@ Changes to input arguments
 
 Changes to method arguments  
  - The ``skip_null`` argument to ``generate_metadata()`` is deprecated. It is redundant and can be removed.
-
+ - The ``compute_md5`` argument to ``generate_metadata()`` is deprecated and can be removed, as 
+   an MD5 checksum is always computed by default.
+   
 Deprecated methods
  - The ``generate_aggregation_metadata()`` method is deprecated. Replace it with the identical 
    ``generate_metadata()`` method instead.
