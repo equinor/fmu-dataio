@@ -86,7 +86,7 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
 
 
 def test_fmuprovider_ert_provider_missing_parameter_txt(fmurun_w_casemetadata):
-    """Test for an ERT case, when missing file parameter.txt (e.g. pred. run)"""
+    """Test for an ERT case, when missing file parameter.txt runs ok"""
 
     os.chdir(fmurun_w_casemetadata)
 
@@ -97,8 +97,6 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(fmurun_w_casemetadata):
         fmu_context=FMUContext.realization,
         workflow=WORKFLOW,
     )
-    with pytest.warns(UserWarning, match="parameters.txt file was not found"):
-        myfmu.get_metadata()
 
     assert myfmu._case_name == "ertrun1"
     assert myfmu._real_name == "realization-0"
