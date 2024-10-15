@@ -15,9 +15,7 @@ from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model import enums, fields
-from fmu.dataio._utils import (
-    compute_md5_using_temp_file,
-)
+from fmu.dataio._utils import compute_md5, compute_md5_using_temp_file
 
 from ._base import Provider
 
@@ -108,11 +106,20 @@ class FileDataProvider(Provider):
 
     def _compute_md5(self) -> str:
         """Compute an MD5 sum using a temporary file."""
-        if self.obj is None:
-            raise ValueError("Can't compute MD5 sum without an object.")
-        return compute_md5_using_temp_file(
-            self.obj, self.objdata.extension, fmt=self.objdata.fmt
-        )
+        try:
+            return compute_md5(
+                obj=self.obj,
+                file_suffix=self.objdata.extension,
+                fmt=self.objdata.fmt,
+            )
+        except Exception as e:
+            logger.debug(
+                f"Exception {e} occured when trying to compute md5 from memory stream "
+                f"for an object of type {type(self.obj)}. Will use tempfile instead."
+            )
+            return compute_md5_using_temp_file(
+                self.obj, self.objdata.extension, fmt=self.objdata.fmt
+            )
 
     def _add_filename_to_path(self, path: Path) -> Path:
         stem = self._get_filestem()

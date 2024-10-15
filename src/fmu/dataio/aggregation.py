@@ -262,11 +262,20 @@ class AggregatedData:
 
         objdata = objectdata_provider_factory(obj=obj, dataio=etemp)
 
+        try:
+            checksum_md5 = _utils.compute_md5(obj, objdata.extension)
+        except Exception as e:
+            logger.debug(
+                f"Exception {e} occured when trying to compute md5 from memory stream "
+                f"for an object of type {type(obj)}. Will use tempfile instead."
+            )
+            checksum_md5 = _utils.compute_md5_using_temp_file(obj, objdata.extension)
+
         template["tracklog"] = [fields.Tracklog.initialize()[0]]
         template["file"] = {
             "relative_path": str(relpath),
             "absolute_path": str(abspath) if abspath else None,
-            "checksum_md5": _utils.compute_md5_using_temp_file(obj, objdata.extension),
+            "checksum_md5": checksum_md5,
         }
 
         # data section
