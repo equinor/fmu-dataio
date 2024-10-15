@@ -89,7 +89,7 @@ def _validate_variable(key: str, value: type, legals: dict[str, str | type]) -> 
     valid_type = eval(legal_key) if isinstance(legal_key, str) else legal_key
 
     try:
-        validcheck = valid_type.__args__
+        validcheck = valid_type.__args__  # type: ignore[union-attr]
     except AttributeError:
         validcheck = valid_type
 
