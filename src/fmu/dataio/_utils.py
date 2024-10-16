@@ -6,6 +6,7 @@ import contextlib
 import hashlib
 import json
 import os
+import shlex
 import uuid
 from io import BufferedIOBase, BytesIO
 from pathlib import Path
@@ -19,7 +20,7 @@ import yaml
 
 from fmu.config import utilities as ut
 
-from . import _design_kw, types
+from . import types
 from ._logging import null_logger
 from .readers import FaultRoomSurface
 
@@ -222,71 +223,31 @@ def uuid_from_string(string: str) -> uuid.UUID:
 def read_parameters_txt(pfile: Path | str) -> types.Parameters:
     """Read the parameters.txt file and convert to a dict.
     The parameters.txt file has this structure::
-      SENSNAME rms_seed
-      SENSCASE p10_p90
       RMS_SEED 1000
       KVKH_CHANNEL 0.6
-      KVKH_CREVASSE 0.3
       GLOBVAR:VOLON_FLOODPLAIN_VOLFRAC 0.256355
       GLOBVAR:VOLON_PERMH_CHANNEL 1100
-      GLOBVAR:VOLON_PORO_CHANNEL 0.2
       LOG10_GLOBVAR:FAULT_SEAL_SCALING 0.685516
       LOG10_MULTREGT:MULT_THERYS_VOLON -3.21365
-      LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
-    ...but may also appear on a justified format, with leading
-    whitespace and tab-justified columns, legacy from earlier
-    versions but kept alive by some users::
-                            SENSNAME     rms_seed
-                            SENSCASE     p10_p90
-                            RMS_SEED     1000
-                        KVKH_CHANNEL     0.6
-          GLOBVAR:VOLON_PERMH_CHANNEL    1100
-      LOG10_GLOBVAR:FAULT_SEAL_SCALING   0.685516
-      LOG10_MULTREGT:MULT_THERYS_VOLON   -3.21365
-    This should be parsed as::
-        {
-        "SENSNAME": "rms_seed"
-        "SENSCASE": "p10_p90"
-        "RMS_SEED": 1000
-        "KVKH_CHANNEL": 0.6
-        "KVKH_CREVASSE": 0.3
-        "GLOBVAR": {"VOLON_FLOODPLAIN_VOLFRAC": 0.256355, ...etc}
-        }
     """
 
     logger.debug("Reading parameters.txt from %s", pfile)
 
-    parameterlines = Path(pfile).read_text().splitlines()
+    res: types.Parameters = {}
 
-    dict_str_to_str = _design_kw.extract_key_value(parameterlines)
-    return {key: check_if_number(value) for key, value in dict_str_to_str.items()}
+    with open(pfile) as f:
+        for line in f:
+            line_parts = shlex.split(line)
+            if len(line_parts) == 2:
+                key, value = line_parts
+                res[key] = check_if_number(value)
+            else:
+                raise ValueError(
+                    "The parameters.txt file can only contain two elements per line."
+                    f"Found more or less than two on line {line}."
+                )
 
-
-def nested_parameters_dict(paramdict: dict[str, str | int | float]) -> types.Parameters:
-    """Interpret a flat parameters dictionary into a nested dictionary, based on
-    presence of colons in keys.
-
-    This assumes that what comes before a ":" is sort of a namespace identifier.
-
-    In design_kw (semeio) this namespace identifier is actively ignored, meaning that
-    the keys without the namespace must be unique.
-    """
-    nested_dict: types.Parameters = {}
-    unique_keys: list[str] = []
-    for key, value in paramdict.items():
-        if ":" in key:
-            subdict, newkey = key.split(":", 1)
-            if not newkey:
-                raise ValueError(f"Empty parameter name in {key} after removing prefix")
-            if subdict not in nested_dict:
-                nested_dict[subdict] = {}
-            unique_keys.append(newkey)
-            nested_dict[subdict][newkey] = value  # type: ignore
-        else:
-            unique_keys.append(key)
-            nested_dict[key] = value
-
-    return nested_dict
+    return res
 
 
 def check_if_number(value: str | None) -> int | float | str | None:

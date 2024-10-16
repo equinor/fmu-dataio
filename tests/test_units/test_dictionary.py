@@ -9,7 +9,7 @@ import pytest
 import yaml
 
 from fmu.dataio import ExportData
-from fmu.dataio._utils import nested_parameters_dict, read_parameters_txt
+from fmu.dataio._utils import read_parameters_txt
 
 
 @pytest.fixture(name="direct_creation", scope="function")
@@ -51,19 +51,6 @@ def _fixture_simple_parameters(fmurun_w_casemetadata):
     return read_parameters_txt(fmurun_w_casemetadata / "parameters.txt")
 
 
-@pytest.fixture(name="nested_parameters", scope="function")
-def _fixture_nested_parameters(simple_parameters):
-    """Return dictionary read from parameters.txt and split on : in original key
-
-    Args:
-        simple_parameters (dict): dictionary parsed from parameters.txt
-
-    Returns:
-        dict: the parameters as nested dictionary
-    """
-    return nested_parameters_dict(simple_parameters)
-
-
 def assert_dict_correct(result_dict, meta, name):
     """Assert dictionary and some metadata
 
@@ -103,7 +90,6 @@ def read_dict_and_meta(path):
         ("direct_creation"),
         ("json_dict"),
         ("simple_parameters"),
-        ("nested_parameters"),
     ],
 )
 def test_export_dict_w_meta(globalconfig2, dictionary, request, monkeypatch, tmp_path):
@@ -145,7 +131,7 @@ def test_invalid_dict(
 def test_read_parameters_txt():
     with NamedTemporaryFile() as tf:
         tf.write(
-            b"""SENSNAME rms_seed
+            b"""SENSNAME 'rms seed'
 SENSCASE p10_p90
 RMS_SEED 1000
 KVKH_CHANNEL 0.6
@@ -160,7 +146,7 @@ LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
         )
         tf.flush()
         assert read_parameters_txt(tf.name) == {
-            "SENSNAME": "rms_seed",
+            "SENSNAME": "rms seed",
             "SENSCASE": "p10_p90",
             "RMS_SEED": 1000,
             "KVKH_CHANNEL": 0.6,
@@ -172,37 +158,3 @@ LOG10_MULTREGT:MULT_VALYSAR_THERYS -3.2582
             "LOG10_MULTREGT:MULT_THERYS_VOLON": -3.21365,
             "LOG10_MULTREGT:MULT_VALYSAR_THERYS": -3.2582,
         }
-
-
-def test_nested_parameters_dict():
-    assert nested_parameters_dict(
-        {
-            "SENSNAME": "rms_seed",
-            "SENSCASE": "p10_p90",
-            "RMS_SEED": 1000,
-            "KVKH_CHANNEL": 0.6,
-            "KVKH_CREVASSE": 0.3,
-            "GLOBVAR:VOLON_FLOODPLAIN_VOLFRAC": 0.256355,
-            "GLOBVAR:VOLON_PERMH_CHANNEL": 1100,
-            "GLOBVAR:VOLON_PORO_CHANNEL": 0.2,
-            "LOG10_GLOBVAR:FAULT_SEAL_SCALING": 0.685516,
-            "LOG10_MULTREGT:MULT_THERYS_VOLON": -3.21365,
-            "LOG10_MULTREGT:MULT_VALYSAR_THERYS": -3.2582,
-        }
-    ) == {
-        "SENSNAME": "rms_seed",
-        "SENSCASE": "p10_p90",
-        "RMS_SEED": 1000,
-        "KVKH_CHANNEL": 0.6,
-        "KVKH_CREVASSE": 0.3,
-        "GLOBVAR": {
-            "VOLON_FLOODPLAIN_VOLFRAC": 0.256355,
-            "VOLON_PERMH_CHANNEL": 1100,
-            "VOLON_PORO_CHANNEL": 0.2,
-        },
-        "LOG10_GLOBVAR": {"FAULT_SEAL_SCALING": 0.685516},
-        "LOG10_MULTREGT": {
-            "MULT_THERYS_VOLON": -3.21365,
-            "MULT_VALYSAR_THERYS": -3.2582,
-        },
-    }

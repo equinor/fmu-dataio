@@ -288,20 +288,6 @@ class FmuProvider(Provider):
             )
             return None
 
-    def _get_ert_parameters(self) -> fields.Parameters | None:
-        logger.debug("Read ERT parameters")
-        assert self._runpath is not None
-        parameters_file = self._runpath / "parameters.txt"
-        if not parameters_file.exists():
-            warn("The parameters.txt file was not found", UserWarning)
-            return None
-
-        params = _utils.read_parameters_txt(parameters_file)
-        logger.debug("parameters.txt parsed.")
-        # BUG(?): value can contain Nones, loop in fn. below
-        # does contains check, will fail.
-        return fields.Parameters(root=_utils.nested_parameters_dict(params))  # type: ignore
-
     def _get_iteration_and_real_uuid(self, case_uuid: UUID) -> tuple[UUID, UUID]:
         iter_uuid = _utils.uuid_from_string(f"{case_uuid}{self._iter_name}")
         real_uuid = _utils.uuid_from_string(f"{case_uuid}{iter_uuid}{self._real_id}")
@@ -320,7 +306,6 @@ class FmuProvider(Provider):
         return fields.Realization(
             id=self._real_id,
             name=self._real_name,
-            parameters=self._get_ert_parameters(),
             uuid=real_uuid,
         )
 
