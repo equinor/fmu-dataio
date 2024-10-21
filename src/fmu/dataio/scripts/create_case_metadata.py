@@ -16,13 +16,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 import yaml
+from ert.plugins.plugin_manager import hook_implementation
 
 from fmu.dataio import CreateCaseMetadata
-
-try:
-    from ert.shared.plugins.plugin_manager import hook_implementation
-except ModuleNotFoundError:
-    from ert_shared.plugins.plugin_manager import hook_implementation
 
 try:
     from ert.config import ErtScript
@@ -30,7 +26,7 @@ except ImportError:
     from res.job_queue import ErtScript
 
 if TYPE_CHECKING:
-    from ert.shared.plugins.workflow_config import WorkflowConfigs
+    from ert.plugins.workflow_config import WorkflowConfigs
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
