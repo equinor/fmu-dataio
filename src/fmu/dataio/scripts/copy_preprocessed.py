@@ -14,12 +14,9 @@ import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
-from fmu.dataio import ExportPreprocessedData
+from ert.plugins.plugin_manager import hook_implementation
 
-try:
-    from ert.shared.plugins.plugin_manager import hook_implementation
-except ModuleNotFoundError:
-    from ert_shared.plugins.plugin_manager import hook_implementation
+from fmu.dataio import ExportPreprocessedData
 
 try:
     from ert.config import ErtScript
@@ -27,7 +24,7 @@ except ImportError:
     from res.job_queue import ErtScript
 
 if TYPE_CHECKING:
-    from ert.shared.plugins.workflow_config import WorkflowConfigs
+    from ert.plugins.workflow_config import WorkflowConfigs
 
 logger: Final = logging.getLogger(__name__)
 
