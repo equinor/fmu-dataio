@@ -249,9 +249,7 @@ class ExportPreprocessedData:
             else:
                 # store metafile to updated path
                 metafile = outfile.parent / f".{outfile.name}.yml"
-                export_metadata_file(
-                    file=metafile, metadata=meta_updated, savefmt="yaml"
-                )
+                export_metadata_file(file=metafile, metadata=meta_updated)
                 logger.info("Updated metadata file is: %s", metafile)
         else:
             warnings.warn(

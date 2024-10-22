@@ -11,7 +11,7 @@ import uuid
 from io import BufferedIOBase, BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Final, Literal
+from typing import Any, Final
 
 import numpy as np
 import pandas as pd
@@ -52,35 +52,20 @@ def dataio_examples() -> bool:
     return "RUN_DATAIO_EXAMPLES" in os.environ
 
 
-def export_metadata_file(
-    file: Path,
-    metadata: dict,
-    savefmt: Literal["yaml", "json"] = "yaml",
-) -> None:
+def export_metadata_file(file: Path, metadata: dict) -> None:
     """Export genericly and ordered to the complementary metadata file."""
     if not metadata:
         raise RuntimeError(
             "Export of metadata was requested, but no metadata are present."
         )
 
-    if savefmt == "yaml":
-        with open(file, "w", encoding="utf8") as stream:
-            stream.write(
-                yaml.safe_dump(
-                    metadata,
-                    allow_unicode=True,
-                )
+    with open(file, "w", encoding="utf8") as stream:
+        stream.write(
+            yaml.safe_dump(
+                metadata,
+                allow_unicode=True,
             )
-    else:
-        with open(file.replace(file.with_suffix(".json")), "w") as stream:
-            stream.write(
-                json.dumps(
-                    metadata,
-                    default=str,
-                    indent=2,
-                    ensure_ascii=False,
-                )
-            )
+        )
 
     logger.info("Yaml file on: %s", file)
 
