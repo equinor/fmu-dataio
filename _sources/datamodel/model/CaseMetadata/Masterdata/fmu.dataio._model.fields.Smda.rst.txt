@@ -14,9 +14,9 @@ Smda
    
       ~fmu.dataio._model.fields.CoordinateSystem
    
-      ~fmu.dataio._model.fields.FieldItem
-   
       ~fmu.dataio._model.fields.CountryItem
+   
+      ~fmu.dataio._model.fields.FieldItem
    
       ~fmu.dataio._model.fields.DiscoveryItem
    
