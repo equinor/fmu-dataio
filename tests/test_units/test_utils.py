@@ -97,12 +97,7 @@ def test_non_metadata_export_metadata_file():
     with NamedTemporaryFile(buffering=0, suffix=".yaml") as tf, pytest.raises(
         RuntimeError
     ):
-        utils.export_metadata_file(Path(tf.name), {}, savefmt="json")
-
-    with NamedTemporaryFile(buffering=0, suffix=".yaml") as tf, pytest.raises(
-        RuntimeError
-    ):
-        utils.export_metadata_file(Path(tf.name), {}, savefmt="yaml")
+        utils.export_metadata_file(Path(tf.name), {})
 
 
 def test_export_file_raises():

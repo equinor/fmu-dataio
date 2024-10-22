@@ -33,7 +33,7 @@ def test_generate_metadata_simple(globalconfig1):
 
     assert edata.config.model.name == "Test"
 
-    assert edata.meta_format == "yaml"
+    assert edata.meta_format is None
     assert edata.grid_fformat == "grdecl"
     assert edata.name == ""
 
@@ -973,24 +973,30 @@ def test_norwegian_letters_globalconfig(
     assert meta2["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
 
 
-def test_norwegian_letters_globalconfig_as_json(
-    globalvars_norwegian_letters,
-    regsurf,
-):
-    """Testing using norwegian letters in global config, with json output."""
-
-    path, cfg, _ = globalvars_norwegian_letters
-    os.chdir(path)
+def test_metadata_format_deprecated(globalconfig1, regsurf, tmp_path, monkeypatch):
+    """
+    Test that setting the class variable "metadata_format" gives a warning,
+    and that writing metadata on json format does not work
+    """
+    monkeypatch.chdir(tmp_path)
 
     ExportData.meta_format = "json"
-    edata = ExportData(config=cfg, name="TopBlåbær", content="depth")
+    with pytest.warns(UserWarning, match="meta_format"):
+        result = ExportData(
+            config=globalconfig1, name="TopBlåbær", content="depth"
+        ).export(regsurf)
 
-    result = pathlib.Path(edata.export(regsurf))
+    result = pathlib.Path(result)
     metafile = result.parent / ("." + str(result.stem) + ".gri.json")
-    with open(metafile, encoding="utf-8") as stream:
-        assert "DRÅGØN" in stream.read()
+    assert not metafile.exists()
+    assert not metafile.with_suffix(".yaml").exists()
 
-    ExportData.meta_format = "yaml"  # reset
+    # test that also value "yaml" will cause warning
+    ExportData.meta_format = "yaml"
+    with pytest.warns(UserWarning, match="meta_format"):
+        ExportData(config=globalconfig1, name="TopBlåbær", content="depth")
+
+    ExportData.meta_format = None  # reset
 
 
 def test_establish_runpath(tmp_path, globalconfig2):

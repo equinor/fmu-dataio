@@ -54,7 +54,7 @@ class AggregatedData:
     """
 
     # class variable(s)
-    meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
+    meta_format: ClassVar[Optional[Literal["yaml", "json"]]] = None  # deprecated
 
     # instance
     aggregation_id: Optional[str] = None
@@ -75,6 +75,12 @@ class AggregatedData:
                 "effect and will be removed in near future. Please remove it from the "
                 "argument list. Set logging level from client script in the standard "
                 "manner instead.",
+                UserWarning,
+            )
+        if self.meta_format:
+            warnings.warn(
+                "The 'meta_format' option is deprecated and should be removed. "
+                "Metadata will only be exported in yaml format.",
                 UserWarning,
             )
 
@@ -397,7 +403,7 @@ class AggregatedData:
         logger.info("Export to file and export metadata file.")
         _utils.export_file(obj, outfile)
 
-        _utils.export_metadata_file(metafile, metadata, savefmt=self.meta_format)
+        _utils.export_metadata_file(metafile, metadata)
         logger.info("Actual file is:   %s", outfile)
         logger.info("Metadata file is: %s", metafile)
 

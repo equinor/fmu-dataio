@@ -5,7 +5,7 @@ import uuid
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import ClassVar, Final, Literal, Optional, Union
+from typing import Final, Optional, Union
 
 from pydantic import ValidationError
 
@@ -44,9 +44,6 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
         caseuser: Username provided
         description (Optional): Description text as string or list of strings.
     """
-
-    # class variables
-    meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
 
     config: dict
     rootfolder: str | Path
@@ -149,8 +146,6 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
             Full path of metadata file.
         """
         if self.generate_metadata():
-            _utils.export_metadata_file(
-                self._metafile, self._metadata, savefmt=self.meta_format
-            )
+            _utils.export_metadata_file(self._metafile, self._metadata)
             logger.info("METAFILE %s", self._metafile)
         return str(self._metafile)

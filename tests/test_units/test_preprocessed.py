@@ -130,7 +130,7 @@ def test_outdated_metadata(fmurun_prehook, rmsglobalconfig, regsurf, monkeypatch
     # modify existing metadata file to make it 'outdated'
     metadata = read_metadata(metafile)
     del metadata["data"]  # pretend data was not required before
-    utils.export_metadata_file(file=metafile, metadata=metadata, savefmt="yaml")
+    utils.export_metadata_file(file=metafile, metadata=metadata)
 
     # run the re-export of the preprocessed data inside an mocked FMU run
     set_ert_env_prehook(monkeypatch)
@@ -189,7 +189,7 @@ def test_preprocessed_surface_modified_post_export(
     # modify existing metadata file to make the md5sum inconsistent
     metadata = read_metadata(metafile)
     metadata["file"]["checksum_md5"] = "dummy_modified"
-    utils.export_metadata_file(file=metafile, metadata=metadata, savefmt="yaml")
+    utils.export_metadata_file(file=metafile, metadata=metadata)
 
     # run the re-export of the preprocessed data inside an mocked FMU run
     set_ert_env_prehook(monkeypatch)

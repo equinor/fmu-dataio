@@ -363,7 +363,7 @@ class ExportData:
     grid_fformat: ClassVar[str] = "roff"
     include_ertjobs: ClassVar[bool] = False  # deprecated
     legacy_time_format: ClassVar[bool] = False  # deprecated
-    meta_format: ClassVar[Literal["yaml", "json"]] = "yaml"
+    meta_format: ClassVar[Optional[Literal["yaml", "json"]]] = None  # deprecated
     polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     surface_fformat: ClassVar[str] = "irap_binary"
@@ -649,6 +649,12 @@ class ExportData:
             warn(
                 "The 'depth_reference' key has no function. Use the 'domain_reference' "
                 "key instead to set the reference for the given 'vertical_domain'.",
+                UserWarning,
+            )
+        if self.meta_format:
+            warn(
+                "The 'meta_format' option is deprecated and should be removed. "
+                "Metadata will only be exported in yaml format.",
                 UserWarning,
             )
 
@@ -941,6 +947,6 @@ class ExportData:
         export_file(obj, outfile, fmt=metadata["data"].get("format", ""))
         logger.info("Actual file is:   %s", outfile)
 
-        export_metadata_file(metafile, metadata, savefmt=self.meta_format)
+        export_metadata_file(metafile, metadata)
         logger.info("Metadata file is: %s", metafile)
         return str(outfile)
