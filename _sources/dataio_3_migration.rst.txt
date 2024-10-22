@@ -91,6 +91,7 @@ safely be removed if present in the code.
  * ``ExportData.legacy_time_format`` 
  * ``ExportData.table_include_index`` 
  * ``ExportData.verifyfolder`` 
+ * ``ExportData.meta_format`` 
 
 
 .. code-block:: python
@@ -309,3 +310,6 @@ Changes to method arguments
 Deprecated methods
  - The ``generate_aggregation_metadata()`` method is deprecated. Replace it with the identical 
    ``generate_metadata()`` method instead.
+
+Deprecated class variables 
+ * ``AggregatedData.meta_format`` - metadata will always be exported in yaml format
