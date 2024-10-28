@@ -96,6 +96,26 @@ class CPGridSpecification(RowColumnLayer):
     zscale: float = Field(allow_inf_nan=False)
     """Scaling factor for the z-axis."""
 
+    zonation: Optional[List[ZoneDefinition]] = Field(default=None)
+    """
+    Zone names and corresponding layer index ranges. The list is ordered from
+    shallowest to deepest zone. Note the layer indices are zero-based; add 1 to
+    convert to corresponding layer number.
+    """
+
+
+class ZoneDefinition(BaseModel):
+    """Zone name and corresponding layer index min/max"""
+
+    name: str
+    """Name of zone"""
+
+    min_layer_idx: int = Field(ge=0)
+    """Minimum layer index for the zone"""
+
+    max_layer_idx: int = Field(ge=0)
+    """Maximum layer index for the zone"""
+
 
 class CPGridPropertySpecification(RowColumnLayer):
     """Specifies relevant values describing a corner point grid property object."""
