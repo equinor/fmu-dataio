@@ -309,9 +309,9 @@ class ExportData:
             to metadata will from version 0.9 be different (API change)
 
         vertical_domain: Optional. String with vertical domain either "time" or "depth"
-           (default). It is also possible to provide a reference for the vertical scale,
-            see the domain_reference key. Note that if the ``content`` is "depth" or
-            "time" the vertical_domain will be set accordingly.
+            (default). It is also possible to provide a reference for the vertical
+            scale, see the domain_reference key. Note that if the ``content`` is "depth"
+            or "time" the vertical_domain will be set accordingly.
 
         workflow: Short tag desciption of workflow (as description)
 

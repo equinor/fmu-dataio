@@ -152,6 +152,8 @@ def autosummary_table_visit_html(
 
 
 class FakeApplication:
+    verbosity = 0
+
     def __init__(self) -> None:
         self.doctreedir = None
         self.events = None
