@@ -9,6 +9,9 @@ spec:
         - name: dev
           build:
               from: main
+        - name: staging
+          build:
+              from: staging
         - name: prod
     components:
         - name: main
@@ -21,6 +24,17 @@ spec:
               - stickysessions
           environmentConfig:
               - environment: dev
+                horizontalScaling:
+                    minReplicas: 1
+                    maxReplicas: 2
+                resources:
+                    requests:
+                        memory: "1Gi"
+                        cpu: "500m"
+                    limits:
+                        memory: "2Gi"
+                        cpu: "1000m"
+              - environment: staging
                 horizontalScaling:
                     minReplicas: 1
                     maxReplicas: 2
