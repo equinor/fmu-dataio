@@ -356,6 +356,21 @@
           "title": "Yshift",
           "type": "number"
         },
+        "zonation": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/ZoneDefinition"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Zonation"
+        },
         "zscale": {
           "title": "Zscale",
           "type": "number"
@@ -10145,6 +10160,32 @@
         "reference"
       ],
       "title": "Workflow",
+      "type": "object"
+    },
+    "ZoneDefinition": {
+      "description": "Zone name and corresponding layer index min/max",
+      "properties": {
+        "max_layer_idx": {
+          "minimum": 0,
+          "title": "Max Layer Idx",
+          "type": "integer"
+        },
+        "min_layer_idx": {
+          "minimum": 0,
+          "title": "Min Layer Idx",
+          "type": "integer"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "min_layer_idx",
+        "max_layer_idx"
+      ],
+      "title": "ZoneDefinition",
       "type": "object"
     }
   },

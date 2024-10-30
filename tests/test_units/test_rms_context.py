@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+import xtgeo
 import yaml
 
 import fmu.dataio.dataio as dataio
@@ -495,6 +496,53 @@ def test_grid_export_file_set_name(inside_rms_setup, grid):
     assert str(output) == str(
         (edata._rootpath / "share/results/grids/mygrid.roff").resolve()
     )
+
+
+@inside_rms
+def test_grid_zonation_in_metadata(inside_rms_setup):
+    """Export the grid to file with correct metadata and name."""
+
+    grid = xtgeo.create_box_grid((3, 4, 5))
+
+    edata = dataio.ExportData(
+        config=inside_rms_setup["config"], content="depth", name="MyGrid"
+    )
+
+    assert grid.subgrids is None
+    meta = edata.generate_metadata(grid)
+    assert meta["data"]["spec"].get("zonation") is None
+
+    grid.set_subgrids({"zone1": 2, "zone2": 3})
+    meta = edata.generate_metadata(grid)
+    assert meta["data"]["spec"]["zonation"] == [
+        {"name": "zone1", "min_layer_idx": 0, "max_layer_idx": 1},
+        {"name": "zone2", "min_layer_idx": 2, "max_layer_idx": 4},
+    ]
+
+    # check that we get zones in order even though subgrids are not
+    grid.subgrids = {"zone1": [1, 2], "zone3": [5], "zone2": [3, 4]}
+    meta = edata.generate_metadata(grid)
+    assert meta["data"]["spec"]["zonation"] == [
+        {"name": "zone1", "min_layer_idx": 0, "max_layer_idx": 1},
+        {"name": "zone2", "min_layer_idx": 2, "max_layer_idx": 3},
+        {"name": "zone3", "min_layer_idx": 4, "max_layer_idx": 4},
+    ]
+
+    # test that various incorrect subgrid input causes error (in XTGeo)
+    with pytest.raises(ValueError, match="Subgrids lengths"):
+        grid.subgrids = {"zone1": [1, 2, 3], "zone2": [3, 4, 5]}
+
+    with pytest.raises(ValueError, match="not valid"):
+        grid.subgrids = {"zone1": [1, 2, 3], "zone2": [3, 4]}
+
+    with pytest.raises(ValueError, match="not valid"):
+        grid.subgrids = {"zone1": [1, 2, 3], "zone2": [5, 6]}
+
+    with pytest.raises(ValueError, match="Subgrids lengths"):
+        grid.set_subgrids({"zone1": 3, "zone2": 3})
+
+    with pytest.raises(ValueError, match="Subgrids lengths"):
+        grid.set_subgrids({"zone1": 1, "zone2": 1})
 
 
 @inside_rms

@@ -18,6 +18,7 @@ from fmu.dataio._model.specification import (
     PointSpecification,
     PolygonsSpecification,
     SurfaceSpecification,
+    ZoneDefinition,
 )
 from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
 
@@ -383,6 +384,24 @@ class CPGridDataProvider(ObjectDataProvider):
             xscale=npfloat_to_float(required["xscale"]),
             yscale=npfloat_to_float(required["yscale"]),
             zscale=npfloat_to_float(required["zscale"]),
+            zonation=self._get_zonation() if self.obj.subgrids else None,
+        )
+
+    def _get_zonation(self) -> list[ZoneDefinition]:
+        """
+        Get the zonation for the grid as a list of zone definitions.
+        The list will be ordered from shallowest zone to deepest.
+        """
+        return sorted(
+            [
+                ZoneDefinition(
+                    name=zone,
+                    min_layer_idx=min(layerlist) - 1,
+                    max_layer_idx=max(layerlist) - 1,
+                )
+                for zone, layerlist in self.obj.subgrids.items()
+            ],
+            key=lambda x: x.min_layer_idx,
         )
 
 
