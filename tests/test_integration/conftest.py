@@ -86,7 +86,7 @@ def fmu_snakeoil_project(
         "STDERR EXPORT_A_SURFACE.stderr\n"
         "STDOUT EXPORT_A_SURFACE.stdout\n"
         "EXECUTABLE ../scripts/export-a-surface\n"
-        "ARGLIST <SNAKEOIL_PATH>\n",
+        "ARGLIST <PROJECT_PATH>\n",
         encoding="utf-8",
     )
 

@@ -410,9 +410,10 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
 
 
 def test_ert_simulation_modes_one_to_one() -> None:
-    """Ensure dataio known modes match those defined by Ert. These are currently defined
-    in `ert.mode_definitions`. `MODULE_MODE` is skipped due to seemingly being relevant
-    to Ert internally -- the modes are duplicated there."""
+    """Ensure dataio known modes match those defined by Ert.
+
+    These are currently defined in `ert.mode_definitions`. `MODULE_MODE` is skipped due
+    to seemingly being relevant to Ert internally -- the modes are duplicated there."""
     ert_mode_definitions = importlib.import_module("ert.mode_definitions")
     ert_modes = {
         getattr(ert_mode_definitions, name)

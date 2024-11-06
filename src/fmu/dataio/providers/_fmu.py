@@ -206,6 +206,7 @@ class FmuProvider(Provider):
 
     @staticmethod
     def _get_ert_meta() -> fields.Ert:
+        """Constructs the `Ert` Pydantic object for the `ert` metadata field."""
         try:
             sim_mode = ErtSimulationMode(FmuEnv.SIMULATION_MODE.value)
         except ValueError:

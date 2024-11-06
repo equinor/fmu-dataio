@@ -10,10 +10,10 @@ from fmu.config import utilities as ut
 
 
 def main() -> None:
-    snakeoil_path = Path(sys.argv[1])
-    CFG = ut.yaml_load(snakeoil_path / "fmuconfig/output/global_variables.yml")
+    project_path = Path(sys.argv[1])
+    CFG = ut.yaml_load(project_path / "fmuconfig/output/global_variables.yml")
     surf = xtgeo.surface_from_file(
-        snakeoil_path / "ert/output/maps/props/poro_average.gri"
+        project_path / "ert/output/maps/props/poro_average.gri"
     )
     dataio.ExportData(
         config=CFG,
