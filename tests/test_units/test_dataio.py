@@ -1168,21 +1168,20 @@ def test_ert_experiment_id_present_in_exported_metadata(
 def test_ert_simulation_mode_present_in_generated_metadata(
     fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
 ):
-    """Test that the ert experiment id has been set correctly
+    """Test that the ert simulation mode has been set correctly
     in the generated metadata"""
 
     monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = ExportData(config=globalconfig1, content="depth")
     meta = edata.generate_metadata(regsurf)
-    print(meta["fmu"])
     assert meta["fmu"]["ert"]["simulation_mode"] == "test_run"
 
 
 def test_ert_simulation_mode_present_in_exported_metadata(
     fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
 ):
-    """Test that the ert experiment id has been set correctly
+    """Test that the ert simulation mode has been set correctly
     in the exported metadata"""
 
     monkeypatch.chdir(fmurun_w_casemetadata)
@@ -1191,7 +1190,6 @@ def test_ert_simulation_mode_present_in_exported_metadata(
     out = Path(edata.export(regsurf))
     with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
         export_meta = yaml.safe_load(f)
-    print(export_meta["fmu"])
     assert export_meta["fmu"]["ert"]["simulation_mode"] == "test_run"
 
 
