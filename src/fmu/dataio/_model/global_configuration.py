@@ -85,7 +85,7 @@ class StratigraphyElement(BaseModel):
 
     name: str
     stratigraphic: bool = Field(default=False)
-    alias: Optional[List[str]] = Field(default_factory=list)
+    alias: Optional[List[str]] = Field(default=None)
     stratigraphic_alias: Optional[List[str]] = Field(default=None)
     offset: float = Field(default=0.0, allow_inf_nan=False)
     top: Optional[data.Layer] = Field(default=None)
