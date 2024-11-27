@@ -7,8 +7,11 @@ from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model.data import BoundingBox3D
 from fmu.dataio._model.enums import FMUClass, Layout
+from fmu.dataio._model.global_configuration import (
+    GlobalConfiguration,
+)
 from fmu.dataio._model.specification import FaultRoomSurfaceSpecification
-from fmu.dataio.readers import FaultRoomSurface
+from fmu.dataio.providers.objectdata._utils import Utils
 
 from ._base import (
     ObjectDataProvider,
@@ -66,11 +69,31 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
     def get_spec(self) -> FaultRoomSurfaceSpecification:
         """Derive data.spec for FaultRoomSurface"""
         logger.info("Get spec for FaultRoomSurface")
+
+        # Juxtapositions are already ordered according to the strat. column
+        # in global config
+
+        juxtaposition_hw = []
+        juxtaposition_fw = []
+        if isinstance(self.dataio.config, GlobalConfiguration) and (
+            strat := self.dataio.config.stratigraphy
+        ):
+            # Use the name in the juxtaposition list if it doesn't exist
+            # in the strat. column
+            juxtaposition_hw = [
+                Utils.get_stratigraphic_name(strat, juxt) or juxt
+                for juxt in self.obj.juxtaposition_hw
+            ]
+            juxtaposition_fw = [
+                Utils.get_stratigraphic_name(strat, juxt) or juxt
+                for juxt in self.obj.juxtaposition_fw
+            ]
+
         return FaultRoomSurfaceSpecification(
             horizons=self.obj.horizons,
             faults=self.obj.faults,
-            juxtaposition_hw=self.obj.juxtaposition_hw,
-            juxtaposition_fw=self.obj.juxtaposition_fw,
+            juxtaposition_hw=juxtaposition_hw,
+            juxtaposition_fw=juxtaposition_fw,
             properties=self.obj.properties,
             name=self.obj.name,
         )
