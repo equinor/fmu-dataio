@@ -30,7 +30,7 @@ def test_rms_volumetrics_export_class(
     import rmsapi  # type: ignore # noqa
     import rmsapi.jobs as jobs  # type: ignore # noqa
 
-    from fmu.dataio.export.rms.volumetrics import _ExportVolumetricsRMS
+    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
 
     os.chdir(rmssetup_with_fmuconfig)
 
@@ -49,9 +49,11 @@ def test_rms_volumetrics_export_class(
     monkeypatch.setattr(instance, "_dataframe", voltable_as_dataframe)
 
     out = instance._export_volume_table()
-    metadata = dataio.read_metadata(out["volume_table"])
+
+    metadata = dataio.read_metadata(out.items[0].absolute_path)
 
     assert "volumes" in metadata["data"]["content"]
+    assert metadata["access"]["classification"] == "restricted"
 
 
 @inside_rms
@@ -60,15 +62,23 @@ def test_rms_volumetrics_export_function(
 ):
     """Test the public function."""
 
-    from fmu.dataio.export.rms import export_volumetrics
+    from fmu.dataio.export.rms import export_inplace_volumes
 
     os.chdir(rmssetup_with_fmuconfig)
 
-    result = export_volumetrics(mock_project_variable, "Geogrid", "geogrid_volume")
-    vol_table_file = result["volume_table"]
+    result = export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
+    vol_table_file = result.items[0].absolute_path
+
+    absoulte_path = (
+        rmssetup_with_fmuconfig.parent.parent
+        / "share/results/tables/volumes/geogrid.csv"
+    )
+
+    assert vol_table_file == absoulte_path
 
     assert Path(vol_table_file).is_file()
     metadata = dataio.read_metadata(vol_table_file)
     logger.debug("Volume_table_file is %s", vol_table_file)
 
     assert "volumes" in metadata["data"]["content"]
+    assert metadata["access"]["classification"] == "restricted"
