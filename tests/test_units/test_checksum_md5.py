@@ -180,7 +180,7 @@ def test_checksum_md5_for_dictionary(monkeypatch, tmp_path, globalconfig1):
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
-def test_checksum_md5_for_faultroom(monkeypatch, tmp_path, globalconfig1, rootpath):
+def test_checksum_md5_for_faultroom(monkeypatch, tmp_path, globalconfig2, rootpath):
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for a FaultRoomSurface
@@ -194,7 +194,7 @@ def test_checksum_md5_for_faultroom(monkeypatch, tmp_path, globalconfig1, rootpa
 
     export_path = Path(
         ExportData(
-            config=globalconfig1,
+            config=globalconfig2,
             content="depth",
             name="myname",
         ).export(fault_room_surface)
