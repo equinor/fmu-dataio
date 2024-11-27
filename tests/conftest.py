@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import shutil
+from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
@@ -18,6 +19,7 @@ from fmu.config import utilities as ut
 from fmu.dataio._model import Root, fields, global_configuration
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.providers._fmu import FmuEnv
+from fmu.dataio.readers import FaultRoomSurface
 
 from .utils import _get_nested_pydantic_models, _metadata_examples
 
@@ -458,6 +460,35 @@ def fixture_regsurf():
     """Create an xtgeo surface."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
+
+
+@pytest.fixture(name="faultroom_object", scope="module")
+def fixture_faultroom_object(globalconfig2):
+    """Create a faultroom object."""
+    logger.debug("Ran %s", _current_function_name())
+    cfg = deepcopy(globalconfig2)
+
+    horizons = cfg["rms"]["horizons"]["TOP_RES"]
+    faults = ["F1", "F2", "F3", "F4", "F5", "F6"]
+    juxtaposition_hw = cfg["rms"]["zones"]["ZONE_RES"]
+    juxtaposition_fw = cfg["rms"]["zones"]["ZONE_RES"]
+    juxtaposition = {"fw": juxtaposition_fw, "hw": juxtaposition_hw}
+    properties = [
+        "Juxtaposition",
+    ]
+    coordinates = [[[1.1, 1.2, 1.3], [2.1, 2.2, 2.3]]]
+    features = [{"geometry": {"coordinates": coordinates}}]
+    name = cfg["access"]["asset"]["name"]
+
+    faultroom_data = {
+        "horizons": horizons,
+        "faults": {"default": faults},
+        "juxtaposition": juxtaposition,
+        "properties": properties,
+        "name": name,
+    }
+
+    return FaultRoomSurface({"metadata": faultroom_data, "features": features})
 
 
 @pytest.fixture(name="polygons", scope="module")
