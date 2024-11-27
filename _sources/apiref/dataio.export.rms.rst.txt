@@ -12,4 +12,4 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   dataio.export.rms.volumetrics
+   dataio.export.rms.inplace_volumes
