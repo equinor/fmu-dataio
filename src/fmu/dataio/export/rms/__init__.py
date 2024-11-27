@@ -1,3 +1,3 @@
-from .volumetrics import export_rms_volumetrics, export_volumetrics
+from .inplace_volumes import export_inplace_volumes, export_rms_volumetrics
 
-__all__ = ["export_volumetrics", "export_rms_volumetrics"]
+__all__ = ["export_inplace_volumes", "export_rms_volumetrics"]

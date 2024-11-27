@@ -382,3 +382,16 @@ def get_geometry_ref(
     relpath = gmeta["file"]["relative_path"]
 
     return geom_name, relpath
+
+
+def _load_config_from_path(config_path: Path) -> dict[str, Any]:
+    """Retrieve the global config data by reading the global config file."""
+    logger.debug("Set global config...")
+
+    if not isinstance(config_path, Path):
+        raise ValueError("The config_path argument needs to be a path")
+
+    if not config_path.is_file():
+        raise FileNotFoundError(f"Cannot find file for global config: {config_path}")
+
+    return ut.yaml_load(config_path)

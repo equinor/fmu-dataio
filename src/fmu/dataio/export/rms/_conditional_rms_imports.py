@@ -10,7 +10,7 @@ from fmu.dataio._logging import null_logger
 _logger = null_logger(__name__)
 
 
-def import_rms_package() -> dict[str, Any] | None:
+def import_rms_package() -> tuple[Any, Any]:
     """
     Attempts to import the 'rmsapi' package first. If 'rmsapi' is not available,
     it attempts to import the 'roxar' package while suppressing deprecation warnings.
@@ -21,7 +21,6 @@ def import_rms_package() -> dict[str, Any] | None:
         import rmsapi
         import rmsapi.jobs as jobs
 
-        return {"rmsapi": rmsapi, "jobs": jobs}
     except ImportError:
         try:
             with warnings.catch_warnings():
@@ -31,12 +30,13 @@ def import_rms_package() -> dict[str, Any] | None:
                 import roxar as rmsapi
                 import roxar.jobs as jobs
 
-                return {"rmsapi": rmsapi, "jobs": jobs}
         except ImportError:
             raise ImportError(
                 "Neither 'roxar' nor 'rmsapi' are available. You have to be inside "
                 "RMS to use this function."
             )
+
+    return (rmsapi, jobs)
 
 
 if TYPE_CHECKING:
