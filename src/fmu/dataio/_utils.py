@@ -8,6 +8,7 @@ import json
 import os
 import shlex
 import uuid
+from datetime import datetime
 from io import BufferedIOBase, BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -395,3 +396,8 @@ def _load_config_from_path(config_path: Path) -> dict[str, Any]:
         raise FileNotFoundError(f"Cannot find file for global config: {config_path}")
 
     return ut.yaml_load(config_path)
+
+
+def convert_datestr_to_isoformat(value: str, format: str = "%Y%m%d") -> str:
+    """Convert a date string to ISO formatted string"""
+    return datetime.strptime(value, format).isoformat()
