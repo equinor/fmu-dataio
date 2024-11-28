@@ -208,16 +208,21 @@ class ObjectDataProvider(Provider):
 
         return StratigraphyElement(name=name)
 
-    def _get_fmu_time_object(self, timedata_item: list[str]) -> Timestamp:
+    def _get_fmu_time_object(self, timedata_item: str | list[str]) -> Timestamp:
         """
-        Returns a Timestamp from a timedata item on list
-        format: ["20200101", "monitor"] where the first item is a date and
+        Returns a Timestamp from a timedata item on either string or
+        list format: ["20200101", "monitor"] where the first item is a date and
         the last item is an optional label
         """
-        value, *label = timedata_item
+
+        if isinstance(timedata_item, list):
+            value, *label = timedata_item
+            return Timestamp(
+                value=datetime.strptime(str(value), "%Y%m%d"),
+                label=label[0] if label else None,
+            )
         return Timestamp(
-            value=datetime.strptime(str(value), "%Y%m%d"),
-            label=label[0] if label else None,
+            value=datetime.strptime(str(timedata_item), "%Y%m%d"),
         )
 
     def _get_timedata(self) -> Time | None:
@@ -233,6 +238,9 @@ class ObjectDataProvider(Provider):
         """
         if not self.dataio.timedata:
             return None
+
+        if not isinstance(self.dataio.timedata, list):
+            raise ValueError("The 'timedata' argument should be a list")
 
         if len(self.dataio.timedata) > 2:
             raise ValueError("The 'timedata' argument can maximum contain two dates")
