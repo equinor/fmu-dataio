@@ -304,9 +304,11 @@ class ExportData:
 
         tagname: This is a short tag description which be be a part of file name.
 
-        timedata: If given, a list of lists with dates, .e.g.
-            [[20200101, "monitor"], [20180101, "base"]] or just [[2021010]]. The output
-            to metadata will from version 0.9 be different (API change)
+        timedata: Optional. List of dates, where the dates are strings on form
+            'YYYYMMDD', example ['20200101']. A maximum of two dates can be input,
+            the oldest date will be set as t0 in the metadata and the latest date will
+            be t1. Note it is also possible to provide a label to each date by using
+            a list of lists, .e.g. [[20200101, "monitor"], [20180101, "base"]].
 
         vertical_domain: Optional. String with vertical domain either "time" or "depth"
             (default). It is also possible to provide a reference for the vertical
@@ -316,29 +318,6 @@ class ExportData:
         workflow: Short tag desciption of workflow (as description)
 
         undef_is_zero: Flags that nans should be considered as zero in aggregations
-
-
-    .. note:: Comment on time formats
-
-        If two dates are present (i.e. the element represents a difference, the input
-        time format is on the form::
-
-            timedata: [[20200101, "monitor"], [20180101, "base"]]
-
-        Hence the last data (monitor) usually comes first.
-
-        In the new version this will shown in metadata files as where the oldest date is
-        shown as t0::
-
-            data:
-              t0:
-                value: 2018010T00:00:00
-                description: base
-              t1:
-                value: 202020101T00:00:00
-                description: monitor
-
-        The output files will be on the form: somename--t1_t0.ext
 
     """
 
@@ -400,7 +379,7 @@ class ExportData:
     runpath: Optional[Union[str, Path]] = None
     subfolder: str = ""
     tagname: str = ""
-    timedata: Optional[List[list]] = None
+    timedata: Optional[Union[List[str], List[List[str]]]] = None
     unit: Optional[str] = ""
     verbosity: str = "DEPRECATED"  # remove in version 2
     vertical_domain: Union[str, dict] = "depth"  # dict input is deprecated

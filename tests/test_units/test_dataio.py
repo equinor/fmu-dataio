@@ -12,7 +12,7 @@ import pytest
 import yaml
 
 from fmu.dataio._model.enums import FMUContext
-from fmu.dataio._utils import prettyprint_dict
+from fmu.dataio._utils import convert_datestr_to_isoformat, prettyprint_dict
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.providers._fmu import FmuEnv
 
@@ -1244,3 +1244,96 @@ def test_top_base_as_strings_from_config(globalconfig1, regsurf):
     meta = edata.generate_metadata(regsurf)
     assert meta["data"]["top"]["name"] == "TheTopHorizon"
     assert meta["data"]["base"]["name"] == "TheBaseHorizon"
+
+
+def test_timedata_single_date(globalconfig1, regsurf):
+    """Test that entering a single date works"""
+
+    t0 = "20230101"
+
+    meta = ExportData(
+        config=globalconfig1,
+        content="depth",
+        name="TopWhatever",
+        timedata=[t0],
+    ).generate_metadata(regsurf)
+
+    assert meta["data"]["time"]["t0"]["value"] == convert_datestr_to_isoformat(t0)
+    assert "t1" not in meta["data"]["time"]
+
+    # should also work with the double list syntax
+    meta = ExportData(
+        config=globalconfig1,
+        content="depth",
+        name="TopWhatever",
+        timedata=[[t0]],
+    ).generate_metadata(regsurf)
+
+    assert meta["data"]["time"]["t0"]["value"] == convert_datestr_to_isoformat(t0)
+    assert "t1" not in meta["data"]["time"]
+
+
+def test_timedata_multiple_date(globalconfig1, regsurf):
+    """Test that entering two dates works"""
+
+    t0 = "20230101"
+    t1 = "20240101"
+
+    meta = ExportData(
+        config=globalconfig1,
+        content="depth",
+        name="TopWhatever",
+        timedata=[t0, t1],
+    ).generate_metadata(regsurf)
+
+    assert meta["data"]["time"]["t0"]["value"] == convert_datestr_to_isoformat(t0)
+    assert meta["data"]["time"]["t1"]["value"] == convert_datestr_to_isoformat(t1)
+
+    # should also work with the double list syntax
+    meta = ExportData(
+        config=globalconfig1,
+        content="depth",
+        name="TopWhatever",
+        timedata=[[t0], [t1]],
+    ).generate_metadata(regsurf)
+
+    assert meta["data"]["time"]["t0"]["value"] == convert_datestr_to_isoformat(t0)
+    assert meta["data"]["time"]["t1"]["value"] == convert_datestr_to_isoformat(t1)
+
+
+def test_timedata_multiple_date_sorting(globalconfig1, regsurf):
+    """Test that dates are sorted no matter the input order"""
+
+    t0 = "20230101"
+    t1 = "20240101"
+
+    meta = ExportData(
+        config=globalconfig1,
+        content="depth",
+        name="TopWhatever",
+        timedata=[t1, t0],  # set oldest first
+    ).generate_metadata(regsurf)
+
+    # check that oldest is t0
+    assert meta["data"]["time"]["t0"]["value"] == convert_datestr_to_isoformat(t0)
+    assert meta["data"]["time"]["t1"]["value"] == convert_datestr_to_isoformat(t1)
+
+
+def test_timedata_wrong_format(globalconfig1, regsurf):
+    """Test that error is raised if timedata is input incorrect"""
+
+    with pytest.raises(ValueError, match="should be a list"):
+        ExportData(
+            config=globalconfig1,
+            content="depth",
+            name="TopWhatever",
+            timedata="20230101",
+        ).generate_metadata(regsurf)
+
+    with pytest.raises(ValueError, match="two dates"):
+        ExportData(
+            config=globalconfig1,
+            content="depth",
+            name="TopWhatever",
+            timedata=["20230101", "20240101", "20250101"],
+        ).generate_metadata(regsurf)
