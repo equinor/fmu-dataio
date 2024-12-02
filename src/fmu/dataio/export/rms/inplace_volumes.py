@@ -10,11 +10,14 @@ import pandas as pd
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model.enums import Classification
-from fmu.dataio._utils import _load_config_from_path
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._conditional_rms_imports import import_rms_package
-from fmu.dataio.export.rms._utils import _check_rmsapi_version, _get_rms_project_units
+from fmu.dataio.export.rms._utils import (
+    check_rmsapi_version,
+    get_rms_project_units,
+    load_global_config,
+)
 
 rmsapi, rmsjobs = import_rms_package()
 
@@ -50,11 +53,10 @@ class _ExportVolumetricsRMS:
     project: Any
     grid_name: str
     volume_job_name: str
-    config_path: str | Path = "../../fmuconfig/output/global_variables.yml"
 
     def __post_init__(self) -> None:
         _logger.debug("Process data, estiblish state prior to export.")
-        self._config = _load_config_from_path(Path(self.config_path))
+        self._config = load_global_config()
         self._volume_job = self._get_rms_volume_job_settings()
         self._volume_table_name = self._read_volume_table_name_from_job()
         self._dataframe = self._voltable_as_dataframe()
@@ -112,7 +114,7 @@ class _ExportVolumetricsRMS:
         edata = dio.ExportData(
             config=self._config,
             content="volumes",
-            unit="m3" if _get_rms_project_units(self.project) == "metric" else "ft3",
+            unit="m3" if get_rms_project_units(self.project) == "metric" else "ft3",
             vertical_domain="depth",
             domain_reference="msl",
             subfolder="volumes",
@@ -140,7 +142,6 @@ def export_inplace_volumes(
     project: Any,
     grid_name: str,
     volume_job_name: str,
-    config_path: str | Path = "../../fmuconfig/output/global_variables.yml",
 ) -> ExportResult:
     """Simplified interface when exporting volume tables (and assosiated data) from RMS.
 
@@ -148,21 +149,17 @@ def export_inplace_volumes(
         project: The 'magic' project variable in RMS.
         grid_name: Name of 3D grid model in RMS.
         volume_job_name: Name of the volume job.
-        config_path: Optional. Path to the global_variables file. As default, it assumes
-            the current standard in FMU:
-            ``'../../fmuconfig/output/global_variables.yml'``
 
     Note:
         This function is experimental and may change in future versions.
     """
 
-    _check_rmsapi_version(minimum_version="1.7")
+    check_rmsapi_version(minimum_version="1.7")
 
     return _ExportVolumetricsRMS(
         project,
         grid_name,
         volume_job_name,
-        config_path=config_path,
     ).export()
 
 

@@ -385,7 +385,7 @@ def get_geometry_ref(
     return geom_name, relpath
 
 
-def _load_config_from_path(config_path: Path) -> dict[str, Any]:
+def load_config_from_path(config_path: Path) -> dict[str, Any]:
     """Retrieve the global config data by reading the global config file."""
     logger.debug("Set global config...")
 

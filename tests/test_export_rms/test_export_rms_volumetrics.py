@@ -1,6 +1,5 @@
 """Test the dataio running RMS spesici utility function for volumetrics"""
 
-import os
 from pathlib import Path
 
 import pandas as pd
@@ -32,7 +31,7 @@ def test_rms_volumetrics_export_class(
 
     from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
 
-    os.chdir(rmssetup_with_fmuconfig)
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
 
     assert rmsapi.__version__ == "1.7"
     assert "Report" in jobs.Job.get_job("whatever").get_arguments.return_value
@@ -57,14 +56,36 @@ def test_rms_volumetrics_export_class(
 
 
 @inside_rms
+def test_rms_volumetrics_export_config_missing(
+    mock_project_variable, rmssetup_with_fmuconfig, monkeypatch
+):
+    """Test that an exception is raised if the config is missing."""
+
+    from fmu.dataio.export.rms import export_inplace_volumes
+    from fmu.dataio.export.rms._utils import CONFIG_PATH
+
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
+
+    config_path_modified = Path("wrong.yml")
+
+    CONFIG_PATH.rename(config_path_modified)
+
+    with pytest.raises(FileNotFoundError, match="Could not detect"):
+        export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
+
+    # restore the global config file for later tests
+    config_path_modified.rename(CONFIG_PATH)
+
+
+@inside_rms
 def test_rms_volumetrics_export_function(
-    mock_project_variable, rmssetup_with_fmuconfig
+    mock_project_variable, rmssetup_with_fmuconfig, monkeypatch
 ):
     """Test the public function."""
 
     from fmu.dataio.export.rms import export_inplace_volumes
 
-    os.chdir(rmssetup_with_fmuconfig)
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
 
     result = export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
     vol_table_file = result.items[0].absolute_path
