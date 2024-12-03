@@ -8,42 +8,46 @@ a few lines will be needed.
 
 Currently only volumes are exposed, but this will be extended in the near future.
 
+.. note::
+All simplified export functions requires that the global configuration file is found at the standard
+location in FMU. For RMS exports that will be ``'../../fmuconfig/output/global_variables.yml'``.
+
 .. _example-export-volumes-rms:
 
-Exporting volumetrics from RMS
-------------------------------
+Exporting inplace volumes from RMS
+----------------------------------
 
-Volumetrics in RMS is always done in a so-called volume jobs. The intention with the simplification
-is to use the RMS API behind the scene to retrieve all necessary data needed for ``fmu.dataio``.
+Inplace volumes for grids in RMS should always be computed in a **single** RMS volumetrics job, and
+the result should be stored as a report table inside RMS. The simplified export function will use
+the RMS API behind the scene to retrieve this table, and all necessary data needed for ``fmu.dataio``.
+
+The performance of the volumetrics jobs in RMS has greatly improved from the past, now typically
+representing the fastest method for calculating in-place volumes. However, it is important to note
+that generating output maps, such as Zone maps, during the volumetrics job can significantly
+decelerate the process.
+
+Note some assets are using erosion multipliers as a means to reduce the bulk and pore volume, instead of
+performing actual erosion by cell removal in the grid. This is not supported, and proper grid erosion
+is required. If the erosion multiplier is important for flow simulation, the erosion and volumetrics job
+should be moved to after the export for flow simulation.
 
 Example:
 
 .. code-block:: python
 
-    from fmu.dataio.export.rms import export_volumetrics
+    from fmu.dataio.export.rms import export_inplace_volumes
     ...
 
     # here 'Geogrid' is the grid model name, and 'geogrid_volumes' is the name of the volume job
-    outfiles = export_volumetrics(project, "Geogrid", "geogrid_volumes")
+    export_results = export_inplace_volumes(project, "Geogrid", "geogrid_volumes")
 
-    print(f"Output volumes to {outfiles}")
+    for result in export_results.items:
+        print(f"Output volumes to {result.absolute_path}")
 
-Most ``dataio`` settings are here defaulted, but some keys can be altered optionally, e.g.:
-
-.. code-block:: python
-
-    outfiles = export_volumetrics(
-        project,
-        "Geogrid",
-        "geogrid_volumes",
-        global_variables="../whatever/global_variables.yml",
-        tagname="vol",
-        subfolder="volumes",
-    )
 
 
 Details
 -------
 
-.. automodule:: fmu.dataio.export.rms.volumetrics
+.. automodule:: fmu.dataio.export.rms.inplace_volumes
     :members:
