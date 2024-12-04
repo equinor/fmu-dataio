@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import ChainMap
 from typing import TYPE_CHECKING, Dict, List, Literal, TypeVar, Union
 
 from pydantic import (
@@ -10,6 +9,7 @@ from pydantic import (
     RootModel,
     model_validator,
 )
+from pydantic.json_schema import GenerateJsonSchema
 from typing_extensions import Annotated
 
 from .data import AnyData
@@ -28,6 +28,8 @@ from .fields import (
 )
 
 if TYPE_CHECKING:
+    from typing import Any, Final, Mapping
+
     from pydantic_core import CoreSchema
 
 T = TypeVar("T", Dict, List, object)
@@ -194,38 +196,85 @@ class Root(
         return json_schema
 
 
-def _remove_discriminator_mapping(obj: dict) -> dict:
-    """
-    Modifies a provided JSON schema object by specifically
-    removing the `discriminator.mapping` fields. This alteration aims
-    to ensure compatibility with the AJV Validator by addressing and
-    resolving schema validation errors that previously led to startup
-    failures in applications like `sumo-core`.
-    """
-    del obj["discriminator"]["mapping"]
-    del obj["$defs"]["AnyData"]["discriminator"]["mapping"]
-    return obj
+class FmuResultsJsonSchema(GenerateJsonSchema):
+    contractual: Final[list[str]] = [
+        "access",
+        "class",
+        "data.alias",
+        "data.bbox",
+        "data.content",
+        "data.format",
+        "data.geometry",
+        "data.grid_model",
+        "data.is_observation",
+        "data.is_prediction",
+        "data.name",
+        "data.offset",
+        "data.seismic.attribute",
+        "data.spec.columns",
+        "data.stratigraphic",
+        "data.stratigraphic_alias",
+        "data.tagname",
+        "data.time",
+        "data.vertical_domain",
+        "file.checksum_md5",
+        "file.relative_path",
+        "file.size_bytes",
+        "fmu.aggregation.operation",
+        "fmu.aggregation.realization_ids",
+        "fmu.case",
+        "fmu.context.stage",
+        "fmu.iteration.name",
+        "fmu.iteration.uuid",
+        "fmu.model",
+        "fmu.realization.id",
+        "fmu.realization.is_reference",
+        "fmu.realization.name",
+        "fmu.realization.uuid",
+        "fmu.workflow",
+        "masterdata",
+        "source",
+        "tracklog.datetime",
+        "tracklog.event",
+        "tracklog.user.id",
+        "version",
+    ]
 
+    def _remove_format_path(self, obj: T) -> T:
+        """
+        Removes entries with key "format" and value "path" from dictionaries. This
+        adjustment is necessary because JSON Schema does not recognize the "format":
+        "path", while OpenAPI does. This function is used in contexts where OpenAPI
+        specifications are not applicable.
+        """
 
-def _remove_format_path(obj: T) -> T:
-    """
-    Removes entries with key "format" and value "path" from dictionaries. This
-    adjustment is necessary because JSON Schema does not recognize the "format":
-    "path", while OpenAPI does. This function is used in contexts where OpenAPI
-    specifications are not applicable.
-    """
+        if isinstance(obj, dict):
+            return {
+                k: self._remove_format_path(v)
+                for k, v in obj.items()
+                if not (k == "format" and v == "path")
+            }
 
-    if isinstance(obj, dict):
-        return {
-            k: _remove_format_path(v)
-            for k, v in obj.items()
-            if not (k == "format" and v == "path")
-        }
+        if isinstance(obj, list):
+            return [self._remove_format_path(element) for element in obj]
 
-    if isinstance(obj, list):
-        return [_remove_format_path(element) for element in obj]
+        return obj
 
-    return obj
+    def generate(
+        self,
+        schema: Mapping[str, Any],
+        mode: Literal["validation", "serialization"] = "validation",
+    ) -> dict[str, Any]:
+        json_schema = super().generate(schema, mode=mode)
+        json_schema["$schema"] = self.schema_dialect
+        json_schema["$id"] = "fmu_results.json"
+        json_schema["$contractual"] = self.contractual
+
+        # sumo-core's validator does not recognize these.
+        del json_schema["discriminator"]["mapping"]
+        del json_schema["$defs"]["AnyData"]["discriminator"]["mapping"]
+
+        return self._remove_format_path(json_schema)
 
 
 def dump() -> dict:
@@ -244,61 +293,4 @@ def dump() -> dict:
             If changes are satisfactory and do not introduce issues, commit
             them to maintain schema consistency.
     """
-    schema = dict(
-        ChainMap(
-            {
-                "$contractual": [
-                    "access",
-                    "class",
-                    "data.alias",
-                    "data.bbox",
-                    "data.content",
-                    "data.format",
-                    "data.geometry",
-                    "data.grid_model",
-                    "data.is_observation",
-                    "data.is_prediction",
-                    "data.name",
-                    "data.offset",
-                    "data.seismic.attribute",
-                    "data.spec.columns",
-                    "data.stratigraphic",
-                    "data.stratigraphic_alias",
-                    "data.tagname",
-                    "data.time",
-                    "data.vertical_domain",
-                    "file.checksum_md5",
-                    "file.relative_path",
-                    "file.size_bytes",
-                    "fmu.aggregation.operation",
-                    "fmu.aggregation.realization_ids",
-                    "fmu.case",
-                    "fmu.context.stage",
-                    "fmu.iteration.name",
-                    "fmu.iteration.uuid",
-                    "fmu.model",
-                    "fmu.realization.id",
-                    "fmu.realization.is_reference",
-                    "fmu.realization.name",
-                    "fmu.realization.uuid",
-                    "fmu.workflow",
-                    "masterdata",
-                    "source",
-                    "tracklog.datetime",
-                    "tracklog.event",
-                    "tracklog.user.id",
-                    "version",
-                ],
-                # schema must be present for "dependencies" key to work.
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "$id": "fmu_results.json",
-            },
-            Root.model_json_schema(),
-        )
-    )
-
-    return _remove_format_path(
-        _remove_discriminator_mapping(
-            schema,
-        ),
-    )
+    return Root.model_json_schema(schema_generator=FmuResultsJsonSchema)
