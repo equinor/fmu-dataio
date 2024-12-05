@@ -3,12 +3,18 @@
 import unittest.mock as mock
 from pathlib import Path
 
+import jsonschema
 import numpy as np
 import pandas as pd
 import pytest
 
 import fmu.dataio as dataio
 from fmu.dataio._logging import null_logger
+from fmu.dataio._products.inplace_volumes import (
+    InplaceVolumesResult,
+    InplaceVolumesResultRow,
+    dump,
+)
 from tests.utils import inside_rms
 
 logger = null_logger(__name__)
@@ -322,3 +328,46 @@ def test_rms_volumetrics_export_function(
     assert "volumes" in metadata["data"]["content"]
     assert metadata["access"]["classification"] == "restricted"
     assert metadata["data"]["table_index"] == _TABLE_INDEX_COLUMNS
+
+
+@inside_rms
+def test_inplace_volumes_payload_validates_against_model(
+    exportvolumetrics,
+    monkeypatch,
+):
+    """Tests that the volume table exported is validated against the payload result
+    model."""
+
+    out = exportvolumetrics._export_volume_table()
+    with open(out.items[0].absolute_path) as f:
+        df = pd.read_csv(f).replace(np.nan, None).to_dict(orient="records")
+    InplaceVolumesResult.model_validate(df)  # Throws if invalid
+
+
+@inside_rms
+def test_inplace_volumes_payload_validates_against_schema(
+    exportvolumetrics,
+    monkeypatch,
+):
+    """Tests that the volume table exported is validated against the payload result
+    schema."""
+
+    out = exportvolumetrics._export_volume_table()
+    with open(out.items[0].absolute_path) as f:
+        df = pd.read_csv(f).replace(np.nan, None).to_dict(orient="records")
+    jsonschema.validate(instance=df, schema=dump())  # Throws if invalid
+
+
+@inside_rms
+def test_inplace_volumes_export_and_result_columns_are_the_same(
+    mock_project_variable,
+    mocked_rmsapi_modules,
+) -> None:
+    from fmu.dataio.export.rms.inplace_volumes import (
+        _TABLE_INDEX_COLUMNS,
+        _VOLUMETRIC_COLUMNS,
+    )
+
+    export_columns = _TABLE_INDEX_COLUMNS + _VOLUMETRIC_COLUMNS
+    result_columns = InplaceVolumesResultRow.model_fields.keys()
+    assert set(export_columns) == set(result_columns)
