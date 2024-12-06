@@ -181,6 +181,9 @@
           "$ref": "#/$defs/SeismicData"
         },
         {
+          "$ref": "#/$defs/SimulationTimeSeriesData"
+        },
+        {
           "$ref": "#/$defs/SubcropData"
         },
         {
@@ -7305,6 +7308,311 @@
         "seismic"
       ],
       "title": "SeismicData",
+      "type": "object"
+    },
+    "SimulationTimeSeriesData": {
+      "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for simulation time series. This is a time series\nresult derived from some simulator like OPM Flow.",
+      "properties": {
+        "alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BoundingBox3D"
+            },
+            {
+              "$ref": "#/$defs/BoundingBox2D"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "content": {
+          "const": "simulationtimeseries",
+          "enum": [
+            "simulationtimeseries"
+          ],
+          "title": "Content",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "domain_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "msl",
+            "sb",
+            "rkb"
+          ]
+        },
+        "format": {
+          "examples": [
+            "irap_binary"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "grid_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_observation": {
+          "title": "Is Observation",
+          "type": "boolean"
+        },
+        "is_prediction": {
+          "title": "Is Prediction",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layout"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "regular",
+            "cornerpoint"
+          ]
+        },
+        "name": {
+          "examples": [
+            "VIKING GP. Top"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "spec": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CPGridPropertySpecification"
+            },
+            {
+              "$ref": "#/$defs/CPGridSpecification"
+            },
+            {
+              "$ref": "#/$defs/FaultRoomSurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/PointSpecification"
+            },
+            {
+              "$ref": "#/$defs/CubeSpecification"
+            },
+            {
+              "$ref": "#/$defs/PolygonsSpecification"
+            },
+            {
+              "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TableSpecification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec"
+        },
+        "stratigraphic": {
+          "title": "Stratigraphic",
+          "type": "boolean"
+        },
+        "stratigraphic_alias": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stratigraphic Alias"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            [
+              "ZONE",
+              "REGION"
+            ]
+          ],
+          "title": "Table Index"
+        },
+        "tagname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "ds_extract_geogrid",
+            "ds_post_strucmod"
+          ],
+          "title": "Tagname"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Layer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "undef_is_zero": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Undef Is Zero"
+        },
+        "unit": {
+          "default": "",
+          "examples": [
+            "m"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "vertical_domain": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VerticalDomain"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "depth",
+            "time"
+          ]
+        }
+      },
+      "required": [
+        "content",
+        "name",
+        "stratigraphic",
+        "format",
+        "is_observation",
+        "is_prediction"
+      ],
+      "title": "SimulationTimeSeriesData",
       "type": "object"
     },
     "Smda": {

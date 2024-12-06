@@ -75,7 +75,9 @@ def test_derive_summary_index_pandas(
     """
     monkeypatch.chdir(tmp_path)
     answer = ["DATE"]
-    exd = ExportData(config=globalconfig2, content="timeseries", name="baretull")
+    exd = ExportData(
+        config=globalconfig2, content="simulationtimeseries", name="baretull"
+    )
     path = exd.export(mock_summary)
     assert_correct_table_index(path, answer)
 
@@ -93,7 +95,9 @@ def test_derive_summary_index_pyarrow(
 
     monkeypatch.chdir(tmp_path)
     answer = ["DATE"]
-    exd = ExportData(config=globalconfig2, content="timeseries", name="baretull")
+    exd = ExportData(
+        config=globalconfig2, content="simulationtimeseries", name="baretull"
+    )
     path = exd.export(Table.from_pandas(mock_summary))
     assert_correct_table_index(path, answer)
 
