@@ -44,7 +44,7 @@ def _derive_index(table_index: list[str] | None, columns: list[str]) -> list[str
         logger.debug("Finding index to include")
         for context, standard_cols in STANDARD_TABLE_INDEX_COLUMNS.items():
             for valid_col in standard_cols:
-                if valid_col in columns:
+                if valid_col in columns and valid_col not in index:
                     index.append(valid_col)
             if index:
                 logger.info("Context is %s ", context)
