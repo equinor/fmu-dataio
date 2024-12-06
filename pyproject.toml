@@ -55,6 +55,7 @@ dev = [
     "pandas-stubs",
     "pyarrow-stubs",
     "pydocstyle",
+    "PyQt5-sip<12.16.0; python_version == '3.8'",
     "pytest-cov",
     "pytest-mock",
     "pytest-runner",
