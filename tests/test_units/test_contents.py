@@ -241,6 +241,17 @@ def test_content_seismic(polygons, globalconfig2):
     # tested various other places
 
 
+def test_content_simulationtimeseries(dataframe, globalconfig2):
+    """Test export of the simulationtimeseries content."""
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content="simulationtimeseries",
+    ).generate_metadata(dataframe)
+
+    assert meta["data"]["content"] == "simulationtimeseries"
+
+
 def test_content_subcrop(polygons, globalconfig2):
     """Test export of the subcrop content."""
     meta = ExportData(

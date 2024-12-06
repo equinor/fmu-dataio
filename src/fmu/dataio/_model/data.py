@@ -524,6 +524,17 @@ class SeismicData(Data):
     """A block describing seismic data. See :class:`Seismic`."""
 
 
+class SimulationTimeSeriesData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for simulation time series. This is a time series
+    result derived from some simulator like OPM Flow.
+    """
+
+    content: Literal[enums.Content.simulationtimeseries]
+    """The type of content these data represent."""
+
+
 class SubcropData(Data):
     """
     The ``data`` block contains information about the data contained in this object.
@@ -650,6 +661,7 @@ class AnyData(RootModel):
             RelpermData,
             RFTData,
             SeismicData,
+            SimulationTimeSeriesData,
             SubcropData,
             ThicknessData,
             TimeData,

@@ -641,12 +641,11 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
 @pytest.fixture(name="edataobj3")
 def fixture_edataobj3(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
-    # logger.debug("Establish edataobj1")
 
     return ExportData(
         config=globalconfig1,
         name="summary",
-        content="timeseries",
+        content="simulationtimeseries",
         tagname="",
     )
 

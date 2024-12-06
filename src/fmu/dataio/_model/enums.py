@@ -40,6 +40,7 @@ class Content(str, Enum):
     relperm = "relperm"
     rft = "rft"
     seismic = "seismic"
+    simulationtimeseries = "simulationtimeseries"
     subcrop = "subcrop"
     thickness = "thickness"
     time = "time"
