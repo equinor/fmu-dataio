@@ -153,6 +153,17 @@ def test_set_table_index_not_in_table(
     assert k_err.value.args[0] == "banana is not in table"
 
 
+def test_table_index_timeseries(export_data_obj_timeseries, drogon_summary):
+    """Test setting of table_index in an arbitrary timeseries.
+
+    Args:
+        edataobj3 (dict): metadata
+        drogon_summary (pd.Dataframe): dataframe with summary data from sumo
+    """
+    objdata = objectdata_provider_factory(drogon_summary, export_data_obj_timeseries)
+    assert objdata.table_index == ["DATE"], "Incorrect table index "
+
+
 def test_table_index_real_summary(edataobj3, drogon_summary):
     """Test setting of table_index in real summary file
 

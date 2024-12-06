@@ -650,6 +650,18 @@ def fixture_edataobj3(globalconfig1):
     )
 
 
+@pytest.fixture
+def export_data_obj_timeseries(globalconfig1):
+    """Combined globalconfig and settings to instance, for internal testing"""
+
+    return ExportData(
+        config=globalconfig1,
+        name="some timeseries",
+        content="timeseries",
+        tagname="",
+    )
+
+
 @pytest.fixture(name="mock_summary")
 def fixture_summary():
     """Return summary mock data
