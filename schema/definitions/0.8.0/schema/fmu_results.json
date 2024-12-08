@@ -12,6 +12,7 @@
     "data.is_prediction",
     "data.name",
     "data.offset",
+    "data.product.name",
     "data.seismic.attribute",
     "data.spec.columns",
     "data.stratigraphic",
@@ -209,6 +210,21 @@
         }
       ],
       "title": "AnyData"
+    },
+    "AnyProduct": {
+      "description": "The ``product`` field contains information about which product this data object\nrepresent. Data that is tagged as a product is a standard result from FMU that\nconforms to a specified standard.\n\nThis class, ``AnyProduct``, acts as a container for different data products, with\nthe exact product being identified by the ``product.name`` field.",
+      "discriminator": {
+        "mapping": {
+          "inplace_volumes": "#/$defs/InplaceVolumesProduct"
+        },
+        "propertyName": "name"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/InplaceVolumesProduct"
+        }
+      ],
+      "title": "AnyProduct"
     },
     "Asset": {
       "description": "The ``access.asset`` block contains information about the owner asset of\nthese data.",
@@ -787,6 +803,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -1378,6 +1405,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -1683,6 +1721,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -1987,6 +2036,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -2390,6 +2450,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -2713,6 +2784,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -2948,6 +3030,27 @@
       "title": "File",
       "type": "object"
     },
+    "FileSchema": {
+      "description": "The schema identifying the format of a product.",
+      "properties": {
+        "url": {
+          "format": "uri",
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "url"
+      ],
+      "title": "FileSchema",
+      "type": "object"
+    },
     "FluidContact": {
       "description": "A block describing a fluid contact. Shall be present if ``data.content``\n== ``fluid_contact``.",
       "properties": {
@@ -3126,6 +3229,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -3326,6 +3440,29 @@
         "name"
       ],
       "title": "GridModel",
+      "type": "object"
+    },
+    "InplaceVolumesProduct": {
+      "description": "The ``product`` field contains information about which product this\ndata object represent.\nThis class contains metadata for the 'inplace_volumes' product.",
+      "properties": {
+        "file_schema": {
+          "$ref": "#/$defs/FileSchema",
+          "default": {
+            "url": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/volumes/0.1.0/inplace_volumes.json",
+            "version": "0.1.0"
+          }
+        },
+        "name": {
+          "const": "inplace_volumes",
+          "default": "inplace_volumes",
+          "enum": [
+            "inplace_volumes"
+          ],
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "title": "InplaceVolumesProduct",
       "type": "object"
     },
     "Iteration": {
@@ -3596,6 +3733,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -3941,6 +4089,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -4299,6 +4458,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -4725,6 +4895,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -5051,6 +5232,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -5355,6 +5547,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -5708,6 +5911,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -6012,6 +6226,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -6450,6 +6675,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -6754,6 +6990,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -7148,6 +7395,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "seismic": {
           "$ref": "#/$defs/Seismic"
         },
@@ -7456,6 +7714,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -7874,6 +8143,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -8337,6 +8617,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -8671,6 +8962,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -8969,6 +9271,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -9369,6 +9682,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -9691,6 +10015,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
@@ -10019,6 +10354,17 @@
           "title": "Offset",
           "type": "number"
         },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "spec": {
           "anyOf": [
             {
@@ -10323,6 +10669,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnyProduct"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [
