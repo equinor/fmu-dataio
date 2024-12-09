@@ -83,7 +83,7 @@ class ObjectDataProvider(Provider):
             metadata[usecontent] = getattr(
                 content_model.content_incl_specific, usecontent, None
             )
-
+        metadata["product"] = None
         metadata["tagname"] = self.dataio.tagname
         metadata["format"] = self.fmt
         metadata["layout"] = self.layout
