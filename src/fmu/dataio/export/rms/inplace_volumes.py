@@ -23,6 +23,9 @@ rmsapi, rmsjobs = import_rms_package()
 
 _logger: Final = null_logger(__name__)
 
+
+_TABLE_INDEX_COLUMNS: Final = ("ZONE", "REGION", "FACIES", "LICENCE")
+
 # rename columns to FMU standard
 _RENAME_COLUMNS_FROM_RMS: Final = {
     "Proj. real.": "REAL",
@@ -66,6 +69,11 @@ class _ExportVolumetricsRMS:
     def _classification(self) -> Classification:
         """Get default classification."""
         return Classification.restricted
+
+    @property
+    def _table_index(self) -> list[str]:
+        """Get index columns present in the dataframe."""
+        return [col for col in _TABLE_INDEX_COLUMNS if col in self._dataframe]
 
     def _get_rms_volume_job_settings(self) -> dict:
         """Get information out from the RMS job API."""
@@ -121,6 +129,7 @@ class _ExportVolumetricsRMS:
             classification=self._classification,
             name=self.grid_name,
             rep_include=False,
+            table_index=self._table_index,
         )
         absolute_export_path = edata.export(self._dataframe)
         _logger.debug("Volume result to: %s", absolute_export_path)
