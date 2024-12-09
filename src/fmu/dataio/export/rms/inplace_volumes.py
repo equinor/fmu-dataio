@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import Any, Final
 
@@ -51,6 +52,21 @@ _RENAME_COLUMNS_FROM_RMS: Final = {
 }
 
 
+# Options copied from the rms API
+class _RMSCalculationType(str, Enum):
+    """RMS calculation type names."""
+
+    BULK = "BULK"
+    NET = "NET"
+    PORV = "PORE"
+    HCPV = "HCPV"
+    STOIIP = "STOIIP"
+    GIIP = "GIIP"
+    ASSOCIATEDGAS = "ASSOCIATED_GAS"
+    ASSOCIATEDOIL = "ASSOCIATED_LIQUID"
+    RECOVERABLE = "RECOVERABLE"
+
+
 @dataclass
 class _ExportVolumetricsRMS:
     project: Any
@@ -61,6 +77,7 @@ class _ExportVolumetricsRMS:
         _logger.debug("Process data, estiblish state prior to export.")
         self._config = load_global_config()
         self._volume_job = self._get_rms_volume_job_settings()
+        self._validate_job_output_settings()
         self._volume_table_name = self._read_volume_table_name_from_job()
         self._dataframe = self._voltable_as_dataframe()
         _logger.debug("Process data... DONE")
@@ -83,6 +100,67 @@ class _ExportVolumetricsRMS:
             type="Volumetrics",
             name=self.volume_job_name,
         ).get_arguments()
+
+    def _get_required_calculation_types(
+        self, use_oil: bool, use_gas: bool
+    ) -> list[str]:
+        """Get the required calculations. If 'oil' is selected 'STOOIP' calculation
+        is required, if gas is selected 'GIIP' calculation is required.
+        """
+        required_calculation_types = [
+            _RMSCalculationType.BULK.value,
+            _RMSCalculationType.PORV.value,
+            _RMSCalculationType.HCPV.value,
+        ]
+        if use_oil:
+            required_calculation_types.append(_RMSCalculationType.STOIIP.value)
+        if use_gas:
+            required_calculation_types.append(_RMSCalculationType.GIIP.value)
+
+        _logger.debug("The required calculations are %s", required_calculation_types)
+        return required_calculation_types
+
+    def _check_volumetric_calculations(
+        self,
+        user_selected_calculations: list[dict[str, Any]],
+        required_calculation_types: list[str],
+    ) -> None:
+        """Check that all required volumetric calculations are selected"""
+        _logger.debug("The calculation settings is %s", user_selected_calculations)
+
+        calculation_types_selected = {
+            calculation["Type"] for calculation in user_selected_calculations
+        }
+        missing_calculations = (
+            set(required_calculation_types) - calculation_types_selected
+        )
+        if missing_calculations:
+            raise RuntimeError(
+                f"Required calculations {sorted(missing_calculations)} are missing "
+                "in the volumetric job. Please update the job and rerun."
+            )
+
+    def _validate_job_output_settings(self) -> None:
+        """Various checks of the output settings in the volumetrics job."""
+        _logger.debug("Checking selected output settings in the volumetrics job...")
+        output_settings = self._volume_job["Output"][0]  # rmsapi stores this as list
+
+        # selected main types
+        use_oil = output_settings.get("UseOil")
+        use_gas = output_settings.get("UseGas")
+
+        if not (use_gas or use_oil):
+            raise RuntimeError(
+                "One or both 'oil' and 'gas' needs to be selected as 'Main types'"
+                "in the volumetric job"
+            )
+
+        self._check_volumetric_calculations(
+            user_selected_calculations=output_settings.get("Calculations"),
+            required_calculation_types=(
+                self._get_required_calculation_types(use_oil, use_gas)
+            ),
+        )
 
     def _read_volume_table_name_from_job(self) -> str:
         """Read the volume table name from RMS."""
