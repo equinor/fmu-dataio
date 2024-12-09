@@ -13,6 +13,7 @@ logger = null_logger(__name__)
 
 
 VOLDATA = (Path("tests/data/drogon/tabular/geogrid--vol.csv")).absolute()
+EXPECTED_TABLE_INDEX_COLUMNS = ["ZONE", "REGION", "FACIES"]
 
 
 @pytest.fixture
@@ -29,7 +30,10 @@ def test_rms_volumetrics_export_class(
     import rmsapi  # type: ignore # noqa
     import rmsapi.jobs as jobs  # type: ignore # noqa
 
-    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
+    from fmu.dataio.export.rms.inplace_volumes import (
+        _ExportVolumetricsRMS,
+        _TABLE_INDEX_COLUMNS,
+    )
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
@@ -53,6 +57,11 @@ def test_rms_volumetrics_export_class(
 
     assert "volumes" in metadata["data"]["content"]
     assert metadata["access"]["classification"] == "restricted"
+
+    # check that the table index is set correctly
+    assert len(_TABLE_INDEX_COLUMNS) > len(EXPECTED_TABLE_INDEX_COLUMNS)
+    assert instance._table_index == EXPECTED_TABLE_INDEX_COLUMNS
+    assert metadata["data"]["table_index"] == EXPECTED_TABLE_INDEX_COLUMNS
 
 
 @inside_rms
