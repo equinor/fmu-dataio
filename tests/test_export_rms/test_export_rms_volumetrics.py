@@ -65,6 +65,99 @@ def test_rms_volumetrics_export_class(
 
 
 @inside_rms
+def test_rms_volumetrics_required_output(
+    mock_project_variable, rmssetup_with_fmuconfig, monkeypatch
+):
+    """
+    Test that job fails is some required columns are missing.
+    See mocks in local conftest.py
+    """
+    import rmsapi.jobs as jobs  # type: ignore # noqa
+
+    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
+
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
+
+    arguments = jobs.Job.get_job(...).get_arguments.return_value
+
+    # first index is BULK
+    arguments["Output"][0]["Calculations"][0]["Type"] = "WRONG"
+    with pytest.raises(RuntimeError, match=r"\['BULK'\] are missing"):
+        _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
+
+    # second index is PORE
+    arguments["Output"][0]["Calculations"][1]["Type"] = "WRONG"
+    with pytest.raises(RuntimeError, match=r"\['BULK', 'PORE'\] are missing"):
+        _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
+
+    # third index is HCPV
+    arguments["Output"][0]["Calculations"][2]["Type"] = "WRONG"
+    with pytest.raises(RuntimeError, match=r"\['BULK', 'HCPV', 'PORE'\] are missing"):
+        _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
+
+    # reset the mocked object
+    arguments["Output"][0]["Calculations"][0]["Type"] = "BULK"
+    arguments["Output"][0]["Calculations"][1]["Type"] = "PORE"
+    arguments["Output"][0]["Calculations"][2]["Type"] = "HCPV"
+
+
+@inside_rms
+def test_rms_volumetrics_stoiip_giip_required(
+    mock_project_variable, rmssetup_with_fmuconfig, monkeypatch
+):
+    """
+    Test that STOIIP is required when oil is clicked on, and test that GIIP
+    is required when gas is clicked on.
+    See mocks in local conftest.py
+    """
+    import rmsapi.jobs as jobs  # type: ignore # noqa
+
+    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
+
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
+
+    arguments = jobs.Job.get_job(...).get_arguments.return_value
+
+    # should fail if neither oil or gas is clicked on.
+    arguments["Output"][0]["UseGas"] = False
+    arguments["Output"][0]["UseOil"] = False
+    with pytest.raises(RuntimeError, match="One or both 'oil' and 'gas'"):
+        _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
+
+    # GIIP should be required when 'gas' is clicked
+    arguments["Output"][0]["UseGas"] = True
+    arguments["Output"][0]["UseOil"] = False
+    arguments["Output"][0]["Calculations"][5]["Type"] = "WRONG"
+
+    with pytest.raises(RuntimeError, match=r"\['GIIP'\] are missing"):
+        _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
+
+    arguments["Output"][0]["Calculations"][5]["Type"] = "GIIP"
+
+    # STOIIP should be required when 'oil' is clicked
+    arguments["Output"][0]["UseGas"] = False
+    arguments["Output"][0]["UseOil"] = True
+    arguments["Output"][0]["Calculations"][3]["Type"] = "WRONG"
+
+    with pytest.raises(RuntimeError, match=r"\['STOIIP'\] are missing"):
+        _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
+
+    arguments["Output"][0]["Calculations"][3]["Type"] = "STOIIP"
+
+    # STOIIP and GIIP should be required when both is clicked
+    arguments["Output"][0]["UseGas"] = True
+    arguments["Output"][0]["UseOil"] = True
+    arguments["Output"][0]["Calculations"][3]["Type"] = "WRONG"
+    arguments["Output"][0]["Calculations"][5]["Type"] = "WRONG"
+
+    with pytest.raises(RuntimeError, match=r"\['GIIP', 'STOIIP'\] are missing"):
+        _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
+
+    arguments["Output"][0]["Calculations"][3]["Type"] = "STOIIP"
+    arguments["Output"][0]["Calculations"][5]["Type"] = "GIIP"
+
+
+@inside_rms
 def test_rms_volumetrics_export_config_missing(
     mock_project_variable, rmssetup_with_fmuconfig, monkeypatch
 ):
