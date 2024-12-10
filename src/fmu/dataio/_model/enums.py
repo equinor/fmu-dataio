@@ -4,6 +4,12 @@ from enum import Enum, IntEnum
 from typing import Type
 
 
+class ProductType(str, Enum):
+    """The product type of a given data object."""
+
+    inplace_volumes = "inplace_volumes"
+
+
 class Classification(str, Enum):
     """The security classification for a given data object."""
 

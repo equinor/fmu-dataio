@@ -119,7 +119,7 @@ logger: Final = null_logger(__name__)
 
 
 def objectdata_provider_factory(
-    obj: Inferrable, dataio: ExportData, meta_existing: dict | None = None
+    obj: Inferrable, dataio: ExportData
 ) -> ObjectDataProvider:
     """Factory function that generates metadata for a particular data object. This
     function will return an instance of an object-independent (i.e., typeable) class
