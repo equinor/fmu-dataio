@@ -1,7 +1,9 @@
 """Test the dataio running RMS spesici utility function for volumetrics"""
 
+import unittest.mock as mock
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -12,44 +14,62 @@ from tests.utils import inside_rms
 logger = null_logger(__name__)
 
 
-VOLDATA = (Path("tests/data/drogon/tabular/geogrid--vol.csv")).absolute()
-EXPECTED_TABLE_INDEX_COLUMNS = ["ZONE", "REGION", "FACIES"]
+VOLDATA_LEGACY = Path("tests/data/drogon/tabular/geogrid--vol.csv").absolute()
+VOLDATA_STANDARD = Path("tests/data/drogon/tabular/volumes/geogrid.csv").absolute()
+
+EXPECTED_COLUMN_ORDER = [
+    "FLUID",
+    "ZONE",
+    "REGION",
+    "FACIES",
+    "LICENSE",
+    "BULK",
+    "PORV",
+    "HCPV",
+    "STOIIP",
+    "GIIP",
+    "ASSOCIATEDGAS",
+    "ASSOCIATEDOIL",
+]
 
 
-@pytest.fixture
-def voltable_as_dataframe():
-    return pd.read_csv(VOLDATA)
+@pytest.fixture(scope="package")
+def voltable_legacy():
+    return pd.read_csv(VOLDATA_LEGACY)
+
+
+@pytest.fixture(scope="package")
+def voltable_standard():
+    return pd.read_csv(VOLDATA_STANDARD)
 
 
 @inside_rms
 def test_rms_volumetrics_export_class(
-    mock_project_variable, voltable_as_dataframe, rmssetup_with_fmuconfig, monkeypatch
+    mock_project_variable,
+    mocked_rmsapi_modules,
+    voltable_standard,
+    rmssetup_with_fmuconfig,
+    monkeypatch,
 ):
     """See mocks in local conftest.py"""
 
     import rmsapi  # type: ignore # noqa
     import rmsapi.jobs as jobs  # type: ignore # noqa
 
-    from fmu.dataio.export.rms.inplace_volumes import (
-        _ExportVolumetricsRMS,
-        _TABLE_INDEX_COLUMNS,
-    )
+    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
     assert rmsapi.__version__ == "1.7"
     assert "Report" in jobs.Job.get_job("whatever").get_arguments.return_value
 
-    instance = _ExportVolumetricsRMS(
-        mock_project_variable,
-        "Geogrid",
-        "geogrid_vol",
-    )
+    instance = _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
 
+    # patch the dataframe otherwise will fail in table index validation in objdata
+    monkeypatch.setattr(instance, "_dataframe", voltable_standard)
+
+    # volume table name should be picked up by the mocked object
     assert instance._volume_table_name == "geogrid_volumes"
-
-    # patch the dataframe which originally shall be retrieved from RMS
-    monkeypatch.setattr(instance, "_dataframe", voltable_as_dataframe)
 
     out = instance._export_volume_table()
 
@@ -58,15 +78,129 @@ def test_rms_volumetrics_export_class(
     assert "volumes" in metadata["data"]["content"]
     assert metadata["access"]["classification"] == "restricted"
 
+
+@inside_rms
+def test_rms_volumetrics_export_class_table_index(
+    mock_project_variable,
+    mocked_rmsapi_modules,
+    voltable_standard,
+    rmssetup_with_fmuconfig,
+    monkeypatch,
+):
+    """See mocks in local conftest.py"""
+
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
+
+    from fmu.dataio.export.rms.inplace_volumes import (
+        _TABLE_INDEX_COLUMNS,
+        _ExportVolumetricsRMS,
+    )
+
+    instance = _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
+
+    monkeypatch.setattr(instance, "_dataframe", voltable_standard)
+
+    out = instance._export_volume_table()
+    metadata = dataio.read_metadata(out.items[0].absolute_path)
+
     # check that the table index is set correctly
-    assert len(_TABLE_INDEX_COLUMNS) > len(EXPECTED_TABLE_INDEX_COLUMNS)
-    assert instance._table_index == EXPECTED_TABLE_INDEX_COLUMNS
-    assert metadata["data"]["table_index"] == EXPECTED_TABLE_INDEX_COLUMNS
+    assert metadata["data"]["table_index"] == _TABLE_INDEX_COLUMNS
+
+    # should fail if missing table index
+    monkeypatch.setattr(instance, "_dataframe", voltable_standard.drop(columns="ZONE"))
+    with pytest.raises(KeyError, match="ZONE is not in table"):
+        instance._export_volume_table()
+
+
+@inside_rms
+def test_convert_table_from_legacy_to_standard_format(
+    mock_project_variable,
+    mocked_rmsapi_modules,
+    voltable_standard,
+    voltable_legacy,
+    rmssetup_with_fmuconfig,
+    monkeypatch,
+):
+    """Test that a voltable with legacy format is converted to
+    the expected standard format"""
+
+    from fmu.dataio.export.rms.inplace_volumes import (
+        _FLUID_COLUMN,
+        _ExportVolumetricsRMS,
+    )
+
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
+
+    # set the return value to be the table with legacy format
+    # conversion to standard format should take place automatically
+    with mock.patch.object(
+        _ExportVolumetricsRMS,
+        "_convert_table_from_rms_to_legacy_format",
+        return_value=voltable_legacy,
+    ):
+        instance = _ExportVolumetricsRMS(
+            mock_project_variable, "Geogrid", "geogrid_vol"
+        )
+
+    # the _dataframe attribute should now have been converted to standard
+    pd.testing.assert_frame_equal(voltable_standard, instance._dataframe)
+
+    # check that the exported table is equal to the expected
+    out = instance._export_volume_table()
+    exported_table = pd.read_csv(out.items[0].absolute_path)
+    pd.testing.assert_frame_equal(voltable_standard, exported_table)
+
+    # check that the fluid column exists and contains oil and gas
+    assert _FLUID_COLUMN in exported_table
+    assert set(exported_table[_FLUID_COLUMN].unique()) == {"oil", "gas"}
+
+    # check the column order
+    assert list(exported_table.columns) == EXPECTED_COLUMN_ORDER
+
+    # check that the legacy format and the standard format gives
+    # the same sum for volumetric columns
+    assert np.isclose(
+        exported_table["STOIIP"].sum(),
+        voltable_legacy["STOIIP_OIL"].sum(),
+    )
+    assert np.isclose(
+        exported_table["GIIP"].sum(),
+        voltable_legacy["GIIP_GAS"].sum(),
+    )
+    assert np.isclose(
+        exported_table["BULK"].sum(),
+        (voltable_legacy["BULK_OIL"] + voltable_legacy["BULK_GAS"]).sum(),
+    )
+    assert np.isclose(
+        exported_table["PORV"].sum(),
+        (voltable_legacy["PORV_OIL"] + voltable_legacy["PORV_GAS"]).sum(),
+    )
+    assert np.isclose(
+        exported_table["HCPV"].sum(),
+        (voltable_legacy["HCPV_OIL"] + voltable_legacy["HCPV_GAS"]).sum(),
+    )
+
+    # make a random check for a particular row as well
+    filter_query = (
+        "REGION == 'WestLowland' and ZONE == 'Valysar' and FACIES == 'Channel'"
+    )
+    expected_bulk_for_filter = 8989826.15
+    assert np.isclose(
+        exported_table.query(filter_query + " and FLUID == 'oil'")["BULK"],
+        expected_bulk_for_filter,
+    )
+    assert np.isclose(
+        voltable_legacy.query(filter_query)["BULK_OIL"],
+        expected_bulk_for_filter,
+    )
 
 
 @inside_rms
 def test_rms_volumetrics_export_config_missing(
-    mock_project_variable, rmssetup_with_fmuconfig, monkeypatch
+    mock_project_variable,
+    mocked_rmsapi_modules,
+    rmssetup_with_fmuconfig,
+    monkeypatch,
 ):
     """Test that an exception is raised if the config is missing."""
 
@@ -88,15 +222,28 @@ def test_rms_volumetrics_export_config_missing(
 
 @inside_rms
 def test_rms_volumetrics_export_function(
-    mock_project_variable, rmssetup_with_fmuconfig, monkeypatch
+    mock_project_variable,
+    mocked_rmsapi_modules,
+    voltable_standard,
+    rmssetup_with_fmuconfig,
+    monkeypatch,
 ):
     """Test the public function."""
 
     from fmu.dataio.export.rms import export_inplace_volumes
+    from fmu.dataio.export.rms.inplace_volumes import (
+        _TABLE_INDEX_COLUMNS,
+        _ExportVolumetricsRMS,
+    )
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
-    result = export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
+    with mock.patch.object(
+        _ExportVolumetricsRMS, "_get_table_with_volumes", return_value=voltable_standard
+    ):
+        result = export_inplace_volumes(
+            mock_project_variable, "Geogrid", "geogrid_volume"
+        )
     vol_table_file = result.items[0].absolute_path
 
     absoulte_path = (
@@ -112,3 +259,4 @@ def test_rms_volumetrics_export_function(
 
     assert "volumes" in metadata["data"]["content"]
     assert metadata["access"]["classification"] == "restricted"
+    assert metadata["data"]["table_index"] == _TABLE_INDEX_COLUMNS
