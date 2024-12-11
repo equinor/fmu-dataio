@@ -28,8 +28,15 @@ jobs:
           pip install pip -U
           pip install .[dev]
 
-      - name: Install fmu-sumo-uploader
-        if: matrix.python-version != '3.12'
+      - name: Install fmu-sumo-uploader for Python 3.8
+        if: matrix.python-version == '3.8'
+        run:
+          pip install \
+            "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git@66a9f9b"
+
+        # fmu-sumo-uploader blocked by OpenVDS on Python 3.12
+      - name: Install fmu-sumo-uploader for Python 3.9+
+        if: matrix.python-version != '3.12' && matrix.python-version != '3.8'
         run:
           pip install \
             "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
