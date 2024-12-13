@@ -1,7 +1,7 @@
 """The conftest.py, providing magical fixtures to tests."""
 
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -191,32 +191,32 @@ VOLJOB_PARAMS = {
 }
 
 
-@pytest.fixture(autouse=True)
-def mock_rmsapi_package(monkeypatch):
+@pytest.fixture
+def mock_rmsapi():
     # Create a mock rmsapi module
     mock_rmsapi = MagicMock()
-    monkeypatch.setitem(sys.modules, "rmsapi", mock_rmsapi)
-    mock_x_rmsapi = MagicMock()
-    monkeypatch.setitem(sys.modules, "_rmsapi", mock_x_rmsapi)
     mock_rmsapi.__version__ = "1.7"
-    mock_jobs_rmsapi = MagicMock()
-    monkeypatch.setitem(sys.modules, "rmsapi.jobs", mock_jobs_rmsapi)
-
     mock_rmsapi.jobs.Job.get_job(...).get_arguments.return_value = VOLJOB_PARAMS
-    yield mock_rmsapi, mock_x_rmsapi, mock_jobs_rmsapi
+    yield mock_rmsapi
 
 
-@pytest.fixture(autouse=True)
-def mock_roxar_package(monkeypatch):
-    # Create a mock roxar module (roxar is renamed to rmsapi from RMS 14.x)
-    mock_roxar = MagicMock()
-    monkeypatch.setitem(sys.modules, "roxar", mock_roxar)
-    mock_x_roxar = MagicMock()
-    monkeypatch.setitem(sys.modules, "_roxar", mock_x_roxar)
-    mock_roxar.__version__ = "1.7"
+@pytest.fixture
+def mock_rmsapi_jobs():
+    # Create a mock rmsapi.jobs module
+    mock_rmsapi_jobs = MagicMock()
+    yield mock_rmsapi_jobs
 
-    mock_roxar.jobs.Job.get_job(...).get_arguments.return_value = VOLJOB_PARAMS
-    yield mock_roxar, mock_x_roxar
+
+@pytest.fixture
+def mocked_rmsapi_modules(mock_rmsapi, mock_rmsapi_jobs):
+    with patch.dict(
+        sys.modules,
+        {
+            "rmsapi": mock_rmsapi,
+            "rmsapi.jobs": mock_rmsapi_jobs,
+        },
+    ) as mocked_modules:
+        yield mocked_modules
 
 
 @pytest.fixture(autouse=True)
