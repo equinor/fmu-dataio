@@ -29,6 +29,7 @@ _FLUID_COLUMN: Final = "FLUID"
 _TABLE_INDEX_COLUMNS: Final = [_FLUID_COLUMN, "ZONE", "REGION", "FACIES", "LICENSE"]
 _VOLUMETRIC_COLUMNS: Final = [
     "BULK",
+    "NET",
     "PORV",
     "HCPV",
     "STOIIP",
