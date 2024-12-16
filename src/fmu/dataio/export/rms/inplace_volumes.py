@@ -201,6 +201,47 @@ class _ExportVolumetricsRMS:
         table = self._add_missing_columns_to_table(table)
         return self._set_table_column_order(table)
 
+    def _is_column_missing_in_table(self, column: str) -> bool:
+        """Check if a column is present in the final dataframe and has values"""
+        return column not in self._dataframe or self._dataframe[column].isna().all()
+
+    def _validate_table(self) -> None:
+        """
+        Validate that the final table with volumes is according to the standard
+        defined for the inplace_volumes product.
+        """
+        _logger.debug("Validating the dataframe...")
+
+        has_oil = "oil" in self._dataframe[_FLUID_COLUMN].values
+        has_gas = "gas" in self._dataframe[_FLUID_COLUMN].values
+
+        # check that one of oil and gas fluids are present
+        if not (has_oil or has_gas):
+            raise RuntimeError(
+                "One or both 'oil' and 'gas' needs to be selected as 'Main types'"
+                "in the volumetric job. Please update and rerun the volumetric job "
+                "before export."
+            )
+
+        # create list of missing or non-defined required columns
+        missing_calculations = []
+        for col in ["BULK", "PORV", "HCPV"]:
+            if self._is_column_missing_in_table(col):
+                missing_calculations.append(col)
+
+        if has_oil and self._is_column_missing_in_table("STOIIP"):
+            missing_calculations.append("STOIIP")
+
+        if has_gas and self._is_column_missing_in_table("GIIP"):
+            missing_calculations.append("GIIP")
+
+        if missing_calculations:
+            raise RuntimeError(
+                f"Required calculations {missing_calculations} are missing "
+                f"in the volumetric table {self._volume_table_name}. Please update and "
+                "rerun the volumetric job before export."
+            )
+
     def _export_volume_table(self) -> ExportResult:
         """Do the actual volume table export using dataio setup."""
 
@@ -227,7 +268,8 @@ class _ExportVolumetricsRMS:
         )
 
     def export(self) -> ExportResult:
-        """Export the volume table."""
+        """Validate and export the volume table."""
+        self._validate_table()
         return self._export_volume_table()
 
 
