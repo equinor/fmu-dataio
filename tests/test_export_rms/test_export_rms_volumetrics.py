@@ -185,6 +185,78 @@ def test_convert_table_from_legacy_to_standard_format(
     )
 
 
+@pytest.mark.parametrize("required_col", ["BULK", "PORV", "HCPV"])
+def test_validate_table_required_col_missing(
+    exportvolumetrics, voltable_standard, required_col
+):
+    """Test that the job fails if a required volumetric column is missing"""
+
+    df = voltable_standard.drop(columns=required_col)
+    exportvolumetrics._dataframe = df
+
+    with pytest.raises(RuntimeError, match="missing"):
+        exportvolumetrics._validate_table()
+
+
+@pytest.mark.parametrize("required_col", ["BULK", "PORV", "HCPV"])
+def test_validate_table_required_col_has_nan(
+    exportvolumetrics, voltable_standard, required_col
+):
+    """Test that the job fails if a required volumetric column has nan values"""
+
+    df = voltable_standard.copy()
+    df[required_col] = np.nan
+
+    exportvolumetrics._dataframe = df
+
+    with pytest.raises(RuntimeError, match="missing"):
+        exportvolumetrics._validate_table()
+
+
+def test_validate_table_has_oil_or_gas(exportvolumetrics, voltable_standard):
+    """Test that the job fails if a required volumetric column has nan values"""
+
+    df = voltable_standard.copy()
+    df = df[~df["FLUID"].isin(["oil", "gas"])]
+
+    exportvolumetrics._dataframe = df
+
+    with pytest.raises(RuntimeError, match="One or both 'oil' and 'gas'"):
+        exportvolumetrics._validate_table()
+
+
+def test_validate_table_has_oil_and_stoiip(exportvolumetrics, voltable_standard):
+    """Test that the validation fails if oil columns are present but no STOIIP"""
+
+    df = voltable_standard.copy()
+    df = df.drop(columns="STOIIP")
+
+    exportvolumetrics._dataframe = df
+
+    with pytest.raises(RuntimeError, match="missing"):
+        exportvolumetrics._validate_table()
+
+    # validation should pass when no oil columns are present
+    exportvolumetrics._dataframe = df[~(df["FLUID"] == "oil")]
+    exportvolumetrics._validate_table()
+
+
+def test_validate_table_has_gas_and_giip(exportvolumetrics, voltable_standard):
+    """Test that the validations fails if gas columns are present but no GIIP"""
+
+    df = voltable_standard.copy()
+    df = df.drop(columns="GIIP")
+
+    exportvolumetrics._dataframe = df
+
+    with pytest.raises(RuntimeError, match="missing"):
+        exportvolumetrics._validate_table()
+
+    # validation should pass when no gas columns are present
+    exportvolumetrics._dataframe = df[~(df["FLUID"] == "gas")]
+    exportvolumetrics._validate_table()
+
+
 @inside_rms
 def test_rms_volumetrics_export_config_missing(
     mock_project_variable,
