@@ -24,6 +24,7 @@ EXPECTED_COLUMN_ORDER = [
     "FACIES",
     "LICENSE",
     "BULK",
+    "NET",
     "PORV",
     "HCPV",
     "STOIIP",
