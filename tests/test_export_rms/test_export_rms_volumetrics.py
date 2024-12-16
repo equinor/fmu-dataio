@@ -44,35 +44,39 @@ def voltable_standard():
     return pd.read_csv(VOLDATA_STANDARD)
 
 
-@inside_rms
-def test_rms_volumetrics_export_class(
-    mock_project_variable,
+@pytest.fixture
+def exportvolumetrics(
     mocked_rmsapi_modules,
+    mock_project_variable,
     voltable_standard,
-    rmssetup_with_fmuconfig,
     monkeypatch,
+    rmssetup_with_fmuconfig,
 ):
+    # needed to find the global config at correct place
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
+
+    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
+
+    with mock.patch.object(
+        _ExportVolumetricsRMS, "_get_table_with_volumes", return_value=voltable_standard
+    ):
+        yield _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
+
+
+@inside_rms
+def test_rms_volumetrics_export_class(exportvolumetrics):
     """See mocks in local conftest.py"""
 
     import rmsapi  # type: ignore # noqa
     import rmsapi.jobs as jobs  # type: ignore # noqa
 
-    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
-
-    monkeypatch.chdir(rmssetup_with_fmuconfig)
-
     assert rmsapi.__version__ == "1.7"
     assert "Report" in jobs.Job.get_job("whatever").get_arguments.return_value
 
-    instance = _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
-
-    # patch the dataframe otherwise will fail in table index validation in objdata
-    monkeypatch.setattr(instance, "_dataframe", voltable_standard)
-
     # volume table name should be picked up by the mocked object
-    assert instance._volume_table_name == "geogrid_volumes"
+    assert exportvolumetrics._volume_table_name == "geogrid_volumes"
 
-    out = instance._export_volume_table()
+    out = exportvolumetrics._export_volume_table()
 
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
@@ -81,36 +85,21 @@ def test_rms_volumetrics_export_class(
 
 
 @inside_rms
-def test_rms_volumetrics_export_class_table_index(
-    mock_project_variable,
-    mocked_rmsapi_modules,
-    voltable_standard,
-    rmssetup_with_fmuconfig,
-    monkeypatch,
-):
+def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolumetrics):
     """See mocks in local conftest.py"""
 
-    monkeypatch.chdir(rmssetup_with_fmuconfig)
+    from fmu.dataio.export.rms.inplace_volumes import _TABLE_INDEX_COLUMNS
 
-    from fmu.dataio.export.rms.inplace_volumes import (
-        _TABLE_INDEX_COLUMNS,
-        _ExportVolumetricsRMS,
-    )
-
-    instance = _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
-
-    monkeypatch.setattr(instance, "_dataframe", voltable_standard)
-
-    out = instance._export_volume_table()
+    out = exportvolumetrics._export_volume_table()
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
     # check that the table index is set correctly
     assert metadata["data"]["table_index"] == _TABLE_INDEX_COLUMNS
 
     # should fail if missing table index
-    monkeypatch.setattr(instance, "_dataframe", voltable_standard.drop(columns="ZONE"))
+    exportvolumetrics._dataframe = voltable_standard.drop(columns="ZONE")
     with pytest.raises(KeyError, match="ZONE is not in table"):
-        instance._export_volume_table()
+        exportvolumetrics._export_volume_table()
 
 
 @inside_rms
