@@ -125,6 +125,43 @@ class _ExportVolumetricsRMS:
         )
 
     @staticmethod
+    def _compute_water_zone_volumes_from_totals(table: pd.DataFrame) -> pd.DataFrame:
+        """
+        Calculate 'water' zone volumes by subtracting HC-zone volumes from 'Total'
+        volumes which represents the entire zone. Total volumes are removed after
+        'water' zone volumes have been added to the table.
+        """
+        _logger.debug("Computing water volumes from Totals...")
+
+        total_suffix = "_TOTAL"
+        total_columns = [col for col in table.columns if col.endswith(total_suffix)]
+
+        if not total_columns:
+            raise RuntimeError(
+                "Found no 'Totals' volumes in the table. Please ensure 'Totals' "
+                "are reported and rerun the volumetric job before export."
+            )
+
+        for total_col in total_columns:
+            volumetric_col = total_col.replace(total_suffix, "")
+
+            water_zone_col = f"{volumetric_col}_WATER"
+            oil_zone_col = f"{volumetric_col}_OIL"
+            gas_zone_col = f"{volumetric_col}_GAS"
+
+            # first set water zone data equal to the Total
+            # then subtract data from the oil/gas zone
+            table[water_zone_col] = table[total_col]
+
+            if oil_zone_col in table:
+                table[water_zone_col] -= table[oil_zone_col]
+
+            if gas_zone_col in table:
+                table[water_zone_col] -= table[gas_zone_col]
+
+        return table.drop(columns=total_columns)
+
+    @staticmethod
     def _add_missing_columns_to_table(table: pd.DataFrame) -> pd.DataFrame:
         """Add columns with nan values if not present in table."""
         _logger.debug("Add table index columns to table if missing...")
@@ -149,14 +186,12 @@ class _ExportVolumetricsRMS:
         are renamed into 'BULK' and 'PORV' columns. To separate the data an additional
         FLUID column is added that indicates the type of fluid the row represents.
         """
-        table_index = [
-            col for col in _enums.InplaceVolumes.index_columns() if col in table
-        ]
 
         tables = []
         for fluid in (
             _enums.InplaceVolumes.Fluid.gas.value,
             _enums.InplaceVolumes.Fluid.oil.value,
+            _enums.InplaceVolumes.Fluid.water.value,
         ):
             fluid_suffix = fluid.upper()
             fluid_columns = [
@@ -188,6 +223,7 @@ class _ExportVolumetricsRMS:
         table_index = [
             col for col in _enums.InplaceVolumes.index_columns() if col in table
         ]
+        table = self._compute_water_zone_volumes_from_totals(table)
         table = self._transform_and_add_fluid_column_to_table(table, table_index)
         table = self._add_missing_columns_to_table(table)
         return self._set_table_column_order(table)

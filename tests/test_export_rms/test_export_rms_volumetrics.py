@@ -128,7 +128,7 @@ def test_convert_table_from_legacy_to_standard_format(
     with mock.patch.object(
         _ExportVolumetricsRMS,
         "_convert_table_from_rms_to_legacy_format",
-        return_value=voltable_legacy,
+        return_value=voltable_legacy.copy(),
     ):
         instance = _ExportVolumetricsRMS(
             mock_project_variable, "Geogrid", "geogrid_vol"
@@ -147,6 +147,7 @@ def test_convert_table_from_legacy_to_standard_format(
     assert set(exported_table[_enums.InplaceVolumes.FLUID_COLUMN].unique()) == {
         "oil",
         "gas",
+        "water",
     }
 
     # check the column order
@@ -154,24 +155,25 @@ def test_convert_table_from_legacy_to_standard_format(
 
     # check that the legacy format and the standard format gives
     # the same sum for volumetric columns
+    hc_filter = exported_table["FLUID"].isin(["oil", "gas"])
     assert np.isclose(
-        exported_table["STOIIP"].sum(),
+        exported_table[hc_filter]["STOIIP"].sum(),
         voltable_legacy["STOIIP_OIL"].sum(),
     )
     assert np.isclose(
-        exported_table["GIIP"].sum(),
+        exported_table[hc_filter]["GIIP"].sum(),
         voltable_legacy["GIIP_GAS"].sum(),
     )
     assert np.isclose(
-        exported_table["BULK"].sum(),
+        exported_table[hc_filter]["BULK"].sum(),
         (voltable_legacy["BULK_OIL"] + voltable_legacy["BULK_GAS"]).sum(),
     )
     assert np.isclose(
-        exported_table["PORV"].sum(),
+        exported_table[hc_filter]["PORV"].sum(),
         (voltable_legacy["PORV_OIL"] + voltable_legacy["PORV_GAS"]).sum(),
     )
     assert np.isclose(
-        exported_table["HCPV"].sum(),
+        exported_table[hc_filter]["HCPV"].sum(),
         (voltable_legacy["HCPV_OIL"] + voltable_legacy["HCPV_GAS"]).sum(),
     )
 
@@ -188,6 +190,161 @@ def test_convert_table_from_legacy_to_standard_format(
         voltable_legacy.query(filter_query)["BULK_OIL"],
         expected_bulk_for_filter,
     )
+
+    # the TOTAL column in the legacy table should equal
+    # the sum of all fluids in the exported table
+    assert np.isclose(
+        voltable_legacy["BULK_TOTAL"].sum(),
+        exported_table["BULK"].sum(),
+    )
+    assert np.isclose(
+        voltable_legacy["PORV_TOTAL"].sum(),
+        exported_table["PORV"].sum(),
+    )
+    # make a random check for a particular region and zone
+    assert np.isclose(
+        voltable_legacy.query(filter_query)["BULK_TOTAL"].sum(),
+        exported_table.query(filter_query)["BULK"].sum(),
+    )
+    assert np.isclose(
+        voltable_legacy.query(filter_query)["PORV_TOTAL"].sum(),
+        exported_table.query(filter_query)["PORV"].sum(),
+    )
+
+
+@pytest.mark.parametrize("volumetric_col", ["BULK", "PORV"])
+def test_compute_water_zone_volumes_from_totals_oil_and_gas(
+    exportvolumetrics, voltable_legacy, volumetric_col
+):
+    """
+    Test that the method to compute water zone volumes works as expected by
+    comparing the input and result table from the method.
+    Here testing a table including both oil and gas.
+    """
+
+    df_in = voltable_legacy.copy()
+
+    assert f"{volumetric_col}_TOTAL" in df_in
+    assert f"{volumetric_col}_OIL" in df_in
+    assert f"{volumetric_col}_GAS" in df_in
+    assert f"{volumetric_col}_WATER" not in df_in
+
+    df_out = exportvolumetrics._compute_water_zone_volumes_from_totals(df_in)
+
+    assert f"{volumetric_col}_TOTAL" not in df_out
+    assert f"{volumetric_col}_OIL" in df_out
+    assert f"{volumetric_col}_GAS" in df_out
+    assert f"{volumetric_col}_WATER" in df_out
+
+    # water zone should be the same as the Total - HC
+    assert np.isclose(
+        (
+            df_in[f"{volumetric_col}_TOTAL"]
+            - df_in[f"{volumetric_col}_OIL"]
+            - df_in[f"{volumetric_col}_GAS"]
+        ).sum(),
+        df_out[f"{volumetric_col}_WATER"].sum(),
+    )
+
+    # total zone should be the same as HC + water
+    assert np.isclose(
+        (
+            df_out[f"{volumetric_col}_OIL"]
+            + df_out[f"{volumetric_col}_GAS"]
+            + df_out[f"{volumetric_col}_WATER"]
+        ).sum(),
+        df_in[f"{volumetric_col}_TOTAL"].sum(),
+    )
+
+
+@pytest.mark.parametrize("volumetric_col", ["BULK", "PORV"])
+def test_compute_water_zone_volumes_from_totals_oil(
+    exportvolumetrics, voltable_legacy, volumetric_col
+):
+    """
+    Test that the method to compute water zone volumes works as expected by
+    comparing the input and result table from the method.
+    Here testing a table including only gas.
+    """
+
+    df_in = voltable_legacy.copy()
+
+    # drop all OIL columns
+    df_in = df_in.drop(columns=[col for col in df_in if col.endswith("_OIL")])
+
+    assert f"{volumetric_col}_TOTAL" in df_in
+    assert f"{volumetric_col}_OIL" not in df_in
+    assert f"{volumetric_col}_GAS" in df_in
+    assert f"{volumetric_col}_WATER" not in df_in
+
+    df_out = exportvolumetrics._compute_water_zone_volumes_from_totals(df_in)
+
+    assert f"{volumetric_col}_TOTAL" not in df_out
+    assert f"{volumetric_col}_OIL" not in df_out
+    assert f"{volumetric_col}_GAS" in df_out
+    assert f"{volumetric_col}_WATER" in df_out
+
+    # water zone should be the same as the Total - gas
+    assert np.isclose(
+        (df_in[f"{volumetric_col}_TOTAL"] - df_in[f"{volumetric_col}_GAS"]).sum(),
+        df_out[f"{volumetric_col}_WATER"].sum(),
+    )
+
+    # total zone should be the same as gas + water
+    assert np.isclose(
+        (df_out[f"{volumetric_col}_GAS"] + df_out[f"{volumetric_col}_WATER"]).sum(),
+        df_in[f"{volumetric_col}_TOTAL"].sum(),
+    )
+
+
+@pytest.mark.parametrize("volumetric_col", ["BULK", "PORV"])
+def test_compute_water_zone_volumes_from_totals_gas(
+    exportvolumetrics, voltable_legacy, volumetric_col
+):
+    """
+    Test that the method to compute water zone volumes works as expected by
+    comparing the input and result table from the method.
+    Here testing a table including only oil.
+    """
+
+    df_in = voltable_legacy.copy()
+
+    # drop all GAS columns
+    df_in = df_in.drop(columns=[col for col in df_in if col.endswith("_GAS")])
+
+    assert f"{volumetric_col}_TOTAL" in df_in
+    assert f"{volumetric_col}_OIL" in df_in
+    assert f"{volumetric_col}_GAS" not in df_in
+    assert f"{volumetric_col}_WATER" not in df_in
+
+    df_out = exportvolumetrics._compute_water_zone_volumes_from_totals(df_in)
+
+    assert f"{volumetric_col}_TOTAL" not in df_out
+    assert f"{volumetric_col}_OIL" in df_out
+    assert f"{volumetric_col}_GAS" not in df_out
+    assert f"{volumetric_col}_WATER" in df_out
+
+    # water zone should be the same as the Total - gas
+    assert np.isclose(
+        (df_in[f"{volumetric_col}_TOTAL"] - df_in[f"{volumetric_col}_OIL"]).sum(),
+        df_out[f"{volumetric_col}_WATER"].sum(),
+    )
+
+    # total zone should be the same as gas + water
+    assert np.isclose(
+        (df_out[f"{volumetric_col}_OIL"] + df_out[f"{volumetric_col}_WATER"]).sum(),
+        df_in[f"{volumetric_col}_TOTAL"].sum(),
+    )
+
+
+def test_total_volumes_required(exportvolumetrics, voltable_legacy):
+    """Test that the job fails if a required total volumes are missing"""
+
+    df = voltable_legacy.copy()
+    df = df.drop(columns=[col for col in df if col.endswith("_TOTAL")])
+
+    with pytest.raises(RuntimeError, match="Found no 'Totals' volumes"):
+        exportvolumetrics._compute_water_zone_volumes_from_totals(df)
 
 
 @pytest.mark.parametrize("required_col", ["BULK", "PORV", "HCPV"])
