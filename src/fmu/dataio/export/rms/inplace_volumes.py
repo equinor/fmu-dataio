@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 from typing import Any, Final
 
@@ -14,6 +13,7 @@ from fmu.dataio._logging import null_logger
 from fmu.dataio._model.enums import Classification
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
+from fmu.dataio.export.rms import _enums
 from fmu.dataio.export.rms._conditional_rms_imports import import_rms_package
 from fmu.dataio.export.rms._utils import (
     check_rmsapi_version,
@@ -24,27 +24,6 @@ from fmu.dataio.export.rms._utils import (
 rmsapi, rmsjobs = import_rms_package()
 
 _logger: Final = null_logger(__name__)
-
-_FLUID_COLUMN: Final = "FLUID"
-_TABLE_INDEX_COLUMNS: Final = [_FLUID_COLUMN, "ZONE", "REGION", "FACIES", "LICENSE"]
-_VOLUMETRIC_COLUMNS: Final = [
-    "BULK",
-    "NET",
-    "PORV",
-    "HCPV",
-    "STOIIP",
-    "GIIP",
-    "ASSOCIATEDGAS",
-    "ASSOCIATEDOIL",
-]
-
-
-class _Fluid(str, Enum):
-    """Fluid types"""
-
-    OIL = "OIL"
-    GAS = "GAS"
-    WATER = "WATER"
 
 
 # rename columns to FMU standard
@@ -149,7 +128,7 @@ class _ExportVolumetricsRMS:
     def _add_missing_columns_to_table(table: pd.DataFrame) -> pd.DataFrame:
         """Add columns with nan values if not present in table."""
         _logger.debug("Add table index columns to table if missing...")
-        for col in _TABLE_INDEX_COLUMNS + _VOLUMETRIC_COLUMNS:
+        for col in _enums.InplaceVolumes.table_columns():
             if col not in table:
                 table[col] = np.nan
         return table
@@ -158,7 +137,7 @@ class _ExportVolumetricsRMS:
     def _set_table_column_order(table: pd.DataFrame) -> pd.DataFrame:
         """Set the column order in the table."""
         _logger.debug("Settting the table column order...")
-        return table[_TABLE_INDEX_COLUMNS + _VOLUMETRIC_COLUMNS]
+        return table[_enums.InplaceVolumes.table_columns()]
 
     @staticmethod
     def _transform_and_add_fluid_column_to_table(
@@ -170,10 +149,15 @@ class _ExportVolumetricsRMS:
         are renamed into 'BULK' and 'PORV' columns. To separate the data an additional
         FLUID column is added that indicates the type of fluid the row represents.
         """
-        table_index = [col for col in _TABLE_INDEX_COLUMNS if col in table]
+        table_index = [
+            col for col in _enums.InplaceVolumes.index_columns() if col in table
+        ]
 
         tables = []
-        for fluid in [_Fluid.GAS.value, _Fluid.OIL.value]:
+        for fluid in [
+            _enums.InplaceVolumes.Fluid.GAS.value,
+            _enums.InplaceVolumes.Fluid.OIL.value,
+        ]:
             fluid_columns = [col for col in table.columns if col.endswith(f"_{fluid}")]
             if fluid_columns:
                 fluid_table = table[table_index + fluid_columns].copy()
@@ -182,7 +166,7 @@ class _ExportVolumetricsRMS:
                 fluid_table.columns = fluid_table.columns.str.replace(f"_{fluid}", "")
 
                 # add the fluid as column entry instead
-                fluid_table[_FLUID_COLUMN] = fluid.lower()
+                fluid_table[_enums.InplaceVolumes.FLUID_COLUMN] = fluid.lower()
 
                 tables.append(fluid_table)
 
@@ -196,7 +180,9 @@ class _ExportVolumetricsRMS:
         product. The standard format has a fluid column, and all table_index and
         volumetric columns are present with a standard order in the table.
         """
-        table_index = [col for col in _TABLE_INDEX_COLUMNS if col in table]
+        table_index = [
+            col for col in _enums.InplaceVolumes.index_columns() if col in table
+        ]
         table = self._transform_and_add_fluid_column_to_table(table, table_index)
         table = self._add_missing_columns_to_table(table)
         return self._set_table_column_order(table)
@@ -212,8 +198,8 @@ class _ExportVolumetricsRMS:
         """
         _logger.debug("Validating the dataframe...")
 
-        has_oil = "oil" in self._dataframe[_FLUID_COLUMN].values
-        has_gas = "gas" in self._dataframe[_FLUID_COLUMN].values
+        has_oil = "oil" in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN].values
+        has_gas = "gas" in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN].values
 
         # check that one of oil and gas fluids are present
         if not (has_oil or has_gas):
@@ -255,7 +241,7 @@ class _ExportVolumetricsRMS:
             classification=self._classification,
             name=self.grid_name,
             rep_include=False,
-            table_index=_TABLE_INDEX_COLUMNS,
+            table_index=_enums.InplaceVolumes.index_columns(),
         )
         absolute_export_path = edata.export(self._dataframe)
         _logger.debug("Volume result to: %s", absolute_export_path)
