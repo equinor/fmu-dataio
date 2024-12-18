@@ -8,11 +8,11 @@ class InplaceVolumes:
     """Enumerations relevant to inplace volumes tables."""
 
     class Fluid(str, Enum):
-        """Fluid types"""
+        """Fluid types used as values in the FLUID column."""
 
-        OIL = "OIL"
-        GAS = "GAS"
-        WATER = "WATER"
+        oil = "oil"
+        gas = "gas"
+        water = "water"
 
     class TableIndexColumns(str, Enum):
         """The index columns for an inplace volumes table."""

@@ -15,6 +15,7 @@ from fmu.dataio._products.inplace_volumes import (
     InplaceVolumesResultRow,
     dump,
 )
+from fmu.dataio.export import _enums
 from tests.utils import inside_rms
 
 logger = null_logger(__name__)
@@ -94,8 +95,6 @@ def test_rms_volumetrics_export_class(exportvolumetrics):
 def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolumetrics):
     """See mocks in local conftest.py"""
 
-    from fmu.dataio.export.rms import _enums
-
     out = exportvolumetrics._export_volume_table()
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
@@ -120,7 +119,6 @@ def test_convert_table_from_legacy_to_standard_format(
     """Test that a voltable with legacy format is converted to
     the expected standard format"""
 
-    from fmu.dataio.export.rms import _enums
     from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
@@ -299,7 +297,7 @@ def test_rms_volumetrics_export_function(
 ):
     """Test the public function."""
 
-    from fmu.dataio.export.rms import _enums, export_inplace_volumes
+    from fmu.dataio.export.rms import export_inplace_volumes
     from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
@@ -360,8 +358,6 @@ def test_inplace_volumes_payload_validates_against_schema(
 def test_inplace_volumes_export_and_result_columns_are_the_same(
     mocked_rmsapi_modules,
 ) -> None:
-    from fmu.dataio.export.rms import _enums
-
     assert _enums.InplaceVolumes.table_columns() == list(
         InplaceVolumesResultRow.model_fields.keys()
     )

@@ -11,9 +11,9 @@ import pandas as pd
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model.enums import Classification
+from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms import _enums
 from fmu.dataio.export.rms._conditional_rms_imports import import_rms_package
 from fmu.dataio.export.rms._utils import (
     check_rmsapi_version,
@@ -154,19 +154,24 @@ class _ExportVolumetricsRMS:
         ]
 
         tables = []
-        for fluid in [
-            _enums.InplaceVolumes.Fluid.GAS.value,
-            _enums.InplaceVolumes.Fluid.OIL.value,
-        ]:
-            fluid_columns = [col for col in table.columns if col.endswith(f"_{fluid}")]
+        for fluid in (
+            _enums.InplaceVolumes.Fluid.gas.value,
+            _enums.InplaceVolumes.Fluid.oil.value,
+        ):
+            fluid_suffix = fluid.upper()
+            fluid_columns = [
+                col for col in table.columns if col.endswith(f"_{fluid_suffix}")
+            ]
             if fluid_columns:
                 fluid_table = table[table_index + fluid_columns].copy()
 
                 # drop fluid suffix from columns to get standard names
-                fluid_table.columns = fluid_table.columns.str.replace(f"_{fluid}", "")
+                fluid_table.columns = fluid_table.columns.str.replace(
+                    f"_{fluid_suffix}", ""
+                )
 
                 # add the fluid as column entry instead
-                fluid_table[_enums.InplaceVolumes.FLUID_COLUMN] = fluid.lower()
+                fluid_table[_enums.InplaceVolumes.FLUID_COLUMN] = fluid
 
                 tables.append(fluid_table)
 
