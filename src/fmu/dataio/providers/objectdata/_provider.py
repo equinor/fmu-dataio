@@ -90,6 +90,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final
 
 import pandas as pd
+import pyarrow as pa
 import xtgeo
 
 from fmu.dataio._definitions import ExportFolder, ValidFormats
@@ -150,10 +151,7 @@ def objectdata_provider_factory(
         return FaultRoomSurfaceProvider(obj=obj, dataio=dataio)
     if isinstance(obj, dict):
         return DictionaryDataProvider(obj=obj, dataio=dataio)
-
-    from pyarrow import Table
-
-    if isinstance(obj, Table):
+    if isinstance(obj, pa.Table):
         return ArrowTableDataProvider(obj=obj, dataio=dataio)
 
     raise NotImplementedError(f"This data type is not currently supported: {type(obj)}")
