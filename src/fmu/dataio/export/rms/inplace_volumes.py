@@ -12,6 +12,7 @@ import pyarrow as pa
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model.enums import Classification
+from fmu.dataio._products.inplace_volumes import InplaceVolumesResult
 from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
@@ -210,7 +211,7 @@ class _ExportVolumetricsRMS:
                 )
 
                 # add the fluid as column entry instead
-                fluid_table[_enums.InplaceVolumes.FLUID_COLUMN] = fluid
+                fluid_table[_enums.InplaceVolumes.FLUID_COLUMN.value] = fluid
 
                 tables.append(fluid_table)
 
@@ -244,12 +245,10 @@ class _ExportVolumetricsRMS:
         _logger.debug("Validating the dataframe...")
 
         has_oil = (
-            _enums.InplaceVolumes.Fluid.oil.value
-            in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN].values
+            "oil" in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN.value].values
         )
         has_gas = (
-            _enums.InplaceVolumes.Fluid.gas.value
-            in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN].values
+            "gas" in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN.value].values
         )
 
         # check that one of oil and gas fluids are present
@@ -284,6 +283,9 @@ class _ExportVolumetricsRMS:
                 f"in the volumetric table {self._volume_table_name}. Please update and "
                 "rerun the volumetric job before export."
             )
+
+        df = self._dataframe.replace(np.nan, None).to_dict(orient="records")
+        InplaceVolumesResult.model_validate(df)
 
     def _export_volume_table(self) -> ExportResult:
         """Do the actual volume table export using dataio setup."""
