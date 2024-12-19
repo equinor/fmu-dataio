@@ -12,13 +12,13 @@
 
    
    
-      ~fmu.dataio._model.fields.Tracklog
-   
-      ~fmu.dataio._model.fields.FMUBase
-   
       ~fmu.dataio._model.fields.Masterdata
    
       ~fmu.dataio._model.fields.Access
+   
+      ~fmu.dataio._model.fields.Tracklog
+   
+      ~fmu.dataio._model.fields.FMUBase
    
    
 
