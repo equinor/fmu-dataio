@@ -16,6 +16,7 @@ from pydantic import (
 from typing_extensions import Annotated
 
 from . import enums
+from .product import AnyProduct
 from .specification import AnySpecification
 
 if TYPE_CHECKING:
@@ -201,6 +202,10 @@ class Data(BaseModel):
 
     content: enums.Content
     """The type of content these data represent."""
+
+    product: Optional[AnyProduct] = Field(default=None)
+    """Information about the product that these data represent. The presence of this
+    field indicates that these data conforms to a specified standard."""
 
     name: str = Field(examples=["VIKING GP. Top"])
     """This is the identifying name of this data object. For surfaces, this is typically
