@@ -15,6 +15,7 @@ from fmu.dataio._products.inplace_volumes import (
     InplaceVolumesResultRow,
     dump,
 )
+from fmu.dataio.export import _enums
 from tests.utils import inside_rms
 
 logger = null_logger(__name__)
@@ -94,13 +95,11 @@ def test_rms_volumetrics_export_class(exportvolumetrics):
 def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolumetrics):
     """See mocks in local conftest.py"""
 
-    from fmu.dataio.export.rms.inplace_volumes import _TABLE_INDEX_COLUMNS
-
     out = exportvolumetrics._export_volume_table()
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
     # check that the table index is set correctly
-    assert metadata["data"]["table_index"] == _TABLE_INDEX_COLUMNS
+    assert metadata["data"]["table_index"] == _enums.InplaceVolumes.index_columns()
 
     # should fail if missing table index
     exportvolumetrics._dataframe = voltable_standard.drop(columns="ZONE")
@@ -120,10 +119,7 @@ def test_convert_table_from_legacy_to_standard_format(
     """Test that a voltable with legacy format is converted to
     the expected standard format"""
 
-    from fmu.dataio.export.rms.inplace_volumes import (
-        _FLUID_COLUMN,
-        _ExportVolumetricsRMS,
-    )
+    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
@@ -147,8 +143,11 @@ def test_convert_table_from_legacy_to_standard_format(
     pd.testing.assert_frame_equal(voltable_standard, exported_table)
 
     # check that the fluid column exists and contains oil and gas
-    assert _FLUID_COLUMN in exported_table
-    assert set(exported_table[_FLUID_COLUMN].unique()) == {"oil", "gas"}
+    assert _enums.InplaceVolumes.FLUID_COLUMN in exported_table
+    assert set(exported_table[_enums.InplaceVolumes.FLUID_COLUMN].unique()) == {
+        "oil",
+        "gas",
+    }
 
     # check the column order
     assert list(exported_table.columns) == EXPECTED_COLUMN_ORDER
@@ -299,10 +298,7 @@ def test_rms_volumetrics_export_function(
     """Test the public function."""
 
     from fmu.dataio.export.rms import export_inplace_volumes
-    from fmu.dataio.export.rms.inplace_volumes import (
-        _TABLE_INDEX_COLUMNS,
-        _ExportVolumetricsRMS,
-    )
+    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
@@ -327,7 +323,7 @@ def test_rms_volumetrics_export_function(
 
     assert "volumes" in metadata["data"]["content"]
     assert metadata["access"]["classification"] == "restricted"
-    assert metadata["data"]["table_index"] == _TABLE_INDEX_COLUMNS
+    assert metadata["data"]["table_index"] == _enums.InplaceVolumes.index_columns()
 
 
 @inside_rms
@@ -360,14 +356,8 @@ def test_inplace_volumes_payload_validates_against_schema(
 
 @inside_rms
 def test_inplace_volumes_export_and_result_columns_are_the_same(
-    mock_project_variable,
     mocked_rmsapi_modules,
 ) -> None:
-    from fmu.dataio.export.rms.inplace_volumes import (
-        _TABLE_INDEX_COLUMNS,
-        _VOLUMETRIC_COLUMNS,
+    assert _enums.InplaceVolumes.table_columns() == list(
+        InplaceVolumesResultRow.model_fields.keys()
     )
-
-    export_columns = _TABLE_INDEX_COLUMNS + _VOLUMETRIC_COLUMNS
-    result_columns = InplaceVolumesResultRow.model_fields.keys()
-    assert set(export_columns) == set(result_columns)
