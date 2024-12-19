@@ -261,11 +261,7 @@ class _ExportVolumetricsRMS:
 
         # create list of missing or non-defined required columns
         missing_calculations = []
-        for col in [
-            _VolumetricColumns.BULK.value,
-            _VolumetricColumns.PORV.value,
-            _VolumetricColumns.HCPV.value,
-        ]:
+        for col in _enums.InplaceVolumes.required_value_columns():
             if self._is_column_missing_in_table(col):
                 missing_calculations.append(col)
 
