@@ -12,9 +12,9 @@ TracklogEvent
 
    
    
-      ~fmu.dataio._model.fields.SystemInformation
-   
       ~fmu.dataio._model.fields.User
+   
+      ~fmu.dataio._model.fields.SystemInformation
    
    
 
