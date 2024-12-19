@@ -44,9 +44,33 @@ class InplaceVolumes:
         return [k.value for k in InplaceVolumes.TableIndexColumns]
 
     @staticmethod
+    def required_index_columns() -> list[str]:
+        return [
+            InplaceVolumes.TableIndexColumns.FLUID.value,
+            InplaceVolumes.TableIndexColumns.ZONE.value,
+        ]
+
+    @staticmethod
     def value_columns() -> list[str]:
         """Returns a list of the value columns."""
         return [k.value for k in InplaceVolumes.VolumetricColumns]
+
+    @staticmethod
+    def required_value_columns() -> list[str]:
+        """Returns a list of the value columns."""
+        return [
+            InplaceVolumes.VolumetricColumns.BULK.value,
+            InplaceVolumes.VolumetricColumns.PORV.value,
+            InplaceVolumes.VolumetricColumns.HCPV.value,
+        ]
+
+    @staticmethod
+    def required_columns() -> list[str]:
+        """Returns a list of the columns required at export."""
+        return (
+            InplaceVolumes.required_index_columns()
+            + InplaceVolumes.required_value_columns()
+        )
 
     @staticmethod
     def table_columns() -> list[str]:
