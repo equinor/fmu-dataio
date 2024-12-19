@@ -3451,7 +3451,6 @@
         },
         "name": {
           "const": "inplace_volumes",
-          "default": "inplace_volumes",
           "enum": [
             "inplace_volumes"
           ],
@@ -3459,6 +3458,9 @@
           "type": "string"
         }
       },
+      "required": [
+        "name"
+      ],
       "title": "InplaceVolumesProduct",
       "type": "object"
     },
