@@ -6,6 +6,7 @@ from pathlib import Path
 import jsonschema
 import numpy as np
 import pandas as pd
+import pyarrow.parquet as pq
 import pytest
 
 import fmu.dataio as dataio
@@ -139,7 +140,12 @@ def test_convert_table_from_legacy_to_standard_format(
 
     # check that the exported table is equal to the expected
     out = instance._export_volume_table()
-    exported_table = pd.read_csv(out.items[0].absolute_path)
+    # Note that using `read_parquet()` more than once in the same pytest module causes
+    # errors due to an issue in pandas registering a type extension globally on every
+    # invocation. This is probably a pandas bug.
+    # https://github.com/apache/arrow/issues/41857
+    exported_table = pd.read_parquet(out.items[0].absolute_path)
+
     pd.testing.assert_frame_equal(voltable_standard, exported_table)
 
     # check that the fluid column exists and contains oil and gas
@@ -310,12 +316,12 @@ def test_rms_volumetrics_export_function(
         )
     vol_table_file = result.items[0].absolute_path
 
-    absoulte_path = (
+    absolute_path = (
         rmssetup_with_fmuconfig.parent.parent
-        / "share/results/tables/volumes/geogrid.csv"
+        / "share/results/tables/volumes/geogrid.parquet"
     )
 
-    assert vol_table_file == absoulte_path
+    assert vol_table_file == absolute_path
 
     assert Path(vol_table_file).is_file()
     metadata = dataio.read_metadata(vol_table_file)
@@ -335,8 +341,12 @@ def test_inplace_volumes_payload_validates_against_model(
     model."""
 
     out = exportvolumetrics._export_volume_table()
-    with open(out.items[0].absolute_path) as f:
-        df = pd.read_csv(f).replace(np.nan, None).to_dict(orient="records")
+    df = (
+        pq.read_table(out.items[0].absolute_path)
+        .to_pandas()
+        .replace(np.nan, None)
+        .to_dict(orient="records")
+    )
     InplaceVolumesResult.model_validate(df)  # Throws if invalid
 
 
@@ -349,8 +359,12 @@ def test_inplace_volumes_payload_validates_against_schema(
     schema."""
 
     out = exportvolumetrics._export_volume_table()
-    with open(out.items[0].absolute_path) as f:
-        df = pd.read_csv(f).replace(np.nan, None).to_dict(orient="records")
+    df = (
+        pq.read_table(out.items[0].absolute_path)
+        .to_pandas()
+        .replace(np.nan, None)
+        .to_dict(orient="records")
+    )
     jsonschema.validate(instance=df, schema=dump())  # Throws if invalid
 
 

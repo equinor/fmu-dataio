@@ -7,6 +7,7 @@ from typing import Any, Final
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
 
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
@@ -248,7 +249,10 @@ class _ExportVolumetricsRMS:
             rep_include=False,
             table_index=_enums.InplaceVolumes.index_columns(),
         )
-        absolute_export_path = edata.export(self._dataframe)
+
+        volume_table = pa.Table.from_pandas(self._dataframe)
+        absolute_export_path = edata.export(volume_table)
+
         _logger.debug("Volume result to: %s", absolute_export_path)
         return ExportResult(
             items=[
