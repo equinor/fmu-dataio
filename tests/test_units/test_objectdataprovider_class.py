@@ -8,6 +8,8 @@ import yaml
 
 import fmu.dataio as dataio
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
+from fmu.dataio._model.specification import FaultRoomSurfaceSpecification
+from fmu.dataio.providers.objectdata._faultroom import FaultRoomSurfaceProvider
 from fmu.dataio.providers.objectdata._provider import (
     objectdata_provider_factory,
 )
@@ -23,7 +25,7 @@ from ..utils import inside_rms
 
 def test_objectdata_regularsurface_derive_named_stratigraphy(regsurf, edataobj1):
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
-    # mimic the stripped parts of configuations for testing here
+    # mimic the stripped parts of configurations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj1)
 
     res = objdata._get_stratigraphy_element()
@@ -35,7 +37,7 @@ def test_objectdata_regularsurface_derive_named_stratigraphy(regsurf, edataobj1)
 
 def test_objectdata_regularsurface_get_stratigraphy_element_differ(regsurf, edataobj2):
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
-    # mimic the stripped parts of configuations for testing here
+    # mimic the stripped parts of configurations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj2)
 
     res = objdata._get_stratigraphy_element()
@@ -43,6 +45,24 @@ def test_objectdata_regularsurface_get_stratigraphy_element_differ(regsurf, edat
     assert res.name == "VOLANTIS GP. Top"
     assert "TopVolantis" in res.alias
     assert res.stratigraphic is True
+
+
+def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_differ(
+    faultroom_object, edataobj2
+):
+    """
+    Fault juxtaposition is a list of formations on the footwall and hangingwall sides.
+    Ensure that each name is converted to the names given in the stratigraphic column
+    in the global config.
+    """
+    objdata = objectdata_provider_factory(faultroom_object, edataobj2)
+    assert isinstance(objdata, FaultRoomSurfaceProvider)
+
+    frss = objdata.get_spec()
+    assert isinstance(frss, FaultRoomSurfaceSpecification)
+
+    assert frss.juxtaposition_fw == ["Valysar Fm.", "Therys Fm.", "Volon Fm."]
+    assert frss.juxtaposition_hw == ["Valysar Fm.", "Therys Fm.", "Volon Fm."]
 
 
 def test_objectdata_regularsurface_validate_extension(regsurf, edataobj1):
