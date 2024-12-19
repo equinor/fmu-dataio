@@ -106,3 +106,8 @@ examples/s/d/nn/xcase/iter-0/
 
 # Apple macOS
 .DS_Store 
+
+# npm/node
+node_modules/
+package-lock.json
+package.json
