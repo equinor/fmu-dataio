@@ -15,3 +15,28 @@ def test_schema_uptodate():
     """
     with open("schema/definitions/0.8.0/schema/fmu_results.json") as f:
         assert json.load(f) == dump()
+
+
+def contains_discriminator_mapping(schema):
+    """Recursively checks ["discriminator"]["mapping"] in the schema."""
+    if isinstance(schema, dict):
+        if (
+            "discriminator" in schema and isinstance(schema["discriminator"], dict)
+        ) and "mapping" in schema["discriminator"]:
+            return True
+        for value in schema.values():
+            if contains_discriminator_mapping(value):
+                return True
+    elif isinstance(schema, list):
+        for item in schema:
+            if contains_discriminator_mapping(item):
+                return True
+    return False
+
+
+def test_no_discriminator_mappings_leftover_in_schema():
+    """Sumo's AJV validator doesn't like discriminator mappings leftover in the
+    schema."""
+    with open("schema/definitions/0.8.0/schema/fmu_results.json") as f:
+        schema = json.load(f)
+    assert contains_discriminator_mapping(schema) is False
