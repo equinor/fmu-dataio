@@ -27,28 +27,31 @@ rmsapi, rmsjobs = import_rms_package()
 _logger: Final = null_logger(__name__)
 
 
+_VolumetricColumns = _enums.InplaceVolumes.VolumetricColumns
+_TableIndexColumns = _enums.InplaceVolumes.TableIndexColumns
+
 # rename columns to FMU standard
 _RENAME_COLUMNS_FROM_RMS: Final = {
     "Proj. real.": "REAL",
-    "Zone": "ZONE",
-    "Segment": "REGION",
-    "Boundary": "LICENSE",
-    "Facies": "FACIES",
-    "BulkOil": "BULK_OIL",
-    "NetOil": "NET_OIL",
-    "PoreOil": "PORV_OIL",
-    "HCPVOil": "HCPV_OIL",
-    "STOIIP": "STOIIP_OIL",
-    "AssociatedGas": "ASSOCIATEDGAS_OIL",
-    "BulkGas": "BULK_GAS",
-    "NetGas": "NET_GAS",
-    "PoreGas": "PORV_GAS",
-    "HCPVGas": "HCPV_GAS",
-    "GIIP": "GIIP_GAS",
-    "AssociatedLiquid": "ASSOCIATEDOIL_GAS",
-    "Bulk": "BULK_TOTAL",
-    "Net": "NET_TOTAL",
-    "Pore": "PORV_TOTAL",
+    "Zone": _TableIndexColumns.ZONE.value,
+    "Segment": _TableIndexColumns.REGION.value,
+    "Boundary": _TableIndexColumns.LICENSE.value,
+    "Facies": _TableIndexColumns.FACIES.value,
+    "BulkOil": _VolumetricColumns.BULK.value + "_OIL",
+    "NetOil": _VolumetricColumns.NET.value + "_OIL",
+    "PoreOil": _VolumetricColumns.PORV.value + "_OIL",
+    "HCPVOil": _VolumetricColumns.HCPV.value + "_OIL",
+    "STOIIP": _VolumetricColumns.STOIIP.value + "_OIL",
+    "AssociatedGas": _VolumetricColumns.ASSOCIATEDGAS.value + "_OIL",
+    "BulkGas": _VolumetricColumns.BULK.value + "_GAS",
+    "NetGas": _VolumetricColumns.NET.value + "_GAS",
+    "PoreGas": _VolumetricColumns.PORV.value + "_GAS",
+    "HCPVGas": _VolumetricColumns.HCPV.value + "_GAS",
+    "GIIP": _VolumetricColumns.GIIP.value + "_GAS",
+    "AssociatedLiquid": _VolumetricColumns.ASSOCIATEDOIL.value + "_GAS",
+    "Bulk": _VolumetricColumns.BULK.value + "_TOTAL",
+    "Net": _VolumetricColumns.NET.value + "_TOTAL",
+    "Pore": _VolumetricColumns.PORV.value + "_TOTAL",
 }
 
 
@@ -240,8 +243,14 @@ class _ExportVolumetricsRMS:
         """
         _logger.debug("Validating the dataframe...")
 
-        has_oil = "oil" in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN].values
-        has_gas = "gas" in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN].values
+        has_oil = (
+            _enums.InplaceVolumes.Fluid.oil.value
+            in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN].values
+        )
+        has_gas = (
+            _enums.InplaceVolumes.Fluid.gas.value
+            in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN].values
+        )
 
         # check that one of oil and gas fluids are present
         if not (has_oil or has_gas):
@@ -253,15 +262,21 @@ class _ExportVolumetricsRMS:
 
         # create list of missing or non-defined required columns
         missing_calculations = []
-        for col in ["BULK", "PORV", "HCPV"]:
+        for col in [
+            _VolumetricColumns.BULK.value,
+            _VolumetricColumns.PORV.value,
+            _VolumetricColumns.HCPV.value,
+        ]:
             if self._is_column_missing_in_table(col):
                 missing_calculations.append(col)
 
-        if has_oil and self._is_column_missing_in_table("STOIIP"):
-            missing_calculations.append("STOIIP")
+        if has_oil and self._is_column_missing_in_table(
+            _VolumetricColumns.STOIIP.value
+        ):
+            missing_calculations.append(_VolumetricColumns.STOIIP.value)
 
-        if has_gas and self._is_column_missing_in_table("GIIP"):
-            missing_calculations.append("GIIP")
+        if has_gas and self._is_column_missing_in_table(_VolumetricColumns.GIIP.value):
+            missing_calculations.append(_VolumetricColumns.GIIP.value)
 
         if missing_calculations:
             raise RuntimeError(
