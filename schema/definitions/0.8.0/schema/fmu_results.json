@@ -214,9 +214,6 @@
     "AnyProduct": {
       "description": "The ``product`` field contains information about which product this data object\nrepresent. Data that is tagged as a product is a standard result from FMU that\nconforms to a specified standard.\n\nThis class, ``AnyProduct``, acts as a container for different data products, with\nthe exact product being identified by the ``product.name`` field.",
       "discriminator": {
-        "mapping": {
-          "inplace_volumes": "#/$defs/InplaceVolumesProduct"
-        },
         "propertyName": "name"
       },
       "oneOf": [

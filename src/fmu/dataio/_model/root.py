@@ -274,6 +274,7 @@ class FmuResultsJsonSchema(GenerateJsonSchema):
         # sumo-core's validator does not recognize these.
         del json_schema["discriminator"]["mapping"]
         del json_schema["$defs"]["AnyData"]["discriminator"]["mapping"]
+        del json_schema["$defs"]["AnyProduct"]["discriminator"]["mapping"]
 
         return self._remove_format_path(json_schema)
 
