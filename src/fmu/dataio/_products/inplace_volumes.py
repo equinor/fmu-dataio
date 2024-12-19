@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Final, List, Literal, Optional
 from pydantic import BaseModel, Field, RootModel
 from pydantic.json_schema import GenerateJsonSchema
 
+from fmu.dataio.export._enums import InplaceVolumes
+
 if TYPE_CHECKING:
     from typing import Any, Mapping
 
@@ -23,7 +25,7 @@ class InplaceVolumesResultRow(BaseModel):
     should increase the version number in a way that corresponds to the schema
     versioning specification (i.e. they are a patch, minor, or major change)."""
 
-    FLUID: Literal["oil", "gas", "water"]
+    FLUID: InplaceVolumes.Fluid
     ZONE: str
     REGION: Optional[str] = Field(default=None)
     FACIES: Optional[str] = Field(default=None)
