@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import pytest
+from pydantic import ValidationError
 
 import fmu.dataio as dataio
 from fmu.dataio._logging import null_logger
@@ -423,6 +424,22 @@ def test_validate_table_has_gas_and_giip(exportvolumetrics, voltable_standard):
     # validation should pass when no gas columns are present
     exportvolumetrics._dataframe = df[~(df["FLUID"] == "gas")]
     exportvolumetrics._validate_table()
+
+
+def test_validate_table_against_pydantic_model_before_export(
+    exportvolumetrics, voltable_standard
+):
+    """Test that the validation fails if the volumes table does not conform to the
+    Pydantic model specifying the result."""
+
+    df = voltable_standard.copy()
+    exportvolumetrics._dataframe = df
+    exportvolumetrics._validate_table()
+
+    df["PORV"] = df["PORV"].replace(0.0, "a")
+    exportvolumetrics._dataframe = df
+    with pytest.raises(ValidationError, match="Input should be a valid number"):
+        exportvolumetrics._validate_table()
 
 
 @inside_rms
