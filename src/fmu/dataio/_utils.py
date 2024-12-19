@@ -16,6 +16,8 @@ from typing import Any, Final
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import xtgeo
 import yaml
 
@@ -117,12 +119,8 @@ def export_file(
         )
         obj.to_csv(file, index=False)
     elif file_suffix == ".parquet":
-        from pyarrow import Table
-
-        if isinstance(obj, Table):
-            from pyarrow import output_stream, parquet
-
-            parquet.write_table(obj, where=output_stream(file))
+        if isinstance(obj, pa.Table):
+            pq.write_table(obj, where=pa.output_stream(file))
 
     elif file_suffix == ".json":
         if isinstance(obj, FaultRoomSurface):
