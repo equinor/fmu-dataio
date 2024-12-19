@@ -34,7 +34,7 @@ class Product(BaseModel):
     name: enums.ProductName
     """The identifying product name for this data object."""
 
-    file_schema: Optional[FileSchema] = None
+    file_schema: Optional[FileSchema] = Field(default=None)
     """The schema identifying the format of the product."""
 
 
@@ -45,7 +45,7 @@ class InplaceVolumesProduct(Product):
     This class contains metadata for the 'inplace_volumes' product.
     """
 
-    name: Literal[enums.ProductName.inplace_volumes] = enums.ProductName.inplace_volumes
+    name: Literal[enums.ProductName.inplace_volumes]
     """The identifying product name for the 'inplace_volumes' product."""
 
     file_schema: FileSchema = FileSchema(
