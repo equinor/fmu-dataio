@@ -210,6 +210,7 @@ class FmuResultsJsonSchema(GenerateJsonSchema):
         "data.is_prediction",
         "data.name",
         "data.offset",
+        "data.product.name",
         "data.seismic.attribute",
         "data.spec.columns",
         "data.stratigraphic",
