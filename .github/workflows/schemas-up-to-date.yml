@@ -26,3 +26,8 @@ jobs:
         run: |
           ./tools/update_schema
           git diff --exit-code
+
+      - name: Ensure schema validates with AJV
+        run: |
+          npm install ajv ajv-formats
+          ./tools/schema-validate-ajv.mjs ./schema/
