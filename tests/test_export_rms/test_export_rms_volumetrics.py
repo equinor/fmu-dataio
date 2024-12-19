@@ -375,3 +375,11 @@ def test_inplace_volumes_export_and_result_columns_are_the_same(
     assert _enums.InplaceVolumes.table_columns() == list(
         InplaceVolumesResultRow.model_fields.keys()
     )
+
+
+def test_that_required_columns_one_to_one_in_enums_and_schema() -> None:
+    schema_required_fields = []
+    for field_name, field_info in InplaceVolumesResultRow.model_fields.items():
+        if field_info.is_required():
+            schema_required_fields.append(field_name)
+    assert _enums.InplaceVolumes.required_columns() == schema_required_fields
