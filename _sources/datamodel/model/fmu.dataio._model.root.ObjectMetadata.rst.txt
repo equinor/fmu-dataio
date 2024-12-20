@@ -12,8 +12,6 @@
 
    
    
-      ~fmu.dataio._model.fields.Masterdata
-   
       ~fmu.dataio._model.fields.FMU
    
       ~fmu.dataio._model.fields.File
@@ -25,6 +23,8 @@
       ~fmu.dataio._model.fields.Display
    
       ~fmu.dataio._model.data.AnyData
+   
+      ~fmu.dataio._model.fields.Masterdata
    
    
 
