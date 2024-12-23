@@ -20,7 +20,7 @@ from pydantic import (
     model_validator,
 )
 
-from fmu.dataio._definitions import SCHEMA, SOURCE, VERSION
+from fmu.dataio._definitions import SOURCE, FmuResultsSchema
 
 from . import data, enums, fields
 
@@ -102,9 +102,9 @@ class AllowedContent(BaseModel):
 class JsonSchemaMetadata(BaseModel, populate_by_name=True):
     schema_: AnyHttpUrl = Field(
         alias="$schema",
-        default=TypeAdapter(AnyHttpUrl).validate_python(SCHEMA),
+        default=TypeAdapter(AnyHttpUrl).validate_python(FmuResultsSchema.PROD_URL),
     )
-    version: str = Field(default=VERSION)
+    version: str = Field(default=FmuResultsSchema.VERSION)
     source: str = Field(default=SOURCE)
 
 
