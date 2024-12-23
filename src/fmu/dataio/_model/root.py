@@ -12,6 +12,8 @@ from pydantic import (
 from pydantic.json_schema import GenerateJsonSchema
 from typing_extensions import Annotated
 
+from fmu.dataio._definitions import FmuResultsSchema
+
 from .data import AnyData
 from .enums import FMUClass
 from .fields import (
@@ -268,7 +270,7 @@ class FmuResultsJsonSchema(GenerateJsonSchema):
     ) -> dict[str, Any]:
         json_schema = super().generate(schema, mode=mode)
         json_schema["$schema"] = self.schema_dialect
-        json_schema["$id"] = "fmu_results.json"
+        json_schema["$id"] = FmuResultsSchema.url()
         json_schema["$contractual"] = self.contractual
 
         # sumo-core's validator does not recognize these.

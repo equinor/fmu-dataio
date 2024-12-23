@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from typing import Any, Final
 
+from fmu.dataio._definitions import FmuResultsSchema
 from fmu.dataio._model import dump
 
 GREEN = "\033[32m"
@@ -34,14 +35,14 @@ def _get_parser() -> argparse.ArgumentParser:
         "-v",
         type=str,
         help=f"The version of the schema being output. Default is {SCHEMA_VERSION}",
-        default=SCHEMA_VERSION,
+        default=FmuResultsSchema.VERSION,
     )
     parser.add_argument(
         "--filename",
         "-f",
         type=str,
         help=f"The filename of the schema being output. Default is {SCHEMA_FILENAME}.",
-        default=SCHEMA_FILENAME,
+        default=FmuResultsSchema.FILENAME,
     )
     parser.add_argument(
         "--diff",
@@ -75,8 +76,8 @@ def _load_json(filepath: Path) -> dict[str, Any]:
             return json.load(f)
         except json.JSONDecodeError as json_decode_error:
             print(
-                f"{FAILURE} Parsing existing json schema failed: The json is malformed. "
-                "If you know why, re-run the command with argument '--force' "
+                f"{FAILURE} Parsing existing json schema failed: The json is malformed."
+                " If you know why, re-run the command with argument '--force' "
                 "to overwrite with the new schema.\n"
                 f"{FAILURE} Json parsing error: '{json_decode_error.msg}.'"
             )

@@ -5,10 +5,22 @@ from __future__ import annotations
 from enum import Enum
 from typing import Final
 
-SCHEMA: Final = (
-    "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json"
-)
-VERSION: Final = "0.8.0"
+
+class FmuResultsSchema:
+    DEV_ROOT: Final[str] = "https://main-fmu-schemas-dev.radix.equinor.com/schemas"
+    PROD_ROOT: Final[str] = "https://main-fmu-schemas-prod.radix.equinor.com/schemas"
+    VERSION: Final[str] = "0.8.0"
+    FILENAME: Final[str] = "fmu_results.json"
+    DEV_URL: Final[str] = f"{DEV_ROOT}/{VERSION}/{FILENAME}"
+    PROD_URL: Final[str] = f"{PROD_ROOT}/{VERSION}/{FILENAME}"
+
+    @staticmethod
+    def url() -> str:
+        """This method is meant to return the `PROD_URL` or `DEV_URL` under relevant
+        circumstances."""
+        return FmuResultsSchema.PROD_URL
+
+
 SOURCE: Final = "fmu"
 
 
