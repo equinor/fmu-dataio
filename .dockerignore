@@ -1,5 +1,6 @@
-# ignore everything
+# Ignore everything
 *
-
-# un-ignore schema folder
-!schema/**
+# Except these
+!nginx.conf
+!tools/modify-schema-files.sh
+!schemas/**
