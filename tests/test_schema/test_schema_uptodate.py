@@ -13,7 +13,7 @@ def test_schema_uptodate():
     To update the local schema, run:
     `./tools/update_schema`
     """
-    with open("schema/definitions/0.8.0/schema/fmu_results.json") as f:
+    with open("schemas/0.8.0/fmu_results.json") as f:
         assert json.load(f) == dump()
 
 
@@ -37,6 +37,6 @@ def contains_discriminator_mapping(schema):
 def test_no_discriminator_mappings_leftover_in_schema():
     """Sumo's AJV validator doesn't like discriminator mappings leftover in the
     schema."""
-    with open("schema/definitions/0.8.0/schema/fmu_results.json") as f:
+    with open("schemas/0.8.0/fmu_results.json") as f:
         schema = json.load(f)
     assert contains_discriminator_mapping(schema) is False
