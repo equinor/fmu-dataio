@@ -348,12 +348,12 @@ Expand below to see a full example of valid metadata for surface exported from F
 
 .. toggle::
 
-   .. literalinclude:: ../../../schema/definitions/0.8.0/examples/surface_depth.yml
+   .. literalinclude:: ../../../examples/0.8.0/surface_depth.yml
       :language: yaml
 
 |
 
-You will find more examples in `fmu-dataio github repository <https://github.com/equinor/fmu-dataio/tree/main/schema/definitions/0.8.0>`__. 
+You will find more examples in `fmu-dataio github repository <https://github.com/equinor/fmu-dataio/tree/main/examples/0.8.0>`__. 
 
 
 FAQ
