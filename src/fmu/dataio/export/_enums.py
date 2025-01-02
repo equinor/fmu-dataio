@@ -48,6 +48,7 @@ class InplaceVolumes:
         return [
             InplaceVolumes.TableIndexColumns.FLUID.value,
             InplaceVolumes.TableIndexColumns.ZONE.value,
+            InplaceVolumes.TableIndexColumns.REGION.value,
         ]
 
     @staticmethod
