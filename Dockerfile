@@ -18,9 +18,7 @@ RUN chown -R 1001:1001 .
 COPY schema/app/install-schema-files.sh /docker-entrypoint.d/50-install-schema-files.sh
 RUN chmod +x /docker-entrypoint.d/50-install-schema-files.sh
 
-COPY schema/app/fmu-schemas.conf /etc/nginx/conf.d
-
-RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 USER 1001
 
