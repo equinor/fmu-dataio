@@ -7,7 +7,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Final
+from typing import Any
 
 from fmu.dataio._definitions import FmuResultsSchema
 from fmu.dataio._model import dump
@@ -22,11 +22,6 @@ FAILURE = f"[{BOLD}{RED}✖{NC}]"
 INFO = f"[{BOLD}{YELLOW}+{NC}]"
 
 
-# TODO: This version should come from the package when schema versioning exists
-SCHEMA_VERSION: Final = "0.8.0"
-SCHEMA_FILENAME: Final = "fmu_results.json"
-
-
 def _get_parser() -> argparse.ArgumentParser:
     """Construct parser object."""
     parser = argparse.ArgumentParser()
@@ -34,14 +29,20 @@ def _get_parser() -> argparse.ArgumentParser:
         "--version",
         "-v",
         type=str,
-        help=f"The version of the schema being output. Default is {SCHEMA_VERSION}",
+        help=(
+            "The version of the schema being output. "
+            f"Current default is {FmuResultsSchema.VERSION}"
+        ),
         default=FmuResultsSchema.VERSION,
     )
     parser.add_argument(
         "--filename",
         "-f",
         type=str,
-        help=f"The filename of the schema being output. Default is {SCHEMA_FILENAME}.",
+        help=(
+            "The filename of the schema being output. "
+            f"Current default is {FmuResultsSchema.FILENAME}."
+        ),
         default=FmuResultsSchema.FILENAME,
     )
     parser.add_argument(
@@ -67,7 +68,7 @@ def _get_parser() -> argparse.ArgumentParser:
 def _get_output_path(version: str) -> Path:
     """Returns a Path with the appropriate output location, without the filename."""
     root = Path(__file__).parent.parent.resolve()  # absolute path of ../../
-    return root / "schema" / "definitions" / version / "schema"
+    return root / "schemas" / version
 
 
 def _load_json(filepath: Path) -> dict[str, Any]:
