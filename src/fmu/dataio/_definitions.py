@@ -2,24 +2,11 @@
 
 from __future__ import annotations
 
+import os
+from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Final
-
-
-class FmuResultsSchema:
-    DEV_ROOT: Final[str] = "https://main-fmu-schemas-dev.radix.equinor.com/schemas"
-    PROD_ROOT: Final[str] = "https://main-fmu-schemas-prod.radix.equinor.com/schemas"
-    VERSION: Final[str] = "0.8.0"
-    FILENAME: Final[str] = "fmu_results.json"
-    DEV_URL: Final[str] = f"{DEV_ROOT}/{VERSION}/{FILENAME}"
-    PROD_URL: Final[str] = f"{PROD_ROOT}/{VERSION}/{FILENAME}"
-
-    @staticmethod
-    def url() -> str:
-        """This method is meant to return the `PROD_URL` or `DEV_URL` under relevant
-        circumstances."""
-        return FmuResultsSchema.PROD_URL
-
+from pathlib import Path
+from typing import Any, Final
 
 SOURCE: Final = "fmu"
 
@@ -30,6 +17,78 @@ class ValidationError(ValueError, KeyError):
 
 class ConfigurationError(ValueError):
     pass
+
+
+class FmuSchemas:
+    """These URLs can be constructed programmatically from radixconfig.yaml if need be:
+
+        {cfg.components[].name}-{cfg.metadata.name}-{spec.environments[].name}
+
+    As they are unlikely to change they are hardcoded here.
+    """
+
+    DEV_URL: Final[str] = "https://main-fmu-schemas-dev.radix.equinor.com"
+    PROD_URL: Final[str] = "https://main-fmu-schemas-prod.radix.equinor.com"
+    PATH: Final[Path] = Path("schemas")
+
+
+class SchemaBase(ABC):
+    VERSION: str
+    """The current version of the schema."""
+
+    FILENAME: str
+    """The filename, i.e. schema.json."""
+
+    PATH: Path
+    """The on-disk _and_ URL path following the domain, i.e:
+
+        schemas/0.1.0/schema.json
+
+    This path should _always_ have `FmuSchemas.PATH` as its first parent.
+    This determines the on-disk and URL location of this schema file. A
+    trivial example is:
+
+        PATH: Path = FmuSchemas.PATH / VERSION / FILENAME
+
+    """
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs: dict[str, Any]) -> None:
+        super().__init_subclass__(**kwargs)
+        for attr in ("VERSION", "FILENAME", "PATH"):
+            if not hasattr(cls, attr):
+                raise TypeError(f"Subclass {cls.__name__} must define '{attr}'")
+
+    @classmethod
+    def url(cls) -> str:
+        """Returns the URL this file will reside at, based upon class variables set here
+        and in FmuSchemas."""
+        DEV_URL = f"{FmuSchemas.DEV_URL}/{cls.PATH}"
+        PROD_URL = f"{FmuSchemas.PROD_URL}/{cls.PATH}"
+
+        if os.environ.get("SCHEMA_RELEASE", None):
+            return PROD_URL
+        return DEV_URL
+
+    @staticmethod
+    @abstractmethod
+    def dump() -> dict[str, Any]:
+        """
+        Dumps the export root model to JSON format for schema validation and
+        usage in FMU data structures.
+
+        To update the schema:
+            1. Run the following CLI command to dump the updated schema:
+                `./tools/update_schema`.
+            2. Check the diff for changes. Adding fields usually indicates non-breaking
+                changes and is generally safe. However, if fields are removed, it could
+                indicate breaking changes that may affect dependent systems. Perform a
+                quality control (QC) check to ensure these changes do not break existing
+                implementations.
+                If changes are satisfactory and do not introduce issues, commit
+                them to maintain schema consistency.
+        """
+        raise NotImplementedError
 
 
 class ValidFormats(Enum):

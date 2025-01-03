@@ -10879,7 +10879,7 @@
       "type": "object"
     }
   },
-  "$id": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json",
+  "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "discriminator": {
     "propertyName": "class"

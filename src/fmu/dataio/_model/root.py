@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Literal, TypeVar, Union
 
 from pydantic import (
@@ -12,7 +13,7 @@ from pydantic import (
 from pydantic.json_schema import GenerateJsonSchema
 from typing_extensions import Annotated
 
-from fmu.dataio._definitions import FmuResultsSchema
+from fmu.dataio._definitions import FmuSchemas, SchemaBase
 
 from .data import AnyData
 from .enums import FMUClass
@@ -198,103 +199,97 @@ class Root(
         return json_schema
 
 
-class FmuResultsJsonSchema(GenerateJsonSchema):
-    contractual: Final[list[str]] = [
-        "access",
-        "class",
-        "data.alias",
-        "data.bbox",
-        "data.content",
-        "data.format",
-        "data.geometry",
-        "data.grid_model",
-        "data.is_observation",
-        "data.is_prediction",
-        "data.name",
-        "data.offset",
-        "data.product.name",
-        "data.seismic.attribute",
-        "data.spec.columns",
-        "data.stratigraphic",
-        "data.stratigraphic_alias",
-        "data.tagname",
-        "data.time",
-        "data.vertical_domain",
-        "file.checksum_md5",
-        "file.relative_path",
-        "file.size_bytes",
-        "fmu.aggregation.operation",
-        "fmu.aggregation.realization_ids",
-        "fmu.case",
-        "fmu.context.stage",
-        "fmu.iteration.name",
-        "fmu.iteration.uuid",
-        "fmu.model",
-        "fmu.realization.id",
-        "fmu.realization.is_reference",
-        "fmu.realization.name",
-        "fmu.realization.uuid",
-        "fmu.workflow",
-        "masterdata",
-        "source",
-        "tracklog.datetime",
-        "tracklog.event",
-        "tracklog.user.id",
-        "version",
-    ]
+class FmuResultsSchema(SchemaBase):
+    """The main metadata export describing the results."""
 
-    def _remove_format_path(self, obj: T) -> T:
-        """
-        Removes entries with key "format" and value "path" from dictionaries. This
-        adjustment is necessary because JSON Schema does not recognize the "format":
-        "path", while OpenAPI does. This function is used in contexts where OpenAPI
-        specifications are not applicable.
-        """
+    VERSION: str = "0.8.0"
+    FILENAME: str = "fmu_results.json"
+    PATH: Path = FmuSchemas.PATH / VERSION / FILENAME
 
-        if isinstance(obj, dict):
-            return {
-                k: self._remove_format_path(v)
-                for k, v in obj.items()
-                if not (k == "format" and v == "path")
-            }
+    class FmuResultsGenerateJsonSchema(GenerateJsonSchema):
+        contractual: Final[list[str]] = [
+            "access",
+            "class",
+            "data.alias",
+            "data.bbox",
+            "data.content",
+            "data.format",
+            "data.geometry",
+            "data.grid_model",
+            "data.is_observation",
+            "data.is_prediction",
+            "data.name",
+            "data.offset",
+            "data.product.name",
+            "data.seismic.attribute",
+            "data.spec.columns",
+            "data.stratigraphic",
+            "data.stratigraphic_alias",
+            "data.tagname",
+            "data.time",
+            "data.vertical_domain",
+            "file.checksum_md5",
+            "file.relative_path",
+            "file.size_bytes",
+            "fmu.aggregation.operation",
+            "fmu.aggregation.realization_ids",
+            "fmu.case",
+            "fmu.context.stage",
+            "fmu.iteration.name",
+            "fmu.iteration.uuid",
+            "fmu.model",
+            "fmu.realization.id",
+            "fmu.realization.is_reference",
+            "fmu.realization.name",
+            "fmu.realization.uuid",
+            "fmu.workflow",
+            "masterdata",
+            "source",
+            "tracklog.datetime",
+            "tracklog.event",
+            "tracklog.user.id",
+            "version",
+        ]
 
-        if isinstance(obj, list):
-            return [self._remove_format_path(element) for element in obj]
+        def _remove_format_path(self, obj: T) -> T:
+            """
+            Removes entries with key "format" and value "path" from dictionaries. This
+            adjustment is necessary because JSON Schema does not recognize the "format":
+            "path", while OpenAPI does. This function is used in contexts where OpenAPI
+            specifications are not applicable.
+            """
 
-        return obj
+            if isinstance(obj, dict):
+                return {
+                    k: self._remove_format_path(v)
+                    for k, v in obj.items()
+                    if not (k == "format" and v == "path")
+                }
 
-    def generate(
-        self,
-        schema: Mapping[str, Any],
-        mode: Literal["validation", "serialization"] = "validation",
-    ) -> dict[str, Any]:
-        json_schema = super().generate(schema, mode=mode)
-        json_schema["$schema"] = self.schema_dialect
-        json_schema["$id"] = FmuResultsSchema.url()
-        json_schema["$contractual"] = self.contractual
+            if isinstance(obj, list):
+                return [self._remove_format_path(element) for element in obj]
 
-        # sumo-core's validator does not recognize these.
-        del json_schema["discriminator"]["mapping"]
-        del json_schema["$defs"]["AnyData"]["discriminator"]["mapping"]
-        del json_schema["$defs"]["AnyProduct"]["discriminator"]["mapping"]
+            return obj
 
-        return self._remove_format_path(json_schema)
+        def generate(
+            self,
+            schema: Mapping[str, Any],
+            mode: Literal["validation", "serialization"] = "validation",
+        ) -> dict[str, Any]:
+            json_schema = super().generate(schema, mode=mode)
+            json_schema["$schema"] = self.schema_dialect
+            json_schema["$id"] = FmuResultsSchema.url()
+            json_schema["$contractual"] = self.contractual
 
+            # sumo-core's validator does not recognize these.
+            del json_schema["discriminator"]["mapping"]
+            del json_schema["$defs"]["AnyData"]["discriminator"]["mapping"]
+            del json_schema["$defs"]["AnyProduct"]["discriminator"]["mapping"]
 
-def dump() -> dict:
-    """
-    Dumps the export root model to JSON format for schema validation and
-    usage in FMU data structures.
+            return self._remove_format_path(json_schema)
 
-    To update the schema:
-        1. Run the following CLI command to dump the updated schema:
-            `./tools/update_schema`
-        2. Check the diff for changes. Adding fields usually indicates non-breaking
-            changes and is generally safe. However, if fields are removed, it could
-            indicate breaking changes that may affect dependent systems. Perform a
-            quality control (QC) check to ensure these changes do not break existing
-            implementations.
-            If changes are satisfactory and do not introduce issues, commit
-            them to maintain schema consistency.
-    """
-    return Root.model_json_schema(schema_generator=FmuResultsJsonSchema)
+    @staticmethod
+    def dump() -> dict[str, Any]:
+        return Root.model_json_schema(
+            schema_generator=FmuResultsSchema.FmuResultsGenerateJsonSchema
+        )
