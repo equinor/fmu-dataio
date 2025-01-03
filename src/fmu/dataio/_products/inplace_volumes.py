@@ -27,7 +27,7 @@ class InplaceVolumesResultRow(BaseModel):
 
     FLUID: InplaceVolumes.Fluid
     ZONE: str
-    REGION: Optional[str] = Field(default=None)
+    REGION: str
     FACIES: Optional[str] = Field(default=None)
     LICENSE: Optional[str] = Field(default=None)
 
