@@ -9,8 +9,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from fmu.dataio._definitions import FmuResultsSchema
-from fmu.dataio._model import dump
+from fmu.dataio._model import FmuResultsSchema
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -119,7 +118,7 @@ def main() -> None:
     parser = _get_parser()
     args = parser.parse_args()
 
-    new_schema = dump()
+    new_schema = FmuResultsSchema.dump()
 
     output_path = _get_output_path(args.version)
     output_filepath = output_path / args.filename
