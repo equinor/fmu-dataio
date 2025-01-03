@@ -354,12 +354,11 @@ def test_total_volumes_required(exportvolumetrics, voltable_legacy):
         exportvolumetrics._compute_water_zone_volumes_from_totals(df)
 
 
-@pytest.mark.parametrize("required_col", ["BULK", "PORV", "HCPV"])
+@pytest.mark.parametrize("required_col", _enums.InplaceVolumes.required_columns())
 def test_validate_table_required_col_missing(
     exportvolumetrics, voltable_standard, required_col
 ):
     """Test that the job fails if a required volumetric column is missing"""
-
     df = voltable_standard.drop(columns=required_col)
     exportvolumetrics._dataframe = df
 
