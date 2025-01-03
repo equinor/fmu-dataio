@@ -57,6 +57,7 @@ class InplaceVolumes:
         """Returns a list of the value columns."""
         return [
             InplaceVolumes.VolumetricColumns.BULK.value,
+            InplaceVolumes.VolumetricColumns.NET.value,
             InplaceVolumes.VolumetricColumns.PORV.value,
             InplaceVolumes.VolumetricColumns.HCPV.value,
         ]

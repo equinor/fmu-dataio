@@ -149,6 +149,11 @@ def test_convert_table_from_legacy_to_standard_format(
 
     pd.testing.assert_frame_equal(voltable_standard, exported_table)
 
+    # check that NET is set equal to BULK
+    assert "NET" not in voltable_legacy
+    assert "NET" in exported_table
+    assert np.allclose(exported_table["NET"], exported_table["BULK"])
+
     # check that the fluid column exists and contains oil and gas
     fluid_col = _enums.InplaceVolumes.TableIndexColumns.FLUID.value
     assert fluid_col in exported_table
@@ -214,6 +219,27 @@ def test_convert_table_from_legacy_to_standard_format(
         voltable_legacy.query(filter_query)["PORV_TOTAL"].sum(),
         exported_table.query(filter_query)["PORV"].sum(),
     )
+
+
+@inside_rms
+def test_net_column_equal_bulk_if_missing(exportvolumetrics, voltable_standard):
+    """Test that the NET column is set equal to BULK if it is missing"""
+
+    df_in = voltable_standard.copy()
+
+    # remove the NET column
+    # and check that NET is set equal to the BULK
+    df_in = df_in.drop(columns="NET")
+    df_out = exportvolumetrics._set_net_equal_to_bulk_if_missing_in_table(df_in)
+    assert "NET" in df_out
+    assert np.allclose(df_out["NET"], df_out["BULK"])
+
+    # add a NET column with some values
+    # and check that NET column is kept as is
+    df_in["NET"] = df_out["BULK"] * 0.7
+    df_out = exportvolumetrics._set_net_equal_to_bulk_if_missing_in_table(df_in)
+    assert "NET" in df_out
+    assert np.allclose(df_out["NET"], df_out["BULK"] * 0.7)
 
 
 @pytest.mark.parametrize("volumetric_col", ["BULK", "PORV"])
