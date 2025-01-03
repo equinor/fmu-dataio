@@ -34,8 +34,8 @@ dependencies = [
     "fmu-config>=1.1.0",
     "numpy",
     "pandas",
-    "pyarrow", 
-    "pydantic < 2.10",
+    "pyarrow",
+    "pydantic",
     "PyYAML",
     "xtgeo>=2.16",
 ]
