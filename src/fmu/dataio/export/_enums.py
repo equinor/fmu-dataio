@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Final
 
 
 class InplaceVolumes:
@@ -22,9 +21,6 @@ class InplaceVolumes:
         REGION = "REGION"
         FACIES = "FACIES"
         LICENSE = "LICENSE"
-
-    FLUID_COLUMN: Final = TableIndexColumns.FLUID
-    """The column name and value used to indicate the index value for fluid type."""
 
     class VolumetricColumns(str, Enum):
         """The value columns for an inplace volumes table."""
