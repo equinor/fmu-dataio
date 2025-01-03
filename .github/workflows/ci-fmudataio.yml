@@ -1,4 +1,4 @@
-name: Build and test fmu-dataio
+name: Test
 
 on:
   pull_request:
@@ -7,8 +7,8 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  build_pywheels:
-    name: PY ${{ matrix.python-version }} on ${{ matrix.os }}
+  run_tests:
+    name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -43,3 +43,12 @@ jobs:
 
       - name: Full test
         run: pytest -v
+
+  docker_build:
+    name: Build Docker image
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test Docker image can build
+        run: docker build .
