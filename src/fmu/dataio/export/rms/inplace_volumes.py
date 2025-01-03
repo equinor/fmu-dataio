@@ -176,6 +176,17 @@ class _ExportVolumetricsRMS:
         return table
 
     @staticmethod
+    def _set_net_equal_to_bulk_if_missing_in_table(table: pd.DataFrame) -> pd.DataFrame:
+        """
+        Add a NET column to the table equal to the BULK column if NET is missing,
+        since the absence implies a net-to-gross ratio of 1.
+        """
+        if _VolumetricColumns.NET.value not in table:
+            _logger.debug("NET column missing, setting NET equal BULK...")
+            table[_VolumetricColumns.NET.value] = table[_VolumetricColumns.BULK.value]
+        return table
+
+    @staticmethod
     def _set_table_column_order(table: pd.DataFrame) -> pd.DataFrame:
         """Set the column order in the table."""
         _logger.debug("Settting the table column order...")
@@ -230,6 +241,7 @@ class _ExportVolumetricsRMS:
         ]
         table = self._compute_water_zone_volumes_from_totals(table)
         table = self._transform_and_add_fluid_column_to_table(table, table_index)
+        table = self._set_net_equal_to_bulk_if_missing_in_table(table)
         table = self._add_missing_columns_to_table(table)
         return self._set_table_column_order(table)
 
