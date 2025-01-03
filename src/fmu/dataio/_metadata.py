@@ -7,9 +7,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final
 
-from pydantic import AnyHttpUrl, TypeAdapter
-
-from ._definitions import SOURCE, FmuResultsSchema
 from ._logging import null_logger
 from ._model import fields, schema
 from ._model.global_configuration import GlobalConfiguration
@@ -105,10 +102,7 @@ def generate_export_metadata(
 
     objdata = objectdata_provider_factory(obj, dataio, product)
 
-    return schema.InternalObjectMetadata(
-        schema_=TypeAdapter(AnyHttpUrl).validate_strings(FmuResultsSchema.url()),  # type: ignore[call-arg]
-        version=FmuResultsSchema.VERSION,
-        source=SOURCE,
+    return schema.InternalObjectMetadata(  # type: ignore[call-arg]
         class_=objdata.classname,
         fmu=_get_meta_fmu(fmudata) if fmudata else None,
         masterdata=(

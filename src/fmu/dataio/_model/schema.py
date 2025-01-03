@@ -1,9 +1,11 @@
 """
-This module, `_model.schema`, contains internal data structures that
-are designed to depend on external modules, but not the other way around.
-This design ensures modularity and flexibility, allowing external modules
-to be potentially separated into their own repositories without dependencies
-on the internals.
+This module contains models used to output the metadata that sit beside the exported
+data.
+
+It contains internal data structures that are designed to depend on external modules,
+but not the other way around. This design ensures modularity and flexibility, allowing
+external modules to be potentially separated into their own repositories without
+dependencies on the internals.
 """
 
 from __future__ import annotations
@@ -16,13 +18,13 @@ from pydantic import (
     AnyHttpUrl,
     BaseModel,
     Field,
-    TypeAdapter,
     model_validator,
 )
 
-from fmu.dataio._definitions import SOURCE, FmuResultsSchema
+from fmu.dataio._definitions import SOURCE
 
 from . import data, enums, fields
+from .root import FmuResultsSchema
 
 
 def property_warn() -> None:
@@ -99,13 +101,14 @@ class AllowedContent(BaseModel):
         return values
 
 
-class JsonSchemaMetadata(BaseModel, populate_by_name=True):
+class JsonSchemaMetadata(BaseModel):
+    """This model contains information about which schema validates its data."""
+
     schema_: AnyHttpUrl = Field(
-        alias="$schema",
-        default=TypeAdapter(AnyHttpUrl).validate_python(FmuResultsSchema.PROD_URL),
+        default_factory=FmuResultsSchema.url, alias="$schema", frozen=True
     )
-    version: str = Field(default=FmuResultsSchema.VERSION)
-    source: str = Field(default=SOURCE)
+    version: str = Field(default=FmuResultsSchema.VERSION, frozen=True)
+    source: str = Field(default=SOURCE, frozen=True)
 
 
 class Context(BaseModel, use_enum_values=True):
@@ -131,11 +134,11 @@ class InternalUnsetData(data.Data):
 
 class InternalFMU(fields.FMU):
     # This class is identical to the one used in the schema
-    # exept for more fmu context values beeing allowed internally
+    # except for more fmu context values being allowed internally
     context: Context  # type: ignore
 
 
-class InternalObjectMetadata(JsonSchemaMetadata):
+class InternalObjectMetadata(JsonSchemaMetadata, populate_by_name=True):
     # TODO: aim to use root.ObjectMetadata as base
     # class and disallow creating invalid metadata.
     class_: Literal[
@@ -159,7 +162,7 @@ class InternalObjectMetadata(JsonSchemaMetadata):
     preprocessed: Optional[bool] = Field(alias="_preprocessed", default=None)
 
 
-class InternalCaseMetadata(JsonSchemaMetadata):
+class InternalCaseMetadata(JsonSchemaMetadata, populate_by_name=True):
     class_: Literal["case"] = Field(alias="class", default="case")
     masterdata: fields.Masterdata
     access: fields.Access
