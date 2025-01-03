@@ -240,9 +240,18 @@ class _ExportVolumetricsRMS:
     def _validate_table(self) -> None:
         """
         Validate that the final table with volumes is according to the standard
-        defined for the inplace_volumes product.
+        defined for the inplace_volumes product. The table should have the required
+        index and value columns, and at least one of the main types 'oil' or 'gas'.
         """
         _logger.debug("Validating the dataframe...")
+
+        # check that all required index columns are present
+        for col in _enums.InplaceVolumes.required_index_columns():
+            if self._is_column_missing_in_table(col):
+                raise RuntimeError(
+                    f"Required index column {col} is missing in the volumetric table. "
+                    "Please update and rerun the volumetric job before export."
+                )
 
         has_oil = (
             "oil" in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN.value].values
@@ -259,7 +268,7 @@ class _ExportVolumetricsRMS:
                 "before export."
             )
 
-        # create list of missing or non-defined required columns
+        # check that all required value columns are present
         missing_calculations = []
         for col in _enums.InplaceVolumes.required_value_columns():
             if self._is_column_missing_in_table(col):
