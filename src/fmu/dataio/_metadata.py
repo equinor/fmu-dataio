@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, Final
 
 from pydantic import AnyHttpUrl, TypeAdapter
 
-from ._definitions import SOURCE, FmuResultsSchema
+from ._definitions import SOURCE
 from ._logging import null_logger
-from ._model import fields, schema
+from ._model import FmuResultsSchema, fields, schema
 from ._model.global_configuration import GlobalConfiguration
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider

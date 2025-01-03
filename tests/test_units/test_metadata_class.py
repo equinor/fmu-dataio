@@ -6,9 +6,9 @@ from copy import deepcopy
 import pytest
 
 import fmu.dataio as dio
-from fmu.dataio._definitions import SOURCE, FmuResultsSchema
+from fmu.dataio._definitions import SOURCE
 from fmu.dataio._metadata import generate_export_metadata
-from fmu.dataio._model import enums
+from fmu.dataio._model import FmuResultsSchema, enums
 from fmu.dataio._model.fields import (
     OperatingSystem,
     TracklogEvent,
@@ -31,7 +31,7 @@ def test_metadata_dollars(edataobj1, regsurf):
     mymeta = edataobj1.generate_metadata(obj=regsurf)
 
     assert mymeta["version"] == FmuResultsSchema.VERSION
-    assert mymeta["$schema"] == FmuResultsSchema.PROD_URL
+    assert mymeta["$schema"] == FmuResultsSchema.url()
     assert mymeta["source"] == SOURCE
 
 

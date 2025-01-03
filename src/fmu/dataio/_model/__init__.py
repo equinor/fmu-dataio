@@ -1,6 +1,6 @@
-from .root import Root, dump
+from .root import FmuResultsSchema, Root
 
 __all__ = [
-    "dump",
+    "FmuResultsSchema",
     "Root",
 ]
