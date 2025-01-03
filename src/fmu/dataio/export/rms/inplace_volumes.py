@@ -211,7 +211,7 @@ class _ExportVolumetricsRMS:
                 )
 
                 # add the fluid as column entry instead
-                fluid_table[_enums.InplaceVolumes.FLUID_COLUMN.value] = fluid
+                fluid_table[_TableIndexColumns.FLUID.value] = fluid
 
                 tables.append(fluid_table)
 
@@ -253,12 +253,8 @@ class _ExportVolumetricsRMS:
                     "Please update and rerun the volumetric job before export."
                 )
 
-        has_oil = (
-            "oil" in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN.value].values
-        )
-        has_gas = (
-            "gas" in self._dataframe[_enums.InplaceVolumes.FLUID_COLUMN.value].values
-        )
+        has_oil = "oil" in self._dataframe[_TableIndexColumns.FLUID.value].values
+        has_gas = "gas" in self._dataframe[_TableIndexColumns.FLUID.value].values
 
         # check that one of oil and gas fluids are present
         if not (has_oil or has_gas):

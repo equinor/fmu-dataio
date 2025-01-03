@@ -150,12 +150,9 @@ def test_convert_table_from_legacy_to_standard_format(
     pd.testing.assert_frame_equal(voltable_standard, exported_table)
 
     # check that the fluid column exists and contains oil and gas
-    assert _enums.InplaceVolumes.FLUID_COLUMN in exported_table
-    assert set(exported_table[_enums.InplaceVolumes.FLUID_COLUMN].unique()) == {
-        "oil",
-        "gas",
-        "water",
-    }
+    fluid_col = _enums.InplaceVolumes.TableIndexColumns.FLUID.value
+    assert fluid_col in exported_table
+    assert set(exported_table[fluid_col].unique()) == {"oil", "gas", "water"}
 
     # check the column order
     assert list(exported_table.columns) == EXPECTED_COLUMN_ORDER
