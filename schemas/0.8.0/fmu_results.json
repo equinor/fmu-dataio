@@ -3443,7 +3443,11 @@
       "description": "The ``product`` field contains information about which product this\ndata object represent.\nThis class contains metadata for the 'inplace_volumes' product.",
       "properties": {
         "file_schema": {
-          "$ref": "#/$defs/FileSchema",
+          "allOf": [
+            {
+              "$ref": "#/$defs/FileSchema"
+            }
+          ],
           "default": {
             "url": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/volumes/0.1.0/inplace_volumes.json",
             "version": "0.1.0"
