@@ -32,7 +32,7 @@ class InplaceVolumesResultRow(BaseModel):
     LICENSE: Optional[str] = Field(default=None)
 
     BULK: float = Field(ge=0.0)
-    NET: Optional[float] = Field(default=None, ge=0.0)
+    NET: float = Field(ge=0.0)
     PORV: float = Field(ge=0.0)
     HCPV: Optional[float] = Field(default=None, ge=0.0)
     STOIIP: Optional[float] = Field(default=None, ge=0.0)
