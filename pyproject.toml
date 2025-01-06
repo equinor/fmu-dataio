@@ -101,12 +101,14 @@ match = '(?!(test_|_)).*\.py'
 
 [tool.ruff]
 line-length = 88
-exclude = ["version.py"]
+exclude = ["version.py", "docs/ext/**"]
 
 [tool.ruff.lint]
 ignore = [
     "B028",  # No explicit `stacklevel` keyword argument found
     "C901",  # mccabe complex-structure
+    "PD901",  # Avoid using the generic variable name `df` for dataframes
+    "PD011",  # Avoid using .values on dataframes (gives false positives)
 ]
 select = [
     "B",  # flake-8-bugbear
@@ -116,7 +118,7 @@ select = [
     "F",  # pyflakes
     "I",  # isort
     "NPY",  # numpy
-    # "PD",  # pandas-vet
+    "PD",  # pandas-vet
     "PIE",  # flake8-pie
     # "PL",  # pylint
     "Q",  # flake8-quotes
@@ -125,12 +127,17 @@ select = [
     "SIM",  # flake8-simplify
     # "TCH",  # flake8-type-checking
     # "TID",  # flake8-tidy-imports
-    # "UP",  # pyupgrade
+    "UP",  # pyupgrade
     "W",  # pylint-warnings
 ]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint.pyupgrade]
+# Preserve types, even if a file imports `from __future__ import annotations`.
+# TODO: Remove when Python 3.8 / 3.9 support is deprecated.
+keep-runtime-typing = true
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
