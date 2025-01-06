@@ -50,12 +50,13 @@ def test_get_object_name():
     assert utils.get_object_name(Polygons(name="poly")) is None
     assert utils.get_object_name(Polygons(name="Not poly")) == "Not poly"
 
+    rng = np.random.default_rng()
     assert (
         utils.get_object_name(
             Grid(
-                np.random.randn(2, 2, 6).astype(np.float64),
-                np.random.randn(2, 2, 2, 4).astype(np.float32),
-                np.random.randn(1, 1, 1).astype(np.int32),
+                rng.standard_normal((2, 2, 6)).astype(np.float64),
+                rng.standard_normal((2, 2, 2, 4)).astype(np.float32),
+                rng.standard_normal((1, 1, 1)).astype(np.int32),
             )
         )
         is None
@@ -63,9 +64,9 @@ def test_get_object_name():
     assert (
         utils.get_object_name(
             Grid(
-                np.random.randn(2, 2, 6).astype(np.float64),
-                np.random.randn(2, 2, 2, 4).astype(np.float32),
-                np.random.randn(1, 1, 1).astype(np.int32),
+                rng.standard_normal((2, 2, 6)).astype(np.float64),
+                rng.standard_normal((2, 2, 2, 4)).astype(np.float32),
+                rng.standard_normal((1, 1, 1)).astype(np.int32),
                 name="noname",
             )
         )
@@ -74,9 +75,9 @@ def test_get_object_name():
     assert (
         utils.get_object_name(
             Grid(
-                np.random.randn(2, 2, 6).astype(np.float64),
-                np.random.randn(2, 2, 2, 4).astype(np.float32),
-                np.random.randn(1, 1, 1).astype(np.int32),
+                rng.standard_normal((2, 2, 6)).astype(np.float64),
+                rng.standard_normal((2, 2, 2, 4)).astype(np.float32),
+                rng.standard_normal((1, 1, 1)).astype(np.int32),
                 name="Not noname",
             )
         )

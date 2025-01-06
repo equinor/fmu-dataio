@@ -2,7 +2,7 @@ import ert.__main__
 import pytest
 import yaml
 
-import fmu.dataio as dataio
+from fmu import dataio
 
 from .ert_config_utils import (
     add_copy_preprocessed_workflow,

@@ -39,18 +39,18 @@ def _fixture_testdata_stratigraphy() -> Stratigraphy:
 def test_stratigraphy_dunder_iter(testdata_stratigraphy):
     try:
         count = 0
-        for item in testdata_stratigraphy:
+        for _ in testdata_stratigraphy:
             count += 1
         assert count == 3
     except Exception:
-        assert False, "Stratigraphy class does not have __iter__()"
+        pytest.fail("Stratigraphy class does not have __iter__()")
 
 
 def test_stratigraphy_dunder_getitem(testdata_stratigraphy):
     try:
         testdata_stratigraphy["TopStratUnit2"]
     except Exception:
-        assert False, "Stratigraphy class does not have __getitem__()"
+        pytest.fail("Stratigraphy class does not have __getitem__()")
 
 
 # --------------------------------------------------------------------------------------
@@ -80,15 +80,15 @@ def _fixture_testdata_parameters() -> Parameters:
 def test_parameters_dunder_iter(testdata_parameters):
     try:
         count = 0
-        for item in testdata_parameters:
+        for _ in testdata_parameters:
             count += 1
         assert count == 3
     except Exception:
-        assert False, "Parameters class does not have __iter__()"
+        pytest.fail("Parameters class does not have __iter__()")
 
 
 def test_parameters_dunder_getitem(testdata_parameters):
     try:
         testdata_parameters["p2"]
     except Exception:
-        assert False, "Parameters class does not have __getitem__()"
+        pytest.fail("Parameters class does not have __getitem__()")

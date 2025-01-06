@@ -265,8 +265,8 @@ class ObjectDataProvider(Provider):
         """Validate that fmt (file format) matches data and return legal extension."""
         try:
             return validator.value[fmt]
-        except KeyError:
+        except KeyError as e:
             raise ConfigurationError(
                 f"The file format {fmt} is not supported. ",
                 f"Valid formats are: {list(validator.value.keys())}",
-            )
+            ) from e

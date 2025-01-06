@@ -1,7 +1,7 @@
 """Test the dataio running RMS spesici utility function for volumetrics"""
 
-import unittest.mock as mock
 from pathlib import Path
+from unittest import mock
 
 import jsonschema
 import numpy as np
@@ -10,7 +10,7 @@ import pyarrow.parquet as pq
 import pytest
 from pydantic import ValidationError
 
-import fmu.dataio as dataio
+from fmu import dataio
 from fmu.dataio._logging import null_logger
 from fmu.dataio._products.inplace_volumes import (
     InplaceVolumesResult,
