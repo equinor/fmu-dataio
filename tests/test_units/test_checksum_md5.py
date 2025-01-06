@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import fmu.dataio.readers as readers
+from fmu.dataio import readers
 from fmu.dataio._utils import md5sum
 from fmu.dataio.dataio import ExportData, read_metadata
 

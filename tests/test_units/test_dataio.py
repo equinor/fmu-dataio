@@ -714,7 +714,7 @@ def test_global_config_from_env(monkeypatch, global_config2_path, globalconfig1)
     monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(global_config2_path))
 
     edata = ExportData(content="depth")  # the env variable will override this
-    assert getattr(edata.config.masterdata, "smda")
+    assert edata.config.masterdata.smda
     assert edata.config.model.name == "ff"
 
     # do not use global config from environment when explicitly given
