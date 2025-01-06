@@ -516,9 +516,8 @@ def _get_modules(
         if public_members is not None:
             if modname in public_members:
                 public.append(fullname)
-        else:
-            if not modname.startswith("_"):
-                public.append(fullname)
+        elif not modname.startswith("_"):
+            public.append(fullname)
     return public, items
 
 

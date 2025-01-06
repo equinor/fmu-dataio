@@ -7,7 +7,7 @@ import pytest
 import xtgeo
 
 import fmu.dataio._utils as utils
-import fmu.dataio.dataio as dataio
+from fmu.dataio import dataio
 
 logger = logging.getLogger(__name__)
 
