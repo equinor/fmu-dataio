@@ -14,7 +14,7 @@ import pandas as pd
 import pytest
 import yaml
 
-import fmu.dataio.dataio as dataio
+from fmu.dataio import dataio
 from fmu.dataio._utils import prettyprint_dict
 
 logger = logging.getLogger(__name__)

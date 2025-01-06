@@ -7,7 +7,7 @@ import os
 import pydantic
 import pytest
 
-import fmu.dataio as dataio
+from fmu import dataio
 
 # from conftest import pretend_ert_env_run1
 from fmu.dataio._model.enums import ErtSimulationMode, FMUContext

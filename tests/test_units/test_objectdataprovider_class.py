@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-import fmu.dataio as dataio
+from fmu import dataio
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
 from fmu.dataio._model.specification import FaultRoomSurfaceSpecification
 from fmu.dataio.providers.objectdata._faultroom import FaultRoomSurfaceProvider
