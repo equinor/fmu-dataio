@@ -3,7 +3,7 @@
 import logging
 from pathlib import Path
 
-import fmu.dataio as dataio
+from fmu import dataio
 from fmu.config import utilities as utils
 
 logger = logging.getLogger(__name__)

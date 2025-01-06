@@ -15,7 +15,7 @@ import os
 
 import pytest
 
-import fmu.dataio as dataio
+from fmu import dataio
 from fmu.dataio import _utils as utils
 
 from ..conftest import remove_ert_env, set_ert_env_prehook

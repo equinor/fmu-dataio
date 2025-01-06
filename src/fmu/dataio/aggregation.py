@@ -226,9 +226,8 @@ class AggregatedData:
 
         if self.aggregation_id is None:
             self.aggregation_id = self._generate_aggr_uuid(uuids)
-        else:
-            if not isinstance(self.aggregation_id, str):
-                raise ValueError("aggregation_id must be a string")
+        elif not isinstance(self.aggregation_id, str):
+            raise ValueError("aggregation_id must be a string")
 
         if not self.operation:
             raise ValueError("The 'operation' key has no value")
@@ -346,8 +345,10 @@ class AggregatedData:
             try:
                 rid = conf["fmu"]["realization"]["id"]
                 xuuid = conf["fmu"]["realization"]["uuid"]
-            except Exception as error:
-                raise ValidationError(f"Seems that input config are not valid: {error}")
+            except Exception as e:
+                raise ValidationError(
+                    f"Seems that input config are not valid: {e}"
+                ) from e
 
             real_ids.append(rid)
             uuids.append(xuuid)

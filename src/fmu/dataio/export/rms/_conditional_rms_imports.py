@@ -19,7 +19,7 @@ def import_rms_package() -> tuple[Any, Any]:
     """
     try:
         import rmsapi
-        import rmsapi.jobs as jobs
+        from rmsapi import jobs
 
     except ImportError:
         try:
@@ -28,13 +28,13 @@ def import_rms_package() -> tuple[Any, Any]:
                     "ignore", category=DeprecationWarning, module="roxar"
                 )
                 import roxar as rmsapi
-                import roxar.jobs as jobs
+                from roxar import jobs
 
-        except ImportError:
+        except ImportError as e:
             raise ImportError(
                 "Neither 'roxar' nor 'rmsapi' are available. You have to be inside "
                 "RMS to use this function."
-            )
+            ) from e
 
     return (rmsapi, jobs)
 
