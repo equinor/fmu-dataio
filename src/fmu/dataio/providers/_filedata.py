@@ -146,7 +146,7 @@ class FileDataProvider(Provider):
             self._get_timepart_for_filename(),
         )
         # join non-empty parts with '--'
-        filestem = "--".join((p for p in filestem_order if p))
+        filestem = "--".join(p for p in filestem_order if p)
         filestem = self._sanitize_the_filestem(filestem)
         return filestem.lower()
 
