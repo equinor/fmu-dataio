@@ -103,7 +103,8 @@ def export_file(
             if isinstance(out, xtgeo.Polygons):
                 # out.pname = "ID"  not working
                 out.get_dataframe(copy=False).rename(
-                    columns={out.pname: "ID"}, inplace=True
+                    columns={out.pname: "ID"},
+                    inplace=True,  # noqa: PD002
                 )
         out.get_dataframe(copy=False).to_csv(file, index=False)
     elif file_suffix == ".pol" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):

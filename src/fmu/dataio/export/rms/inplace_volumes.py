@@ -114,11 +114,9 @@ class _ExportVolumetricsRMS:
         """Fetch volumetric table from RMS and convert to pandas dataframe"""
         _logger.debug("Read values and convert to pandas dataframe...")
         return pd.DataFrame.from_dict(
-            (
-                self.project.volumetric_tables[self._volume_table_name]
-                .get_data_table()
-                .to_dict()
-            )
+            self.project.volumetric_tables[self._volume_table_name]
+            .get_data_table()
+            .to_dict()
         )
 
     @staticmethod
