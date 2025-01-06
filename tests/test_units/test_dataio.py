@@ -1135,6 +1135,13 @@ def test_alias_as_none(globalconfig2, regsurf):
     assert meta["data"]["alias"] == [name]
 
 
+def test_product_not_present_in_generated_metadata(globalconfig1, regsurf):
+    """Test that data.product is not set for regular exports through ExportData"""
+
+    meta = ExportData(config=globalconfig1, content="depth").generate_metadata(regsurf)
+    assert "product" not in meta["data"]
+
+
 def test_ert_experiment_id_present_in_generated_metadata(
     fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
 ):
