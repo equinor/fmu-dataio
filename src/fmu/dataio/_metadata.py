@@ -13,6 +13,7 @@ from ._definitions import SOURCE, FmuResultsSchema
 from ._logging import null_logger
 from ._model import fields, schema
 from ._model.global_configuration import GlobalConfiguration
+from ._model.product import Product
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers.objectdata._provider import objectdata_provider_factory
@@ -73,6 +74,7 @@ def generate_export_metadata(
     obj: types.Inferrable,
     dataio: ExportData,
     fmudata: FmuProvider | None = None,
+    product: Product | None = None,
 ) -> schema.InternalObjectMetadata:
     """
     Main function to generate the full metadata
@@ -101,7 +103,7 @@ def generate_export_metadata(
 
     """
 
-    objdata = objectdata_provider_factory(obj, dataio)
+    objdata = objectdata_provider_factory(obj, dataio, product)
 
     return schema.InternalObjectMetadata(
         schema_=TypeAdapter(AnyHttpUrl).validate_strings(FmuResultsSchema.url()),  # type: ignore[call-arg]

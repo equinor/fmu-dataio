@@ -8,16 +8,13 @@ from typing import TYPE_CHECKING, Any, Final
 
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model.data import (
-    AnyData,
-    Time,
-    Timestamp,
-)
+from fmu.dataio._model.data import AnyData, Time, Timestamp
 from fmu.dataio._model.enums import Content
 from fmu.dataio._model.global_configuration import (
     GlobalConfiguration,
     StratigraphyElement,
 )
+from fmu.dataio._model.product import Product
 from fmu.dataio._model.schema import AllowedContent, InternalUnsetData
 from fmu.dataio._utils import generate_description
 from fmu.dataio.providers._base import Provider
@@ -51,6 +48,7 @@ class ObjectDataProvider(Provider):
     # input fields
     obj: Inferrable
     dataio: ExportData
+    product: Product | None = None
 
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
@@ -83,7 +81,7 @@ class ObjectDataProvider(Provider):
             metadata[usecontent] = getattr(
                 content_model.content_incl_specific, usecontent, None
             )
-        metadata["product"] = None
+        metadata["product"] = self.product
         metadata["tagname"] = self.dataio.tagname
         metadata["format"] = self.fmt
         metadata["layout"] = self.layout

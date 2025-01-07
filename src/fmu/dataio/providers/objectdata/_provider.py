@@ -96,6 +96,7 @@ import xtgeo
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model.enums import FMUClass, Layout
+from fmu.dataio._model.product import Product
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
@@ -120,7 +121,9 @@ logger: Final = null_logger(__name__)
 
 
 def objectdata_provider_factory(
-    obj: Inferrable, dataio: ExportData
+    obj: Inferrable,
+    dataio: ExportData,
+    product: Product | None = None,
 ) -> ObjectDataProvider:
     """Factory function that generates metadata for a particular data object. This
     function will return an instance of an object-independent (i.e., typeable) class
@@ -134,25 +137,25 @@ def objectdata_provider_factory(
         metadata for.
     """
     if isinstance(obj, xtgeo.RegularSurface):
-        return RegularSurfaceDataProvider(obj=obj, dataio=dataio)
+        return RegularSurfaceDataProvider(obj=obj, dataio=dataio, product=product)
     if isinstance(obj, xtgeo.Polygons):
-        return PolygonsDataProvider(obj=obj, dataio=dataio)
+        return PolygonsDataProvider(obj=obj, dataio=dataio, product=product)
     if isinstance(obj, xtgeo.Points):
-        return PointsDataProvider(obj=obj, dataio=dataio)
+        return PointsDataProvider(obj=obj, dataio=dataio, product=product)
     if isinstance(obj, xtgeo.Cube):
-        return CubeDataProvider(obj=obj, dataio=dataio)
+        return CubeDataProvider(obj=obj, dataio=dataio, product=product)
     if isinstance(obj, xtgeo.Grid):
-        return CPGridDataProvider(obj=obj, dataio=dataio)
+        return CPGridDataProvider(obj=obj, dataio=dataio, product=product)
     if isinstance(obj, xtgeo.GridProperty):
-        return CPGridPropertyDataProvider(obj=obj, dataio=dataio)
+        return CPGridPropertyDataProvider(obj=obj, dataio=dataio, product=product)
     if isinstance(obj, pd.DataFrame):
-        return DataFrameDataProvider(obj=obj, dataio=dataio)
+        return DataFrameDataProvider(obj=obj, dataio=dataio, product=product)
     if isinstance(obj, FaultRoomSurface):
-        return FaultRoomSurfaceProvider(obj=obj, dataio=dataio)
+        return FaultRoomSurfaceProvider(obj=obj, dataio=dataio, product=product)
     if isinstance(obj, dict):
-        return DictionaryDataProvider(obj=obj, dataio=dataio)
+        return DictionaryDataProvider(obj=obj, dataio=dataio, product=product)
     if isinstance(obj, pa.Table):
-        return ArrowTableDataProvider(obj=obj, dataio=dataio)
+        return ArrowTableDataProvider(obj=obj, dataio=dataio, product=product)
 
     raise NotImplementedError(f"This data type is not currently supported: {type(obj)}")
 

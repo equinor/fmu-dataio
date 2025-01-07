@@ -11,7 +11,8 @@ import pyarrow as pa
 
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model.enums import Classification
+from fmu.dataio._model import product
+from fmu.dataio._model.enums import Classification, ProductName
 from fmu.dataio._products.inplace_volumes import InplaceVolumesResult
 from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
@@ -69,6 +70,11 @@ class _ExportVolumetricsRMS:
         self._volume_table_name = self._read_volume_table_name_from_job()
         self._dataframe = self._get_table_with_volumes()
         _logger.debug("Process data... DONE")
+
+    @property
+    def _product(self) -> product.InplaceVolumesProduct:
+        """Product type for the exported data."""
+        return product.InplaceVolumesProduct(name=ProductName.inplace_volumes)
 
     @property
     def _classification(self) -> Classification:
@@ -315,7 +321,12 @@ class _ExportVolumetricsRMS:
         )
 
         volume_table = pa.Table.from_pandas(self._dataframe)
-        absolute_export_path = edata.export(volume_table)
+
+        # export the volume table with product info in the metadata
+        absolute_export_path = edata._export_with_product(
+            volume_table,
+            product=self._product,
+        )
 
         _logger.debug("Volume result to: %s", absolute_export_path)
         return ExportResult(
