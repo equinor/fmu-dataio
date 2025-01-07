@@ -12,7 +12,10 @@ from pydantic import ValidationError
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
+from fmu.dataio._model.enums import ProductName
 from fmu.dataio._products.inplace_volumes import (
+    SCHEMA,
+    VERSION,
     InplaceVolumesResult,
     InplaceVolumesResultRow,
     dump,
@@ -582,3 +585,15 @@ def test_that_required_columns_one_to_one_in_enums_and_schema() -> None:
         if field_info.is_required():
             schema_required_fields.append(field_name)
     assert set(_enums.InplaceVolumes.required_columns()) == set(schema_required_fields)
+
+
+def test_product_in_metadata(exportvolumetrics):
+    """Test that the product is set correctly in the metadata"""
+
+    out = exportvolumetrics._export_volume_table()
+    metadata = dataio.read_metadata(out.items[0].absolute_path)
+
+    assert "product" in metadata["data"]
+    assert metadata["data"]["product"]["name"] == ProductName.inplace_volumes
+    assert metadata["data"]["product"]["file_schema"]["version"] == VERSION
+    assert metadata["data"]["product"]["file_schema"]["url"] == SCHEMA
