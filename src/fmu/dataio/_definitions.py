@@ -59,6 +59,12 @@ class SchemaBase(ABC):
             if not hasattr(cls, attr):
                 raise TypeError(f"Subclass {cls.__name__} must define '{attr}'")
 
+        if not cls.PATH.parts[0].startswith(str(FmuSchemas.PATH)):
+            raise ValueError(
+                f"PATH must start with `FmuSchemas.PATH`: {FmuSchemas.PATH}. "
+                f"Got {cls.PATH}"
+            )
+
     @classmethod
     def url(cls) -> str:
         """Returns the URL this file will reside at, based upon class variables set here
