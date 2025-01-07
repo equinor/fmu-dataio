@@ -30,6 +30,7 @@ from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._model import enums, global_configuration
 from ._model.global_configuration import GlobalConfiguration
+from ._model.product import Product
 from ._utils import (
     detect_inside_rms,  # dataio_examples,
     export_file,
@@ -808,6 +809,24 @@ class ExportData:
         assert filemeta.absolute_path is not None  # for mypy
         export_file(obj, file=filemeta.absolute_path, fmt=objdata.fmt)
         return str(filemeta.absolute_path)
+
+    def _export_with_product(self, obj: types.Inferrable, product: Product) -> str:
+        """Export the object with product information in the metadata."""
+
+        fmudata = self._get_fmu_provider() if self._fmurun else None
+
+        metadata = generate_export_metadata(
+            obj=obj, dataio=self, fmudata=fmudata, product=product
+        ).model_dump(mode="json", exclude_none=True, by_alias=True)
+
+        outfile = Path(metadata["file"]["absolute_path"])
+        metafile = outfile.parent / f".{outfile.name}.yml"
+
+        export_file(obj, outfile, fmt=metadata["data"].get("format", ""))
+        logger.info("Actual file is:   %s", outfile)
+
+        export_metadata_file(metafile, metadata)
+        return str(outfile)
 
     # ==================================================================================
     # Public methods:
