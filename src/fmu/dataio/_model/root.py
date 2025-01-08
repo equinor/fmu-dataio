@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Literal, TypeVar, Union
+from typing import TYPE_CHECKING, Dict, List, Literal, Optional, TypeVar, Union
 
 from pydantic import (
     BaseModel,
@@ -154,6 +154,8 @@ class ObjectMetadata(MetadataBase):
     display: Display
     """ The ``display`` block contains information related to how this data object
     should/could be displayed. See :class:`Display`."""
+
+    foo: Optional[str] = None
 
 
 class Root(
