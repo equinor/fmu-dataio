@@ -14,11 +14,9 @@ from fmu import dataio
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model.enums import ProductName
 from fmu.dataio._products.inplace_volumes import (
-    SCHEMA,
-    VERSION,
     InplaceVolumesResult,
     InplaceVolumesResultRow,
-    dump,
+    InplaceVolumesSchema,
 )
 from fmu.dataio.export import _enums
 from tests.utils import inside_rms
@@ -564,7 +562,9 @@ def test_inplace_volumes_payload_validates_against_schema(
         .replace(np.nan, None)
         .to_dict(orient="records")
     )
-    jsonschema.validate(instance=df, schema=dump())  # Throws if invalid
+    jsonschema.validate(
+        instance=df, schema=InplaceVolumesSchema.dump()
+    )  # Throws if invalid
 
 
 @inside_rms
@@ -595,5 +595,10 @@ def test_product_in_metadata(exportvolumetrics):
 
     assert "product" in metadata["data"]
     assert metadata["data"]["product"]["name"] == ProductName.inplace_volumes
-    assert metadata["data"]["product"]["file_schema"]["version"] == VERSION
-    assert metadata["data"]["product"]["file_schema"]["url"] == SCHEMA
+    assert (
+        metadata["data"]["product"]["file_schema"]["version"]
+        == InplaceVolumesSchema.VERSION
+    )
+    assert (
+        metadata["data"]["product"]["file_schema"]["url"] == InplaceVolumesSchema.url()
+    )
