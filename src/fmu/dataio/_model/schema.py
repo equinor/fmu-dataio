@@ -105,7 +105,9 @@ class JsonSchemaMetadata(BaseModel):
     """This model contains information about which schema validates its data."""
 
     schema_: AnyHttpUrl = Field(
-        default_factory=FmuResultsSchema.url, alias="$schema", frozen=True
+        default_factory=lambda: AnyHttpUrl(FmuResultsSchema.url()),
+        alias="$schema",
+        frozen=True,
     )
     version: str = Field(default=FmuResultsSchema.VERSION, frozen=True)
     source: str = Field(default=SOURCE, frozen=True)
