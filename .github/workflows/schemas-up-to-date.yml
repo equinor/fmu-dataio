@@ -22,6 +22,12 @@ jobs:
           pip install pip -U
           pip install -e .
 
+      - name: Debug GitHub Context
+        run: |
+          echo "Full ref: ${{ github.ref }}"
+          echo "Base ref: ${{ github.event.pull_request.base.ref }}"
+          echo "Head ref: ${{ github.event.pull_request.head.ref }}"
+
       - name: Set SCHEMA_RELEASE for staging
         if: ${{ github.event.pull_request.base.ref == 'staging' }}
         run: echo "SCHEMA_RELEASE=1" >> $GITHUB_ENV
