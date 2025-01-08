@@ -111,10 +111,6 @@ class JsonSchemaMetadata(BaseModel):
     source: str = Field(default=SOURCE, frozen=True)
 
 
-class Context(BaseModel, use_enum_values=True):
-    stage: enums.FMUContext
-
-
 # Remove the two models below when content is required as input.
 class InternalUnsetData(data.Data):
     content: Literal["unset"]  # type: ignore
@@ -132,12 +128,6 @@ class InternalUnsetData(data.Data):
         return self
 
 
-class InternalFMU(fields.FMU):
-    # This class is identical to the one used in the schema
-    # except for more fmu context values being allowed internally
-    context: Context  # type: ignore
-
-
 class InternalObjectMetadata(JsonSchemaMetadata, populate_by_name=True):
     # TODO: aim to use root.ObjectMetadata as base
     # class and disallow creating invalid metadata.
@@ -152,7 +142,7 @@ class InternalObjectMetadata(JsonSchemaMetadata, populate_by_name=True):
         enums.FMUClass.points,
         enums.FMUClass.dictionary,
     ] = Field(alias="class")
-    fmu: Optional[InternalFMU]
+    fmu: Optional[fields.FMU]
     masterdata: Optional[fields.Masterdata]
     access: Optional[fields.SsdlAccess]
     data: Union[InternalUnsetData, data.AnyData]  # keep InternalUnsetData first here
