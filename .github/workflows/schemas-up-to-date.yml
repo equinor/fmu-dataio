@@ -24,7 +24,7 @@ jobs:
 
       - name: Check schema
         run: |
-          ./tools/update_schema
+          ./tools/update-schema
           git diff --exit-code
 
       - name: Ensure schema validates with AJV
