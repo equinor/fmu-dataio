@@ -10,7 +10,7 @@ from pydantic import (
 )
 from typing_extensions import Annotated
 
-from fmu.dataio._products import inplace_volumes
+from fmu.dataio._products import InplaceVolumesSchema
 
 from . import enums
 
@@ -49,8 +49,8 @@ class InplaceVolumesProduct(Product):
     """The identifying product name for the 'inplace_volumes' product."""
 
     file_schema: FileSchema = FileSchema(
-        version=inplace_volumes.VERSION,
-        url=AnyHttpUrl(inplace_volumes.SCHEMA),
+        version=InplaceVolumesSchema.VERSION,
+        url=AnyHttpUrl(InplaceVolumesSchema.url()),
     )
     """The schema identifying the format of the 'inplace_volumes' product."""
 
