@@ -72,7 +72,7 @@ class SchemaBase(ABC):
         DEV_URL = f"{FmuSchemas.DEV_URL}/{cls.PATH}"
         PROD_URL = f"{FmuSchemas.PROD_URL}/{cls.PATH}"
 
-        if os.environ.get("SCHEMA_RELEASE", None):
+        if os.environ.get("SCHEMA_RELEASE", False):
             return PROD_URL
         return DEV_URL
 
