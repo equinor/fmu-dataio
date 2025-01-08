@@ -1,0 +1,164 @@
+#!/usr/bin/env python
+
+from __future__ import annotations
+
+import argparse
+import difflib
+import json
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+from fmu.dataio._definitions import SchemaBase
+from fmu.dataio._model import FmuResultsSchema
+from fmu.dataio._products import InplaceVolumesSchema
+
+GREEN = "\033[32m"
+RED = "\033[31m"
+YELLOW = "\033[93m"
+NC = "\033[0m"
+BOLD = "\033[1m"
+PASS = f"[{BOLD}{GREEN}✔{NC}]"
+FAIL = f"[{BOLD}{RED}✖{NC}]"
+INFO = f"[{BOLD}{YELLOW}+{NC}]"
+
+SCHEMAS = [
+    FmuResultsSchema,
+    InplaceVolumesSchema,
+]
+
+
+def _get_parser() -> argparse.ArgumentParser:
+    """Construct parser object."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--diff",
+        "-d",
+        action="store_true",
+        help="Show a diff between the current schema and the new one in output.",
+    )
+    parser.add_argument(
+        "--test",
+        "-t",
+        action="store_true",
+        help="Run as normal, but don't write the file.",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force the script to overwrite the current schema with the new schema.",
+    )
+    return parser
+
+
+def _load_json(filepath: Path) -> dict[str, Any]:
+    with open(filepath, encoding="utf-8") as f:
+        try:
+            return json.load(f)
+        except json.JSONDecodeError as json_decode_error:
+            print(
+                FAIL,
+                "Parsing existing json schema failed: The json is malformed."
+                " If you know why, re-run the command with argument '--force' "
+                "to overwrite with the new schema.\n"
+                f"{FAIL} json parsing error: '{json_decode_error.msg}.'",
+            )
+            sys.exit(1)
+
+
+def _get_output_filepath(schema_path: Path) -> Path:
+    """Returns a Path with the appropriate output location, without the filename."""
+    project_root = Path(__file__).parent.parent.resolve()  # absolute path of ../../
+    return project_root / schema_path
+
+
+def _check_output_path(dir_path: Path, is_test: bool) -> None:
+    if dir_path.exists():
+        if dir_path.is_dir():
+            return
+        print(
+            FAIL,
+            f"path '{dir_path}' exists but is not a directory, aborting. "
+            "this needs to be fixed first.",
+        )
+        sys.exit(1)
+
+    if not is_test:
+        dir_path.mkdir(parents=True, exist_ok=True)
+    print(INFO, f"created directory '{dir_path}'")
+
+
+def _show_git_diff(output_filepath: Path) -> None:
+    command = ["git", "diff", str(output_filepath)]
+    print(INFO, f"running `{' '.join(command)}` ...")
+    output = subprocess.run(command, capture_output=True, text=True)
+    print(output.stdout)
+
+
+def _show_py_diff(existing_schema: dict[str, Any], new_schema: dict[str, Any]) -> None:
+    existing = json.dumps(existing_schema, indent=2, sort_keys=True)
+    new = json.dumps(new_schema, indent=2, sort_keys=True)
+    diff = difflib.unified_diff(
+        existing.splitlines(),
+        new.splitlines(),
+        lineterm="",
+        fromfile="existing schema",
+        tofile="new schema",
+    )
+    print("\n".join(diff))
+
+
+def write_schema(
+    schema: SchemaBase, force_overwrite: bool, is_test: bool, show_diff: bool
+) -> None:
+    output_filepath = _get_output_filepath(schema.PATH)
+    _check_output_path(output_filepath.parent, is_test)
+
+    new_schema = schema.dump()
+    existing_schema = _load_json(output_filepath)
+
+    if output_filepath.exists() and not force_overwrite:
+        if existing_schema != new_schema:
+            print(
+                FAIL,
+                f"🚨 {BOLD}{schema.FILENAME}{NC} version {BOLD}{schema.VERSION}{NC} "
+                "has changed. does it need a new version?",
+            )
+            if show_diff:
+                _show_py_diff(existing_schema, new_schema)
+        else:
+            print(
+                PASS,
+                f"{BOLD}{schema.FILENAME}{NC} version "
+                f"{BOLD}{schema.VERSION}{NC} unchanged",
+            )
+        return
+
+    if not is_test:
+        with open(output_filepath, "w", encoding="utf-8") as f:
+            f.write(json.dumps(new_schema, indent=2, sort_keys=True))
+
+    print(
+        PASS,
+        f"{BOLD}{schema.FILENAME}{NC} version {BOLD}{schema.VERSION}{NC} "
+        f"written to:\n      {output_filepath}",
+    )
+
+    if show_diff:
+        _show_git_diff(output_filepath)
+
+
+def main() -> None:
+    parser = _get_parser()
+    args = parser.parse_args()
+
+    if args.force:
+        print(INFO, "forcing overwrite of all schemas")
+
+    for schema in SCHEMAS:
+        write_schema(schema, args.force, args.test, args.diff)
+
+
+if __name__ == "__main__":
+    main()
