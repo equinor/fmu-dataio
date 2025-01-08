@@ -1,14 +1,27 @@
 #!/usr/bin/env python
 
+"""Updates the schemas for both the dev environment and the staging/production
+environment.
+
+To prepare the schemas for release, prepend an environment variable to the command:
+
+    $ SCHEMA_RELEASE=1 ./tools/update-schema --diff
+
+This will compare the schemas with all $id URLs removed, which in theory can be present
+anywhere in any schema.
+"""
+
 from __future__ import annotations
 
 import argparse
 import difflib
 import json
+import os
 import subprocess
 import sys
+from copy import deepcopy
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List, TypeVar
 
 from fmu.dataio._definitions import SchemaBase
 from fmu.dataio._model import FmuResultsSchema
@@ -28,23 +41,26 @@ SCHEMAS = [
     InplaceVolumesSchema,
 ]
 
+T = TypeVar("T", Dict, List, object)
+
 
 def _get_parser() -> argparse.ArgumentParser:
     """Construct parser object."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--diff",
         "-d",
+        "--diff",
         action="store_true",
         help="Show a diff between the current schema and the new one in output.",
     )
     parser.add_argument(
-        "--test",
         "-t",
+        "--test",
         action="store_true",
         help="Run as normal, but don't write the file.",
     )
     parser.add_argument(
+        "-f",
         "--force",
         action="store_true",
         help="Force the script to overwrite the current schema with the new schema.",
@@ -93,7 +109,8 @@ def _show_git_diff(output_filepath: Path) -> None:
     command = ["git", "diff", str(output_filepath)]
     print(INFO, f"running `{' '.join(command)}` ...")
     output = subprocess.run(command, capture_output=True, text=True)
-    print(output.stdout)
+    diff_str = "\n      ".join(output.stdout.split("\n"))
+    print(f"      {diff_str}")  # To indent the first line too
 
 
 def _show_py_diff(existing_schema: dict[str, Any], new_schema: dict[str, Any]) -> None:
@@ -106,20 +123,63 @@ def _show_py_diff(existing_schema: dict[str, Any], new_schema: dict[str, Any]) -
         fromfile="existing schema",
         tofile="new schema",
     )
-    print("\n".join(diff))
+    diff_str = "\n      ".join(diff)
+    print(f"      {diff_str}")
+
+
+def _remove_schema_ids(schema: T) -> T:
+    """Recursively remove all '$id' and 'url' fields from a schema."""
+    if isinstance(schema, dict):
+        return {
+            key: _remove_schema_ids(value)
+            for key, value in schema.items()
+            if key not in ("$id", "url")
+        }
+    if isinstance(schema, list):
+        return [_remove_schema_ids(item) for item in schema]
+    return schema
+
+
+def _schemas_without_ids_are_the_same(
+    existing_schema: dict[str, Any],
+    new_schema: dict[str, Any],
+    is_release: bool,
+    release_url: str,
+) -> bool:
+    """Checks that schemas are equivalent.
+
+    If this is a release, it first removes all $id fields to ensure no other fields are
+    being changed. It re-applies the root $id field (self-reference) to ensure that they
+    do match.
+    """
+    if is_release:
+        existing_schema = _remove_schema_ids(deepcopy(existing_schema))
+        existing_schema["$id"] = release_url
+
+        new_schema_id = new_schema["$id"]
+        new_schema = _remove_schema_ids(deepcopy(new_schema))
+        new_schema["$id"] = new_schema_id
+
+    return existing_schema == new_schema
 
 
 def write_schema(
-    schema: SchemaBase, force_overwrite: bool, is_test: bool, show_diff: bool
-) -> None:
+    schema: SchemaBase,
+    force_overwrite: bool,
+    is_release: bool,
+    is_test: bool,
+    show_diff: bool,
+) -> bool:
     output_filepath = _get_output_filepath(schema.PATH)
     _check_output_path(output_filepath.parent, is_test)
 
     new_schema = schema.dump()
     existing_schema = _load_json(output_filepath)
 
-    if output_filepath.exists() and not force_overwrite:
-        if existing_schema != new_schema:
+    if output_filepath.exists():
+        if not force_overwrite and not _schemas_without_ids_are_the_same(
+            existing_schema, new_schema, is_release, schema.url()
+        ):
             print(
                 FAIL,
                 f"🚨 {BOLD}{schema.FILENAME}{NC} version {BOLD}{schema.VERSION}{NC} "
@@ -127,13 +187,21 @@ def write_schema(
             )
             if show_diff:
                 _show_py_diff(existing_schema, new_schema)
+            return False
+
+        if is_release:
+            print(
+                INFO,
+                f"{BOLD}{schema.FILENAME}{NC} version {BOLD}{schema.VERSION}{NC}: "
+                f"modifying '$id' url to 'prod':\n      {schema.url()}",
+            )
         else:
             print(
                 PASS,
                 f"{BOLD}{schema.FILENAME}{NC} version "
                 f"{BOLD}{schema.VERSION}{NC} unchanged",
             )
-        return
+            return True
 
     if not is_test:
         with open(output_filepath, "w", encoding="utf-8") as f:
@@ -147,6 +215,7 @@ def write_schema(
 
     if show_diff:
         _show_git_diff(output_filepath)
+    return True
 
 
 def main() -> None:
@@ -156,8 +225,16 @@ def main() -> None:
     if args.force:
         print(INFO, "forcing overwrite of all schemas")
 
+    is_release = bool(os.environ.get("SCHEMA_RELEASE", False))
+
+    failed_a_write = False
     for schema in SCHEMAS:
-        write_schema(schema, args.force, args.test, args.diff)
+        did_write = write_schema(schema, args.force, is_release, args.test, args.diff)
+        if not did_write:
+            failed_a_write = True
+
+    if failed_a_write:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
