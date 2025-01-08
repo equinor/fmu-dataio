@@ -168,7 +168,7 @@ class FmuProvider(Provider):
         """Return runpath for a FMU run."""
         return self._runpath
 
-    def get_metadata(self) -> schema.InternalFMU:
+    def get_metadata(self) -> fields.FMU:
         """Construct the metadata FMU block for an ERT forward job."""
         logger.debug("Generate ERT metadata...")
 
@@ -178,7 +178,7 @@ class FmuProvider(Provider):
         case_meta = self._get_case_meta()
 
         if self.fmu_context != FMUContext.realization:
-            return schema.InternalFMU(
+            return fields.FMU(
                 case=case_meta.fmu.case,
                 context=self._get_fmucontext_meta(),
                 model=self.model or case_meta.fmu.model,
@@ -189,7 +189,7 @@ class FmuProvider(Provider):
         iter_uuid, real_uuid = self._get_iteration_and_real_uuid(
             case_meta.fmu.case.uuid
         )
-        return schema.InternalFMU(
+        return fields.FMU(
             case=case_meta.fmu.case,
             context=self._get_fmucontext_meta(),
             model=self.model or case_meta.fmu.model,
@@ -326,8 +326,8 @@ class FmuProvider(Provider):
             else None,
         )
 
-    def _get_fmucontext_meta(self) -> schema.Context:
-        return schema.Context(stage=self.fmu_context)
+    def _get_fmucontext_meta(self) -> fields.Context:
+        return fields.Context(stage=self.fmu_context)
 
     def _get_workflow_meta(self) -> fields.Workflow:
         assert self.workflow is not None
