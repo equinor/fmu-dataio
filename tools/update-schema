@@ -5,8 +5,10 @@ from __future__ import annotations
 import argparse
 import difflib
 import json
+import os
 import subprocess
 import sys
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +34,15 @@ SCHEMAS = [
 def _get_parser() -> argparse.ArgumentParser:
     """Construct parser object."""
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--release",
+        "-r",
+        action="store_true",
+        help=(
+            "Creates a release (production) version of the schema, primarily by "
+            "changing '$id' urls to the production url."
+        ),
+    )
     parser.add_argument(
         "--diff",
         "-d",
@@ -106,20 +117,39 @@ def _show_py_diff(existing_schema: dict[str, Any], new_schema: dict[str, Any]) -
         fromfile="existing schema",
         tofile="new schema",
     )
-    print("\n".join(diff))
+    diff_str = "\n    ".join(diff)
+    print(f"    {diff_str}")  # To indent the first line too
+
+
+def _schemas_are_the_same(
+    existing_schema: dict[str, Any],
+    new_schema: dict[str, Any],
+    is_release: bool,
+    release_url: str,
+) -> bool:
+    if is_release:
+        existing_schema = deepcopy(existing_schema)
+        existing_schema["$id"] = release_url
+    return existing_schema == new_schema
 
 
 def write_schema(
-    schema: SchemaBase, force_overwrite: bool, is_test: bool, show_diff: bool
-) -> None:
+    schema: SchemaBase,
+    force_overwrite: bool,
+    is_release: bool,
+    is_test: bool,
+    show_diff: bool,
+) -> bool:
     output_filepath = _get_output_filepath(schema.PATH)
     _check_output_path(output_filepath.parent, is_test)
 
     new_schema = schema.dump()
     existing_schema = _load_json(output_filepath)
 
-    if output_filepath.exists() and not force_overwrite:
-        if existing_schema != new_schema:
+    if output_filepath.exists():
+        if not force_overwrite and not _schemas_are_the_same(
+            existing_schema, new_schema, is_release, schema.url()
+        ):
             print(
                 FAIL,
                 f"🚨 {BOLD}{schema.FILENAME}{NC} version {BOLD}{schema.VERSION}{NC} "
@@ -127,13 +157,21 @@ def write_schema(
             )
             if show_diff:
                 _show_py_diff(existing_schema, new_schema)
+            return False
+
+        if is_release:
+            print(
+                INFO,
+                f"{BOLD}{schema.FILENAME}{NC} version {BOLD}{schema.VERSION}{NC}: "
+                f"modifying '$id' url to 'prod':\n      {schema.url()}",
+            )
         else:
             print(
                 PASS,
                 f"{BOLD}{schema.FILENAME}{NC} version "
                 f"{BOLD}{schema.VERSION}{NC} unchanged",
             )
-        return
+            return True
 
     if not is_test:
         with open(output_filepath, "w", encoding="utf-8") as f:
@@ -147,6 +185,7 @@ def write_schema(
 
     if show_diff:
         _show_git_diff(output_filepath)
+    return True
 
 
 def main() -> None:
@@ -156,8 +195,16 @@ def main() -> None:
     if args.force:
         print(INFO, "forcing overwrite of all schemas")
 
+    is_release = bool(args.release or os.environ.get("SCHEMA_RELEASE", None))
+
+    failed_a_write = False
     for schema in SCHEMAS:
-        write_schema(schema, args.force, args.test, args.diff)
+        did_write = write_schema(schema, args.force, is_release, args.test, args.diff)
+        if not did_write:
+            failed_a_write = True
+
+    if failed_a_write:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
