@@ -39,7 +39,7 @@ def _get_meta_filedata(
     ).get_metadata()
 
 
-def _get_meta_fmu(fmudata: FmuProvider) -> schema.InternalFMU | None:
+def _get_meta_fmu(fmudata: FmuProvider) -> fields.FMU | None:
     try:
         return fmudata.get_metadata()
     except InvalidMetadataError:
