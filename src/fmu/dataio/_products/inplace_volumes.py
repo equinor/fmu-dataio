@@ -1,21 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final, List, Literal, Optional
+from pathlib import Path
+from typing import TYPE_CHECKING, Dict, List, Literal, Optional, TypeVar
 
 from pydantic import BaseModel, Field, RootModel
 from pydantic.json_schema import GenerateJsonSchema
 
+from fmu.dataio._definitions import FmuSchemas, SchemaBase
 from fmu.dataio.export._enums import InplaceVolumes
 
 if TYPE_CHECKING:
     from typing import Any, Mapping
 
-# These are to be used when creating the 'product' key in metadata.
-VERSION: Final[str] = "0.1.0"
-SCHEMA: Final[str] = (
-    "https://main-fmu-schemas-prod.radix.equinor.com/schemas"
-    f"/file_formats/volumes/{VERSION}/inplace_volumes.json"
-)
+T = TypeVar("T", Dict, List, object)
 
 
 class InplaceVolumesResultRow(BaseModel):
@@ -51,23 +48,48 @@ class InplaceVolumesResult(RootModel):
     root: List[InplaceVolumesResultRow]
 
 
-class InplaceVolumesJsonSchema(GenerateJsonSchema):
-    """Implements a schema generator so that some additional fields may be added."""
+class InplaceVolumesSchema(SchemaBase):
+    VERSION: str = "0.1.0"
+    FILENAME: str = "inplace_volumes.json"
+    PATH: Path = FmuSchemas.PATH / "file_formats" / VERSION / FILENAME
 
-    def generate(
-        self,
-        schema: Mapping[str, Any],
-        mode: Literal["validation", "serialization"] = "validation",
-    ) -> dict[str, Any]:
-        json_schema = super().generate(schema, mode=mode)
-        json_schema["$schema"] = self.schema_dialect
-        json_schema["$id"] = SCHEMA
-        json_schema["version"] = VERSION
+    class InplaceVolumesGenerateJsonSchema(GenerateJsonSchema):
+        """Implements a schema generator so that some additional fields may be added."""
 
-        return json_schema
+        def _remove_format_path(self, obj: T) -> T:
+            """
+            Removes entries with key "format" and value "path" from dictionaries. This
+            adjustment is necessary because JSON Schema does not recognize the "format":
+            "path", while OpenAPI does. This function is used in contexts where OpenAPI
+            specifications are not applicable.
+            """
 
+            if isinstance(obj, dict):
+                return {
+                    k: self._remove_format_path(v)
+                    for k, v in obj.items()
+                    if not (k == "format" and v == "path")
+                }
 
-def dump() -> dict[str, Any]:
-    return InplaceVolumesResult.model_json_schema(
-        schema_generator=InplaceVolumesJsonSchema
-    )
+            if isinstance(obj, list):
+                return [self._remove_format_path(element) for element in obj]
+
+            return obj
+
+        def generate(
+            self,
+            schema: Mapping[str, Any],
+            mode: Literal["validation", "serialization"] = "validation",
+        ) -> dict[str, Any]:
+            json_schema = super().generate(schema, mode=mode)
+            json_schema["$schema"] = self.schema_dialect
+            json_schema["$id"] = InplaceVolumesSchema.url()
+            json_schema["version"] = InplaceVolumesSchema.VERSION
+
+            return json_schema
+
+    @staticmethod
+    def dump() -> dict[str, Any]:
+        return InplaceVolumesResult.model_json_schema(
+            schema_generator=InplaceVolumesSchema.InplaceVolumesGenerateJsonSchema
+        )
