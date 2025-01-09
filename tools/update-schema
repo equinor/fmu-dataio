@@ -195,7 +195,7 @@ def write_schema(
                 f"{BOLD}{schema.FILENAME}{NC} version {BOLD}{schema.VERSION}{NC}: "
                 f"modifying '$id' url to 'prod':\n      {schema.url()}",
             )
-        else:
+        elif new_schema == existing_schema:
             print(
                 PASS,
                 f"{BOLD}{schema.FILENAME}{NC} version "
