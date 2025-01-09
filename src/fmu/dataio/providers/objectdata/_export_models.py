@@ -1,30 +1,26 @@
-"""
-This module contains models used to output the metadata that sit beside the exported
-data.
+"""This module contains classes used when data is being exported from the object data
+provider.
 
-It contains internal data structures that are designed to depend on external modules,
-but not the other way around. This design ensures modularity and flexibility, allowing
-external modules to be potentially separated into their own repositories without
-dependencies on the internals.
+Mostly these classes are here to maintain backward compatibility while a deprecation
+period is ongoing.
 """
 
 from __future__ import annotations
 
 import warnings
 from textwrap import dedent
-from typing import List, Literal, Optional, Union
+from typing import Final, Literal, Optional, Union
 
 from pydantic import (
-    AnyHttpUrl,
     BaseModel,
     Field,
     model_validator,
 )
 
-from fmu.dataio._definitions import SOURCE
+from fmu.dataio._logging import null_logger
+from fmu.dataio._model import data, enums
 
-from . import data, enums, fields
-from .root import FmuResultsSchema
+logger: Final = null_logger(__name__)
 
 
 def property_warn() -> None:
@@ -101,24 +97,11 @@ class AllowedContent(BaseModel):
         return values
 
 
-class JsonSchemaMetadata(BaseModel):
-    """This model contains information about which schema validates its data."""
-
-    schema_: AnyHttpUrl = Field(
-        default_factory=lambda: AnyHttpUrl(FmuResultsSchema.url()),
-        alias="$schema",
-        frozen=True,
-    )
-    version: str = Field(default=FmuResultsSchema.VERSION, frozen=True)
-    source: str = Field(default=SOURCE, frozen=True)
-
-
-# Remove the two models below when content is required as input.
-class InternalUnsetData(data.Data):
+class UnsetData(data.Data):
     content: Literal["unset"]  # type: ignore
 
     @model_validator(mode="after")
-    def _deprecation_warning(self) -> InternalUnsetData:
+    def _deprecation_warning(self) -> UnsetData:
         valid_contents = [m.value for m in enums.Content]
         warnings.warn(
             "The <content> is not provided which will produce invalid metadata. "
@@ -128,36 +111,3 @@ class InternalUnsetData(data.Data):
             FutureWarning,
         )
         return self
-
-
-class InternalObjectMetadata(JsonSchemaMetadata, populate_by_name=True):
-    # TODO: aim to use root.ObjectMetadata as base
-    # class and disallow creating invalid metadata.
-    class_: Literal[
-        enums.FMUClass.surface,
-        enums.FMUClass.table,
-        enums.FMUClass.cpgrid,
-        enums.FMUClass.cpgrid_property,
-        enums.FMUClass.polygons,
-        enums.FMUClass.cube,
-        enums.FMUClass.well,
-        enums.FMUClass.points,
-        enums.FMUClass.dictionary,
-    ] = Field(alias="class")
-    fmu: Optional[fields.FMU]
-    masterdata: Optional[fields.Masterdata]
-    access: Optional[fields.SsdlAccess]
-    data: Union[InternalUnsetData, data.AnyData]  # keep InternalUnsetData first here
-    file: fields.File
-    display: fields.Display
-    tracklog: fields.Tracklog
-    preprocessed: Optional[bool] = Field(alias="_preprocessed", default=None)
-
-
-class InternalCaseMetadata(JsonSchemaMetadata, populate_by_name=True):
-    class_: Literal["case"] = Field(alias="class", default="case")
-    masterdata: fields.Masterdata
-    access: fields.Access
-    fmu: fields.FMUBase
-    description: Optional[List[str]] = Field(default=None)
-    tracklog: fields.Tracklog

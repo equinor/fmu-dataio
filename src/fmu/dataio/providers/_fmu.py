@@ -41,7 +41,8 @@ import pydantic
 from fmu.config import utilities as ut
 from fmu.dataio import _utils
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model import fields, schema
+from fmu.dataio._metadata import CaseMetadataExport
+from fmu.dataio._model import fields
 from fmu.dataio._model.enums import ErtSimulationMode, FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 
@@ -280,7 +281,7 @@ class FmuProvider(Provider):
             return None
 
         try:
-            restart_metadata = schema.InternalCaseMetadata.model_validate(
+            restart_metadata = CaseMetadataExport.model_validate(
                 ut.yaml_load(restart_case_metafile)
             )
             return _utils.uuid_from_string(
@@ -300,12 +301,12 @@ class FmuProvider(Provider):
         real_uuid = _utils.uuid_from_string(f"{case_uuid}{iter_uuid}{self._real_id}")
         return iter_uuid, real_uuid
 
-    def _get_case_meta(self) -> schema.InternalCaseMetadata:
+    def _get_case_meta(self) -> CaseMetadataExport:
         """Parse and validate the CASE metadata."""
         logger.debug("Loading case metadata file and return pydantic case model")
         assert self._casepath is not None
         case_metafile = self._casepath / ERT_RELATIVE_CASE_METADATA_FILE
-        return schema.InternalCaseMetadata.model_validate(
+        return CaseMetadataExport.model_validate(
             ut.yaml_load(case_metafile, loader="standard")
         )
 
