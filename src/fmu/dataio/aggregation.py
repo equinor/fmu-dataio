@@ -12,7 +12,7 @@ from fmu.dataio._model import fields
 
 from . import _utils, dataio, types
 from ._logging import null_logger
-from ._model import schema
+from ._metadata import ObjectMetadataExport
 from ._model.enums import FMUContext
 from .exceptions import InvalidMetadataError
 from .providers.objectdata._provider import objectdata_provider_factory
@@ -65,7 +65,7 @@ class AggregatedData:
     tagname: str = ""
     verbosity: str = "DEPRECATED"  # keep for while
 
-    _metadata: schema.InternalObjectMetadata = field(init=False)
+    _metadata: ObjectMetadataExport = field(init=False)
     _metafile: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self) -> None:
@@ -292,7 +292,7 @@ class AggregatedData:
             template["data"]["bbox"] = bbox
 
         try:
-            self._metadata = schema.InternalObjectMetadata.model_validate(template)
+            self._metadata = ObjectMetadataExport.model_validate(template)
         except ValidationError as err:
             raise InvalidMetadataError(
                 f"The existing metadata for the aggregated data is invalid. "

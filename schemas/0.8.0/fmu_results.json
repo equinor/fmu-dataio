@@ -476,10 +476,7 @@
           "$ref": "#/$defs/Masterdata"
         },
         "source": {
-          "const": "fmu",
-          "enum": [
-            "fmu"
-          ],
+          "default": "fmu",
           "title": "Source",
           "type": "string"
         },
@@ -487,10 +484,7 @@
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
-          "const": "0.8.0",
-          "enum": [
-            "0.8.0"
-          ],
+          "default": "0.8.0",
           "title": "Version",
           "type": "string"
         }
@@ -499,8 +493,6 @@
         "class",
         "masterdata",
         "tracklog",
-        "source",
-        "version",
         "fmu",
         "access"
       ],
@@ -3555,10 +3547,7 @@
           "$ref": "#/$defs/Masterdata"
         },
         "source": {
-          "const": "fmu",
-          "enum": [
-            "fmu"
-          ],
+          "default": "fmu",
           "title": "Source",
           "type": "string"
         },
@@ -3566,10 +3555,7 @@
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
-          "const": "0.8.0",
-          "enum": [
-            "0.8.0"
-          ],
+          "default": "0.8.0",
           "title": "Version",
           "type": "string"
         }
@@ -3578,8 +3564,6 @@
         "class",
         "masterdata",
         "tracklog",
-        "source",
-        "version",
         "fmu",
         "access"
       ],
@@ -4664,10 +4648,7 @@
           "$ref": "#/$defs/Masterdata"
         },
         "source": {
-          "const": "fmu",
-          "enum": [
-            "fmu"
-          ],
+          "default": "fmu",
           "title": "Source",
           "type": "string"
         },
@@ -4675,10 +4656,7 @@
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
-          "const": "0.8.0",
-          "enum": [
-            "0.8.0"
-          ],
+          "default": "0.8.0",
           "title": "Version",
           "type": "string"
         }
@@ -4687,8 +4665,6 @@
         "class",
         "masterdata",
         "tracklog",
-        "source",
-        "version",
         "fmu",
         "access",
         "data",
@@ -6496,10 +6472,7 @@
           "$ref": "#/$defs/Masterdata"
         },
         "source": {
-          "const": "fmu",
-          "enum": [
-            "fmu"
-          ],
+          "default": "fmu",
           "title": "Source",
           "type": "string"
         },
@@ -6507,10 +6480,7 @@
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
-          "const": "0.8.0",
-          "enum": [
-            "0.8.0"
-          ],
+          "default": "0.8.0",
           "title": "Version",
           "type": "string"
         }
@@ -6519,8 +6489,6 @@
         "class",
         "masterdata",
         "tracklog",
-        "source",
-        "version",
         "fmu",
         "access"
       ],

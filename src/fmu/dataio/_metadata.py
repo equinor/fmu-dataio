@@ -1,18 +1,32 @@
-"""Module for DataIO metadata.
+"""
+This module contains models used to output the metadata that sit beside the exported
+data.
 
-This contains the _MetaData class which collects and holds all relevant metadata
+It contains internal data structures that are designed to depend on external modules,
+but not the other way around. This design ensures modularity and flexibility, allowing
+external modules to be potentially separated into their own repositories without
+dependencies on the internals.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, List, Literal, Optional, Union
+
+from pydantic import (
+    AnyHttpUrl,
+    BaseModel,
+    Field,
+)
 
 from ._logging import null_logger
-from ._model import fields, schema
+from ._model import data, fields
+from ._model.enums import FMUClass
 from ._model.global_configuration import GlobalConfiguration
 from ._model.product import Product
+from ._model.root import CaseMetadata, FmuResultsSchema, ObjectMetadata
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
+from .providers.objectdata._base import UnsetData
 from .providers.objectdata._provider import objectdata_provider_factory
 
 if TYPE_CHECKING:
@@ -22,6 +36,38 @@ if TYPE_CHECKING:
     from .providers.objectdata._base import ObjectDataProvider
 
 logger: Final = null_logger(__name__)
+
+
+class JsonSchemaMetadata(BaseModel):
+    """Mixin to inject the $schema field into exported metadata."""
+
+    schema_: AnyHttpUrl = Field(
+        default_factory=lambda: AnyHttpUrl(FmuResultsSchema.url()),
+        alias="$schema",
+        frozen=True,
+    )
+
+
+class ObjectMetadataExport(JsonSchemaMetadata, ObjectMetadata, populate_by_name=True):
+    """Wraps the schema ObjectMetadata, adjusting some values to optional for pragmatic
+    purposes when exporting metadata."""
+
+    # These type ignores are for making the field optional
+    fmu: Optional[fields.FMU]  # type: ignore
+    access: Optional[fields.SsdlAccess]  # type: ignore
+    masterdata: Optional[fields.Masterdata]  # type: ignore
+    # !! Keep UnsetData first in this union
+    data: Union[UnsetData, data.AnyData]  # type: ignore
+    preprocessed: Optional[bool] = Field(alias="_preprocessed", default=None)
+
+
+class CaseMetadataExport(JsonSchemaMetadata, CaseMetadata, populate_by_name=True):
+    """Adds the optional description field for backward compatibility."""
+
+    class_: Literal[FMUClass.case] = Field(
+        default=FMUClass.case, alias="class", title="metadata_class"
+    )
+    description: Optional[List[str]] = Field(default=None)
 
 
 def _get_meta_filedata(
@@ -72,7 +118,7 @@ def generate_export_metadata(
     dataio: ExportData,
     fmudata: FmuProvider | None = None,
     product: Product | None = None,
-) -> schema.InternalObjectMetadata:
+) -> ObjectMetadataExport:
     """
     Main function to generate the full metadata
 
@@ -102,7 +148,7 @@ def generate_export_metadata(
 
     objdata = objectdata_provider_factory(obj, dataio, product)
 
-    return schema.InternalObjectMetadata(  # type: ignore[call-arg]
+    return ObjectMetadataExport(  # type: ignore[call-arg]
         class_=objdata.classname,
         fmu=_get_meta_fmu(fmudata) if fmudata else None,
         masterdata=(

@@ -13,7 +13,7 @@ from pydantic import (
 from pydantic.json_schema import GenerateJsonSchema
 from typing_extensions import Annotated
 
-from fmu.dataio._definitions import FmuSchemas, SchemaBase
+from fmu.dataio._definitions import SOURCE, FmuSchemas, SchemaBase
 
 from .data import AnyData
 from .enums import FMUClass
@@ -38,6 +38,102 @@ if TYPE_CHECKING:
 T = TypeVar("T", Dict, List, object)
 
 
+class FmuResultsSchema(SchemaBase):
+    """The main metadata export describing the results."""
+
+    VERSION: str = "0.8.0"
+    FILENAME: str = "fmu_results.json"
+    PATH: Path = FmuSchemas.PATH / VERSION / FILENAME
+
+    class FmuResultsGenerateJsonSchema(GenerateJsonSchema):
+        contractual: Final[list[str]] = [
+            "access",
+            "class",
+            "data.alias",
+            "data.bbox",
+            "data.content",
+            "data.format",
+            "data.geometry",
+            "data.grid_model",
+            "data.is_observation",
+            "data.is_prediction",
+            "data.name",
+            "data.offset",
+            "data.product.name",
+            "data.seismic.attribute",
+            "data.spec.columns",
+            "data.stratigraphic",
+            "data.stratigraphic_alias",
+            "data.tagname",
+            "data.time",
+            "data.vertical_domain",
+            "file.checksum_md5",
+            "file.relative_path",
+            "file.size_bytes",
+            "fmu.aggregation.operation",
+            "fmu.aggregation.realization_ids",
+            "fmu.case",
+            "fmu.context.stage",
+            "fmu.iteration.name",
+            "fmu.iteration.uuid",
+            "fmu.model",
+            "fmu.realization.id",
+            "fmu.realization.is_reference",
+            "fmu.realization.name",
+            "fmu.realization.uuid",
+            "fmu.workflow",
+            "masterdata",
+            "source",
+            "tracklog.datetime",
+            "tracklog.event",
+            "tracklog.user.id",
+            "version",
+        ]
+
+        def _remove_format_path(self, obj: T) -> T:
+            """
+            Removes entries with key "format" and value "path" from dictionaries. This
+            adjustment is necessary because JSON Schema does not recognize the "format":
+            "path", while OpenAPI does. This function is used in contexts where OpenAPI
+            specifications are not applicable.
+            """
+
+            if isinstance(obj, dict):
+                return {
+                    k: self._remove_format_path(v)
+                    for k, v in obj.items()
+                    if not (k == "format" and v == "path")
+                }
+
+            if isinstance(obj, list):
+                return [self._remove_format_path(element) for element in obj]
+
+            return obj
+
+        def generate(
+            self,
+            schema: Mapping[str, Any],
+            mode: Literal["validation", "serialization"] = "validation",
+        ) -> dict[str, Any]:
+            json_schema = super().generate(schema, mode=mode)
+            json_schema["$schema"] = self.schema_dialect
+            json_schema["$id"] = FmuResultsSchema.url()
+            json_schema["$contractual"] = self.contractual
+
+            # sumo-core's validator does not recognize these.
+            del json_schema["discriminator"]["mapping"]
+            del json_schema["$defs"]["AnyData"]["discriminator"]["mapping"]
+            del json_schema["$defs"]["AnyProduct"]["discriminator"]["mapping"]
+
+            return self._remove_format_path(json_schema)
+
+    @staticmethod
+    def dump() -> dict[str, Any]:
+        return Root.model_json_schema(
+            schema_generator=FmuResultsSchema.FmuResultsGenerateJsonSchema
+        )
+
+
 class MetadataBase(BaseModel):
     """Base model for all root metadata models generated."""
 
@@ -52,10 +148,10 @@ class MetadataBase(BaseModel):
     """The ``tracklog`` block contains a record of events recorded on these data.
     See :class:`Tracklog`."""
 
-    source: Literal["fmu"]
+    source: str = SOURCE
     """The source of this data. Defaults to 'fmu'."""
 
-    version: Literal["0.8.0"]
+    version: str = Field(default=FmuResultsSchema.VERSION)
     """The version of the schema that generated this data."""
 
 
@@ -197,99 +293,3 @@ class Root(
             }
         )
         return json_schema
-
-
-class FmuResultsSchema(SchemaBase):
-    """The main metadata export describing the results."""
-
-    VERSION: str = "0.8.0"
-    FILENAME: str = "fmu_results.json"
-    PATH: Path = FmuSchemas.PATH / VERSION / FILENAME
-
-    class FmuResultsGenerateJsonSchema(GenerateJsonSchema):
-        contractual: Final[list[str]] = [
-            "access",
-            "class",
-            "data.alias",
-            "data.bbox",
-            "data.content",
-            "data.format",
-            "data.geometry",
-            "data.grid_model",
-            "data.is_observation",
-            "data.is_prediction",
-            "data.name",
-            "data.offset",
-            "data.product.name",
-            "data.seismic.attribute",
-            "data.spec.columns",
-            "data.stratigraphic",
-            "data.stratigraphic_alias",
-            "data.tagname",
-            "data.time",
-            "data.vertical_domain",
-            "file.checksum_md5",
-            "file.relative_path",
-            "file.size_bytes",
-            "fmu.aggregation.operation",
-            "fmu.aggregation.realization_ids",
-            "fmu.case",
-            "fmu.context.stage",
-            "fmu.iteration.name",
-            "fmu.iteration.uuid",
-            "fmu.model",
-            "fmu.realization.id",
-            "fmu.realization.is_reference",
-            "fmu.realization.name",
-            "fmu.realization.uuid",
-            "fmu.workflow",
-            "masterdata",
-            "source",
-            "tracklog.datetime",
-            "tracklog.event",
-            "tracklog.user.id",
-            "version",
-        ]
-
-        def _remove_format_path(self, obj: T) -> T:
-            """
-            Removes entries with key "format" and value "path" from dictionaries. This
-            adjustment is necessary because JSON Schema does not recognize the "format":
-            "path", while OpenAPI does. This function is used in contexts where OpenAPI
-            specifications are not applicable.
-            """
-
-            if isinstance(obj, dict):
-                return {
-                    k: self._remove_format_path(v)
-                    for k, v in obj.items()
-                    if not (k == "format" and v == "path")
-                }
-
-            if isinstance(obj, list):
-                return [self._remove_format_path(element) for element in obj]
-
-            return obj
-
-        def generate(
-            self,
-            schema: Mapping[str, Any],
-            mode: Literal["validation", "serialization"] = "validation",
-        ) -> dict[str, Any]:
-            json_schema = super().generate(schema, mode=mode)
-            json_schema["$schema"] = self.schema_dialect
-            json_schema["$id"] = FmuResultsSchema.url()
-            json_schema["$contractual"] = self.contractual
-
-            # sumo-core's validator does not recognize these.
-            del json_schema["discriminator"]["mapping"]
-            del json_schema["$defs"]["AnyData"]["discriminator"]["mapping"]
-            del json_schema["$defs"]["AnyProduct"]["discriminator"]["mapping"]
-
-            return self._remove_format_path(json_schema)
-
-    @staticmethod
-    def dump() -> dict[str, Any]:
-        return Root.model_json_schema(
-            schema_generator=FmuResultsSchema.FmuResultsGenerateJsonSchema
-        )
