@@ -28,9 +28,9 @@ if TYPE_CHECKING:
 from ._definitions import ValidationError
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
-from ._model import enums, global_configuration
-from ._model.global_configuration import GlobalConfiguration
-from ._model.product import Product
+from ._models.fmu_results import enums, global_configuration
+from ._models.fmu_results.global_configuration import GlobalConfiguration
+from ._models.fmu_results.product import Product
 from ._utils import (
     detect_inside_rms,  # dataio_examples,
     export_file,

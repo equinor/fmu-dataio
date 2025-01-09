@@ -8,9 +8,7 @@ import pydantic
 import pytest
 
 from fmu import dataio
-
-# from conftest import pretend_ert_env_run1
-from fmu.dataio._model.enums import ErtSimulationMode, FMUContext
+from fmu.dataio._models.fmu_results.enums import ErtSimulationMode, FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import (
     DEFAULT_ITER_NAME,

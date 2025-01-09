@@ -6,8 +6,8 @@ import ert.__main__
 import pytest
 import yaml
 
-from fmu.dataio._model import Root
-from fmu.dataio._model.enums import ErtSimulationMode
+from fmu.dataio._models import FmuResults
+from fmu.dataio._models.fmu_results.enums import ErtSimulationMode
 
 from .ert_config_utils import (
     add_create_case_workflow,
@@ -57,6 +57,6 @@ def test_simple_export_ert_environment_variables(snakeoil_export_surface: Path) 
     with open(avg_poro_yml, encoding="utf-8") as f:
         avg_poro_metadata = yaml.safe_load(f)
 
-    avg_poro = Root.model_validate(avg_poro_metadata)  # asserts valid
+    avg_poro = FmuResults.model_validate(avg_poro_metadata)  # asserts valid
     assert avg_poro.root.fmu.ert.simulation_mode == ErtSimulationMode.test_run
     assert avg_poro.root.fmu.ert.experiment.id is not None

@@ -9,8 +9,8 @@ from fmu.dataio._definitions import (
     ValidFormats,
 )
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model.enums import FMUClass, Layout
-from fmu.dataio._model.specification import TableSpecification
+from fmu.dataio._models.fmu_results.enums import FMUClass, Layout
+from fmu.dataio._models.fmu_results.specification import TableSpecification
 
 from ._base import (
     ObjectDataProvider,

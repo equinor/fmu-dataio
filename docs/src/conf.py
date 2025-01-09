@@ -53,7 +53,7 @@ apidoc_module_dir = "../../src/fmu/dataio"
 apidoc_output_dir = "apiref"
 apidoc_excluded_paths = [
     "case",
-    "datastructure",
+    "_models",
     "hook_implementations",
     "providers",
     "scripts",
