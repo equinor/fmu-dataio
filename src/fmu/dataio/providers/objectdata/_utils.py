@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 
-from fmu.dataio._model.global_configuration import Stratigraphy
+from fmu.dataio._models.fmu_results.global_configuration import Stratigraphy
 
 
 class Utils:

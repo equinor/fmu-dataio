@@ -13,7 +13,7 @@ import pytz
 from pydantic import ValidationError
 from tqdm import tqdm
 
-from fmu.dataio._model import Root
+from fmu.dataio._models import FmuResults
 from fmu.sumo.explorer import Explorer
 
 
@@ -78,7 +78,7 @@ async def main(
             pbar.update()
 
             try:
-                parsed = Root.model_validate(obj)
+                parsed = FmuResults.model_validate(obj)
             except ValidationError as e:
                 pbar.write(pformat(obj))
                 pbar.write(str(e))

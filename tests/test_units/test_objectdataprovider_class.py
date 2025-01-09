@@ -8,7 +8,7 @@ import yaml
 
 from fmu import dataio
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
-from fmu.dataio._model.specification import FaultRoomSurfaceSpecification
+from fmu.dataio._models.fmu_results.specification import FaultRoomSurfaceSpecification
 from fmu.dataio.providers.objectdata._faultroom import FaultRoomSurfaceProvider
 from fmu.dataio.providers.objectdata._provider import (
     objectdata_provider_factory,

@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model import enums, fields
+from fmu.dataio._models.fmu_results import enums, fields
 from fmu.dataio._utils import compute_md5, compute_md5_using_temp_file
 
 from ._base import Provider

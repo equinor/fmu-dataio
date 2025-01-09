@@ -11,9 +11,9 @@ import pyarrow as pa
 
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model import product
-from fmu.dataio._model.enums import Classification, ProductName
-from fmu.dataio._products.inplace_volumes import InplaceVolumesResult
+from fmu.dataio._models import InplaceVolumesResult
+from fmu.dataio._models.fmu_results import product
+from fmu.dataio._models.fmu_results.enums import Classification, ProductName
 from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
