@@ -19,11 +19,15 @@ from pydantic import (
 )
 
 from ._logging import null_logger
-from ._model import data, fields
-from ._model.enums import FMUClass
-from ._model.global_configuration import GlobalConfiguration
-from ._model.product import Product
-from ._model.root import CaseMetadata, FmuResultsSchema, ObjectMetadata
+from ._models.fmu_results import data, fields
+from ._models.fmu_results.enums import FMUClass
+from ._models.fmu_results.fmu_results import (
+    CaseMetadata,
+    FmuResultsSchema,
+    ObjectMetadata,
+)
+from ._models.fmu_results.global_configuration import GlobalConfiguration
+from ._models.fmu_results.product import Product
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers.objectdata._base import UnsetData

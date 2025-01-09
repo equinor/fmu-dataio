@@ -24,8 +24,7 @@ from pathlib import Path
 from typing import Any, Dict, List, TypeVar
 
 from fmu.dataio._definitions import SchemaBase
-from fmu.dataio._model import FmuResultsSchema
-from fmu.dataio._products import InplaceVolumesSchema
+from fmu.dataio._models import schemas
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -35,11 +34,6 @@ BOLD = "\033[1m"
 PASS = f"[{BOLD}{GREEN}✔{NC}]"
 FAIL = f"[{BOLD}{RED}✖{NC}]"
 INFO = f"[{BOLD}{YELLOW}+{NC}]"
-
-SCHEMAS = [
-    FmuResultsSchema,
-    InplaceVolumesSchema,
-]
 
 T = TypeVar("T", Dict, List, object)
 
@@ -228,7 +222,7 @@ def main() -> None:
     is_release = bool(os.environ.get("SCHEMA_RELEASE", False))
 
     failed_a_write = False
-    for schema in SCHEMAS:
+    for schema in schemas:
         did_write = write_schema(schema, args.force, is_release, args.test, args.diff)
         if not did_write:
             failed_a_write = True

@@ -129,7 +129,7 @@ class FmuResultsSchema(SchemaBase):
 
     @staticmethod
     def dump() -> dict[str, Any]:
-        return Root.model_json_schema(
+        return FmuResults.model_json_schema(
             schema_generator=FmuResultsSchema.FmuResultsGenerateJsonSchema
         )
 
@@ -252,7 +252,7 @@ class ObjectMetadata(MetadataBase):
     should/could be displayed. See :class:`Display`."""
 
 
-class Root(
+class FmuResults(
     RootModel[
         Annotated[
             Union[
@@ -266,7 +266,7 @@ class Root(
     ]
 ):
     @model_validator(mode="after")
-    def _check_class_data_spec(self) -> Root:
+    def _check_class_data_spec(self) -> FmuResults:
         if (
             self.root.class_ in (FMUClass.table, FMUClass.surface)
             and hasattr(self.root, "data")

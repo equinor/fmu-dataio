@@ -10,7 +10,7 @@ from pydantic import (
 )
 from typing_extensions import Annotated
 
-from fmu.dataio._products import InplaceVolumesSchema
+from fmu.dataio._models.products import InplaceVolumesSchema
 
 from . import enums
 

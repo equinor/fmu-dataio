@@ -12,8 +12,8 @@ from pydantic import ValidationError
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model.enums import ProductName
-from fmu.dataio._products.inplace_volumes import (
+from fmu.dataio._models.fmu_results.enums import ProductName
+from fmu.dataio._models.products.inplace_volumes import (
     InplaceVolumesResult,
     InplaceVolumesResultRow,
     InplaceVolumesSchema,

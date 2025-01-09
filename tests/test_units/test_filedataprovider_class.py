@@ -9,7 +9,7 @@ import pytest
 
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import ExportFolder
-from fmu.dataio._model import fields
+from fmu.dataio._models.fmu_results import fields
 from fmu.dataio.providers._filedata import FileDataProvider
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 

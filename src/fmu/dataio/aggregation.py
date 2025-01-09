@@ -8,12 +8,12 @@ from typing import ClassVar, Final, Literal, Optional, Union
 
 from pydantic import ValidationError
 
-from fmu.dataio._model import fields
+from fmu.dataio._models.fmu_results import fields
+from fmu.dataio._models.fmu_results.enums import FMUContext
 
 from . import _utils, dataio, types
 from ._logging import null_logger
 from ._metadata import ObjectMetadataExport
-from ._model.enums import FMUContext
 from .exceptions import InvalidMetadataError
 from .providers.objectdata._provider import objectdata_provider_factory
 

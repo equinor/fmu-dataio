@@ -95,8 +95,8 @@ import xtgeo
 
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model.enums import FMUClass, Layout
-from fmu.dataio._model.product import Product
+from fmu.dataio._models.fmu_results.enums import FMUClass, Layout
+from fmu.dataio._models.fmu_results.product import Product
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (

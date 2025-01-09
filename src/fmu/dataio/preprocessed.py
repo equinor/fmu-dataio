@@ -11,9 +11,9 @@ from pydantic import ValidationError
 
 from ._logging import null_logger
 from ._metadata import ObjectMetadataExport
-from ._model import enums
-from ._model.enums import FMUContext
-from ._model.fields import File
+from ._models.fmu_results import enums
+from ._models.fmu_results.enums import FMUContext
+from ._models.fmu_results.fields import File
 from ._utils import export_metadata_file, md5sum
 from .exceptions import InvalidMetadataError
 from .providers._filedata import ShareFolder
