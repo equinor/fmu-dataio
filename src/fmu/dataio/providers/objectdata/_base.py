@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING, Any, Final
 
 from fmu.dataio._definitions import ConfigurationError, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model.data import AnyData, Time, Timestamp
-from fmu.dataio._model.enums import Content
-from fmu.dataio._model.global_configuration import (
+from fmu.dataio._models.fmu_results.data import AnyData, Time, Timestamp
+from fmu.dataio._models.fmu_results.enums import Content
+from fmu.dataio._models.fmu_results.global_configuration import (
     GlobalConfiguration,
     StratigraphyElement,
 )
-from fmu.dataio._model.product import Product
+from fmu.dataio._models.fmu_results.product import Product
 from fmu.dataio._utils import generate_description
 from fmu.dataio.providers._base import Provider
 from fmu.dataio.providers.objectdata._export_models import AllowedContent, UnsetData
@@ -25,8 +25,8 @@ if TYPE_CHECKING:
         BoundingBox3D,
         Geometry,
     )
-    from fmu.dataio._model.enums import FMUClass, Layout
-    from fmu.dataio._model.specification import AnySpecification
+    from fmu.dataio._models._fmu_results.enums import FMUClass, Layout
+    from fmu.dataio._models._fmu_results.specification import AnySpecification
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.types import Inferrable
 

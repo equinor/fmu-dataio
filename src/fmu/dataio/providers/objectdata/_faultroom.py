@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
-from fmu.dataio._model.data import BoundingBox3D
-from fmu.dataio._model.enums import FMUClass, Layout
-from fmu.dataio._model.global_configuration import (
+from fmu.dataio._models.fmu_results.data import BoundingBox3D
+from fmu.dataio._models.fmu_results.enums import FMUClass, Layout
+from fmu.dataio._models.fmu_results.global_configuration import (
     GlobalConfiguration,
 )
-from fmu.dataio._model.specification import FaultRoomSurfaceSpecification
+from fmu.dataio._models.fmu_results.specification import FaultRoomSurfaceSpecification
 from fmu.dataio.providers.objectdata._utils import Utils
 
 from ._base import (

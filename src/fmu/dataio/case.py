@@ -9,13 +9,11 @@ from typing import Final, Optional, Union
 
 from pydantic import ValidationError
 
-from fmu.dataio._model import fields
+from fmu.dataio._models.fmu_results import fields, global_configuration
 
 from . import _utils
 from ._logging import null_logger
 from ._metadata import CaseMetadataExport
-from ._model import global_configuration
-from ._model.fields import Access, Case, Masterdata, Model, User
 
 logger: Final = null_logger(__name__)
 
@@ -117,16 +115,16 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
             return {}
 
         self._metadata = CaseMetadataExport(
-            masterdata=Masterdata.model_validate(self.config["masterdata"]),
-            access=Access.model_validate(self.config["access"]),
+            masterdata=fields.Masterdata.model_validate(self.config["masterdata"]),
+            access=fields.Access.model_validate(self.config["access"]),
             fmu=fields.FMUBase(
-                model=Model.model_validate(
+                model=fields.Model.model_validate(
                     self.config["model"],
                 ),
-                case=Case(
+                case=fields.Case(
                     name=self.casename,
                     uuid=self._case_uuid(),
-                    user=User(id=self.caseuser),
+                    user=fields.User(id=self.caseuser),
                     description=None,
                 ),
             ),
