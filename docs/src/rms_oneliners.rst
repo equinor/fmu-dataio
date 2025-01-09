@@ -9,8 +9,9 @@ a few lines will be needed.
 Currently only volumes are exposed, but this will be extended in the near future.
 
 .. note::
-All simplified export functions requires that the global configuration file is found at the standard
-location in FMU. For RMS exports that will be ``'../../fmuconfig/output/global_variables.yml'``.
+
+    All simplified export functions requires that the global configuration file is found at the standard
+    location in FMU. For RMS exports that will be ``'../../fmuconfig/output/global_variables.yml'``.
 
 .. _example-export-volumes-rms:
 

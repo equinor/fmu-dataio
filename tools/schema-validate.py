@@ -6,7 +6,7 @@ import sys
 from orjson import dumps
 from yaml import safe_load
 
-from fmu.dataio._model import Root
+from fmu.dataio._models import FmuResults
 
 
 def read(file):
@@ -17,7 +17,7 @@ def read(file):
 for file in (f.strip() for f in sys.stdin.readlines()):
     print(file)
     try:
-        Root.model_validate_json(dumps(safe_load(read(file))))
+        FmuResults.model_validate_json(dumps(safe_load(read(file))))
     except ValueError:
         from pprint import pp
 

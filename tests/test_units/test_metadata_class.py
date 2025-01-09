@@ -8,8 +8,8 @@ import pytest
 import fmu.dataio as dio
 from fmu.dataio._definitions import SOURCE
 from fmu.dataio._metadata import generate_export_metadata
-from fmu.dataio._model import FmuResultsSchema, enums
-from fmu.dataio._model.fields import (
+from fmu.dataio._models.fmu_results import FmuResultsSchema, enums
+from fmu.dataio._models.fmu_results.fields import (
     OperatingSystem,
     TracklogEvent,
 )

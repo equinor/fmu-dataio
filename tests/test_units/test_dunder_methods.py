@@ -2,8 +2,11 @@
 
 import pytest
 
-from fmu.dataio._model.fields import Parameters
-from fmu.dataio._model.global_configuration import Stratigraphy, StratigraphyElement
+from fmu.dataio._models.fmu_results.fields import Parameters
+from fmu.dataio._models.fmu_results.global_configuration import (
+    Stratigraphy,
+    StratigraphyElement,
+)
 
 # --------------------------------------------------------------------------------------
 # Stratigraphy

@@ -42,8 +42,8 @@ from fmu.config import utilities as ut
 from fmu.dataio import _utils
 from fmu.dataio._logging import null_logger
 from fmu.dataio._metadata import CaseMetadataExport
-from fmu.dataio._model import fields
-from fmu.dataio._model.enums import ErtSimulationMode, FMUContext
+from fmu.dataio._models.fmu_results import fields
+from fmu.dataio._models.fmu_results.enums import ErtSimulationMode, FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 
 from ._base import Provider

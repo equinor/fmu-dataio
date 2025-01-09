@@ -11,7 +11,7 @@ import pydantic
 import pytest
 import yaml
 
-from fmu.dataio._model.enums import FMUContext
+from fmu.dataio._models.fmu_results.enums import FMUContext
 from fmu.dataio._utils import convert_datestr_to_isoformat, prettyprint_dict
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.providers._fmu import FmuEnv

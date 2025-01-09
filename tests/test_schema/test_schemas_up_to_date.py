@@ -7,10 +7,7 @@ import pytest
 from pytest import MonkeyPatch
 
 from fmu.dataio._definitions import FmuSchemas, SchemaBase
-from fmu.dataio._model import FmuResultsSchema
-from fmu.dataio._products import InplaceVolumesSchema
-
-SCHEMAS = [FmuResultsSchema, InplaceVolumesSchema]
+from fmu.dataio._models import schemas
 
 
 def contains_discriminator_mapping(schema: Any) -> bool:
@@ -30,7 +27,7 @@ def contains_discriminator_mapping(schema: Any) -> bool:
     return False
 
 
-@pytest.mark.parametrize("schema", SCHEMAS)
+@pytest.mark.parametrize("schema", schemas)
 def test_schemas_uptodate(schema: SchemaBase) -> None:
     """
     Test to verify if the local schemas are up to date with the schema
@@ -44,7 +41,7 @@ def test_schemas_uptodate(schema: SchemaBase) -> None:
         assert json.load(f) == schema.dump()
 
 
-@pytest.mark.parametrize("schema", SCHEMAS)
+@pytest.mark.parametrize("schema", schemas)
 def test_schema_url_changes_with_env_var(
     schema: SchemaBase, monkeypatch: MonkeyPatch
 ) -> None:
@@ -55,7 +52,7 @@ def test_schema_url_changes_with_env_var(
     assert schema.dump()["$id"].startswith(FmuSchemas.PROD_URL)
 
 
-@pytest.mark.parametrize("schema", SCHEMAS)
+@pytest.mark.parametrize("schema", schemas)
 def test_no_discriminator_mappings_leftover_in_schema(schema: SchemaBase) -> None:
     """Sumo's AJV validator doesn't like discriminator mappings leftover in the
     schema."""
