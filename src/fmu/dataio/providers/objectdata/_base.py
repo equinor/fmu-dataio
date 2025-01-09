@@ -15,9 +15,9 @@ from fmu.dataio._model.global_configuration import (
     StratigraphyElement,
 )
 from fmu.dataio._model.product import Product
-from fmu.dataio._model.schema import AllowedContent, InternalUnsetData
 from fmu.dataio._utils import generate_description
 from fmu.dataio.providers._base import Provider
+from fmu.dataio.providers.objectdata._export_models import AllowedContent, UnsetData
 
 if TYPE_CHECKING:
     from fmu.dataio._model.data import (
@@ -53,7 +53,7 @@ class ObjectDataProvider(Provider):
     # result properties; the most important is metadata which IS the 'data' part in
     # the resulting metadata. But other variables needed later are also given
     # as instance properties in addition (for simplicity in other classes/functions)
-    _metadata: AnyData | InternalUnsetData | None = field(default=None)
+    _metadata: AnyData | UnsetData | None = field(default=None)
     name: str = field(default="")
     time0: datetime | None = field(default=None)
     time1: datetime | None = field(default=None)
@@ -101,7 +101,7 @@ class ObjectDataProvider(Provider):
         metadata["description"] = generate_description(self.dataio.description)
 
         self._metadata = (
-            InternalUnsetData.model_validate(metadata)
+            UnsetData.model_validate(metadata)
             if metadata["content"] == "unset"
             else AnyData.model_validate(metadata)
         )
@@ -149,7 +149,7 @@ class ObjectDataProvider(Provider):
     def get_spec(self) -> AnySpecification | None:
         raise NotImplementedError
 
-    def get_metadata(self) -> AnyData | InternalUnsetData:
+    def get_metadata(self) -> AnyData | UnsetData:
         assert self._metadata is not None
         return self._metadata
 

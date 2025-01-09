@@ -10,7 +10,8 @@ import yaml
 from pydantic import ValidationError
 
 from ._logging import null_logger
-from ._model import enums, schema
+from ._metadata import ObjectMetadataExport
+from ._model import enums
 from ._model.enums import FMUContext
 from ._model.fields import File
 from ._utils import export_metadata_file, md5sum
@@ -186,9 +187,7 @@ class ExportPreprocessedData:
         try:
             # TODO: Would like to use meta.Root.model_validate() here
             # but then the '$schema' field is dropped from the meta_existing
-            validated_metadata = schema.InternalObjectMetadata.model_validate(
-                meta_existing
-            )
+            validated_metadata = ObjectMetadataExport.model_validate(meta_existing)
             validated_metadata.tracklog.extend(enums.TrackLogEventType.merged)
             return validated_metadata.model_dump(
                 mode="json", exclude_none=True, by_alias=True
