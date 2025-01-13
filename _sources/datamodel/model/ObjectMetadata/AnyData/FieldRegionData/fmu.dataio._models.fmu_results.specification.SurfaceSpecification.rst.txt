@@ -1,0 +1,32 @@
+SurfaceSpecification
+====================
+
+.. currentmodule:: fmu.dataio._models.fmu_results.specification
+
+.. autosummary::
+   :toctree: SurfaceSpecification
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+   
+
+.. autopydantic_model:: SurfaceSpecification
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   

@@ -1,0 +1,42 @@
+Smda
+====
+
+.. currentmodule:: fmu.dataio._models.fmu_results.fields
+
+.. autosummary::
+   :toctree: Smda
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+      ~fmu.dataio._models.fmu_results.fields.DiscoveryItem
+   
+      ~fmu.dataio._models.fmu_results.fields.FieldItem
+   
+      ~fmu.dataio._models.fmu_results.fields.CountryItem
+   
+      ~fmu.dataio._models.fmu_results.fields.StratigraphicColumn
+   
+      ~fmu.dataio._models.fmu_results.fields.CoordinateSystem
+   
+   
+
+.. autopydantic_model:: Smda
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   

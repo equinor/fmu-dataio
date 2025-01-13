@@ -1,0 +1,34 @@
+Realization
+===========
+
+.. currentmodule:: fmu.dataio._models.fmu_results.fields
+
+.. autosummary::
+   :toctree: Realization
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+      ~fmu.dataio._models.fmu_results.fields.Parameters
+   
+   
+
+.. autopydantic_model:: Realization
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   

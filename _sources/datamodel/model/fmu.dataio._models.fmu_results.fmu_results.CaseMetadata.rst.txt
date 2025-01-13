@@ -1,0 +1,40 @@
+﻿CaseMetadata
+============
+
+.. currentmodule:: fmu.dataio._models.fmu_results.fmu_results
+
+.. autosummary::
+   :toctree: CaseMetadata
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+      ~fmu.dataio._models.fmu_results.fields.Tracklog
+   
+      ~fmu.dataio._models.fmu_results.fields.FMUBase
+   
+      ~fmu.dataio._models.fmu_results.fields.Access
+   
+      ~fmu.dataio._models.fmu_results.fields.Masterdata
+   
+   
+
+.. autopydantic_model:: CaseMetadata
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   

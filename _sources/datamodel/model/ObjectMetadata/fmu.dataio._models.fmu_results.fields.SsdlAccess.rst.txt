@@ -1,0 +1,36 @@
+SsdlAccess
+==========
+
+.. currentmodule:: fmu.dataio._models.fmu_results.fields
+
+.. autosummary::
+   :toctree: SsdlAccess
+   :recursive:
+
+   .. toctree::
+      :maxdepth: -1
+
+   
+   
+      ~fmu.dataio._models.fmu_results.fields.Asset
+   
+      ~fmu.dataio._models.fmu_results.fields.Ssdl
+   
+   
+
+.. autopydantic_model:: SsdlAccess
+   :members:
+   :inherited-members: BaseModel
+   :model-show-config-summary: False
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :field-list-validators: False
+
+   
+   
+   
+
+   
+   
+   
