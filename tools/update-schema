@@ -23,8 +23,8 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, List, TypeVar
 
-from fmu.dataio._definitions import SchemaBase
 from fmu.dataio._models import schemas
+from fmu.dataio._models._schema_base import SchemaBase
 
 GREEN = "\033[32m"
 RED = "\033[31m"

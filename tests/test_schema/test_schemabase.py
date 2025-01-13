@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from fmu.dataio._definitions import FmuSchemas, SchemaBase
+from fmu.dataio._models._schema_base import FmuSchemas, SchemaBase
 
 
 def test_schemabase_validates_class_vars() -> None:
