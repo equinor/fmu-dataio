@@ -138,9 +138,9 @@ class SchemaBase(ABC):
         DEV_URL = f"{FmuSchemas.DEV_URL}/{cls.PATH}"
         PROD_URL = f"{FmuSchemas.PROD_URL}/{cls.PATH}"
 
-        if os.environ.get("SCHEMA_RELEASE", False):
-            return PROD_URL
-        return DEV_URL
+        if os.environ.get("DEV_SCHEMA", False):
+            return DEV_URL
+        return PROD_URL
 
     @classmethod
     def default_generator(cls) -> type[GenerateJsonSchema]:
