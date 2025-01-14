@@ -35,7 +35,12 @@ def test_schemas_uptodate(schema: SchemaBase) -> None:
     the local schema with the output of `dump()`.
 
     To get more feedback or generate new schemas run:
-    `./tools/update_schema`
+
+        ./tools/update_schema --diff
+
+    If you are generating a production release try running:
+
+        ./tools/update_schema --diff --prod
     """
     with open(schema.PATH) as f:
         assert json.load(f) == schema.dump()
@@ -45,11 +50,17 @@ def test_schemas_uptodate(schema: SchemaBase) -> None:
 def test_schema_url_changes_with_env_var(
     schema: SchemaBase, monkeypatch: MonkeyPatch
 ) -> None:
-    assert schema.url().startswith(FmuSchemas.DEV_URL)
-    assert schema.dump()["$id"].startswith(FmuSchemas.DEV_URL)
-    monkeypatch.setenv("SCHEMA_RELEASE", "1")
+    monkeypatch.setenv("DEV_SCHEMA", "")
+    json = schema.dump()
     assert schema.url().startswith(FmuSchemas.PROD_URL)
-    assert schema.dump()["$id"].startswith(FmuSchemas.PROD_URL)
+    assert json["$id"].startswith(FmuSchemas.PROD_URL)
+    assert json["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+
+    monkeypatch.setenv("DEV_SCHEMA", "1")
+    json = schema.dump()
+    assert schema.url().startswith(FmuSchemas.DEV_URL)
+    assert json["$id"].startswith(FmuSchemas.DEV_URL)
+    assert json["$schema"] == "https://json-schema.org/draft/2020-12/schema"
 
 
 @pytest.mark.parametrize("schema", schemas)

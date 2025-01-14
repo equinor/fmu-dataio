@@ -21,10 +21,10 @@ import subprocess
 import sys
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, List, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, TypeVar
 
-from fmu.dataio._models import schemas
-from fmu.dataio._models._schema_base import SchemaBase
+if TYPE_CHECKING:
+    from fmu.dataio._models._schema_base import SchemaBase
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -46,6 +46,12 @@ def _get_parser() -> argparse.ArgumentParser:
         "--diff",
         action="store_true",
         help="Show a diff between the current schema and the new one in output.",
+    )
+    parser.add_argument(
+        "-p",
+        "--prod",
+        action="store_true",
+        help="Produce schemas with production URLs",
     )
     parser.add_argument(
         "-t",
@@ -183,13 +189,21 @@ def write_schema(
                 _show_py_diff(existing_schema, new_schema)
             return False
 
-        if is_release:
+        if (
+            is_release
+            and not force_overwrite
+            and existing_schema["$id"] != new_schema["$id"]
+        ):
             print(
-                INFO,
-                f"{BOLD}{schema.FILENAME}{NC} version {BOLD}{schema.VERSION}{NC}: "
-                f"modifying '$id' url to 'prod':\n      {schema.url()}",
+                FAIL,
+                f"🚨 {BOLD}{schema.FILENAME}{NC} version "
+                f"{BOLD}{schema.VERSION}{NC}: mismatch in '$id'. you probably need "
+                "to run `./tools/update-schema --prod --force`",
             )
-        elif new_schema == existing_schema:
+            if show_diff:
+                _show_py_diff(existing_schema, new_schema)
+            return False
+        if new_schema == existing_schema:
             print(
                 PASS,
                 f"{BOLD}{schema.FILENAME}{NC} version "
@@ -219,11 +233,13 @@ def main() -> None:
     if args.force:
         print(INFO, "forcing overwrite of all schemas")
 
-    is_release = bool(os.environ.get("SCHEMA_RELEASE", False))
+    os.environ["DEV_SCHEMA"] = "" if args.prod else "1"
+    # Ensures URLs will differ based on above
+    import fmu.dataio._models as models
 
     failed_a_write = False
-    for schema in schemas:
-        did_write = write_schema(schema, args.force, is_release, args.test, args.diff)
+    for schema in models.schemas:
+        did_write = write_schema(schema, args.force, args.prod, args.test, args.diff)
         if not did_write:
             failed_a_write = True
 
