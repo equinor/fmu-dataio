@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Union
 
 from pydantic import (
+    AnyHttpUrl,
     BaseModel,
     Field,
     GetJsonSchemaHandler,
@@ -130,6 +131,12 @@ class MetadataBase(BaseModel):
 
     version: str = Field(default=FmuResultsSchema.VERSION)
     """The version of the schema that generated this data."""
+
+    schema_: AnyHttpUrl = Field(
+        default_factory=lambda: AnyHttpUrl(FmuResultsSchema.url()),
+        alias="$schema",
+    )
+    """The url of the schema that generated this data."""
 
 
 class CaseMetadata(MetadataBase):
