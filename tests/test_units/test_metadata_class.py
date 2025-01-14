@@ -12,7 +12,7 @@ from fmu.dataio._models.fmu_results.fields import (
     OperatingSystem,
     TracklogEvent,
 )
-from fmu.dataio._utils import prettyprint_dict
+from fmu.dataio._utils import prettyprint_dict, read_metadata_from_file
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 
 # pylint: disable=no-member
@@ -32,6 +32,14 @@ def test_metadata_dollars(edataobj1, regsurf):
     assert mymeta["version"] == FmuResultsSchema.VERSION
     assert mymeta["$schema"] == FmuResultsSchema.url()
     assert mymeta["source"] == FmuResultsSchema.SOURCE
+
+    # also check that it is preserved in the exported metadata
+    exportpath = edataobj1.export(regsurf)
+    exportmeta = read_metadata_from_file(exportpath)
+
+    assert exportmeta["version"] == FmuResultsSchema.VERSION
+    assert exportmeta["$schema"] == FmuResultsSchema.url()
+    assert exportmeta["source"] == FmuResultsSchema.SOURCE
 
 
 # --------------------------------------------------------------------------------------
