@@ -42,7 +42,12 @@ jobs:
             "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
 
       - name: Full test
-        run: pytest -v --cov --cov-report term-missing
+        run: |
+          if [[ "${{ github.event.pull_request.base.ref }}" == "staging" ]]; then
+            pytest -n auto -v --cov --cov-report term-missing --prod
+          else
+            pytest -n auto -v --cov --cov-report term-missing
+          fi
 
   docker_build:
     name: Build Docker image
