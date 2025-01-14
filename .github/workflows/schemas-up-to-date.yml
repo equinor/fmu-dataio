@@ -22,13 +22,13 @@ jobs:
           pip install pip -U
           pip install -e .
 
-      - name: Set SCHEMA_RELEASE for staging
-        if: ${{ github.event.pull_request.base.ref == 'staging' }}
-        run: echo "SCHEMA_RELEASE=1" >> $GITHUB_ENV
-
       - name: Check schema
         run: |
-          ./tools/update-schema --diff
+          if [[ "${{ github.event.pull_request.base.ref }}" == "staging" ]]; then
+            ./tools/update-schema --diff --prod
+          else
+            ./tools/update-schema --diff
+          fi
 
       - name: Ensure schema validates with AJV
         run: |
