@@ -12,18 +12,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final, List, Literal, Optional, Union
 
-from pydantic import (
-    AnyHttpUrl,
-    BaseModel,
-    Field,
-)
+from pydantic import Field
 
 from ._logging import null_logger
 from ._models.fmu_results import data, fields
 from ._models.fmu_results.enums import FMUClass
 from ._models.fmu_results.fmu_results import (
     CaseMetadata,
-    FmuResultsSchema,
     ObjectMetadata,
 )
 from ._models.fmu_results.global_configuration import GlobalConfiguration
@@ -42,17 +37,7 @@ if TYPE_CHECKING:
 logger: Final = null_logger(__name__)
 
 
-class JsonSchemaMetadata(BaseModel):
-    """Mixin to inject the $schema field into exported metadata."""
-
-    schema_: AnyHttpUrl = Field(
-        default_factory=lambda: AnyHttpUrl(FmuResultsSchema.url()),
-        alias="$schema",
-        frozen=True,
-    )
-
-
-class ObjectMetadataExport(JsonSchemaMetadata, ObjectMetadata, populate_by_name=True):
+class ObjectMetadataExport(ObjectMetadata, populate_by_name=True):
     """Wraps the schema ObjectMetadata, adjusting some values to optional for pragmatic
     purposes when exporting metadata."""
 
@@ -65,7 +50,7 @@ class ObjectMetadataExport(JsonSchemaMetadata, ObjectMetadata, populate_by_name=
     preprocessed: Optional[bool] = Field(alias="_preprocessed", default=None)
 
 
-class CaseMetadataExport(JsonSchemaMetadata, CaseMetadata, populate_by_name=True):
+class CaseMetadataExport(CaseMetadata, populate_by_name=True):
     """Adds the optional description field for backward compatibility."""
 
     class_: Literal[FMUClass.case] = Field(

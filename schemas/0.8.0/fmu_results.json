@@ -458,6 +458,12 @@
     "CaseMetadata": {
       "description": "The FMU metadata model for an FMU case.\n\nA case represent a set of iterations that belong together, either by being part of\nthe same run (i.e. history matching) or by being placed together by the user,\ncorresponding to /scratch/<asset>/<user>/<my case name>/.",
       "properties": {
+        "$schema": {
+          "format": "uri",
+          "minLength": 1,
+          "title": "$Schema",
+          "type": "string"
+        },
         "access": {
           "$ref": "#/$defs/Access"
         },
@@ -3529,6 +3535,12 @@
     "IterationMetadata": {
       "description": "The FMU metadata model for an FMU Iteration.\n\nAn object representing a single Iteration of a specific case.",
       "properties": {
+        "$schema": {
+          "format": "uri",
+          "minLength": 1,
+          "title": "$Schema",
+          "type": "string"
+        },
         "access": {
           "$ref": "#/$defs/Access"
         },
@@ -4614,6 +4626,12 @@
     "ObjectMetadata": {
       "description": "The FMU metadata model for a given data object.",
       "properties": {
+        "$schema": {
+          "format": "uri",
+          "minLength": 1,
+          "title": "$Schema",
+          "type": "string"
+        },
         "access": {
           "$ref": "#/$defs/SsdlAccess"
         },
@@ -6454,6 +6472,12 @@
     "RealizationMetadata": {
       "description": "The FMU metadata model for an FMU Realization.\n\nAn object representing a single Realization of a specific Iteration.",
       "properties": {
+        "$schema": {
+          "format": "uri",
+          "minLength": 1,
+          "title": "$Schema",
+          "type": "string"
+        },
         "access": {
           "$ref": "#/$defs/Access"
         },
