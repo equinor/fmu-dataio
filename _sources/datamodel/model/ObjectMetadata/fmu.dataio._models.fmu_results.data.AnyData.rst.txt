@@ -14,57 +14,57 @@ AnyData
    
       ~fmu.dataio._models.fmu_results.data.FluidContactData
    
+      ~fmu.dataio._models.fmu_results.data.VolumesData
+   
       ~fmu.dataio._models.fmu_results.data.ThicknessData
    
-      ~fmu.dataio._models.fmu_results.data.KPProductData
+      ~fmu.dataio._models.fmu_results.data.WellPicksData
    
-      ~fmu.dataio._models.fmu_results.data.TransmissibilitiesData
+      ~fmu.dataio._models.fmu_results.data.PropertyData
+   
+      ~fmu.dataio._models.fmu_results.data.DepthData
+   
+      ~fmu.dataio._models.fmu_results.data.LiftCurvesData
+   
+      ~fmu.dataio._models.fmu_results.data.PVTData
+   
+      ~fmu.dataio._models.fmu_results.data.TimeSeriesData
+   
+      ~fmu.dataio._models.fmu_results.data.NamedAreaData
+   
+      ~fmu.dataio._models.fmu_results.data.SeismicData
+   
+      ~fmu.dataio._models.fmu_results.data.FaultPropertiesData
    
       ~fmu.dataio._models.fmu_results.data.RegionsData
    
       ~fmu.dataio._models.fmu_results.data.VelocityData
    
-      ~fmu.dataio._models.fmu_results.data.FaultLinesData
-   
-      ~fmu.dataio._models.fmu_results.data.RelpermData
-   
-      ~fmu.dataio._models.fmu_results.data.RFTData
-   
-      ~fmu.dataio._models.fmu_results.data.VolumesData
-   
-      ~fmu.dataio._models.fmu_results.data.FieldOutlineData
-   
-      ~fmu.dataio._models.fmu_results.data.DepthData
-   
-      ~fmu.dataio._models.fmu_results.data.SimulationTimeSeriesData
-   
-      ~fmu.dataio._models.fmu_results.data.FaultPropertiesData
-   
-      ~fmu.dataio._models.fmu_results.data.WellPicksData
-   
-      ~fmu.dataio._models.fmu_results.data.NamedAreaData
-   
-      ~fmu.dataio._models.fmu_results.data.LiftCurvesData
-   
-      ~fmu.dataio._models.fmu_results.data.SeismicData
-   
-      ~fmu.dataio._models.fmu_results.data.FieldRegionData
-   
-      ~fmu.dataio._models.fmu_results.data.ParametersData
-   
-      ~fmu.dataio._models.fmu_results.data.PVTData
-   
       ~fmu.dataio._models.fmu_results.data.SubcropData
    
       ~fmu.dataio._models.fmu_results.data.PinchoutData
    
-      ~fmu.dataio._models.fmu_results.data.TimeSeriesData
+      ~fmu.dataio._models.fmu_results.data.SimulationTimeSeriesData
    
-      ~fmu.dataio._models.fmu_results.data.PropertyData
+      ~fmu.dataio._models.fmu_results.data.FieldRegionData
+   
+      ~fmu.dataio._models.fmu_results.data.KPProductData
+   
+      ~fmu.dataio._models.fmu_results.data.TimeData
+   
+      ~fmu.dataio._models.fmu_results.data.RFTData
+   
+      ~fmu.dataio._models.fmu_results.data.FieldOutlineData
+   
+      ~fmu.dataio._models.fmu_results.data.FaultLinesData
+   
+      ~fmu.dataio._models.fmu_results.data.RelpermData
    
       ~fmu.dataio._models.fmu_results.data.FaciesThicknessData
    
-      ~fmu.dataio._models.fmu_results.data.TimeData
+      ~fmu.dataio._models.fmu_results.data.TransmissibilitiesData
+   
+      ~fmu.dataio._models.fmu_results.data.ParametersData
    
    
 
