@@ -141,7 +141,7 @@
       "type": "object"
     }
   },
-  "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/file_formats/0.1.0/inplace_volumes.json",
+  "$id": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/0.1.0/inplace_volumes.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Represents the resultant static inplace volumes csv file, which is naturally a\nlist of rows.\n\nConsumers who retrieve this csv file must reading it into a json-dictionary\nequivalent format to validate it against the schema.",
   "items": {
