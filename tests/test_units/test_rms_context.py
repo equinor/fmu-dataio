@@ -4,9 +4,11 @@ In this case a user sits in RMS, which is in folder rms/model and runs
 interactive or from ERT. Hence the rootpath will be ../../
 """
 
+import builtins
 import logging
 import os
 import shutil
+from copy import deepcopy
 from pathlib import Path
 
 import pandas as pd
@@ -614,6 +616,41 @@ def test_gridproperty_export_with_geometry(inside_rms_setup, grid, gridproperty)
 
     assert "mygrid" not in output
     assert "this_is_parent" in output
+
+
+@inside_rms
+def test_gridproperty_export_with_geometry_and_bad_character(
+    inside_rms_setup, grid, gridproperty, monkeypatch
+):
+    """Ensures a non-ascii character in masterdata does not cause encoding parsing
+    failures"""
+    original_open = builtins.open
+
+    def open_with_ansi(file, mode="r", *args, **kwargs):
+        if "r" in mode and "b" not in mode and "encoding" not in kwargs:
+            kwargs["encoding"] = "ANSI_X3.4-1968"
+        return original_open(file, mode, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "open", open_with_ansi)
+
+    cfg = deepcopy(inside_rms_setup["config"])
+
+    cfg["masterdata"]["smda"]["field"][0]["identifier"] = "Drogøn"
+
+    grd_edata = dataio.ExportData(
+        config=cfg,
+        name="geogrid",
+        content={"property": {"is_discrete": False}},
+    )
+    outgrid = grd_edata.export(grid)
+
+    dataio.ExportData(
+        config=cfg,
+        name="geogrid",
+        content={"property": {"is_discrete": False}},
+        geometry=outgrid,
+    ).export(gridproperty)
+    # Will raise an exception if decoding fails
 
 
 # ======================================================================================
