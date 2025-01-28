@@ -130,7 +130,7 @@ def export_file(
             serialized_json = json.dumps(obj)
 
         if isinstance(file, Path):
-            with open(file, "w") as stream:
+            with open(file, "w", encoding="utf-8") as stream:
                 stream.write(serialized_json)
         else:
             file.write(serialized_json.encode("utf-8"))
@@ -220,7 +220,7 @@ def read_parameters_txt(pfile: Path | str) -> types.Parameters:
 
     res: types.Parameters = {}
 
-    with open(pfile) as f:
+    with open(pfile, encoding="utf-8") as f:
         for line in f:
             line_parts = shlex.split(line)
             if len(line_parts) == 2:
@@ -346,7 +346,7 @@ def read_metadata_from_file(filename: str | Path) -> dict:
     metafilepath = Path(metafile)
     if not metafilepath.exists():
         raise OSError(f"Cannot find requested metafile: {metafile}")
-    with open(metafilepath) as stream:
+    with open(metafilepath, encoding="utf-8") as stream:
         return yaml.safe_load(stream)
 
 
