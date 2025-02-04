@@ -36,6 +36,6 @@ install_test_dependencies () {
 run_pytest () {
     echo "Running fmu-dataio tests with pytest..."
     pushd $CI_TEST_ROOT
-    pytest ./tests -n 4 -vv
+    pytest ./tests -n 4 -vv --ignore=tests/test_ert_integration
     popd
 }
