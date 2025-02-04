@@ -22,6 +22,7 @@ copy_test_files () {
     cp -r $PROJECT_ROOT/tests $CI_TEST_ROOT
     cp -r $PROJECT_ROOT/schemas $CI_TEST_ROOT
     cp -r $PROJECT_ROOT/examples $CI_TEST_ROOT
+    cp -r $PROJECT_ROOT/share $CI_TEST_ROOT
     cp $PROJECT_ROOT/pyproject.toml $CI_TEST_ROOT
 }
 
