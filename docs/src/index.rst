@@ -40,7 +40,7 @@ post-processing services, new and improved cloud-only version of Webviz and much
    overview
    preparations
    examples
-   rms_oneliners
+   exported_data_products
    dataio_3_migration
    apiref/modules
    datamodel/index

@@ -13,26 +13,53 @@ if TYPE_CHECKING:
 
 
 class InplaceVolumesResultRow(BaseModel):
-    """Represents a row in a static inplace volumes export.
+    """Represents the columns of a row in a static inplace volumes export.
 
-    These fields are the current agreed upon standard result. Changes to this model
-    should increase the version number in a way that corresponds to the schema
-    versioning specification (i.e. they are a patch, minor, or major change)."""
+    These fields are the current agreed upon standard result. Changes to the fields or
+    their validation should cause the version defined in the prodct schema to
+    increase the version number in a way that corresponds to the schema versioning
+    specification (i.e. they are a patch, minor, or major change)."""
 
     FLUID: InplaceVolumes.Fluid
+    """Index column. The kind of fluid this row represents. Typically GAS, OIL, or CO2.
+    Required.
+    """
+
     ZONE: str
+    """Index column. The zone from which this volume is coming from. Required."""
+
     REGION: str
+    """Index column. The region from which this volume is coming from. Required."""
+
     FACIES: Optional[str] = Field(default=None)
+    """Index column. The facies from which is volume is coming from. Optional."""
+
     LICENSE: Optional[str] = Field(default=None)
+    """Index column. The license under which these volumes related to. Optional."""
 
     BULK: float = Field(ge=0.0)
+    """The bulk volume of the fluid-type given in ``FLUID``. Required."""
+
     NET: float = Field(ge=0.0)
+    """The net volume of the fluid-type given in ``FLUID``. Required."""
+
     PORV: float = Field(ge=0.0)
+    """The pore volume of the fluid-type given in ``FLUID``. Required."""
+
     HCPV: Optional[float] = Field(default=None, ge=0.0)
+    """The pore volume of the fluid-type given in ``FLUID``. Optional."""
+
     STOIIP: Optional[float] = Field(default=None, ge=0.0)
+    """The STOIIP volume of the fluid-type given in ``FLUID``. Optional."""
+
     GIIP: Optional[float] = Field(default=None, ge=0.0)
+    """The GIIP volume of the fluid-type given in ``FLUID``. Optional."""
+
     ASSOCIATEDGAS: Optional[float] = Field(default=None, ge=0.0)
+    """The associated gas volume of the fluid-type given in ``FLUID``. Optional."""
+
     ASSOCIATEDOIL: Optional[float] = Field(default=None, ge=0.0)
+    """The associated oil volume of the fluid-type given in ``FLUID``. Optional."""
 
 
 class InplaceVolumesResult(RootModel):
@@ -46,9 +73,19 @@ class InplaceVolumesResult(RootModel):
 
 
 class InplaceVolumesSchema(SchemaBase):
+    """This class represents the schema that is used to validate the inplace volumes
+    table being exported. This means that the version, schema filename, and schema
+    locaiton corresponds directly with the values and their validation constraints,
+    documented above."""
+
     VERSION: str = "0.1.0"
+    """The version of this schema."""
+
     FILENAME: str = "inplace_volumes.json"
+    """The filename this schema is written to."""
+
     PATH: Path = FmuSchemas.PATH / "file_formats" / VERSION / FILENAME
+    """The local and URL path of this schema."""
 
     @classmethod
     def dump(cls) -> dict[str, Any]:
