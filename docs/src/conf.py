@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
 import logging
 import os
 import sys
 from datetime import date
+from textwrap import dedent
 
 import fmu.dataio
 import fmu.dataio.dataio
+from fmu.dataio._models import schemas
 
 sys.path.insert(0, os.path.abspath("../../src/fmu"))
 sys.path.insert(1, os.path.abspath("../ext"))
@@ -43,6 +46,31 @@ extensions = [
     "sphinxcontrib.autodoc_pydantic",
 ]
 
+myst_enable_extensions = [
+    "substitution",
+]
+
+
+def set_myst_substitutions() -> dict[str, str]:
+    subs = {}
+    for s in schemas:
+        subs[f"{s.__name__}_VERSION"] = str(s.VERSION)
+        subs[f"{s.__name__}_URL"] = str(s.url())
+        subs[f"{s.__name__}_PATH"] = str(s.PATH)
+        subs[f"{s.__name__}_INCLUDE"] = dedent(f"""
+            ```{{eval-rst}}
+               .. toggle::
+
+                  .. literalinclude:: ../../../{s.PATH}
+                     :language: json
+
+            ```
+        """)
+    return subs
+
+
+myst_substitutions = set_myst_substitutions()
+
 autosummary_generate = True
 autosummary_imported_members = True
 add_module_names = False
@@ -68,6 +96,8 @@ apidoc_extra_args = ["-H", "API reference for fmu.dataio"]
 autoclass_content = "class"
 # Sort members by input order in classes
 autodoc_member_order = "bysource"
+autodoc_pydantic_model_summary_list_order = "bysource"
+autodoc_pydantic_model_member_order = "bysource"
 autodoc_default_flags = ["members", "show_inheritance"]
 # Mocking ert, rms, pydantic module
 autodoc_mock_imports = ["ert", "pydantic", "rmsapi", "_rmsapi", "roxar", "_roxar"]
