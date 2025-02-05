@@ -4,11 +4,6 @@ This exports the initial inplace volumes of a single grid from within RMS.
 
 - Current schema version: **{{ InplaceVolumesSchema_VERSION }}**
 
-```{contents}  Contents
-:local:
-:depth: 2
-```
-
 ## Requirements
 
 - RMS
