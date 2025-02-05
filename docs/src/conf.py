@@ -44,6 +44,7 @@ extensions = [
     "sphinx_togglebutton",
     "sphinxcontrib.apidoc",
     "sphinxcontrib.autodoc_pydantic",
+    "sphinx_copybutton",
 ]
 
 myst_enable_extensions = [
@@ -120,16 +121,8 @@ exclude_patterns = ["_build"]
 
 pygments_style = "sphinx"
 
-html_theme = "sphinx_rtd_theme"
-html_theme_options = {
-    "style_nav_header_background": "#C0C0C0",
-    "navigation_depth": -1,
-    "collapse_navigation": False,
-    "titles_only": True,
-}
-
-
-# html_logo = "images/xtgeo-logo.png"
+html_theme = "furo"
+# html_logo = "images/logo.png"
 
 # The name of an image file (within the static path) to use as favicon
 # of the docs.  This file should be a Windows icon file (.ico) being
