@@ -25,6 +25,8 @@ from warnings import warn
 if TYPE_CHECKING:
     from . import types
 
+from fmu.dataio.aggregation import AggregatedData
+
 from ._definitions import ValidationError
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
@@ -39,7 +41,6 @@ from ._utils import (
     read_metadata_from_file,
     some_config_from_env,
 )
-from .aggregation import AggregatedData
 from .case import CreateCaseMetadata
 from .preprocessed import ExportPreprocessedData
 from .providers._filedata import FileDataProvider
