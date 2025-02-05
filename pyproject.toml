@@ -67,14 +67,15 @@ dev = [
     "types-PyYAML",
 ]
 docs = [
+    "Sphinx",
     "autoapi",
     "autodoc-pydantic>=2.0.0",
+    "furo",
     "myst-parser",
     "pydocstyle",
     "sphinx-autodoc-typehints<1.23",
-    "sphinx-rtd-theme",
+    "sphinx-copybutton",
     "sphinx-togglebutton",
-    "Sphinx",
     "sphinxcontrib-apidoc",
     "urllib3<1.27",
 ]
