@@ -10,6 +10,7 @@ from textwrap import dedent
 import fmu.dataio
 import fmu.dataio.dataio
 from fmu.dataio._models import schemas
+from fmu.dataio._models._schema_base import SchemaBase
 
 sys.path.insert(0, os.path.abspath("../../src/fmu"))
 sys.path.insert(1, os.path.abspath("../ext"))
@@ -30,9 +31,6 @@ logging.getLogger("sphinx").addFilter(PydanticAutodocFilter())
 
 # -- General configuration ---------------------------------------------
 
-# The full version, including alpha/beta/rc tags.
-release = fmu.dataio.__version__
-
 extensions = [
     "myst_parser",
     "pydantic_autosummary",
@@ -49,16 +47,14 @@ extensions = [
 
 myst_enable_extensions = [
     "substitution",
+    "colon_fence",
 ]
 
 
-def set_myst_substitutions() -> dict[str, str]:
+def _myst_substitutions() -> dict[str, SchemaBase]:
     subs = {}
     for s in schemas:
-        subs[f"{s.__name__}_VERSION"] = str(s.VERSION)
-        subs[f"{s.__name__}_URL"] = str(s.url())
-        subs[f"{s.__name__}_PATH"] = str(s.PATH)
-        subs[f"{s.__name__}_INCLUDE"] = dedent(f"""
+        s.literalinclude = dedent(f"""
             ```{{eval-rst}}
                .. toggle::
 
@@ -67,10 +63,13 @@ def set_myst_substitutions() -> dict[str, str]:
 
             ```
         """)
+        subs[f"{s.__name__}"] = s
     return subs
 
 
-myst_substitutions = set_myst_substitutions()
+myst_substitutions = _myst_substitutions()
+# myst substitutions have objects, causing the cache warning
+suppress_warnings = ["config.cache"]
 
 autosummary_generate = True
 autosummary_imported_members = True
@@ -111,17 +110,21 @@ source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 # The master toctree document.
 master_doc = "index"
 
-# General information about the project.
-project = "fmu.dataio"
-current_year = date.today().year
-copyright = f"Equinor {current_year} (fmu-dataio release {release})"
-
-
 exclude_patterns = ["_build"]
 
 pygments_style = "sphinx"
 
+# General information about the project.
+project = "fmu-dataio"
+current_year = date.today().year
+# The full version, including alpha/beta/rc tags.
+release = fmu.dataio.__version__
+# The short version, like 3.0
+version = ".".join(release.split(".")[:2])
+
 html_theme = "furo"
+html_title = f"{project} {version}"
+copyright = f"Equinor {current_year} ({project} release {release})"
 # html_logo = "images/logo.png"
 
 # The name of an image file (within the static path) to use as favicon
