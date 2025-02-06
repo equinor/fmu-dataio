@@ -152,15 +152,22 @@ class SchemaBase(ABC):
             raise TypeError(f"Invalid VERSION format for '{cls.__name__}': {e}") from e
 
     @classmethod
+    def dev_url(cls) -> str:
+        """Returns the url to the schema on the Radix dev environment."""
+        return f"{FmuSchemas.DEV_URL}/{cls.PATH}"
+
+    @classmethod
+    def prod_url(cls) -> str:
+        """Returns the url to the schema on the Radix prod environment."""
+        return f"{FmuSchemas.PROD_URL}/{cls.PATH}"
+
+    @classmethod
     def url(cls) -> str:
         """Returns the URL this file will reside at, based upon class variables set here
         and in FmuSchemas."""
-        DEV_URL = f"{FmuSchemas.DEV_URL}/{cls.PATH}"
-        PROD_URL = f"{FmuSchemas.PROD_URL}/{cls.PATH}"
-
         if os.environ.get("DEV_SCHEMA", False):
-            return DEV_URL
-        return PROD_URL
+            return cls.dev_url()
+        return cls.prod_url()
 
     @classmethod
     def default_generator(cls) -> type[GenerateJsonSchema]:
