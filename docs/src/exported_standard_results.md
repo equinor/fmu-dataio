@@ -1,7 +1,7 @@
-# Data Product Exports
+# Standard result exports
 
-fmu-dataio exposes functions for the export of data products. These are
-_standardized results_ that must conform to particular data shapes defined in
+fmu-dataio exposes functions for the export of standard results. These are
+_standardized data_ that must conform to particular data shapes defined in
 this package. Data being exported with these functions undergoes strict
 validation.
 
@@ -25,7 +25,7 @@ found at the standard location in FMU. For RMS exports that will be
 :maxdepth: 2
 :glob:
 :titlesonly:
-:caption: Products
+:caption: Standard results
 
-products/*
+standard_results/*
 ```
