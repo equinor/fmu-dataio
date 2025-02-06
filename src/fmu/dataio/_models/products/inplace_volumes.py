@@ -22,8 +22,8 @@ class InplaceVolumesResultRow(BaseModel):
     specification (i.e. they are a patch, minor, or major change)."""
 
     FLUID: InplaceVolumes.Fluid
-    """Index column. The kind of fluid this row represents. Typically GAS, OIL, or CO2.
-    Required.
+    """Index column. The kind of fluid this row represents. Typically GAS, OIL, or
+    WATER. Required.
     """
 
     ZONE: str
