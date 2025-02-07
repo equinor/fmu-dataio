@@ -56,6 +56,8 @@ VersionStr: TypeAlias = Annotated[
     str, Field(pattern=r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)")
 ]
 
+MD5HashStr: TypeAlias = Annotated[str, Field(pattern=r"^([a-f\d]{32}|[A-F\d]{32})$")]
+
 Parameters: TypeAlias = Annotated[
     MutableMapping[str, Union[str, float, int, None, "Parameters"]],
     "Nested or flat configurations for dynamically structured parameters.",

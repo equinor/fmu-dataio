@@ -110,7 +110,7 @@ def test_schema_file_block(metadata_examples):
         FmuResults.model_validate(_example)
 
     # shall validate when checksum is put back in
-    _example["file"]["checksum_md5"] = "somechecksum"
+    _example["file"]["checksum_md5"] = "fa4d055b113ae5282796e328cde0ffa4"
     FmuResults.model_validate(_example)
 
     # shall not validate without relative_path
