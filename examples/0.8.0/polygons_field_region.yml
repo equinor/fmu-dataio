@@ -57,7 +57,7 @@ fmu:
 file:
   relative_path: realization-33/iter-0/share/results/polygons/field_region--central_horst.gri # case-relative
   absolute_path: /some/absolute/path//realization-33/iter-0/share/results/polygons/field_region--central_horst.gri
-  checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
+  checksum_md5: fa4d055b113ae5282796e328cde0ffa4  # checksum of the file, not the data.
   size_bytes: 132
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
