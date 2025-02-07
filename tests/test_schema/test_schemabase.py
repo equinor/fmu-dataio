@@ -28,6 +28,29 @@ def test_schemabase_validates_class_vars() -> None:
             PATH: Path = FmuSchemas.PATH / "test"
 
 
+def test_schemabase_validates_verion_string_form() -> None:
+    with pytest.raises(TypeError, match="Invalid VERSION format for 'MajorMinor'"):
+
+        class MajorMinor(SchemaBase):
+            VERSION = "12.3"
+            FILENAME: str = "fmu_results.json"
+            PATH: Path = FmuSchemas.PATH / "test"
+
+    with pytest.raises(TypeError, match="Invalid VERSION format for 'Alphanumeric'"):
+
+        class Alphanumeric(SchemaBase):
+            VERSION = "1.3.a"
+            FILENAME: str = "fmu_results.json"
+            PATH: Path = FmuSchemas.PATH / "test"
+
+    with pytest.raises(TypeError, match="Invalid VERSION format for 'LeadingZero'"):
+
+        class LeadingZero(SchemaBase):
+            VERSION = "01.3.0"
+            FILENAME: str = "fmu_results.json"
+            PATH: Path = FmuSchemas.PATH / "test"
+
+
 def test_schemabase_requires_path_starting_with_fmuschemas_path() -> None:
     """Tests that SchemaBase catches if a subclass's PATH does not fall into the main
     schemas directory."""
