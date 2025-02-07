@@ -1,8 +1,16 @@
-# Initial Inplace Volumes
+# Initial inplace volumes
 
 This exports the initial inplace volumes of a single grid from within RMS.
 
-- Current schema version: **{{ InplaceVolumesSchema_VERSION }}**
+:::{table} Current
+:widths: auto
+:align: left
+
+| Field | Value |
+| --- | --- |
+| Version | **{{ InplaceVolumesSchema.VERSION }}** |
+| Output | `share/results/tables/volumes/gridname.parquet` |
+:::
 
 ## Requirements
 
@@ -20,13 +28,13 @@ past, now typically representing the fastest method for calculating in-place
 volumes. However, it is important to note that generating output maps, such as
 Zone maps, during the volumetrics job can significantly decelerate the process.
 
-```{note}
+:::{note}
 Some assets are using erosion multipliers as a means to reduce the bulk
 and pore volume, instead of performing actual erosion by cell removal in the
 grid. This is not supported, and proper grid erosion is required. If the erosion
 multiplier is important for flow simulation, the erosion and volumetrics job
 should be moved to after the export for flow simulation.
-```
+:::
 
 ## Usage
 
@@ -71,22 +79,22 @@ The payload may contain other columns than the standard columns listed above.
 However, when these columns are present, their type is validated.
 ```
 
-## Product Schema
+## Standard result schema
 
-This product is made available with a validation schema that can be used by
-consumers. A reference to the URL where this schema is present within the
-`data.product` key in its associated object metadata.
+This standard results is made available with a validation schema that can be
+used by consumers. A reference to the URL where this schema is present within
+the `data.product` key in its associated object metadata.
 
-{{ '[The current schema is available here. 🔒]({})'.format(InplaceVolumesSchema_URL) }}
+| Field | Value |
+| --- | --- |
+| Version | {{ InplaceVolumesSchema.VERSION }} |
+| Filename | {{ InplaceVolumesSchema.FILENAME }} |
+| Path | {{ InplaceVolumesSchema.PATH }} |
+| Prod URL | {{ '[{}]({}) 🔒'.format(InplaceVolumesSchema.prod_url(), InplaceVolumesSchema.prod_url()) }}
+| Dev URL | {{ '[{}]({}) 🔒'.format(InplaceVolumesSchema.dev_url(), InplaceVolumesSchema.dev_url()) }}
 
-```{eval-rst}
-.. autoclass:: fmu.dataio._models.products.inplace_volumes.InplaceVolumesSchema
-   :members:
-   :exclude-members: dump
-```
+### JSON schema
 
-### JSON Schema
+The current JSON schema is embedded here.
 
-You can view the schema embedded here:
-
-{{ InplaceVolumesSchema_INCLUDE }}
+{{ InplaceVolumesSchema.literalinclude }}

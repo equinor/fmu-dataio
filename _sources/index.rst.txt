@@ -40,7 +40,13 @@ post-processing services, new and improved cloud-only version of Webviz and much
    overview
    preparations
    examples
-   exported_data_products
+   exported_standard_results
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Developer Guides
+
+   datamodel/index
    dataio_3_migration
    apiref/modules
-   datamodel/index
