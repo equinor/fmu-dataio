@@ -47,6 +47,7 @@ post-processing services, new and improved cloud-only version of Webviz and much
    :hidden:
    :caption: Developer Guides
 
+   schema_versioning
    datamodel/index
    dataio_3_migration
    apiref/modules
