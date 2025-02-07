@@ -27,6 +27,7 @@ from pydantic import (
     model_validator,
 )
 
+from fmu.dataio.types import MD5HashStr
 from fmu.dataio.version import __version__
 
 from . import enums, fields
@@ -103,7 +104,7 @@ class File(BaseModel):
     )
     """The path of a file relative to the case root."""
 
-    checksum_md5: str = Field(examples=["kjhsdfvsdlfk23knerknvk23"])
+    checksum_md5: MD5HashStr = Field(examples=["fa4d055b113ae5282796e328cde0ffa4"])
     """A valid MD5 checksum of the file."""
 
     size_bytes: Optional[int] = Field(default=None)

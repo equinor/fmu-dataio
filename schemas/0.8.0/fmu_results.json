@@ -2982,8 +2982,9 @@
         },
         "checksum_md5": {
           "examples": [
-            "kjhsdfvsdlfk23knerknvk23"
+            "fa4d055b113ae5282796e328cde0ffa4"
           ],
+          "pattern": "^([a-f\\d]{32}|[A-F\\d]{32})$",
           "title": "Checksum Md5",
           "type": "string"
         },

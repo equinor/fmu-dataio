@@ -73,7 +73,7 @@ file:
   # the Faultroom polygons are some kind of triangulated surfaces
   relative_path: realization-33/iter-0/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
   absolute_path: /some/absolute/path/realization-33/iter-0/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
-  checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
+  checksum_md5: fa4d055b113ae5282796e328cde0ffa4  # checksum of the file, not the data.
   size_bytes: 132321
 
 

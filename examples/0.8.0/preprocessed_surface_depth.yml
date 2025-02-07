@@ -54,7 +54,7 @@ fmu: # the fmu-block contains information directly related to the FMU context
 file:
   relative_path: share/results/maps/volantis_gp_base--amplitude--mean.gri # case-relative
   absolute_path: /some/absolute/path/share/results/maps/volantis_gp_base--amplitude--mean.gri
-  checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
+  checksum_md5: fa4d055b113ae5282796e328cde0ffa4  # checksum of the file, not the data.
   size_bytes: 132321
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
