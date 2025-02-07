@@ -64,7 +64,7 @@ fmu: # the fmu-block contains information directly related to the FMU context
 file:
   relative_path: realization-33/iter-0/share/results/tables/wellpicks.csv # case-relative
   absolute_path: /some/absolute/path/realization-33/iter-0/share/results/tables/wellpicks.csv
-  checksum_md5: kjhsdfvsdlfk23knerknvk23  # checksum of the file, not the data.
+  checksum_md5: fa4d055b113ae5282796e328cde0ffa4  # checksum of the file, not the data.
   size_bytes: 5010144
 
 data: # The data block describes the actual data (e.g. surface). Only present in data objects
