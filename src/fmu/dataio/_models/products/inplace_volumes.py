@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, RootModel
 
 from fmu.dataio._models._schema_base import FmuSchemas, SchemaBase
 from fmu.dataio.export._enums import InplaceVolumes
+from fmu.dataio.types import VersionStr
 
 if TYPE_CHECKING:
     from typing import Any
@@ -78,7 +79,7 @@ class InplaceVolumesSchema(SchemaBase):
     locaiton corresponds directly with the values and their validation constraints,
     documented above."""
 
-    VERSION: str = "0.1.0"
+    VERSION: VersionStr = "0.1.0"
     """The version of this schema."""
 
     FILENAME: str = "inplace_volumes.json"

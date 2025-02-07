@@ -13,7 +13,10 @@ from typing import (
     TypeVar,
 )
 
+from pydantic import BaseModel, ValidationError
 from pydantic.json_schema import GenerateJsonSchema
+
+from fmu.dataio.types import VersionStr
 
 T = TypeVar("T", Dict, List, object)
 
@@ -99,7 +102,7 @@ class GenerateJsonSchemaBase(GenerateJsonSchema):
 
 
 class SchemaBase(ABC):
-    VERSION: str
+    VERSION: VersionStr
     """The current version of the schema."""
 
     FILENAME: str
@@ -120,6 +123,12 @@ class SchemaBase(ABC):
 
     @classmethod
     def __init_subclass__(cls, **kwargs: dict[str, Any]) -> None:
+        """This achieves Pydantic-like validation without being Pydantic.
+
+        The reason for not using Pydantic here is that it does not play well with
+        the class methods that are derived, and the dump method that must be
+        implemented. It also doesn't like the default generator.
+        """
         super().__init_subclass__(**kwargs)
         for attr in ("VERSION", "FILENAME", "PATH"):
             if not hasattr(cls, attr):
@@ -130,6 +139,17 @@ class SchemaBase(ABC):
                 f"PATH must start with `FmuSchemas.PATH`: {FmuSchemas.PATH}. "
                 f"Got {cls.PATH}"
             )
+
+        try:
+
+            class PydanticVersionValidator(BaseModel):
+                """VersionStr uses a Pydantic 'Field'. Use Pydantic to validate it."""
+
+                version: VersionStr
+
+            PydanticVersionValidator(version=cls.VERSION)
+        except ValidationError as e:
+            raise TypeError(f"Invalid VERSION format for '{cls.__name__}': {e}") from e
 
     @classmethod
     def url(cls) -> str:

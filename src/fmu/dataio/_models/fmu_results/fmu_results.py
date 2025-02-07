@@ -18,6 +18,7 @@ from fmu.dataio._models._schema_base import (
     GenerateJsonSchemaBase,
     SchemaBase,
 )
+from fmu.dataio.types import VersionStr
 
 from .data import AnyData
 from .enums import FMUClass
@@ -43,7 +44,7 @@ if TYPE_CHECKING:
 class FmuResultsSchema(SchemaBase):
     """The main metadata export describing the results."""
 
-    VERSION: str = "0.8.0"
+    VERSION: VersionStr = "0.8.0"
     FILENAME: str = "fmu_results.json"
     PATH: Path = FmuSchemas.PATH / VERSION / FILENAME
 
@@ -129,7 +130,7 @@ class MetadataBase(BaseModel):
     source: str = Field(default=FmuResultsSchema.SOURCE)
     """The source of this data. Defaults to 'fmu'."""
 
-    version: str = Field(default=FmuResultsSchema.VERSION)
+    version: VersionStr = Field(default=FmuResultsSchema.VERSION)
     """The version of the schema that generated this data."""
 
     schema_: AnyHttpUrl = Field(

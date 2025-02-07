@@ -491,6 +491,7 @@
         },
         "version": {
           "default": "0.8.0",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
           "title": "Version",
           "type": "string"
         }
@@ -3035,6 +3036,7 @@
           "type": "string"
         },
         "version": {
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
           "title": "Version",
           "type": "string"
         }
@@ -3568,6 +3570,7 @@
         },
         "version": {
           "default": "0.8.0",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
           "title": "Version",
           "type": "string"
         }
@@ -4675,6 +4678,7 @@
         },
         "version": {
           "default": "0.8.0",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
           "title": "Version",
           "type": "string"
         }
@@ -6505,6 +6509,7 @@
         },
         "version": {
           "default": "0.8.0",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
           "title": "Version",
           "type": "string"
         }
