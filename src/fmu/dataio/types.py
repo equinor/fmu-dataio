@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, MutableMapping, Union
 
+from pydantic import Field
 from typing_extensions import Annotated, TypeAlias
 
 if TYPE_CHECKING:
@@ -50,6 +51,10 @@ if TYPE_CHECKING:
         ],
         "Collection of 'inferrable' objects with metadata deduction capabilities",
     ]
+
+VersionStr: TypeAlias = Annotated[
+    str, Field(pattern=r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)")
+]
 
 Parameters: TypeAlias = Annotated[
     MutableMapping[str, Union[str, float, int, None, "Parameters"]],

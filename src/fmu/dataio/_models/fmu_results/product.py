@@ -11,6 +11,7 @@ from pydantic import (
 from typing_extensions import Annotated
 
 from fmu.dataio._models.products import InplaceVolumesSchema
+from fmu.dataio.types import VersionStr
 
 from . import enums
 
@@ -18,7 +19,7 @@ from . import enums
 class FileSchema(BaseModel):
     """The schema identifying the format of a product."""
 
-    version: str
+    version: VersionStr
     """The version of the product schema."""
 
     url: AnyHttpUrl
