@@ -38,19 +38,6 @@ should be moved to after the export for flow simulation.
 
 ## Usage
 
-```python
-from fmu.dataio.export.rms import export_inplace_volumes
-
-# 'Geogrid' is the grid model name
-# 'geogrid_volumes' is the name of the volume job
-export_results = export_inplace_volumes(project, "Geogrid", "geogrid_volumes")
-
-for result in export_results.items:
-    print(f"Output volumes to {result.absolute_path}")
-```
-
-### Implementation
-
 ```{eval-rst}
 .. autofunction:: fmu.dataio.export.rms.inplace_volumes.export_inplace_volumes
 ```
@@ -82,8 +69,8 @@ However, when these columns are present, their type is validated.
 ## Standard result schema
 
 This standard results is made available with a validation schema that can be
-used by consumers. A reference to the URL where this schema is present within
-the `data.product` key in its associated object metadata.
+used by consumers. A reference to the URL where this schema is located is
+present within the `data.product` key in its associated object metadata.
 
 | Field | Value |
 | --- | --- |
