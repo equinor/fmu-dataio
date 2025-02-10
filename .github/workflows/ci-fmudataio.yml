@@ -43,6 +43,10 @@ jobs:
 
       - name: Full test
         run: |
+
+          # Reinstall pydantic to force latest version
+          pip install -U pydantic
+
           if [[ "${{ github.event.pull_request.base.ref }}" == "staging" ]]; then
             pytest -n auto -v --cov --cov-report term-missing --prod
           else
