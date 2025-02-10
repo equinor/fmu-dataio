@@ -130,3 +130,22 @@ class TrackLogEventType(str, Enum):
     created = "created"
     updated = "updated"
     merged = "merged"
+
+
+class FluidContactType(str, Enum):
+    """The type of fluid contact."""
+
+    fgl = "fgl"
+    """Free gas level."""
+
+    fwl = "fwl"
+    """Free water level."""
+
+    goc = "goc"
+    """Gas-oil contact."""
+
+    gwc = "gwc"
+    """Gas-water contact."""
+
+    owc = "owc"
+    """Oil-water contact."""

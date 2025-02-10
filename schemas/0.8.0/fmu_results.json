@@ -3053,18 +3053,11 @@
       "description": "A block describing a fluid contact. Shall be present if ``data.content``\n== ``fluid_contact``.",
       "properties": {
         "contact": {
-          "enum": [
-            "owc",
-            "fwl",
-            "goc",
-            "fgl"
-          ],
+          "$ref": "#/$defs/FluidContactType",
           "examples": [
             "owc",
             "fwl"
-          ],
-          "title": "Contact",
-          "type": "string"
+          ]
         },
         "truncated": {
           "default": false,
@@ -3397,6 +3390,18 @@
       ],
       "title": "FluidContactData",
       "type": "object"
+    },
+    "FluidContactType": {
+      "description": "The type of fluid contact.",
+      "enum": [
+        "fgl",
+        "fwl",
+        "goc",
+        "gwc",
+        "owc"
+      ],
+      "title": "FluidContactType",
+      "type": "string"
     },
     "Geometry": {
       "description": "The geometry of the object, i.e. the grid that an object representing a grid\nproperty is derivative of.",
