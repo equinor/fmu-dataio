@@ -12,35 +12,35 @@ SubcropData
 
    
    
+      ~fmu.dataio._models.fmu_results.product.AnyProduct
+   
       ~fmu.dataio._models.fmu_results.specification.FaultRoomSurfaceSpecification
-   
-      ~fmu.dataio._models.fmu_results.data.Geometry
-   
-      ~fmu.dataio._models.fmu_results.data.BoundingBox3D
-   
-      ~fmu.dataio._models.fmu_results.data.BoundingBox2D
-   
-      ~fmu.dataio._models.fmu_results.data.Layer
    
       ~fmu.dataio._models.fmu_results.specification.SurfaceSpecification
    
-      ~fmu.dataio._models.fmu_results.specification.CubeSpecification
-   
-      ~fmu.dataio._models.fmu_results.product.AnyProduct
-   
-      ~fmu.dataio._models.fmu_results.specification.CPGridPropertySpecification
+      ~fmu.dataio._models.fmu_results.data.Geometry
    
       ~fmu.dataio._models.fmu_results.specification.PointSpecification
+   
+      ~fmu.dataio._models.fmu_results.specification.CubeSpecification
    
       ~fmu.dataio._models.fmu_results.specification.TableSpecification
    
       ~fmu.dataio._models.fmu_results.data.Time
    
+      ~fmu.dataio._models.fmu_results.specification.CPGridPropertySpecification
+   
+      ~fmu.dataio._models.fmu_results.data.BoundingBox3D
+   
+      ~fmu.dataio._models.fmu_results.data.Layer
+   
       ~fmu.dataio._models.fmu_results.specification.PolygonsSpecification
+   
+      ~fmu.dataio._models.fmu_results.data.GridModel
    
       ~fmu.dataio._models.fmu_results.specification.CPGridSpecification
    
-      ~fmu.dataio._models.fmu_results.data.GridModel
+      ~fmu.dataio._models.fmu_results.data.BoundingBox2D
    
    
 
