@@ -23,4 +23,9 @@ jobs:
           pip install ".[dev]"
 
       - name: Mypy
-        run: mypy .
+        run: |
+
+          # Reinstall pydantic to force latest version
+          pip install -U pydantic
+
+          mypy .
