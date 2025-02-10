@@ -358,7 +358,18 @@ def export_inplace_volumes(
 
     Note:
         This function is experimental and may change in future versions.
-    """
+
+    Examples:
+        Example usage in an RMS script::
+
+            from fmu.dataio.export.rms import export_inplace_volumes
+
+            export_results = export_inplace_volumes(project, "Geogrid", "geogrid_volumes")
+
+            for result in export_results.items:
+                print(f"Output volumes to {result.absolute_path}")
+
+    """  # noqa: E501 line too long
 
     check_rmsapi_version(minimum_version="1.7")
 
