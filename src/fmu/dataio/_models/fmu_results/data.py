@@ -85,7 +85,7 @@ class FluidContact(BaseModel):
     == ``fluid_contact``.
     """
 
-    contact: Literal["owc", "fwl", "goc", "fgl"] = Field(examples=["owc", "fwl"])
+    contact: enums.FluidContactType = Field(examples=["owc", "fwl"])
     """A known type of contact."""
 
     truncated: bool = Field(default=False)
