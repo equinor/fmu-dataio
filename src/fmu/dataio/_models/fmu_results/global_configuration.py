@@ -85,7 +85,11 @@ class StratigraphyElement(BaseModel):
 
     name: str
     stratigraphic: bool = Field(default=False)
-    alias: Optional[List[str]] = Field(default_factory=list)
+
+    # TODO: Remove type ignore when Pydantic issue
+    #  https://github.com/pydantic/pydantic/issues/10950 has been solved
+    alias: Optional[List[str]] = Field(default_factory=list)  # type: ignore[arg-type]
+
     stratigraphic_alias: Optional[List[str]] = Field(default=None)
     offset: float = Field(default=0.0, allow_inf_nan=False)
     top: Optional[data.Layer] = Field(default=None)
