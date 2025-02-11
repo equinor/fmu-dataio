@@ -1,9 +1,11 @@
 from enum import Enum
+from pathlib import Path
 from typing import List, Literal, Union
+from uuid import UUID
 
-from pydantic import UUID, BaseModel, RootModel
+from pydantic import BaseModel, RootModel
 
-from fmu.dataio._models.fields import Tracklog
+from fmu.dataio._models.enums import Content
 
 """
 Requirements:
@@ -63,8 +65,24 @@ Parent-Child mapping:
 
 
 class MappingType(str, Enum):
+    """The discriminator used between mappings.
+
+    Each of these types should have their own mapping class derived of some sort of
+    mapping.
+    """
+
     stratigraphy = "stratigraphy"
     well = "well"
+
+
+class RelationType(str, Enum):
+    """The kind of relation this mapping represents."""
+
+    alias = "alias"
+    child_to_parent = "child_to_parent"
+    equivalent = "equivalent"
+    fmu_to_target = "fmu_to_target"
+    predecessor_to_successor = "predecessor_to_successor"
 
 
 class Source(BaseModel):
@@ -73,43 +91,77 @@ class Source(BaseModel):
 
 
 class BaseMapping(BaseModel):
-    """
-    mappings:
-      ...
-      items: [ ]
-    """
+    """The base mapping containing the fields all mappings should contain.
 
-    source: Source
-    target: str  # SMDA
-    eventlog: Tracklog  # Some way to follow when static, stored metadata is update
+    These fields will be contained in every individual mapping entry."""
+
+    source_system: Source
+    target_system: Literal["smda"]
+    mapping_type: MappingType
+
+
+# ------------------- Standard mappings
 
 
 class StandardMapping(BaseMapping):
-    """Mapping names"""
+    """Base class for a one-to-one or many-to-one mapping of identifiers.
 
-    source_name: Union[List[str], str]
-    target_name: str
-    target_uid: UUID  # type: ignore
+    This mapping represents takes some identifier from one source and correlates it to
+    an identifier in a target. Most often this target will be some official masterdata
+    store like SMDA."""
 
-
-class RelationshipMapping(BaseMapping):
-    """Stratigraphic elements being mapped"""
-
-    # TODO
+    fmu_id: Union[List[str], str]  # FMU name(s)
+    target_id: str
+    target_uid: UUID
 
 
 class StratigraphyMapping(StandardMapping):
-    type: Literal[MappingType.stratigraphy]
+    """Represents a mapping from stratigraphic aliases identifiers to an official
+    identifier."""
+
+    mapping_type: Literal[MappingType.stratigraphy]
     # specific stratigraphy mapping fields ...
 
 
 class WellMapping(StandardMapping):
-    type: Literal[MappingType.well]
+    """Represents a mapping from well aliases identifiers to an official
+    identifier."""
+
+    mapping_type: Literal[MappingType.well]
     # specific well mapping fields...
 
 
+class EntityReference(BaseModel):
+    """Represents one entity we wish to related to naother entity.
+
+    This is typically an object exported by dataio."""
+
+    name: str
+    uuid: UUID  # needed?
+    content: Content
+    relative_path: Path
+    absolute_path: Path
+
+
+# ------------------- Relationship mappings
+
+
+class RelationshipMapping(BaseMapping):
+    """Base class for a mapping that represents a relationship between two entities."""
+
+    source_entity: EntityReference
+    target_entity: EntityReference
+    relation_type: RelationType
+
+
+class ParentChildMapping(BaseMapping):
+    pass
+
+
 class Mappings(BaseModel):
-    """This is mappings key in metadata (somewhere)
+    """This collects a list of mappings under a mappings key in metadata or in a file on
+    disk.
+
     mappings:
         - well mapping
         - stratigraphy mapping
@@ -118,10 +170,10 @@ class Mappings(BaseModel):
     filter in this list the content type.
     """
 
-    items: List[Union[StratigraphyMapping, WellMapping]]
+    items: List[BaseMapping]
 
 
-class MappingFiles(RootModel):
+class MappingFile(RootModel):
     """mappings.yml for static data"""
 
     root: Mappings
