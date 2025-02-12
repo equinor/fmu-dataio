@@ -58,7 +58,7 @@ def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path
         globalconfig2 (dict): one global variables dict
     """
     monkeypatch.chdir(tmp_path)
-    answer = ["ZONE", "LICENCE"]
+    answer = ["ZONE", "LICENSE", "FLUID"]
     exd = ExportData(config=globalconfig2, content="volumes", name="baretull")
     path = exd.export(mock_volumes)
     assert_correct_table_index(path, answer)

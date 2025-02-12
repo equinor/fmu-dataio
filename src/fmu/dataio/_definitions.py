@@ -64,7 +64,7 @@ class ExportFolder(str, Enum):
 
 
 STANDARD_TABLE_INDEX_COLUMNS: Final[dict[str, list[str]]] = {
-    "volumes": ["ZONE", "REGION", "FACIES", "LICENCE"],
+    "volumes": ["ZONE", "REGION", "FACIES", "LICENSE", "FLUID"],
     "rft": ["measured_depth", "well", "time"],
     "timeseries": ["DATE"],
     "simulationtimeseries": ["DATE"],

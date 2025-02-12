@@ -747,7 +747,8 @@ def fixture_mock_volumes():
     return pd.DataFrame(
         {
             "ZONE": ["B", "A", "C"],
-            "LICENCE": ["L3", "L2", "L1"],
+            "LICENSE": ["L3", "L2", "L1"],
+            "FLUID": ["oil", "gas", "water"],
             "nums": [1, 2, 3],
             "OTHER": ["q", "a", "f"],
         }
