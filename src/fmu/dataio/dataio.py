@@ -706,6 +706,10 @@ class ExportData:
                 UserWarning,
             )
 
+    def _get_content_enum(self) -> enums.Content | None:
+        """Get a content enum from the input content. If not input, None is returned"""
+        return enums.Content._from_content(self.content) if self.content else None
+
     def _update_check_settings(self, newsettings: dict) -> None:
         """Update instance settings (properties) from other routines."""
         # if no newsettings (kwargs) this rutine is not needed
