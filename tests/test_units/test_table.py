@@ -2,11 +2,17 @@
 
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from fmu.config.utilities import yaml_load
 from fmu.dataio import ExportData
+from fmu.dataio._definitions import STANDARD_TABLE_INDEX_COLUMNS
+from fmu.dataio._models.fmu_results.enums import Content
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
+from fmu.dataio.providers.objectdata._tables import (
+    _derive_index,
+)
 
 
 def _read_dict(file_path: str) -> None:
@@ -58,7 +64,7 @@ def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path
         globalconfig2 (dict): one global variables dict
     """
     monkeypatch.chdir(tmp_path)
-    answer = ["ZONE", "LICENSE", "FLUID"]
+    answer = ["FLUID", "ZONE", "LICENSE"]
     exd = ExportData(config=globalconfig2, content="volumes", name="baretull")
     path = exd.export(mock_volumes)
     assert_correct_table_index(path, answer)
@@ -159,7 +165,7 @@ def test_set_table_index_not_in_table(
     )
     with pytest.raises(KeyError) as k_err:
         exd.export(mock_volumes)
-    assert k_err.value.args[0] == "banana is not in table"
+    assert "banana is not present" in k_err.value.args[0]
 
 
 def test_table_index_timeseries(export_data_obj_timeseries, drogon_summary):
@@ -195,3 +201,127 @@ def test_table_wellpicks(wellpicks, globalconfig1):
 
     # table index shall be inserted automatically
     assert metadata["data"]["table_index"] == ["WELL", "HORIZON"]
+
+
+def test_derive_index_from_input_valid():
+    """Test providing a valid table index"""
+    table_index = ["col1", "col2"]
+    table_columns = ["col1", "col2", "col3"]
+    result = _derive_index(table_columns, table_index)
+    assert result == table_index
+
+
+def test_derive_index_from_input_invalid():
+    """Test that error is raised if missing column"""
+    table_index = ["col1", "col4"]
+    table_columns = ["col1", "col2", "col3"]
+    with pytest.raises(KeyError, match="col4"):
+        _derive_index(table_columns, table_index)
+
+
+def test_derive_index_from_input_non_standard():
+    """Test that warning is given if a column that a non-standard column is provided"""
+    content = Content.volumes
+    table_index = ["col1"]
+    table_columns = STANDARD_TABLE_INDEX_COLUMNS[content] + ["col1"]
+    with pytest.warns(FutureWarning, match="standard"):
+        result = _derive_index(table_columns, table_index, content)
+    assert result == table_index
+
+
+def test_derive_index_from_standard():
+    """
+    Test that when table index is not provided the index is set to the
+    standard for the content.
+    """
+    content = Content.timeseries
+    table_index = None
+    table_columns = STANDARD_TABLE_INDEX_COLUMNS[content] + ["col1"]
+    result = _derive_index(table_columns, table_index, content)
+    assert result == STANDARD_TABLE_INDEX_COLUMNS[content]
+
+
+def test_derive_index_from_standard_missing_columns():
+    """
+    Test that when table index is not provided a Futurewarning is given
+    if not all columns standard index columns are present in the table
+    """
+    content = Content.volumes
+    assert content in STANDARD_TABLE_INDEX_COLUMNS
+    table_index = None
+    table_columns = ["ZONE", "REGION"]  # only subset
+    with pytest.warns(FutureWarning, match="standard"):
+        result = _derive_index(table_columns, table_index, content)
+    assert result == table_columns
+
+
+def test_derive_index_legacy():
+    """
+    Test that when table index is not provided and content is not
+    defined with standard table index columns, a UserWarning is given
+    and columns registered as a standard index column is returned.
+    """
+    content = Content.depth
+    assert content not in STANDARD_TABLE_INDEX_COLUMNS
+    table_index = None
+    table_columns = ["WELL", "SATNUM", "REGION", "col1"]
+    with pytest.warns(UserWarning):
+        result = _derive_index(table_columns, table_index, content)
+    assert set(result) == {"WELL", "SATNUM", "REGION"}
+
+
+def test_table_index_in_metadata_with_table_index(globalconfig2, mock_volumes):
+    """Test providing a valid table index"""
+    table_index = ["ZONE"]
+    with pytest.warns(FutureWarning, match="standard"):
+        meta = ExportData(
+            config=globalconfig2,
+            content="volumes",
+            name="geogrid",
+            table_index=table_index,
+        ).generate_metadata(mock_volumes)
+
+    assert meta["data"]["table_index"] == table_index
+
+
+def test_table_index_in_metadata_from_standard(globalconfig2, mock_volumes):
+    """
+    Test that when table index is not provided the index is set to the
+    standard for the content.
+    """
+    content = Content.volumes
+    assert content in STANDARD_TABLE_INDEX_COLUMNS
+    meta = ExportData(
+        config=globalconfig2,
+        content=content,
+        name="geogrid",
+    ).generate_metadata(mock_volumes)
+
+    expected = [x for x in STANDARD_TABLE_INDEX_COLUMNS[content] if x in mock_volumes]
+    assert meta["data"]["table_index"] == expected
+
+
+def test_table_index_in_metadata_legacy_fallback(globalconfig2):
+    """
+    Test that when table index is not provided and content is not
+    defined with standard table index columns, a UserWarning is given
+    and columns registered as a standard index column is returned.
+    """
+    content = Content.depth
+    assert content not in STANDARD_TABLE_INDEX_COLUMNS
+    mock_table = pd.DataFrame(
+        {
+            "DATE": ["B", "A", "C"],
+            "well": ["L3", "L2", "L1"],
+            "SATNUM": ["oil", "gas", "water"],
+            "data": [1, 2, 3],
+        }
+    )
+    with pytest.warns(UserWarning):
+        meta = ExportData(
+            config=globalconfig2,
+            content=content,
+            name="myname",
+        ).generate_metadata(mock_table)
+
+    assert set(meta["data"]["table_index"]) == {"DATE", "well", "SATNUM"}

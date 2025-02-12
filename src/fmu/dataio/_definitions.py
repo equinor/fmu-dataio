@@ -5,6 +5,9 @@ from __future__ import annotations
 from enum import Enum
 from typing import Final
 
+from fmu.dataio._models.fmu_results.enums import Content
+from fmu.dataio.export._enums import InplaceVolumes
+
 
 class ValidFormats(Enum):
     surface = {
@@ -55,11 +58,11 @@ class ExportFolder(str, Enum):
     tables = "tables"
 
 
-STANDARD_TABLE_INDEX_COLUMNS: Final[dict[str, list[str]]] = {
-    "volumes": ["ZONE", "REGION", "FACIES", "LICENSE", "FLUID"],
-    "rft": ["measured_depth", "well", "time"],
-    "timeseries": ["DATE"],
-    "simulationtimeseries": ["DATE"],
-    "wellpicks": ["WELL", "HORIZON"],
-    "relperm": ["SATNUM"],
+STANDARD_TABLE_INDEX_COLUMNS: Final[dict[Content, list[str]]] = {
+    Content.volumes: InplaceVolumes.index_columns(),
+    Content.rft: ["measured_depth", "well", "time"],
+    Content.timeseries: ["DATE"],
+    Content.simulationtimeseries: ["DATE"],
+    Content.wellpicks: ["WELL", "HORIZON"],
+    Content.relperm: ["SATNUM"],
 }
