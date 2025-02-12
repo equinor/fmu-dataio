@@ -106,7 +106,7 @@ def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolum
 
     # should fail if missing table index
     exportvolumetrics._dataframe = voltable_standard.drop(columns="ZONE")
-    with pytest.raises(KeyError, match="ZONE is not in table"):
+    with pytest.raises(KeyError, match="are not present"):
         exportvolumetrics._export_volume_table()
 
 
