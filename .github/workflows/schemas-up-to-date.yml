@@ -25,9 +25,9 @@ jobs:
       - name: Check schema
         run: |
           if [[ "${{ github.event.pull_request.base.ref }}" == "staging" ]]; then
-            ./tools/update-schema --diff --prod
+            ./tools/update-schemas --diff --prod
           else
-            ./tools/update-schema --diff
+            ./tools/update-schemas --diff
           fi
 
       - name: Ensure schema validates with AJV
