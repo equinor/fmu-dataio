@@ -69,4 +69,5 @@ STANDARD_TABLE_INDEX_COLUMNS: Final[dict[str, list[str]]] = {
     "timeseries": ["DATE"],
     "simulationtimeseries": ["DATE"],
     "wellpicks": ["WELL", "HORIZON"],
+    "relperm": ["SATNUM"],
 }
