@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
 from fmu.dataio.aggregation import AggregatedData
 
-from ._definitions import ValidationError
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._models.fmu_results import enums, global_configuration
@@ -42,6 +41,7 @@ from ._utils import (
     some_config_from_env,
 )
 from .case import CreateCaseMetadata
+from .exceptions import ValidationError
 from .preprocessed import ExportPreprocessedData
 from .providers._filedata import FileDataProvider
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
