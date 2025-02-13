@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Final
 
-from fmu.dataio._definitions import ConfigurationError, ValidFormats
+from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.data import AnyData, Time, Timestamp
 from fmu.dataio._models.fmu_results.enums import Content
@@ -16,6 +16,7 @@ from fmu.dataio._models.fmu_results.global_configuration import (
 )
 from fmu.dataio._models.fmu_results.product import Product
 from fmu.dataio._utils import generate_description
+from fmu.dataio.exceptions import ConfigurationError
 from fmu.dataio.providers._base import Provider
 from fmu.dataio.providers.objectdata._export_models import AllowedContent, UnsetData
 
