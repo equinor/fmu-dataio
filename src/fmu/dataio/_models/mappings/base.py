@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import List, Literal, Union
+from typing import List, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, RootModel
@@ -71,6 +71,7 @@ class MappingType(str, Enum):
     mapping.
     """
 
+    fault = "fault"
     stratigraphy = "stratigraphy"
     well = "well"
 
@@ -95,40 +96,106 @@ class BaseMapping(BaseModel):
 
     These fields will be contained in every individual mapping entry."""
 
-    source_system: Source
+    source_system: str
     target_system: Literal["smda"]
     mapping_type: MappingType
+    # confidence: float
 
 
 # ------------------- Standard mappings
 
 
-class StandardMapping(BaseMapping):
+class IdentifierMapping(BaseMapping):
     """Base class for a one-to-one or many-to-one mapping of identifiers.
 
     This mapping represents takes some identifier from one source and correlates it to
     an identifier in a target. Most often this target will be some official masterdata
     store like SMDA."""
 
-    fmu_id: Union[List[str], str]  # FMU name(s)
-    target_id: str
-    target_uid: UUID
+    source_id: str
+    target_id: str  # NO 22/25A
+    target_uuid: UUID
 
 
-class StratigraphyMapping(StandardMapping):
+# User story: StratigraphyMapping / WellMapping
+# As a data consumer, I would like to know which masterdata an FMU name maps to, if one
+# exists.
+
+
+class StratigraphyMapping(IdentifierMapping):
     """Represents a mapping from stratigraphic aliases identifiers to an official
     identifier."""
 
-    mapping_type: Literal[MappingType.stratigraphy]
+    mapping_type: Literal[MappingType.stratigraphy] = MappingType.stratigraphy
     # specific stratigraphy mapping fields ...
 
 
-class WellMapping(StandardMapping):
+# Stratigraphic mapping:
+#     TopVolantis:
+#       stratigraphic: True
+#       name: VOLANTIS GP. Top  # this is the official DB name
+#       # additional names, given for demo purpose:
+#       alias:
+#         - TopVOLANTIS
+#         - TOP_VOLANTIS
+
+strat = StratigraphyMapping(
+    source_system="rms",
+    target_system="smda",
+    source_id="TopVOLANTIS",
+    target_id="VOLANTIS GP. Top",
+    target_uuid=UUID(),
+)
+
+"""
+mappings:
+  - source_system: "rms"
+    target_system: "smda"
+    mapping_type: "stratigraphy"
+    source_id: "TopVOLANTIS"
+    target_id: "VOLANTIS GP. Top"
+    target_uuid: 1123...
+  - source_system: "rms"
+    target_system: "smda"
+    mapping_type: "stratigraphy"
+    source_id: "Top_VOLANTIS"
+    target_id: "VOLANTIS GP. Top"
+    target_uuid: 1123...
+"""
+
+# Next time:
+# - FMU-to-FMU mappings (RMS to Eclipse) -- uuid?
+# - Different fields for different targets?
+#
+# - Where is .fmu?
+# - .fmu
+# - fmuconfig/.static
+#
+# When ert is running a realization, it expects all the data it needs to be copied to
+# the compute node it's working.
+#
+# .fmu <-- from a compute node, to the node that started an experiment
+#
+# OR: CaseMetadata copies this data to the scratch disk?
+
+
+class WellMapping(IdentifierMapping):
     """Represents a mapping from well aliases identifiers to an official
     identifier."""
 
     mapping_type: Literal[MappingType.well]
     # specific well mapping fields...
+
+
+class FaultMapping(IdentifierMapping):
+    """Represents a mapping from well aliases identifiers to an official
+    identifier."""
+
+    mapping_type: Literal[MappingType.well]
+    # specific well mapping fields...
+
+
+# ------------------- Relationship mappings
 
 
 class EntityReference(BaseModel):
@@ -143,7 +210,11 @@ class EntityReference(BaseModel):
     absolute_path: Path
 
 
-# ------------------- Relationship mappings
+# As a Webviz developer, I would link to be able to link a grid property to the grid.
+
+# data.geometry -> relative_path (this is a weak uniqueness guarantee) should be UUID.
+# Uniqueness is only within the _case_. The case can only have a single file at any
+# given path.
 
 
 class RelationshipMapping(BaseMapping):
@@ -155,6 +226,10 @@ class RelationshipMapping(BaseMapping):
 
 
 class ParentChildMapping(BaseMapping):
+    pass
+
+
+class HierarchicalMapping(RelationshipMapping):
     pass
 
 
@@ -171,6 +246,12 @@ class Mappings(BaseModel):
     """
 
     items: List[BaseMapping]
+
+
+class OrderedMappings(Mappings):
+    """Items in this list imply an ordering that is important in some context."""
+
+    ordered: bool = True
 
 
 class MappingFile(RootModel):
