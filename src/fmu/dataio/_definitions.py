@@ -6,14 +6,6 @@ from enum import Enum
 from typing import Final
 
 
-class ValidationError(ValueError, KeyError):
-    """Raise error while validating."""
-
-
-class ConfigurationError(ValueError):
-    pass
-
-
 class ValidFormats(Enum):
     surface = {
         "irap_binary": ".gri",
