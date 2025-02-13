@@ -64,6 +64,15 @@ def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path
     assert_correct_table_index(path, answer)
 
 
+def test_relperm_index(mock_relperm, globalconfig2, monkeypatch, tmp_path):
+    """Test that the table index is set correct for relperm data"""
+    monkeypatch.chdir(tmp_path)
+    answer = ["SATNUM"]
+    exd = ExportData(config=globalconfig2, content="relperm", name="baretull")
+    path = exd.export(mock_relperm)
+    assert_correct_table_index(path, answer)
+
+
 def test_derive_summary_index_pandas(
     mock_summary, globalconfig2, monkeypatch, tmp_path
 ):
