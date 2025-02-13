@@ -12,21 +12,21 @@ FMU
 
    
    
-      ~fmu.dataio._models.fmu_results.fields.Case
+      ~fmu.dataio._models.fmu_results.fields.Context
    
-      ~fmu.dataio._models.fmu_results.fields.Realization
+      ~fmu.dataio._models.fmu_results.fields.Aggregation
    
       ~fmu.dataio._models.fmu_results.fields.Workflow
    
-      ~fmu.dataio._models.fmu_results.fields.Ert
+      ~fmu.dataio._models.fmu_results.fields.Case
    
       ~fmu.dataio._models.fmu_results.fields.Iteration
    
-      ~fmu.dataio._models.fmu_results.fields.Context
+      ~fmu.dataio._models.fmu_results.fields.Ert
+   
+      ~fmu.dataio._models.fmu_results.fields.Realization
    
       ~fmu.dataio._models.fmu_results.fields.Model
-   
-      ~fmu.dataio._models.fmu_results.fields.Aggregation
    
    
 

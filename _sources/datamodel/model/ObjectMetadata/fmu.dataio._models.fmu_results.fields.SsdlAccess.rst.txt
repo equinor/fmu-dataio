@@ -12,9 +12,9 @@ SsdlAccess
 
    
    
-      ~fmu.dataio._models.fmu_results.fields.Asset
-   
       ~fmu.dataio._models.fmu_results.fields.Ssdl
+   
+      ~fmu.dataio._models.fmu_results.fields.Asset
    
    
 
