@@ -725,6 +725,12 @@ def fixture_summary():
     return pd.DataFrame({"alf": ["A", "B", "C"], "DATE": [1, 2, 3]})
 
 
+@pytest.fixture(name="mock_relperm")
+def fixture_relperm():
+    """Return relperm mock data"""
+    return pd.DataFrame({"alf": ["A", "B", "C"], "SATNUM": [1, 2, 3]})
+
+
 @pytest.fixture(name="drogon_summary")
 def fixture_drogon_sum(rootpath):
     """Return pyarrow table
