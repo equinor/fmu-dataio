@@ -28,6 +28,9 @@ copy_test_files () {
 install_test_dependencies () {
     echo "Installing test dependencies..."
     pip install ".[dev]"
+    
+    # Reinstall pydantic to force latest version
+    pip install -U pydantic
 
     echo "Dependencies installed successfully. Listing installed dependencies..."
     pip list
