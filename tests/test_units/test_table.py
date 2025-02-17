@@ -50,7 +50,7 @@ def assert_correct_table_index(dict_input, answer):
     assert_list_and_answer(index, answer, index)
 
 
-@pytest.mark.skip_inside_rms
+@pytest.mark.skip_inside_rmsvenv
 def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path):
     """Test volumetric data
 
@@ -68,6 +68,7 @@ def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path
     assert_correct_table_index(path, answer)
 
 
+@pytest.mark.skip_inside_rmsvenv
 def test_relperm_index(mock_relperm, globalconfig2, monkeypatch, tmp_path):
     """Test that the table index is set correct for relperm data"""
     monkeypatch.chdir(tmp_path)
@@ -77,6 +78,7 @@ def test_relperm_index(mock_relperm, globalconfig2, monkeypatch, tmp_path):
     assert_correct_table_index(path, answer)
 
 
+@pytest.mark.skip_inside_rmsvenv
 def test_derive_summary_index_pandas(
     mock_summary, globalconfig2, monkeypatch, tmp_path
 ):

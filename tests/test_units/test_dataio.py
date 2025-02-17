@@ -64,7 +64,7 @@ def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, reg
         read_metadata(out)
 
 
-@pytest.mark.skip_inside_rms
+@pytest.mark.skip_inside_rmsvenv
 def test_wrong_config_exports_correctly_ouside_fmu(
     monkeypatch, tmp_path, globalconfig1, regsurf
 ):
@@ -109,7 +109,7 @@ def test_wrong_config_exports_correctly_ouside_fmu(
     assert objpath_cfg_invalid == objpath_cfg_valid
 
 
-@pytest.mark.skip_inside_rms
+@pytest.mark.skip_inside_rmsvenv
 def test_wrong_config_exports_correctly_in_fmu(
     monkeypatch, fmurun_w_casemetadata, globalconfig1, regsurf
 ):
@@ -257,7 +257,7 @@ def test_update_check_settings_shall_fail(globalconfig1):
         some._update_check_settings(newsettings)
 
 
-@pytest.mark.skip_inside_rms
+@pytest.mark.skip_inside_rmsvenv
 @pytest.mark.parametrize(
     "key, value, expected_msg",
     [
