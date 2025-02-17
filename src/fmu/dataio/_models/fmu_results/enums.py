@@ -62,6 +62,19 @@ class Content(str, Enum):
             f"Invalid 'content' {value=}. Valid entries are {[m.value for m in cls]}"
         )
 
+    @classmethod
+    def _from_content(cls: Type[Content], value: str | dict) -> Content:
+        if isinstance(value, str):
+            return cls(value)
+
+        if isinstance(value, dict):
+            return cls(next(iter(value)))
+
+        raise ValueError(
+            "Incorrect format found for 'content'. It should be a string or a "
+            "dictionary with one item: content={'mycontent': {extra_key: extra_value}}."
+        )
+
 
 class ErtSimulationMode(str, Enum):
     """The simulation mode ert was run in. These definitions come from
