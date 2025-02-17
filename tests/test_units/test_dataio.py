@@ -12,7 +12,10 @@ import pytest
 import yaml
 
 from fmu.dataio._models.fmu_results.enums import FMUContext
-from fmu.dataio._utils import convert_datestr_to_isoformat, prettyprint_dict
+from fmu.dataio._utils import (
+    convert_datestr_to_isoformat,
+    prettyprint_dict,
+)
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.providers._fmu import FmuEnv
 
@@ -61,6 +64,7 @@ def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, reg
         read_metadata(out)
 
 
+@pytest.mark.skip_inside_rmsvenv
 def test_wrong_config_exports_correctly_ouside_fmu(
     monkeypatch, tmp_path, globalconfig1, regsurf
 ):
@@ -69,6 +73,8 @@ def test_wrong_config_exports_correctly_ouside_fmu(
     Test that the export path is correct and equal one with valid config,
     outside an fmu run.
     """
+
+    # TODO: Refactor tests and move away from outside/inside rms pattern
 
     monkeypatch.chdir(tmp_path)
     name = "mysurface"
@@ -103,6 +109,7 @@ def test_wrong_config_exports_correctly_ouside_fmu(
     assert objpath_cfg_invalid == objpath_cfg_valid
 
 
+@pytest.mark.skip_inside_rmsvenv
 def test_wrong_config_exports_correctly_in_fmu(
     monkeypatch, fmurun_w_casemetadata, globalconfig1, regsurf
 ):
@@ -111,6 +118,8 @@ def test_wrong_config_exports_correctly_in_fmu(
     Test that the export path is correct and equal to exports with valid config,
     inside an fmu run.
     """
+
+    # TODO: Refactor tests and move away from outside/inside rms pattern
 
     monkeypatch.chdir(fmurun_w_casemetadata)
     name = "mysurface"
@@ -248,6 +257,7 @@ def test_update_check_settings_shall_fail(globalconfig1):
         some._update_check_settings(newsettings)
 
 
+@pytest.mark.skip_inside_rmsvenv
 @pytest.mark.parametrize(
     "key, value, expected_msg",
     [
@@ -265,6 +275,8 @@ def test_update_check_settings_shall_fail(globalconfig1):
 )
 def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
     """Some keys shall raise a DeprecationWarning or similar."""
+
+    # TODO: Refactor tests and move away from outside/inside rms pattern
 
     # under primary initialisation
     kval = {key: value}
