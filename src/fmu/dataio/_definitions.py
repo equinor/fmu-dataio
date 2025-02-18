@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Final
+from typing import Final, List
+
+from pydantic import BaseModel, model_validator
+
+from fmu.dataio._models.fmu_results.enums import Content
+from fmu.dataio.export._enums import InplaceVolumes
 
 
 class ValidFormats(Enum):
@@ -55,11 +60,42 @@ class ExportFolder(str, Enum):
     tables = "tables"
 
 
-STANDARD_TABLE_INDEX_COLUMNS: Final[dict[str, list[str]]] = {
-    "volumes": ["ZONE", "REGION", "FACIES", "LICENSE", "FLUID"],
-    "rft": ["measured_depth", "well", "time"],
-    "timeseries": ["DATE"],
-    "simulationtimeseries": ["DATE"],
-    "wellpicks": ["WELL", "HORIZON"],
-    "relperm": ["SATNUM"],
+class StandardTableIndex(BaseModel):
+    columns: List[str]
+    """List of all index columns"""
+    required: List[str]
+    """List of required index columns"""
+
+    @model_validator(mode="after")
+    def _required_in_columns(self) -> StandardTableIndex:
+        if not all(c in self.columns for c in self.required):
+            raise ValueError("Not all required columns are listed in columns")
+        return self
+
+
+STANDARD_TABLE_INDEX_COLUMNS: Final[dict[Content, StandardTableIndex]] = {
+    Content.volumes: StandardTableIndex(
+        columns=InplaceVolumes.index_columns(),
+        required=InplaceVolumes.required_index_columns(),
+    ),
+    Content.rft: StandardTableIndex(
+        columns=["measured_depth", "well", "time"],
+        required=["measured_depth", "well", "time"],
+    ),
+    Content.timeseries: StandardTableIndex(
+        columns=["DATE"],
+        required=["DATE"],
+    ),
+    Content.simulationtimeseries: StandardTableIndex(
+        columns=["DATE"],
+        required=["DATE"],
+    ),
+    Content.wellpicks: StandardTableIndex(
+        columns=["WELL", "HORIZON"],
+        required=["WELL", "HORIZON"],
+    ),
+    Content.relperm: StandardTableIndex(
+        columns=["SATNUM"],
+        required=["SATNUM"],
+    ),
 }
