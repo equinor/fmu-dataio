@@ -20,7 +20,9 @@ but with replacements inplace.
    a dictionary form to provide a reference together with the ``vertical_domain`` is deprecated, use 
    the ``domain_reference`` argument instead.
  - ``workflow`` now only supports string input, example ``workflow='Structural modelling'``.
- - ``content`` was previously optional, it should now be explicitly provided.
+ - ``content`` was previously optional, it should now be explicitly provided as a valid content string.
+ - ``content`` no longer supports using a dictionary form to provide extra information together
+   with the ``content``, use the ``content_metadata`` argument instead.
  - ``content={'seismic': {'offset': '0-15'}}`` no longer works, use the key ``stacking_offset`` instead 
    of ``offset``.
 
@@ -32,6 +34,7 @@ Following are an example demonstrating several deprecated patterns:
     from fmu.dataio import ExportData
 
     ExportData(
+        content={'seismic': {'attribute': 'amplitude', 'calculation': 'mean'}}, # ⛔️ 
         fmu_context='preprocessed', # ⛔️ 
         access_ssdl={'access_level': 'asset', 'rep_include': True}, # ⛔️ 
         vertical_domain={'depth': 'msl'}, # ⛔️ 
@@ -45,7 +48,8 @@ Change to this instead 👇:
     from fmu.dataio import ExportData
 
     ExportData(
-        content='depth', # ✅ content must explicitly be provided
+        content='seismic', # ✅ content must explicitly be provided as a string
+        content_metadata={'attribute': 'amplitude', 'calculation': 'mean'}, # ✅
         preprocessed=True, # ✅
         classification='restricted', # ✅ note the use of 'restricted' instead of 'asset'
         rep_include=True, # ✅
