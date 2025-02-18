@@ -3,9 +3,11 @@
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from fmu.config.utilities import yaml_load
 from fmu.dataio import ExportData
+from fmu.dataio._definitions import StandardTableIndex
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 
 
@@ -62,7 +64,7 @@ def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path
     # TODO: Refactor tests and move away from outside/inside rms pattern
 
     monkeypatch.chdir(tmp_path)
-    answer = ["ZONE", "LICENSE", "FLUID"]
+    answer = ["FLUID", "ZONE", "LICENSE"]
     exd = ExportData(config=globalconfig2, content="volumes", name="baretull")
     path = exd.export(mock_volumes)
     assert_correct_table_index(path, answer)
@@ -201,3 +203,20 @@ def test_table_wellpicks(wellpicks, globalconfig1):
 
     # table index shall be inserted automatically
     assert metadata["data"]["table_index"] == ["WELL", "HORIZON"]
+
+
+def test_standard_table_index_valid():
+    """Test the StandardTableIndex model"""
+    index = StandardTableIndex(
+        columns=["col1", "col2"],
+        required=["col1"],
+    )
+    assert index.columns == ["col1", "col2"]
+    assert index.required == ["col1"]
+
+    # should raise if a required column is not listed in columns
+    with pytest.raises(ValidationError):
+        StandardTableIndex(
+            columns=["col1", "col2"],
+            required=["col3"],
+        )
