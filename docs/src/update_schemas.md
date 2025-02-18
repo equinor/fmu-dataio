@@ -1,5 +1,54 @@
 # Updating schemas
 
+This document contains instructions and guidelines for making changes to
+schemas.
+
+## Changing a schema
+
+This section collects some things to do, or not to do, when adding or changing
+fields to a schema. Some of these are generic but some are specific to how
+Pydantic translates its models into JSON schemas.
+
+### Tips and guidelines
+
+- **Add a doc string to every class and field.**
+
+  These docstrings are built into the data model documentation and included in
+  the schema as description fields. Try to align them to existing examples!
+- **Avoid free text fields as much as possible.**
+
+  Use string enums if the string should be from a controlled vocabulary. If a
+  string should be of a particular form apply a regex, if possible.
+- **Prefer to make fields required.**
+
+  At the time of writing we have to annotate optional fields with `Optional`,
+  but this term is slightly deceiving. As a schema this makes the field
+  _nullable_, meaning that it is a required field that is either some type `T`
+  or `null`.
+
+  A truly optional field must be a union between two types: one with the
+  optional field, and one without it.
+- **Ensure `Optional` fields have `default=None`.**
+
+  There are issues in the JSON schema that occur when an optional field is not
+  given a default of `None`. A test should catch when you forget to do this,
+  but you should remember to do it.
+- **Apply numerical validation.**
+
+  Many numerics have known ranges due to representing things physical and
+  geometric. A cube cannot have a `z` depth of `0`, a thickness cannot be
+  negative. (Or can it? 🧐). Pydantic `Field`s make this sort of validation simple
+  to add; see its [numeric constraints
+  documentation](https://docs.pydantic.dev/latest/concepts/fields/#numeric-constraints).
+- **Take union orderings as important.**
+
+  Pydantic has [different modes it resolves union types
+  by](https://docs.pydantic.dev/latest/concepts/unions/). This means when you
+  create a field with a unioned type you should remember to consider that
+  validating the union may be more nuanced than it appears.
+
+## Running the update script
+
 To update schemas use the tool included in fmu-dataio.
 
 ```bash
