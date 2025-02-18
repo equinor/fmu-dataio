@@ -12,9 +12,9 @@ FMUBase
 
    
    
-      ~fmu.dataio._models.fmu_results.fields.Model
-   
       ~fmu.dataio._models.fmu_results.fields.Case
+   
+      ~fmu.dataio._models.fmu_results.fields.Model
    
    
 
