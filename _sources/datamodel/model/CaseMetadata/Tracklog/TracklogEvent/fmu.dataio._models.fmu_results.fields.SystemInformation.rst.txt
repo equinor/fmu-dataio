@@ -12,9 +12,9 @@ SystemInformation
 
    
    
-      ~fmu.dataio._models.fmu_results.fields.OperatingSystem
-   
       ~fmu.dataio._models.fmu_results.fields.Version
+   
+      ~fmu.dataio._models.fmu_results.fields.OperatingSystem
    
    
 

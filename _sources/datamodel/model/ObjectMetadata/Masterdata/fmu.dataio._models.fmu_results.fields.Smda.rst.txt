@@ -12,6 +12,8 @@ Smda
 
    
    
+      ~fmu.dataio._models.fmu_results.fields.FieldItem
+   
       ~fmu.dataio._models.fmu_results.fields.DiscoveryItem
    
       ~fmu.dataio._models.fmu_results.fields.CountryItem
@@ -19,8 +21,6 @@ Smda
       ~fmu.dataio._models.fmu_results.fields.StratigraphicColumn
    
       ~fmu.dataio._models.fmu_results.fields.CoordinateSystem
-   
-      ~fmu.dataio._models.fmu_results.fields.FieldItem
    
    
 
