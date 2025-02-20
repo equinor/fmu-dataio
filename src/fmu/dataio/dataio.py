@@ -223,9 +223,14 @@ class ExportData:
             Note also: If missing or empty, export() may still be done, but without a
             metadata file (this feature may change in future releases).
 
-        content: Optional. Is a string or a dictionary with one key.
-            Example is "depth" or {"fluid_contact": {"xxx": "yyy", "zzz": "uuu"}}.
+        content: A required string describing the content of the data e.g. 'volumes'.
             Content is checked agains a white-list for validation!
+            Some contents like 'seismic' requires additional information. This
+            should be provided through the 'content_metadata' argument.
+
+        content_metadata: Optional. Dictionary with additional information about the
+            provided content. Only required for some contents, e.g. 'seismic'.
+            Example {"attribute": "amplitude", "calculation": "mean"}.
 
         fmu_context: Optional string with value ``realization`` or ``case``. If not
             explicitly given it will be inferred based on the presence of ERT
@@ -361,6 +366,7 @@ class ExportData:
     classification: Optional[str] = None
     config: dict | GlobalConfiguration = field(default_factory=dict)
     content: Optional[Union[dict, str]] = None
+    content_metadata: Optional[dict] = None
     depth_reference: Optional[str] = None  # deprecated
     domain_reference: str = "msl"
     description: Union[str, list] = ""
@@ -521,6 +527,42 @@ class ExportData:
         logger.debug("Using default 'rep_include'=False")
         return False
 
+    def _get_content_enum(self) -> Optional[enums.Content]:
+        """Get the content enum."""
+        if self.content is None:
+            logger.debug("content not set from input, returning None'")
+            return None
+
+        if isinstance(self.content, str):
+            logger.debug("content is set from string input")
+            return enums.Content(self.content)
+
+        if isinstance(self.content, dict):
+            logger.debug("content is set from dict input")
+            return enums.Content(next(iter(self.content)))
+
+        raise ValueError(
+            "Incorrect format found for 'content'. It should be a valid "
+            f"content string: {[m.value for m in enums.Content]}"
+        )
+
+    def _get_content_metadata(self) -> Optional[dict]:
+        """
+        Get the content metadata if provided by as input, else return None.
+        Validation takes place in the objectdata provider.
+        """
+        if self.content_metadata:
+            logger.debug("content_metadata is set from content_metadata argument")
+            return self.content_metadata
+
+        if isinstance(self.content, dict):
+            logger.debug("content_metadata is set from content argument")
+            content_enum = self._get_content_enum()
+            return self.content[content_enum]
+
+        logger.debug("Found no content_metadata, returning None")
+        return None
+
     def _show_deprecations_or_notimplemented(self) -> None:
         """Warn on deprecated keys or on stuff not implemented yet."""
 
@@ -537,6 +579,15 @@ class ExportData:
                     "in combination with the (legacy) 'access_ssdl' argument "
                     "is not supported."
                 )
+
+        if isinstance(self.content, dict):
+            warn(
+                "Using the 'content' argument to set both the content and "
+                "and the content metadata will be deprecated. Set the 'content' "
+                "argument to a valid content string, and provide the extra "
+                "information through the 'content_metadata' argument instead.",
+                FutureWarning,
+            )
 
         if self.runpath:
             warn(
