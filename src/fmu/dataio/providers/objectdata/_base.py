@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Final
@@ -18,16 +17,23 @@ from fmu.dataio._models.fmu_results.product import Product
 from fmu.dataio._utils import generate_description
 from fmu.dataio.exceptions import ConfigurationError
 from fmu.dataio.providers._base import Provider
-from fmu.dataio.providers.objectdata._export_models import AllowedContent, UnsetData
+from fmu.dataio.providers.objectdata._export_models import (
+    UnsetData,
+    content_metadata_factory,
+    content_requires_metadata,
+    property_warn,
+)
 
 if TYPE_CHECKING:
-    from fmu.dataio._model.data import (
+    from pydantic import BaseModel
+
+    from fmu.dataio._models.fmu_results.data import (
         BoundingBox2D,
         BoundingBox3D,
         Geometry,
     )
-    from fmu.dataio._models._fmu_results.enums import FMUClass, Layout
-    from fmu.dataio._models._fmu_results.specification import AnySpecification
+    from fmu.dataio._models.fmu_results.enums import FMUClass, Layout
+    from fmu.dataio._models.fmu_results.specification import AnySpecification
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.types import Inferrable
 
@@ -65,7 +71,9 @@ class ObjectDataProvider(Provider):
                 raise ValueError("Can't use absolute path as 'forcefolder'")
             logger.info(f"Using forcefolder {self.dataio.forcefolder}")
 
-        content_model = self._get_validated_content(self.dataio.content)
+        content = self.dataio._get_content_enum() or "unset"
+        content_metadata = self._get_validated_content_metadata()
+
         strat_element = self._get_stratigraphy_element()
         self.name = strat_element.name
 
@@ -77,11 +85,9 @@ class ObjectDataProvider(Provider):
         metadata["top"] = strat_element.top
         metadata["base"] = strat_element.base
 
-        metadata["content"] = (usecontent := content_model.content)
-        if content_model.content_incl_specific:
-            metadata[usecontent] = getattr(
-                content_model.content_incl_specific, usecontent, None
-            )
+        metadata["content"] = content
+        if content_metadata:
+            metadata[content] = content_metadata
         metadata["product"] = self.product
         metadata["tagname"] = self.dataio.tagname
         metadata["format"] = self.fmt
@@ -154,30 +160,40 @@ class ObjectDataProvider(Provider):
         assert self._metadata is not None
         return self._metadata
 
-    def _get_validated_content(self, content: str | dict | None) -> AllowedContent:
-        """Check content and return a validated model."""
-        logger.info("Evaluate content")
-        logger.debug("content is %s of type %s", str(content), type(content))
+    def _get_validated_content_metadata(self) -> BaseModel | None:
+        """
+        If content_metadata have been input, and the content requires metadata,
+        return the corresponding validated content_metadata model for the content,
+        else return None.
+        """
+        content = self.dataio._get_content_enum()
+        if content:
+            content_metadata = self.dataio._get_content_metadata()
 
-        if not content:
-            return AllowedContent(content="unset")
+            if content_requires_metadata(content):
+                if not content_metadata:
+                    return self._raise_error_for_missing_content_metadata(content)
 
-        if isinstance(content, str):
-            return AllowedContent(content=Content(content))
+                content_metadata_model = content_metadata_factory(content)
+                if not isinstance(content_metadata, dict):
+                    raise ValueError(
+                        "The 'content_metadata' needs to be input as a dictionary. "
+                        f"Possible keys for content '{content.value}' are: "
+                        f"{list(content_metadata_model.model_fields)}. "
+                    )
+                return content_metadata_model.model_validate(content_metadata)
+        return None
 
-        if len(content) > 1:
-            raise ValueError(
-                "Found more than one content item in the 'content' dictionary. Ensure "
-                "input is formatted as content={'mycontent': {extra_key: extra_value}}."
-            )
-        content = deepcopy(content)
-        usecontent, content_specific = next(iter(content.items()))
-        logger.debug("usecontent is %s", usecontent)
-        logger.debug("content_specific is %s", content_specific)
-
-        return AllowedContent.model_validate(
-            {"content": Content(usecontent), "content_incl_specific": content}
-        )
+    @staticmethod
+    def _raise_error_for_missing_content_metadata(content: Content) -> None:
+        """
+        Raise error for missing content_metadata with special handling of the
+        'property' content which is required to have content_metadata in the future.
+        """
+        if content == Content.property:
+            property_warn()
+        else:
+            raise ValueError(f"Content {content.value} requires additional input")
 
     def _get_stratigraphy_element(self) -> StratigraphyElement:
         """Derive the name and stratigraphy for the object; may have several sources.

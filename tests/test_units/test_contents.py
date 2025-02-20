@@ -3,7 +3,9 @@
 import pytest
 from pydantic import ValidationError
 
+from fmu.dataio._models.fmu_results import enums
 from fmu.dataio.dataio import ExportData
+from fmu.dataio.providers.objectdata._export_models import content_requires_metadata
 
 # generic testing of functionality related to content is done elsewhere,
 # mainly in test_dataio.py.
@@ -83,7 +85,7 @@ def test_content_fluid_contact_case_insensitive(regsurf, globalconfig2):
 
 def test_content_fluid_contact_raises_on_invalid_contact(regsurf, globalconfig2):
     """Test export of the fluid_contact content."""
-    with pytest.raises(ValidationError, match="fluid_contact"):
+    with pytest.raises(ValidationError, match="FluidContact"):
         ExportData(
             config=globalconfig2,
             name="MyName",
@@ -333,3 +335,19 @@ def test_content_wellpicks(dataframe, globalconfig2):
     ).generate_metadata(dataframe)
 
     assert meta["data"]["content"] == "wellpicks"
+
+
+def test_content_requires_metadata():
+    """Test the content_requires_metadata function"""
+
+    # test contents that requires extra
+    assert content_requires_metadata(enums.Content.field_outline)
+    assert content_requires_metadata(enums.Content.field_region)
+    assert content_requires_metadata(enums.Content.fluid_contact)
+    assert content_requires_metadata(enums.Content.property)
+    assert content_requires_metadata(enums.Content.seismic)
+
+    # test some random contents that does not require extra
+    assert not content_requires_metadata(enums.Content.depth)
+    assert not content_requires_metadata(enums.Content.timeseries)
+    assert not content_requires_metadata(enums.Content.volumes)
