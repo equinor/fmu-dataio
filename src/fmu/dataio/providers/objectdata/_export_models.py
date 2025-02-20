@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import warnings
 from textwrap import dedent
-from typing import Final, Literal, Optional, Union
+from typing import Final, Literal, Optional, Type
 
 from pydantic import (
     BaseModel,
@@ -60,43 +60,6 @@ class AllowedContentProperty(BaseModel):
     is_discrete: Optional[bool] = Field(default=None)
 
 
-class ContentRequireSpecific(BaseModel):
-    field_outline: Optional[data.FieldOutline] = Field(default=None)
-    field_region: Optional[data.FieldRegion] = Field(default=None)
-    fluid_contact: Optional[data.FluidContact] = Field(default=None)
-    property: Optional[AllowedContentProperty] = Field(default=None)
-    seismic: Optional[AllowedContentSeismic] = Field(default=None)
-
-
-class AllowedContent(BaseModel):
-    content: Union[enums.Content, Literal["unset"]]
-    content_incl_specific: Optional[ContentRequireSpecific] = Field(default=None)
-
-    @model_validator(mode="before")
-    @classmethod
-    def _validate_input(cls, values: dict) -> dict:
-        content = values.get("content")
-        content_specific = values.get("content_incl_specific", {}).get(content)
-
-        if content in ContentRequireSpecific.model_fields and not content_specific:
-            # 'property' should be included below after a deprecation period
-            if content == enums.Content.property:
-                property_warn()
-            else:
-                raise ValueError(f"Content {content} requires additional input")
-
-        if content_specific and not isinstance(content_specific, dict):
-            raise ValueError(
-                "Content is incorrectly formatted. When giving content as a dict, "
-                "it must be formatted as: "
-                "{'mycontent': {extra_key: extra_value}} where mycontent is a string "
-                "and in the list of valid contents, and extra keys in associated "
-                "dictionary must be valid keys for this content."
-            )
-
-        return values
-
-
 class UnsetData(data.Data):
     content: Literal["unset"]  # type: ignore
 
@@ -111,3 +74,27 @@ class UnsetData(data.Data):
             FutureWarning,
         )
         return self
+
+
+def content_metadata_factory(content: enums.Content) -> Type[BaseModel]:
+    """Return the correct content_metadata model based on provided content."""
+    if content == enums.Content.field_outline:
+        return data.FieldOutline
+    if content == enums.Content.field_region:
+        return data.FieldRegion
+    if content == enums.Content.fluid_contact:
+        return data.FluidContact
+    if content == enums.Content.property:
+        return AllowedContentProperty
+    if content == enums.Content.seismic:
+        return AllowedContentSeismic
+    raise ValueError(f"No content_metadata model exist for content {str(content)}")
+
+
+def content_requires_metadata(content: enums.Content) -> bool:
+    """Flag if given content requires content_metadata"""
+    try:
+        content_metadata_factory(content)
+        return True
+    except ValueError:
+        return False
