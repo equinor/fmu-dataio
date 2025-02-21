@@ -23,9 +23,8 @@ import pkgutil
 import pydoc
 import re
 import sys
-from os import path
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import sphinx.locale
 from jinja2 import TemplateNotFound
@@ -33,11 +32,13 @@ from jinja2.sandbox import SandboxedEnvironment
 from sphinx import __display_version__
 from sphinx.builders import Builder
 from sphinx.config import Config
+from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.locale import __
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
@@ -45,7 +46,7 @@ from sphinx.util.template import SphinxTemplateLoader
 # ----------- pydantic_autosummary change
 from . import (
     ImportExceptionGroup,
-    get_documenter,
+    _get_documenter,
     import_by_name,
     import_ivar_by_name,
 )
@@ -56,11 +57,18 @@ from .pydantic import set_pydantic_model_fields
 if TYPE_CHECKING:
     from collections.abc import Sequence, Set
     from gettext import NullTranslations
+    from typing import Any
 
     from sphinx.application import Sphinx
+    from sphinx.events import EventManager
     from sphinx.ext.autodoc import Documenter
 
 logger = logging.getLogger(__name__)
+
+
+class _DummyEvents:
+    def emit_firstresult(self, *args: Any) -> None:
+        pass
 
 
 class DummyApplication:
@@ -68,13 +76,14 @@ class DummyApplication:
 
     def __init__(self, translator: NullTranslations) -> None:
         self.config = Config()
+        self.events = _DummyEvents()
         self.registry = SphinxComponentRegistry()
         self.messagelog: list[str] = []
-        self.srcdir = "/"
+        self.srcdir = _StrPath("/")
         self.translator = translator
         self.verbosity = 0
         self._warncount = 0
-        self.warningiserror = False
+        self._exception_on_warning = False
 
         self.config.add("autosummary_context", {}, "env", ())
         self.config.add("autosummary_filename_map", {}, "env", ())
@@ -91,7 +100,7 @@ class AutosummaryEntry(NamedTuple):
     recursive: bool
 
 
-def setup_documenters(app: Any) -> None:
+def setup_documenters(app: Sphinx) -> None:
     from sphinx.ext.autodoc import (
         AttributeDocumenter,
         ClassDocumenter,
@@ -132,10 +141,10 @@ class AutosummaryRenderer:
     def __init__(self, app: Sphinx) -> None:
         if isinstance(app, Builder):
             msg = "Expected a Sphinx application object!"
-            raise ValueError(msg)
+            raise TypeError(msg)
 
         # ----------- pydantic_autosummary change
-        system_templates_path = [os.path.join(os.path.dirname(__file__), "templates")]
+        system_templates_path = [Path(__file__).parent / "templates"]
         # ----------/ pydantic_autosummary change
         loader = SphinxTemplateLoader(
             app.srcdir, app.config.templates_path, system_templates_path
@@ -159,7 +168,7 @@ class AutosummaryRenderer:
         except TemplateNotFound:
             try:
                 # objtype is given as template_name
-                template = self.env.get_template("autosummary/%s.rst" % template_name)
+                template = self.env.get_template("autosummary/%s.rst" % template_name)  # noqa
             except TemplateNotFound:
                 # fallback to base.rst
                 template = self.env.get_template("autosummary/base.rst")
@@ -200,16 +209,25 @@ def _split_full_qualified_name(name: str) -> tuple[str | None, str]:
 
 
 class ModuleScanner:
-    def __init__(self, app: Any, obj: Any) -> None:
-        self.app = app
+    def __init__(
+        self,
+        obj: Any,
+        *,
+        config: Config,
+        events: EventManager,
+        registry: SphinxComponentRegistry,
+    ) -> None:
+        self.config = config
+        self.events = events
+        self.registry = registry
         self.object = obj
 
     def get_object_type(self, name: str, value: Any) -> str:
-        return get_documenter(self.app, value, self.object).objtype
+        return _get_documenter(value, self.object, registry=self.registry).objtype
 
     def is_skipped(self, name: str, value: Any, objtype: str) -> bool:
         try:
-            return self.app.emit_firstresult(
+            return self.events.emit_firstresult(
                 "autodoc-skip-member", objtype, name, value, False, {}
             )
         except Exception as exc:
@@ -234,7 +252,7 @@ class ModuleScanner:
         except PycodeError:
             attr_docs = {}
 
-        for name in members_of(self.object, self.app.config):
+        for name in members_of(self.object, config=self.config):
             try:
                 value = safe_getattr(self.object, name)
             except AttributeError:
@@ -256,7 +274,7 @@ class ModuleScanner:
             except AttributeError:
                 imported = False
 
-            respect_module_all = not self.app.config.autosummary_ignore_module_all
+            respect_module_all = not self.config.autosummary_ignore_module_all
             if (
                 # list all members up
                 imported_members
@@ -270,12 +288,18 @@ class ModuleScanner:
         return members
 
 
-def members_of(obj: Any, conf: Config) -> Sequence[str]:
+def members_of(obj: Any, *, config: Config) -> Sequence[str]:
     """Get the members of ``obj``, possibly ignoring the ``__all__`` module attribute
 
-    Follows the ``conf.autosummary_ignore_module_all`` setting.
+    Follows the ``config.autosummary_ignore_module_all`` setting.
     """
-    return dir(obj) if conf.autosummary_ignore_module_all else (getall(obj) or dir(obj))
+    if config.autosummary_ignore_module_all:
+        return dir(obj)
+    if (obj___all__ := getall(obj)) is not None:
+        # return __all__, even if empty.
+        return obj___all__
+    # if __all__ is not set, return dir(obj)
+    return dir(obj)
 
 
 def generate_autosummary_content(
@@ -285,44 +309,77 @@ def generate_autosummary_content(
     template: AutosummaryRenderer,
     template_name: str,
     imported_members: bool,
-    app: Any,
     recursive: bool,
     context: dict[str, Any],
     modname: str | None = None,
     qualname: str | None = None,
+    *,
+    config: Config,
+    events: EventManager,
+    registry: SphinxComponentRegistry,
 ) -> str:
-    doc = get_documenter(app, obj, parent)
+    doc = _get_documenter(obj, parent, registry=registry)
 
     ns: dict[str, Any] = {}
     ns.update(context)
 
     if doc.objtype == "module":
-        scanner = ModuleScanner(app, obj)
+        scanner = ModuleScanner(obj, config=config, events=events, registry=registry)
         ns["members"] = scanner.scan(imported_members)
 
-        respect_module_all = not app.config.autosummary_ignore_module_all
+        respect_module_all = not config.autosummary_ignore_module_all
         imported_members = imported_members or (
             "__all__" in dir(obj) and respect_module_all
         )
 
         ns["functions"], ns["all_functions"] = _get_members(
-            doc, app, obj, {"function"}, imported=imported_members
+            doc,
+            obj,
+            {"function"},
+            config=config,
+            events=events,
+            registry=registry,
+            imported=imported_members,
         )
         ns["classes"], ns["all_classes"] = _get_members(
-            doc, app, obj, {"class"}, imported=imported_members
+            doc,
+            obj,
+            {"class"},
+            config=config,
+            events=events,
+            registry=registry,
+            imported=imported_members,
         )
 
         # ----------- pydantic_autosummary change
         ns["pydantic_models"], ns["all_pydantic_models"] = _get_members(
-            doc, app, obj, {"pydantic_model"}, imported=imported_members
+            doc,
+            obj,
+            {"pydantic_model"},
+            config=config,
+            events=events,
+            registry=registry,
+            imported=imported_members,
         )
         ns["pydantic_settings"], ns["all_pydantic_settings"] = _get_members(
-            doc, app, obj, {"pydantic_settings"}, imported=imported_members
+            doc,
+            obj,
+            {"pydantic_settings"},
+            config=config,
+            events=events,
+            registry=registry,
+            imported=imported_members,
         )
         # ----------/ pydantic_autosummary change
 
         ns["exceptions"], ns["all_exceptions"] = _get_members(
-            doc, app, obj, {"exception"}, imported=imported_members
+            doc,
+            obj,
+            {"exception"},
+            config=config,
+            events=events,
+            registry=registry,
+            imported=imported_members,
         )
         ns["attributes"], ns["all_attributes"] = _get_module_attrs(name, ns["members"])
 
@@ -345,15 +402,15 @@ def generate_autosummary_content(
             # Otherwise, use get_modules method normally
             if respect_module_all and "__all__" in dir(obj):
                 imported_modules, all_imported_modules = _get_members(
-                    doc, app, obj, {"module"}, imported=True
+                    doc,
+                    obj,
+                    {"module"},
+                    config=config,
+                    events=events,
+                    registry=registry,
+                    imported=True,
                 )
                 skip += all_imported_modules
-                imported_modules = [
-                    name + "." + modname for modname in imported_modules
-                ]
-                all_imported_modules = [
-                    name + "." + modname for modname in all_imported_modules
-                ]
                 public_members = getall(obj)
             else:
                 imported_modules, all_imported_modules = [], []
@@ -368,16 +425,27 @@ def generate_autosummary_content(
         ns["members"] = dir(obj)
         ns["inherited_members"] = set(dir(obj)) - set(obj.__dict__.keys())
         ns["methods"], ns["all_methods"] = _get_members(
-            doc, app, obj, {"method"}, include_public={"__init__"}
+            doc,
+            obj,
+            {"method"},
+            config=config,
+            events=events,
+            registry=registry,
+            include_public={"__init__"},
         )
         ns["attributes"], ns["all_attributes"] = _get_members(
-            doc, app, obj, {"attribute", "property"}
+            doc,
+            obj,
+            {"attribute", "property"},
+            config=config,
+            events=events,
+            registry=registry,
         )
 
     if modname is None or qualname is None:
         modname, qualname = _split_full_qualified_name(name)
 
-    if doc.objtype in ("method", "attribute", "property"):
+    if doc.objtype in {"method", "attribute", "property"}:
         ns["class"] = qualname.rsplit(".", 1)[0]
 
     # ----------- pydantic_autosummary change
@@ -398,9 +466,9 @@ def generate_autosummary_content(
     return template.render(template_name or doc.objtype, ns)
 
 
-def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool:
+def _skip_member(obj: Any, name: str, objtype: str, *, events: EventManager) -> bool:
     try:
-        return app.emit_firstresult(
+        return events.emit_firstresult(
             "autodoc-skip-member", objtype, name, obj, False, {}
         )
     except Exception as exc:
@@ -423,9 +491,9 @@ def _get_class_members(obj: Any) -> dict[str, Any]:
     return {name: member.object for name, member in members.items()}
 
 
-def _get_module_members(app: Sphinx, obj: Any) -> dict[str, Any]:
+def _get_module_members(obj: Any, *, config: Config) -> dict[str, Any]:
     members = {}
-    for name in members_of(obj, app.config):
+    for name in members_of(obj, config=config):
         try:
             members[name] = safe_getattr(obj, name)
         except AttributeError:
@@ -433,9 +501,11 @@ def _get_module_members(app: Sphinx, obj: Any) -> dict[str, Any]:
     return members
 
 
-def _get_all_members(doc: type[Documenter], app: Sphinx, obj: Any) -> dict[str, Any]:
+def _get_all_members(
+    doc: type[Documenter], obj: Any, *, config: Config
+) -> dict[str, Any]:
     if doc.objtype == "module":
-        return _get_module_members(app, obj)
+        return _get_module_members(obj, config=config)
     if doc.objtype == "class":
         return _get_class_members(obj)
     return {}
@@ -443,23 +513,25 @@ def _get_all_members(doc: type[Documenter], app: Sphinx, obj: Any) -> dict[str, 
 
 def _get_members(
     doc: type[Documenter],
-    app: Sphinx,
     obj: Any,
     types: set[str],
     *,
+    config: Config,
+    events: EventManager,
+    registry: SphinxComponentRegistry,
     include_public: Set[str] = frozenset(),
     imported: bool = True,
 ) -> tuple[list[str], list[str]]:
     items: list[str] = []
     public: list[str] = []
 
-    all_members = _get_all_members(doc, app, obj)
+    all_members = _get_all_members(doc, obj, config=config)
     for name, value in all_members.items():
-        documenter = get_documenter(app, value, obj)
+        documenter = _get_documenter(value, obj, registry=registry)
         if documenter.objtype in types and (
             imported or getattr(value, "__module__", None) == obj.__name__
         ):
-            skipped = _skip_member(app, value, name, documenter.objtype)
+            skipped = _skip_member(value, name, documenter.objtype, events=events)
             if skipped is True:
                 pass
             elif skipped is False:
@@ -481,7 +553,7 @@ def _get_module_attrs(name: str, members: Any) -> tuple[list[str], list[str]]:
         analyzer = ModuleAnalyzer.for_module(name)
         attr_docs = analyzer.find_attr_docs()
         for namespace, attr_name in attr_docs:
-            if namespace == "" and attr_name in members:
+            if not namespace and attr_name in members:
                 attrs.append(attr_name)
                 if not attr_name.startswith("_"):
                     public.append(attr_name)
@@ -503,7 +575,7 @@ def _get_modules(
         if modname in skip:
             # module was overwritten in __init__.py, so not accessible
             continue
-        fullname = name + "." + modname
+        fullname = f"{name}.{modname}"
         try:
             module = import_module(fullname)
         except ImportError:
@@ -527,7 +599,7 @@ def generate_autosummary_docs(
     suffix: str = ".rst",
     base_path: str | os.PathLike[str] | None = None,
     imported_members: bool = False,
-    app: Any = None,
+    app: Sphinx | None = None,
     overwrite: bool = True,
     encoding: str = "utf-8",
 ) -> list[Path]:
@@ -542,23 +614,30 @@ def generate_autosummary_docs(
         showed_sources = showed_sources[:10] + ["..."] + showed_sources[-10:]
 
     # ----------- pydantic_autosummary change
+    logger.info(
+        __("[pydantic_autosummary] generating autosummary for: %s"),
+        ", ".join(showed_sources),
+    )
     if output_dir:
         logger.info(__("[pydantic_autosummary] writing to %s") % output_dir)
     # ----------/ pydantic_autosummary change
 
     if base_path is not None:
-        sources = [os.path.join(base_path, filename) for filename in sources]
+        base_path = Path(base_path)
+        source_paths = [base_path / filename for filename in sources]
+    else:
+        source_paths = list(map(Path, sources))
 
     template = AutosummaryRenderer(app)
 
     # read
-    items = find_autosummary_in_files(sources)
+    items = find_autosummary_in_files(source_paths)
 
     # keep track of new files
     new_files: list[Path] = []
     all_files: list[Path] = []
 
-    filename_map = app.config.autosummary_filename_map if app else {}
+    filename_map = app.config.autosummary_filename_map
 
     # write
     for entry in sorted(set(items), key=str):
@@ -567,7 +646,7 @@ def generate_autosummary_docs(
             # a :toctree: option
             continue
 
-        path = output_dir or os.path.abspath(entry.path)
+        path = output_dir or Path(entry.path).resolve()
         ensuredir(path)
 
         try:
@@ -606,11 +685,13 @@ def generate_autosummary_docs(
             template,
             entry.template,
             imported_members,
-            app,
             entry.recursive,
             context,
             modname,
             qualname,
+            config=app.config,
+            events=app.events,
+            registry=app.registry,
         )
 
         file_path = Path(path, filename_map.get(name, name) + suffix)
@@ -650,7 +731,9 @@ def generate_autosummary_docs(
 # -- Finding documented entries in files ---------------------------------------
 
 
-def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
+def find_autosummary_in_files(
+    filenames: Sequence[str | os.PathLike[str]],
+) -> list[AutosummaryEntry]:
     """Find out what items are documented in source/*.rst.
 
     See `find_autosummary_in_lines`.
@@ -665,7 +748,7 @@ def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
 
 def find_autosummary_in_docstring(
     name: str,
-    filename: str | None = None,
+    filename: str | os.PathLike[str] | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
@@ -692,7 +775,7 @@ def find_autosummary_in_docstring(
 def find_autosummary_in_lines(
     lines: list[str],
     module: str | None = None,
-    filename: str | None = None,
+    filename: str | os.PathLike[str] | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
@@ -732,7 +815,7 @@ def find_autosummary_in_lines(
             if m:
                 toctree = m.group(1)
                 if filename:
-                    toctree = os.path.join(os.path.dirname(filename), toctree)
+                    toctree = str(Path(filename).parent / toctree)
                 continue
 
             m = template_arg_re.match(line)
@@ -745,11 +828,9 @@ def find_autosummary_in_lines(
 
             m = autosummary_item_re.match(line)
             if m:
-                name = m.group(1).strip()
-                if name.startswith("~"):
-                    name = name[1:]
+                name = m.group(1).strip().removeprefix("~")
                 if current_module and not name.startswith(current_module + "."):
-                    name = f"{name}"
+                    name = str(name)
                 documented.append(AutosummaryEntry(name, toctree, template, recursive))
                 continue
 
@@ -806,7 +887,7 @@ The format of the autosummary directive is documented in the
         "--version",
         action="version",
         dest="show_version",
-        version="%%(prog)s %s" % __display_version__,
+        version="%%(prog)s %s" % __display_version__,  # noqa
     )
 
     parser.add_argument(
@@ -826,7 +907,7 @@ The format of the autosummary directive is documented in the
         action="store",
         dest="suffix",
         default="rst",
-        help=__("default suffix for files (default: " "%(default)s)"),
+        help=__("default suffix for files (default: %(default)s)"),
     )
     parser.add_argument(
         "-t",
@@ -834,7 +915,7 @@ The format of the autosummary directive is documented in the
         action="store",
         dest="templates",
         default=None,
-        help=__("custom template directory (default: " "%(default)s)"),
+        help=__("custom template directory (default: %(default)s)"),
     )
     parser.add_argument(
         "-i",
@@ -842,7 +923,7 @@ The format of the autosummary directive is documented in the
         action="store_true",
         dest="imported_members",
         default=False,
-        help=__("document imported members (default: " "%(default)s)"),
+        help=__("document imported members (default: %(default)s)"),
     )
     parser.add_argument(
         "-a",
@@ -878,7 +959,7 @@ def main(argv: Sequence[str] = (), /) -> None:
     args = get_parser().parse_args(argv or sys.argv[1:])
 
     if args.templates:
-        app.config.templates_path.append(path.abspath(args.templates))
+        app.config.templates_path.append(str(Path(args.templates).resolve()))
     app.config.autosummary_ignore_module_all = not args.respect_module_all
 
     written_files = generate_autosummary_docs(
