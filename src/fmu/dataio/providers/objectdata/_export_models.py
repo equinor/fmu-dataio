@@ -27,11 +27,14 @@ def property_warn() -> None:
     warnings.warn(
         dedent(
             """
-            When using content "property", please use a dictionary form, as
-            more information is required. Example:
-                content={"property": {"is_discrete": False}}
+            When using content "property", please use the 'content_metadata' argument
+            to provide more required information.
+            . Example:
+                content="property",
+                content_metadata={"attribute": "porosity", "is_discrete": False},
 
-            The use of "property" will be disallowed in future versions."
+            The use of "property" without content_metadata will be disallowed in
+            future versions."
             """
         ),
         FutureWarning,

@@ -575,7 +575,8 @@ def test_gridproperty_export_with_geometry(inside_rms_setup, grid, gridproperty)
     # which is then sufficient to provide a geometry tag in the data settings.
     grdprop_edata = dataio.ExportData(
         config=inside_rms_setup["config"],
-        content={"property": {"is_discrete": False}},
+        content="property",
+        content_metadata={"is_discrete": False},
         name="MyProperty",
         geometry=grid_output,
     )
@@ -595,7 +596,8 @@ def test_gridproperty_export_with_geometry(inside_rms_setup, grid, gridproperty)
     # try with both parent and geometry, and geometry name shall win
     grdprop_edata_2 = dataio.ExportData(
         config=inside_rms_setup["config"],
-        content={"property": {"is_discrete": False}},
+        content="property",
+        content_metadata={"is_discrete": False},
         name="MyProperty",
         geometry=grid_output,
         parent="this_is_parent",
@@ -608,7 +610,8 @@ def test_gridproperty_export_with_geometry(inside_rms_setup, grid, gridproperty)
     # skip geometry; now parent name will present in name
     grdprop_edata_3 = dataio.ExportData(
         config=inside_rms_setup["config"],
-        content={"property": {"is_discrete": False}},
+        content="property",
+        content_metadata={"is_discrete": False},
         name="MyProperty",
         parent="this_is_parent",
     )
@@ -640,14 +643,16 @@ def test_gridproperty_export_with_geometry_and_bad_character(
     grd_edata = dataio.ExportData(
         config=cfg,
         name="geogrid",
-        content={"property": {"is_discrete": False}},
+        content="property",
+        content_metadata={"is_discrete": False},
     )
     outgrid = grd_edata.export(grid)
 
     dataio.ExportData(
         config=cfg,
         name="geogrid",
-        content={"property": {"is_discrete": False}},
+        content="property",
+        content_metadata={"is_discrete": False},
         geometry=outgrid,
     ).export(gridproperty)
     # Will raise an exception if decoding fails

@@ -43,7 +43,8 @@ def test_content_field_outline(polygons, globalconfig2):
     meta = ExportData(
         config=globalconfig2,
         name="MyName",
-        content={"field_outline": {"contact": "FWL"}},
+        content="field_outline",
+        content_metadata={"contact": "FWL"},
     ).generate_metadata(polygons)
 
     assert meta["data"]["content"] == "field_outline"
@@ -54,10 +55,12 @@ def test_content_field_region(polygons, globalconfig2):
     meta = ExportData(
         config=globalconfig2,
         name="MyName",
-        content={"field_region": {"id": 1}},
+        content="field_region",
+        content_metadata={"id": 1},
     ).generate_metadata(polygons)
 
     assert meta["data"]["content"] == "field_region"
+    assert meta["data"]["field_region"]["id"] == 1
 
 
 def test_content_fluid_contact(regsurf, globalconfig2):
@@ -65,10 +68,12 @@ def test_content_fluid_contact(regsurf, globalconfig2):
     meta = ExportData(
         config=globalconfig2,
         name="MyName",
-        content={"fluid_contact": {"contact": "fwl"}},
+        content="fluid_contact",
+        content_metadata={"contact": "fwl"},
     ).generate_metadata(regsurf)
 
     assert meta["data"]["content"] == "fluid_contact"
+    assert meta["data"]["fluid_contact"]["contact"] == "fwl"
 
 
 def test_content_fluid_contact_case_insensitive(regsurf, globalconfig2):
@@ -77,7 +82,8 @@ def test_content_fluid_contact_case_insensitive(regsurf, globalconfig2):
         meta = ExportData(
             config=globalconfig2,
             name="MyName",
-            content={"fluid_contact": {"contact": "OWC"}},
+            content="fluid_contact",
+            content_metadata={"contact": "OWC"},
         ).generate_metadata(regsurf)
 
     assert meta["data"]["fluid_contact"]["contact"] == "owc"
@@ -89,7 +95,8 @@ def test_content_fluid_contact_raises_on_invalid_contact(regsurf, globalconfig2)
         ExportData(
             config=globalconfig2,
             name="MyName",
-            content={"fluid_contact": {"contact": "oec"}},
+            content="fluid_contact",
+            content_metadata={"contact": "oec"},
         ).generate_metadata(regsurf)
 
 
@@ -170,7 +177,8 @@ def test_content_property_as_dict(gridproperty, globalconfig2):
         meta = ExportData(
             config=globalconfig2,
             name="MyName",
-            content={"property": content_specifc},
+            content="property",
+            content_metadata=content_specifc,
         ).generate_metadata(gridproperty)
 
     assert meta["data"]["content"] == "property"
@@ -186,7 +194,8 @@ def test_content_seismic_as_dict(gridproperty, globalconfig2):
         meta = ExportData(
             config=globalconfig2,
             name="MyName",
-            content={"seismic": content_specifc},
+            content="seismic",
+            content_metadata=content_specifc,
         ).generate_metadata(gridproperty)
 
     assert meta["data"]["content"] == "seismic"
