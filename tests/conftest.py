@@ -621,7 +621,9 @@ def fixture_arrowtable():
 
 
 # helper function for the two fixtures below
-def _create_aggregated_surface_dataset(rmsglobalconfig, regsurf, content):
+def _create_aggregated_surface_dataset(
+    rmsglobalconfig, regsurf, content, content_metadata=None
+):
     aggs = []
     # create "forward" files
     for i in range(10):  # TODO! 10
@@ -630,6 +632,7 @@ def _create_aggregated_surface_dataset(rmsglobalconfig, regsurf, content):
         expfile = dio.ExportData(
             config=rmsglobalconfig,
             content=content,
+            content_metadata=content_metadata,
             name=f"mymap_{i}",
         ).export(use_regsurf)
         aggs.append(expfile)
@@ -656,7 +659,10 @@ def fixture_aggr_seismic_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regs
     os.chdir(fmurun_w_casemetadata)
 
     surfs, metas = _create_aggregated_surface_dataset(
-        rmsglobalconfig, regsurf, content={"seismic": {"attribute": "amplitude"}}
+        rmsglobalconfig,
+        regsurf,
+        content="seismic",
+        content_metadata={"attribute": "amplitude"},
     )
 
     aggregated = surfs.statistics()
