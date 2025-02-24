@@ -474,6 +474,28 @@ def test_content_invalid_dict(globalconfig1, regsurf):
         eobj.generate_metadata(regsurf)
 
 
+def test_content_metadata_valid(globalconfig1, regsurf):
+    content_metadata = {"attribute": "amplitude", "calculation": "mean"}
+    meta = ExportData(
+        config=globalconfig1,
+        content="seismic",
+        content_metadata=content_metadata,
+    ).generate_metadata(regsurf)
+
+    assert meta["data"]["content"] == "seismic"
+    assert "seismic" in meta["data"]
+    assert meta["data"]["seismic"] == content_metadata
+
+
+def test_content_metadata_invalid(globalconfig1, regsurf):
+    with pytest.raises(pydantic.ValidationError):
+        ExportData(
+            config=globalconfig1,
+            content="seismic",
+            content_metadata={"attribute": 182},
+        ).generate_metadata(regsurf)
+
+
 def test_content_valid_string(regsurf, globalconfig2):
     eobj = ExportData(config=globalconfig2, name="TopVolantis", content="depth")
     mymeta = eobj.generate_metadata(regsurf)
@@ -541,12 +563,13 @@ def test_content_is_dict_with_wrong_types(globalconfig2, regsurf):
         eobj.generate_metadata(regsurf)
 
 
-def test_content_with_subfields(globalconfig2, polygons):
-    """When subfield is given and allowed, it shall be produced to metadata."""
+def test_content_with_content_metadata(globalconfig2, polygons):
+    """When content_metadata is given and allowed, it shall be produced to metadata."""
     eobj = ExportData(
         config=globalconfig2,
         name="Central Horst",
-        content={"field_region": {"id": 1}},
+        content="field_region",
+        content_metadata={"id": 1},
     )
     mymeta = eobj.generate_metadata(polygons)
 
@@ -1096,7 +1119,9 @@ def test_content_seismic_as_string_validation_error(globalconfig2, regsurf):
 
     # correct way, should not fail
     edata = ExportData(
-        content={"seismic": {"attribute": "attribute-value"}}, config=globalconfig2
+        content="seismic",
+        content_metadata={"attribute": "attribute-value"},
+        config=globalconfig2,
     )
     meta = edata.generate_metadata(regsurf)
     assert meta["data"]["content"] == "seismic"
