@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -182,6 +183,13 @@ class ObjectDataProvider(Provider):
                         f"{list(content_metadata_model.model_fields)}. "
                     )
                 return content_metadata_model.model_validate(content_metadata)
+
+            if content_metadata:
+                warnings.warn(
+                    f"Content '{content.value}' does not require 'content_metadata', "
+                    "ignoring input."
+                )
+
         return None
 
     @staticmethod
