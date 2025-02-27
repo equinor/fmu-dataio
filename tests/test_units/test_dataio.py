@@ -600,6 +600,16 @@ def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
     }
 
 
+def test_content_metdata_ignored(globalconfig1, regsurf):
+    """Test that warning is given when content does not require content_metadata"""
+    with pytest.warns(UserWarning, match="ignoring input"):
+        ExportData(
+            config=globalconfig1,
+            content="depth",
+            content_metadata={"extra": "invalid"},
+        ).generate_metadata(regsurf)
+
+
 @pytest.mark.filterwarnings("ignore: Number of maps nodes are 0")
 def test_surfaces_with_non_finite_values(
     globalconfig1, regsurf_masked_only, regsurf_nan_only, regsurf
