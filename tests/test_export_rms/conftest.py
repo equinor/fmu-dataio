@@ -207,7 +207,7 @@ def mock_rmsapi_jobs():
     yield mock_rmsapi_jobs
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mocked_rmsapi_modules(mock_rmsapi, mock_rmsapi_jobs):
     with patch.dict(
         sys.modules,
@@ -219,9 +219,26 @@ def mocked_rmsapi_modules(mock_rmsapi, mock_rmsapi_jobs):
         yield mocked_modules
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_project_variable():
     # A mock_project variable for the RMS 'project' (potentially extend for later use)
     mock_project = MagicMock()
+    mock_project.horizons.representations = ["DS_final"]
 
     yield mock_project
+
+
+@pytest.fixture
+def xtgeo_surfaces(regsurf):
+    regsurf_top = regsurf.copy()
+    regsurf_top.name = "TopVolantis"
+
+    regsurf_mid = regsurf.copy()
+    regsurf_mid.name = "TopTherys"
+    regsurf_mid.values += 100
+
+    regsurf_base = regsurf.copy()
+    regsurf_base.name = "TopVolon"
+    regsurf_base.values += 200
+
+    yield [regsurf_top, regsurf_mid, regsurf_base]
