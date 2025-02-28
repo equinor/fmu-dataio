@@ -82,6 +82,11 @@ Additionally
  - ``fmu_context='case_symlink_realization'`` is no longer a valid argument value for ``fmu_context``.  
    If necessary to create symlinks from data stored at case level to the individual realizations, 
    use the ``SYMLINK`` forward model provided by ERT instead.
+ - The process for setting the ``table_index`` in metadata when not provided by the user has changed.
+   Previously, a ``table_index`` was automatically assigned from a set of commonly known index columns,
+   now the table_index will remain empty. An exception exists for tables associated with content types
+   that have a predefined standard index; then the ``table_index`` will be set to the intersection of
+   the table's columns and the standard.
 
 
 Changes to class variables 
@@ -226,7 +231,7 @@ Using the ``ExportData`` class for re-exporting preprocessed data is deprecated.
 as input argument, and redundant arguments are no longer accepted.
 
 
-Exaple using ``ExportData`` to re-export preprocessed data:
+Example using ``ExportData`` to re-export preprocessed data:
 
 .. code-block:: python
 
@@ -245,7 +250,7 @@ Exaple using ``ExportData`` to re-export preprocessed data:
     exd.export(preprocessed_seismic_cube)
 
 
-Exaple using ``ExportPreprocessedData`` to re-export preprocessed data:
+Example using ``ExportPreprocessedData`` to re-export preprocessed data:
 
 .. code-block:: python
 
