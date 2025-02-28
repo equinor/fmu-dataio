@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final
 
@@ -9,7 +10,7 @@ from fmu.dataio._definitions import (
     ValidFormats,
 )
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import FMUClass, Layout
+from fmu.dataio._models.fmu_results.enums import Content, FMUClass, Layout
 from fmu.dataio._models.fmu_results.specification import TableSpecification
 
 from ._base import (
@@ -23,39 +24,110 @@ if TYPE_CHECKING:
 logger: Final = null_logger(__name__)
 
 
-def _check_index_in_columns(index: list[str], columns: list[str]) -> None:
-    """Check the table index.
-    Args:
-        index (list): list of column names
-
-    Raises:
-        KeyError: if index contains names that are not in self
+def _validate_input_table_index(
+    table_index: list[str],
+    table_columns: list[str],
+    content: Content | None = None,
+) -> None:
+    """
+    Check that all provided table index columns are present in the table, and warn if
+    non-standard table indexes are used or some standard ones are missing.
     """
 
-    not_founds = (item for item in index if item not in columns)
-    for not_found in not_founds:
-        raise KeyError(f"{not_found} is not in table")
+    missing_columns = [col for col in table_index if col not in table_columns]
+    if missing_columns:
+        raise KeyError(
+            f"The table index columns {missing_columns} are not present in the table"
+        )
+
+    if content in STANDARD_TABLE_INDEX_COLUMNS:
+        standard_required_index = STANDARD_TABLE_INDEX_COLUMNS[content].required
+        if set(standard_required_index) != set(table_index):
+            warnings.warn(
+                "The table index provided deviates from the standard: "
+                f"{standard_required_index}. This may not be allowed in the future.",
+                FutureWarning,
+            )
 
 
-def _derive_index(table_index: list[str] | None, columns: list[str]) -> list[str]:
-    index = []
+def _derive_index_from_standard(
+    content: Content, table_columns: list[str]
+) -> list[str]:
+    """
+    Derive standard table index for given content. Give warning if some
+    standard required index columns are missing in the table.
+    """
+    logger.debug("Using standard table_index for content %s", content.value)
+    standard_index = STANDARD_TABLE_INDEX_COLUMNS[content]
 
-    if table_index is None:
-        logger.debug("Finding index to include")
-        for context, standard_table_index in STANDARD_TABLE_INDEX_COLUMNS.items():
-            for valid_col in standard_table_index.columns:
-                if valid_col in columns and valid_col not in index:
-                    index.append(valid_col)
-            if index:
-                logger.info("Context is %s ", context)
-        logger.debug("Proudly presenting the index: %s", index)
+    table_index = [col for col in standard_index.columns if col in table_columns]
+    if not table_index:
+        warnings.warn(
+            "Could not detect any standard index columns in table: "
+            f"{standard_index.columns}. If the table has index columns they "
+            "should be provided as input through the 'table_index' argument."
+        )
+    elif set(standard_index.required) != set(table_index):
+        warnings.warn(
+            "The table provided does not contain all required standard "
+            f"table index columns for this content: {standard_index.required}. "
+            "This may not be allowed in the future.",
+            FutureWarning,
+        )
+    return table_index
+
+
+def _derive_index_legacy(table_columns: list[str]) -> list[str]:
+    """
+    Derive all columns in table that is registered as a standard index column,
+    independent of the content.
+    """
+    table_index = []
+    for standard_table_index in STANDARD_TABLE_INDEX_COLUMNS.values():
+        for col in standard_table_index.columns:
+            if col in table_columns and col not in table_index:
+                table_index.append(col)
+    return table_index
+
+
+def _derive_index(
+    table_columns: list[str],
+    table_index: list[str] | None,
+    content: Content | None = None,
+) -> list[str]:
+    """
+    Derive the index for a table based on a provided table_index or using
+    standard index columns for the specific content.
+
+    If no table index is provided and content is not registered with any standard table
+    indexes, the index is set using the legacy method; columns in table that
+    matches any registered standard index columns (independent of content).
+    """
+    if table_index:
+        logger.debug("Table index provided, validating input...")
+        _validate_input_table_index(table_index, table_columns, content)
+        return table_index
+
+    logger.debug("No table index provided")
+
+    if content in STANDARD_TABLE_INDEX_COLUMNS:
+        table_index = _derive_index_from_standard(content, table_columns)
     else:
-        index = table_index
+        table_index = _derive_index_legacy(table_columns)
+        if table_index:
+            warnings.warn(
+                "The 'table_index' was not provided, and has been set based upon "
+                "commonly known table index columns found in the table: "
+                f"{table_index}. In the future the table_index will be empty in the "
+                "metadata if not provided as input through the 'table_index' argument.",
+                FutureWarning,
+            )
+    # TODO: Look into removing this, probably only applicable for aggregated data.
+    if "REAL" in table_columns and "REAL" not in table_index:
+        table_index.append("REAL")
 
-    if "REAL" in columns:
-        index.append("REAL")
-    _check_index_in_columns(index, columns)
-    return index
+    logger.debug("Final table_index is %s", table_index)
+    return table_index
 
 
 @dataclass
@@ -85,7 +157,11 @@ class DataFrameDataProvider(ObjectDataProvider):
     @property
     def table_index(self) -> list[str]:
         """Return the table index."""
-        return _derive_index(self.dataio.table_index, list(self.obj.columns))
+        return _derive_index(
+            table_index=self.dataio.table_index,
+            table_columns=list(self.obj.columns),
+            content=self.dataio._get_content_enum(),
+        )
 
     def get_geometry(self) -> None:
         """Derive data.geometry for data frame"""
@@ -132,7 +208,11 @@ class ArrowTableDataProvider(ObjectDataProvider):
     @property
     def table_index(self) -> list[str]:
         """Return the table index."""
-        return _derive_index(self.dataio.table_index, list(self.obj.column_names))
+        return _derive_index(
+            table_index=self.dataio.table_index,
+            table_columns=list(self.obj.column_names),
+            content=self.dataio._get_content_enum(),
+        )
 
     def get_geometry(self) -> None:
         """Derive data.geometry for Arrow table."""
