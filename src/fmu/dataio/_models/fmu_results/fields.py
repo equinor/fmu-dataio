@@ -496,6 +496,14 @@ class Tracklog(RootModel):
         event: enums.TrackLogEventType,
     ) -> list[fields.TracklogEvent]:
         """Generate new tracklog events with the given event type"""
+        komodo_release = os.environ.get(
+            "KOMODO_RELEASE", os.environ.get("KOMODO_RELEASE_BACKUP", None)
+        )
+        komodo = (
+            fields.Version.model_construct(version=komodo_release)
+            if komodo_release
+            else None
+        )
         return [
             fields.TracklogEvent.model_construct(
                 datetime=datetime.datetime.now(timezone.utc),
@@ -504,11 +512,7 @@ class Tracklog(RootModel):
                 sysinfo=(
                     fields.SystemInformation.model_construct(
                         fmu_dataio=fields.Version.model_construct(version=__version__),
-                        komodo=(
-                            fields.Version.model_construct(version=kr)
-                            if (kr := os.environ.get("KOMODO_RELEASE"))
-                            else None
-                        ),
+                        komodo=komodo,
                         operating_system=(
                             fields.OperatingSystem.model_construct(
                                 hostname=platform.node(),

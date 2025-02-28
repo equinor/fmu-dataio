@@ -4,6 +4,8 @@ import logging
 from copy import deepcopy
 
 import pytest
+import xtgeo
+from pytest import MonkeyPatch
 
 import fmu.dataio as dio
 from fmu.dataio._metadata import generate_export_metadata
@@ -67,7 +69,9 @@ def test_generate_meta_tracklog_fmu_dataio_version(regsurf, edataobj1):
     assert parsed.sysinfo.fmu_dataio.version is not None
 
 
-def test_generate_meta_tracklog_komodo_version(edataobj1, regsurf, monkeypatch):
+def test_generate_meta_tracklog_komodo_version(
+    edataobj1: dio.ExportData, regsurf: xtgeo.RegularSurface, monkeypatch: MonkeyPatch
+) -> None:
     fake_komodo_release = "<FAKE_KOMODO_RELEASE_VERSION>"
     monkeypatch.setenv("KOMODO_RELEASE", fake_komodo_release)
 
@@ -88,6 +92,38 @@ def test_generate_meta_tracklog_komodo_version(edataobj1, regsurf, monkeypatch):
 
     assert parsed.sysinfo.komodo is not None
     assert parsed.sysinfo.komodo.version == fake_komodo_release
+
+
+def test_generate_meta_tracklog_backup_komodo_version(
+    edataobj1: dio.ExportData, regsurf: xtgeo.RegularSurface, monkeypatch: MonkeyPatch
+) -> None:
+    """Tests that we read the Komodo version from KOMODO_RELEASE_BACKUP if it's set."""
+    komodo_release = "2123.01.01"
+    monkeypatch.setenv("KOMODO_RELEASE_BACKUP", komodo_release)
+
+    metadata = generate_export_metadata(regsurf, edataobj1)
+    tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
+    assert tracklog.sysinfo.komodo.version == komodo_release
+
+
+def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
+    edataobj1: dio.ExportData, regsurf: xtgeo.RegularSurface, monkeypatch: MonkeyPatch
+) -> None:
+    """Tests that we read the Komodo version from KOMODO_RELEASE.
+
+    This should be true even if KOMODO_RELEASE_BACKUP is set."""
+    komodo_release = "2123.01.01"
+    backup_komodo_release = "2123.01.02"  # Suppose it's botched.
+
+    # Sanity check to make sure this test tests something if modified in the future
+    assert komodo_release != backup_komodo_release
+
+    monkeypatch.setenv("KOMODO_RELEASE", komodo_release)
+    monkeypatch.setenv("KOMODO_RELEASE_BACKUP", backup_komodo_release)
+
+    metadata = generate_export_metadata(regsurf, edataobj1)
+    tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
+    assert tracklog.sysinfo.komodo.version == komodo_release
 
 
 def test_generate_meta_tracklog_operating_system(edataobj1, regsurf):
