@@ -3,5 +3,5 @@ dataio.case module
 
 .. automodule:: dataio.case
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

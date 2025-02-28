@@ -3,8 +3,8 @@ dataio package
 
 .. automodule:: dataio
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Subpackages
 -----------

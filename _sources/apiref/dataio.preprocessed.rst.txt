@@ -3,5 +3,5 @@ dataio.preprocessed module
 
 .. automodule:: dataio.preprocessed
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

@@ -3,5 +3,5 @@ dataio.exceptions module
 
 .. automodule:: dataio.exceptions
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

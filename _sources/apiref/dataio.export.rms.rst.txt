@@ -3,8 +3,8 @@ dataio.export.rms package
 
 .. automodule:: dataio.export.rms
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Submodules
 ----------

@@ -3,5 +3,5 @@ dataio.export.rms.inplace\_volumes module
 
 .. automodule:: dataio.export.rms.inplace_volumes
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

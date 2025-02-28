@@ -3,8 +3,8 @@ dataio.export package
 
 .. automodule:: dataio.export
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Subpackages
 -----------
