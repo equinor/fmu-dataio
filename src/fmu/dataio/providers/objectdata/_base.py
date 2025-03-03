@@ -26,6 +26,9 @@ from fmu.dataio.providers.objectdata._export_models import (
 )
 
 if TYPE_CHECKING:
+    from io import BytesIO
+    from pathlib import Path
+
     from pydantic import BaseModel
 
     from fmu.dataio._models.fmu_results.data import (
@@ -143,6 +146,10 @@ class ObjectDataProvider(Provider):
     @property
     @abstractmethod
     def table_index(self) -> list[str] | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def export_to_file(self, file: Path | BytesIO) -> None:
         raise NotImplementedError
 
     @abstractmethod

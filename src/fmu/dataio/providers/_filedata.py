@@ -107,19 +107,13 @@ class FileDataProvider(Provider):
     def _compute_md5(self) -> str:
         """Compute an MD5 sum using a temporary file."""
         try:
-            return compute_md5(
-                obj=self.obj,
-                file_suffix=self.objdata.extension,
-                fmt=self.objdata.fmt,
-            )
+            return compute_md5(self.objdata.export_to_file)
         except Exception as e:
             logger.debug(
                 f"Exception {e} occured when trying to compute md5 from memory stream "
                 f"for an object of type {type(self.obj)}. Will use tempfile instead."
             )
-            return compute_md5_using_temp_file(
-                self.obj, self.objdata.extension, fmt=self.objdata.fmt
-            )
+            return compute_md5_using_temp_file(self.objdata.export_to_file)
 
     def _add_filename_to_path(self, path: Path) -> Path:
         stem = self._get_filestem()
