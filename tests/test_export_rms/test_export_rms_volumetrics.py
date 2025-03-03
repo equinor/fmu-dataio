@@ -466,6 +466,23 @@ def test_validate_table_against_pydantic_model_before_export(
 
 
 @inside_rms
+def test_rms_volumetrics_export_config_invalid(
+    mock_project_variable,
+    exportvolumetrics,
+):
+    """Test that an exception is raised if the config is invalid."""
+
+    from fmu.dataio.export.rms.inplace_volumes import export_inplace_volumes
+
+    with mock.patch(  # noqa
+        "fmu.dataio.export.rms.inplace_volumes.load_global_config",
+        return_value={},
+    ):
+        with pytest.raises(ValueError, match="valid config"):
+            export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
+
+
+@inside_rms
 def test_rms_volumetrics_export_config_missing(
     mock_project_variable,
     mocked_rmsapi_modules,
