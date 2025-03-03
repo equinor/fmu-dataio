@@ -865,6 +865,11 @@ class ExportData:
     def _export_with_product(self, obj: types.Inferrable, product: Product) -> str:
         """Export the object with product information in the metadata."""
 
+        if not isinstance(self.config, GlobalConfiguration):
+            raise ValidationError(
+                "When exporting standard_results it is required to have a valid config."
+            )
+
         fmudata = self._get_fmu_provider() if self._fmurun else None
 
         metadata = generate_export_metadata(
