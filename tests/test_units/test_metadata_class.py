@@ -99,6 +99,7 @@ def test_generate_meta_tracklog_backup_komodo_version(
 ) -> None:
     """Tests that we read the Komodo version from KOMODO_RELEASE_BACKUP if it's set."""
     komodo_release = "2123.01.01"
+    monkeypatch.delenv("KOMODO_RELEASE", raising=False)
     monkeypatch.setenv("KOMODO_RELEASE_BACKUP", komodo_release)
 
     metadata = generate_export_metadata(regsurf, edataobj1)
