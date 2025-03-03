@@ -11,7 +11,8 @@ import pydantic
 import pytest
 import yaml
 
-from fmu.dataio._models.fmu_results.enums import FMUContext
+from fmu.dataio._models.fmu_results.enums import FMUContext, ProductName
+from fmu.dataio._models.fmu_results.product import InplaceVolumesProduct
 from fmu.dataio._utils import (
     convert_datestr_to_isoformat,
     prettyprint_dict,
@@ -1391,3 +1392,43 @@ def test_timedata_wrong_format(globalconfig1, regsurf):
             name="TopWhatever",
             timedata=["20230101", "20240101", "20250101"],
         ).generate_metadata(regsurf)
+
+
+def test_export_with_product_valid_config(
+    fmurun_w_casemetadata, monkeypatch, globalconfig1, mock_volumes
+):
+    """Test that product is set in metadata when export_with_product is used"""
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    edata = ExportData(
+        config=globalconfig1,
+        content="volumes",
+        name="TopWhatever",
+    )
+    # for a regular export 'product' should not be set
+    outpath = edata.export(mock_volumes)
+    meta = read_metadata(outpath)
+    assert "product" not in meta["data"]
+
+    # when using export_with_product 'product' should be set
+    outpath = edata._export_with_product(
+        mock_volumes,
+        product=InplaceVolumesProduct(name=ProductName.inplace_volumes),
+    )
+    meta = read_metadata(outpath)
+    assert meta["data"]["product"]["name"] == ProductName.inplace_volumes.value
+
+
+def test_export_with_product_invalid_config(mock_volumes):
+    """Test that error is raised if config is invalid"""
+    with pytest.warns(UserWarning):
+        edata = ExportData(
+            config={},
+            content="volumes",
+            name="TopWhatever",
+        )
+    with pytest.raises(ValueError, match="config"):
+        edata._export_with_product(
+            mock_volumes,
+            product=InplaceVolumesProduct(name=ProductName.inplace_volumes),
+        )
