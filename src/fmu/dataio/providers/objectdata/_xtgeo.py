@@ -10,7 +10,7 @@ import numpy as np
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.data import BoundingBox2D, BoundingBox3D, Geometry
-from fmu.dataio._models.fmu_results.enums import FMUClass, Layout
+from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
 from fmu.dataio._models.fmu_results.specification import (
     CPGridPropertySpecification,
     CPGridSpecification,
@@ -60,11 +60,11 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt, ValidFormats.surface)
+        return self._validate_get_ext(self.fmt.value, ValidFormats.surface)
 
     @property
-    def fmt(self) -> str:
-        return self.dataio.surface_fformat
+    def fmt(self) -> FileFormat:
+        return FileFormat(self.dataio.surface_fformat)
 
     @property
     def layout(self) -> Layout:
@@ -134,11 +134,11 @@ class PolygonsDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt, ValidFormats.polygons)
+        return self._validate_get_ext(self.fmt.value, ValidFormats.polygons)
 
     @property
-    def fmt(self) -> str:
-        return self.dataio.polygons_fformat
+    def fmt(self) -> FileFormat:
+        return FileFormat(self.dataio.polygons_fformat)
 
     @property
     def layout(self) -> Layout:
@@ -190,11 +190,11 @@ class PointsDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt, ValidFormats.points)
+        return self._validate_get_ext(self.fmt.value, ValidFormats.points)
 
     @property
-    def fmt(self) -> str:
-        return self.dataio.points_fformat
+    def fmt(self) -> FileFormat:
+        return FileFormat(self.dataio.points_fformat)
 
     @property
     def layout(self) -> Layout:
@@ -251,11 +251,11 @@ class CubeDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt, ValidFormats.cube)
+        return self._validate_get_ext(self.fmt.value, ValidFormats.cube)
 
     @property
-    def fmt(self) -> str:
-        return self.dataio.cube_fformat
+    def fmt(self) -> FileFormat:
+        return FileFormat(self.dataio.cube_fformat)
 
     @property
     def layout(self) -> Layout:
@@ -334,11 +334,11 @@ class CPGridDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt, ValidFormats.grid)
+        return self._validate_get_ext(self.fmt.value, ValidFormats.grid)
 
     @property
-    def fmt(self) -> str:
-        return self.dataio.grid_fformat
+    def fmt(self) -> FileFormat:
+        return FileFormat(self.dataio.grid_fformat)
 
     @property
     def layout(self) -> Layout:
@@ -419,11 +419,11 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt, ValidFormats.grid)
+        return self._validate_get_ext(self.fmt.value, ValidFormats.grid)
 
     @property
-    def fmt(self) -> str:
-        return self.dataio.grid_fformat
+    def fmt(self) -> FileFormat:
+        return FileFormat(self.dataio.grid_fformat)
 
     @property
     def layout(self) -> Layout:
