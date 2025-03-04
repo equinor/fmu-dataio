@@ -12,8 +12,8 @@ from pydantic import ValidationError
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import ProductName
-from fmu.dataio._models.products.inplace_volumes import (
+from fmu.dataio._models.fmu_results.enums import StandardResultName
+from fmu.dataio._models.standard_results.inplace_volumes import (
     InplaceVolumesResult,
     InplaceVolumesResultRow,
     InplaceVolumesSchema,
@@ -604,18 +604,22 @@ def test_that_required_columns_one_to_one_in_enums_and_schema() -> None:
     assert set(_enums.InplaceVolumes.required_columns()) == set(schema_required_fields)
 
 
-def test_product_in_metadata(exportvolumetrics):
-    """Test that the product is set correctly in the metadata"""
+def test_standard_result_in_metadata(exportvolumetrics):
+    """Test that the standard result is set correctly in the metadata"""
 
     out = exportvolumetrics._export_volume_table()
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
-    assert "product" in metadata["data"]
-    assert metadata["data"]["product"]["name"] == ProductName.inplace_volumes
+    assert "standard_result" in metadata["data"]
     assert (
-        metadata["data"]["product"]["file_schema"]["version"]
+        metadata["data"]["standard_result"]["name"]
+        == StandardResultName.inplace_volumes
+    )
+    assert (
+        metadata["data"]["standard_result"]["file_schema"]["version"]
         == InplaceVolumesSchema.VERSION
     )
     assert (
-        metadata["data"]["product"]["file_schema"]["url"] == InplaceVolumesSchema.url()
+        metadata["data"]["standard_result"]["file_schema"]["url"]
+        == InplaceVolumesSchema.url()
     )

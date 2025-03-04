@@ -96,7 +96,7 @@ import xtgeo
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.enums import FMUClass, Layout
-from fmu.dataio._models.fmu_results.product import Product
+from fmu.dataio._models.fmu_results.standard_result import StandardResult
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
@@ -123,7 +123,7 @@ logger: Final = null_logger(__name__)
 def objectdata_provider_factory(
     obj: Inferrable,
     dataio: ExportData,
-    product: Product | None = None,
+    standard_result: StandardResult | None = None,
 ) -> ObjectDataProvider:
     """Factory function that generates metadata for a particular data object. This
     function will return an instance of an object-independent (i.e., typeable) class
@@ -137,25 +137,43 @@ def objectdata_provider_factory(
         metadata for.
     """
     if isinstance(obj, xtgeo.RegularSurface):
-        return RegularSurfaceDataProvider(obj=obj, dataio=dataio, product=product)
+        return RegularSurfaceDataProvider(
+            obj=obj, dataio=dataio, standard_result=standard_result
+        )
     if isinstance(obj, xtgeo.Polygons):
-        return PolygonsDataProvider(obj=obj, dataio=dataio, product=product)
+        return PolygonsDataProvider(
+            obj=obj, dataio=dataio, standard_result=standard_result
+        )
     if isinstance(obj, xtgeo.Points):
-        return PointsDataProvider(obj=obj, dataio=dataio, product=product)
+        return PointsDataProvider(
+            obj=obj, dataio=dataio, standard_result=standard_result
+        )
     if isinstance(obj, xtgeo.Cube):
-        return CubeDataProvider(obj=obj, dataio=dataio, product=product)
+        return CubeDataProvider(obj=obj, dataio=dataio, standard_result=standard_result)
     if isinstance(obj, xtgeo.Grid):
-        return CPGridDataProvider(obj=obj, dataio=dataio, product=product)
+        return CPGridDataProvider(
+            obj=obj, dataio=dataio, standard_result=standard_result
+        )
     if isinstance(obj, xtgeo.GridProperty):
-        return CPGridPropertyDataProvider(obj=obj, dataio=dataio, product=product)
+        return CPGridPropertyDataProvider(
+            obj=obj, dataio=dataio, standard_result=standard_result
+        )
     if isinstance(obj, pd.DataFrame):
-        return DataFrameDataProvider(obj=obj, dataio=dataio, product=product)
+        return DataFrameDataProvider(
+            obj=obj, dataio=dataio, standard_result=standard_result
+        )
     if isinstance(obj, FaultRoomSurface):
-        return FaultRoomSurfaceProvider(obj=obj, dataio=dataio, product=product)
+        return FaultRoomSurfaceProvider(
+            obj=obj, dataio=dataio, standard_result=standard_result
+        )
     if isinstance(obj, dict):
-        return DictionaryDataProvider(obj=obj, dataio=dataio, product=product)
+        return DictionaryDataProvider(
+            obj=obj, dataio=dataio, standard_result=standard_result
+        )
     if isinstance(obj, pa.Table):
-        return ArrowTableDataProvider(obj=obj, dataio=dataio, product=product)
+        return ArrowTableDataProvider(
+            obj=obj, dataio=dataio, standard_result=standard_result
+        )
 
     raise NotImplementedError(f"This data type is not currently supported: {type(obj)}")
 
