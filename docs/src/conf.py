@@ -63,6 +63,8 @@ def _myst_substitutions() -> dict[str, SchemaBase]:
 
             ```
         """)
+        if hasattr(s, "CONTRACTUAL"):
+            s.contractual = "\n".join([f"- `{item}`" for item in s.CONTRACTUAL])
         subs[f"{s.__name__}"] = s
     return subs
 
