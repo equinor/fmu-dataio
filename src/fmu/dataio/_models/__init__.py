@@ -1,5 +1,5 @@
 from .fmu_results import FmuResults, FmuResultsSchema
-from .products import InplaceVolumesResult, InplaceVolumesSchema
+from .standard_results import InplaceVolumesResult, InplaceVolumesSchema
 
 __all__ = [
     "FmuResults",
