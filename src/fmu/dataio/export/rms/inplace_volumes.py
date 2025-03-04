@@ -12,8 +12,8 @@ import pyarrow as pa
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models import InplaceVolumesResult
-from fmu.dataio._models.fmu_results import product
-from fmu.dataio._models.fmu_results.enums import Classification, ProductName
+from fmu.dataio._models.fmu_results import standard_result
+from fmu.dataio._models.fmu_results.enums import Classification, StandardResultName
 from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
@@ -72,9 +72,11 @@ class _ExportVolumetricsRMS:
         _logger.debug("Process data... DONE")
 
     @property
-    def _product(self) -> product.InplaceVolumesProduct:
-        """Product type for the exported data."""
-        return product.InplaceVolumesProduct(name=ProductName.inplace_volumes)
+    def _standard_result(self) -> standard_result.InplaceVolumesStandardResult:
+        """Standard result type for the exported data."""
+        return standard_result.InplaceVolumesStandardResult(
+            name=StandardResultName.inplace_volumes
+        )
 
     @property
     def _classification(self) -> Classification:
@@ -110,7 +112,7 @@ class _ExportVolumetricsRMS:
     def _get_table_with_volumes(self) -> pd.DataFrame:
         """
         Get a volumetric table from RMS converted into a pandas
-        dataframe on standard format for the inplace_volumes product.
+        dataframe on standard format for the inplace_volumes standard result.
         """
         table = self._get_table_from_rms()
         table = self._convert_table_from_rms_to_legacy_format(table)
@@ -237,8 +239,8 @@ class _ExportVolumetricsRMS:
     ) -> pd.DataFrame:
         """
         Convert the table from legacy to standard format for the 'inplace_volumes'
-        product. The standard format has a fluid column, and all table_index and
-        volumetric columns are present with a standard order in the table.
+        standard result. The standard format has a fluid column, and all table_index
+        and volumetric columns are present with a standard order in the table.
         """
         table_index = [
             col for col in _enums.InplaceVolumes.index_columns() if col in table
@@ -256,8 +258,9 @@ class _ExportVolumetricsRMS:
     def _validate_table(self) -> None:
         """
         Validate that the final table with volumes is according to the standard
-        defined for the inplace_volumes product. The table should have the required
-        index and value columns, and at least one of the main types 'oil' or 'gas'.
+        defined for the inplace_volumes standard result. The table should have the
+        required index and value columns, and at least one of the main types 'oil' or
+        'gas'.
         """
         _logger.debug("Validating the dataframe...")
 
@@ -322,10 +325,10 @@ class _ExportVolumetricsRMS:
 
         volume_table = pa.Table.from_pandas(self._dataframe)
 
-        # export the volume table with product info in the metadata
-        absolute_export_path = edata._export_with_product(
+        # export the volume table with standard result info in the metadata
+        absolute_export_path = edata._export_with_standard_result(
             volume_table,
-            product=self._product,
+            standard_result=self._standard_result,
         )
 
         _logger.debug("Volume result to: %s", absolute_export_path)

@@ -11,8 +11,8 @@ import pydantic
 import pytest
 import yaml
 
-from fmu.dataio._models.fmu_results.enums import FMUContext, ProductName
-from fmu.dataio._models.fmu_results.product import InplaceVolumesProduct
+from fmu.dataio._models.fmu_results.enums import FMUContext, StandardResultName
+from fmu.dataio._models.fmu_results.standard_result import InplaceVolumesStandardResult
 from fmu.dataio._utils import (
     convert_datestr_to_isoformat,
     prettyprint_dict,
@@ -1183,11 +1183,12 @@ def test_alias_as_none(globalconfig2, regsurf):
     assert meta["data"]["alias"] == [name]
 
 
-def test_product_not_present_in_generated_metadata(globalconfig1, regsurf):
-    """Test that data.product is not set for regular exports through ExportData"""
+def test_standard_result_not_present_in_generated_metadata(globalconfig1, regsurf):
+    """Test that data.standard_result is not set for regular exports through
+    ExportData"""
 
     meta = ExportData(config=globalconfig1, content="depth").generate_metadata(regsurf)
-    assert "product" not in meta["data"]
+    assert "standard_result" not in meta["data"]
 
 
 def test_ert_experiment_id_present_in_generated_metadata(
@@ -1394,10 +1395,11 @@ def test_timedata_wrong_format(globalconfig1, regsurf):
         ).generate_metadata(regsurf)
 
 
-def test_export_with_product_valid_config(
+def test_export_with_standard_result_valid_config(
     fmurun_w_casemetadata, monkeypatch, globalconfig1, mock_volumes
 ):
-    """Test that product is set in metadata when export_with_product is used"""
+    """Test that standard result is set in metadata when
+    export_with_standard_result is used"""
     monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = ExportData(
@@ -1405,21 +1407,26 @@ def test_export_with_product_valid_config(
         content="volumes",
         name="TopWhatever",
     )
-    # for a regular export 'product' should not be set
+    # for a regular export 'standard_result' should not be set
     outpath = edata.export(mock_volumes)
     meta = read_metadata(outpath)
-    assert "product" not in meta["data"]
+    assert "standard_result" not in meta["data"]
 
-    # when using export_with_product 'product' should be set
-    outpath = edata._export_with_product(
+    # when using export_with_standard_result 'standard_result' should be set
+    outpath = edata._export_with_standard_result(
         mock_volumes,
-        product=InplaceVolumesProduct(name=ProductName.inplace_volumes),
+        standard_result=InplaceVolumesStandardResult(
+            name=StandardResultName.inplace_volumes
+        ),
     )
     meta = read_metadata(outpath)
-    assert meta["data"]["product"]["name"] == ProductName.inplace_volumes.value
+    assert (
+        meta["data"]["standard_result"]["name"]
+        == StandardResultName.inplace_volumes.value
+    )
 
 
-def test_export_with_product_invalid_config(mock_volumes):
+def test_export_with_standard_result_invalid_config(mock_volumes):
     """Test that error is raised if config is invalid"""
     with pytest.warns(UserWarning):
         edata = ExportData(
@@ -1428,7 +1435,9 @@ def test_export_with_product_invalid_config(mock_volumes):
             name="TopWhatever",
         )
     with pytest.raises(ValueError, match="config"):
-        edata._export_with_product(
+        edata._export_with_standard_result(
             mock_volumes,
-            product=InplaceVolumesProduct(name=ProductName.inplace_volumes),
+            standard_result=InplaceVolumesStandardResult(
+                name=StandardResultName.inplace_volumes
+            ),
         )
