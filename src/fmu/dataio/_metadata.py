@@ -22,7 +22,7 @@ from ._models.fmu_results.fmu_results import (
     ObjectMetadata,
 )
 from ._models.fmu_results.global_configuration import GlobalConfiguration
-from ._models.fmu_results.product import Product
+from ._models.fmu_results.standard_result import StandardResult
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers.objectdata._base import UnsetData
@@ -106,7 +106,7 @@ def generate_export_metadata(
     obj: types.Inferrable,
     dataio: ExportData,
     fmudata: FmuProvider | None = None,
-    product: Product | None = None,
+    standard_result: StandardResult | None = None,
 ) -> ObjectMetadataExport:
     """
     Main function to generate the full metadata
@@ -135,7 +135,7 @@ def generate_export_metadata(
 
     """
 
-    objdata = objectdata_provider_factory(obj, dataio, product)
+    objdata = objectdata_provider_factory(obj, dataio, standard_result)
 
     return ObjectMetadataExport(  # type: ignore[call-arg]
         class_=objdata.classname,
