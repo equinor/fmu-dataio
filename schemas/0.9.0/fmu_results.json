@@ -731,11 +731,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -1326,11 +1325,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -1639,11 +1637,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -1952,11 +1949,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -2362,11 +2358,10 @@
           "$ref": "#/$defs/FieldOutline"
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -2693,11 +2688,10 @@
           "$ref": "#/$defs/FieldRegion"
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -3003,6 +2997,25 @@
       "title": "File",
       "type": "object"
     },
+    "FileFormat": {
+      "description": "The format of a given data object.",
+      "enum": [
+        "parquet",
+        "arrow",
+        "feather",
+        "json",
+        "csv",
+        "csv|xtgeo",
+        "irap_ascii",
+        "irap_binary",
+        "roff",
+        "hdf",
+        "segy",
+        "openvds"
+      ],
+      "title": "FileFormat",
+      "type": "string"
+    },
     "FileSchema": {
       "description": "The schema identifying the format of a standard result.",
       "properties": {
@@ -3131,11 +3144,10 @@
           "$ref": "#/$defs/FluidContact"
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -3636,11 +3648,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -3989,11 +4000,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -4355,11 +4365,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -4787,11 +4796,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -5121,11 +5129,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -5434,11 +5441,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -5794,11 +5800,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -6107,11 +6112,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -6545,11 +6549,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -6858,11 +6861,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -7259,11 +7261,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -7576,11 +7577,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -8002,11 +8002,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -8472,11 +8471,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -8814,11 +8812,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -9118,11 +9115,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -9525,11 +9521,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -9856,11 +9851,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -10191,11 +10185,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
@@ -10504,11 +10497,10 @@
           ]
         },
         "format": {
+          "$ref": "#/$defs/FileFormat",
           "examples": [
             "irap_binary"
-          ],
-          "title": "Format",
-          "type": "string"
+          ]
         },
         "geometry": {
           "anyOf": [
