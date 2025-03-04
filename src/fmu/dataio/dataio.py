@@ -31,7 +31,7 @@ from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._models.fmu_results import enums, global_configuration
 from ._models.fmu_results.global_configuration import GlobalConfiguration
-from ._models.fmu_results.product import Product
+from ._models.fmu_results.standard_result import StandardResult
 from ._utils import (
     detect_inside_rms,  # dataio_examples,
     export_file,
@@ -862,8 +862,10 @@ class ExportData:
         export_file(obj, file=filemeta.absolute_path, fmt=objdata.fmt)
         return str(filemeta.absolute_path)
 
-    def _export_with_product(self, obj: types.Inferrable, product: Product) -> str:
-        """Export the object with product information in the metadata."""
+    def _export_with_standard_result(
+        self, obj: types.Inferrable, standard_result: StandardResult
+    ) -> str:
+        """Export the object with standard result information in the metadata."""
 
         if not isinstance(self.config, GlobalConfiguration):
             raise ValidationError(
@@ -873,7 +875,7 @@ class ExportData:
         fmudata = self._get_fmu_provider() if self._fmurun else None
 
         metadata = generate_export_metadata(
-            obj=obj, dataio=self, fmudata=fmudata, product=product
+            obj=obj, dataio=self, fmudata=fmudata, standard_result=standard_result
         ).model_dump(mode="json", exclude_none=True, by_alias=True)
 
         outfile = Path(metadata["file"]["absolute_path"])

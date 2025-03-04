@@ -44,7 +44,7 @@ if TYPE_CHECKING:
 class FmuResultsSchema(SchemaBase):
     """The main metadata export describing the results."""
 
-    VERSION: VersionStr = "0.8.0"
+    VERSION: VersionStr = "0.9.0"
     FILENAME: str = "fmu_results.json"
     PATH: Path = FmuSchemas.PATH / VERSION / FILENAME
 
@@ -62,9 +62,9 @@ class FmuResultsSchema(SchemaBase):
         "data.is_prediction",
         "data.name",
         "data.offset",
-        "data.product.name",
         "data.seismic.attribute",
         "data.spec.columns",
+        "data.standard_result.name",
         "data.stratigraphic",
         "data.stratigraphic_alias",
         "data.tagname",
