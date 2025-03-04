@@ -56,6 +56,17 @@ class InplaceVolumesProduct(Product):
     """The schema identifying the format of the 'inplace_volumes' product."""
 
 
+class DepthPredictionSurfaceProduct(Product):
+    """
+    The ``product`` field contains information about which product this
+    data object represent.
+    This class contains metadata for the 'depth_prediction_surface' product.
+    """
+
+    name: Literal[enums.ProductName.depth_prediction_surface]
+    """The identifying product name for the 'depth_prediction_surface' product."""
+
+
 class AnyProduct(RootModel):
     """
     The ``product`` field contains information about which product this data object
@@ -67,6 +78,9 @@ class AnyProduct(RootModel):
     """
 
     root: Annotated[
-        Union[InplaceVolumesProduct,],
+        Union[
+            InplaceVolumesProduct,
+            DepthPredictionSurfaceProduct,
+        ],
         Field(discriminator="name"),
     ]

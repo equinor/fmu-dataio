@@ -8,6 +8,7 @@ class ProductName(str, Enum):
     """The product name of a given data object."""
 
     inplace_volumes = "inplace_volumes"
+    depth_prediction_surface = "depth_prediction_surface"
 
 
 class Classification(str, Enum):

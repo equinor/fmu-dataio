@@ -219,6 +219,9 @@
       "oneOf": [
         {
           "$ref": "#/$defs/InplaceVolumesProduct"
+        },
+        {
+          "$ref": "#/$defs/DepthPredictionSurfaceProduct"
         }
       ],
       "title": "AnyProduct"
@@ -952,6 +955,32 @@
         "vertical_domain"
       ],
       "title": "DepthData",
+      "type": "object"
+    },
+    "DepthPredictionSurfaceProduct": {
+      "description": "The ``product`` field contains information about which product this\ndata object represent.\nThis class contains metadata for the 'depth_prediction_surface' product.",
+      "properties": {
+        "file_schema": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FileSchema"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "name": {
+          "const": "depth_prediction_surface",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "DepthPredictionSurfaceProduct",
       "type": "object"
     },
     "DiscoveryItem": {
