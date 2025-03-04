@@ -82,17 +82,6 @@
           "title": "Operation",
           "type": "string"
         },
-        "parameters": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Parameters"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
         "realization_ids": {
           "items": {
             "type": "integer"
@@ -857,21 +846,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -1027,28 +1001,16 @@
       "description": "The ``fmu.ert`` block contains information about the current ert run.",
       "properties": {
         "experiment": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Experiment"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
+          "$ref": "#/$defs/Experiment"
         },
         "simulation_mode": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/ErtSimulationMode"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
+          "$ref": "#/$defs/ErtSimulationMode"
         }
       },
+      "required": [
+        "experiment",
+        "simulation_mode"
+      ],
       "title": "Ert",
       "type": "object"
     },
@@ -1071,19 +1033,14 @@
       "description": "The ``fmu.ert.experiment`` block contains information about\nthe current ert experiment run.",
       "properties": {
         "id": {
-          "anyOf": [
-            {
-              "format": "uuid",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Id"
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
         }
       },
+      "required": [
+        "id"
+      ],
       "title": "Experiment",
       "type": "object"
     },
@@ -1452,21 +1409,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -1765,21 +1707,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -2077,21 +2004,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -2488,21 +2400,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -2819,21 +2716,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -2959,18 +2841,6 @@
           ],
           "title": "Absolute Path"
         },
-        "absolute_path_symlink": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Absolute Path Symlink"
-        },
         "checksum_md5": {
           "examples": [
             "fa4d055b113ae5282796e328cde0ffa4"
@@ -2985,18 +2855,6 @@
           ],
           "title": "Relative Path",
           "type": "string"
-        },
-        "relative_path_symlink": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Relative Path Symlink"
         },
         "size_bytes": {
           "anyOf": [
@@ -3257,21 +3115,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -3459,16 +3302,9 @@
       "description": "The ``fmu.iteration`` block contains information about the iteration this data\nobject belongs to.",
       "properties": {
         "id": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Id"
+          "minimum": 0,
+          "title": "Id",
+          "type": "integer"
         },
         "name": {
           "examples": [
@@ -3503,6 +3339,7 @@
         }
       },
       "required": [
+        "id",
         "name",
         "uuid"
       ],
@@ -3761,21 +3598,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -4114,21 +3936,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -4480,21 +4287,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -4913,21 +4705,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -5032,27 +4809,6 @@
         "is_prediction"
       ],
       "title": "PVTData",
-      "type": "object"
-    },
-    "Parameters": {
-      "additionalProperties": {
-        "anyOf": [
-          {
-            "$ref": "#/$defs/Parameters"
-          },
-          {
-            "type": "integer"
-          },
-          {
-            "type": "number"
-          },
-          {
-            "type": "string"
-          }
-        ]
-      },
-      "description": "The ``parameters`` block contains the parameters used in a realization. It is a\ndirect pass of ``parameters.txt`` and will contain key:value pairs representing the\nparameters.",
-      "title": "Parameters",
       "type": "object"
     },
     "ParametersData": {
@@ -5246,21 +5002,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -5559,21 +5300,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -5922,21 +5648,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -6235,21 +5946,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -6360,6 +6056,7 @@
       "description": "The ``fmu.realization`` block contains information about the realization this\ndata object belongs to.",
       "properties": {
         "id": {
+          "minimum": 0,
           "title": "Id",
           "type": "integer"
         },
@@ -6375,33 +6072,12 @@
           "default": null,
           "title": "Is Reference"
         },
-        "jobs": {
-          "anyOf": [
-            {},
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Jobs"
-        },
         "name": {
           "examples": [
             "iter-0"
           ],
           "title": "Name",
           "type": "string"
-        },
-        "parameters": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Parameters"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         },
         "uuid": {
           "examples": [
@@ -6672,21 +6348,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -6985,21 +6646,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -7390,21 +7036,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -7703,21 +7334,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -8155,21 +7771,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -8619,21 +8220,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -8744,15 +8330,7 @@
       "description": "A block containing lists of objects describing timestamp information for this\ndata object, if applicable, like Flow simulator restart dates, or dates for seismic\n4D surveys.  See :class:`Time`.\n\n.. note:: ``data.time`` items can currently hold a maximum of two values.",
       "properties": {
         "t0": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Timestamp"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
+          "$ref": "#/$defs/Timestamp"
         },
         "t1": {
           "anyOf": [
@@ -8766,6 +8344,9 @@
           "default": null
         }
       },
+      "required": [
+        "t0"
+      ],
       "title": "Time",
       "type": "object"
     },
@@ -8960,21 +8541,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -9265,21 +8831,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -9407,22 +8958,17 @@
           "title": "Label"
         },
         "value": {
-          "anyOf": [
-            {
-              "format": "date-time",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
           "examples": [
             "2020-10-28T14:28:02"
           ],
-          "title": "Value"
+          "format": "date-time",
+          "title": "Value",
+          "type": "string"
         }
       },
+      "required": [
+        "value"
+      ],
       "title": "Timestamp",
       "type": "object"
     },
@@ -9671,21 +9217,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -10002,21 +9533,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
@@ -10338,21 +9854,6 @@
           "title": "Stratigraphic",
           "type": "boolean"
         },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
-        },
         "table_index": {
           "anyOf": [
             {
@@ -10650,21 +10151,6 @@
         "stratigraphic": {
           "title": "Stratigraphic",
           "type": "boolean"
-        },
-        "stratigraphic_alias": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stratigraphic Alias"
         },
         "table_index": {
           "anyOf": [
