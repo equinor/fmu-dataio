@@ -144,11 +144,11 @@ class DataFrameDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt, ValidFormats.table)
+        return self._validate_get_ext(self.fmt.value, ValidFormats.table)
 
     @property
-    def fmt(self) -> str:
-        return self.dataio.table_fformat
+    def fmt(self) -> FileFormat:
+        return FileFormat(self.dataio.table_fformat)
 
     @property
     def layout(self) -> Layout:

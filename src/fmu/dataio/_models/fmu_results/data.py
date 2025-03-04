@@ -33,10 +33,7 @@ class Timestamp(BaseModel):
     )
     """A string label corresponding to the timestamp."""
 
-    value: Optional[Union[NaiveDatetime, AwareDatetime]] = Field(
-        default=None,
-        examples=["2020-10-28T14:28:02"],
-    )
+    value: Union[NaiveDatetime, AwareDatetime] = Field(examples=["2020-10-28T14:28:02"])
     """A datetime representation."""
 
 
@@ -47,7 +44,7 @@ class Time(BaseModel):
 
     .. note:: ``data.time`` items can currently hold a maximum of two values."""
 
-    t0: Optional[Timestamp] = Field(default=None)
+    t0: Timestamp
     """The first timestamp. See :class:`Timestamp`."""
 
     t1: Optional[Timestamp] = Field(default=None)
@@ -88,7 +85,7 @@ class FluidContact(BaseModel):
     contact: enums.FluidContactType = Field(examples=["owc", "fwl"])
     """A known type of contact."""
 
-    truncated: bool = Field(default=False)
+    truncated: bool = Field(default=False)  # makes not much sense
     """If True, this is a representation of a contact surface which is truncated to
     stratigraphy."""
 
@@ -111,7 +108,7 @@ class FieldOutline(BaseModel):
     == "field_outline"
     """
 
-    contact: str
+    contact: str  # we should move towards enums.FluidContactType
     """A known type of fluid contact used to define the field outline."""
 
 
@@ -229,11 +226,6 @@ class Data(BaseModel):
     naming rules in FMU.
     """
 
-    stratigraphic_alias: Optional[List[str]] = Field(default=None)
-    """A list of strings representing stratigraphic aliases for this ``data.name``. E.g.
-    the top of the uppermost member of a formation will be alias to the top of the
-    formation."""
-
     stratigraphic: bool
     """True if this is defined in the stratigraphic column."""
 
@@ -288,7 +280,7 @@ class Data(BaseModel):
     undef_is_zero: Optional[bool] = Field(default=None)
     """Flag if undefined values are to be interpreted as zero"""
 
-    unit: str = Field(default="", examples=["m"])
+    unit: str = Field(default="", examples=["m"])  # add list here
     """A reference to a known unit."""
 
     vertical_domain: Optional[enums.VerticalDomain] = Field(

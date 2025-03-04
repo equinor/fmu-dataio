@@ -208,18 +208,17 @@ class FmuProvider(Provider):
     @staticmethod
     def _get_ert_meta() -> fields.Ert:
         """Constructs the `Ert` Pydantic object for the `ert` metadata field."""
-        try:
-            sim_mode = ErtSimulationMode(FmuEnv.SIMULATION_MODE.value)
-        except ValueError:
-            sim_mode = None
-
-        return fields.Ert(
-            experiment=fields.Experiment(
-                id=uuid.UUID(FmuEnv.EXPERIMENT_ID.value)
-                if FmuEnv.EXPERIMENT_ID.value
-                else None
-            ),
-            simulation_mode=sim_mode,
+        return (
+            fields.Ert(
+                experiment=(
+                    fields.Experiment(
+                        id=uuid.UUID(FmuEnv.EXPERIMENT_ID.value),
+                    )
+                ),
+                simulation_mode=ErtSimulationMode(FmuEnv.SIMULATION_MODE.value),
+            )
+            if FmuEnv.EXPERIMENT_ID.value
+            else None
         )
 
     def _validate_and_establish_casepath(self) -> Path | None:
