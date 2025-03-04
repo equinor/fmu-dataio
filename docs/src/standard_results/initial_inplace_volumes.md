@@ -51,7 +51,7 @@ This is a tabular file that can be converted to `.csv` or similar. It contains
 the following columns with types validated as indicated.
 
 ```{eval-rst}
-.. autopydantic_model:: fmu.dataio._models.products.inplace_volumes.InplaceVolumesResultRow
+.. autopydantic_model:: fmu.dataio._models.standard_result.inplace_volumes.InplaceVolumesResultRow
    :members:
    :inherited-members: BaseModel
    :model-show-config-summary: False
@@ -70,7 +70,7 @@ However, when these columns are present, their type is validated.
 
 This standard results is made available with a validation schema that can be
 used by consumers. A reference to the URL where this schema is located is
-present within the `data.product` key in its associated object metadata.
+present within the `data.standard_result` key in its associated object metadata.
 
 | Field | Value |
 | --- | --- |

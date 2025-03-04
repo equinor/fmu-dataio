@@ -4,8 +4,8 @@ from enum import Enum, IntEnum
 from typing import Type
 
 
-class ProductName(str, Enum):
-    """The product name of a given data object."""
+class StandardResultName(str, Enum):
+    """The standard result name of a given data object."""
 
     inplace_volumes = "inplace_volumes"
 
