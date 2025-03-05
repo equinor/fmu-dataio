@@ -219,6 +219,9 @@
       "oneOf": [
         {
           "$ref": "#/$defs/InplaceVolumesStandardResult"
+        },
+        {
+          "$ref": "#/$defs/SructureDepthSurfaceStandardResult"
         }
       ],
       "title": "AnyStandardResult"
@@ -7847,6 +7850,32 @@
         "stratigraphic_column"
       ],
       "title": "Smda",
+      "type": "object"
+    },
+    "SructureDepthSurfaceStandardResult": {
+      "description": "The ``standard_result`` field contains information about which standard results this\ndata object represent.\nThis class contains metadata for the 'structure_depth_surface' standard result.",
+      "properties": {
+        "file_schema": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FileSchema"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "name": {
+          "const": "structure_depth_surface",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "SructureDepthSurfaceStandardResult",
       "type": "object"
     },
     "Ssdl": {

@@ -8,6 +8,7 @@ class StandardResultName(str, Enum):
     """The standard result name of a given data object."""
 
     inplace_volumes = "inplace_volumes"
+    structure_depth_surface = "structure_depth_surface"
 
 
 class Classification(str, Enum):
