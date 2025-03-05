@@ -107,14 +107,8 @@ class File(BaseModel):
     checksum_md5: MD5HashStr = Field(examples=["fa4d055b113ae5282796e328cde0ffa4"])
     """A valid MD5 checksum of the file."""
 
-    size_bytes: Optional[int] = Field(default=None)
+    size_bytes: Optional[int] = Field(default=None)  # we do not set this, are sumo?
     """Size of file object in bytes"""
-
-    relative_path_symlink: Optional[Path] = Field(default=None)
-    """The path to a symlink of the relative path."""
-
-    absolute_path_symlink: Optional[Path] = Field(default=None)
-    """The path to a symlink of the absolute path."""
 
     @model_validator(mode="before")
     @classmethod
@@ -126,25 +120,6 @@ class File(BaseModel):
         return values
 
 
-class Parameters(RootModel):
-    """
-    The ``parameters`` block contains the parameters used in a realization. It is a
-    direct pass of ``parameters.txt`` and will contain key:value pairs representing the
-    parameters.
-    """
-
-    root: Dict[str, Union[Parameters, int, float, str]]
-    """A dictionary representing parameters as-is from parameters.txt."""
-
-    def __iter__(self) -> Any:
-        # Using ´Any´ as return type here as mypy is having issues
-        # resolving the correct type
-        return iter(self.root)
-
-    def __getitem__(self, item: str) -> Union[Parameters, int, float, str]:
-        return self.root[item]
-
-
 class Aggregation(BaseModel):
     """
     The ``fmu.aggregation`` block contains information about an aggregation
@@ -154,14 +129,11 @@ class Aggregation(BaseModel):
     id: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """The unique identifier of an aggregation."""
 
-    operation: str
+    operation: str  # check what sumo is using here
     """A string representing the type of aggregation performed."""
 
     realization_ids: List[int]
     """An array of realization ids included in this aggregation."""
-
-    parameters: Optional[Parameters] = Field(default=None)
-    """Parameters for this realization. See :class:`Parameters`."""
 
 
 class Workflow(BaseModel):
@@ -215,11 +187,11 @@ class Case(BaseModel):
 class Ert(BaseModel):
     """The ``fmu.ert`` block contains information about the current ert run."""
 
-    experiment: Optional[Experiment] = Field(default=None)
+    experiment: Experiment
     """Reference to the ert experiment.
     See :class:`Experiment`."""
 
-    simulation_mode: Optional[enums.ErtSimulationMode] = Field(default=None)
+    simulation_mode: enums.ErtSimulationMode
     """Reference to the ert simulation mode.
     See :class:`SimulationMode`."""
 
@@ -228,7 +200,7 @@ class Experiment(BaseModel):
     """The ``fmu.ert.experiment`` block contains information about
     the current ert experiment run."""
 
-    id: Optional[UUID] = Field(default=None)
+    id: UUID
     """The unique identifier of this ert experiment run."""
 
 
@@ -238,7 +210,7 @@ class Iteration(BaseModel):
     object belongs to.
     """
 
-    id: Optional[int] = Field(default=None)
+    id: int = Field(ge=0)
     """The internal identification of this iteration, typically represented by an
     integer."""
 
@@ -290,14 +262,6 @@ class Realization(BaseModel):
     """The name of the realization. This is typically reflecting the folder name on
     scratch. We recommend to use ``fmu.realization.id`` for all usage except purely
     visual appearance."""
-
-    parameters: Optional[Parameters] = Field(default=None)
-    """These are the parameters used in this realization. It is a direct pass of
-    ``parameters.txt`` and will contain key:value pairs representing the design
-    parameters. See :class:`Parameters`."""
-
-    jobs: Optional[object] = Field(default=None)
-    """Content directly taken from the ERT jobs.json file for this realization."""
 
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """The universally unique identifier for this realization. It is a hash of
@@ -445,9 +409,8 @@ class SystemInformation(BaseModel):
     these data were exported from.
     """
 
-    fmu_dataio: Optional[Version] = Field(
+    fmu_dataio: Version = Field(
         alias="fmu-dataio",
-        default=None,
         examples=["1.2.3"],
     )
     """The version of fmu-dataio used to export the data. See :class:`Version`."""
@@ -458,7 +421,7 @@ class SystemInformation(BaseModel):
     )
     """The version of Komodo in which the the ensemble was run from."""
 
-    operating_system: Optional[OperatingSystem] = Field(default=None)
+    operating_system: OperatingSystem
     """The operating system from which the ensemble was started from.
     See :class:`OperatingSystem`."""
 
@@ -548,9 +511,7 @@ class TracklogEvent(BaseModel):
     user: User
     """The user who caused the event to happen. See :class:`User`."""
 
-    sysinfo: Optional[SystemInformation] = Field(
-        default_factory=SystemInformation,
-    )
+    sysinfo: SystemInformation
     """Information about the system on which the event occurred.
     See :class:`SystemInformation`."""
 
