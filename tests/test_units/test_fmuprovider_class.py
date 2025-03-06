@@ -411,8 +411,13 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
 def test_ert_simulation_modes_one_to_one() -> None:
     """Ensure dataio known modes match those defined by Ert.
 
-    These are currently defined in `ert.mode_definitions`. `MODULE_MODE` is skipped due
-    to seemingly being relevant to Ert internally -- the modes are duplicated there."""
+    These are currently defined in `ert.mode_definitions`.
+
+    - `MODULE_MODE` is skipped due to seemingly being relevant to Ert internally.
+      The modes are duplicated there.
+    - `iterative_ensemble_mode` was removed in Ert 14. It must be ignored here for as
+      long as we support Python 3.8.
+    """
     ert_mode_definitions = importlib.import_module("ert.mode_definitions")
     ert_modes = {
         getattr(ert_mode_definitions, name)
@@ -422,4 +427,10 @@ def test_ert_simulation_modes_one_to_one() -> None:
         and isinstance(getattr(ert_mode_definitions, name), str)
     }
     dataio_known_modes = {mode.value for mode in ErtSimulationMode}
+
+    # TODO: Remove this check when Python 3.8 deprecated.
+    ert_version = importlib.metadata.version("ert")
+    if int(ert_version.split(".")[0]) >= 14:
+        dataio_known_modes.discard("iterative_ensemble_smoother")
+
     assert ert_modes == dataio_known_modes
