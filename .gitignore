@@ -98,7 +98,7 @@ venv.bak/
 # setuptools_scm version
 src/fmu/dataio/version.py
 # aggregated examples directory
-examples/s/d/nn/xcase/iter-0/
+examples/iter-0/
 
 
 # mypy
