@@ -219,6 +219,9 @@
       "oneOf": [
         {
           "$ref": "#/$defs/InplaceVolumesStandardResult"
+        },
+        {
+          "$ref": "#/$defs/StructureDepthSurfaceStandardResult"
         }
       ],
       "title": "AnyStandardResult"
@@ -7919,6 +7922,32 @@
         "uuid"
       ],
       "title": "StratigraphicColumn",
+      "type": "object"
+    },
+    "StructureDepthSurfaceStandardResult": {
+      "description": "The ``standard_result`` field contains information about which standard results this\ndata object represent.\nThis class contains metadata for the 'structure_depth_surface' standard result.",
+      "properties": {
+        "file_schema": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FileSchema"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "name": {
+          "const": "structure_depth_surface",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "StructureDepthSurfaceStandardResult",
       "type": "object"
     },
     "SubcropData": {

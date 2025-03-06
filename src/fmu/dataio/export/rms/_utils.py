@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final
 
+import xtgeo
 from packaging.version import parse as versionparse
 
 from fmu.dataio._logging import null_logger
@@ -65,3 +66,30 @@ def load_global_config() -> dict[str, Any]:
             f"location: {CONFIG_PATH}."
         )
     return load_config_from_path(CONFIG_PATH)
+
+
+def horizon_folder_exist(project: Any, horizon_folder: str) -> bool:
+    """Check if a horizon folder exist inside the project"""
+    return horizon_folder in project.horizons.representations
+
+
+def get_horizons_in_folder(
+    project: Any, horizon_folder: str
+) -> list[xtgeo.RegularSurface]:
+    """Get all non-empty horizons from a horizon folder stratigraphically ordered."""
+
+    logger.debug("Reading horizons from folder %s", horizon_folder)
+
+    if not horizon_folder_exist(project, horizon_folder):
+        raise ValueError(
+            f"The provided horizon folder name {horizon_folder} "
+            "does not exist inside RMS."
+        )
+
+    surfaces = []
+    for horizon in project.horizons:
+        if not horizon[horizon_folder].is_empty():
+            surfaces.append(
+                xtgeo.surface_from_roxar(project, horizon.name, horizon_folder)
+            )
+    return surfaces
