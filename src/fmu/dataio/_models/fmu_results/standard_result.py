@@ -58,6 +58,17 @@ class InplaceVolumesStandardResult(StandardResult):
     """The schema identifying the format of the 'inplace_volumes' standard result."""
 
 
+class StructureDepthSurfaceStandardResult(StandardResult):
+    """
+    The ``standard_result`` field contains information about which standard results this
+    data object represent.
+    This class contains metadata for the 'structure_depth_surface' standard result.
+    """
+
+    name: Literal[enums.StandardResultName.structure_depth_surface]
+    """The identifying product name for the 'structure_depth_surface' product."""
+
+
 class AnyStandardResult(RootModel):
     """
     The ``standard result`` field contains information about which standard result this
@@ -70,6 +81,9 @@ class AnyStandardResult(RootModel):
     """
 
     root: Annotated[
-        Union[InplaceVolumesStandardResult,],
+        Union[
+            InplaceVolumesStandardResult,
+            StructureDepthSurfaceStandardResult,
+        ],
         Field(discriminator="name"),
     ]
