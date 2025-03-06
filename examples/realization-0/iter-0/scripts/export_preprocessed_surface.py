@@ -1,9 +1,9 @@
 import logging
 from pathlib import Path
 
-from fmu.config import utilities as utils
 import xtgeo
 
+from fmu.config import utilities as utils
 from fmu.dataio.dataio import ExportData
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,6 @@ FILES = {
 
 
 def export_preprocessed_surface():
-
     edata = ExportData(
         config=CFG,  # read from global config
         preprocessed=True,
@@ -28,7 +27,7 @@ def export_preprocessed_surface():
         subfolder="mysub",
     )
     surf_depth = xtgeo.surface_from_file(FILES["depth"])
-    
+
     edata.export(surf_depth)
     print("Exported preprocessed depth surface.")
 
