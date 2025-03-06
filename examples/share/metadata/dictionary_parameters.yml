@@ -1,0 +1,71 @@
+$schema: "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json"
+version: "0.8.0"
+source: "fmu"
+tracklog:
+  - datetime: "2023-09-07T07:39:33.291683"
+    user:
+      id: "adnj"
+    event: "created"
+class: "dictionary"
+fmu:
+  model:
+    name: "ff"
+    revision: "undefined"
+  context:
+    stage: "realization"
+  case:
+    name: "adnj_drogon_parameters_test"
+    uuid: "0db864d3-ac25-4e0f-9195-36fd524e0840"
+    user:
+      id: "adnj"
+  iteration:
+    id: 0
+    uuid: "dad9a25a-3ad0-0f0a-08f2-c6fe8aae4c45"
+    name: "iter-0"
+  realization:
+    id: 0
+    uuid: "28274007-fd40-29c4-c6ef-10e2414ccdcd"
+    name: "realization-0"
+file:
+  relative_path: "realization-0/iter-0/share/results/dictionaries/parameters.json"
+  absolute_path: "/scratch/fmu/adnj/adnj_drogon_parameters_test/realization-0/iter-0/share/results/dictionaries/parameters.json"
+  checksum_md5: "ebbf160256cc2cf2011ed2fb6ac13f85"
+data:
+  name: "parameters"
+  stratigraphic: false
+  content: "parameters"
+  tagname: ""
+  format: "json"
+  layout: "dictionary"
+  unit: ""
+  vertical_domain: "depth"
+  depth_reference: "msl"
+  undef_is_zero: false
+  is_prediction: true
+  is_observation: false
+display:
+  name: "parameters"
+access:
+  asset:
+    name: "Drogon"
+  ssdl:
+    access_level: "internal"
+    rep_include: false
+  classification: "internal"
+masterdata:
+  smda:
+    country:
+      - identifier: "Norway"
+        uuid: "ad214d85-8a1d-19da-e053-c918a4889309"
+    discovery:
+      - short_identifier: "DROGON"
+        uuid: "ad214d85-8a1d-19da-e053-c918a4889309"
+    field:
+      - identifier: "DROGON"
+        uuid: "00000000-0000-0000-0000-000000000000"
+    coordinate_system:
+      identifier: "ST_WGS84_UTM37N_P32637"
+      uuid: "ad214d85-dac7-19da-e053-c918a4889309"
+    stratigraphic_column:
+      identifier: "DROGON_HAS_NO_STRATCOLUMN"
+      uuid: "00000000-0000-0000-0000-000000000000"
