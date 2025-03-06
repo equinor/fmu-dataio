@@ -62,7 +62,8 @@ def export_field_region():
 
     ed = dataio.ExportData(
     config=CFG,
-    content={"field_region": {"id": 1}},
+    content="field_region",
+    content_metadata={"id": 1},
     unit="m",
     vertical_domain="depth",
     domain_reference="msl",
@@ -86,7 +87,8 @@ def export_field_outline():
     """Export metadata for a field outline"""    
     ed = dataio.ExportData(
     config=CFG,
-    content={"field_outline": {"contact": "goc"}},
+    content="field_outline",
+    content_metadata={"contact": "goc"},
     unit="m",
     vertical_domain="depth",
     domain_reference="msl",

@@ -16,7 +16,7 @@ set -e
 #===================================================================================
 
 current=$PWD
-examples_rootpath=$current/examples/
+examples_rootpath=$current/examples
 
 #--------- Empty current results and metadata ---------#
 echo "Remove former output..."
@@ -27,14 +27,14 @@ rm -rf $examples_rootpath/share/metadata/fmu_case.yml
 
 
 #--------- Create a new fmu case up to date with the latest case model ---------#
-pushd $examples_rootpath
+cd $examples_rootpath
 python scripts/export_fmu_case.py
 
 
 #--------- Export files and metadata ---------#
 
 # fake an ERT FMU run
-pushd $examples_rootpath/realization-0/iter-0/scripts
+cd $examples_rootpath/realization-0/iter-0/scripts
 export _ERT_EXPERIMENT_ID=6a8e1e0f-9315-46bb-9648-8de87151f4c7
 export _ERT_ENSEMBLE_ID=b027f225-c45d-477d-8f33-73695217ba14
 export _ERT_SIMULATION_MODE=test_run
@@ -49,30 +49,28 @@ python export_preprocessed_surface.py
 python export_grid3d.py
 python export_volumetables.py
 python export_surface_maps.py
-popd
 
 
 #--------- Export aggregated surfaces (to be used in unit tests) ---------#
 
 echo "Exporting files and metadata for two additinal realizations to be able to do aggregation."
 for num in 1 9; do
-    pushd $examples_rootpath/realization-${num}/iter-0/scripts
+    cd $examples_rootpath/realization-${num}/iter-0/scripts
     echo "Running simple surface export for realization $num..."
     
     export _ERT_REALIZATION_NUMBER=$num
     export _ERT_RUNPATH=$examples_rootpath/realization-${num}/iter-0
     
     python export_surface_maps.py
-    popd
 done
 
 # Aggregate the surfaces exported from all realizations.
-pushd $examples_rootpath/scripts
+cd $examples_rootpath/scripts
 python aggregate_surfaces.py
-popd
-
 
 #--------- Update schema metadata with the newly exported metadata ---------#
+cd $examples_rootpath
+echo "Updating schema metadata..."
 
 # Update surface metadata
 cp $examples_rootpath/realization-0/iter-0/share/results/maps/.topvolantis--ds_extract_geogrid.gri.yml share/metadata/surface_depth.yml
@@ -90,4 +88,6 @@ cp $examples_rootpath/realization-0/iter-0/share/results/polygons/.volantis_gp_b
 cp $examples_rootpath/realization-0/iter-0/share/results/polygons/.volantis_gp_base--polgons_field_outline.csv.yml share/metadata/polygons_field_outline.yml
 
 # Update aggregation metadata
-cp $examples_rootpath/iter-0/share/results/maps/.topvolantis--ds_extract_geogrid--mean.gri.yml share/metadata/aggregated_surface_depth.yml
+cp $examples_rootpath/iter-0/share/results/maps/.aggregated_surfaces.gri.yml share/metadata/aggregated_surface_depth.yml
+
+echo "Done updating schema metadata."
