@@ -1,0 +1,7 @@
+dataio.export.rms.structure\_depth\_surfaces module
+===================================================
+
+.. automodule:: dataio.export.rms.structure_depth_surfaces
+   :members:
+   :show-inheritance:
+   :undoc-members:

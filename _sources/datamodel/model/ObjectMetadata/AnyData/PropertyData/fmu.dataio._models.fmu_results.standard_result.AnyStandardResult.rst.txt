@@ -12,6 +12,8 @@ AnyStandardResult
 
    
    
+      ~fmu.dataio._models.fmu_results.standard_result.StructureDepthSurfaceStandardResult
+   
       ~fmu.dataio._models.fmu_results.standard_result.InplaceVolumesStandardResult
    
    

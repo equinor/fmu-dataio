@@ -13,3 +13,4 @@ Submodules
    :maxdepth: 4
 
    dataio.export.rms.inplace_volumes
+   dataio.export.rms.structure_depth_surfaces
