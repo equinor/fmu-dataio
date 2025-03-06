@@ -71,6 +71,8 @@ class ErtSimulationMode(str, Enum):
     ensemble_smoother = "ensemble_smoother"
     es_mda = "es_mda"
     evaluate_ensemble = "evaluate_ensemble"
+    # TODO: Remove 'iterative_ensemble_smoother' when Python 3.8 deprecated. It was
+    # removed with Ert 14.0.0.
     iterative_ensemble_smoother = "iterative_ensemble_smoother"
     manual_update = "manual_update"
     test_run = "test_run"
