@@ -6,7 +6,6 @@ The input maps is poro_average.grid
 """
 
 import logging
-import os
 from pathlib import Path
 
 import xtgeo
@@ -75,7 +74,7 @@ def main():
     fname = ed.export(surf)
     print(f"Exported to file {fname}")
 
-    # -------------------------------------    
+    # -------------------------------------
 
     print("Export fluid contact surface map and metadata")
     fluid_contact_surf = xtgeo.surface_from_file(FILES["depth"])
@@ -110,10 +109,10 @@ def main():
         domain_reference="msl",
         content="seismic",
         content_metadata={
-            "attribute":"amplitude",
+            "attribute": "amplitude",
             "calculation": "mean",
             "zrange": 12.0,
-            "stacking_offset": "0-15"
+            "stacking_offset": "0-15",
         },
         timedata=[["20201028", "base"], ["20201028", "monitor"]],
         is_prediction=True,

@@ -406,7 +406,7 @@ def test_data_spec(metadata_examples):
         FmuResults.model_validate(example_table)
 
     # fetch case example
-    example_case= deepcopy(metadata_examples["fmu_case.yml"])
+    example_case = deepcopy(metadata_examples["fmu_case.yml"])
 
     # assert data.spec is not present
     with pytest.raises(KeyError):
