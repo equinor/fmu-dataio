@@ -63,6 +63,7 @@ def main():
         source_metadata=source_metadata,
         aggregation_id=aggregation_id,
         casepath=casepath,
+        name="aggregated_surfaces"
     )
 
     for operation in operations:
@@ -212,4 +213,4 @@ def _get_source_surfaces_from_sumo(
 if __name__ == "__main__":
     print("\nAggregating surfaces and exporting files and metadata...")
     main()
-    print("Done aggregating surfaces and exporting files and metadata.")
+    print("Done aggregating surfaces and exporting files and metadata.\n")

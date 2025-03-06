@@ -42,7 +42,8 @@ def main():
         unit="fraction",
         vertical_domain="depth",
         domain_reference="msl",
-        content={"property": {"is_discrete": False}},
+        content="property",
+        content_metadata={"is_discrete": False},
         timedata=None,
         is_prediction=True,
         is_observation=False,
@@ -85,7 +86,8 @@ def main():
         unit="m",
         vertical_domain="depth",
         domain_reference="msl",
-        content={"fluid_contact": {"contact": "fwl"}},
+        content="fluid_contact",
+        content_metadata={"contact": "fwl"},
         timedata=None,
         is_prediction=True,
         is_observation=False,
@@ -106,13 +108,12 @@ def main():
         unit="m",
         vertical_domain="depth",
         domain_reference="msl",
-        content={
-            "seismic": {
-                "attribute":"amplitude",
-                "calculation": "mean",
-                "zrange": 12.0,
-                "stacking_offset": "0-15"
-            }
+        content="seismic",
+        content_metadata={
+            "attribute":"amplitude",
+            "calculation": "mean",
+            "zrange": 12.0,
+            "stacking_offset": "0-15"
         },
         timedata=[["20201028", "base"], ["20201028", "monitor"]],
         is_prediction=True,
