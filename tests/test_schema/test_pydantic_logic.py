@@ -122,7 +122,7 @@ def test_schema_file_block(metadata_examples):
 def test_case(metadata_examples):
     """Asserting validation failure when illegal contents in case example"""
 
-    example = metadata_examples["case.yml"]
+    example = metadata_examples["fmu_case.yml"]
 
     # assert validation with no changes
     FmuResults.model_validate(example)
@@ -272,7 +272,7 @@ def test_fluid_contact(metadata_examples):
 def test_schema_masterdata_smda(metadata_examples):
     """Test schema logic for masterdata.smda."""
 
-    example = metadata_examples["case.yml"]
+    example = metadata_examples["fmu_case.yml"]
 
     # assert validation with no changes
     FmuResults.model_validate(example)
@@ -395,7 +395,7 @@ def test_data_spec(metadata_examples):
         FmuResults.model_validate(example_surface)
 
     # fetch table example
-    example_table = deepcopy(metadata_examples["table_inplace.yml"])
+    example_table = deepcopy(metadata_examples["table_inplace_volumes.yml"])
 
     # assert validation with no changes
     FmuResults.model_validate(example_table)
@@ -405,15 +405,15 @@ def test_data_spec(metadata_examples):
     with pytest.raises(ValidationError):
         FmuResults.model_validate(example_table)
 
-    # fetch dictionary example
-    example_dict = deepcopy(metadata_examples["dictionary_parameters.yml"])
+    # fetch case example
+    example_case= deepcopy(metadata_examples["fmu_case.yml"])
 
     # assert data.spec is not present
     with pytest.raises(KeyError):
-        example_dict["data"]["spec"]
+        example_case["data"]["spec"]
 
-    # assert data.spec not required when class === dictionary
-    FmuResults.model_validate(example_dict)
+    # assert data.spec not required when class === case
+    FmuResults.model_validate(example_case)
 
 
 def test_content_whitelist(metadata_examples):
