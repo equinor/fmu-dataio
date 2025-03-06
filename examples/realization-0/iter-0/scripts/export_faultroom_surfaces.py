@@ -40,4 +40,4 @@ def main():
 if __name__ == "__main__":
     print("\nExporting faultroom surface maps and metadata...")
     main()
-    print("Done exporting faultroom surface maps and metadta.\n")
+    print("Done exporting faultroom surface maps and metadta.")
