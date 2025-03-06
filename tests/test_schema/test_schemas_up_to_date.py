@@ -64,6 +64,36 @@ def test_schema_url_changes_with_env_var(
 
 
 @pytest.mark.parametrize("schema", schemas)
+@pytest.mark.parametrize("env_var", ["KOMODO_RELEASE", "KOMODO_RELEASE_BACKUP"])
+@pytest.mark.parametrize(
+    "env_var_value",
+    [
+        "bleeding",
+        "kenv_bleeding",
+        "bleeding-20250306-0207-py311-rhel8",
+    ],
+)
+def test_schema_url_changes_with_komodo_bleeding_env_var(
+    schema: SchemaBase, env_var: str, env_var_value: str, monkeypatch: MonkeyPatch
+) -> None:
+    """Tests that the schema uses the development url when KOMODO_RELEASE or
+    KOMODO_RELEASE_BACKUP is set to a bleeding release.
+
+    DEV_SCHEMA is set to 1 whenever the tests are run, so it is unset here."""
+    monkeypatch.delenv("DEV_SCHEMA", raising=False)
+    json = schema.dump()
+    assert schema.url().startswith(FmuSchemas.PROD_URL)
+    assert json["$id"].startswith(FmuSchemas.PROD_URL)
+    assert json["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+
+    monkeypatch.setenv(env_var, env_var_value)
+    json = schema.dump()
+    assert schema.url().startswith(FmuSchemas.DEV_URL)
+    assert json["$id"].startswith(FmuSchemas.DEV_URL)
+    assert json["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+
+
+@pytest.mark.parametrize("schema", schemas)
 def test_no_discriminator_mappings_leftover_in_schema(schema: SchemaBase) -> None:
     """Sumo's AJV validator doesn't like discriminator mappings leftover in the
     schema."""
