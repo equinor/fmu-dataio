@@ -163,9 +163,14 @@ class SchemaBase(ABC):
 
     @classmethod
     def url(cls) -> str:
-        """Returns the URL this file will reside at, based upon class variables set here
-        and in FmuSchemas."""
-        if os.environ.get("DEV_SCHEMA", False):
+        """Returns the URL the schema resides at.
+
+        Schema URLs are composed from class variables set by children derived from this
+        base class. If we're in a development environment, or Komodo bleeding, return
+        the dev schema URL."""
+        if os.environ.get("DEV_SCHEMA", False) or "bleeding" in os.environ.get(
+            "KOMODO_RELEASE", os.environ.get("KOMODO_RELEASE_BACKUP", "")
+        ):
             return cls.dev_url()
         return cls.prod_url()
 
