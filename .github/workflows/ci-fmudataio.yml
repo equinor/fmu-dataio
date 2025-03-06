@@ -23,6 +23,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install Ert Ubuntu dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libegl1
+
       - name: Install fmu-dataio
         run: |
           pip install pip -U
