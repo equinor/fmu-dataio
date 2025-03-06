@@ -78,7 +78,7 @@ def main():
         print(f"Exported property map to file {fname}")
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     print("\nExporting property maps and metadata...")
     main()
     print("Done exporting property maps and metadata.")

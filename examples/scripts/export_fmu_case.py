@@ -1,9 +1,6 @@
 import logging
-import os
-from pathlib import Path
 
 from fmu.config import utilities as utils
-
 from fmu.dataio.case import CreateCaseMetadata
 
 logger = logging.getLogger(__name__)

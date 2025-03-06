@@ -1,7 +1,6 @@
 """Export polygons via dataio with metadata."""
 
 import logging
-import os
 from pathlib import Path
 
 import xtgeo
@@ -61,17 +60,17 @@ def export_field_region():
     """Export metadata for a field region"""
 
     ed = dataio.ExportData(
-    config=CFG,
-    content="field_region",
-    content_metadata={"id": 1},
-    unit="m",
-    vertical_domain="depth",
-    domain_reference="msl",
-    timedata=None,
-    is_prediction=False,
-    is_observation=False,
-    tagname="polygons_field_region",
-    workflow="rms structural model",
+        config=CFG,
+        content="field_region",
+        content_metadata={"id": 1},
+        unit="m",
+        vertical_domain="depth",
+        domain_reference="msl",
+        timedata=None,
+        is_prediction=False,
+        is_observation=False,
+        tagname="polygons_field_region",
+        workflow="rms structural model",
     )
 
     horizon = "BaseVolantis"
@@ -80,23 +79,23 @@ def export_field_region():
     ed.polygons_fformat = "csv|xtgeo"
 
     ed.export(polygon)
-    print("Exported field region for " + horizon)    
+    print("Exported field region for " + horizon)
 
 
 def export_field_outline():
-    """Export metadata for a field outline"""    
+    """Export metadata for a field outline"""
     ed = dataio.ExportData(
-    config=CFG,
-    content="field_outline",
-    content_metadata={"contact": "goc"},
-    unit="m",
-    vertical_domain="depth",
-    domain_reference="msl",
-    timedata=None,
-    is_prediction=True,
-    is_observation=False,
-    tagname="polgons_field_outline",
-    workflow="rms structural model",
+        config=CFG,
+        content="field_outline",
+        content_metadata={"contact": "goc"},
+        unit="m",
+        vertical_domain="depth",
+        domain_reference="msl",
+        timedata=None,
+        is_prediction=True,
+        is_observation=False,
+        tagname="polgons_field_outline",
+        workflow="rms structural model",
     )
 
     horizon = "BaseVolantis"

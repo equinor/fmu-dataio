@@ -63,7 +63,7 @@ def main():
         source_metadata=source_metadata,
         aggregation_id=aggregation_id,
         casepath=casepath,
-        name="aggregated_surfaces"
+        name="aggregated_surfaces",
     )
 
     for operation in operations:
