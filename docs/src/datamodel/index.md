@@ -313,6 +313,9 @@ To handle this, two important concepts has been introduced.
    should not change erratically, and when we need to change them, this needs to
    be subject to alignment.
 
+### Schema version changelog
+
+{{ FmuResultsSchema.VERSION_CHANGELOG }}
 
 ### Contractual attributes
 

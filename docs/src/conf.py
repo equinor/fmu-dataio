@@ -51,10 +51,26 @@ myst_enable_extensions = [
 ]
 
 
-def _myst_substitutions() -> dict[str, SchemaBase]:
+def _myst_substitutions() -> dict[str, type[SchemaBase]]:
+    """A list of substitutions usable in the documentation.
+
+    Giving
+
+        subs[f"{s.__name__}"] = s
+
+    where `s` is a class allows you to access class values from within MyST markdown
+    documentation like:
+
+        FmuResultsSchema.VERSION
+
+    Any arbitrary key-value pairs from the code are possible to template into the
+    documentation in this way.
+    """
     subs = {}
     for s in schemas:
-        s.literalinclude = dedent(f"""
+        # For templating an include of the JSON Schema
+        s.literalinclude = dedent(  # type: ignore
+            f"""
             ```{{eval-rst}}
                .. toggle::
 
@@ -62,9 +78,14 @@ def _myst_substitutions() -> dict[str, SchemaBase]:
                      :language: json
 
             ```
-        """)
+        """
+        )
         if hasattr(s, "CONTRACTUAL"):
-            s.contractual = "\n".join([f"- `{item}`" for item in s.CONTRACTUAL])
+            s.contractual = "\n".join(  # type: ignore
+                [f"- `{item}`" for item in s.CONTRACTUAL]
+            )
+        # Ensure changelogs aren't rendered as code blocks
+        s.VERSION_CHANGELOG = dedent(s.VERSION_CHANGELOG)
         subs[f"{s.__name__}"] = s
     return subs
 
