@@ -80,7 +80,12 @@ class InplaceVolumesSchema(SchemaBase):
     documented above."""
 
     VERSION: VersionStr = "0.1.0"
-    """The version of this schema."""
+
+    VERSION_CHANGELOG: str = """
+    #### 0.1.0
+
+    This is the initial schema version.
+    """
 
     FILENAME: str = "inplace_volumes.json"
     """The filename this schema is written to."""
