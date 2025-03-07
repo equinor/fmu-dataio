@@ -3,10 +3,21 @@ source: fmu
 version: 0.8.0
 class: case
 tracklog:
-  - datetime: "2021-05-05T09:20:40.475110"
+  - datetime: '2025-03-04T19:48:31.163489Z'
     event: created
     user:
-      id: peesv
+      id: tnatt
+    sysinfo:
+      fmu-dataio:
+        version: 2.9.4.dev15+g73f418d21
+      komodo:
+        version: 2025.02.09-py311-rhel8
+      operating_system:
+        hostname: st-lintgx0110.st.statoil.no
+        operating_system: Linux-4.18.0-553.40.1.el8_10.x86_64-x86_64-with-glibc2.28
+        release: 4.18.0-553.40.1.el8_10.x86_64
+        system: Linux
+        version: '#1 SMP Thu Feb 6 21:20:51 EST 2025'
 fmu:
   case:
     name: somecasename
