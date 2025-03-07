@@ -45,6 +45,46 @@ class FmuResultsSchema(SchemaBase):
     """The main metadata export describing the results."""
 
     VERSION: VersionStr = "0.9.0"
+
+    VERSION_CHANGELOG: str = """
+    #### 0.9.0
+
+    This is the first versioned update to the schema and contains numerous changes.
+
+    - `$contractual.stratigraphic_alias` has been removed. It was never used.
+    - `data.product`: renamed to `data.standard_result`
+    - `data.spec.nrow` must be greater or equal to 0 for cubes, surfaces
+    - `data.spec.ncol` must be greater or equal to 0 for cubes, surfaces
+    - `data.spec.nlay` must be greater or equal to 0 for cubes
+    - `data.spec.xinc` must be greater or equal to 0 for cubes, surfaces
+    - `data.spec.yinc` must be greater or equal to 0 for cubes, surfaces
+    - `data.spec.zinc` must be greater or equal to 0 for cubes
+    - `data.spec.npolys` must be greater or equal to 0 for polygons
+    - `data.spec.num_columns` is no longer optional and must be greater or equal
+      to 0 for tables
+    - `data.spec.num_rows` is no longer optional and must be greater or equal to
+      0 for tables
+    - `data.spec.size` must be greater or equal 0 for tables, points
+    - `data.time.t0` is no longer optional
+    - `data.time.t0.value` is no longer optional
+    - `data.time.t1.value` is no longer optional (`data.time.t1` remains optional)
+    - `data.stratigraphic_alias` has been removed
+    - `file.absolute_path_symlink` has been removed
+    - `file.relative_path_symlink` has been removed
+    - `fmu.aggregation.parameters` has been removed
+    - `fmu.ert.experiment` is no longer optional
+    - `fmu.ert.experiment.id` is no longer optional
+    - `fmu.ert.simulation_mode` is no longer optional
+    - `fmu.iteration.id` is no longer optional and must be greater or equal to 0
+    - `fmu.realization.id` must be greater or equal to 0
+    - `fmu.realization.parameters` has been removed
+    - `fmu.realization.jobs` has been removed
+
+    #### 0.8.0
+
+    This is the initial schema version.
+    """
+
     FILENAME: str = "fmu_results.json"
     PATH: Path = FmuSchemas.PATH / VERSION / FILENAME
 

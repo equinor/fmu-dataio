@@ -80,6 +80,10 @@ present within the `data.standard_result` key in its associated object metadata.
 | Prod URL | {{ '[{}]({}) 🔒'.format(InplaceVolumesSchema.prod_url(), InplaceVolumesSchema.prod_url()) }}
 | Dev URL | {{ '[{}]({}) 🔒'.format(InplaceVolumesSchema.dev_url(), InplaceVolumesSchema.dev_url()) }}
 
+### Changelog
+
+{{ InplaceVolumesSchema.VERSION_CHANGELOG }}
+
 ### JSON schema
 
 The current JSON schema is embedded here.
