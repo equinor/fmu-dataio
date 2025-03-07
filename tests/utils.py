@@ -45,7 +45,7 @@ def _isoformat_all_datetimes(indate):
 def _metadata_examples():
     return {
         path.name: _isoformat_all_datetimes(_parse_yaml(path))
-        for path in Path(".").absolute().glob("examples/0.8.0/*.yml")
+        for path in Path(".").absolute().glob("examples/share/metadata/*.yml")
     }
 
 
