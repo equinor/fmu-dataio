@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Final
 from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.data import BoundingBox3D
-from fmu.dataio._models.fmu_results.enums import FMUClass, Layout
+from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
 from fmu.dataio._models.fmu_results.global_configuration import (
     GlobalConfiguration,
 )
@@ -37,11 +37,11 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt, ValidFormats.dictionary)
+        return self._validate_get_ext(self.fmt.value, ValidFormats.dictionary)
 
     @property
-    def fmt(self) -> str:
-        return self.dataio.dict_fformat
+    def fmt(self) -> FileFormat:
+        return FileFormat(self.dataio.dict_fformat)
 
     @property
     def layout(self) -> Layout:

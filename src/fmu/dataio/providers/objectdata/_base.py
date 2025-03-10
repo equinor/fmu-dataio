@@ -33,7 +33,7 @@ if TYPE_CHECKING:
         BoundingBox3D,
         Geometry,
     )
-    from fmu.dataio._models.fmu_results.enums import FMUClass, Layout
+    from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
     from fmu.dataio._models.fmu_results.specification import AnySpecification
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.types import Inferrable
@@ -132,7 +132,7 @@ class ObjectDataProvider(Provider):
 
     @property
     @abstractmethod
-    def fmt(self) -> str:
+    def fmt(self) -> FileFormat:
         raise NotImplementedError
 
     @property
