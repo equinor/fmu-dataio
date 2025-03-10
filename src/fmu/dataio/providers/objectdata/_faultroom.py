@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._definitions import ExportFolder, ValidFormats
@@ -18,6 +20,8 @@ from ._base import (
 )
 
 if TYPE_CHECKING:
+    from io import BytesIO
+
     from fmu.dataio.readers import FaultRoomSurface
 
 logger: Final = null_logger(__name__)
@@ -97,3 +101,14 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
             properties=self.obj.properties,
             name=self.obj.name,
         )
+
+    def export_to_file(self, file: Path | BytesIO) -> None:
+        """Export the object to file or memory buffer"""
+
+        serialized_json = json.dumps(self.obj.storage, indent=4)
+
+        if isinstance(file, Path):
+            with open(file, "w", encoding="utf-8") as stream:
+                stream.write(serialized_json)
+        else:
+            file.write(serialized_json.encode("utf-8"))

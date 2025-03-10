@@ -25,6 +25,9 @@ from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
 from ._base import ObjectDataProvider
 
 if TYPE_CHECKING:
+    from io import BytesIO
+    from pathlib import Path
+
     import pandas as pd
     import xtgeo
 
@@ -119,6 +122,11 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
             undef=1.0e30,
         )
 
+    def export_to_file(self, file: Path | BytesIO) -> None:
+        """Export the object to file or memory buffer"""
+
+        self.obj.to_file(file, fformat="irap_binary")
+
 
 @dataclass
 class PolygonsDataProvider(ObjectDataProvider):
@@ -148,6 +156,11 @@ class PolygonsDataProvider(ObjectDataProvider):
     def table_index(self) -> None:
         """Return the table index."""
 
+    @property
+    def obj_dataframe(self) -> pd.DataFrame:
+        """Returns a dataframe of the referenced xtgeo.Polygons object."""
+        return self.obj.get_dataframe(copy=False)
+
     def get_geometry(self) -> None:
         """Derive data.geometry for xtgeo.Polygons."""
 
@@ -170,10 +183,28 @@ class PolygonsDataProvider(ObjectDataProvider):
         logger.info("Get spec for Polygons")
 
         return PolygonsSpecification(
-            npolys=np.unique(
-                self.obj.get_dataframe(copy=False)[self.obj.pname].values
-            ).size
+            npolys=np.unique(self.obj_dataframe[self.obj.pname].values).size
         )
+
+    def export_to_file(self, file: Path | BytesIO) -> None:
+        """Export the object to file or memory buffer"""
+
+        if self.fmt == FileFormat.csv_xtgeo:
+            self.obj_dataframe.to_csv(file, index=False)
+
+        elif self.fmt == FileFormat.csv:
+            # rename from xtgeo names to standard
+            self.obj_dataframe.rename(
+                columns={
+                    self.obj.xname: "X",
+                    self.obj.yname: "Y",
+                    self.obj.zname: "Z",
+                    self.obj.pname: "ID",
+                }
+            ).to_csv(file, index=False)
+
+        else:
+            self.obj.to_file(file)
 
 
 @dataclass
@@ -235,6 +266,25 @@ class PointsDataProvider(ObjectDataProvider):
             attributes=list(df.columns[3:]) if len(df.columns) > 3 else None,
             size=int(df.size),
         )
+
+    def export_to_file(self, file: Path | BytesIO) -> None:
+        """Export the object to file or memory buffer"""
+
+        if self.fmt == FileFormat.csv_xtgeo:
+            self.obj_dataframe.to_csv(file, index=False)
+
+        elif self.fmt == FileFormat.csv:
+            # rename from xtgeo names to standard
+            self.obj_dataframe.rename(
+                columns={
+                    self.obj.xname: "X",
+                    self.obj.yname: "Y",
+                    self.obj.zname: "Z",
+                }
+            ).to_csv(file, index=False)
+
+        else:
+            self.obj.to_file(file)
 
 
 @dataclass
@@ -318,6 +368,11 @@ class CubeDataProvider(ObjectDataProvider):
             rotation=npfloat_to_float(required["rotation"]),
             undef=npfloat_to_float(required["undef"]),
         )
+
+    def export_to_file(self, file: Path | BytesIO) -> None:
+        """Export the object to file or memory buffer"""
+
+        self.obj.to_file(file, fformat="segy")
 
 
 @dataclass
@@ -404,6 +459,11 @@ class CPGridDataProvider(ObjectDataProvider):
             key=lambda x: x.min_layer_idx,
         )
 
+    def export_to_file(self, file: Path | BytesIO) -> None:
+        """Export the object to file or memory buffer"""
+
+        self.obj.to_file(file, fformat="roff")
+
 
 @dataclass
 class CPGridPropertyDataProvider(ObjectDataProvider):
@@ -457,3 +517,8 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
             lack_of_geometry_warn()
 
         return Geometry(name=name, relative_path=relpath) if name and relpath else None
+
+    def export_to_file(self, file: Path | BytesIO) -> None:
+        """Export the object to file or memory buffer"""
+
+        self.obj.to_file(file, fformat="roff")

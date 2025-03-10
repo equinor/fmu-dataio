@@ -12,7 +12,7 @@ from datetime import datetime
 from io import BufferedIOBase, BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Final
+from typing import Any, Callable, Final
 
 import numpy as np
 import pandas as pd
@@ -73,6 +73,21 @@ def export_metadata_file(file: Path, metadata: dict) -> None:
     logger.info("Yaml file on: %s", file)
 
 
+def export_object_to_file(
+    file: Path | BytesIO,
+    object_export_function: Callable[[Path | BytesIO], None],
+) -> None:
+    """
+    Export a object to file or memory buffer using a provided export function.
+    """
+
+    if isinstance(file, Path):
+        file.parent.mkdir(parents=True, exist_ok=True)
+
+    object_export_function(file)
+
+
+# TODO: Remove this function when AggregatedData.export() is removed
 def export_file(
     obj: types.Inferrable,
     file: Path | BytesIO,
@@ -159,21 +174,21 @@ def md5sum_stream(stream: BufferedIOBase) -> str:
     return hash_md5.hexdigest()
 
 
-def compute_md5(obj: types.Inferrable, file_suffix: str, fmt: str = "") -> str:
+def compute_md5(object_export_function: Callable[[Path | BytesIO], None]) -> str:
     """Compute an MD5 sum for an object."""
     memory_stream = BytesIO()
-    export_file(obj, memory_stream, file_suffix, fmt=fmt)
+    object_export_function(memory_stream)
     return md5sum(memory_stream)
 
 
 def compute_md5_using_temp_file(
-    obj: types.Inferrable, file_suffix: str, fmt: str = ""
+    object_export_function: Callable[[Path | BytesIO], None],
 ) -> str:
     """Compute an MD5 sum using a temporary file."""
-    with NamedTemporaryFile(buffering=0, suffix=file_suffix) as tf:
+    with NamedTemporaryFile(buffering=0, suffix=".tmp") as tf:
         logger.info("Compute MD5 sum for tmp file")
         tempfile = Path(tf.name)
-        export_file(obj=obj, file=tempfile, fmt=fmt)
+        object_export_function(tempfile)
         return md5sum(tempfile)
 
 

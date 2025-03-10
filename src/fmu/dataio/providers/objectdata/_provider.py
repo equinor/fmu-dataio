@@ -86,7 +86,9 @@ data:
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 import pandas as pd
@@ -114,6 +116,9 @@ from ._xtgeo import (
 )
 
 if TYPE_CHECKING:
+    from io import BytesIO
+    from pathlib import Path
+
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.types import Inferrable
 
@@ -214,3 +219,14 @@ class DictionaryDataProvider(ObjectDataProvider):
 
     def get_spec(self) -> None:
         """Derive data.spec for dict."""
+
+    def export_to_file(self, file: Path | BytesIO) -> None:
+        """Export the object to file or memory buffer"""
+
+        serialized_json = json.dumps(self.obj)
+
+        if isinstance(file, Path):
+            with open(file, "w", encoding="utf-8") as stream:
+                stream.write(serialized_json)
+        else:
+            file.write(serialized_json.encode("utf-8"))
