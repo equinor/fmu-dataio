@@ -10,7 +10,7 @@ from fmu.dataio._definitions import (
     ValidFormats,
 )
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import Content, FMUClass, Layout
+from fmu.dataio._models.fmu_results.enums import Content, FileFormat, FMUClass, Layout
 from fmu.dataio._models.fmu_results.specification import TableSpecification
 
 from ._base import (
@@ -144,11 +144,11 @@ class DataFrameDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt, ValidFormats.table)
+        return self._validate_get_ext(self.fmt.value, ValidFormats.table)
 
     @property
-    def fmt(self) -> str:
-        return self.dataio.table_fformat
+    def fmt(self) -> FileFormat:
+        return FileFormat(self.dataio.table_fformat)
 
     @property
     def layout(self) -> Layout:
@@ -195,11 +195,11 @@ class ArrowTableDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt, ValidFormats.table)
+        return self._validate_get_ext(self.fmt.value, ValidFormats.table)
 
     @property
-    def fmt(self) -> str:
-        return self.dataio.arrow_fformat
+    def fmt(self) -> FileFormat:
+        return FileFormat(self.dataio.arrow_fformat)
 
     @property
     def layout(self) -> Layout:

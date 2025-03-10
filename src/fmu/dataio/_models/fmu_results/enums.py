@@ -152,3 +152,17 @@ class FluidContactType(str, Enum):
 
     owc = "owc"
     """Oil-water contact."""
+
+
+class FileFormat(str, Enum):
+    """The format of a given data object."""
+
+    parquet = "parquet"
+    json = "json"
+    csv = "csv"
+    csv_xtgeo = "csv|xtgeo"
+    irap_ascii = "irap_ascii"
+    irap_binary = "irap_binary"
+    roff = "roff"
+    segy = "segy"
+    openvds = "openvds"
