@@ -19,7 +19,7 @@ from ert.plugins.plugin_manager import hook_implementation
 from fmu.dataio import ExportPreprocessedData
 
 try:
-    from ert.config import ErtScript
+    from ert import ErtScript
 except ImportError:
     from res.job_queue import ErtScript
 
