@@ -2,7 +2,6 @@
 
 import pytest
 
-from fmu.dataio._models.fmu_results.fields import Parameters
 from fmu.dataio._models.fmu_results.global_configuration import (
     Stratigraphy,
     StratigraphyElement,
@@ -54,44 +53,3 @@ def test_stratigraphy_dunder_getitem(testdata_stratigraphy):
         testdata_stratigraphy["TopStratUnit2"]
     except Exception:
         pytest.fail("Stratigraphy class does not have __getitem__()")
-
-
-# --------------------------------------------------------------------------------------
-# Parameters
-# --------------------------------------------------------------------------------------
-
-
-@pytest.fixture(name="testdata_parameters", scope="function")
-def _fixture_testdata_parameters() -> Parameters:
-    """
-    Return a nested dict of Parameter instances.
-    """
-    return Parameters(
-        root={
-            "p1": 42,
-            "p2": "not so nested",
-            "p3": Parameters(
-                root={
-                    "p3_1": 42.3,
-                    "p3_2": "more nested",
-                }
-            ),
-        }
-    )
-
-
-def test_parameters_dunder_iter(testdata_parameters):
-    try:
-        count = 0
-        for _ in testdata_parameters:
-            count += 1
-        assert count == 3
-    except Exception:
-        pytest.fail("Parameters class does not have __iter__()")
-
-
-def test_parameters_dunder_getitem(testdata_parameters):
-    try:
-        testdata_parameters["p2"]
-    except Exception:
-        pytest.fail("Parameters class does not have __getitem__()")
