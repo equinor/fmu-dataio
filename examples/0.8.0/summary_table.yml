@@ -42,15 +42,15 @@ fmu:
         VALYSAR_PERMH_CHANNEL: 1000
         VALYSAR_PERMH_CREVASSE: 100
 file:
-  relative_path: realization-0/iter-0/share/results/tables/drogon--summary.arrow
-  absolute_path: /scratch/fmu/dbs/drogon_ahm-2023-10-03/realization-0/iter-0/share/results/tables/drogon--summary.arrow
+  relative_path: realization-0/iter-0/share/results/tables/drogon--summary.parquet
+  absolute_path: /scratch/fmu/dbs/drogon_ahm-2023-10-03/realization-0/iter-0/share/results/tables/drogon--summary.parquet
   checksum_md5: c1da337b642fb594246c275a9bd597da
 data:
   name: DROGON
   stratigraphic: false
   content: timeseries
   tagname: summary
-  format: arrow
+  format: parquet
   layout: table
   unit: ""
   vertical_domain: depth

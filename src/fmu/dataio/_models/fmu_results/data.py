@@ -241,7 +241,7 @@ class Data(BaseModel):
     object is coordinate-based. See :class:`BoundingBox3D` and
     :class:`BoundingBox2D`."""
 
-    format: str = Field(examples=["irap_binary"])
+    format: enums.FileFormat = Field(examples=["irap_binary"])
     """A reference to a known file format."""
 
     grid_model: Optional[GridModel] = Field(default=None)
