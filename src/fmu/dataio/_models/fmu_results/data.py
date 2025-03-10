@@ -33,10 +33,7 @@ class Timestamp(BaseModel):
     )
     """A string label corresponding to the timestamp."""
 
-    value: Optional[Union[NaiveDatetime, AwareDatetime]] = Field(
-        default=None,
-        examples=["2020-10-28T14:28:02"],
-    )
+    value: Union[NaiveDatetime, AwareDatetime] = Field(examples=["2020-10-28T14:28:02"])
     """A datetime representation."""
 
 
@@ -47,7 +44,7 @@ class Time(BaseModel):
 
     .. note:: ``data.time`` items can currently hold a maximum of two values."""
 
-    t0: Optional[Timestamp] = Field(default=None)
+    t0: Timestamp
     """The first timestamp. See :class:`Timestamp`."""
 
     t1: Optional[Timestamp] = Field(default=None)
@@ -228,11 +225,6 @@ class Data(BaseModel):
     The intention with tagname is mostly backward compatibility with legacy scratch-file
     naming rules in FMU.
     """
-
-    stratigraphic_alias: Optional[List[str]] = Field(default=None)
-    """A list of strings representing stratigraphic aliases for this ``data.name``. E.g.
-    the top of the uppermost member of a formation will be alias to the top of the
-    formation."""
 
     stratigraphic: bool
     """True if this is defined in the stratigraphic column."""

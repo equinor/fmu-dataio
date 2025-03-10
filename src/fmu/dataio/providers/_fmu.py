@@ -206,20 +206,19 @@ class FmuProvider(Provider):
         return Path(runpath).resolve() if (runpath := FmuEnv.RUNPATH.value) else None
 
     @staticmethod
-    def _get_ert_meta() -> fields.Ert:
+    def _get_ert_meta() -> fields.Ert | None:
         """Constructs the `Ert` Pydantic object for the `ert` metadata field."""
-        try:
-            sim_mode = ErtSimulationMode(FmuEnv.SIMULATION_MODE.value)
-        except ValueError:
-            sim_mode = None
-
-        return fields.Ert(
-            experiment=fields.Experiment(
-                id=uuid.UUID(FmuEnv.EXPERIMENT_ID.value)
-                if FmuEnv.EXPERIMENT_ID.value
-                else None
-            ),
-            simulation_mode=sim_mode,
+        return (
+            fields.Ert(
+                experiment=(
+                    fields.Experiment(
+                        id=uuid.UUID(FmuEnv.EXPERIMENT_ID.value),
+                    )
+                ),
+                simulation_mode=ErtSimulationMode(FmuEnv.SIMULATION_MODE.value),
+            )
+            if FmuEnv.EXPERIMENT_ID.value
+            else None
         )
 
     def _validate_and_establish_casepath(self) -> Path | None:
