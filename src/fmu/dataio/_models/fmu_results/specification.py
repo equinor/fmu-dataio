@@ -10,17 +10,17 @@ from . import enums
 class RowColumn(BaseModel):
     """Specifies the number of rows and columns in a regular surface object."""
 
-    nrow: int
+    nrow: int = Field(ge=0)
     """The number of rows."""
 
-    ncol: int
+    ncol: int = Field(ge=0)
     """The number of columns."""
 
 
 class RowColumnLayer(RowColumn):
     """Specifies the number of rows, columns, and layers in grid object."""
 
-    nlay: int
+    nlay: int = Field(ge=0)
     """The number of layers."""
 
 
@@ -33,10 +33,10 @@ class SurfaceSpecification(RowColumn):
     undef: float = Field(allow_inf_nan=False)
     """Value representing undefined data."""
 
-    xinc: float = Field(allow_inf_nan=False)
+    xinc: float = Field(ge=0, allow_inf_nan=False)
     """Increment along the x-axis."""
 
-    yinc: float = Field(allow_inf_nan=False)
+    yinc: float = Field(ge=0, allow_inf_nan=False)
     """Increment along the y-axis."""
 
     xori: float = Field(allow_inf_nan=False)
@@ -55,7 +55,7 @@ class PointSpecification(BaseModel):
     attributes: Optional[List[str]] = Field(default=None)
     """List of columns present in a table."""
 
-    size: int = Field(examples=[1, 9999])
+    size: int = Field(ge=0, examples=[1, 9999])
     """Size of data object."""
 
 
@@ -65,13 +65,13 @@ class TableSpecification(BaseModel):
     columns: List[str]
     """List of columns present in a table."""
 
-    num_columns: Optional[int] = Field(default=None, examples=[1, 9999])
+    num_columns: int = Field(ge=0, examples=[1, 9999])
     """The number of columns in a table."""
 
-    num_rows: Optional[int] = Field(default=None, examples=[1, 9999])
+    num_rows: int = Field(ge=0, examples=[1, 9999])
     """The number of rows in a table.."""
 
-    size: int = Field(examples=[1, 9999])
+    size: int = Field(ge=0, examples=[1, 9999])
     """The total size of the table, i.e. `rows x cols`."""
 
 
@@ -124,7 +124,7 @@ class CPGridPropertySpecification(RowColumnLayer):
 class PolygonsSpecification(BaseModel):
     """Specifies relevant values describing a polygon object."""
 
-    npolys: int
+    npolys: int = Field(ge=0)
     """The number of individual polygons in the data object."""
 
 
@@ -153,16 +153,16 @@ class FaultRoomSurfaceSpecification(BaseModel):
 class CubeSpecification(SurfaceSpecification):
     """Specifies relevant values describing a cube object, i.e. a seismic cube."""
 
-    nlay: int
+    nlay: int = Field(ge=0)
     """The number of layers."""
 
-    xinc: float = Field(allow_inf_nan=False)
+    xinc: float = Field(ge=0, allow_inf_nan=False)
     """Increment along the x-axis."""
 
-    yinc: float = Field(allow_inf_nan=False)
+    yinc: float = Field(ge=0, allow_inf_nan=False)
     """Increment along the y-axis."""
 
-    zinc: float = Field(allow_inf_nan=False)
+    zinc: float = Field(ge=0, allow_inf_nan=False)
     """Increment along the z-axis."""
 
     xori: float = Field(allow_inf_nan=False)
