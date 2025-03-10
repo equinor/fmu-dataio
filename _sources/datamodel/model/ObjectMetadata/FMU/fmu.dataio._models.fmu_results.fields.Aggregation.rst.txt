@@ -12,8 +12,6 @@ Aggregation
 
    
    
-      ~fmu.dataio._models.fmu_results.fields.Parameters
-   
    
 
 .. autopydantic_model:: Aggregation
