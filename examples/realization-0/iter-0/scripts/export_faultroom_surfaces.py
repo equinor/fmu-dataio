@@ -15,7 +15,7 @@ CFG = utils.yaml_load("../fmuconfig/output/global_variables.yml")
 FAULTROOM_FILE = Path("../output/faultroom/some_faultroom.json")
 
 
-def main():
+def export_faultroom_surfaces():
     """Export faultroom data, json files made by FaultRoom plugin in RMS"""
 
     # read file and return a FaultRoomSurface instance
@@ -37,7 +37,11 @@ def main():
     print(f"Exported to file {fname}")
 
 
-if __name__ == "__main__":
+def main():
     print("\nExporting faultroom surface maps and metadata...")
-    main()
+    export_faultroom_surfaces()
     print("Done exporting faultroom surface maps and metadta.")
+
+
+if __name__ == "__main__":
+    main()

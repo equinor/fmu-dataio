@@ -28,7 +28,7 @@ rm -rf $examples_rootpath/share/metadata/fmu_case.yml
 
 #--------- Create a new fmu case up to date with the latest case model ---------#
 cd $examples_rootpath
-python scripts/export_fmu_case.py
+python scripts/create_case_metadata.py
 
 
 #--------- Export files and metadata ---------#
@@ -71,6 +71,7 @@ python aggregate_surfaces.py
 
 #--------- Update schema metadata with the newly exported metadata ---------#
 cd $examples_rootpath
+
 echo "Updating schema metadata..."
 
 # Update surface metadata
@@ -91,8 +92,8 @@ cp $examples_rootpath/realization-0/iter-0/share/results/polygons/.volantis_gp_b
 # Update aggregation metadata
 cp $examples_rootpath/iter-0/share/results/maps/.aggregated_surfaces.gri.yml share/metadata/aggregated_surface_depth.yml
 
+echo "Done updating schema metadata."
+
 # Remove machine specific details from metadata files
 cd $examples_rootpath/scripts
 python post_process_metadata.py
-
-echo "Done updating schema metadata."

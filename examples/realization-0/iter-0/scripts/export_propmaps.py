@@ -41,12 +41,12 @@ NAMETRANSLATE = {
 INPUT_FOLDER = Path("../output/maps/grid_averages")
 
 
-def main():
+def export_propmaps():
     """Exporting maps from clipboard"""
+
     dataio.ExportData._inside_rms = True
 
     files = INPUT_FOLDER.glob("*.gri")
-
     for file in files:
         surf = xtgeo.surface_from_file(file)
 
@@ -74,11 +74,16 @@ def main():
             tagname="average_" + attribute,
             workflow="rms property model",
         )
+
         fname = ed.export(surf)
         print(f"Exported property map to file {fname}")
 
 
-if __name__ == "__main__":
+def main():
     print("\nExporting property maps and metadata...")
-    main()
+    export_propmaps()
     print("Done exporting property maps and metadata.")
+
+
+if __name__ == "__main__":
+    main()

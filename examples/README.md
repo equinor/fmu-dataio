@@ -3,7 +3,7 @@ This folder contains scripts, config and input data to generate the examples use
 how `fmu-dataio` can be used for different contexts, and for different data types.
 
 In addition, you will also find examples of metadata that `fmu-dataio` produces under the
-`/share/metadata` folder. These files are used by the unit tests to test the pydantic logic.
+`/share/metadata` folder. These files are used by the unit tests to test the Pydantic logic.
 
 ### Folders and files
 If you study the folder structure under `/examples`, you will see that there are three realizations folders:

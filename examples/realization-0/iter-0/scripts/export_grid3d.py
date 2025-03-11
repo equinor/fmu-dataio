@@ -21,6 +21,8 @@ PROPS_OTHER = ["klogh", "facies"]
 
 
 def export_geogrid_geometry():
+    """Export geogrid geometry"""
+
     filename = (FOLDER / GFILE).with_suffix(".roff")
     grd = xtgeo.grid_from_file(filename)
 
@@ -69,8 +71,12 @@ def export_geogrid_parameters(outgrid):
         print(f"Exported {propname} property geogrid to file {out}")
 
 
-if __name__ == "__main__":
+def main():
     print("\nExporting geogrids and metadata...")
     outgrid = export_geogrid_geometry()
     export_geogrid_parameters(outgrid)
     print("Done exporting geogrids and metadata.")
+
+
+if __name__ == "__main__":
+    main()

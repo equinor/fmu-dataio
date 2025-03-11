@@ -17,6 +17,8 @@ FILES = {
 
 
 def export_preprocessed_surface():
+    """Export metadata for a preprocessed surface"""
+
     edata = ExportData(
         config=CFG,  # read from global config
         preprocessed=True,
@@ -26,13 +28,17 @@ def export_preprocessed_surface():
         is_observation=True,
         subfolder="mysub",
     )
+
     surf_depth = xtgeo.surface_from_file(FILES["depth"])
-
     edata.export(surf_depth)
-    print("Exported preprocessed depth surface.")
+    print("Exported a preprocessed depth surface.")
 
 
-if __name__ == "__main__":
+def main():
     print("\nExporting a preprocessed surface and metadata...")
     export_preprocessed_surface()
     print("Done exporting a preprocessed surface and metadata.")
+
+
+if __name__ == "__main__":
+    main()
