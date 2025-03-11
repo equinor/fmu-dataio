@@ -91,4 +91,8 @@ cp $examples_rootpath/realization-0/iter-0/share/results/polygons/.volantis_gp_b
 # Update aggregation metadata
 cp $examples_rootpath/iter-0/share/results/maps/.aggregated_surfaces.gri.yml share/metadata/aggregated_surface_depth.yml
 
+# Remove machine specific details from metadata files
+cd $examples_rootpath/scripts
+python post_process_metadata.py
+
 echo "Done updating schema metadata."
