@@ -28,7 +28,7 @@ Exporting fault polygons
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/realization-0/iter-0/scripts/export_polygons.py
+.. literalinclude:: ../../examples/realization-0/iter-0/scripts/export_faultpolygons.py
    :language: python
 
 Press + to see generated YAML file.

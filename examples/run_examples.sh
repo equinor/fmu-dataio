@@ -42,6 +42,7 @@ export _ERT_ITERATION_NUMBER=0
 export _ERT_REALIZATION_NUMBER=0
 export _ERT_RUNPATH=$examples_rootpath/realization-0/iter-0
 
+python export_faultpolygons.py
 python export_polygons.py
 python export_propmaps.py
 python export_faultroom_surfaces.py
