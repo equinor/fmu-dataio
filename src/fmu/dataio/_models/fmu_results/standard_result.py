@@ -10,7 +10,10 @@ from pydantic import (
 )
 from typing_extensions import Annotated
 
-from fmu.dataio._models.standard_results import InplaceVolumesSchema
+from fmu.dataio._models.standard_results import (
+    InplaceVolumesSchema,
+    StructureDepthFaultLinesSchema,
+)
 from fmu.dataio.types import VersionStr
 
 from . import enums
@@ -69,6 +72,26 @@ class StructureDepthSurfaceStandardResult(StandardResult):
     """The identifying product name for the 'structure_depth_surface' product."""
 
 
+class StructureDepthFaultLinesStandardResult(StandardResult):
+    """
+    The ``standard_result`` field contains information about which standard results this
+    data object represent.
+    This class contains metadata for the 'structure_depth_fault_lines' standard result.
+    """
+
+    name: Literal[enums.StandardResultName.structure_depth_fault_lines]
+    """The identifying product name for the 'structure_depth_fault_lines' product."""
+
+    file_schema: FileSchema = FileSchema(
+        version=StructureDepthFaultLinesSchema.VERSION,
+        url=AnyHttpUrl(StructureDepthFaultLinesSchema.url()),
+    )
+    """
+    The schema identifying the format of the 'structure_depth_fault_lines'
+    standard result.
+    """
+
+
 class AnyStandardResult(RootModel):
     """
     The ``standard result`` field contains information about which standard result this
@@ -84,6 +107,7 @@ class AnyStandardResult(RootModel):
         Union[
             InplaceVolumesStandardResult,
             StructureDepthSurfaceStandardResult,
+            StructureDepthFaultLinesStandardResult,
         ],
         Field(discriminator="name"),
     ]
