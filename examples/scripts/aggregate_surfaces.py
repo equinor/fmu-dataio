@@ -6,7 +6,6 @@ from pathlib import Path
 
 import numpy as np
 import xtgeo
-import yaml
 
 import fmu.dataio
 import fmu.dataio._utils
@@ -32,6 +31,8 @@ def main():
     simplistic and its sole purpose is to facilitate the fmu-dataio example.
 
     """
+
+    print("\nAggregating surfaces and exporting files and metadata...")
 
     # First we get the input data (the individual surfaces from each realization), which
     # we assume are stored in classical FMU style on /scratch disk folder structure.
@@ -88,6 +89,8 @@ def main():
         # These can be collected into e.g. a list or a dictionary for further usage,
         # or we can upload to Sumo as part of the loop.
 
+    print("Done aggregating surfaces and exporting files and metadata.\n")
+
 
 # ======================================================================================
 # This concludes the main examples. Below are utility functions used by the example.
@@ -116,29 +119,6 @@ def _aggregate(source_surfaces, operation):
     raise NotImplementedError(
         f"Aggregation method {operation} is not implemented in this example."
     )
-
-
-def _parse_yaml(fname):
-    """Parse the yaml-file, return dict.
-
-    Args:
-        fname (Path): Absolute path to yaml file.
-    Returns:
-        dict
-    """
-
-    with open(fname) as stream:
-        return yaml.safe_load(stream)
-
-
-def _metadata_filename(fname):
-    """From a regular filename, derive the corresponding metadata filename.
-
-    FMU standard: metadata filename = /path/.<stem.ext>.yml
-
-    """
-
-    return Path(fname.parent, "." + fname.name + ".yml")
 
 
 def _get_realization_ids(casepath):
@@ -193,24 +173,5 @@ def _get_source_surfaces_from_disk(
     return source_surfaces, source_metadata
 
 
-def _get_source_surfaces_from_sumo(
-    case_uuid: str,
-    iter_name: str,
-    realization_ids: list,
-    relative_path: Path,
-):
-    """Collect surfaces and metadata from Sumo.
-
-    Placeholder for a method getting surfaces and metadata from Sumo, complementing
-    the similar method for getting this from the disk. Only included since it is
-    referenced in the comments in main().
-
-    Not implemented.
-    """
-    raise NotImplementedError
-
-
 if __name__ == "__main__":
-    print("\nAggregating surfaces and exporting files and metadata...")
     main()
-    print("Done aggregating surfaces and exporting files and metadata.\n")

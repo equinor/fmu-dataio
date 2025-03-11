@@ -24,7 +24,7 @@ FILES = {
 }
 
 
-def main():
+def export_porosity_average_map():
     """Emulate map export during FMU runs.
 
     In the FMU workflow, individual jobs will be responsible for dumping data to the
@@ -52,7 +52,9 @@ def main():
     fname = ed.export(surf)
     print(f"File name is {fname}")
 
-    # -------------------------------------
+
+def export_depth_surface():
+    """Export maps and metadata for a depth surface"""
 
     print("export a depth surface")
     surf = xtgeo.surface_from_file(FILES["depth"])
@@ -75,7 +77,12 @@ def main():
     print(f"File name is {fname}")
 
 
-if __name__ == "__main__":
+def main():
     print("\nExporting surface maps and metadata...")
+    export_porosity_average_map()
+    export_depth_surface()
+    print("Done exporting surface maps and metadata.\n")
+
+
+if __name__ == "__main__":
     main()
-    print("Done exporting surface maps and metadata.")

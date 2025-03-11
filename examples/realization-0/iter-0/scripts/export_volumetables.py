@@ -56,9 +56,13 @@ def export_dataio(df, gridname):
     print(f"Exported volume table for {gridname} to {out}")
 
 
-if __name__ == "__main__":
+def main():
     print("\nExporting volume tables and metadata...")
     for vfile in VFILES:
         df, gridname = volume_as_dataframe_files(vfile)
         export_dataio(df, gridname)
     print("Done exporting volume tables and metadata.")
+
+
+if __name__ == "__main__":
+    main()

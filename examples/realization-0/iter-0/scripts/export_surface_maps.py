@@ -24,7 +24,7 @@ FILES = {
 }
 
 
-def main():
+def export_porosity_average_map():
     """Emulate map export during FMU runs.
 
     In the FMU workflow, individual jobs will be responsible for dumping data to the
@@ -49,12 +49,15 @@ def main():
         tagname="average_poro",
         workflow="rms property model",
     )
+
     fname = ed.export(poro_surf)
     print(f"Exported to file {fname}")
 
-    # -------------------------------------
 
-    print("export a depth surface")
+def export_depth_surface():
+    """Export maps and metadata for a depth surface"""
+
+    print("Export a depth surface")
     surf = xtgeo.surface_from_file(FILES["depth"])
     print(f"Average value of map is {surf.values.mean()}")
 
@@ -71,10 +74,13 @@ def main():
         tagname="ds_extract_geogrid",
         workflow="rms structural model",
     )
+
     fname = ed.export(surf)
     print(f"Exported to file {fname}")
 
-    # -------------------------------------
+
+def export_fluid_contact_surface():
+    """Export metadata for fluid contact surface"""
 
     print("Export fluid contact surface map and metadata")
     fluid_contact_surf = xtgeo.surface_from_file(FILES["depth"])
@@ -93,12 +99,15 @@ def main():
         tagname="",
         workflow="rms structural model",
     )
+
     fname = ed.export(fluid_contact_surf)
     print(f"Exported to file {fname}")
 
-    # -------------------------------------
 
-    print("Export seismic attribute surface map and metadata.")
+def export_seismic_amplitude_surface():
+    """Export metadata for a seismic amplitude surface"""
+
+    print("Export seismic amplitude surface map and metadata.")
     seismic_attribute_surf = xtgeo.surface_from_file(FILES["depth"])
 
     ed = dataio.ExportData(
@@ -120,11 +129,19 @@ def main():
         tagname="",
         workflow="rms structural model",
     )
+
     fname = ed.export(seismic_attribute_surf)
     print(f"Exported to file {fname}")
 
 
-if __name__ == "__main__":
+def main():
     print("\nExporting surface maps and metadata...")
-    main()
+    export_porosity_average_map()
+    export_depth_surface()
+    export_fluid_contact_surface()
+    export_seismic_amplitude_surface()
     print("Done exporting surface maps and metadata.\n")
+
+
+if __name__ == "__main__":
+    main()

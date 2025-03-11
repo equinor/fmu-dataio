@@ -5,6 +5,8 @@ import yaml
 
 
 def remove_machine_data(metadata_yaml: dict) -> dict:
+    """Remove machine specific data from metadata file"""
+
     if "file" in metadata_yaml and "absolute_path" in metadata_yaml["file"]:
         metadata_yaml["file"]["absolute_path"] = "/some/absolute/path/"
 
@@ -25,8 +27,8 @@ def remove_machine_data(metadata_yaml: dict) -> dict:
     return metadata_yaml
 
 
-def main():
-    """Remove machine specific data from metadata files"""
+def post_process_metadata():
+    """Loop through metadata files and perform post processing on the data"""
 
     print("\nRemoving machine specific data from metadata files...")
 
@@ -47,6 +49,10 @@ def main():
             )
 
     print("Done removing machine specific data from metadata files...")
+
+
+def main():
+    post_process_metadata()
 
 
 if __name__ == "__main__":
