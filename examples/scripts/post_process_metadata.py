@@ -34,6 +34,11 @@ def post_process_metadata():
 
     metadata_path = Path(__file__).parent.parent.resolve() / "share/metadata"
     for file in os.listdir(metadata_path):
+        
+        # Skip post processing if metadata originates from Sumo
+        if "sumo" in file:
+            continue
+
         file_path = metadata_path / file
 
         with open(file_path, encoding="utf-8") as stream:
