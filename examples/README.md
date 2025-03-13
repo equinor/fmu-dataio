@@ -1,25 +1,33 @@
 ## Examples
-This folder contains scripts, config and input data to generate the examples used to demonstrate
-how `fmu-dataio` can be used for different contexts, and for different data types.
+This folder contains scripts, config and input data to generate the examples
+used to demonstrate how `fmu-dataio` can be used for different contexts.
 
-In addition, you will also find examples of metadata that `fmu-dataio` produces under the
-`/share/metadata` folder. These files are used by the unit tests to test the Pydantic logic.
+In addition, you will also find examples of metadata that `fmu-dataio` produces
+under the `/example_metadata` folder. These files are used by the unit tests
+to test the Pydantic logic.
 
-### Folders and files
-If you study the folder structure under `/examples`, you will see that there are three realizations folders:
-* Most of the logic and data exports are done by the scripts in `realization-0`.
-* The two other realizations, `realization-1` and `realization-9` are only there to export some simple
-surfaces needed in order to be able to run aggregations.
+### Subfolders and files
+Brief explanation of the subfolders and their purpose:
+* `/example_exports`: Contains code examples of how you can use `fmu-dataio` to
+export files and metadata, both for RMS and non-RMS data.
+* `/fmuconfig`: Contains the global variables file used in the example exports.
+* `/example_metadata`: Contains examples of metadata exported by `fmu-dataio`.
+These files are used by the unit tests to test the Pydantic logic.
+* `/metadata_scripts`: Contains scripts used to create and process metadata 
+files, a depedency for the `update_examples.sh` script.
+* `/archived_examples`: Contains export examples that are no longer used in the
+documentation or tests, but that might still be useful to keep as examples.
 
-The `/script` folder located at the `/examples` root contains scripts that are not related to any
-specific realizations:
-* `export_fmu_case.py`: A script that creates a new fmu case based on the current schema version.
-* `aggregate_surfaces.py`: A script that runs aggregations over the surfaces exported by the three realizations.
-
-### Running the scripts
-The bash script `run_examples.sh` runs all the python export scripts in the correct order and exports files
-and metadata to its right location so that they can be accessed by the documentation and test files. The 
-`run_examples.sh` script will mainly be run by other processes to make sure files and metadata are up to date.
-If you run it manually, make sure to run it from the root folder of the `fmu-dataio` project. Example:
-* `cd path/to/root/of/fmu-dataio/project`
-* `bash ./examples/run_examples.sh`
+#### The script `update_examples.sh`
+* Runs all the example export scripts in the correct order and uses the exported
+data to update the files and metadata referenced in the documentation and test
+files. In this way the example files and metadata will always be up to date with
+the latest models and schema version.
+* The script will mainly be run by other processes to make sure
+files and metadata are up to date:
+    * The schema update script `update-schemas` runs `update_examples.sh` to update
+    the metadata examples so that they are in sync with the updated schema.
+    * The documentation builder runs `update_examples.sh` to update the metadata
+    and files that are referenced in the example documentation.
+* NB! If you run the script manually, make sure to run it from the root folder
+of the `fmu-dataio` project.
