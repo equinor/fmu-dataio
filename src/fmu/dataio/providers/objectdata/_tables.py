@@ -4,6 +4,9 @@ import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final
 
+import pyarrow as pa
+import pyarrow.parquet as pq
+
 from fmu.dataio._definitions import (
     STANDARD_TABLE_INDEX_COLUMNS,
     ExportFolder,
@@ -18,6 +21,9 @@ from ._base import (
 )
 
 if TYPE_CHECKING:
+    from io import BytesIO
+    from pathlib import Path
+
     import pandas as pd
     import pyarrow
 
@@ -180,6 +186,15 @@ class DataFrameDataProvider(ObjectDataProvider):
             size=int(self.obj.size),
         )
 
+    def export_to_file(self, file: Path | BytesIO) -> None:
+        """Export the object to file or memory buffer"""
+
+        logger.info(
+            "Exporting dataframe to csv. Note: index columns will not be "
+            "preserved unless calling 'reset_index()' on the dataframe."
+        )
+        self.obj.to_csv(file, index=False)
+
 
 @dataclass
 class ArrowTableDataProvider(ObjectDataProvider):
@@ -229,3 +244,8 @@ class ArrowTableDataProvider(ObjectDataProvider):
             num_rows=self.obj.num_rows,
             size=self.obj.num_columns * self.obj.num_rows,
         )
+
+    def export_to_file(self, file: Path | BytesIO) -> None:
+        """Export the object to file or memory buffer"""
+
+        pq.write_table(self.obj, where=pa.output_stream(file))
