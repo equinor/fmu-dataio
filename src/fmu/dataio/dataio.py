@@ -34,8 +34,8 @@ from ._models.fmu_results.global_configuration import GlobalConfiguration
 from ._models.fmu_results.standard_result import StandardResult
 from ._utils import (
     detect_inside_rms,  # dataio_examples,
-    export_file,
     export_metadata_file,
+    export_object_to_file,
     prettyprint_dict,
     read_metadata_from_file,
     some_config_from_env,
@@ -859,7 +859,7 @@ class ExportData:
         ).get_metadata()
 
         assert filemeta.absolute_path is not None  # for mypy
-        export_file(obj, file=filemeta.absolute_path, fmt=objdata.fmt)
+        export_object_to_file(filemeta.absolute_path, objdata.export_to_file)
         return str(filemeta.absolute_path)
 
     def _export_with_standard_result(
@@ -873,6 +873,7 @@ class ExportData:
             )
 
         fmudata = self._get_fmu_provider() if self._fmurun else None
+        objdata = objectdata_provider_factory(obj, self)
 
         metadata = generate_export_metadata(
             obj=obj, dataio=self, fmudata=fmudata, standard_result=standard_result
@@ -881,7 +882,7 @@ class ExportData:
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / f".{outfile.name}.yml"
 
-        export_file(obj, outfile, fmt=metadata["data"].get("format", ""))
+        export_object_to_file(outfile, objdata.export_to_file)
         logger.info("Actual file is:   %s", outfile)
 
         export_metadata_file(metafile, metadata)
@@ -1001,7 +1002,8 @@ class ExportData:
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / f".{outfile.name}.yml"
 
-        export_file(obj, outfile, fmt=metadata["data"].get("format", ""))
+        objdata = objectdata_provider_factory(obj, self)
+        export_object_to_file(outfile, objdata.export_to_file)
         logger.info("Actual file is:   %s", outfile)
 
         export_metadata_file(metafile, metadata)

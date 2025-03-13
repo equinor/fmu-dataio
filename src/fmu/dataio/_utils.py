@@ -11,8 +11,7 @@ import uuid
 from datetime import datetime
 from io import BufferedIOBase, BytesIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile
-from typing import Any, Final
+from typing import TYPE_CHECKING, Any, Callable, Final
 
 import numpy as np
 import pandas as pd
@@ -26,6 +25,10 @@ from fmu.config import utilities as ut
 from . import types
 from ._logging import null_logger
 from .readers import FaultRoomSurface
+
+if TYPE_CHECKING:
+    from fmu.dataio.providers.objectdata._base import ObjectDataProvider
+
 
 logger: Final = null_logger(__name__)
 
@@ -73,6 +76,21 @@ def export_metadata_file(file: Path, metadata: dict) -> None:
     logger.info("Yaml file on: %s", file)
 
 
+def export_object_to_file(
+    file: Path | BytesIO,
+    object_export_function: Callable[[Path | BytesIO], None],
+) -> None:
+    """
+    Export a object to file or memory buffer using a provided export function.
+    """
+
+    if isinstance(file, Path):
+        file.parent.mkdir(parents=True, exist_ok=True)
+
+    object_export_function(file)
+
+
+# TODO: Remove this function when AggregatedData.export() is removed
 def export_file(
     obj: types.Inferrable,
     file: Path | BytesIO,
@@ -159,22 +177,16 @@ def md5sum_stream(stream: BufferedIOBase) -> str:
     return hash_md5.hexdigest()
 
 
-def compute_md5(obj: types.Inferrable, file_suffix: str, fmt: str = "") -> str:
+def compute_md5_from_objdata(objdata: ObjectDataProvider) -> str:
     """Compute an MD5 sum for an object."""
-    memory_stream = BytesIO()
-    export_file(obj, memory_stream, file_suffix, fmt=fmt)
-    return md5sum(memory_stream)
-
-
-def compute_md5_using_temp_file(
-    obj: types.Inferrable, file_suffix: str, fmt: str = ""
-) -> str:
-    """Compute an MD5 sum using a temporary file."""
-    with NamedTemporaryFile(buffering=0, suffix=file_suffix) as tf:
-        logger.info("Compute MD5 sum for tmp file")
-        tempfile = Path(tf.name)
-        export_file(obj=obj, file=tempfile, fmt=fmt)
-        return md5sum(tempfile)
+    try:
+        return objdata.compute_md5()
+    except Exception as e:
+        logger.debug(
+            f"Exception {e} occured when trying to compute md5 from memory stream "
+            f"for an object of type {type(objdata.obj)}. Will use tempfile instead."
+        )
+        return objdata.compute_md5_using_temp_file()
 
 
 def create_symlink(source: str, target: str) -> None:
