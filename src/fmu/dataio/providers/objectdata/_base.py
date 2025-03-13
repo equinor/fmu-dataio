@@ -4,6 +4,8 @@ import warnings
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Final
 
 from fmu.dataio._definitions import ValidFormats
@@ -15,7 +17,7 @@ from fmu.dataio._models.fmu_results.global_configuration import (
     StratigraphyElement,
 )
 from fmu.dataio._models.fmu_results.standard_result import StandardResult
-from fmu.dataio._utils import generate_description
+from fmu.dataio._utils import generate_description, md5sum
 from fmu.dataio.exceptions import ConfigurationError
 from fmu.dataio.providers._base import Provider
 from fmu.dataio.providers.objectdata._export_models import (
@@ -163,6 +165,20 @@ class ObjectDataProvider(Provider):
     @abstractmethod
     def get_spec(self) -> AnySpecification | None:
         raise NotImplementedError
+
+    def compute_md5(self) -> str:
+        """Compute an MD5 sum"""
+        memory_stream = BytesIO()
+        self.export_to_file(memory_stream)
+        return md5sum(memory_stream)
+
+    def compute_md5_using_temp_file(self) -> str:
+        """Compute an MD5 sum using a temporary file."""
+        with NamedTemporaryFile(buffering=0, suffix=".tmp") as tf:
+            logger.info("Compute MD5 sum for tmp file")
+            tempfile = Path(tf.name)
+            self.export_to_file(tempfile)
+            return md5sum(tempfile)
 
     def get_metadata(self) -> AnyData | UnsetData:
         assert self._metadata is not None

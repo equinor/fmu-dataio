@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results import enums, fields
-from fmu.dataio._utils import compute_md5, compute_md5_using_temp_file
+from fmu.dataio._utils import compute_md5_from_objdata
 
 from ._base import Provider
 
@@ -85,7 +85,7 @@ class FileDataProvider(Provider):
         return fields.File(
             absolute_path=absolute_path.resolve(),
             relative_path=relative_path,
-            checksum_md5=self._compute_md5(),
+            checksum_md5=compute_md5_from_objdata(self.objdata),
         )
 
     def _get_share_folders(self) -> Path:
@@ -103,17 +103,6 @@ class FileDataProvider(Provider):
 
         logger.info("Export share folders are %s", sharefolder)
         return sharefolder
-
-    def _compute_md5(self) -> str:
-        """Compute an MD5 sum using a temporary file."""
-        try:
-            return compute_md5(self.objdata.export_to_file)
-        except Exception as e:
-            logger.debug(
-                f"Exception {e} occured when trying to compute md5 from memory stream "
-                f"for an object of type {type(self.obj)}. Will use tempfile instead."
-            )
-            return compute_md5_using_temp_file(self.objdata.export_to_file)
 
     def _add_filename_to_path(self, path: Path) -> Path:
         stem = self._get_filestem()

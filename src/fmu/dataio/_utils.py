@@ -11,8 +11,7 @@ import uuid
 from datetime import datetime
 from io import BufferedIOBase, BytesIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile
-from typing import Any, Callable, Final
+from typing import TYPE_CHECKING, Any, Callable, Final
 
 import numpy as np
 import pandas as pd
@@ -26,6 +25,10 @@ from fmu.config import utilities as ut
 from . import types
 from ._logging import null_logger
 from .readers import FaultRoomSurface
+
+if TYPE_CHECKING:
+    from fmu.dataio.providers.objectdata._base import ObjectDataProvider
+
 
 logger: Final = null_logger(__name__)
 
@@ -174,22 +177,16 @@ def md5sum_stream(stream: BufferedIOBase) -> str:
     return hash_md5.hexdigest()
 
 
-def compute_md5(object_export_function: Callable[[Path | BytesIO], None]) -> str:
+def compute_md5_from_objdata(objdata: ObjectDataProvider) -> str:
     """Compute an MD5 sum for an object."""
-    memory_stream = BytesIO()
-    object_export_function(memory_stream)
-    return md5sum(memory_stream)
-
-
-def compute_md5_using_temp_file(
-    object_export_function: Callable[[Path | BytesIO], None],
-) -> str:
-    """Compute an MD5 sum using a temporary file."""
-    with NamedTemporaryFile(buffering=0, suffix=".tmp") as tf:
-        logger.info("Compute MD5 sum for tmp file")
-        tempfile = Path(tf.name)
-        object_export_function(tempfile)
-        return md5sum(tempfile)
+    try:
+        return objdata.compute_md5()
+    except Exception as e:
+        logger.debug(
+            f"Exception {e} occured when trying to compute md5 from memory stream "
+            f"for an object of type {type(objdata.obj)}. Will use tempfile instead."
+        )
+        return objdata.compute_md5_using_temp_file()
 
 
 def create_symlink(source: str, target: str) -> None:
