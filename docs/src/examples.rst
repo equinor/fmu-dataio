@@ -17,7 +17,7 @@ This is a snippet of the ``global_variables.yml`` file which holds the static me
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/realization-0/iter-0/fmuconfig/output/global_variables.yml
+   .. literalinclude:: ../../examples/example_exports/fmuconfig/output/global_variables.yml
       :language: yaml
 
 |
@@ -28,14 +28,14 @@ Exporting fault polygons
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/realization-0/iter-0/scripts/export_faultpolygons.py
+.. literalinclude:: ../../examples/example_exports/export_rms_data/export_faultpolygons.py
    :language: python
 
 Press + to see generated YAML file.
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/realization-0/iter-0/share/results/polygons/.volantis_gp_top--faultlines.pol.yml
+   .. literalinclude:: ../../examples/example_exports/share/results/polygons/.volantis_gp_top--faultlines.pol.yml
       :language: yaml
 
 |
@@ -46,7 +46,7 @@ Exporting average maps from grid properties
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/realization-0/iter-0/scripts/export_propmaps.py
+.. literalinclude:: ../../examples/example_exports/export_rms_data/export_propmaps.py
    :language: python
 
 
@@ -54,7 +54,7 @@ Press + to see generated YAML file for metadata.
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/realization-0/iter-0/share/results/maps/.therys--average_porosity.gri.yml
+   .. literalinclude:: ../../examples/example_exports/share/results/maps/.therys--average_porosity.gri.yml
       :language: yaml
 
 |
@@ -65,7 +65,7 @@ Exporting 3D grids with properties
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/realization-0/iter-0/scripts/export_grid3d.py
+.. literalinclude:: ../../examples/example_exports/export_non_rms_data/export_grid3d.py
    :language: python
 
 Press + to see generated YAML files for metadata.
@@ -73,12 +73,12 @@ Press + to see generated YAML files for metadata.
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/realization-0/iter-0/share/results/grids/.geogrid.roff.yml
+   .. literalinclude:: ../../examples/example_exports/share/results/grids/.geogrid.roff.yml
       :language: yaml
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/realization-0/iter-0/share/results/grids/.geogrid--facies.roff.yml
+   .. literalinclude:: ../../examples/example_exports/share/results/grids/.geogrid--facies.roff.yml
       :language: yaml
 
 |
@@ -93,12 +93,12 @@ while an example of a simple export of RMS volumetrics can be found
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/realization-0/iter-0/scripts/export_volumetables.py
+.. literalinclude:: ../../examples/example_exports/export_non_rms_data/export_volumetables.py
    :language: python
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/realization-0/iter-0/share/results/tables/.geogrid--volumes.csv.yml
+   .. literalinclude:: ../../examples/example_exports/share/results/tables/.geogrid--volumes.csv.yml
       :language: yaml
 
 |
@@ -112,12 +112,12 @@ The FaultRoom plugin for RMS produces special json files that e.g. can be viewed
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/realization-0/iter-0/scripts/export_faultroom_surfaces.py
+.. literalinclude:: ../../examples/example_exports/export_rms_data/export_faultroom_surfaces.py
    :language: python
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/realization-0/iter-0/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
+   .. literalinclude:: ../../examples/example_exports/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
       :language: yaml
 
 |
