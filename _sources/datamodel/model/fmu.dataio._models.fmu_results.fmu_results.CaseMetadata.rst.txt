@@ -12,9 +12,9 @@
 
    
    
-      ~fmu.dataio._models.fmu_results.fields.Masterdata
-   
       ~fmu.dataio._models.fmu_results.fields.Access
+   
+      ~fmu.dataio._models.fmu_results.fields.Masterdata
    
       ~fmu.dataio._models.fmu_results.fields.Tracklog
    
