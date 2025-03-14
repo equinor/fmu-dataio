@@ -106,7 +106,6 @@ class FmuResultsSchema(SchemaBase):
         "data.spec.columns",
         "data.standard_result.name",
         "data.stratigraphic",
-        "data.stratigraphic_alias",
         "data.tagname",
         "data.time",
         "data.vertical_domain",
