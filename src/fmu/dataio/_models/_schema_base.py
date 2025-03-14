@@ -105,6 +105,9 @@ class SchemaBase(ABC):
     VERSION: VersionStr
     """The current version of the schema."""
 
+    VERSION_CHANGELOG: str
+    """The changelog for all versions of schemas."""
+
     FILENAME: str
     """The filename, i.e. schema.json."""
 
@@ -130,16 +133,27 @@ class SchemaBase(ABC):
         implemented. It also doesn't like the default generator.
         """
         super().__init_subclass__(**kwargs)
-        for attr in ("VERSION", "FILENAME", "PATH"):
+        cls._validate_class_vars_set()
+        cls._validate_version()
+        cls._validate_version_changelog()
+        cls._validate_path()
+
+    @classmethod
+    def _validate_class_vars_set(cls) -> None:
+        for attr in ("VERSION", "VERSION_CHANGELOG", "FILENAME", "PATH"):
             if not hasattr(cls, attr):
                 raise TypeError(f"Subclass {cls.__name__} must define '{attr}'")
 
+    @classmethod
+    def _validate_path(cls) -> None:
         if not cls.PATH.parts[0].startswith(str(FmuSchemas.PATH)):
             raise ValueError(
                 f"PATH must start with `FmuSchemas.PATH`: {FmuSchemas.PATH}. "
                 f"Got {cls.PATH}"
             )
 
+    @classmethod
+    def _validate_version(cls) -> None:
         try:
 
             class PydanticVersionValidator(BaseModel):
@@ -150,6 +164,18 @@ class SchemaBase(ABC):
             PydanticVersionValidator(version=cls.VERSION)
         except ValidationError as e:
             raise TypeError(f"Invalid VERSION format for '{cls.__name__}': {e}") from e
+
+    @classmethod
+    def _validate_version_changelog(cls) -> None:
+        """Ensures that VERSION has a doc string that looks like a changelog.
+
+        Checks that the current version has an entry as well."""
+        if f"### {cls.VERSION}" not in cls.VERSION_CHANGELOG:
+            raise ValueError(
+                f"No changelog entry exists for '{cls.__name__}' version {cls.VERSION}."
+                f" Expected a header like '### {cls.VERSION}' in 'VERSION_CHANGELOG' "
+                f"with changes for version {cls.VERSION} listed beneath it."
+            )
 
     @classmethod
     def dev_url(cls) -> str:
