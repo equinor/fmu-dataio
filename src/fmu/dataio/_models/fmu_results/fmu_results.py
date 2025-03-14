@@ -51,6 +51,7 @@ class FmuResultsSchema(SchemaBase):
 
     This is the first versioned update to the schema and contains numerous changes.
 
+    - `$contractual.stratigraphic_alias` has been removed. It was never used.
     - `data.product`: rename to `data.standard_result`
     - `data.spec.nrow` must be greater or equal to 0 for cubes, surfaces
     - `data.spec.ncol` must be greater or equal to 0 for cubes, surfaces
@@ -105,7 +106,6 @@ class FmuResultsSchema(SchemaBase):
         "data.spec.columns",
         "data.standard_result.name",
         "data.stratigraphic",
-        "data.stratigraphic_alias",
         "data.tagname",
         "data.time",
         "data.vertical_domain",
