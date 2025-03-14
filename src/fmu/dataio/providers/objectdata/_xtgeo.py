@@ -194,8 +194,15 @@ class PolygonsDataProvider(ObjectDataProvider):
         if self.fmt == FileFormat.parquet:
             table = pa.Table.from_pandas(self.obj_dataframe)
             pq.write_table(table, where=pa.output_stream(file))
+            return
 
-        elif self.fmt == FileFormat.csv_xtgeo:
+        warnings.warn(
+            "In the future polygons will be exported as tables on "
+            "parquet format, using xtgeo naming standards as column names: "
+            "X_UTME, Y_UTMN, Z_TVDSS, POLY_ID.",
+            FutureWarning,
+        )
+        if self.fmt == FileFormat.csv_xtgeo:
             self.obj_dataframe.to_csv(file, index=False)
 
         elif self.fmt == FileFormat.csv:
@@ -278,8 +285,15 @@ class PointsDataProvider(ObjectDataProvider):
         if self.fmt == FileFormat.parquet:
             table = pa.Table.from_pandas(self.obj_dataframe)
             pq.write_table(table, where=pa.output_stream(file))
+            return
 
-        elif self.fmt == FileFormat.csv_xtgeo:
+        warnings.warn(
+            "In the future points will be exported as tables on "
+            "parquet format, using xtgeo naming standards as column names: "
+            "X_UTME, Y_UTMN, Z_TVDSS.",
+            FutureWarning,
+        )
+        if self.fmt == FileFormat.csv_xtgeo:
             self.obj_dataframe.to_csv(file, index=False)
 
         elif self.fmt == FileFormat.csv:

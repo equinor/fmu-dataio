@@ -139,7 +139,6 @@ def test_polys_export_file_set_name(fmurun_w_casemetadata, rmsglobalconfig, poly
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
     )
-
     output = edata.export(polygons)
     logger.info("Output is %s", output)
 
@@ -167,7 +166,8 @@ def test_polys_export_file_use_xtgeo_names(
     )
 
     edata.polygons_fformat = "csv|xtgeo"  # override
-    output = edata.export(polygons)
+    with pytest.warns(FutureWarning, match="parquet format"):
+        output = edata.export(polygons)
 
     thefile = pd.read_csv(output)
     assert set(thefile.columns) == {"X_UTME", "Y_UTMN", "Z_TVDSS", "POLY_ID"}
@@ -217,7 +217,8 @@ def test_polys_export_file_as_irap_ascii(
     )
 
     edata.polygons_fformat = "irap_ascii"  # override
-    output = Path(edata.export(polygons))
+    with pytest.warns(FutureWarning, match="parquet format"):
+        output = Path(edata.export(polygons))
 
     assert output.exists()
     assert output == (
@@ -266,8 +267,8 @@ def test_points_export_file_set_name_xtgeoheaders(
         config=rmsglobalconfig, content="depth", name="TopVolantiz"
     )
     edata.points_fformat = "csv|xtgeo"  # override
-
-    output = edata.export(points)
+    with pytest.warns(FutureWarning, match="parquet format"):
+        output = edata.export(points)
     logger.info("Output is %s", output)
 
     assert str(output) == str(
@@ -299,7 +300,8 @@ def test_points_export_file_as_irap_ascii(
     )
 
     edata.points_fformat = "irap_ascii"  # override
-    output = Path(edata.export(points))
+    with pytest.warns(FutureWarning, match="parquet format"):
+        output = Path(edata.export(points))
 
     assert output.exists()
     assert output == (
