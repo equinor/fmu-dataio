@@ -93,3 +93,23 @@ def get_horizons_in_folder(
                 xtgeo.surface_from_roxar(project, horizon.name, horizon_folder)
             )
     return surfaces
+
+
+def get_polygons_in_folder(project: Any, horizon_folder: str) -> list[xtgeo.Polygons]:
+    """Get all non-empty polygons from a horizon folder stratigraphically ordered."""
+
+    logger.debug("Reading polygons from folder %s", horizon_folder)
+
+    if not horizon_folder_exist(project, horizon_folder):
+        raise ValueError(
+            f"The provided horizon folder name {horizon_folder} "
+            "does not exist inside RMS."
+        )
+
+    surfaces = []
+    for horizon in project.horizons:
+        if not horizon[horizon_folder].is_empty():
+            surfaces.append(
+                xtgeo.polygons_from_roxar(project, horizon.name, horizon_folder)
+            )
+    return surfaces

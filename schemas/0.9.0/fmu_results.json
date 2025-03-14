@@ -211,6 +211,9 @@
         },
         {
           "$ref": "#/$defs/StructureDepthSurfaceStandardResult"
+        },
+        {
+          "$ref": "#/$defs/StructureDepthFaultLinesStandardResult"
         }
       ],
       "title": "AnyStandardResult"
@@ -7549,6 +7552,28 @@
         "uuid"
       ],
       "title": "StratigraphicColumn",
+      "type": "object"
+    },
+    "StructureDepthFaultLinesStandardResult": {
+      "description": "The ``standard_result`` field contains information about which standard results this\ndata object represent.\nThis class contains metadata for the 'structure_depth_fault_lines' standard result.",
+      "properties": {
+        "file_schema": {
+          "$ref": "#/$defs/FileSchema",
+          "default": {
+            "url": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/file_formats/0.1.0/structure_depth_fault_lines.json",
+            "version": "0.1.0"
+          }
+        },
+        "name": {
+          "const": "structure_depth_fault_lines",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "StructureDepthFaultLinesStandardResult",
       "type": "object"
     },
     "StructureDepthSurfaceStandardResult": {
