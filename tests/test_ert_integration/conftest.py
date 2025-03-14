@@ -77,7 +77,7 @@ def fmu_snakeoil_project(
     os.makedirs(tmp_path / "ert/output/maps/props")
     shutil.copy(
         source_root
-        / "examples/s/d/nn/xcase/realization-0/iter-0/rms"
+        / "examples/example_exports/"
         / "output/maps/props/poro_average.gri",
         tmp_path / "ert/output/maps/props/poro_average.gri",
     )
