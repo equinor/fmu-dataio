@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import pyarrow.parquet as pq
 import pytest
 import yaml
 
@@ -174,6 +175,35 @@ def test_polys_export_file_use_xtgeo_names(
     edata.polygons_fformat = "csv"  # reset
 
 
+def test_polys_export_file_as_parquet(fmurun_w_casemetadata, rmsglobalconfig, polygons):
+    """Export the polygon to file with correct metadata and name."""
+
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    os.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth", name="TopVolantis"
+    )
+
+    edata.polygons_fformat = "parquet"  # override
+    output = Path(edata.export(polygons))
+
+    assert output.exists()
+    assert output == (
+        edata._rootpath
+        / "realization-0/iter-0/share/results/polygons/topvolantis.parquet"
+    )
+
+    thefile = pq.read_table(output)
+    # check that xtgeo naming is preserved
+    assert set(thefile.column_names) == {"X_UTME", "Y_UTMN", "Z_TVDSS", "POLY_ID"}
+
+    meta = dataio.read_metadata(output)
+    assert meta["data"]["format"] == "parquet"
+
+    edata.polygons_fformat = "csv"  # reset
+
+
 def test_polys_export_file_as_irap_ascii(
     fmurun_w_casemetadata, rmsglobalconfig, polygons
 ):
@@ -276,6 +306,36 @@ def test_points_export_file_as_irap_ascii(
         edata._rootpath / "realization-0/iter-0/share/results/points/topvolantis.poi"
     )
     edata.points_fformat = "csv"  # reset
+
+
+def test_points_export_file_as_parquet(fmurun_w_casemetadata, rmsglobalconfig, points):
+    """Export the polygon to file with correct metadata and name."""
+
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    os.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth", name="TopVolantis"
+    )
+
+    edata.points_fformat = "parquet"  # override
+    output = Path(edata.export(points))
+
+    assert output.exists()
+    assert output == (
+        edata._rootpath
+        / "realization-0/iter-0/share/results/points/topvolantis.parquet"
+    )
+
+    thefile = pq.read_table(output)
+    # check that xtgeo naming and WellName attribute is preserved
+    assert set(thefile.column_names) == {"X_UTME", "Y_UTMN", "Z_TVDSS", "WellName"}
+
+    meta = dataio.read_metadata(output)
+    assert meta["data"]["spec"]["attributes"] == ["WellName"]
+    assert meta["data"]["format"] == "parquet"
+
+    edata.polygons_fformat = "csv"  # reset
 
 
 # ======================================================================================

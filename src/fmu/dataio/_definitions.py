@@ -36,6 +36,7 @@ class ValidFormats(Enum):
         "csv": ".csv",  # columns will be X Y Z, ID
         "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, ... POLY_ID
         "irap_ascii": ".pol",
+        "parquet": ".parquet",
     }
 
     points = {
@@ -43,6 +44,7 @@ class ValidFormats(Enum):
         "csv": ".csv",  # columns will be X Y Z
         "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS
         "irap_ascii": ".poi",
+        "parquet": ".parquet",
     }
 
     dictionary = {
