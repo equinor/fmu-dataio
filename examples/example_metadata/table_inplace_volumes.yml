@@ -1,0 +1,114 @@
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.9.0/fmu_results.json
+_preprocessed: false
+access:
+  asset:
+    name: Drogon
+  classification: internal
+  ssdl:
+    access_level: internal
+    rep_include: false
+class: table
+data:
+  alias: []
+  content: volumes
+  domain_reference: msl
+  format: csv
+  is_observation: false
+  is_prediction: true
+  layout: table
+  name: geogrid
+  offset: 0.0
+  spec:
+    columns:
+    - 'Unnamed: 0'
+    - ZONE
+    - REGION
+    - FLUID
+    - BULK_OIL
+    - PORV_OIL
+    - HCPV_OIL
+    - STOIIP_OIL
+    - ASSOCIATEDGAS_OIL
+    - BULK_GAS
+    - PORV_GAS
+    - HCPV_GAS
+    - GIIP_GAS
+    - ASSOCIATEDOIL_GAS
+    - BULK_TOTAL
+    - PORV_TOTAL
+    num_columns: 16
+    num_rows: 21
+    size: 336
+  stratigraphic: false
+  table_index:
+  - FLUID
+  - ZONE
+  - REGION
+  tagname: volumes
+  undef_is_zero: false
+  unit: m
+  vertical_domain: depth
+display:
+  name: geogrid
+file:
+  absolute_path: /some/absolute/path/
+  checksum_md5: 173c646133f5a47c9bfbc4432a0a2812
+  relative_path: example_exports/share/results/tables/geogrid--volumes.csv
+fmu:
+  case:
+    name: MyCase
+    user:
+      id: user
+    uuid: 7ac53582-0054-4a99-b72e-d89dd89f7a4c
+  context:
+    stage: realization
+  ert:
+    experiment:
+      id: 6a8e1e0f-9315-46bb-9648-8de87151f4c7
+    simulation_mode: test_run
+  iteration:
+    id: 0
+    name: iter-0
+    uuid: 57761f5c-5683-6ab3-351f-e4bf305b6380
+  model:
+    name: ff
+    revision: 21.1.0.dev
+  realization:
+    id: 0
+    name: example_exports
+    uuid: a661f29d-a286-e65d-5bf7-dfb2823eb0ee
+  workflow:
+    reference: Volume calculation
+masterdata:
+  smda:
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    country:
+    - identifier: Norway
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+    - short_identifier: DROGON
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    field:
+    - identifier: DROGON
+      uuid: 00000000-0000-0000-0000-000000000000
+    stratigraphic_column:
+      identifier: DROGON_2020
+      uuid: ad214d85-8a1d-19da-e053-c918a4889310
+source: fmu
+tracklog:
+- datetime: '2025-03-13T07:57:08.339280Z'
+  event: created
+  sysinfo:
+    fmu-dataio:
+      version: 2.9.2.dev20+g54255e6ba.d20250305
+    operating_system:
+      hostname: dummy_hostname
+      operating_system: dummy_os
+      release: 24.3.0
+      system: Darwin
+      version: 'Darwin Kernel Version 24.3.0: Thu Jan  2 20:24:23 PST 2025; root:xnu-11215.81.4~3/RELEASE_ARM64_T6031'
+  user:
+    id: user
+version: 0.9.0
