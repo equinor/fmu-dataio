@@ -83,6 +83,9 @@ def export_fluid_contact_surface():
     """Export metadata for fluid contact surface"""
 
     print("Export fluid contact surface map and metadata")
+
+    # For simplicity, the depth surface map is reused as input.
+    # For a real case, use a fluid contact surface as input.
     fluid_contact_surf = xtgeo.surface_from_file(FILES["depth"])
 
     ed = dataio.ExportData(
@@ -108,6 +111,9 @@ def export_seismic_amplitude_surface():
     """Export metadata for a seismic amplitude surface"""
 
     print("Export seismic amplitude surface map and metadata.")
+
+    # For simplicity, the depth surface map is reused as input.
+    # For a real case, use a seismic amplitude surface as input.
     seismic_attribute_surf = xtgeo.surface_from_file(FILES["depth"])
 
     ed = dataio.ExportData(
