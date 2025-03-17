@@ -134,9 +134,9 @@ def _schemas_are_equivalent(
 def _update_metadata_examples():
     """Updates the metadata examples to be in sync with the updated schemas."""
 
-    print("Updating metadata examples to be in sync with updated schemas...")
+    print(INFO, "Updating metadata examples to be in sync with updated schemas...")
 
-    print("Running bash script /examples/update_examples.sh")
+    print(INFO, "Running bash script /examples/update_examples.sh")
     result = subprocess.run(
         "examples/update_examples.sh",
         capture_output=True,
@@ -152,7 +152,7 @@ def _update_metadata_examples():
         )
         sys.exit(1)
 
-    print("Done updating metadata examples.")
+    print(PASS, "Done updating metadata examples.")
     
 
 class SchemaUpdateResult(Enum):
