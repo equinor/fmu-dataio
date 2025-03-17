@@ -86,6 +86,9 @@ def test_schema_url_changes_with_komodo_bleeding_env_var(
     assert json["$id"].startswith(FmuSchemas.PROD_URL)
     assert json["$schema"] == "https://json-schema.org/draft/2020-12/schema"
 
+    # needed to prevent tests failing if inside an actual komodo environment
+    monkeypatch.delenv("KOMODO_RELEASE", raising=False)
+
     monkeypatch.setenv(env_var, env_var_value)
     json = schema.dump()
     assert schema.url().startswith(FmuSchemas.DEV_URL)
