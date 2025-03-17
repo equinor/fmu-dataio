@@ -14,7 +14,7 @@ export files and metadata, both for RMS and non-RMS data.
 * `/example_metadata`: Contains examples of metadata exported by `fmu-dataio`.
 These files are used by the unit tests to test the Pydantic logic.
 * `/metadata_scripts`: Contains scripts used to create and process metadata 
-files, a depedency for the `update_examples.sh` script.
+files, a dependency for the `update_examples.sh` script.
 * `/archived_examples`: Contains export examples that are no longer used in the
 documentation or tests, but that might still be useful to keep as examples.
 
