@@ -17,7 +17,7 @@ This is a snippet of the ``global_variables.yml`` file which holds the static me
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/fmuconfig/output/global_variables.yml
+   .. literalinclude:: ../../examples/example_exports/fmuconfig/output/global_variables.yml
       :language: yaml
 
 |
@@ -28,14 +28,14 @@ Exporting fault polygons
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_faultpolygons.py
+.. literalinclude:: ../../examples/example_exports/export_rms_data/export_faultpolygons.py
    :language: python
 
 Press + to see generated YAML file.
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/polygons/.volantis_gp_top--faultlines.pol.yml
+   .. literalinclude:: ../../examples/example_exports/share/results/polygons/.volantis_gp_top--faultlines.pol.yml
       :language: yaml
 
 |
@@ -46,7 +46,7 @@ Exporting average maps from grid properties
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_propmaps.py
+.. literalinclude:: ../../examples/example_exports/export_rms_data/export_propmaps.py
    :language: python
 
 
@@ -54,7 +54,7 @@ Press + to see generated YAML file for metadata.
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/maps/.therys--average_porosity.gri.yml
+   .. literalinclude:: ../../examples/example_exports/share/results/maps/.therys--average_porosity.gri.yml
       :language: yaml
 
 |
@@ -65,7 +65,7 @@ Exporting 3D grids with properties
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_grid3d.py
+.. literalinclude:: ../../examples/example_exports/export_non_rms_data/export_grid3d.py
    :language: python
 
 Press + to see generated YAML files for metadata.
@@ -73,12 +73,12 @@ Press + to see generated YAML files for metadata.
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.geogrid.roff.yml
+   .. literalinclude:: ../../examples/example_exports/share/results/grids/.geogrid.roff.yml
       :language: yaml
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/grids/.geogrid--facies.roff.yml
+   .. literalinclude:: ../../examples/example_exports/share/results/grids/.geogrid--facies.roff.yml
       :language: yaml
 
 |
@@ -86,18 +86,19 @@ Press + to see generated YAML files for metadata.
 Exporting volume tables RMS or file
 -----------------------------------
 
-Below is an example of exporting volume tables from csv-files, while an example
-of easy export of RMS volumetrics can be found here :ref:`example-export-volumes-rms`.
+Below is an example of exporting volume tables from csv-files, 
+while an example of a simple export of RMS volumetrics can be found 
+`here <https://fmu-dataio.readthedocs.io/en/latest/standard_results/initial_inplace_volumes.html>`.
 
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/any/bin/export_volumetables.py
+.. literalinclude:: ../../examples/example_exports/export_non_rms_data/export_volumetables.py
    :language: python
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/tables/.geogrid--volumes.csv.yml
+   .. literalinclude:: ../../examples/example_exports/share/results/tables/.geogrid--volumes.csv.yml
       :language: yaml
 
 |
@@ -111,45 +112,12 @@ The FaultRoom plugin for RMS produces special json files that e.g. can be viewed
 Python script
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/rms/bin/export_faultroom_surfaces.py
+.. literalinclude:: ../../examples/example_exports/export_rms_data/export_faultroom_surfaces.py
    :language: python
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/s/d/nn/xcase/realization-0/iter-0/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
+   .. literalinclude:: ../../examples/example_exports/share/results/maps/volantis_gp_top--faultroom_d1433e1.json
       :language: yaml
-
-|
-
-Using fmu-dataio for post-processed data
-----------------------------------------
-
-The example below shows how fmu-dataio can be used in a post-processing context, here in a
-surface aggregation example.
-
-When using ensemble-based methods for probabilistic modelling, the result is represented
-by the distribution of the realizations, not by the individual realizations themselves.
-In such a context, easy access to statistical representations of the ensemble is important.
-For surfaces, this typically includes point-wise mean, std, min/max, p10/p90 and others.
-
-Aggregations in an FMU context are usually done by standalone Python scripts, but cloud
-services are also in the making (Sumo). The example below shows how fmu-dataio can be used
-to simplify an existing aggregation service, as well as make de-centralized methods more
-robust by centralizing the definitions and handling of metadata.
-
-.. note::
-   It is common that surfaces exported from RMS or other sources have undefined areas.
-   For some surfaces, typically various thickness surfaces (e.g. HCPV thickness from RMS
-   volumetric jobs), undefined values shall be treated as zero (0.0) when included in 
-   statistical calculations. Therefore, when exporting surfaces of this type, set the 
-   `undef_is_zero` flag to `True` when exporting. This tells later consumers of the 
-   surface that they should handle `UNDEF` as zero.
-
-
-Python script
-~~~~~~~~~~~~~
-
-.. literalinclude:: ../../examples/s/d/nn/_project/aggregate_surfaces.py
-   :language: python
 
 |

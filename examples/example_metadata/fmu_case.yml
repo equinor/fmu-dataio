@@ -1,0 +1,48 @@
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.9.0/fmu_results.json
+access:
+  asset:
+    name: Drogon
+  classification: internal
+class: case
+fmu:
+  case:
+    name: MyCase
+    user:
+      id: user
+    uuid: 7ac53582-0054-4a99-b72e-d89dd89f7a4c
+  model:
+    name: ff
+    revision: 21.1.0.dev
+masterdata:
+  smda:
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    country:
+    - identifier: Norway
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+    - short_identifier: DROGON
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    field:
+    - identifier: DROGON
+      uuid: 00000000-0000-0000-0000-000000000000
+    stratigraphic_column:
+      identifier: DROGON_2020
+      uuid: ad214d85-8a1d-19da-e053-c918a4889310
+source: fmu
+tracklog:
+- datetime: '2025-03-13T07:56:58.592853Z'
+  event: created
+  sysinfo:
+    fmu-dataio:
+      version: 2.9.2.dev20+g54255e6ba.d20250305
+    operating_system:
+      hostname: dummy_hostname
+      operating_system: dummy_os
+      release: 24.3.0
+      system: Darwin
+      version: 'Darwin Kernel Version 24.3.0: Thu Jan  2 20:24:23 PST 2025; root:xnu-11215.81.4~3/RELEASE_ARM64_T6031'
+  user:
+    id: user
+version: 0.9.0
