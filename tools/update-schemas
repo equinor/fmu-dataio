@@ -131,6 +131,30 @@ def _schemas_are_equivalent(
     return existing_schema == new_schema
 
 
+def _update_metadata_examples():
+    """Updates the metadata examples to be in sync with the updated schemas."""
+
+    print(INFO, "Updating metadata examples to be in sync with updated schemas...")
+
+    print(INFO, "Running bash script /examples/update_examples.sh")
+    result = subprocess.run(
+        "examples/update_examples.sh",
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode > 0:
+        print(
+            FAIL,
+            f"🚨 The bash script for updating metadata examples failed "
+            f"with exit code: {result.returncode}\n"
+            f"Error: {result.stderr}",
+        )
+        sys.exit(1)
+
+    print(PASS, "Done updating metadata examples.")
+    
+
 class SchemaUpdateResult(Enum):
     """The result of updating a schema."""
 
@@ -293,14 +317,15 @@ def main() -> None:
         force_overwrite=args.force,
     )
 
-    failed_schemas = []
+    schema_update_results = []
     for schema in models.schemas:
-        status = writer.write_schema(schema)
-        if status == SchemaUpdateResult.FAILED:
-            failed_schemas.append(schema)
+        update_result = writer.write_schema(schema)
+        schema_update_results.append(update_result)
 
-    if len(failed_schemas) > 0:
+    if SchemaUpdateResult.FAILED in schema_update_results:
         sys.exit(1)
+    elif SchemaUpdateResult.UPDATED in schema_update_results:
+        _update_metadata_examples()
 
 
 if __name__ == "__main__":

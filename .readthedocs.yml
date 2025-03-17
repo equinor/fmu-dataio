@@ -6,7 +6,7 @@ build:
     python: "3.11"
   jobs:
     post_install:
-      - bash examples/run_examples.sh
+      - bash examples/update_examples.sh
 
 python:
   install:

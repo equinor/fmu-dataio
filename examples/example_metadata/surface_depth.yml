@@ -1,0 +1,106 @@
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.9.0/fmu_results.json
+_preprocessed: false
+access:
+  asset:
+    name: Drogon
+  classification: internal
+  ssdl:
+    access_level: internal
+    rep_include: false
+class: surface
+data:
+  alias: []
+  bbox:
+    xmax: 467483.6875
+    xmin: 456063.6875
+    ymax: 5939431.0
+    ymin: 5926551.0
+    zmax: 1933.5001220703125
+    zmin: 1554.5228271484375
+  content: depth
+  domain_reference: msl
+  format: irap_binary
+  is_observation: false
+  is_prediction: true
+  layout: regular
+  name: topvolantis
+  offset: 0.0
+  spec:
+    ncol: 572
+    nrow: 645
+    rotation: 0.0
+    undef: 1.0e+30
+    xinc: 20.0
+    xori: 456063.6875
+    yflip: 1
+    yinc: 20.0
+    yori: 5926551.0
+  stratigraphic: false
+  tagname: ds_extract_geogrid
+  undef_is_zero: false
+  unit: m
+  vertical_domain: depth
+display:
+  name: topvolantis
+file:
+  absolute_path: /some/absolute/path/
+  checksum_md5: ab0fb42049138871749c6c367d2d094f
+  relative_path: example_exports/share/results/maps/topvolantis--ds_extract_geogrid.gri
+fmu:
+  case:
+    name: MyCase
+    user:
+      id: user
+    uuid: 7ac53582-0054-4a99-b72e-d89dd89f7a4c
+  context:
+    stage: realization
+  ert:
+    experiment:
+      id: 6a8e1e0f-9315-46bb-9648-8de87151f4c7
+    simulation_mode: test_run
+  iteration:
+    id: 0
+    name: iter-0
+    uuid: 57761f5c-5683-6ab3-351f-e4bf305b6380
+  model:
+    name: ff
+    revision: 21.1.0.dev
+  realization:
+    id: 0
+    name: example_exports
+    uuid: a661f29d-a286-e65d-5bf7-dfb2823eb0ee
+  workflow:
+    reference: rms structural model
+masterdata:
+  smda:
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    country:
+    - identifier: Norway
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+    - short_identifier: DROGON
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    field:
+    - identifier: DROGON
+      uuid: 00000000-0000-0000-0000-000000000000
+    stratigraphic_column:
+      identifier: DROGON_2020
+      uuid: ad214d85-8a1d-19da-e053-c918a4889310
+source: fmu
+tracklog:
+- datetime: '2025-03-13T07:57:05.737288Z'
+  event: created
+  sysinfo:
+    fmu-dataio:
+      version: 2.9.2.dev20+g54255e6ba.d20250305
+    operating_system:
+      hostname: dummy_hostname
+      operating_system: dummy_os
+      release: 24.3.0
+      system: Darwin
+      version: 'Darwin Kernel Version 24.3.0: Thu Jan  2 20:24:23 PST 2025; root:xnu-11215.81.4~3/RELEASE_ARM64_T6031'
+  user:
+    id: user
+version: 0.9.0

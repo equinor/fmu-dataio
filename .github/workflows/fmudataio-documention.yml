@@ -25,7 +25,7 @@ jobs:
           pip install .[docs]
 
       - name: Generate examples
-        run: sh examples/run_examples.sh
+        run: sh examples/update_examples.sh
 
       - name: Build documentation
         run: sphinx-build -b html docs/src build/docs/html -j auto
