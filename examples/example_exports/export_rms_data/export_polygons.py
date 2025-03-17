@@ -55,7 +55,7 @@ def export_field_outline():
         timedata=None,
         is_prediction=True,
         is_observation=False,
-        tagname="polgons_field_outline",
+        tagname="polygons_field_outline",
         workflow="rms structural model",
     )
 

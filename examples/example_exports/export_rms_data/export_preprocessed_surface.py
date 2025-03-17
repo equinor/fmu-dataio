@@ -13,9 +13,7 @@ logger.setLevel(logging.WARNING)
 
 CFG = utils.yaml_load("../../fmuconfig/output/global_variables.yml")
 
-FILES = {
-    "depth": Path("../output/maps/structure/") / "topvolantis--ds_extract_geogrid.gri",
-}
+DEPTH_FILE = Path("../output/maps/structure/") / "topvolantis--ds_extract_geogrid.gri"
 
 
 def export_preprocessed_surface():
@@ -31,7 +29,7 @@ def export_preprocessed_surface():
         subfolder="mysub",
     )
 
-    surf_depth = xtgeo.surface_from_file(FILES["depth"])
+    surf_depth = xtgeo.surface_from_file(DEPTH_FILE)
     edata.export(surf_depth)
     print("Exported a preprocessed depth surface.")
 

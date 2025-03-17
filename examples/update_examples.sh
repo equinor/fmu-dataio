@@ -82,7 +82,7 @@ cp $examples_rootpath/example_exports/share/results/tables/.geogrid--volumes.csv
 
 # Update polygon metadata
 cp $examples_rootpath/example_exports/share/results/polygons/.volantis_gp_base--polygons_field_region.csv.yml example_metadata/polygons_field_region.yml
-cp $examples_rootpath/example_exports/share/results/polygons/.volantis_gp_base--polgons_field_outline.csv.yml example_metadata/polygons_field_outline.yml
+cp $examples_rootpath/example_exports/share/results/polygons/.volantis_gp_base--polygons_field_outline.csv.yml example_metadata/polygons_field_outline.yml
 
 #Update aggregation metadata
 cp $examples_rootpath/share/results/maps/.aggregated_surfaces.gri.yml share/metadata/aggregated_surface_depth.yml
