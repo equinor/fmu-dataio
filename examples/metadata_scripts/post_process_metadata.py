@@ -5,9 +5,18 @@ from pathlib import Path
 
 import yaml
 
+DUMMY_UUID = "00000000-0000-0000-0000-000000000000"
+
 
 def remove_machine_data(metadata_yaml: dict) -> dict:
     """Remove machine specific data from metadata file."""
+
+    if "fmu" in metadata_yaml:
+        metadata_yaml["fmu"]["case"]["uuid"] = DUMMY_UUID
+        if "realization" in metadata_yaml["fmu"]:
+            metadata_yaml["fmu"]["realization"]["uuid"] = DUMMY_UUID
+        if "iteration" in metadata_yaml["fmu"]:
+            metadata_yaml["fmu"]["iteration"]["uuid"] = DUMMY_UUID
 
     if "file" in metadata_yaml and "absolute_path" in metadata_yaml["file"]:
         metadata_yaml["file"]["absolute_path"] = "/some/absolute/path/"
@@ -15,16 +24,21 @@ def remove_machine_data(metadata_yaml: dict) -> dict:
     if "tracklog" in metadata_yaml:
         for tracklog_event in metadata_yaml["tracklog"]:
             tracklog_event["user"]["id"] = "user"
-            if (
-                "sysinfo" in tracklog_event
-                and "operating_system" in tracklog_event["sysinfo"]
-            ):
-                tracklog_event["sysinfo"]["operating_system"]["hostname"] = (
-                    "dummy_hostname"
-                )
-                tracklog_event["sysinfo"]["operating_system"]["operating_system"] = (
-                    "dummy_os"
-                )
+            if "sysinfo" in tracklog_event:
+                if "operating_system" in tracklog_event["sysinfo"]:
+                    tracklog_event["sysinfo"]["operating_system"] = {
+                        "hostname": "dummy_hostname",
+                        "operating_system": "dummy_os",
+                        "release": "dummy_release",
+                        "system": "dummy_system",
+                        "version": "dummy_version",
+                    }
+
+                if "fmu-dataio" in tracklog_event["sysinfo"]:
+                    tracklog_event["sysinfo"]["fmu-dataio"]["version"] = "dummy_version"
+
+                if "komodo" in tracklog_event["sysinfo"]:
+                    tracklog_event["sysinfo"]["komodo"]["version"] = "dummy_version"
 
     return metadata_yaml
 
