@@ -1,5 +1,4 @@
-# build and test some end points
-name: Build and deploy docs for fmu-dataio
+name: Test building docs for fmu-dataio
 
 on:
   pull_request:
@@ -24,29 +23,8 @@ jobs:
           pip install -U pip
           pip install .[docs]
 
-      - name: Generate examples
+      - name: Generate updated examples
         run: sh examples/update_examples.sh
 
-      - name: Build documentation
+      - name: Build documentation with sphinx
         run: sphinx-build -b html docs/src build/docs/html -j auto
-
-      - name: Update GitHub pages
-        if: github.repository_owner == 'equinor' && github.ref == 'refs/heads/main'
-        run: |
-          cp -R ./build/docs/html ../html
-          git config --local user.email "fmu-dataio-github-action"
-          git config --local user.name "fmu-dataio-github-action"
-          git fetch origin gh-pages
-          git checkout --track origin/gh-pages
-          git clean -f -f -d -x  # Double -f is intentional.
-          git rm -r *
-          cp -R ../html/* .
-          touch .nojekyll  # If not, github pages ignores _* directories.
-          git add .
-          echo "Ready for commit"
-          if git diff-index --quiet HEAD; then
-            echo "No changes in documentation. Skip documentation deploy."
-          else
-            git commit -m "Update Github Pages"
-            git push "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
-          fi
