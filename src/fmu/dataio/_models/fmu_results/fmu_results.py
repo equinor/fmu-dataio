@@ -44,9 +44,16 @@ if TYPE_CHECKING:
 class FmuResultsSchema(SchemaBase):
     """The main metadata export describing the results."""
 
-    VERSION: VersionStr = "0.9.0"
+    VERSION: VersionStr = "0.9.1"
 
     VERSION_CHANGELOG: str = """
+    #### 0.9.1
+
+    - `data.spec.columns` added as optional field for for points, polygons
+    - `data.spec.num_columns` added as optional field for for points, polygons
+    - `data.spec.num_rows` added as optional field for for points, polygons
+    - `data.spec.size` added as optional field for for polygons
+
     #### 0.9.0
 
     This is the first versioned update to the schema and contains numerous changes.

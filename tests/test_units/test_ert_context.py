@@ -338,6 +338,109 @@ def test_points_export_file_as_parquet(fmurun_w_casemetadata, rmsglobalconfig, p
     edata.polygons_fformat = "csv"  # reset
 
 
+@pytest.mark.parametrize(
+    "fformat, expected_columns",
+    [
+        ("parquet", ["X_UTME", "Y_UTMN", "Z_TVDSS", "WellName"]),
+        ("csv|xtgeo", ["X_UTME", "Y_UTMN", "Z_TVDSS", "WellName"]),
+        ("csv", ["X", "Y", "Z", "WellName"]),
+    ],
+)
+def test_exported_points_spec_table_format(
+    fformat, expected_columns, fmurun_w_casemetadata, globalconfig2, monkeypatch, points
+):
+    """Test that data.spec is set correctly for points exported on table format"""
+
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
+
+    edata.points_fformat = fformat
+    output = edata.export(points)
+
+    meta = dataio.read_metadata(output)
+    assert meta["data"]["format"] == fformat
+    assert meta["data"]["spec"]["attributes"] == ["WellName"]
+    assert meta["data"]["spec"]["columns"] == expected_columns
+    assert meta["data"]["spec"]["num_columns"] == 4
+    assert meta["data"]["spec"]["num_rows"] == 4
+    assert meta["data"]["spec"]["size"] == 16
+
+
+def test_exported_points_spec_irap_ascii(
+    fmurun_w_casemetadata, globalconfig2, monkeypatch, points
+):
+    """Test that data.spec is set correctly for points exported on irap_ascii format"""
+
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
+
+    edata.points_fformat = "irap_ascii"
+    output = edata.export(points)
+
+    meta = dataio.read_metadata(output)
+    assert meta["data"]["format"] == "irap_ascii"
+    assert meta["data"]["spec"]["attributes"] == ["WellName"]
+    assert meta["data"]["spec"]["size"] == 16
+    assert "columns" not in meta["data"]["spec"]
+    assert "num_columns" not in meta["data"]["spec"]
+    assert "num_rows" not in meta["data"]["spec"]
+
+
+@pytest.mark.parametrize(
+    "fformat, expected_columns",
+    [
+        ("parquet", ["X_UTME", "Y_UTMN", "Z_TVDSS", "POLY_ID"]),
+        ("csv|xtgeo", ["X_UTME", "Y_UTMN", "Z_TVDSS", "POLY_ID"]),
+        ("csv", ["X", "Y", "Z", "ID"]),
+    ],
+)
+def test_exported_polygon_spec_table_format(
+    fformat,
+    expected_columns,
+    fmurun_w_casemetadata,
+    globalconfig2,
+    monkeypatch,
+    polygons,
+):
+    """Test that data.spec is set correctly for polygons exported on table format"""
+
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
+
+    edata.polygons_fformat = fformat
+    output = edata.export(polygons)
+
+    meta = dataio.read_metadata(output)
+    assert meta["data"]["format"] == fformat
+    assert meta["data"]["spec"]["columns"] == expected_columns
+    assert meta["data"]["spec"]["num_columns"] == 4
+    assert meta["data"]["spec"]["num_rows"] == 4
+    assert meta["data"]["spec"]["size"] == 16
+
+
+def test_exported_polygon_spec_irap_ascii(
+    fmurun_w_casemetadata, globalconfig2, monkeypatch, polygons
+):
+    """Test that data.spec is set correct for polygons exported on irap_ascii format"""
+
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
+
+    edata.polygons_fformat = "irap_ascii"
+    output = edata.export(polygons)
+
+    meta = dataio.read_metadata(output)
+    assert meta["data"]["format"] == "irap_ascii"
+    assert "size" not in meta["data"]["spec"]
+    assert "columns" not in meta["data"]["spec"]
+    assert "num_columns" not in meta["data"]["spec"]
+    assert "num_rows" not in meta["data"]["spec"]
+
+
 # ======================================================================================
 # Cube
 # Also use this part to test various fmu_contexts and forcefolder

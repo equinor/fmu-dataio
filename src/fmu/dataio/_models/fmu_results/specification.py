@@ -49,6 +49,7 @@ class SurfaceSpecification(RowColumn):
     """Origin along the y-axis."""
 
 
+# TODO: Base on TableSpecification when we only support table export format for points
 class PointSpecification(BaseModel):
     """Specifies relevant values describing an xyz points object."""
 
@@ -57,6 +58,15 @@ class PointSpecification(BaseModel):
 
     size: int = Field(ge=0, examples=[1, 9999])
     """Size of data object."""
+
+    columns: Optional[List[str]] = Field(default=None)
+    """List of columns present in a table."""
+
+    num_columns: Optional[int] = Field(default=None, ge=0, examples=[1, 9999])
+    """The number of columns in a table."""
+
+    num_rows: Optional[int] = Field(default=None, ge=0, examples=[1, 9999])
+    """The number of rows in a table.."""
 
 
 class TableSpecification(BaseModel):
@@ -121,11 +131,24 @@ class CPGridPropertySpecification(RowColumnLayer):
     """Specifies relevant values describing a corner point grid property object."""
 
 
+# TODO: Base on TableSpecification when we only support table export format for polygons
 class PolygonsSpecification(BaseModel):
     """Specifies relevant values describing a polygon object."""
 
     npolys: int = Field(ge=0)
     """The number of individual polygons in the data object."""
+
+    columns: Optional[List[str]] = Field(default=None)
+    """List of columns present in a table."""
+
+    num_columns: Optional[int] = Field(default=None, ge=0, examples=[1, 9999])
+    """The number of columns in a table."""
+
+    num_rows: Optional[int] = Field(default=None, ge=0, examples=[1, 9999])
+    """The number of rows in a table.."""
+
+    size: Optional[int] = Field(default=None, ge=0, examples=[1, 9999])
+    """The total size of the table, i.e. `rows x cols`."""
 
 
 class FaultRoomSurfaceSpecification(BaseModel):
