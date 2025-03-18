@@ -54,24 +54,24 @@ fmu:
     name: MyCase
     user:
       id: user
-    uuid: 7ac53582-0054-4a99-b72e-d89dd89f7a4c
+    uuid: 00000000-0000-0000-0000-000000000000
   context:
     stage: realization
   ert:
     experiment:
-      id: 6a8e1e0f-9315-46bb-9648-8de87151f4c7
+      id: 00000000-0000-0000-0000-000000000000
     simulation_mode: test_run
   iteration:
     id: 0
     name: iter-0
-    uuid: 57761f5c-5683-6ab3-351f-e4bf305b6380
+    uuid: 00000000-0000-0000-0000-000000000000
   model:
     name: ff
     revision: 21.1.0.dev
   realization:
     id: 0
     name: example_exports
-    uuid: a661f29d-a286-e65d-5bf7-dfb2823eb0ee
+    uuid: 00000000-0000-0000-0000-000000000000
   workflow:
     reference: rms structural model
 masterdata:
@@ -93,17 +93,17 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-03-13T07:57:05.757438Z'
+- datetime: '2025-03-18T12:25:45.696020Z'
   event: created
   sysinfo:
     fmu-dataio:
-      version: 2.9.2.dev20+g54255e6ba.d20250305
+      version: dummy_version
     operating_system:
       hostname: dummy_hostname
       operating_system: dummy_os
-      release: 24.3.0
-      system: Darwin
-      version: 'Darwin Kernel Version 24.3.0: Thu Jan  2 20:24:23 PST 2025; root:xnu-11215.81.4~3/RELEASE_ARM64_T6031'
+      release: dummy_release
+      system: dummy_system
+      version: dummy_version
   user:
     id: user
 version: 0.9.0

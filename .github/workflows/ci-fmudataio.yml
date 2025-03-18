@@ -39,9 +39,15 @@ jobs:
           pip install \
             "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git@66a9f9b"
 
-        # fmu-sumo-uploader blocked by OpenVDS on Python 3.12
-      - name: Install fmu-sumo-uploader for Python 3.9+
-        if: matrix.python-version != '3.12' && matrix.python-version != '3.8'
+      - name: Install fmu-sumo-uploader for Python 3.9 and 3.10
+        if: matrix.python-version == '3.9' || matrix.python-version == '3.10'
+        run:
+          pip install \
+            "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git@1.0.12"
+
+       # fmu-sumo-uploader blocked by OpenVDS on Python 3.12
+      - name: Install fmu-sumo-uploader for Python 3.11
+        if: matrix.python-version == '3.11'
         run:
           pip install \
             "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
