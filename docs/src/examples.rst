@@ -17,7 +17,7 @@ This is a snippet of the ``global_variables.yml`` file which holds the static me
 
 .. toggle::
 
-   .. literalinclude:: ../../examples/example_exports/fmuconfig/output/global_variables.yml
+   .. literalinclude:: ../../examples/fmuconfig/output/global_variables.yml
       :language: yaml
 
 |
@@ -88,7 +88,7 @@ Exporting volume tables RMS or file
 
 Below is an example of exporting volume tables from csv-files, 
 while an example of a simple export of RMS volumetrics can be found 
-`here <https://fmu-dataio.readthedocs.io/en/latest/standard_results/initial_inplace_volumes.html>`.
+`here <./standard_results/initial_inplace_volumes.html>`__.
 
 Python script
 ~~~~~~~~~~~~~
