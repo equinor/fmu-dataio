@@ -68,9 +68,22 @@ def load_global_config() -> dict[str, Any]:
     return load_config_from_path(CONFIG_PATH)
 
 
-def horizon_folder_exist(project: Any, horizon_folder: str) -> bool:
-    """Check if a horizon folder exist inside the project"""
-    return horizon_folder in project.horizons.representations
+def validate_horizon_folder(project: Any, horizon_folder: str) -> None:
+    """
+    Check if a horizon folder exist inside the project and that data exists for some
+    horizons within the folder. Otherwise raise errors.
+    """
+    if horizon_folder not in project.horizons.representations:
+        raise ValueError(
+            f"The provided horizon folder name {horizon_folder} "
+            "does not exist inside RMS."
+        )
+
+    if all(horizon[horizon_folder].is_empty() for horizon in project.horizons):
+        raise RuntimeError(
+            f"The provided horizon folder name {horizon_folder} "
+            "contains only empty items."
+        )
 
 
 def get_horizons_in_folder(
@@ -79,12 +92,7 @@ def get_horizons_in_folder(
     """Get all non-empty horizons from a horizon folder stratigraphically ordered."""
 
     logger.debug("Reading horizons from folder %s", horizon_folder)
-
-    if not horizon_folder_exist(project, horizon_folder):
-        raise ValueError(
-            f"The provided horizon folder name {horizon_folder} "
-            "does not exist inside RMS."
-        )
+    validate_horizon_folder(project, horizon_folder)
 
     surfaces = []
     for horizon in project.horizons:
@@ -93,3 +101,18 @@ def get_horizons_in_folder(
                 xtgeo.surface_from_roxar(project, horizon.name, horizon_folder)
             )
     return surfaces
+
+
+def get_polygons_in_folder(project: Any, horizon_folder: str) -> list[xtgeo.Polygons]:
+    """Get all non-empty polygons from a horizon folder stratigraphically ordered."""
+
+    logger.debug("Reading polygons from folder %s", horizon_folder)
+    validate_horizon_folder(project, horizon_folder)
+
+    polygons = []
+    for horizon in project.horizons:
+        if not horizon[horizon_folder].is_empty():
+            polygon = xtgeo.polygons_from_roxar(project, horizon.name, horizon_folder)
+            polygon.name = horizon.name  # not automatically set for polygons
+            polygons.append(polygon)
+    return polygons
