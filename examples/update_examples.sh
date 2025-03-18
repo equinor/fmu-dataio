@@ -34,7 +34,7 @@ python metadata_scripts/create_case_metadata.py
 #--------- Export files and metadata using the example export scripts ---------#
 
 # fake an ERT FMU run
-export _ERT_EXPERIMENT_ID=6a8e1e0f-9315-46bb-9648-8de87151f4c7
+export _ERT_EXPERIMENT_ID=00000000-0000-0000-0000-000000000000
 export _ERT_ENSEMBLE_ID=b027f225-c45d-477d-8f33-73695217ba14
 export _ERT_SIMULATION_MODE=test_run
 export _ERT_RUNPATH=$examples_rootpath/example_exports
