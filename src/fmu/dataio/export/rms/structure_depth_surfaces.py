@@ -36,7 +36,7 @@ class _ExportStructureDepthSurfaces:
 
     @property
     def _standard_result(self) -> standard_result.StructureDepthSurfaceStandardResult:
-        """Product type for the exported data."""
+        """Standard result type for the exported data."""
         return standard_result.StructureDepthSurfaceStandardResult(
             name=StandardResultName.structure_depth_surface
         )

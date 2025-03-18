@@ -68,7 +68,7 @@ However, when these columns are present, their type is validated.
 
 ## Standard result schema
 
-This standard results is made available with a validation schema that can be
+This standard result is made available with a validation schema that can be
 used by consumers. A reference to the URL where this schema is located is
 present within the `data.standard_result` key in its associated object metadata.
 
