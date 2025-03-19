@@ -134,6 +134,21 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
 class PolygonsDataProvider(ObjectDataProvider):
     obj: xtgeo.Polygons
 
+    def __post_init__(self) -> None:
+        if self.fmt == FileFormat.csv:
+            self.obj = self.obj.copy()
+
+            self.obj.xname = "X"
+            self.obj.yname = "Y"
+            self.obj.zname = "Z"
+            # self.obj.pname = "ID"
+
+            # TODO: remove this hack when possible to set pname
+            self.obj._df_column_rename("ID", "POLY_ID")
+            self.obj._pname = "ID"
+
+        super().__post_init__()
+
     @property
     def classname(self) -> FMUClass:
         return FMUClass.polygons
@@ -184,8 +199,19 @@ class PolygonsDataProvider(ObjectDataProvider):
         """Derive data.spec for xtgeo.Polygons."""
         logger.info("Get spec for Polygons")
 
+        df = self.obj_dataframe
+        num_rows, num_columns = df.shape
+
+        if self.fmt == FileFormat.irap_ascii:
+            return PolygonsSpecification(
+                npolys=df[self.obj.pname].nunique(),
+            )
         return PolygonsSpecification(
-            npolys=np.unique(self.obj_dataframe[self.obj.pname].values).size
+            npolys=df[self.obj.pname].nunique(),
+            columns=list(df.columns),
+            num_columns=num_columns,
+            num_rows=num_rows,
+            size=int(df.size),
         )
 
     def export_to_file(self, file: Path | BytesIO) -> None:
@@ -195,26 +221,26 @@ class PolygonsDataProvider(ObjectDataProvider):
             table = pa.Table.from_pandas(self.obj_dataframe)
             pq.write_table(table, where=pa.output_stream(file))
 
-        elif self.fmt == FileFormat.csv_xtgeo:
-            self.obj_dataframe.to_csv(file, index=False)
-
-        elif self.fmt == FileFormat.csv:
-            self.obj_dataframe.rename(
-                columns={
-                    self.obj.xname: "X",
-                    self.obj.yname: "Y",
-                    self.obj.zname: "Z",
-                    self.obj.pname: "ID",
-                }
-            ).to_csv(file, index=False)
+        elif self.fmt == FileFormat.irap_ascii:
+            self.obj.to_file(file)
 
         else:
-            self.obj.to_file(file)
+            self.obj_dataframe.to_csv(file, index=False)
 
 
 @dataclass
 class PointsDataProvider(ObjectDataProvider):
     obj: xtgeo.Points
+
+    def __post_init__(self) -> None:
+        if self.fmt == FileFormat.csv:
+            self.obj = self.obj.copy()
+
+            self.obj.xname = "X"
+            self.obj.yname = "Y"
+            self.obj.zname = "Z"
+
+        super().__post_init__()
 
     @property
     def classname(self) -> FMUClass:
@@ -267,9 +293,19 @@ class PointsDataProvider(ObjectDataProvider):
         logger.info("Get spec for Points")
 
         df = self.obj_dataframe
+        num_rows, num_columns = df.shape
+
+        if self.fmt == FileFormat.irap_ascii:
+            return PointSpecification(
+                attributes=list(df.columns[3:]) if len(df.columns) > 3 else None,
+                size=int(df.size),
+            )
         return PointSpecification(
             attributes=list(df.columns[3:]) if len(df.columns) > 3 else None,
             size=int(df.size),
+            columns=list(df.columns),
+            num_columns=num_columns,
+            num_rows=num_rows,
         )
 
     def export_to_file(self, file: Path | BytesIO) -> None:
@@ -279,20 +315,11 @@ class PointsDataProvider(ObjectDataProvider):
             table = pa.Table.from_pandas(self.obj_dataframe)
             pq.write_table(table, where=pa.output_stream(file))
 
-        elif self.fmt == FileFormat.csv_xtgeo:
-            self.obj_dataframe.to_csv(file, index=False)
-
-        elif self.fmt == FileFormat.csv:
-            self.obj_dataframe.rename(
-                columns={
-                    self.obj.xname: "X",
-                    self.obj.yname: "Y",
-                    self.obj.zname: "Z",
-                }
-            ).to_csv(file, index=False)
+        elif self.fmt == FileFormat.irap_ascii:
+            self.obj.to_file(file)
 
         else:
-            self.obj.to_file(file)
+            self.obj_dataframe.to_csv(file, index=False)
 
 
 @dataclass
