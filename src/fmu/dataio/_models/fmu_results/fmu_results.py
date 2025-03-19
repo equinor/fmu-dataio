@@ -44,15 +44,16 @@ if TYPE_CHECKING:
 class FmuResultsSchema(SchemaBase):
     """The main metadata export describing the results."""
 
-    VERSION: VersionStr = "0.9.1"
+    VERSION: VersionStr = "0.10.0"
 
     VERSION_CHANGELOG: str = """
-    #### 0.9.1
+    #### 0.10.0
 
-    - `data.spec.columns` added as optional field for for points, polygons
-    - `data.spec.num_columns` added as optional field for for points, polygons
-    - `data.spec.num_rows` added as optional field for for points, polygons
-    - `data.spec.size` added as optional field for for polygons
+    - `data.standard_result` now supports `StructureDepthFaultLinesStandardResult`
+    - `data.spec.columns` added as optional field for points, polygons
+    - `data.spec.num_columns` added as optional field for points, polygons
+    - `data.spec.num_rows` added as optional field for points, polygons
+    - `data.spec.size` added as optional field for polygons
 
     #### 0.9.0
 
