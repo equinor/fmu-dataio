@@ -117,7 +117,6 @@ from ._xtgeo import (
 
 if TYPE_CHECKING:
     from io import BytesIO
-    from pathlib import Path
 
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.types import Inferrable
