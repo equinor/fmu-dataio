@@ -10,7 +10,10 @@ from pydantic import (
 )
 from typing_extensions import Annotated
 
-from fmu.dataio._models.standard_results import InplaceVolumesSchema
+from fmu.dataio._models.standard_results import (
+    InplaceVolumesSchema,
+    StructureDepthFaultLinesSchema,
+)
 from fmu.dataio.types import VersionStr
 
 from . import enums
@@ -48,8 +51,7 @@ class InplaceVolumesStandardResult(StandardResult):
     """
 
     name: Literal[enums.StandardResultName.inplace_volumes]
-    """The identifying standard result name for the 'inplace_volumes' standard
-    result."""
+    """The identifying name for the 'inplace_volumes' standard result."""
 
     file_schema: FileSchema = FileSchema(
         version=InplaceVolumesSchema.VERSION,
@@ -66,7 +68,27 @@ class StructureDepthSurfaceStandardResult(StandardResult):
     """
 
     name: Literal[enums.StandardResultName.structure_depth_surface]
-    """The identifying product name for the 'structure_depth_surface' product."""
+    """The identifying name for the 'structure_depth_surface' standard result."""
+
+
+class StructureDepthFaultLinesStandardResult(StandardResult):
+    """
+    The ``standard_result`` field contains information about which standard results this
+    data object represent.
+    This class contains metadata for the 'structure_depth_fault_lines' standard result.
+    """
+
+    name: Literal[enums.StandardResultName.structure_depth_fault_lines]
+    """The identifying name for the 'structure_depth_fault_lines' standard result."""
+
+    file_schema: FileSchema = FileSchema(
+        version=StructureDepthFaultLinesSchema.VERSION,
+        url=AnyHttpUrl(StructureDepthFaultLinesSchema.url()),
+    )
+    """
+    The schema identifying the format of the 'structure_depth_fault_lines'
+    standard result.
+    """
 
 
 class AnyStandardResult(RootModel):
@@ -84,6 +106,7 @@ class AnyStandardResult(RootModel):
         Union[
             InplaceVolumesStandardResult,
             StructureDepthSurfaceStandardResult,
+            StructureDepthFaultLinesStandardResult,
         ],
         Field(discriminator="name"),
     ]

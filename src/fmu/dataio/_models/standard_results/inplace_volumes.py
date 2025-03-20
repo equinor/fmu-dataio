@@ -17,7 +17,7 @@ class InplaceVolumesResultRow(BaseModel):
     """Represents the columns of a row in a static inplace volumes export.
 
     These fields are the current agreed upon standard result. Changes to the fields or
-    their validation should cause the version defined in the prodct schema to
+    their validation should cause the version defined in the standard result schema to
     increase the version number in a way that corresponds to the schema versioning
     specification (i.e. they are a patch, minor, or major change)."""
 
