@@ -11,7 +11,7 @@
       "type": "string"
     },
     "InplaceVolumesResultRow": {
-      "description": "Represents the columns of a row in a static inplace volumes export.\n\nThese fields are the current agreed upon standard result. Changes to the fields or\ntheir validation should cause the version defined in the prodct schema to\nincrease the version number in a way that corresponds to the schema versioning\nspecification (i.e. they are a patch, minor, or major change).",
+      "description": "Represents the columns of a row in a static inplace volumes export.\n\nThese fields are the current agreed upon standard result. Changes to the fields or\ntheir validation should cause the version defined in the standard result schema to\nincrease the version number in a way that corresponds to the schema versioning\nspecification (i.e. they are a patch, minor, or major change).",
       "properties": {
         "ASSOCIATEDGAS": {
           "anyOf": [
