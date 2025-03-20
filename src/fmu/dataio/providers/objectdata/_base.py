@@ -4,6 +4,7 @@ import warnings
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
+from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Final
@@ -28,9 +29,6 @@ from fmu.dataio.providers.objectdata._export_models import (
 )
 
 if TYPE_CHECKING:
-    from io import BytesIO
-    from pathlib import Path
-
     from pydantic import BaseModel
 
     from fmu.dataio._models.fmu_results.data import (
