@@ -22,16 +22,12 @@ from typing import (
 )
 from warnings import warn
 
-if TYPE_CHECKING:
-    from . import types
-
 from fmu.dataio.aggregation import AggregatedData
 
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._models.fmu_results import enums, global_configuration
 from ._models.fmu_results.global_configuration import GlobalConfiguration
-from ._models.fmu_results.standard_result import StandardResult
 from ._utils import (
     detect_inside_rms,  # dataio_examples,
     export_metadata_file,
@@ -46,6 +42,11 @@ from .preprocessed import ExportPreprocessedData
 from .providers._filedata import FileDataProvider
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 from .providers.objectdata._provider import objectdata_provider_factory
+
+if TYPE_CHECKING:
+    from . import types
+    from ._models.fmu_results.standard_result import StandardResult
+
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
 INSIDE_RMS: Final = detect_inside_rms()

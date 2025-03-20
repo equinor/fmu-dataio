@@ -113,6 +113,8 @@ ignore = [
     "C901",  # mccabe complex-structure
     "PD901",  # Avoid using the generic variable name `df` for dataframes
     "PD011",  # Avoid using .values on dataframes (gives false positives)
+    "TC001",  # Move imports under TYPE_CHECKING. Breaks Pydantic annotations
+    "TC003",  # Move stdlib imports under TYPE_CHECKING. Breaks Pydantic annotations
 ]
 select = [
     "B",  # flake-8-bugbear
@@ -129,7 +131,7 @@ select = [
     "RET",  # flake8-return
     "RSE",  # flake8-raise
     "SIM",  # flake8-simplify
-    # "TCH",  # flake8-type-checking
+    "TCH",  # flake8-type-checking
     # "TID",  # flake8-tidy-imports
     "UP",  # pyupgrade
     "W",  # pylint-warnings
