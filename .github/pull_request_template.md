@@ -6,7 +6,7 @@ changes made to the code, and what the PR is solving."
 ## Checklist
 
 - [ ] Tests added (if not, comment why)
-- [ ] Test coverage equal or up from main (run pytest with `--cov=<packagename> --cov-report term-missing`)
+- [ ] Test coverage equal or up from main (run pytest with `--cov=src/ --cov-report term-missing`)
 - [ ] If not squash merging, every commit passes tests
 - [ ] Appropriate [commit prefix](https://upgraded-funicular-eywe4gy.pages.github.io/developing/#commit-prefixes) and precise commit message used
 - [ ] All debug prints and unnecessary comments removed
