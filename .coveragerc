@@ -1,0 +1,4 @@
+[report]
+exclude_also =
+    ; Ignore type checking blocks
+    if TYPE_CHECKING:
