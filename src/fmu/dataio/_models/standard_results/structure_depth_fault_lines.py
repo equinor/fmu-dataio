@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, List
 
 from pydantic import BaseModel, Field, RootModel
 
 from fmu.dataio._models._schema_base import FmuSchemas, SchemaBase
-from fmu.dataio.types import VersionStr
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import Any
+
+    from fmu.dataio.types import VersionStr
 
 
 class StructureDepthFaultLinesResultRow(BaseModel):

@@ -9,7 +9,6 @@ import os
 import shlex
 import uuid
 from datetime import datetime
-from io import BufferedIOBase, BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Final
 
@@ -22,12 +21,15 @@ import yaml
 
 from fmu.config import utilities as ut
 
-from . import types
 from ._logging import null_logger
 from .readers import FaultRoomSurface
 
 if TYPE_CHECKING:
+    from io import BufferedIOBase, BytesIO
+
     from fmu.dataio.providers.objectdata._base import ObjectDataProvider
+
+    from . import types
 
 
 logger: Final = null_logger(__name__)

@@ -9,7 +9,6 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Final
 
-from fmu.dataio._definitions import ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.data import AnyData, Time, Timestamp
 from fmu.dataio._models.fmu_results.enums import Content
@@ -17,7 +16,6 @@ from fmu.dataio._models.fmu_results.global_configuration import (
     GlobalConfiguration,
     StratigraphyElement,
 )
-from fmu.dataio._models.fmu_results.standard_result import StandardResult
 from fmu.dataio._utils import generate_description, md5sum
 from fmu.dataio.exceptions import ConfigurationError
 from fmu.dataio.providers._base import Provider
@@ -31,6 +29,7 @@ from fmu.dataio.providers.objectdata._export_models import (
 if TYPE_CHECKING:
     from pydantic import BaseModel
 
+    from fmu.dataio._definitions import ValidFormats
     from fmu.dataio._models.fmu_results.data import (
         BoundingBox2D,
         BoundingBox3D,
@@ -38,6 +37,7 @@ if TYPE_CHECKING:
     )
     from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
     from fmu.dataio._models.fmu_results.specification import AnySpecification
+    from fmu.dataio._models.fmu_results.standard_result import StandardResult
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.types import Inferrable
 
