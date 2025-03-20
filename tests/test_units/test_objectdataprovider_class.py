@@ -170,3 +170,12 @@ def test_regsurf_preprocessed_observation(
     with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
         metadata = yaml.safe_load(f)
     assert metadata["data"] == case_meta["data"]
+
+
+def test_objectdata_compute_md5(gridproperty, edataobj1):
+    """Test compute_md5 function works and gives same result as in the metadata"""
+
+    myobj = objectdata_provider_factory(gridproperty, edataobj1)
+
+    metadata = edataobj1.generate_metadata(gridproperty)
+    assert metadata["file"]["checksum_md5"] == myobj.compute_md5()
