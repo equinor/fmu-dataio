@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
-from fmu.dataio._models.fmu_results.global_configuration import Stratigraphy
+if TYPE_CHECKING:
+    from fmu.dataio._models.fmu_results.global_configuration import Stratigraphy
 
 
 class Utils:
