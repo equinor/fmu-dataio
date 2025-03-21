@@ -139,8 +139,9 @@ class _ExportVolumetricsRMS:
     def _compute_water_zone_volumes_from_totals(table: pd.DataFrame) -> pd.DataFrame:
         """
         Calculate 'water' zone volumes by subtracting HC-zone volumes from 'Total'
-        volumes which represents the entire zone. Total volumes are removed after
-        'water' zone volumes have been added to the table.
+        volumes which represents the entire zone. Due to RMS inaccuracies small
+        negative values can occur, they are truncated to 0. Total volumes are
+        removed after 'water' zone volumes have been added to the table.
         """
         _logger.debug("Computing water volumes from Totals...")
 
@@ -169,6 +170,17 @@ class _ExportVolumetricsRMS:
 
             if gas_zone_col in table:
                 table[water_zone_col] -= table[gas_zone_col]
+
+            # Due to an RMS bug related to precision the BULK and PORV
+            # can get small negative values in the water zone column.
+            # These must be truncated to 0 before validation
+            negative_values = table[water_zone_col] < 0
+            if negative_values.any():
+                _logger.debug(
+                    f"Negative values detected in column '{water_zone_col}'. "
+                    f"Truncating them to 0. \n{table.loc[negative_values]}"
+                )
+                table.loc[negative_values, water_zone_col] = 0
 
         return table.drop(columns=total_columns)
 

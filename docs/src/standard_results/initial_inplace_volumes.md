@@ -44,6 +44,16 @@ should be moved to after the export for flow simulation.
 
 ## Result
 
+The volumetric table from RMS undergoes a couple of transformations to adhere to the
+`inplace_volumes` standard format:
+
+1. Water zone bulk and pore volumes are calculated by subtracting oil and gas zone
+   volumes from the total volumes. The total volumes are removed, and any negative
+   values caused by precision issues in RMS are truncated to zero.
+2. The fluid-specific columns are unfied into a single set of volumetric columns,
+   with an additional `FLUID` column indicating the fluid type. If the `NET` column
+   is absent, it is set equal to the `BULK` column, assuming a net-to-gross ratio of one.
+
 Given a grid model name `Geogrid` the result file will be
 `share/results/tables/volumes/geogrid.parquet`.
 
@@ -51,7 +61,7 @@ This is a tabular file that can be converted to `.csv` or similar. It contains
 the following columns with types validated as indicated.
 
 ```{eval-rst}
-.. autopydantic_model:: fmu.dataio._models.standard_result.inplace_volumes.InplaceVolumesResultRow
+.. autopydantic_model:: fmu.dataio._models.standard_results.inplace_volumes.InplaceVolumesResultRow
    :members:
    :inherited-members: BaseModel
    :model-show-config-summary: False
