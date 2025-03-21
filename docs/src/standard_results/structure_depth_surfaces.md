@@ -5,8 +5,10 @@ These surfaces typically represent the final surface set generated during a stru
 modelling workflow (after well conditioning), and frequently serve as the framework for
 constructing the grid.
 
-Note, it is only possible to export **one single set** of depth surface predictions per 
+:::{note} 
+It is only possible to export **one single set** of depth surface predictions per 
 model workflow.
+:::
 
 :::{table} Current
 :widths: auto
