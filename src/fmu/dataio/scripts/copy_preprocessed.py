@@ -12,19 +12,11 @@ import argparse
 import logging
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Final
+from typing import Final
 
-from ert.plugins.plugin_manager import hook_implementation
+import ert
 
 from fmu.dataio import ExportPreprocessedData
-
-try:
-    from ert import ErtScript
-except ImportError:
-    from res.job_queue import ErtScript
-
-if TYPE_CHECKING:
-    from ert.plugins.workflow_config import WorkflowConfigs
 
 logger: Final = logging.getLogger(__name__)
 
@@ -62,7 +54,7 @@ def main() -> None:
     copy_preprocessed_data_main(commandline_args)
 
 
-class WfCopyPreprocessedData(ErtScript):
+class WfCopyPreprocessedData(ert.ErtScript):
     """A class with a run() function that can be registered as an ERT plugin.
 
     This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
@@ -147,8 +139,8 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-@hook_implementation
-def legacy_ertscript_workflow(config: WorkflowConfigs) -> None:
+@ert.plugin(name="fmu_dataio")
+def legacy_ertscript_workflow(config: ert.WorkflowConfigs) -> None:
     """Hook the WfCopyPreprocessedData class with documentation into ERT."""
     workflow = config.add_workflow(
         WfCopyPreprocessedData, "WF_COPY_PREPROCESSED_DATAIO"
