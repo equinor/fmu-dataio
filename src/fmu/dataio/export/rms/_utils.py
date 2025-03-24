@@ -86,6 +86,22 @@ def validate_horizon_folder(project: Any, horizon_folder: str) -> None:
         )
 
 
+def validate_zones_folder(project: Any, zone_folder: str) -> None:
+    """
+    Check if a zone folder exist inside the project and that data exists for some
+    zones within the folder. Otherwise raise errors.
+    """
+    if zone_folder not in project.zones.representations:
+        raise ValueError(
+            f"The provided zone folder name {zone_folder} does not exist inside RMS."
+        )
+
+    if all(horizon[zone_folder].is_empty() for horizon in project.zones):
+        raise RuntimeError(
+            f"The provided zone folder name {zone_folder} contains only empty items."
+        )
+
+
 def get_horizons_in_folder(
     project: Any, horizon_folder: str
 ) -> list[xtgeo.RegularSurface]:
@@ -100,6 +116,19 @@ def get_horizons_in_folder(
             surfaces.append(
                 xtgeo.surface_from_roxar(project, horizon.name, horizon_folder)
             )
+    return surfaces
+
+
+def get_zones_in_folder(project: Any, zone_folder: str) -> list[xtgeo.RegularSurface]:
+    """Get all non-empty surfaces from a zones folder stratigraphically ordered."""
+
+    logger.debug("Reading surfaces from zone folder %s", zone_folder)
+    validate_zones_folder(project, zone_folder)
+
+    surfaces = []
+    for zone in project.zones:
+        if not zone[zone_folder].is_empty():
+            surfaces.append(xtgeo.surface_from_roxar(project, zone.name, zone_folder))
     return surfaces
 
 

@@ -224,6 +224,7 @@ def mock_project_variable():
     # A mock_project variable for the RMS 'project' (potentially extend for later use)
     mock_project = MagicMock()
     mock_project.horizons.representations = ["DS_final"]
+    mock_project.zones.representations = ["IS_final"]
 
     yield mock_project
 
@@ -240,6 +241,23 @@ def xtgeo_surfaces(regsurf):
     regsurf_base = regsurf.copy()
     regsurf_base.name = "TopVolon"
     regsurf_base.values += 200
+
+    yield [regsurf_top, regsurf_mid, regsurf_base]
+
+
+@pytest.fixture
+def xtgeo_zones(regsurf):
+    regsurf_top = regsurf.copy()
+    regsurf_top.name = "Valysar"
+    regsurf_top.values = 30
+
+    regsurf_mid = regsurf.copy()
+    regsurf_mid.name = "Therys"
+    regsurf_mid.values = 50
+
+    regsurf_base = regsurf.copy()
+    regsurf_base.name = "Volon"
+    regsurf_base.values = 25
 
     yield [regsurf_top, regsurf_mid, regsurf_base]
 
