@@ -242,3 +242,19 @@ def xtgeo_surfaces(regsurf):
     regsurf_base.values += 200
 
     yield [regsurf_top, regsurf_mid, regsurf_base]
+
+
+@pytest.fixture
+def xtgeo_fault_lines(polygons):
+    top = polygons.copy()
+    top.name = "TopVolantis"
+
+    mid = polygons.copy()
+    mid.name = "TopTherys"
+    mid.get_dataframe(copy=False)[mid.zname] += 100
+
+    base = polygons.copy()
+    base.name = "TopVolon"
+    base.get_dataframe(copy=False)[base.zname] += 200
+
+    yield [top, mid, base]

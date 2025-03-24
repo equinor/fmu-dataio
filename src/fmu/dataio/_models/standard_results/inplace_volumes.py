@@ -64,10 +64,10 @@ class InplaceVolumesResultRow(BaseModel):
 
 
 class InplaceVolumesResult(RootModel):
-    """Represents the resultant static inplace volumes csv file, which is naturally a
-    list of rows.
+    """Represents the resultant static inplace volumes parquet file, which is naturally
+    a list of rows.
 
-    Consumers who retrieve this csv file must reading it into a json-dictionary
+    Consumers who retrieve this parquet file must read it into a json-dictionary
     equivalent format to validate it against the schema."""
 
     root: List[InplaceVolumesResultRow]
@@ -76,7 +76,7 @@ class InplaceVolumesResult(RootModel):
 class InplaceVolumesSchema(SchemaBase):
     """This class represents the schema that is used to validate the inplace volumes
     table being exported. This means that the version, schema filename, and schema
-    locaiton corresponds directly with the values and their validation constraints,
+    location corresponds directly with the values and their validation constraints,
     documented above."""
 
     VERSION: VersionStr = "0.1.0"
