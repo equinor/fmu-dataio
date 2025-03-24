@@ -71,6 +71,17 @@ class StructureDepthSurfaceStandardResult(StandardResult):
     """The identifying name for the 'structure_depth_surface' standard result."""
 
 
+class StructureDepthIsochoreStandardResult(StandardResult):
+    """
+    The ``standard_result`` field contains information about which standard results this
+    data object represent.
+    This class contains metadata for the 'structure_depth_isochore' standard result.
+    """
+
+    name: Literal[enums.StandardResultName.structure_depth_isochore]
+    """The identifying name for the 'structure_depth_isochore' standard result."""
+
+
 class StructureDepthFaultLinesStandardResult(StandardResult):
     """
     The ``standard_result`` field contains information about which standard results this
@@ -106,6 +117,7 @@ class AnyStandardResult(RootModel):
         Union[
             InplaceVolumesStandardResult,
             StructureDepthSurfaceStandardResult,
+            StructureDepthIsochoreStandardResult,
             StructureDepthFaultLinesStandardResult,
         ],
         Field(discriminator="name"),
