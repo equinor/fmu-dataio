@@ -43,3 +43,40 @@ def test_get_horizons_in_folder_folder_not_exist(mock_project_variable):
 
     with pytest.raises(ValueError, match="not exist inside RMS"):
         get_horizons_in_folder(mock_project_variable, horizon_folder)
+
+
+def test_get_horizons_in_folder_all_empty(mock_project_variable):
+    from fmu.dataio.export.rms._utils import get_horizons_in_folder
+
+    horizon_folder = "DS_final"
+
+    horizon1 = mock.MagicMock()
+    horizon1[horizon_folder].is_empty.return_value = True
+
+    mock_project_variable.horizons.__iter__.return_value = [horizon1]
+
+    with pytest.raises(RuntimeError, match="only empty items"):
+        get_horizons_in_folder(mock_project_variable, horizon_folder)
+
+
+def test_get_polygons_in_folder_folder_not_exist(mock_project_variable):
+    from fmu.dataio.export.rms._utils import get_polygons_in_folder
+
+    horizon_folder = "non_existent_folder"
+
+    with pytest.raises(ValueError, match="not exist inside RMS"):
+        get_polygons_in_folder(mock_project_variable, horizon_folder)
+
+
+def test_get_polygons_in_folder_all_empty(mock_project_variable):
+    from fmu.dataio.export.rms._utils import get_polygons_in_folder
+
+    horizon_folder = "DS_final"
+
+    horizon1 = mock.MagicMock()
+    horizon1[horizon_folder].is_empty.return_value = True
+
+    mock_project_variable.horizons.__iter__.return_value = [horizon1]
+
+    with pytest.raises(RuntimeError, match="only empty items"):
+        get_polygons_in_folder(mock_project_variable, horizon_folder)
