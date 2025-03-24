@@ -54,7 +54,7 @@ def test_create_case_metadata_warns_without_overwriting(
     with open(fmu_case_yml, encoding="utf-8") as f:
         first_run = yaml.safe_load(f)
 
-    with pytest.warns(UserWarning, match="The case metadata file already exists"):
+    with pytest.warns(UserWarning, match="Using existing case metadata from runpath:"):
         ert.__main__.main()
 
     ls_share_metadata = os.listdir(share_metadata)
