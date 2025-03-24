@@ -355,17 +355,53 @@ def test_compute_water_zone_volumes_from_totals_gas(
     assert f"{volumetric_col}_GAS" not in df_out
     assert f"{volumetric_col}_WATER" in df_out
 
-    # water zone should be the same as the Total - gas
+    # water zone should be the same as the Total - oil
     assert np.isclose(
         (df_in[f"{volumetric_col}_TOTAL"] - df_in[f"{volumetric_col}_OIL"]).sum(),
         df_out[f"{volumetric_col}_WATER"].sum(),
     )
 
-    # total zone should be the same as gas + water
+    # total zone should be the same as oil + water
     assert np.isclose(
         (df_out[f"{volumetric_col}_OIL"] + df_out[f"{volumetric_col}_WATER"]).sum(),
         df_in[f"{volumetric_col}_TOTAL"].sum(),
     )
+
+
+@pytest.mark.parametrize("volumetric_col", ["BULK", "PORV"])
+def test_compute_water_zone_volumes_truncate_negative_values(
+    exportvolumetrics, volumetric_col
+):
+    """Test that negative water zone values are truncated to 0"""
+
+    # make a minimum dataframe where first row have OIL volumes larger than TOTALS
+    df_in = pd.DataFrame(
+        {
+            "ZONE": ["Valysar", "Therys"],
+            "BULK_OIL": [1001, 2000],
+            "PORV_OIL": [301, 100],
+            "BULK_TOTAL": [1000, 3000],
+            "PORV_TOTAL": [300, 1100],
+        }
+    )
+
+    # check that the input would give negative water volumes for
+    # the first row and a positive value the second row
+    water_volumes_prior = (
+        df_in[f"{volumetric_col}_TOTAL"] - df_in[f"{volumetric_col}_OIL"]
+    )
+    assert water_volumes_prior.iloc[0] == -1
+    assert water_volumes_prior.iloc[1] == 1000
+
+    df_out = exportvolumetrics._compute_water_zone_volumes_from_totals(df_in)
+
+    # check that the negative value have been truncated only for the first row
+    assert df_out[f"{volumetric_col}_WATER"].iloc[0] == 0
+    assert df_out[f"{volumetric_col}_WATER"].iloc[1] == 1000
+
+    # the original columns should not have been modifed
+    assert df_in["BULK_OIL"].equals(df_out["BULK_OIL"])
+    assert df_in["PORV_OIL"].equals(df_out["PORV_OIL"])
 
 
 def test_total_volumes_required(exportvolumetrics, voltable_legacy):
