@@ -106,9 +106,13 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
         """
         if not self._establish_metadata_files():
             exists_warning = (
-                "The case metadata file already exists and will not be overwritten. "
-                "To make new case metadata delete the old case or run on a different "
-                "runpath."
+                "Using existing case metadata from runpath: "
+                "All data exported to Sumo will be stored to this existing case in "
+                "Sumo. If you want to create a new case in Sumo to store your data to, "
+                "delete the old case through Ert, or run on a different runpath "
+                "by editing it in your Ert configuration model.\n\n"
+                "Ignore this warning if your model is not enabled for Sumo yet, "
+                "or if storing to the existing case in Sumo is what you want."
             )
             logger.warning(exists_warning)
             warnings.warn(exists_warning, UserWarning)

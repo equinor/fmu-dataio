@@ -137,7 +137,7 @@ def test_create_case_metadata_generate_metadata_warn_if_exists(
         casename="abc",
         caseuser="user",
     )
-    with pytest.warns(UserWarning, match=r"The case metadata file already exists"):
+    with pytest.warns(UserWarning, match=r"Using existing case metadata from runpath:"):
         icase.generate_metadata()
 
 
