@@ -13,20 +13,12 @@ from __future__ import annotations
 import argparse
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Final
+from typing import Final
 
+import ert
 import yaml
-from ert.plugins.plugin_manager import hook_implementation
 
 from fmu.dataio import CreateCaseMetadata
-
-try:
-    from ert import ErtScript
-except ImportError:
-    from res.job_queue import ErtScript
-
-if TYPE_CHECKING:
-    from ert.plugins.workflow_config import WorkflowConfigs
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -66,7 +58,7 @@ def main() -> None:
     create_case_metadata_main(commandline_args)
 
 
-class WfCreateCaseMetadata(ErtScript):
+class WfCreateCaseMetadata(ert.ErtScript):
     """A class with a run() function that can be registered as an ERT plugin.
 
     This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
@@ -162,8 +154,8 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-@hook_implementation
-def legacy_ertscript_workflow(config: WorkflowConfigs) -> None:
+@ert.plugin(name="fmu_dataio")
+def legacy_ertscript_workflow(config: ert.WorkflowConfigs) -> None:
     """Hook the WfCreateCaseMetadata class with documentation into ERT."""
     workflow = config.add_workflow(WfCreateCaseMetadata, "WF_CREATE_CASE_METADATA")
     workflow.parser = get_parser

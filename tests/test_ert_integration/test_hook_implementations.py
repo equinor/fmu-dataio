@@ -1,4 +1,4 @@
-import os
+from __future__ import annotations
 
 from ert.plugins.plugin_manager import ErtPluginManager
 
@@ -6,7 +6,7 @@ import fmu.dataio.hook_implementations.jobs
 from fmu.dataio.scripts import copy_preprocessed, create_case_metadata
 
 
-def test_hook_implementations():
+def test_hook_implementations() -> None:
     plugin_manager = ErtPluginManager(
         plugins=[
             fmu.dataio.hook_implementations.jobs,
@@ -15,20 +15,19 @@ def test_hook_implementations():
         ]
     )
 
-    expected_forward_models = set()
+    expected_forward_models: set[str] = set()
     installable_fms = plugin_manager.get_installable_jobs()
     assert set(installable_fms) == expected_forward_models
 
     expected_workflow_jobs = {"WF_CREATE_CASE_METADATA", "WF_COPY_PREPROCESSED_DATAIO"}
-    installable_workflow_jobs = plugin_manager.get_installable_workflow_jobs()
-    for wf_name, wf_location in installable_workflow_jobs.items():
+    installable_workflow_jobs = plugin_manager.get_ertscript_workflows().get_workflows()
+    for wf_name, _ in installable_workflow_jobs.items():
         assert wf_name in expected_workflow_jobs
-        assert os.path.isfile(wf_location)
 
     assert set(installable_workflow_jobs) == expected_workflow_jobs
 
 
-def test_hook_implementations_docs():
+def test_hook_implementations_docs() -> None:
     plugin_manager = ErtPluginManager(
         plugins=[
             fmu.dataio.hook_implementations.jobs,
@@ -45,7 +44,7 @@ def test_hook_implementations_docs():
         assert fm_docs[fm_name]["examples"] != ""
         assert fm_docs[fm_name]["category"] != "other"
 
-    installable_workflow_jobs = plugin_manager.get_installable_workflow_jobs()
+    installable_workflow_jobs = plugin_manager.get_ertscript_workflows().get_workflows()
     wf_docs = plugin_manager.get_documentation_for_workflows()
     assert set(wf_docs) == set(installable_workflow_jobs)
     for wf_name in installable_workflow_jobs:
