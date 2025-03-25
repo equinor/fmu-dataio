@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Final, List
+from typing import Final
 
 from pydantic import BaseModel, model_validator
 
@@ -63,9 +63,9 @@ class ExportFolder(str, Enum):
 
 
 class StandardTableIndex(BaseModel):
-    columns: List[str]
+    columns: list[str]
     """List of all index columns"""
-    required: List[str]
+    required: list[str]
     """List of required index columns"""
 
     @model_validator(mode="after")

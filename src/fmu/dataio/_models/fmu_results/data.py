@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from pydantic import (
     AwareDatetime,
@@ -13,7 +13,6 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from typing_extensions import Annotated
 
 from . import enums
 from .specification import AnySpecification
@@ -27,13 +26,13 @@ class Timestamp(BaseModel):
     """A timestamp object contains a datetime representation of the time
     being marked and a string label for this timestamp."""
 
-    label: Optional[str] = Field(
+    label: str | None = Field(
         default=None,
         examples=["base", "monitor", "mylabel"],
     )
     """A string label corresponding to the timestamp."""
 
-    value: Union[NaiveDatetime, AwareDatetime] = Field(examples=["2020-10-28T14:28:02"])
+    value: NaiveDatetime | AwareDatetime = Field(examples=["2020-10-28T14:28:02"])
     """A datetime representation."""
 
 
@@ -47,7 +46,7 @@ class Time(BaseModel):
     t0: Timestamp
     """The first timestamp. See :class:`Timestamp`."""
 
-    t1: Optional[Timestamp] = Field(default=None)
+    t1: Timestamp | None = Field(default=None)
     """The second timestamp. See :class:`Timestamp`."""
 
 
@@ -57,22 +56,22 @@ class Seismic(BaseModel):
     == ``seismic``.
     """
 
-    attribute: Optional[str] = Field(default=None, examples=["amplitude_timeshifted"])
+    attribute: str | None = Field(default=None, examples=["amplitude_timeshifted"])
     """A known seismic attribute."""
 
-    calculation: Optional[str] = Field(default=None, examples=["mean"])
+    calculation: str | None = Field(default=None, examples=["mean"])
     """The type of calculation applied."""
 
-    filter_size: Optional[float] = Field(default=None, allow_inf_nan=False)
+    filter_size: float | None = Field(default=None, allow_inf_nan=False)
     """The filter size applied."""
 
-    scaling_factor: Optional[float] = Field(default=None, allow_inf_nan=False)
+    scaling_factor: float | None = Field(default=None, allow_inf_nan=False)
     """The scaling factor applied."""
 
-    stacking_offset: Optional[str] = Field(default=None, examples=["0-15"])
+    stacking_offset: str | None = Field(default=None, examples=["0-15"])
     """The stacking offset applied."""
 
-    zrange: Optional[float] = Field(default=None, allow_inf_nan=False)
+    zrange: float | None = Field(default=None, allow_inf_nan=False)
     """The z-range of these data."""
 
 
@@ -200,7 +199,7 @@ class Data(BaseModel):
     content: enums.Content
     """The type of content these data represent."""
 
-    standard_result: Optional[AnyStandardResult] = Field(default=None)
+    standard_result: AnyStandardResult | None = Field(default=None)
     """Information about the standard result that these data represent. The presence of
     this field indicates that these data conforms to a specified standard."""
 
@@ -210,11 +209,11 @@ class Data(BaseModel):
     applicable.
     """
 
-    alias: Optional[List[str]] = Field(default=None)
+    alias: list[str] | None = Field(default=None)
     """Other known-as names for ``data.name``. Typically names used within specific
     software, e.g. RMS and others."""
 
-    tagname: Optional[str] = Field(
+    tagname: str | None = Field(
         default=None,
         examples=["ds_extract_geogrid", "ds_post_strucmod"],
     )
@@ -229,14 +228,14 @@ class Data(BaseModel):
     stratigraphic: bool
     """True if this is defined in the stratigraphic column."""
 
-    description: Optional[List[str]] = Field(default=None)
+    description: list[str] | None = Field(default=None)
     """A list of strings, freetext description of this data, if applicable."""
 
-    geometry: Optional[Geometry] = Field(default=None)
+    geometry: Geometry | None = Field(default=None)
     """The geometry of the object, i.e. the grid that an object representing a grid
     property is derivative of. See :class:`Geometry`."""
 
-    bbox: Optional[Union[BoundingBox3D, BoundingBox2D]] = Field(default=None)
+    bbox: BoundingBox3D | BoundingBox2D | None = Field(default=None)
     """A block containing the bounding box for this data. Only applicable if the
     object is coordinate-based. See :class:`BoundingBox3D` and
     :class:`BoundingBox2D`."""
@@ -244,7 +243,7 @@ class Data(BaseModel):
     format: enums.FileFormat = Field(examples=["irap_binary"])
     """A reference to a known file format."""
 
-    grid_model: Optional[GridModel] = Field(default=None)
+    grid_model: GridModel | None = Field(default=None)
     """A block containing information pertaining to grid model content.
     See :class:`GridModel`.
 
@@ -256,7 +255,7 @@ class Data(BaseModel):
     is_prediction: bool
     """True if this is a prediction."""
 
-    layout: Optional[enums.Layout] = Field(
+    layout: enums.Layout | None = Field(
         default=None,
         examples=["regular", "cornerpoint"],
     )
@@ -266,49 +265,49 @@ class Data(BaseModel):
     """If a specific horizon is represented with an offset, e.g.
     "2 m below Top Volantis"."""
 
-    spec: Optional[AnySpecification] = Field(default=None)
+    spec: AnySpecification | None = Field(default=None)
     """A block containing the specs for this object, if applicable.
     See :class:`AnySpecification`."""
 
-    time: Optional[Time] = Field(default=None)
+    time: Time | None = Field(default=None)
     """A block containing lists of objects describing timestamp information for this
     data object, if applicable, like Flow simulator restart dates, or dates for seismic
     4D surveys.  See :class:`Time`.
 
     .. note:: ``data.time`` items can currently hold a maximum of two values."""
 
-    undef_is_zero: Optional[bool] = Field(default=None)
+    undef_is_zero: bool | None = Field(default=None)
     """Flag if undefined values are to be interpreted as zero"""
 
     unit: str = Field(default="", examples=["m"])
     """A reference to a known unit."""
 
-    vertical_domain: Optional[enums.VerticalDomain] = Field(
+    vertical_domain: enums.VerticalDomain | None = Field(
         default=None,
         examples=["depth", "time"],
     )
     """A reference to a known vertical domain."""
 
-    domain_reference: Optional[enums.DomainReference] = Field(
+    domain_reference: enums.DomainReference | None = Field(
         default=None,
         examples=["msl", "sb", "rkb"],
     )
     """The reference for the vertical scale of the data."""
 
-    table_index: Optional[List[str]] = Field(
+    table_index: list[str] | None = Field(
         default=None,
         examples=[["ZONE", "REGION"]],
     )
     """Column names in the table which can be used for indexing. Only applicable if the
     data object is a table."""
 
-    base: Optional[Layer] = Field(default=None)
+    base: Layer | None = Field(default=None)
     """If the data represent an interval, this field can be used to represent its base.
     See :class:`Layer`.
 
     .. note:: ``top`` is required to use with this."""
 
-    top: Optional[Layer] = Field(default=None)
+    top: Layer | None = Field(default=None)
     """If the data represent an interval, this field can be used to represent its top.
     See :class:`Layer`.
 
@@ -639,41 +638,39 @@ class AnyData(RootModel):
     """
 
     root: Annotated[
-        Union[
-            DepthData,
-            FaciesThicknessData,
-            FaultLinesData,
-            FieldOutlineData,
-            FieldRegionData,
-            FluidContactData,
-            KPProductData,
-            LiftCurvesData,
-            NamedAreaData,
-            ParametersData,
-            PinchoutData,
-            PropertyData,
-            FaultPropertiesData,
-            PVTData,
-            RegionsData,
-            RelpermData,
-            RFTData,
-            SeismicData,
-            SimulationTimeSeriesData,
-            SubcropData,
-            ThicknessData,
-            TimeData,
-            TimeSeriesData,
-            TransmissibilitiesData,
-            VelocityData,
-            VolumesData,
-            WellPicksData,
-        ],
+        DepthData
+        | FaciesThicknessData
+        | FaultLinesData
+        | FieldOutlineData
+        | FieldRegionData
+        | FluidContactData
+        | KPProductData
+        | LiftCurvesData
+        | NamedAreaData
+        | ParametersData
+        | PinchoutData
+        | PropertyData
+        | FaultPropertiesData
+        | PVTData
+        | RegionsData
+        | RelpermData
+        | RFTData
+        | SeismicData
+        | SimulationTimeSeriesData
+        | SubcropData
+        | ThicknessData
+        | TimeData
+        | TimeSeriesData
+        | TransmissibilitiesData
+        | VelocityData
+        | VolumesData
+        | WellPicksData,
         Field(discriminator="content"),
     ]
 
     @model_validator(mode="before")
     @classmethod
-    def _top_and_base_(cls, values: Dict) -> Dict:
+    def _top_and_base_(cls, values: dict) -> dict:
         top, base = values.get("top"), values.get("base")
         if top is None and base is None:
             return values
@@ -686,7 +683,7 @@ class AnyData(RootModel):
         cls,
         core_schema: CoreSchema,
         handler: GetJsonSchemaHandler,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         json_schema = super().__get_pydantic_json_schema__(core_schema, handler)
         json_schema = handler.resolve_ref_schema(json_schema)
         json_schema.update(

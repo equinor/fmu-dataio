@@ -7,7 +7,7 @@ are defined and maintained consistently.
 from __future__ import annotations
 
 import warnings
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import (
     BaseModel,
@@ -44,8 +44,8 @@ class Ssdl(BaseModel):
     Defines the configuration for the SSDL.
     """
 
-    access_level: Optional[enums.Classification] = Field(default=None)
-    rep_include: Optional[bool] = Field(default=None)
+    access_level: enums.Classification | None = Field(default=None)
+    rep_include: bool | None = Field(default=None)
 
 
 class Access(BaseModel, use_enum_values=True):
@@ -54,8 +54,8 @@ class Access(BaseModel, use_enum_values=True):
     """
 
     asset: fields.Asset
-    ssdl: Optional[Ssdl] = Field(default=None)
-    classification: Optional[enums.Classification] = Field(default=None)
+    ssdl: Ssdl | None = Field(default=None)
+    classification: enums.Classification | None = Field(default=None)
 
     @model_validator(mode="after")
     def _validate_classification_ssdl_access_level(self) -> Access:
@@ -88,12 +88,12 @@ class StratigraphyElement(BaseModel):
 
     # TODO: Remove type ignore when Pydantic issue
     #  https://github.com/pydantic/pydantic/issues/10950 has been solved
-    alias: Optional[List[str]] = Field(default_factory=list)  # type: ignore[arg-type]
+    alias: list[str] | None = Field(default_factory=list)  # type: ignore[arg-type]
 
-    stratigraphic_alias: Optional[List[str]] = Field(default=None)
+    stratigraphic_alias: list[str] | None = Field(default=None)
     offset: float = Field(default=0.0, allow_inf_nan=False)
-    top: Optional[data.Layer] = Field(default=None)
-    base: Optional[data.Layer] = Field(default=None)
+    top: data.Layer | None = Field(default=None)
+    base: data.Layer | None = Field(default=None)
 
     @field_validator("alias", "stratigraphic_alias", mode="before")
     @classmethod
@@ -121,14 +121,14 @@ class StratigraphyElement(BaseModel):
     @field_validator("top", "base", mode="before")
     @classmethod
     def _set_name_attribute_if_string_input(
-        cls, value: Dict | str | None
-    ) -> Dict | None:
+        cls, value: dict | str | None
+    ) -> dict | None:
         if isinstance(value, str):
             return {"name": value}
         return value
 
 
-class Stratigraphy(RootModel[Dict[str, StratigraphyElement]]):
+class Stratigraphy(RootModel[dict[str, StratigraphyElement]]):
     """
     A collection of StratigraphyElement instances, accessible by keys.
     """
@@ -150,4 +150,4 @@ class GlobalConfiguration(BaseModel):
     access: Access
     masterdata: fields.Masterdata
     model: fields.Model
-    stratigraphy: Optional[Stratigraphy] = Field(default=None)
+    stratigraphy: Stratigraphy | None = Field(default=None)

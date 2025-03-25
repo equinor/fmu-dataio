@@ -1,9 +1,7 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Literal, MutableMapping, Union
+from collections.abc import MutableMapping
+from typing import TYPE_CHECKING, Annotated, Literal, TypeAlias, Union
 
 from pydantic import Field
-from typing_extensions import Annotated, TypeAlias
 
 if TYPE_CHECKING:
     import pathlib
@@ -33,22 +31,18 @@ if TYPE_CHECKING:
     class PolygonsProxy(Polygons): ...
 
     Inferrable: TypeAlias = Annotated[
-        Union[
-            # XTGeo
-            CubeProxy,
-            GridPropertyProxy,
-            GridProxy,
-            PointsProxy,
-            PolygonsProxy,
-            RegularSurfaceProxy,
-            # Others
-            DataFrame,
-            FaultRoomSurface,
-            MutableMapping,
-            Table,
-            pathlib.Path,
-            str,
-        ],
+        CubeProxy
+        | GridPropertyProxy
+        | GridProxy
+        | PointsProxy
+        | PolygonsProxy
+        | RegularSurfaceProxy
+        | DataFrame
+        | FaultRoomSurface
+        | MutableMapping
+        | Table
+        | pathlib.Path
+        | str,
         "Collection of 'inferrable' objects with metadata deduction capabilities",
     ]
 

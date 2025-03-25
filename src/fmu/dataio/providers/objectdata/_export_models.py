@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import warnings
 from textwrap import dedent
-from typing import Final, Literal, Optional, Type
+from typing import Final, Literal
 
 from pydantic import (
     BaseModel,
@@ -43,7 +43,7 @@ def property_warn() -> None:
 
 class AllowedContentSeismic(data.Seismic):
     # Deprecated
-    offset: Optional[str] = Field(default=None)
+    offset: str | None = Field(default=None)
 
     @model_validator(mode="after")
     def _check_depreciated(self) -> AllowedContentSeismic:
@@ -59,8 +59,8 @@ class AllowedContentSeismic(data.Seismic):
 
 class AllowedContentProperty(BaseModel):
     # needs to be here for now, as it is not defined in the schema
-    attribute: Optional[str] = Field(default=None)
-    is_discrete: Optional[bool] = Field(default=None)
+    attribute: str | None = Field(default=None)
+    is_discrete: bool | None = Field(default=None)
 
 
 class UnsetData(data.Data):
@@ -79,7 +79,7 @@ class UnsetData(data.Data):
         return self
 
 
-def content_metadata_factory(content: enums.Content) -> Type[BaseModel]:
+def content_metadata_factory(content: enums.Content) -> type[BaseModel]:
     """Return the correct content_metadata model based on provided content."""
     if content == enums.Content.field_outline:
         return data.FieldOutline

@@ -5,7 +5,7 @@ import uuid
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Final, Optional, Union
+from typing import Final
 
 from pydantic import ValidationError
 
@@ -49,7 +49,7 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
     casename: str
     caseuser: str
 
-    description: Optional[Union[str, list]] = None
+    description: str | list | None = None
 
     _metadata: dict = field(default_factory=dict, init=False)
     _metafile: Path = field(default_factory=Path, init=False)

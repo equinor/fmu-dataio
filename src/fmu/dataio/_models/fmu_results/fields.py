@@ -4,16 +4,11 @@ import datetime
 import getpass
 import os
 import platform
-from datetime import timezone
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Literal,
-    Optional,
-    Union,
 )
 from uuid import UUID
 
@@ -67,7 +62,7 @@ class Access(BaseModel):
     """A block containing information about the owner asset of these data.
     See :class:`Asset`."""
 
-    classification: Optional[enums.Classification] = Field(default=None)
+    classification: enums.Classification | None = Field(default=None)
     """The access classification level. See :class:`enums.Classification`."""
 
 
@@ -93,7 +88,7 @@ class File(BaseModel):
     disk and is not required under this schema.
     """
 
-    absolute_path: Optional[Path] = Field(
+    absolute_path: Path | None = Field(
         default=None,
         examples=["/abs/path/share/results/maps/volantis_gp_base--depth.gri"],
     )
@@ -107,12 +102,12 @@ class File(BaseModel):
     checksum_md5: MD5HashStr = Field(examples=["fa4d055b113ae5282796e328cde0ffa4"])
     """A valid MD5 checksum of the file."""
 
-    size_bytes: Optional[int] = Field(default=None)
+    size_bytes: int | None = Field(default=None)
     """Size of file object in bytes"""
 
     @model_validator(mode="before")
     @classmethod
-    def _check_for_non_ascii_in_path(cls, values: Dict) -> Dict:
+    def _check_for_non_ascii_in_path(cls, values: dict) -> dict:
         if (path := values.get("absolute_path")) and not str(path).isascii():
             raise ValueError(
                 f"Path has non-ascii elements which is not supported: {path}"
@@ -132,7 +127,7 @@ class Aggregation(BaseModel):
     operation: str
     """A string representing the type of aggregation performed."""
 
-    realization_ids: List[int]
+    realization_ids: list[int]
     """An array of realization ids included in this aggregation."""
 
 
@@ -180,7 +175,7 @@ class Case(BaseModel):
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """The unique identifier of this case. Currently made by fmu.dataio."""
 
-    description: Optional[List[str]] = Field(default=None)
+    description: list[str] | None = Field(default=None)
     """A free-text description of this case."""
 
 
@@ -220,7 +215,7 @@ class Iteration(BaseModel):
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """The unique identifier of this case. Currently made by fmu.dataio."""
 
-    restart_from: Optional[UUID] = Field(
+    restart_from: UUID | None = Field(
         default=None,
         examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
     )
@@ -238,7 +233,7 @@ class Model(BaseModel):
        than "model".
     """
 
-    description: Optional[List[str]] = Field(default=None)
+    description: list[str] | None = Field(default=None)
     """This is a free text description of the model setup"""
 
     name: str = Field(examples=["Drogon"])
@@ -266,7 +261,7 @@ class Realization(BaseModel):
     """The universally unique identifier for this realization. It is a hash of
     ``fmu.case.uuid`` and ``fmu.iteration.uuid`` and ``fmu.realization.id``."""
 
-    is_reference: Optional[bool] = Field(default=None)
+    is_reference: bool | None = Field(default=None)
     """
     Flag used to determine if this realization is tagged as a reference.
 
@@ -344,15 +339,15 @@ class Smda(BaseModel):
     """Reference to coordinate system known to SMDA.
     See :class:`CoordinateSystem`."""
 
-    country: List[CountryItem]
+    country: list[CountryItem]
     """A list referring to countries known to SMDA. First item is primary.
     See :class:`CountryItem`."""
 
-    discovery: List[DiscoveryItem]
+    discovery: list[DiscoveryItem]
     """A list referring to discoveries known to SMDA. First item is primary.
     See :class:`DiscoveryItem`."""
 
-    field: List[FieldItem]
+    field: list[FieldItem]
     """A list referring to fields known to SMDA. First item is primary.
     See :class:`FieldItem`."""
 
@@ -410,20 +405,20 @@ class SystemInformation(BaseModel):
     these data were exported from.
     """
 
-    fmu_dataio: Optional[Version] = Field(
+    fmu_dataio: Version | None = Field(
         alias="fmu-dataio",
         default=None,
         examples=["1.2.3"],
     )
     """The version of fmu-dataio used to export the data. See :class:`Version`."""
 
-    komodo: Optional[Version] = Field(
+    komodo: Version | None = Field(
         default=None,
         examples=["2023.12.05-py38"],
     )
     """The version of Komodo in which the the ensemble was run from."""
 
-    operating_system: Optional[OperatingSystem] = Field(default=None)
+    operating_system: OperatingSystem | None = Field(default=None)
     """The operating system from which the ensemble was started from.
     See :class:`OperatingSystem`."""
 
@@ -434,7 +429,7 @@ class Tracklog(RootModel):
     for constructing a tracklog and adding new records to it.
     """
 
-    root: List[TracklogEvent]
+    root: list[TracklogEvent]
 
     def __getitem__(self, item: int) -> TracklogEvent:
         return self.root[item]
@@ -471,7 +466,7 @@ class Tracklog(RootModel):
         )
         return [
             fields.TracklogEvent.model_construct(
-                datetime=datetime.datetime.now(timezone.utc),
+                datetime=datetime.datetime.now(datetime.UTC),
                 event=event,
                 user=fields.User.model_construct(id=getpass.getuser()),
                 sysinfo=(
@@ -502,7 +497,7 @@ class TracklogEvent(BaseModel):
     # update NaiveDatetime ->  AwareDatetime
     # On upload, sumo adds timezone if its lacking.
     # For roundtripping i need an Union here.
-    datetime: Union[NaiveDatetime, AwareDatetime] = Field(
+    datetime: NaiveDatetime | AwareDatetime = Field(
         examples=["2020-10-28T14:28:02"],
     )
     """A datetime representation recording when the event occurred."""
@@ -514,7 +509,7 @@ class TracklogEvent(BaseModel):
     """The user who caused the event to happen. See :class:`User`."""
 
     # TODO: Make non-optional when fmu-sumo-aggregation-service uses only fmu-dataio
-    sysinfo: Optional[SystemInformation] = Field(
+    sysinfo: SystemInformation | None = Field(
         default_factory=SystemInformation,
     )
     """Information about the system on which the event occurred.
@@ -532,7 +527,7 @@ class Display(BaseModel):
     be placed on the ``display`` block.
     """
 
-    name: Optional[str] = Field(default=None)
+    name: str | None = Field(default=None)
     """A display-friendly version of ``data.name``."""
 
 
@@ -637,29 +632,29 @@ class FMU(FMUBase):
     """The ``fmu.context`` block contains the FMU context in which this data object
     was produced. See :class:`Context`.  """
 
-    iteration: Optional[Iteration] = Field(default=None)
+    iteration: Iteration | None = Field(default=None)
     """The ``fmu.iteration`` block contains information about the iteration this data
     object belongs to. See :class:`Iteration`. """
 
-    workflow: Optional[Workflow] = Field(default=None)
+    workflow: Workflow | None = Field(default=None)
     """The ``fmu.workflow`` block refers to specific subworkflows within the large
     FMU workflow being ran. See :class:`Workflow`."""
 
-    aggregation: Optional[Aggregation] = Field(default=None)
+    aggregation: Aggregation | None = Field(default=None)
     """The ``fmu.aggregation`` block contains information about an aggregation
     performed over an ensemble. See :class:`Aggregation`."""
 
-    realization: Optional[Realization] = Field(default=None)
+    realization: Realization | None = Field(default=None)
     """The ``fmu.realization`` block contains information about the realization this
     data object belongs to. See :class:`Realization`."""
 
-    ert: Optional[Ert] = Field(default=None)
+    ert: Ert | None = Field(default=None)
     """The ``fmu.ert`` block contains information about the current ert run
     See :class:`Ert`."""
 
     @model_validator(mode="before")
     @classmethod
-    def _dependencies_aggregation_realization(cls, values: Dict) -> Dict:
+    def _dependencies_aggregation_realization(cls, values: dict) -> dict:
         aggregation, realization = values.get("aggregation"), values.get("realization")
         if aggregation and realization:
             raise ValueError(
@@ -673,7 +668,7 @@ class FMU(FMUBase):
         cls,
         core_schema: CoreSchema,
         handler: GetJsonSchemaHandler,
-    ) -> Dict[str, object]:
+    ) -> dict[str, object]:
         json_schema = super().__get_pydantic_json_schema__(core_schema, handler)
         json_schema = handler.resolve_ref_schema(json_schema)
         json_schema.update(

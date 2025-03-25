@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field, RootModel
 
@@ -32,10 +32,10 @@ class InplaceVolumesResultRow(BaseModel):
     REGION: str
     """Index column. The region from which this volume is coming from. Required."""
 
-    FACIES: Optional[str] = Field(default=None)
+    FACIES: str | None = Field(default=None)
     """Index column. The facies from which is volume is coming from. Optional."""
 
-    LICENSE: Optional[str] = Field(default=None)
+    LICENSE: str | None = Field(default=None)
     """Index column. The license under which these volumes related to. Optional."""
 
     BULK: float = Field(ge=0.0)
@@ -47,19 +47,19 @@ class InplaceVolumesResultRow(BaseModel):
     PORV: float = Field(ge=0.0)
     """The pore volume of the fluid-type given in ``FLUID``. Required."""
 
-    HCPV: Optional[float] = Field(default=None, ge=0.0)
+    HCPV: float | None = Field(default=None, ge=0.0)
     """The pore volume of the fluid-type given in ``FLUID``. Optional."""
 
-    STOIIP: Optional[float] = Field(default=None, ge=0.0)
+    STOIIP: float | None = Field(default=None, ge=0.0)
     """The STOIIP volume of the fluid-type given in ``FLUID``. Optional."""
 
-    GIIP: Optional[float] = Field(default=None, ge=0.0)
+    GIIP: float | None = Field(default=None, ge=0.0)
     """The GIIP volume of the fluid-type given in ``FLUID``. Optional."""
 
-    ASSOCIATEDGAS: Optional[float] = Field(default=None, ge=0.0)
+    ASSOCIATEDGAS: float | None = Field(default=None, ge=0.0)
     """The associated gas volume of the fluid-type given in ``FLUID``. Optional."""
 
-    ASSOCIATEDOIL: Optional[float] = Field(default=None, ge=0.0)
+    ASSOCIATEDOIL: float | None = Field(default=None, ge=0.0)
     """The associated oil volume of the fluid-type given in ``FLUID``. Optional."""
 
 
@@ -70,7 +70,7 @@ class InplaceVolumesResult(RootModel):
     Consumers who retrieve this parquet file must read it into a json-dictionary
     equivalent format to validate it against the schema."""
 
-    root: List[InplaceVolumesResultRow]
+    root: list[InplaceVolumesResultRow]
 
 
 class InplaceVolumesSchema(SchemaBase):

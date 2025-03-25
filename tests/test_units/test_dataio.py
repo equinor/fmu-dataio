@@ -80,8 +80,9 @@ def test_wrong_config_exports_correctly_ouside_fmu(
     monkeypatch.chdir(tmp_path)
     name = "mysurface"
 
-    with pytest.warns(UserWarning, match="The global config"), pytest.warns(
-        UserWarning, match="without metadata"
+    with (
+        pytest.warns(UserWarning, match="The global config"),
+        pytest.warns(UserWarning, match="without metadata"),
     ):
         objpath_cfg_invalid = ExportData(
             config={},
@@ -125,8 +126,9 @@ def test_wrong_config_exports_correctly_in_fmu(
     monkeypatch.chdir(fmurun_w_casemetadata)
     name = "mysurface"
 
-    with pytest.warns(UserWarning, match="The global config"), pytest.warns(
-        UserWarning, match="without metadata"
+    with (
+        pytest.warns(UserWarning, match="The global config"),
+        pytest.warns(UserWarning, match="without metadata"),
     ):
         objpath_cfg_invalid = ExportData(
             config={},
@@ -286,8 +288,9 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
 
     # under override should give FutureWarning for these
     edata = ExportData(config=globalconfig1, content="depth")
-    with pytest.warns(UserWarning, match=expected_msg), pytest.warns(
-        FutureWarning, match="move them up to initialization"
+    with (
+        pytest.warns(UserWarning, match=expected_msg),
+        pytest.warns(FutureWarning, match="move them up to initialization"),
     ):
         edata.generate_metadata(regsurf, **kval)
 
@@ -311,16 +314,18 @@ def test_access_ssdl_vs_classification_rep_include(globalconfig1, regsurf):
 
     # 'access_ssdl' is not allowed together with any combination of
     # 'classification' / 'rep_include' arguments
-    with pytest.warns(FutureWarning, match="deprecated"), pytest.raises(
-        ValueError, match="is not supported"
+    with (
+        pytest.warns(FutureWarning, match="deprecated"),
+        pytest.raises(ValueError, match="is not supported"),
     ):
         ExportData(
             access_ssdl={"access_level": "restricted"},
             classification="internal",
             content="depth",
         )
-    with pytest.warns(FutureWarning, match="deprecated"), pytest.raises(
-        ValueError, match="is not supported"
+    with (
+        pytest.warns(FutureWarning, match="deprecated"),
+        pytest.raises(ValueError, match="is not supported"),
     ):
         ExportData(
             access_ssdl={"rep_include": True},
@@ -328,8 +333,9 @@ def test_access_ssdl_vs_classification_rep_include(globalconfig1, regsurf):
             content="depth",
         )
 
-    with pytest.warns(FutureWarning, match="deprecated"), pytest.raises(
-        ValueError, match="is not supported"
+    with (
+        pytest.warns(FutureWarning, match="deprecated"),
+        pytest.raises(ValueError, match="is not supported"),
     ):
         ExportData(
             access_ssdl={"access_level": "restricted"},
@@ -697,8 +703,9 @@ def test_vertical_domain(regsurf, globalconfig1):
         ExportData(
             config=globalconfig1, domain_reference="wrong", content="thickness"
         ).generate_metadata(regsurf)
-    with pytest.warns(FutureWarning, match="deprecated"), pytest.raises(
-        pydantic.ValidationError, match="2 validation errors"
+    with (
+        pytest.warns(FutureWarning, match="deprecated"),
+        pytest.raises(pydantic.ValidationError, match="2 validation errors"),
     ):
         ExportData(
             config=globalconfig1, vertical_domain={"invalid": 5}, content="thickness"

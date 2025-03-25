@@ -33,7 +33,7 @@ import uuid
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, Optional, Union
+from typing import TYPE_CHECKING, Final
 from warnings import warn
 
 import pydantic
@@ -109,12 +109,12 @@ class FmuProvider(Provider):
 
     model: fields.Model | None = None
     fmu_context: FMUContext = FMUContext.realization
-    casepath_proposed: Optional[Path] = None
-    workflow: Optional[Union[str, dict[str, str]]] = None
+    casepath_proposed: Path | None = None
+    workflow: str | dict[str, str] | None = None
 
     # private properties for this class
-    _runpath: Optional[Path] = field(default_factory=Path, init=False)
-    _casepath: Optional[Path] = field(default_factory=Path, init=False)
+    _runpath: Path | None = field(default_factory=Path, init=False)
+    _casepath: Path | None = field(default_factory=Path, init=False)
     _iter_name: str = field(default="", init=False)
     _iter_id: int = field(default=0, init=False)
     _real_name: str = field(default="", init=False)
