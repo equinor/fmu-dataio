@@ -13,12 +13,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
-    Dict,
     Final,
-    List,
     Literal,
-    Optional,
-    Union,
 )
 from warnings import warn
 
@@ -350,7 +346,7 @@ class ExportData:
     grid_fformat: ClassVar[str] = "roff"
     include_ertjobs: ClassVar[bool] = False  # deprecated
     legacy_time_format: ClassVar[bool] = False  # deprecated
-    meta_format: ClassVar[Optional[Literal["yaml", "json"]]] = None  # deprecated
+    meta_format: ClassVar[Literal["yaml", "json"] | None] = None  # deprecated
     polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     surface_fformat: ClassVar[str] = "irap_binary"
@@ -363,37 +359,37 @@ class ExportData:
     # input keys (alphabetic)
     access_ssdl: dict = field(default_factory=dict)
     aggregation: bool = False
-    casepath: Optional[Union[str, Path]] = None
-    classification: Optional[str] = None
+    casepath: str | Path | None = None
+    classification: str | None = None
     config: dict | GlobalConfiguration = field(default_factory=dict)
-    content: Optional[Union[dict, str]] = None
-    content_metadata: Optional[dict] = None
-    depth_reference: Optional[str] = None  # deprecated
+    content: dict | str | None = None
+    content_metadata: dict | None = None
+    depth_reference: str | None = None  # deprecated
     domain_reference: str = "msl"
-    description: Union[str, list] = ""
-    display_name: Optional[str] = None
-    fmu_context: Optional[str] = None
+    description: str | list = ""
+    display_name: str | None = None
+    fmu_context: str | None = None
     forcefolder: str = ""
-    geometry: Optional[str] = None
-    grid_model: Optional[str] = None
+    geometry: str | None = None
+    grid_model: str | None = None
     is_observation: bool = False
     is_prediction: bool = True
     name: str = ""
     undef_is_zero: bool = False
     parent: str = ""
     preprocessed: bool = False
-    realization: Optional[int] = None  # deprecated
-    rep_include: Optional[bool] = None
-    reuse_metadata_rule: Optional[str] = None  # deprecated
-    runpath: Optional[Union[str, Path]] = None
+    realization: int | None = None  # deprecated
+    rep_include: bool | None = None
+    reuse_metadata_rule: str | None = None  # deprecated
+    runpath: str | Path | None = None
     subfolder: str = ""
     tagname: str = ""
-    timedata: Optional[Union[List[str], List[List[str]]]] = None
-    unit: Optional[str] = ""
+    timedata: list[str] | list[list[str]] | None = None
+    unit: str | None = ""
     verbosity: str = "DEPRECATED"  # remove in version 2
-    vertical_domain: Union[str, dict] = "depth"  # dict input is deprecated
-    workflow: Optional[Union[str, Dict[str, str]]] = None  # dict input is deprecated
-    table_index: Optional[list] = None
+    vertical_domain: str | dict = "depth"  # dict input is deprecated
+    workflow: str | dict[str, str] | None = None  # dict input is deprecated
+    table_index: list | None = None
 
     # storing resulting state variables for instance, non-public:
     _pwd: Path = field(default_factory=Path, init=False)
@@ -528,7 +524,7 @@ class ExportData:
         logger.debug("Using default 'rep_include'=False")
         return False
 
-    def _get_content_enum(self) -> Optional[enums.Content]:
+    def _get_content_enum(self) -> enums.Content | None:
         """Get the content enum."""
         if self.content is None:
             logger.debug("content not set from input, returning None'")
@@ -547,7 +543,7 @@ class ExportData:
             f"content string: {[m.value for m in enums.Content]}"
         )
 
-    def _get_content_metadata(self) -> Optional[dict]:
+    def _get_content_metadata(self) -> dict | None:
         """
         Get the content metadata if provided by as input, else return None.
         Validation takes place in the objectdata provider.
@@ -937,7 +933,7 @@ class ExportData:
 
         self._update_check_settings(kwargs)
 
-        if isinstance(obj, (str, Path)):
+        if isinstance(obj, str | Path):
             if self.casepath is None:
                 raise TypeError("No 'casepath' argument provided")
             _future_warning_preprocessed()
@@ -981,7 +977,7 @@ class ExportData:
             warnings.warn(
                 "The return_symlink option is deprecated and can safely be removed."
             )
-        if isinstance(obj, (str, Path)):
+        if isinstance(obj, str | Path):
             self._update_check_settings(kwargs)
             if self.casepath is None:
                 raise TypeError("No 'casepath' argument provided")

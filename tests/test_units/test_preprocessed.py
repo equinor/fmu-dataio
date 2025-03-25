@@ -222,8 +222,9 @@ def test_preprocessed_surface_invalid_casepath(fmurun_prehook):
 
     # error should be raised when running on a casepath without case metadata
     # note UserWarning is emitted initially by ExportData
-    with pytest.warns(UserWarning), pytest.raises(
-        ValueError, match="Could not detect valid case metadata"
+    with (
+        pytest.warns(UserWarning),
+        pytest.raises(ValueError, match="Could not detect valid case metadata"),
     ):
         dataio.ExportPreprocessedData(casepath="dummy")
 
@@ -233,8 +234,9 @@ def test_preprocessed_surface_invalid_casepath(fmurun_prehook):
     # delete the case matadata and see that it fails
     metacase_file = fmurun_prehook / ERT_RELATIVE_CASE_METADATA_FILE
     metacase_file.unlink()
-    with pytest.warns(UserWarning), pytest.raises(
-        ValueError, match="Could not detect valid case metadata"
+    with (
+        pytest.warns(UserWarning),
+        pytest.raises(ValueError, match="Could not detect valid case metadata"),
     ):
         dataio.ExportPreprocessedData(casepath=fmurun_prehook)
 

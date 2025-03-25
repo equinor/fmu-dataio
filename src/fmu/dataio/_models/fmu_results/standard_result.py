@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal, Optional, Union
+from typing import Annotated, Literal
 
 from pydantic import (
     AnyHttpUrl,
@@ -8,7 +8,6 @@ from pydantic import (
     Field,
     RootModel,
 )
-from typing_extensions import Annotated
 
 from fmu.dataio._models.standard_results import (
     InplaceVolumesSchema,
@@ -38,7 +37,7 @@ class StandardResult(BaseModel):
     name: enums.StandardResultName
     """The identifying standard result name for this data object."""
 
-    file_schema: Optional[FileSchema] = Field(default=None)
+    file_schema: FileSchema | None = Field(default=None)
     """The schema identifying the format of the standard result."""
 
 
@@ -114,11 +113,9 @@ class AnyStandardResult(RootModel):
     """
 
     root: Annotated[
-        Union[
-            InplaceVolumesStandardResult,
-            StructureDepthSurfaceStandardResult,
-            StructureDepthIsochoreStandardResult,
-            StructureDepthFaultLinesStandardResult,
-        ],
+        InplaceVolumesStandardResult
+        | StructureDepthSurfaceStandardResult
+        | StructureDepthIsochoreStandardResult
+        | StructureDepthFaultLinesStandardResult,
         Field(discriminator="name"),
     ]

@@ -3,7 +3,6 @@
 import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pytest
@@ -97,8 +96,9 @@ def test_detect_not_inside_rms():
 
 
 def test_non_metadata_export_metadata_file():
-    with NamedTemporaryFile(buffering=0, suffix=".yaml") as tf, pytest.raises(
-        RuntimeError
+    with (
+        NamedTemporaryFile(buffering=0, suffix=".yaml") as tf,
+        pytest.raises(RuntimeError),
     ):
         utils.export_metadata_file(Path(tf.name), {})
 
@@ -119,8 +119,10 @@ def test_create_symlink():
             "norwillthispath",
         )
 
-    with NamedTemporaryFile() as source, NamedTemporaryFile() as target, pytest.raises(
-        OSError
+    with (
+        NamedTemporaryFile() as source,
+        NamedTemporaryFile() as target,
+        pytest.raises(OSError),
     ):
         utils.create_symlink(
             source.name,
@@ -151,26 +153,26 @@ def test_read_named_envvar():
 
 
 def test_get_pydantic_models_from_annotation():
-    annotation = Union[List[fields.Access], fields.File]
+    annotation = list[fields.Access] | fields.File
     assert _get_pydantic_models_from_annotation(annotation) == [
         fields.Access,
         fields.File,
     ]
-    annotation = Optional[Union[Dict[str, fields.Access], List[fields.File]]]
+    annotation = dict[str, fields.Access] | list[fields.File] | None
     assert _get_pydantic_models_from_annotation(annotation) == [
         fields.Access,
         fields.File,
     ]
 
-    annotation = List[Union[fields.Access, fields.File, fields.Tracklog]]
+    annotation = list[fields.Access | fields.File | fields.Tracklog]
     assert _get_pydantic_models_from_annotation(annotation) == [
         fields.Access,
         fields.File,
         fields.Tracklog,
     ]
 
-    annotation = List[List[List[List[fields.Tracklog]]]]
+    annotation = list[list[list[list[fields.Tracklog]]]]
     assert _get_pydantic_models_from_annotation(annotation) == [fields.Tracklog]
 
-    annotation = Union[str, List[int], Dict[str, int]]
+    annotation = str | list[int] | dict[str, int]
     assert not _get_pydantic_models_from_annotation(annotation)

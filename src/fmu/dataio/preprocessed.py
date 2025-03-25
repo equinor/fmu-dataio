@@ -91,7 +91,7 @@ class ExportPreprocessedData:
         Check that the input object is an existing file and convert it
         to an absolute path.
         """
-        if not isinstance(obj, (str, Path)):
+        if not isinstance(obj, str | Path):
             raise ValueError("Only file paths are supported as input object")
 
         objfile = Path(obj).resolve()

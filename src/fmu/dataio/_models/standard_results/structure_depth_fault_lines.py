@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field, RootModel
 
@@ -41,7 +41,7 @@ class StructureDepthFaultLinesResult(RootModel):
     Consumers who retrieve this parquet file must read it into a json-dictionary
     equivalent format to validate it against the schema."""
 
-    root: List[StructureDepthFaultLinesResultRow]
+    root: list[StructureDepthFaultLinesResultRow]
 
 
 class StructureDepthFaultLinesSchema(SchemaBase):

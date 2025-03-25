@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List
 
 from pydantic import BaseModel
 
@@ -17,4 +16,4 @@ class ExportResult(BaseModel):
     of the items that were successfully exported by the export function.
     """
 
-    items: List[ExportResultItem]
+    items: list[ExportResultItem]
