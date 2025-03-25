@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 name = "fmu-dataio"
 description = "Facilitate data io in FMU with rich metadata"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 license = { text = "Apache 2.0" }
 authors = [{ name = "Equinor", email = "xxxxx@equinor.com" }]
 keywords = ["fmu", "sumo"]
@@ -19,9 +19,6 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
@@ -140,11 +137,6 @@ select = [
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.lint.pyupgrade]
-# Preserve types, even if a file imports `from __future__ import annotations`.
-# TODO: Remove when Python 3.8 / 3.9 support is deprecated.
-keep-runtime-typing = true
-
 [tool.ruff.lint.isort]
 combine-as-imports = true
 
@@ -153,7 +145,7 @@ disallow_untyped_defs = true
 exclude = "^((tests|docs|examples|build|tools)/|conftest.py?)"
 extra_checks = true
 ignore_missing_imports = true
-python_version = 3.8
+python_version = 3.11
 strict_equality = true
 warn_redundant_casts = true
 warn_unused_configs = true

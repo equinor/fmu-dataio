@@ -8,9 +8,10 @@ import json
 import os
 import shlex
 import uuid
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Final
+from typing import TYPE_CHECKING, Any, Final
 
 import numpy as np
 import pandas as pd
@@ -36,7 +37,7 @@ logger: Final = null_logger(__name__)
 
 
 def npfloat_to_float(v: Any) -> Any:
-    return float(v) if isinstance(v, (np.float64, np.float32)) else v
+    return float(v) if isinstance(v, np.float64 | np.float32) else v
 
 
 def detect_inside_rms() -> bool:
@@ -114,7 +115,7 @@ def export_file(
 
     if file_suffix == ".gri" and isinstance(obj, xtgeo.RegularSurface):
         obj.to_file(file, fformat="irap_binary")
-    elif file_suffix == ".csv" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
+    elif file_suffix == ".csv" and isinstance(obj, xtgeo.Polygons | xtgeo.Points):
         out = obj.copy()  # to not modify incoming instance!
         if "xtgeo" not in fmt:
             out.xname = "X"
@@ -127,11 +128,11 @@ def export_file(
                     inplace=True,  # noqa: PD002
                 )
         out.get_dataframe(copy=False).to_csv(file, index=False)
-    elif file_suffix == ".pol" and isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
+    elif file_suffix == ".pol" and isinstance(obj, xtgeo.Polygons | xtgeo.Points):
         obj.to_file(file)
     elif file_suffix == ".segy" and isinstance(obj, xtgeo.Cube):
         obj.to_file(file, fformat="segy")
-    elif file_suffix == ".roff" and isinstance(obj, (xtgeo.Grid, xtgeo.GridProperty)):
+    elif file_suffix == ".roff" and isinstance(obj, xtgeo.Grid | xtgeo.GridProperty):
         obj.to_file(file, fformat="roff")
     elif file_suffix == ".csv" and isinstance(obj, pd.DataFrame):
         logger.info(

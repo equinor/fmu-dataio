@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import os
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from pathlib import Path
 from typing import (
     Any,
-    Dict,
     Final,
-    List,
     Literal,
-    Mapping,
     TypeVar,
 )
 
@@ -18,7 +16,7 @@ from pydantic.json_schema import GenerateJsonSchema
 
 from fmu.dataio.types import VersionStr
 
-T = TypeVar("T", Dict, List, object)
+T = TypeVar("T", dict, list, object)
 
 
 class FmuSchemas:

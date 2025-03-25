@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Union
+from typing import TYPE_CHECKING, Annotated, Literal
 
 from pydantic import (
     AnyHttpUrl,
@@ -11,7 +11,6 @@ from pydantic import (
     RootModel,
     model_validator,
 )
-from typing_extensions import Annotated
 
 from fmu.dataio._models._schema_base import (
     FmuSchemas,
@@ -36,7 +35,8 @@ from .fields import (
 )
 
 if TYPE_CHECKING:
-    from typing import Any, Final, Mapping
+    from collections.abc import Mapping
+    from typing import Any, Final
 
     from pydantic_core import CoreSchema
 
@@ -288,12 +288,7 @@ class ObjectMetadata(MetadataBase):
 class FmuResults(
     RootModel[
         Annotated[
-            Union[
-                CaseMetadata,
-                ObjectMetadata,
-                RealizationMetadata,
-                IterationMetadata,
-            ],
+            CaseMetadata | ObjectMetadata | RealizationMetadata | IterationMetadata,
             Field(discriminator="class_"),
         ]
     ]

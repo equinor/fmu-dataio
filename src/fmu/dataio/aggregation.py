@@ -4,7 +4,7 @@ import copy
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import ClassVar, Final, Literal, Optional, Union
+from typing import ClassVar, Final, Literal
 
 from pydantic import ValidationError
 
@@ -54,11 +54,11 @@ class AggregatedData:
     """
 
     # class variable(s)
-    meta_format: ClassVar[Optional[Literal["yaml", "json"]]] = None  # deprecated
+    meta_format: ClassVar[Literal["yaml", "json"] | None] = None  # deprecated
 
     # instance
-    aggregation_id: Optional[str] = None
-    casepath: Optional[Union[str, Path]] = None
+    aggregation_id: str | None = None
+    casepath: str | Path | None = None
     source_metadata: list = field(default_factory=list)
     name: str = ""
     operation: str = ""

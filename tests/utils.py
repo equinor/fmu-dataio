@@ -36,7 +36,7 @@ def _isoformat_all_datetimes(indate):
     if isinstance(indate, dict):
         return {key: _isoformat_all_datetimes(indate[key]) for key in indate}
 
-    if isinstance(indate, (datetime.datetime, datetime.date)):
+    if isinstance(indate, datetime.datetime | datetime.date):
         return indate.isoformat()
 
     return indate
