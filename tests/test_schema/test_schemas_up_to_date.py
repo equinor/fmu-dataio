@@ -36,11 +36,11 @@ def test_schemas_uptodate(schema: SchemaBase) -> None:
 
     To get more feedback or generate new schemas run:
 
-        ./tools/update_schema --diff
+        ./tools/update-schemas --diff
 
     If you are generating a production release try running:
 
-        ./tools/update_schema --diff --prod
+        ./tools/update-schemas --diff --prod
     """
     with open(schema.PATH) as f:
         assert json.load(f) == schema.dump()
