@@ -10,6 +10,7 @@ from pydantic import (
 )
 
 from fmu.dataio._models.standard_results import (
+    FieldOutlineSchema,
     InplaceVolumesSchema,
     StructureDepthFaultLinesSchema,
 )
@@ -101,6 +102,25 @@ class StructureDepthFaultLinesStandardResult(StandardResult):
     """
 
 
+class FieldOutlineStandardResult(StandardResult):
+    """
+    The ``standard_result`` field contains information about which standard results this
+    data object represent.
+    This class contains metadata for the 'field_outline' standard result.
+    """
+
+    name: Literal[enums.StandardResultName.field_outline]
+    """The identifying name for the 'field_outline' standard result."""
+
+    file_schema: FileSchema = FileSchema(
+        version=FieldOutlineSchema.VERSION,
+        url=AnyHttpUrl(FieldOutlineSchema.url()),
+    )
+    """
+    The schema identifying the format of the 'field_outline' standard result.
+    """
+
+
 class AnyStandardResult(RootModel):
     """
     The ``standard result`` field contains information about which standard result this
@@ -113,7 +133,8 @@ class AnyStandardResult(RootModel):
     """
 
     root: Annotated[
-        InplaceVolumesStandardResult
+        FieldOutlineStandardResult
+        | InplaceVolumesStandardResult
         | StructureDepthSurfaceStandardResult
         | StructureDepthIsochoreStandardResult
         | StructureDepthFaultLinesStandardResult,
