@@ -235,7 +235,7 @@ class SchemaBase(ABC):
 
         To update the schema:
             1. Run the following CLI command to dump the updated schema:
-                `./tools/update_schema --diff`.
+                `./tools/update-schemas --diff`.
             2. Check the diff for changes. Adding fields usually indicates non-breaking
                 changes and is generally safe. However, if fields are removed, it could
                 indicate breaking changes that may affect dependent systems. Perform a
