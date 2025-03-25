@@ -49,6 +49,7 @@ class FmuResultsSchema(SchemaBase):
     VERSION_CHANGELOG: str = """
     #### 0.10.0
 
+    - `data.standard_result` now supports `StructureDepthIsochoreStandardResult`
     - `data.standard_result` now supports `StructureDepthFaultLinesStandardResult`
     - `data.spec.columns` added as optional field for points, polygons
     - `data.spec.num_columns` added as optional field for points, polygons
