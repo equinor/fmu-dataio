@@ -72,7 +72,7 @@ async def main(
         while jobs:
             try:
                 obj = await asyncio.wait_for(que.get(), 0.1)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 continue
 
             pbar.update()

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from enum import Enum, IntEnum
-from typing import Type
 
 
 class StandardResultName(str, Enum):
@@ -60,7 +59,7 @@ class Content(str, Enum):
     wellpicks = "wellpicks"
 
     @classmethod
-    def _missing_(cls: Type[Content], value: object) -> None:
+    def _missing_(cls: type[Content], value: object) -> None:
         raise ValueError(
             f"Invalid 'content' {value=}. Valid entries are {[m.value for m in cls]}"
         )

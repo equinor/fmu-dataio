@@ -10,7 +10,7 @@ dependencies on the internals.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Final, Literal
 
 from pydantic import Field
 
@@ -42,12 +42,12 @@ class ObjectMetadataExport(ObjectMetadata, populate_by_name=True):
     purposes when exporting metadata."""
 
     # These type ignores are for making the field optional
-    fmu: Optional[fields.FMU]  # type: ignore
-    access: Optional[fields.SsdlAccess]  # type: ignore
-    masterdata: Optional[fields.Masterdata]  # type: ignore
+    fmu: fields.FMU | None  # type: ignore
+    access: fields.SsdlAccess | None  # type: ignore
+    masterdata: fields.Masterdata | None  # type: ignore
     # !! Keep UnsetData first in this union
-    data: Union[UnsetData, data.AnyData]  # type: ignore
-    preprocessed: Optional[bool] = Field(alias="_preprocessed", default=None)
+    data: UnsetData | data.AnyData  # type: ignore
+    preprocessed: bool | None = Field(alias="_preprocessed", default=None)
 
 
 class CaseMetadataExport(CaseMetadata, populate_by_name=True):
@@ -56,7 +56,7 @@ class CaseMetadataExport(CaseMetadata, populate_by_name=True):
     class_: Literal[FMUClass.case] = Field(
         default=FMUClass.case, alias="class", title="metadata_class"
     )
-    description: Optional[List[str]] = Field(default=None)
+    description: list[str] | None = Field(default=None)
 
 
 def _get_meta_filedata(

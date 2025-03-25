@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List, Optional, Union
-
 from pydantic import BaseModel, Field
 
 from . import enums
@@ -53,26 +51,26 @@ class SurfaceSpecification(RowColumn):
 class PointSpecification(BaseModel):
     """Specifies relevant values describing an xyz points object."""
 
-    attributes: Optional[List[str]] = Field(default=None)
+    attributes: list[str] | None = Field(default=None)
     """List of columns present in a table."""
 
     size: int = Field(ge=0, examples=[1, 9999])
     """Size of data object."""
 
-    columns: Optional[List[str]] = Field(default=None)
+    columns: list[str] | None = Field(default=None)
     """List of columns present in a table."""
 
-    num_columns: Optional[int] = Field(default=None, ge=0, examples=[1, 9999])
+    num_columns: int | None = Field(default=None, ge=0, examples=[1, 9999])
     """The number of columns in a table."""
 
-    num_rows: Optional[int] = Field(default=None, ge=0, examples=[1, 9999])
+    num_rows: int | None = Field(default=None, ge=0, examples=[1, 9999])
     """The number of rows in a table.."""
 
 
 class TableSpecification(BaseModel):
     """Specifies relevant values describing a generic tabular data object."""
 
-    columns: List[str]
+    columns: list[str]
     """List of columns present in a table."""
 
     num_columns: int = Field(ge=0, examples=[1, 9999])
@@ -106,7 +104,7 @@ class CPGridSpecification(RowColumnLayer):
     zscale: float = Field(allow_inf_nan=False)
     """Scaling factor for the z-axis."""
 
-    zonation: Optional[List[ZoneDefinition]] = Field(default=None)
+    zonation: list[ZoneDefinition] | None = Field(default=None)
     """
     Zone names and corresponding layer index ranges. The list is ordered from
     shallowest to deepest zone. Note the layer indices are zero-based; add 1 to
@@ -138,35 +136,35 @@ class PolygonsSpecification(BaseModel):
     npolys: int = Field(ge=0)
     """The number of individual polygons in the data object."""
 
-    columns: Optional[List[str]] = Field(default=None)
+    columns: list[str] | None = Field(default=None)
     """List of columns present in a table."""
 
-    num_columns: Optional[int] = Field(default=None, ge=0, examples=[1, 9999])
+    num_columns: int | None = Field(default=None, ge=0, examples=[1, 9999])
     """The number of columns in a table."""
 
-    num_rows: Optional[int] = Field(default=None, ge=0, examples=[1, 9999])
+    num_rows: int | None = Field(default=None, ge=0, examples=[1, 9999])
     """The number of rows in a table.."""
 
-    size: Optional[int] = Field(default=None, ge=0, examples=[1, 9999])
+    size: int | None = Field(default=None, ge=0, examples=[1, 9999])
     """The total size of the table, i.e. `rows x cols`."""
 
 
 class FaultRoomSurfaceSpecification(BaseModel):
     """Specifies relevant values describing a Faultroom surface object."""
 
-    horizons: List[str]
+    horizons: list[str]
     """List of horizon names."""
 
-    faults: List[str]
+    faults: list[str]
     """Names of faults."""
 
-    juxtaposition_hw: List[str]
+    juxtaposition_hw: list[str]
     """List of zones included in hangingwall juxtaposition."""
 
-    juxtaposition_fw: List[str]
+    juxtaposition_fw: list[str]
     """List of zones included in footwall juxtaposition."""
 
-    properties: List[str]
+    properties: list[str]
     """List of properties along fault plane."""
 
     name: str
@@ -210,13 +208,13 @@ class CubeSpecification(SurfaceSpecification):
     """Value representing undefined data."""
 
 
-AnySpecification = Union[
-    CPGridPropertySpecification,
-    CPGridSpecification,
-    FaultRoomSurfaceSpecification,
-    PointSpecification,
-    CubeSpecification,
-    PolygonsSpecification,
-    SurfaceSpecification,
-    TableSpecification,
-]
+AnySpecification = (
+    CPGridPropertySpecification
+    | CPGridSpecification
+    | FaultRoomSurfaceSpecification
+    | PointSpecification
+    | CubeSpecification
+    | PolygonsSpecification
+    | SurfaceSpecification
+    | TableSpecification
+)
