@@ -92,6 +92,19 @@ def validate_global_config(config: dict[str, Any]) -> GlobalConfiguration:
         ) from err
 
 
+def get_open_polygons_id(pol: xtgeo.Polygons) -> list[int]:
+    """
+    Return list of id's for open polygons within an xtgeo.Polygon.
+    In an open polygon the first and last row of the dataframe are not equal
+    i.e. different coordinates.
+    """
+    open_polygons = []
+    for polid, poldf in pol.get_dataframe(copy=False).groupby("POLY_ID"):
+        if not poldf.iloc[0].equals(poldf.iloc[-1]):
+            open_polygons.append(polid)
+    return open_polygons
+
+
 def validate_horizon_folder(project: Any, horizon_folder: str) -> None:
     """
     Check if a horizon folder exist inside the project and that data exists for some
