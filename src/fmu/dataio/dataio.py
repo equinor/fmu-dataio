@@ -28,7 +28,6 @@ from ._utils import (
     detect_inside_rms,  # dataio_examples,
     export_metadata_file,
     export_object_to_file,
-    prettyprint_dict,
     read_metadata_from_file,
     some_config_from_env,
 )
@@ -404,10 +403,7 @@ class ExportData:
     _rootpath: Path = field(default_factory=Path, init=False)
 
     def __post_init__(self) -> None:
-        assert isinstance(self.config, dict)
         logger.info("Running __post_init__ ExportData")
-        logger.debug("Global config is %s", prettyprint_dict(self.config))
-
         self._show_deprecations_or_notimplemented()
 
         self._fmurun = get_fmu_context_from_environment() is not None
