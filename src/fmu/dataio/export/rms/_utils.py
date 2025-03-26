@@ -3,11 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final
 
+import pydantic
 import xtgeo
 from packaging.version import parse as versionparse
 
 from fmu.dataio._logging import null_logger
+from fmu.dataio._models.fmu_results.global_configuration import GlobalConfiguration
 from fmu.dataio._utils import load_config_from_path
+from fmu.dataio.exceptions import ValidationError
 
 from ._conditional_rms_imports import import_rms_package
 
@@ -59,13 +62,34 @@ def get_rms_project_units(project: Any) -> str:
     return str(units)
 
 
-def load_global_config() -> dict[str, Any]:
+def load_global_config() -> GlobalConfiguration:
+    """Load the global config from standard path and return validated config."""
     if not CONFIG_PATH.exists():
         raise FileNotFoundError(
             "Could not detect the global config file at standard "
             f"location: {CONFIG_PATH}."
         )
-    return load_config_from_path(CONFIG_PATH)
+    config = load_config_from_path(CONFIG_PATH)
+    return validate_global_config(config)
+
+
+def validate_global_config(config: dict[str, Any]) -> GlobalConfiguration:
+    """Validate the input config using pydantic, raise error if invalid."""
+    try:
+        return GlobalConfiguration.model_validate(config)
+    except pydantic.ValidationError as err:
+        error_message = (
+            "When exporting standard_results it is required to have a valid config.\n"
+        )
+        if "masterdata" not in config:
+            error_message += (
+                "Follow the 'Getting started' steps to do necessary preparations: "
+                "https://fmu-dataio.readthedocs.io/en/latest/preparations.html "
+            )
+
+        raise ValidationError(
+            f"{error_message}\nDetailed information: \n{err}"
+        ) from err
 
 
 def validate_horizon_folder(project: Any, horizon_folder: str) -> None:
