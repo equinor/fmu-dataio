@@ -2,6 +2,8 @@ from unittest import mock
 
 import pytest
 
+from fmu.dataio._models.fmu_results.global_configuration import GlobalConfiguration
+
 
 def test_get_horizons_in_folder(mock_project_variable):
     from fmu.dataio.export.rms._utils import get_horizons_in_folder
@@ -132,3 +134,20 @@ def test_get_polygons_in_folder_all_empty(mock_project_variable):
 
     with pytest.raises(RuntimeError, match="only empty items"):
         get_polygons_in_folder(mock_project_variable, horizon_folder)
+
+
+def test_validate_global_config(mock_project_variable, globalconfig1):
+    from fmu.dataio.export.rms._utils import validate_global_config
+
+    config = validate_global_config(globalconfig1)
+    assert isinstance(config, GlobalConfiguration)
+
+
+def test_validate_global_config_invalid(mock_project_variable, globalconfig1):
+    from fmu.dataio.export.rms._utils import validate_global_config
+
+    invalid_config = globalconfig1.copy()
+    invalid_config.pop("masterdata")
+
+    with pytest.raises(ValueError, match="valid config"):
+        validate_global_config(invalid_config)
