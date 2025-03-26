@@ -1,0 +1,43 @@
+{
+  "$defs": {
+    "FieldOutlineResultRow": {
+      "description": "Represents the columns of a row in a field outline export.\n\nThese fields are the current agreed upon standard result. Changes to the fields or\ntheir validation should cause the version defined in the standard result schema to\nincrease the version number in a way that corresponds to the schema versioning\nspecification (i.e. they are a patch, minor, or major change).",
+      "properties": {
+        "POLY_ID": {
+          "minimum": 0,
+          "title": "Poly Id",
+          "type": "integer"
+        },
+        "X_UTME": {
+          "title": "X Utme",
+          "type": "number"
+        },
+        "Y_UTMN": {
+          "title": "Y Utmn",
+          "type": "number"
+        },
+        "Z_TVDSS": {
+          "title": "Z Tvdss",
+          "type": "number"
+        }
+      },
+      "required": [
+        "X_UTME",
+        "Y_UTMN",
+        "Z_TVDSS",
+        "POLY_ID"
+      ],
+      "title": "FieldOutlineResultRow",
+      "type": "object"
+    }
+  },
+  "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/file_formats/0.1.0/field_outline.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Represents the resultant field outline parquet file, which is\nnaturally a list of rows.\n\nConsumers who retrieve this parquet file must read it into a json-dictionary\nequivalent format to validate it against the schema.",
+  "items": {
+    "$ref": "#/$defs/FieldOutlineResultRow"
+  },
+  "title": "FieldOutlineResult",
+  "type": "array",
+  "version": "0.1.0"
+}
