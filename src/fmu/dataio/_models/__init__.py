@@ -1,5 +1,7 @@
 from .fmu_results import FmuResults, FmuResultsSchema
 from .standard_results import (
+    FieldOutlineResult,
+    FieldOutlineSchema,
     InplaceVolumesResult,
     InplaceVolumesSchema,
     StructureDepthFaultLinesResult,
@@ -9,6 +11,8 @@ from .standard_results import (
 __all__ = [
     "FmuResults",
     "FmuResultsSchema",
+    "FieldOutlineResult",
+    "FieldOutlineSchema",
     "InplaceVolumesResult",
     "InplaceVolumesSchema",
     "StructureDepthFaultLinesResult",
@@ -17,6 +21,7 @@ __all__ = [
 
 schemas = [
     FmuResultsSchema,
+    FieldOutlineSchema,
     InplaceVolumesSchema,
     StructureDepthFaultLinesSchema,
 ]
