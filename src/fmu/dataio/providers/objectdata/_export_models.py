@@ -57,12 +57,6 @@ class AllowedContentSeismic(data.Seismic):
         return self
 
 
-class AllowedContentProperty(BaseModel):
-    # needs to be here for now, as it is not defined in the schema
-    attribute: str | None = Field(default=None)
-    is_discrete: bool | None = Field(default=None)
-
-
 class UnsetData(data.Data):
     content: Literal["unset"]  # type: ignore
 
@@ -88,7 +82,7 @@ def content_metadata_factory(content: enums.Content) -> type[BaseModel]:
     if content == enums.Content.fluid_contact:
         return data.FluidContact
     if content == enums.Content.property:
-        return AllowedContentProperty
+        return data.Property
     if content == enums.Content.seismic:
         return AllowedContentSeismic
     raise ValueError(f"No content_metadata model exist for content {str(content)}")

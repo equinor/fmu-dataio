@@ -5604,6 +5604,40 @@
       "title": "PolygonsSpecification",
       "type": "object"
     },
+    "Property": {
+      "description": "A block describing property data. Shall be present if ``data.content`\n== ``property``.",
+      "properties": {
+        "attribute": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "porosity"
+          ],
+          "title": "Attribute"
+        },
+        "is_discrete": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Is Discrete"
+        }
+      },
+      "title": "Property",
+      "type": "object"
+    },
     "PropertyData": {
       "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for property data.",
       "properties": {
@@ -5746,6 +5780,17 @@
           "default": 0.0,
           "title": "Offset",
           "type": "number"
+        },
+        "property": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Property"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "spec": {
           "anyOf": [

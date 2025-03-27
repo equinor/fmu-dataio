@@ -172,7 +172,7 @@ def test_content_property(gridproperty, globalconfig2):
 def test_content_property_as_dict(gridproperty, globalconfig2):
     """Test export of the property content."""
     content_specifc = {"attribute": "porosity", "is_discrete": False}
-    # should give FutureWarning whan not linked to a grid
+    # should give FutureWarning when not linked to a grid
     with pytest.warns(FutureWarning, match="linking it to a geometry"):
         meta = ExportData(
             config=globalconfig2,
@@ -182,8 +182,7 @@ def test_content_property_as_dict(gridproperty, globalconfig2):
         ).generate_metadata(gridproperty)
 
     assert meta["data"]["content"] == "property"
-    # TODO: add next line when schema defines content_specific for property
-    # assert meta["data"]["property"] == content_specifc
+    assert meta["data"]["property"] == content_specifc
 
 
 def test_content_seismic_as_dict(gridproperty, globalconfig2):
