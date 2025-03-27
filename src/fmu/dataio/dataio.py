@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import os
 import warnings
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -72,36 +72,6 @@ def _future_warning_preprocessed() -> None:
         "Please update your script, as this will be discontinued in the future.",
         FutureWarning,
     )
-
-
-def _validate_variable(key: str, value: type, legals: dict[str, str | type]) -> bool:
-    """Use data from __annotions__ to validate that overriden var. is of legal type."""
-    if key not in legals:
-        logger.warning("Unsupported key, raise an error")
-        raise ValidationError(f"The input key '{key}' is not supported")
-
-    legal_key = legals[key]
-    # Potential issue: Eval will use the modules namespace. If given
-    #   "from typing import ClassVar" or similar.
-    # is missing from the namespace, eval(...) will fail.
-    valid_type = eval(legal_key) if isinstance(legal_key, str) else legal_key
-
-    try:
-        validcheck = valid_type.__args__  # type: ignore[union-attr]
-    except AttributeError:
-        validcheck = valid_type
-
-    if "typing." not in str(validcheck):
-        if not isinstance(value, validcheck):
-            logger.warning("Wrong type of value, raise an error")
-            raise ValidationError(
-                f"The value of '{key}' is of wrong type: {type(value)}. "
-                f"Allowed types are {validcheck}"
-            )
-    else:
-        logger.info("Skip type checking of complex types; '%s: %s'", key, validcheck)
-
-    return True
 
 
 # ======================================================================================
@@ -764,19 +734,17 @@ class ExportData:
         )
         logger.info("Try new settings %s", newsettings)
 
-        # derive legal input from dataclass signature
-        annots = getattr(self, "__annotations__", {})
-        legals = {key: val for key, val in annots.items() if not key.startswith("_")}
-        if "config" in legals:
-            del legals["config"]  # config cannot be updated
-
         if "config" in newsettings:
             raise ValueError("Cannot have 'config' outside instance initialization")
 
+        available_arguments = [field.name for field in fields(ExportData)]
         for setting, value in newsettings.items():
-            if _validate_variable(setting, value, legals):
-                setattr(self, setting, value)
-                logger.info("New setting OK for %s", setting)
+            if setting not in available_arguments:
+                logger.warning("Unsupported key, raise an error")
+                raise ValidationError(f"The input key '{setting}' is not supported")
+
+            setattr(self, setting, value)
+            logger.info("New setting OK for %s", setting)
 
         self._show_deprecations_or_notimplemented()
         self._validate_and_establish_fmucontext()
