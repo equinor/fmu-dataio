@@ -22,7 +22,7 @@ def test_load_inplace_volumes(metadata_examples):
 
     with (
         patch(
-            "fmu.external.sumo_explorer_interface.SumoExplorerInterface.__post_init__",
+            "fmu.external.sumo_explorer_interface.SumoExplorerInterface.__init__",
             return_value=None,
         ),
         patch(
