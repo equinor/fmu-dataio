@@ -23,9 +23,9 @@ but with replacements inplace.
  - ``content`` was previously optional, it should now be explicitly provided as a valid content string.
  - ``content`` no longer supports using a dictionary form to provide extra information together
    with the ``content``, use the ``content_metadata`` argument instead.
+ - when ``content='property'`` it will be required to set the ``attribute`` through the ``content_metadata``.
  - ``content={'seismic': {'offset': '0-15'}}`` no longer works, use the key ``stacking_offset`` instead 
    of ``offset``.
-
 
 Following are an example demonstrating several deprecated patterns:
 

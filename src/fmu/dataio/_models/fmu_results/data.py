@@ -75,6 +75,17 @@ class Seismic(BaseModel):
     """The z-range of these data."""
 
 
+class Property(BaseModel):
+    """A block describing property data. Shall be present if ``data.content`
+    == ``property``."""
+
+    attribute: str | None = Field(default=None, examples=["porosity"])
+    """A known attribute."""
+
+    is_discrete: bool | None = Field(default=None)
+    """If True, this is a discrete property."""
+
+
 class FluidContact(BaseModel):
     """
     A block describing a fluid contact. Shall be present if ``data.content``
@@ -465,6 +476,8 @@ class PropertyData(Data):
 
     content: Literal[enums.Content.property]
     """The type of content these data represent."""
+
+    property: Property | None = Field(default=None)
 
 
 class PVTData(Data):
