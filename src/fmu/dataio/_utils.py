@@ -48,9 +48,9 @@ def detect_inside_rms() -> bool:
     properly
     """
     with contextlib.suppress(ModuleNotFoundError):
-        import roxar
+        import rmsapi
 
-        logger.info("Roxar version is %s", roxar.__version__)
+        logger.info("RMSAPI version is %s", rmsapi.__version__)
         return True
     logger.info("Running truly in RMS GUI status: %s", False)
     return False
