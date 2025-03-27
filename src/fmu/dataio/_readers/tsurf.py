@@ -242,7 +242,7 @@ class TSurfData(BaseModel):
         """
         Equality operator, overrides the default implementation of a Pydantic BaseModel
         which does not have native support for numpy arrays.
-        The numpy arrays are compared in a shallow sense: only the shape and dtype are
+        The numpy arrays are compared in a SHALLOW sense: only the shape and dtype are
         compared, not the values.
         """
 
@@ -274,7 +274,7 @@ class TSurfData(BaseModel):
 
         if self.model_extra:
             warnings.warn(
-                f"Unhandled fields are present, these are ignored in the processing. "
+                "Unhandled fields are present, these are ignored in the processing. "
                 f"The unhandled fields are: '{list(self.model_extra.keys())}'",
                 UserWarning,
             )
@@ -299,14 +299,15 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
     """
 
     if not filepath.exists():
-        raise FileNotFoundError(f"File {filepath} does not exist.")
+        raise FileNotFoundError(f"\nFile {filepath}:\nThe file does not exist.")
 
     if not filepath.is_file():
-        raise FileNotFoundError(f"{filepath} is not a regular file.")
+        raise FileNotFoundError(f"\nFile {filepath}:\nThe file is not a regular file.")
 
     if not filepath.suffix == ".ts":
         raise ValueError(
-            f"{filepath} is not a TSurf file. The file extension should be '.ts'."
+            f"\nFile {filepath}:\n"
+            "The file is not a TSurf file. The file extension should be '.ts'."
         )
 
     with open(filepath) as file:
@@ -318,12 +319,14 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
         ]
 
     if not lines:
-        raise ValueError(f"File {filepath} is empty.")
+        raise ValueError(f"\nFile {filepath}:\nFile is empty.")
 
     # Check the first line
     if lines[0] != "GOCAD TSurf 1":
         raise ValueError(
+            f"\n In file {filepath}:\n"
             "The first line of the file indicates that this is not a valid TSurf file."
+            "The first line should be 'GOCAD TSurf 1'."
         )
 
     parsing_header = False
@@ -352,14 +355,15 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
                 parsing_header = False
                 if header is None:
                     raise ValueError(
-                        f"In file {filepath}: The HEADER section must exist and "
-                        f"is expected to have at least the attribute: 'name'."
+                        f"\nIn file {filepath}:\n"
+                        "The 'HEADER' section must exist and "
+                        "is expected to have exactly one attribute: 'name'."
                     )
             else:
                 raise ValueError(
-                    f"In file {filepath}: The HEADER section is expected to have a "
-                    f"single attribute: 'name'. "
-                    f"Erroneous line: '{line}'"
+                    f"\nIn file {filepath}:\n"
+                    "The 'HEADER' section must exist and "
+                    "is expected to have exactly one attribute: 'name'."
                 )
 
         # ------ Parse the coordinate system section ------
@@ -384,19 +388,18 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
             elif line == "END_ORIGINAL_COORDINATE_SYSTEM":
                 parsing_coord_sys = False
                 if len(coord_sys) != 4:
-                    # TODO: can probably remove, since the Pydantic validation will
-                    # catch it
                     raise ValueError(
-                        f"In file {filepath}: Invalid COORDINATE_SYSTEM section, it is "
-                        f"expected to have exactly four attributes:  'NAME', "
-                        f"'AXIS_NAME', 'AXIS_UNIT' and 'ZPOSITIVE'"
+                        f"\nIn file {filepath}:\n"
+                        "Invalid 'COORDINATE_SYSTEM' section, it is "
+                        "expected to have exactly four attributes:\n"
+                        "'NAME', 'AXIS_NAME', 'AXIS_UNIT' and 'ZPOSITIVE'"
                     )
             else:
                 raise ValueError(
-                    f"In file {filepath}: Invalid COORDINATE_SYSTEM section, it is "
-                    f"expected to have exactly four attributes:  'NAME', "
-                    f"'AXIS_NAME', 'AXIS_UNIT' and 'ZPOSITIVE', and nothing more"
-                    f"Erroneous line: '{line}'"
+                    f"\nIn file {filepath}:\n"
+                    "Invalid 'COORDINATE_SYSTEM' section, it is "
+                    "expected to have exactly four attributes:\n"
+                    "'NAME', 'AXIS_NAME', 'AXIS_UNIT' and 'ZPOSITIVE'"
                 )
 
         # ------ Parse the section with triangulated data ------
@@ -414,10 +417,10 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
             elif line == "END":
                 parsing_triangle_data = False
             else:
-                # TODO: write test or not?
                 raise ValueError(
-                    f"In file {filepath}: invalid line in section with triangulated "
-                    f"data, expect that all lines start with 'VRTX' or 'TRGL'."
+                    f"\nIn file {filepath}:\n"
+                    "Invalid line in 'TFACE' section with triangulated data,\n"
+                    "it is expected that all lines start with 'VRTX' or 'TRGL'.\n"
                     f"Erroneous line: '{line}'",
                 )
 
@@ -426,13 +429,12 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
             # Could issue a warning instead of an error. But if this is a section that
             # continues over several lines, it is difficult to know where the
             # section ends. This may be difficult to handle.
-            # TODO: write test
 
-            # TODO: can RMS export binary files?
             raise ValueError(
-                f"In file {filepath}: invalid line. "
-                f"This may be an error or a valid TSurf content that is not handled "
-                f"by the file parser. "
+                f"\nIn file {filepath}:\n"
+                "The file contains an invalid line.\n"
+                "This may be either an error, or a valid TSurf keyword or attribute\n"
+                "that is not (yet) handled by the file parser.\n"
                 f"Erroneous line: '{line}'",
             )
 

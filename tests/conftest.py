@@ -24,6 +24,7 @@ else:
 import fmu.dataio as dio
 from fmu.config import utilities as ut
 from fmu.dataio._models.fmu_results import FmuResults, fields, global_configuration
+from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.providers._fmu import FmuEnv
 from fmu.dataio.readers import FaultRoomSurface
@@ -511,6 +512,72 @@ def fixture_faultroom_object(globalconfig2):
     }
 
     return FaultRoomSurface({"metadata": faultroom_data, "features": features})
+
+
+@pytest.fixture(name="tsurf")
+def fixture_tsurf() -> TSurfData:
+    """
+    Create a basic TSurfData object from a dictionary.
+    """
+
+    tsurf_dict = {}
+    tsurf_dict["header"] = {"name": "Fault F1"}
+    tsurf_dict["coordinate_system"] = {
+        "name": "Default",
+        "axis_name": ("X", "Y", "Z"),
+        "axis_unit": ("m", "m", "m"),
+        "z_positive": "Depth",
+    }
+    tsurf_dict["vertices"] = np.array(
+        [
+            (0.1, 0.2, 0.3),
+            (1.1, 1.2, 1.3),
+            (2.1, 2.2, 2.3),
+            (3.1, 3.2, 3.3),
+        ]
+    ).astype(np.float64)
+    tsurf_dict["triangles"] = np.array([(1, 2, 3), (1, 2, 4)]).astype(np.int64)
+
+    return TSurfData.model_validate(tsurf_dict)
+
+
+@pytest.fixture(name="tsurf_as_lines")
+def fixture_tsurf_as_lines(tsurf: TSurfData) -> list[str]:
+    """
+    Create lines to simulate the results of parsing a file with a basic TSurf object.
+    """
+
+    vertices_lines = [
+        f"VRTX {i + 1} {tsurf.vertices[i][0]} {tsurf.vertices[i][1]} "
+        f"{tsurf.vertices[i][2]} CNXYZ"
+        for i in range(len(tsurf.vertices))
+    ]
+
+    triangles_lines = [
+        f"TRGL {tsurf.triangles[i][0]} {tsurf.triangles[i][1]} {tsurf.triangles[i][2]}"
+        for i in range(len(tsurf.triangles))
+    ]
+
+    return [
+        "GOCAD TSurf 1",
+        "HEADER {",
+        f"name: {tsurf.header.name}",
+        "}",
+        "GOCAD_ORIGINAL_COORDINATE_SYSTEM",
+        f"NAME {tsurf.coordinate_system.name}",
+        f'AXIS_NAME "{tsurf.coordinate_system.axis_name[0]}" '
+        f'"{tsurf.coordinate_system.axis_name[1]}" '
+        f'"{tsurf.coordinate_system.axis_name[2]}"',
+        f'AXIS_UNIT "{tsurf.coordinate_system.axis_unit[0]}" '
+        f'"{tsurf.coordinate_system.axis_unit[1]}" '
+        f'"{tsurf.coordinate_system.axis_unit[2]}"',
+        f"ZPOSITIVE {tsurf.coordinate_system.z_positive}",
+        "END_ORIGINAL_COORDINATE_SYSTEM",
+        "TFACE",
+        *vertices_lines,
+        *triangles_lines,
+        "END",
+    ]
 
 
 @pytest.fixture(name="polygons", scope="module")
