@@ -137,6 +137,63 @@ def test_get_polygons_in_folder_all_empty(mock_project_variable):
         get_polygons_in_folder(mock_project_variable, horizon_folder)
 
 
+def test_get_faultlines_in_folder(mock_project_variable, polygons):
+    """
+    Test that the get_faultlines_in_folder works as expected when the
+    'Name' attribute is present.
+    """
+    from fmu.dataio.export.rms._utils import get_faultlines_in_folder
+
+    fault_line = polygons.copy()
+    df = fault_line.get_dataframe()
+
+    # make sure test assumpions are correct
+    assert "NAME" not in df
+    assert "Name" not in df
+
+    # fault lines from RMS will have a 'Name' attribute
+    df["Name"] = "F1"
+    fault_line.set_dataframe(df)
+
+    with (
+        mock.patch(
+            "fmu.dataio.export.rms._utils.get_polygons_in_folder",
+            return_value=[fault_line],
+        ),
+    ):
+        fault_lines = get_faultlines_in_folder(mock_project_variable, "DL_faultlines")
+
+        # Check that the 'Name' column has been translated to uppercase
+        assert "NAME" in fault_lines[0].get_dataframe(copy=False)
+        assert "Name" not in fault_lines[0].get_dataframe(copy=False)
+
+
+def test_get_faultlines_in_folder_raises_if_missing_name(
+    mock_project_variable, polygons
+):
+    """
+    Test that the get_faultlines_in_folder raises error when the
+    'Name' attribute is missing.
+    """
+    from fmu.dataio.export.rms._utils import get_faultlines_in_folder
+
+    fault_line = polygons.copy()
+    df = fault_line.get_dataframe()
+
+    # make sure test assumpions are correct
+    assert "NAME" not in df
+    assert "Name" not in df
+
+    with (
+        mock.patch(
+            "fmu.dataio.export.rms._utils.get_polygons_in_folder",
+            return_value=[fault_line],
+        ),
+        pytest.raises(ValueError, match="missing"),
+    ):
+        get_faultlines_in_folder(mock_project_variable, "DL_faultlines")
+
+
 def test_validate_global_config(globalconfig1):
     from fmu.dataio.export.rms._utils import validate_global_config
 

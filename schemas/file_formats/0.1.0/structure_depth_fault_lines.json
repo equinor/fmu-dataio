@@ -3,6 +3,10 @@
     "StructureDepthFaultLinesResultRow": {
       "description": "Represents the columns of a row in a structure depth fault lines export.\n\nThese fields are the current agreed upon standard result. Changes to the fields or\ntheir validation should cause the version defined in the standard result schema to\nincrease the version number in a way that corresponds to the schema versioning\nspecification (i.e. they are a patch, minor, or major change).",
       "properties": {
+        "NAME": {
+          "title": "Name",
+          "type": "string"
+        },
         "POLY_ID": {
           "minimum": 0,
           "title": "Poly Id",
@@ -25,7 +29,8 @@
         "X_UTME",
         "Y_UTMN",
         "Z_TVDSS",
-        "POLY_ID"
+        "POLY_ID",
+        "NAME"
       ],
       "title": "StructureDepthFaultLinesResultRow",
       "type": "object"

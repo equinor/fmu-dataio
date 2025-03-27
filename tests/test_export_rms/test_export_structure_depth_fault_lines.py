@@ -35,10 +35,10 @@ def mock_export_class(
     )
 
     with mock.patch(
-        "fmu.dataio.export.rms.structure_depth_fault_lines.get_polygons_in_folder",
+        "fmu.dataio.export.rms.structure_depth_fault_lines.get_faultlines_in_folder",
         return_value=xtgeo_fault_lines,
     ):
-        yield _ExportStructureDepthFaultLines(mock_project_variable, "geogrid_vol")
+        yield _ExportStructureDepthFaultLines(mock_project_variable, "DL_extract")
 
 
 @inside_rms
@@ -85,6 +85,17 @@ def test_standard_result_in_metadata(mock_export_class):
 
 
 @inside_rms
+def test_raise_on_open_fault_lines(mock_export_class):
+    """Test that an error is given if a fault line is not closed"""
+
+    df = mock_export_class._fault_lines[0].get_dataframe()
+    mock_export_class._fault_lines[0].set_dataframe(df.drop(index=0))
+
+    with pytest.raises(ValueError, match="must be closed"):
+        mock_export_class.export()
+
+
+@inside_rms
 def test_public_export_function(mock_project_variable, mock_export_class):
     """Test that the export function works"""
 
@@ -103,6 +114,15 @@ def test_public_export_function(mock_project_variable, mock_export_class):
         == StandardResultName.structure_depth_fault_lines
     )
     assert metadata["data"]["format"] == "parquet"
+    assert set(metadata["data"]["spec"]["columns"]) == {
+        "X_UTME",
+        "Y_UTMN",
+        "Z_TVDSS",
+        "POLY_ID",
+        "NAME",
+    }
+    # TODO: Add table index to metadata
+    # assert set(metadata["data"]["table_index"]) == {"POLY_ID", "NAME"}
 
 
 @inside_rms
