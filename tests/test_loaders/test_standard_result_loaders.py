@@ -15,10 +15,10 @@ def test_load_inplace_volumes(metadata_examples):
         },
     }
 
-    inplace_volume = deepcopy(metadata_examples["table_inplace_volumes.yml"])
+    volumes_table = deepcopy(metadata_examples["table_inplace_volumes.yml"])
 
-    inplace_volume["data"]["product"] = product
-    tables = [inplace_volume]
+    volumes_table["data"]["product"] = product
+    volume_tables_metadata = [volumes_table]
 
     with (
         patch(
@@ -26,14 +26,19 @@ def test_load_inplace_volumes(metadata_examples):
             return_value=None,
         ),
         patch(
-            "fmu.external.sumo_explorer_interface.SumoExplorerInterface.get_volume_table_metadata",
-            return_value=tables,
+            "fmu.external.sumo_explorer_interface.SumoExplorerInterface.get_inplace_volumes_standard_results",
+            return_value=volume_tables_metadata,
+        ),
+        patch(
+            "fmu.external.schema_validation_interface.SchemaValidationInterface.validate_against_schema",
+            return_value=True,
         ),
     ):
         inplace_volumes_standard_results = load_standard_results.load_inplace_volumes(
             test_case
         )
         assert len(inplace_volumes_standard_results) == 1
+        assert inplace_volumes_standard_results == volume_tables_metadata
 
 
 def test_load_structure_depth_surfaces():
