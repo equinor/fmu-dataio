@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import copy
 import warnings
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import ClassVar, Final, Literal
 
 from pydantic import ValidationError
 
-from fmu.dataio._models.fmu_results import fields
 from fmu.dataio._models.fmu_results.enums import FMUContext
+from fmu.dataio._models.fmu_results.fields import Tracklog
 
 from . import _utils, dataio, types
 from ._logging import null_logger
@@ -93,14 +93,15 @@ class AggregatedData:
         """Update instance settings (properties) from other routines."""
         logger.info("Try new settings %s", newsettings)
 
-        # derive legal input from dataclass signature
-        annots = getattr(self, "__annotations__", {})
-        legals = {key: val for key, val in annots.items() if not key.startswith("_")}
+        available_arguments = [field.name for field in fields(AggregatedData)]
 
         for setting, value in newsettings.items():
-            if dataio._validate_variable(setting, value, legals):
-                setattr(self, setting, value)
-                logger.info("New setting OK for %s", setting)
+            if setting not in available_arguments:
+                logger.warning("Unsupported key, raise an error")
+                raise ValidationError(f"The input key '{setting}' is not supported")
+
+            setattr(self, setting, value)
+            logger.info("New setting OK for %s", setting)
 
     def _construct_filename(self, template: dict) -> tuple[Path, Path | None]:
         """Construct the paths/filenames for aggregated data.
@@ -267,7 +268,7 @@ class AggregatedData:
 
         objdata = objectdata_provider_factory(obj=obj, dataio=etemp)
 
-        template["tracklog"] = [fields.Tracklog.initialize()[0]]
+        template["tracklog"] = [Tracklog.initialize()[0]]
         template["file"] = {
             "relative_path": str(relpath),
             "absolute_path": str(abspath) if abspath else None,
