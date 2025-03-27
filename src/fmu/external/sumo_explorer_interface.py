@@ -1,16 +1,12 @@
-from dataclasses import dataclass
 from uuid import UUID
 
 from fmu.sumo.explorer import Explorer
 
 
-@dataclass
 class SumoExplorerInterface:
-    case_id: UUID
-
-    def __post_init__(self) -> None:
+    def __init__(self, case_id: UUID) -> None:
         sumo = Explorer()
-        self._case = sumo.get_case_by_uuid(self.case_id)
+        self._case = sumo.get_case_by_uuid(case_id)
 
     def get_inplace_volumes_standard_results(self) -> list[dict]:
         # Later we can probably filter on "standard_result" here
