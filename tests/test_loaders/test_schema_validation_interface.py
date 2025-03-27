@@ -3,7 +3,9 @@ from copy import deepcopy
 import pytest
 from jsonschema import ValidationError
 
-from fmu.external.schema_validation_interface import SchemaValidationInterface
+from fmu.dataio.external_interfaces.schema_validation_interface import (
+    SchemaValidationInterface,
+)
 
 
 def test_validator_valid_metadata(metadata_examples):

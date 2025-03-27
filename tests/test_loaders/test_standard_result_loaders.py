@@ -1,7 +1,7 @@
 from copy import deepcopy
 from unittest.mock import patch
 
-import fmu.dataio.loaders.load_standard_results as load_standard_results
+import fmu.dataio.load.load_standard_results as load_standard_results
 
 
 def test_load_inplace_volumes(metadata_examples):
@@ -22,15 +22,15 @@ def test_load_inplace_volumes(metadata_examples):
 
     with (
         patch(
-            "fmu.external.sumo_explorer_interface.SumoExplorerInterface.__init__",
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.__init__",
             return_value=None,
         ),
         patch(
-            "fmu.external.sumo_explorer_interface.SumoExplorerInterface.get_inplace_volumes_standard_results",
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_inplace_volumes_standard_results",
             return_value=volume_tables_metadata,
         ),
         patch(
-            "fmu.external.schema_validation_interface.SchemaValidationInterface.validate_against_schema",
+            "fmu.dataio.external_interfaces.schema_validation_interface.SchemaValidationInterface.validate_against_schema",
             return_value=True,
         ),
     ):
