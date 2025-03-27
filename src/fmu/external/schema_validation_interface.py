@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from functools import lru_cache
 
 import jsonschema
 import requests  # type: ignore
 
 
-@dataclass
 class SchemaValidationInterface:
     @staticmethod
     @lru_cache
