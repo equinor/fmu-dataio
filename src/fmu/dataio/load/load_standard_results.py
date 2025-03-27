@@ -1,8 +1,10 @@
 from uuid import UUID
 
 from fmu.dataio.export._decorators import experimental
-from fmu.external.schema_validation_interface import SchemaValidationInterface
-from fmu.external.sumo_explorer_interface import SumoExplorerInterface
+from fmu.dataio.external_interfaces.schema_validation_interface import (
+    SchemaValidationInterface,
+)
+from fmu.dataio.external_interfaces.sumo_explorer_interface import SumoExplorerInterface
 
 
 @experimental
