@@ -9,67 +9,9 @@ from pydantic import ValidationError
 from fmu.dataio._readers import tsurf as reader
 
 
-def get_basic_tsurf() -> reader.TSurfData:
+def _validate_tsurf(instance: reader.TSurfData) -> None:
     """
-    Create a basic TSurfData object from a dictionary.
-    It contains the same data as generated in
-    _create_basic_tsurf_file_as_lines().
-    """
-
-    tsurf_dict = {}
-    tsurf_dict["header"] = {"name": "Fault F1"}
-    tsurf_dict["coordinate_system"] = {
-        "name": "Default",
-        "axis_name": ("X", "Y", "Z"),
-        "axis_unit": ("m", "m", "m"),
-        "z_positive": "Depth",
-    }
-    tsurf_dict["vertices"] = np.array(
-        [
-            (0.1, 0.2, 0.3),
-            (1.1, 1.2, 1.3),
-            (2.1, 2.2, 2.3),
-            (3.1, 3.2, 3.3),
-        ]
-    ).astype(np.float64)
-    tsurf_dict["triangles"] = np.array([(1, 2, 3), (1, 2, 4)]).astype(np.int64)
-
-    return reader.TSurfData.model_validate(tsurf_dict)
-
-
-# TODO: take get_basic_tsurf() as input, then produce the lines
-def get_basic_tsurf_file_as_lines() -> list[str]:
-    """
-    Create lines to simulate a basic TSurf file after parsing.
-    Avoids the need to actually write and read a file each time when
-    validating the Pydantic class 'TSurfData'.
-    """
-
-    return [
-        "GOCAD TSurf 1",
-        "HEADER {",
-        "name: Fault F1",
-        "}",
-        "GOCAD_ORIGINAL_COORDINATE_SYSTEM",
-        "NAME Default",
-        'AXIS_NAME "X" "Y" "Z"',
-        'AXIS_UNIT "m" "m" "m"',
-        "ZPOSITIVE Depth",
-        "END_ORIGINAL_COORDINATE_SYSTEM",
-        "TFACE",
-        "VRTX 1 0.1 0.2 0.3 CNXYZ",
-        "VRTX 2 1.1 1.2 1.3 CNXYZ",
-        "VRTX 3 2.1 2.2 2.3 CNXYZ",
-        "VRTX 4 3.1 3.2 3.3 CNXYZ",
-        "TRGL 1 2 3",
-        "TRGL 1 2 4",
-        "END",
-    ]
-
-
-def _validate_basic_tsurf(instance: reader.TSurfData) -> None:
-    """
-    Validate the basic TSurf object.
+    Validate a basic TSurf object.
     """
     assert isinstance(instance, reader.TSurfData)
     assert instance.header.name == "Fault F1"
@@ -93,7 +35,7 @@ def _validate_basic_tsurf(instance: reader.TSurfData) -> None:
     assert (instance.triangles[-1] == np.array([1, 2, 4])).all()
 
 
-def _insert_new_lines(lines: list[str], extra: dict) -> list[str]:
+def _insert_new_lines(lines: list[str], extra: dict[int, str]) -> list[str]:
     """
     Add extra lines to the lines simulating a basic TSurf file after parsing.
     'extra' is a dictionary: {line_number: line_content}.
@@ -108,34 +50,49 @@ def _insert_new_lines(lines: list[str], extra: dict) -> list[str]:
     return lines
 
 
-def test_create_basic_tsurf() -> None:
+def test_create_tsurf(tsurf: reader.TSurfData) -> None:
     """
     Test the instantiation of a TSurfData object from a dictionary.
     """
 
-    instance = get_basic_tsurf()
-    _validate_basic_tsurf(instance)
+    _validate_tsurf(tsurf)
 
 
-def test_tsurf_reader_and_writer(rootpath: Path) -> None:
+def test_tsurf_reader_and_writer(tsurf: reader.TSurfData, rootpath: Path) -> None:
     """
     Test the TSurf reader and writer.
     """
 
-    # ---------- Wrong file name suffix ----------
-    instance = get_basic_tsurf()
+    # ---------- Test with a directory, which is not a regular file
+    relpath = "tests/data/drogon/rms/output/structural/invalid_dir"
+    filepath = rootpath / relpath
+    filepath.unlink(missing_ok=True)
+    filepath.mkdir(parents=True, exist_ok=True)
+    with pytest.raises(
+        FileNotFoundError,
+        match="The file is not a regular file",
+    ):
+        reader.read_tsurf_file(filepath)
+    filepath.rmdir()
 
     relpath = "tests/data/drogon/rms/output/structural/invalid_suffix.txt"
     filepath = rootpath / relpath
     filepath.unlink(missing_ok=True)
-    reader.write_tsurf_to_file(instance, filepath)
 
+    # ---------- File does not exists ----------
+    with pytest.raises(
+        FileNotFoundError,
+        match="The file does not exist",
+    ):
+        reader.read_tsurf_file(filepath)
+
+    # ---------- Wrong file suffix ----------
+    reader.write_tsurf_to_file(tsurf, filepath)
     with pytest.raises(
         ValueError,
         match=("is not a TSurf file."),
     ):
         reader.read_tsurf_file(filepath)
-
     filepath.unlink(missing_ok=True)
 
     # ---------- Basic TSurf file ----------
@@ -143,22 +100,38 @@ def test_tsurf_reader_and_writer(rootpath: Path) -> None:
     filepath = rootpath / relpath
     filepath.unlink(missing_ok=True)
 
-    reader.write_tsurf_to_file(instance, filepath)
+    # ---------- Empty file ----------
+    filepath.touch()
+    with pytest.raises(
+        ValueError,
+        match="File is empty",
+    ):
+        reader.read_tsurf_file(filepath)
+    filepath.unlink(missing_ok=True)
+
+    reader.write_tsurf_to_file(tsurf, filepath)
     assert filepath.exists()
 
     instance = reader.read_tsurf_file(filepath)
     filepath.unlink(missing_ok=True)
 
-    _validate_basic_tsurf(instance)
-
-    # Test class methods
-    assert instance.num_vertices() == 4
-    assert instance.num_triangles() == 2
+    _validate_tsurf(instance)
 
 
-def test_tsurf_reader_comments_emptylines(rootpath: Path) -> None:
+def test_tsurf_class_methods(tsurf: reader.TSurfData, rootpath: Path) -> None:
     """
-    Test the reader with comments and empty lines.
+    Test class methods
+    """
+
+    assert tsurf.num_vertices() == 4
+    assert tsurf.num_triangles() == 2
+
+
+def test_tsurf_reader_comments_emptylines(
+    tsurf_as_lines: list[str], rootpath: Path
+) -> None:
+    """
+    Test the reader with comments and empty lines in the file.
     """
 
     relpath = Path(
@@ -167,8 +140,6 @@ def test_tsurf_reader_comments_emptylines(rootpath: Path) -> None:
     )
     filepath = rootpath / relpath
     filepath.unlink(missing_ok=True)
-
-    lines = get_basic_tsurf_file_as_lines()
 
     # Add comments and empty lines at arbitrary positions between and inside sections.
     # The numbers indicate the line number in the file, the new lines will be inserted
@@ -188,7 +159,8 @@ def test_tsurf_reader_comments_emptylines(rootpath: Path) -> None:
         16: "# Test comment",
         18: "# Test comment",
     }
-    new_lines = _insert_new_lines(lines, comments)
+
+    lines = _insert_new_lines(tsurf_as_lines, comments)
 
     empty_lines = {
         1: "",
@@ -199,7 +171,8 @@ def test_tsurf_reader_comments_emptylines(rootpath: Path) -> None:
     }
 
     # Two first lines: comment and empty line
-    new_lines_invalid_start = _insert_new_lines(new_lines, empty_lines)
+    new_lines_invalid_start = _insert_new_lines(lines, empty_lines)
+
     new_lines_invalid_start = [line + "\n" for line in new_lines_invalid_start]
 
     filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -218,7 +191,7 @@ def test_tsurf_reader_comments_emptylines(rootpath: Path) -> None:
 
     filepath.unlink(missing_ok=True)
 
-    # Remove the invalid first lines
+    # Remove the invalid first two lines
     # Continue testing the rest of the file with all its comments and empty lines
     valid_lines = new_lines_invalid_start[1:]
 
@@ -235,10 +208,10 @@ def test_tsurf_reader_comments_emptylines(rootpath: Path) -> None:
 
     instance = reader.read_tsurf_file(filepath)
     filepath.unlink(missing_ok=True)
-    _validate_basic_tsurf(instance)
+    _validate_tsurf(instance)
 
 
-def test_tsurf_reader_invalid_lines(rootpath: Path) -> None:
+def test_tsurf_reader_invalid_lines(tsurf_as_lines: list[str], rootpath: Path) -> None:
     """
     Test the reader with invalid lines:
     - TSurf keywords that are allowed by the file format but are
@@ -252,16 +225,17 @@ def test_tsurf_reader_invalid_lines(rootpath: Path) -> None:
     filepath = rootpath / relpath
     filepath.unlink(missing_ok=True)
 
-    lines_1 = get_basic_tsurf_file_as_lines()
-
-    # Add invalid lines at arbitrary positions between and inside sections.
+    # Add invalid lines at arbitrary positions between and inside sections
+    # Note that 'WELL_CURVE' and 'GEOLOGICAL_FEATURE' are allowed TSurf keywords
+    # but are not handled by this reader
     invalid_lines = {
-        1: "WELL_CURVE: TSurf keyword not handled by the reader",
+        1: "WELL_CURVE",
         6: "Rubbish",
-        8: "GEOLOGICAL_FEATURE: TSurf keyword not handled by the reader",
+        8: "GEOLOGICAL_FEATURE",
         14: "Rubbish",
     }
-    lines_2 = _insert_new_lines(lines_1, invalid_lines)
+    lines_2 = _insert_new_lines(tsurf_as_lines, invalid_lines)
+
     lines_3 = [line + "\n" for line in lines_2]
 
     filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -271,8 +245,243 @@ def test_tsurf_reader_invalid_lines(rootpath: Path) -> None:
 
     with pytest.raises(
         ValueError,
-        match="This may be an error or a valid TSurf content that is not handled",
+        match="This may be either an error, or a valid TSurf keyword or attribute",
     ):
+        reader.read_tsurf_file(filepath)
+
+    filepath.unlink(missing_ok=True)
+
+
+def test_parsing_file_with_errors_header_section_1(
+    tsurf_as_lines: list[str], rootpath: Path
+) -> None:
+    """
+    Test the file parser with a TSurf file that should produce
+    errors: header is missing 'name'.
+    """
+
+    relpath = Path(
+        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
+    )
+    filepath = rootpath / relpath
+    filepath.unlink(missing_ok=True)
+
+    # Error: header is missing line with 'name'
+    invalid_lines = [line if "name" not in line else "" for line in tsurf_as_lines]
+    invalid_lines = [line + "\n" for line in invalid_lines]
+
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, "w") as file:
+        file.writelines(invalid_lines)
+    assert filepath.exists()
+
+    with pytest.raises(
+        ValueError,
+        match="is expected to have exactly one attribute: 'name'",
+    ):
+        reader.read_tsurf_file(filepath)
+
+    filepath.unlink(missing_ok=True)
+
+
+def test_parsing_file_with_errors_header_section_2(
+    tsurf_as_lines: list[str], rootpath: Path
+) -> None:
+    """
+    Test the file parser with a TSurf file that should produce
+    errors: header has an extra keyword.
+    """
+
+    relpath = Path(
+        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
+    )
+    filepath = rootpath / relpath
+    filepath.unlink(missing_ok=True)
+
+    # Error: header has an extra keyword
+    # Keep the name line, add an extra keyword line
+    invalid_lines = tsurf_as_lines.copy()
+    replace_lines = ["name: Fault F1", "extra_keyword: extra_value"]
+    idx = invalid_lines.index("name: Fault F1")
+    if idx > -1:
+        invalid_lines[idx] = replace_lines[0]
+        invalid_lines.insert(idx + 1, replace_lines[1])
+    invalid_lines = [line + "\n" for line in invalid_lines]
+
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, "w") as file:
+        file.writelines(invalid_lines)
+    assert filepath.exists()
+
+    with pytest.raises(
+        ValueError,
+        match="is expected to have exactly one attribute: 'name'",
+    ):
+        reader.read_tsurf_file(filepath)
+
+    filepath.unlink(missing_ok=True)
+
+
+def test_parsing_file_with_errors_coordinate_system_section_1(
+    tsurf_as_lines: list[str], rootpath: Path
+) -> None:
+    """
+    Test the file parser with a TSurf file that should produce
+    errors: ZPOSITIVE value is incorrect.
+    """
+
+    relpath = Path(
+        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
+    )
+    filepath = rootpath / relpath
+    filepath.unlink(missing_ok=True)
+
+    # Error: ZPOSITIVE value is invalid
+    invalid_lines = [
+        line if "ZPOSITIVE" not in line else "ZPOSITIVE error"
+        for line in tsurf_as_lines
+    ]
+
+    invalid_lines = [line + "\n" for line in invalid_lines]
+
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, "w") as file:
+        file.writelines(invalid_lines)
+    assert filepath.exists()
+
+    with pytest.raises(ValueError, match="Invalid 'ZPOSITIVE' value"):
+        reader.read_tsurf_file(filepath)
+
+    filepath.unlink(missing_ok=True)
+
+
+def test_parsing_file_with_errors_coordinate_system_section_2(
+    tsurf_as_lines: list[str], rootpath: Path
+) -> None:
+    """
+    Test the file parser with a TSurf file that should produce
+    errors: ZPOSITIVE line is missing so that the COORDINATE_SYSTEM
+    section is incomplete.
+    """
+
+    relpath = Path(
+        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
+    )
+    filepath = rootpath / relpath
+    filepath.unlink(missing_ok=True)
+
+    # Error: missing line ZPOSITIVE
+    invalid_lines = [line if "ZPOSITIVE" not in line else "" for line in tsurf_as_lines]
+
+    invalid_lines = [line + "\n" for line in invalid_lines]
+
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, "w") as file:
+        file.writelines(invalid_lines)
+    assert filepath.exists()
+
+    with pytest.raises(ValueError, match="Invalid 'COORDINATE_SYSTEM' section"):
+        reader.read_tsurf_file(filepath)
+
+    filepath.unlink(missing_ok=True)
+
+
+def test_parsing_file_with_errors_coordinate_system_section_3(
+    tsurf_as_lines: list[str], rootpath: Path
+) -> None:
+    """
+    Test the file parser with a TSurf file that should produce
+    errors: coordinate system section contains an invalid keyword.
+    """
+
+    relpath = Path(
+        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
+    )
+    filepath = rootpath / relpath
+    filepath.unlink(missing_ok=True)
+
+    # Error: missing line ZPOSITIVE
+    invalid_lines = [
+        line if "AXIS_NAME" not in line else "INVALID_KEYWORD error"
+        for line in tsurf_as_lines
+    ]
+
+    invalid_lines = [line + "\n" for line in invalid_lines]
+
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, "w") as file:
+        file.writelines(invalid_lines)
+    assert filepath.exists()
+
+    with pytest.raises(ValueError, match="Invalid 'COORDINATE_SYSTEM' section"):
+        reader.read_tsurf_file(filepath)
+
+    filepath.unlink(missing_ok=True)
+
+
+def test_parsing_file_with_errors_tface_section(
+    tsurf_as_lines: list[str], rootpath: Path
+) -> None:
+    """
+    Test the file parser with a TSurf file that should produce
+    errors: in the TFACE section, the lines with vertices do not
+    start with the keyword 'VRTX'.
+    Instead they start with 'PVRTX', which is a valid TSurf keyword,
+    but not handled by this reader.
+    """
+
+    relpath = Path(
+        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
+    )
+    filepath = rootpath / relpath
+    filepath.unlink(missing_ok=True)
+
+    # Error: 'VRTX' is replaced by 'PVRTX'
+    invalid_lines = [
+        line if "VRTX" not in line else line.replace("VRTX", "PVRTX")
+        for line in tsurf_as_lines
+    ]
+
+    invalid_lines = [line + "\n" for line in invalid_lines]
+
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, "w") as file:
+        file.writelines(invalid_lines)
+    assert filepath.exists()
+
+    with pytest.raises(
+        ValueError, match="Invalid line in 'TFACE' section with triangulated data"
+    ):
+        reader.read_tsurf_file(filepath)
+
+    filepath.unlink(missing_ok=True)
+
+
+def test_parsing_file_with_warnings(tsurf_as_lines: list[str], rootpath: Path) -> None:
+    """
+    Test the file parser with a TSurf file with content that should produce
+    warnings.
+    """
+
+    relpath = Path(
+        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_warnings.ts"
+    )
+    filepath = rootpath / relpath
+    filepath.unlink(missing_ok=True)
+
+    # Uncommon value for AXIS_UNIT
+    uncommon_lines = [
+        line if "AXIS_UNIT" not in line else 'AXIS_UNIT "m" "cm" "m"'
+        for line in tsurf_as_lines
+    ]
+
+    uncommon_lines = [line + "\n" for line in uncommon_lines]
+
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, "w") as file:
+        file.writelines(uncommon_lines)
+    assert filepath.exists()
+    with pytest.warns(UserWarning, match="Uncommon 'AXIS_UNIT' value"):
         reader.read_tsurf_file(filepath)
 
     filepath.unlink(missing_ok=True)
@@ -314,37 +523,7 @@ def test_tsurf_reader_RMS_file(rootpath: Path) -> None:
     assert (instance.triangles[-1] == np.array([43, 8, 44])).all()
 
 
-def test_parsing_file_with_errors(rootpath: Path) -> None:
-    """
-    Test the file parser with a TSurf file with content that should produce
-    errors.
-    """
-
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
-    )
-    filepath = rootpath / relpath
-
-    with pytest.raises(ValueError, match="Invalid 'ZPOSITIVE' value"):
-        reader.read_tsurf_file(filepath)
-
-
-def test_parsing_file_with_warnings(rootpath: Path) -> None:
-    """
-    Test the file parser with a TSurf file with content that should produce
-    warnings.
-    """
-
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_warnings.ts"
-    )
-    filepath = rootpath / relpath
-
-    with pytest.warns(UserWarning, match="Uncommon 'AXIS_UNIT' value"):
-        reader.read_tsurf_file(filepath)
-
-
-def test_validation_header():
+def test_validation_header() -> None:
     """Test the validation of the TSurf header."""
 
     ###############
@@ -386,7 +565,7 @@ def test_validation_header():
         header = reader.Header(name=None)
 
 
-def test_validation_coordinate_system():
+def test_validation_coordinate_system() -> None:
     """
     Test the validation of the TSurf coordinate system.
     """
@@ -503,7 +682,7 @@ def test_validation_coordinate_system():
         coord_sys.z_positive = invalid_z_positive_type
 
 
-def test_validation_tsurf_instantiation():
+def test_validation_tsurf_instantiation() -> None:
     """
     Test the validation of the TSurf data when creating new objects.
     """
@@ -671,7 +850,7 @@ def test_validation_tsurf_instantiation():
     # Validate triangulation data
     #############################
 
-    # A few basic checks to avoid common mistakes
+    # A few simple checks to avoid common mistakes
 
     # Vertex index smaller than 1 in 'triangles'
     # Not allowed as indexing starts at 1 in the TSurf format
@@ -687,31 +866,23 @@ def test_validation_tsurf_instantiation():
         )
 
 
-def test_validation_tsurf_data_modification():
+def test_validation_tsurf_data_modification(tsurf: reader.TSurfData) -> None:
     """
-    Test the validation of the TSurf data when modifying an existing object.
+    Test the validation when modifying an existing object.
     """
 
-    instance1 = get_basic_tsurf()
-
-    # Valid type
-    instance1.header = reader.Header(name="Fault F2")
+    # Nice to consider: when trying to modify a field within a 'with pytest.raises()'
+    # clause, the validation fails, field is not modified and the object is still valid
 
     # Invalid type
     with pytest.raises(ValidationError, match="Invalid header"):
-        instance1.header = "Invalid header"
+        tsurf.header = "Invalid header type"
 
-    # Optional field, so OK to set to None
-    instance1.coordinate_system = None
-
-    instance1 = get_basic_tsurf()
     with pytest.warns(UserWarning, match="Uncommon 'AXIS_NAME' value:"):
-        instance1.coordinate_system.axis_name = ("X", "Y", "ZZZZZZ")
+        tsurf.coordinate_system.axis_name = ("X", "Y", "ZZZZZZ")
 
-    # Change vertices
-    instance1 = get_basic_tsurf()
-    # Type and structure are valid, should not raise an error
-    instance1.vertices = np.array(
+    # Change vertices: type and structure are valid, should not raise an error
+    tsurf.vertices = np.array(
         [
             (5.1, 5.2, 5.3),
             (6.1, 6.2, 6.3),
@@ -719,21 +890,21 @@ def test_validation_tsurf_data_modification():
         ]
     ).astype(np.float64)
 
-    # Invalid type
+    # Invalid vertices type
     with pytest.raises(ValidationError, match="'vertices' must be a numpy array"):
-        instance1.vertices = "invalid_type"
+        tsurf.vertices = "invalid_type"
 
     # Invalid structure
     with pytest.raises(
         ValidationError, match="'vertices' must be a 2D matrix of size M x 3:"
     ):
-        instance1.vertices = np.zeros((2, 2), dtype=np.float64)
+        tsurf.vertices = np.zeros((2, 2), dtype=np.float64)
 
     # Invalid numpy type
     with pytest.raises(
         ValidationError, match="'vertices' array must be of type float64"
     ):
-        instance1.vertices = np.array(
+        tsurf.vertices = np.array(
             [
                 (5.1, 5.2, 5.3),
                 (6.1, 6.2, 6.3),
@@ -741,10 +912,8 @@ def test_validation_tsurf_data_modification():
             ]
         ).astype(np.float32)
 
-    # Change triangles
-    instance1 = get_basic_tsurf()
-    # Type and structure are valid, should not raise an error
-    instance1.triangles = np.array(
+    # Change triangles: type and structure are valid, should not raise an error
+    tsurf.triangles = np.array(
         [
             (5, 7, 2),
         ]
@@ -752,77 +921,95 @@ def test_validation_tsurf_data_modification():
 
     # Invalid type
     with pytest.raises(ValidationError, match="'triangles' must be a numpy array"):
-        instance1.triangles = 54
+        tsurf.triangles = 54
 
     # Invalid structure
     with pytest.raises(
         ValidationError, match="'triangles' must be a 2D matrix of size M x 3:"
     ):
-        instance1.triangles = np.zeros((2, 2), dtype=np.int64)
+        tsurf.triangles = np.zeros((2, 2), dtype=np.int64)
 
     # Invalid numpy type
     with pytest.raises(
         ValidationError, match="'triangles' array must be of type int64"
     ):
-        instance1.triangles = np.array(
+        tsurf.triangles = np.array(
             [
                 (5, 7, 2),
             ]
         ).astype(np.int8)
 
 
-def test_tsurf_data_equality():
+def test_validation_tsurf_data_equality(tsurf: reader.TSurfData) -> None:
     """
     Test the equality of TSurfData objects.
     For the triangulated data, only the structure of the numpy arrays is considered,
     not the values.
     """
 
-    # Create two identical instances
-    instance1 = get_basic_tsurf()
-    instance2 = get_basic_tsurf()
+    # Two identical instances
+    instance1 = tsurf
+    instance2 = tsurf.model_copy(deep=True)
+
+    assert instance1 != 56
+
+    assert instance1 is not instance2
 
     # Test equality operator
     assert instance1 == instance2
 
-    # instance1 and instance3 refer to the same object
+    # instance1 and instance3 refer to the same object,
+    # should be handled by the equality operator
     instance3 = instance1
     assert instance1 == instance3
 
-    # Change header
-    instance2 = get_basic_tsurf()
-    instance2.header.name = "Fault F2"
+    # Change property object, but with equal values: should be OK
+    tmp = instance2.header
+    instance2.header = reader.Header(name=instance1.header.name)
+    assert instance1 == instance2
+    instance2.header = tmp
+
+    # Change value in property object: should raise an error
+    tmp = instance2.header.name
+    instance2.header.name = "BCU"
     assert instance1 != instance2
+    instance2.header.name = tmp
+
+    # Should raise an error as the coordinate systems are not equal,
+    # even though the field is optional
+    tmp = instance2.coordinate_system.name
+    instance2.coordinate_system.name = "cylindrical"
+    assert instance1 != instance2
+    instance2.coordinate_system.name = tmp
 
     # Coordinate system exists in one but not in the other
-    # Should throw as the coordinate systems are not equal,
+    # Should raise an error as the coordinate systems are not equal,
     # even though the field is optional
-    instance2 = get_basic_tsurf()
+    tmp = instance2.coordinate_system
     instance2.coordinate_system = None
     assert instance1 != instance2
+    instance2.coordinate_system = tmp
 
     # Change vertex value
-    # The equality check does not consider the values, only the structure,
+    # The equality operator does not consider the values, only the matrix structure,
     # so this should pass
-    instance2 = get_basic_tsurf()
-    instance2.vertices[0, 2] = np.nan
+    instance2.vertices[0, 2] = instance2.vertices[0, 2] + 1
     assert instance1 == instance2
 
     # Change triangle index value
-    # The equality check does not consider the values, only the structure,
+    # The equality check does not consider the values, only the matrix structure,
     # so this should pass
-    instance2 = get_basic_tsurf()
     instance2.triangles[0, 2] = instance1.triangles[0, 2] + 1
     assert instance1 == instance2
 
-    instance2 = get_basic_tsurf()
-    # Remove the first triangle, to ensure that the matrix dimensions are different
+    # Only the first triangle, so the shape of the arrays are different
+    tmp = instance2.triangles
     instance2.triangles = instance1.triangles[:-1]
     assert instance1 != instance2
+    instance2.triangles = tmp
 
     # Extra fields
-    instance2 = get_basic_tsurf()
-    instance2.extra_field = "invalid"
+    instance2.extra_field = "extra_field"
     # Extra fields are allowed, but since they are ignored by the class
     # the instances are considered equal
     assert instance1 == instance2
