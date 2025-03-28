@@ -17,6 +17,7 @@ from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._utils import (
+    get_open_polygons_id,
     get_polygons_in_folder,
     get_rms_project_units,
     load_global_config,
@@ -92,14 +93,10 @@ class _ExportStructureDepthFaultLines:
 
     def _raise_on_open_polygons(self, pol: xtgeo.Polygons) -> None:
         """
-        Check that all fault line polygons within the polygon set are closed. In a
-        closed polygon the first and last row of the dataframe are equal i.e. equal
-        coordinates. If an open polygon is found an error is given.
+        Check that all fault line polygons within the polygon set are closed.
+        Raise error if open polygons are found.
         """
-        open_polygons = []
-        for polid, poldf in pol.get_dataframe(copy=False).groupby("POLY_ID"):
-            if not poldf.iloc[0].equals(poldf.iloc[-1]):
-                open_polygons.append(polid)
+        open_polygons = get_open_polygons_id(pol)
 
         # TODO provide fault names when NAME attribute is possible to
         # fetch with xtgeo.
