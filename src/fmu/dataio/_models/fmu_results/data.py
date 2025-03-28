@@ -74,6 +74,18 @@ class Seismic(BaseModel):
     zrange: float | None = Field(default=None, allow_inf_nan=False)
     """The z-range of these data."""
 
+    @model_validator(mode="before")
+    @classmethod
+    def _deprecated_offset_to_stacking_offset(cls, values: dict) -> dict:
+        if "offset" in values:
+            warnings.warn(
+                "Content seismic.offset is deprecated. "
+                "Please use seismic.stacking_offset insted.",
+                DeprecationWarning,
+            )
+            values["stacking_offset"] = values.pop("offset")
+        return values
+
 
 class Property(BaseModel):
     """A block describing property data. Shall be present if ``data.content`

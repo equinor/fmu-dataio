@@ -7,6 +7,7 @@ import xtgeo
 
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
+from fmu.dataio._models.fmu_results import data
 from fmu.dataio._models.fmu_results.enums import (
     Classification,
     Content,
@@ -62,7 +63,7 @@ class _ExportFieldOutline:
         edata = dio.ExportData(
             config=self._config,
             content=Content.field_outline.value,
-            content_metadata={"contact": FluidContactType.fwl},
+            content_metadata=data.FieldOutline(contact=FluidContactType.fwl),
             vertical_domain="depth",
             domain_reference="msl",
             subfolder=self._subfolder,

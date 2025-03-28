@@ -197,13 +197,16 @@ class ObjectDataProvider(Provider):
                     return self._raise_error_for_missing_content_metadata(content)
 
                 content_metadata_model = content_metadata_factory(content)
-                if not isinstance(content_metadata, dict):
-                    raise ValueError(
-                        "The 'content_metadata' needs to be input as a dictionary. "
-                        f"Possible keys for content '{content.value}' are: "
-                        f"{list(content_metadata_model.model_fields)}. "
-                    )
-                return content_metadata_model.model_validate(content_metadata)
+
+                if isinstance(content_metadata, dict | content_metadata_model):
+                    return content_metadata_model.model_validate(content_metadata)
+
+                raise ValueError(
+                    "The 'content_metadata' needs to be input as a dictionary, "
+                    f"or as an instance of {content_metadata_model}. "
+                    f"Possible keys for content '{content.value}' are: "
+                    f"{list(content_metadata_model.model_fields)}. "
+                )
 
             if content_metadata:
                 warnings.warn(
