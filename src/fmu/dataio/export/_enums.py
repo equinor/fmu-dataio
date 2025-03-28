@@ -74,3 +74,18 @@ class InplaceVolumes:
     def table_columns() -> list[str]:
         """Returns a list of all table columns."""
         return InplaceVolumes.index_columns() + InplaceVolumes.value_columns()
+
+
+class FaultLines:
+    """Enumerations relevant to fault lines tables."""
+
+    class TableIndexColumns(str, Enum):
+        """The index columns for a fault lines table."""
+
+        POLY_ID = "POLY_ID"
+        NAME = "NAME"
+
+    @staticmethod
+    def index_columns() -> list[str]:
+        """Returns a list of the index columns."""
+        return [k.value for k in FaultLines.TableIndexColumns]

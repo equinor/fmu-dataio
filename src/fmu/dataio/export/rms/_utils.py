@@ -11,6 +11,7 @@ from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.global_configuration import GlobalConfiguration
 from fmu.dataio._utils import load_config_from_path
 from fmu.dataio.exceptions import ValidationError
+from fmu.dataio.export import _enums
 
 from ._conditional_rms_imports import import_rms_package
 
@@ -169,7 +170,9 @@ def get_zones_in_folder(project: Any, zone_folder: str) -> list[xtgeo.RegularSur
     return surfaces
 
 
-def get_polygons_in_folder(project: Any, horizon_folder: str) -> list[xtgeo.Polygons]:
+def get_polygons_in_folder(
+    project: Any, horizon_folder: str, attributes: bool = False
+) -> list[xtgeo.Polygons]:
     """Get all non-empty polygons from a horizon folder stratigraphically ordered."""
 
     logger.debug("Reading polygons from folder %s", horizon_folder)
@@ -178,7 +181,35 @@ def get_polygons_in_folder(project: Any, horizon_folder: str) -> list[xtgeo.Poly
     polygons = []
     for horizon in project.horizons:
         if not horizon[horizon_folder].is_empty():
-            polygon = xtgeo.polygons_from_roxar(project, horizon.name, horizon_folder)
-            polygon.name = horizon.name  # not automatically set for polygons
-            polygons.append(polygon)
+            polygons.append(
+                xtgeo.polygons_from_roxar(
+                    project, horizon.name, horizon_folder, attributes=attributes
+                )
+            )
     return polygons
+
+
+def get_faultlines_in_folder(project: Any, horizon_folder: str) -> list[xtgeo.Polygons]:
+    """
+    Get all non-empty fault lines from a horizon folder stratigraphically ordered.
+    Fault lines extracted from a horizon model in RMS will have a 'Name' attribute
+    indicating fault names. This is included in the dataframe for each fault line
+    and is converted to uppercase. Error is raised if the 'Name' attribute is missing.
+    """
+
+    fault_lines = get_polygons_in_folder(project, horizon_folder, attributes=True)
+    for pol in fault_lines:
+        df = pol.get_dataframe(copy=False)
+
+        if "Name" not in df:
+            raise ValidationError(
+                f"The fault line polygon {pol.name} is missing the 'Name' "
+                "attribute. Ensure the fault lines in the horizon folder "
+                f"{horizon_folder} have been extracted from a horizon model"
+                "using the 'Extract Fault Lines' job in RMS."
+            )
+
+        df = df.rename(columns={"Name": _enums.FaultLines.TableIndexColumns.NAME.value})
+        pol.set_dataframe(df)
+
+    return fault_lines
