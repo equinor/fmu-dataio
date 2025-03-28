@@ -14,11 +14,12 @@ from fmu.dataio._models.fmu_results.standard_result import (
     StructureDepthFaultLinesStandardResult,
 )
 from fmu.dataio.exceptions import ValidationError
+from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._utils import (
+    get_faultlines_in_folder,
     get_open_polygons_id,
-    get_polygons_in_folder,
     get_rms_project_units,
     load_global_config,
 )
@@ -38,7 +39,7 @@ class _ExportStructureDepthFaultLines:
         _logger.debug("Process data, establish state prior to export.")
         self._horizon_folder = horizon_folder
         self._config = load_global_config()
-        self._fault_lines = get_polygons_in_folder(project, horizon_folder)
+        self._fault_lines = get_faultlines_in_folder(project, horizon_folder)
         self._unit = "m" if get_rms_project_units(project) == "metric" else "ft"
 
         _logger.debug("Process data... DONE")
@@ -72,6 +73,7 @@ class _ExportStructureDepthFaultLines:
             name=pol.name,
             classification=self._classification,
             rep_include=True,
+            table_index=_enums.FaultLines.index_columns(),
         )
 
         edata.polygons_fformat = "parquet"  # type: ignore
@@ -96,16 +98,21 @@ class _ExportStructureDepthFaultLines:
         Check that all fault line polygons within the polygon set are closed.
         Raise error if open polygons are found.
         """
-        open_polygons = get_open_polygons_id(pol)
 
-        # TODO provide fault names when NAME attribute is possible to
-        # fetch with xtgeo.
-        if open_polygons:
+        if open_polygons := get_open_polygons_id(pol):
+            df = pol.get_dataframe(copy=False)
+            fault_names = (
+                df.loc[
+                    df[pol.pname].isin(open_polygons),
+                    _enums.FaultLines.TableIndexColumns.NAME.value,
+                ]
+                .unique()
+                .tolist()
+            )
             raise ValidationError(
-                "All fault line polygons must be closed. Found "
-                f"{len(open_polygons)} open ones for horizon {pol.name}. "
-                f"Ensure that the horizon folder {self._horizon_folder} "
-                "actually contains fault lines."
+                "All fault line polygons must be closed. The following faults "
+                f"are open for horizon {pol.name}: {fault_names}. Ensure that the "
+                f"horizon folder {self._horizon_folder} contains valid fault lines."
             )
 
     def _validate_data(self) -> None:

@@ -33,6 +33,9 @@ class StructureDepthFaultLinesResultRow(BaseModel):
     POLY_ID: int = Field(ge=0)
     """Index column. The id of the polygon which this row represents. Required."""
 
+    NAME: str
+    """Index column. The name of the fault this row represents. Required."""
+
 
 class StructureDepthFaultLinesResult(RootModel):
     """Represents the resultant structure depth fault lines parquet file, which is
