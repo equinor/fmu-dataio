@@ -39,6 +39,8 @@ from .providers._fmu import FmuProvider, get_fmu_context_from_environment
 from .providers.objectdata._provider import objectdata_provider_factory
 
 if TYPE_CHECKING:
+    from pydantic import BaseModel
+
     from . import types
     from ._models.fmu_results.standard_result import StandardResult
 
@@ -194,8 +196,10 @@ class ExportData:
             Some contents like 'seismic' requires additional information. This
             should be provided through the 'content_metadata' argument.
 
-        content_metadata: Optional. Dictionary with additional information about the
-            provided content. Only required for some contents, e.g. 'seismic'.
+        content_metadata: Optional. Additional information about the provided content.
+            This can be input as either a dictionary or an instance of
+            the corresponding Pydantic model for the content.
+            Only required for certain contents, such as 'seismic'.
             Example {"attribute": "amplitude", "calculation": "mean"}.
 
         fmu_context: Optional string with value ``realization`` or ``case``. If not
@@ -332,7 +336,7 @@ class ExportData:
     classification: str | None = None
     config: dict | GlobalConfiguration = field(default_factory=dict)
     content: dict | str | None = None
-    content_metadata: dict | None = None
+    content_metadata: dict | BaseModel | None = None
     depth_reference: str | None = None  # deprecated
     domain_reference: str = "msl"
     description: str | list = ""
@@ -509,7 +513,7 @@ class ExportData:
             f"content string: {[m.value for m in enums.Content]}"
         )
 
-    def _get_content_metadata(self) -> dict | None:
+    def _get_content_metadata(self) -> dict | BaseModel | None:
         """
         Get the content metadata if provided by as input, else return None.
         Validation takes place in the objectdata provider.

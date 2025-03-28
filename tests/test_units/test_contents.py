@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from fmu.dataio._models.fmu_results import enums
+from fmu.dataio._models.fmu_results import data, enums
 from fmu.dataio.dataio import ExportData
 from fmu.dataio.providers.objectdata._export_models import content_requires_metadata
 
@@ -50,6 +50,19 @@ def test_content_field_outline(polygons, globalconfig2):
     assert meta["data"]["content"] == "field_outline"
 
 
+def test_content_field_outline_as_pydantic(polygons, globalconfig2):
+    """Test export of the facies thickness content."""
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content="field_outline",
+        content_metadata=data.FieldOutline(contact="fwl"),
+    ).generate_metadata(polygons)
+
+    assert meta["data"]["content"] == "field_outline"
+    assert meta["data"]["field_outline"]["contact"] == "fwl"
+
+
 def test_content_field_region(polygons, globalconfig2):
     """Test export of the field_region content."""
     meta = ExportData(
@@ -63,6 +76,19 @@ def test_content_field_region(polygons, globalconfig2):
     assert meta["data"]["field_region"]["id"] == 1
 
 
+def test_content_field_region_as_pydantic(polygons, globalconfig2):
+    """Test export of the field_region content."""
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content="field_region",
+        content_metadata=data.FieldRegion(id=1),
+    ).generate_metadata(polygons)
+
+    assert meta["data"]["content"] == "field_region"
+    assert meta["data"]["field_region"]["id"] == 1
+
+
 def test_content_fluid_contact(regsurf, globalconfig2):
     """Test export of the fluid_contact content."""
     meta = ExportData(
@@ -70,6 +96,19 @@ def test_content_fluid_contact(regsurf, globalconfig2):
         name="MyName",
         content="fluid_contact",
         content_metadata={"contact": "fwl"},
+    ).generate_metadata(regsurf)
+
+    assert meta["data"]["content"] == "fluid_contact"
+    assert meta["data"]["fluid_contact"]["contact"] == "fwl"
+
+
+def test_content_fluid_contact_as_pydantic(regsurf, globalconfig2):
+    """Test export of the fluid_contact content."""
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content="fluid_contact",
+        content_metadata=data.FluidContact(contact="fwl"),
     ).generate_metadata(regsurf)
 
     assert meta["data"]["content"] == "fluid_contact"
@@ -185,6 +224,21 @@ def test_content_property_as_dict(gridproperty, globalconfig2):
     assert meta["data"]["property"] == content_specifc
 
 
+def test_content_property_as_pydantic(gridproperty, globalconfig2):
+    """Test export of the property content."""
+    # should give FutureWarning when not linked to a grid
+    with pytest.warns(FutureWarning, match="linking it to a geometry"):
+        meta = ExportData(
+            config=globalconfig2,
+            name="MyName",
+            content="property",
+            content_metadata=data.Property(attribute="porosity", is_discrete=False),
+        ).generate_metadata(gridproperty)
+
+    assert meta["data"]["content"] == "property"
+    assert meta["data"]["property"] == {"attribute": "porosity", "is_discrete": False}
+
+
 def test_content_seismic_as_dict(gridproperty, globalconfig2):
     """Test export of the property content."""
     content_specifc = {"attribute": "amplitude", "calculation": "mean"}
@@ -199,6 +253,32 @@ def test_content_seismic_as_dict(gridproperty, globalconfig2):
 
     assert meta["data"]["content"] == "seismic"
     assert meta["data"]["seismic"] == content_specifc
+
+
+def test_content_seismic_as_pydantic(regsurf, globalconfig2):
+    """Test seismic content with content_metadata input as pydantic model."""
+
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content="seismic",
+        content_metadata=data.Seismic(attribute="amplitude", calculation="mean"),
+    ).generate_metadata(regsurf)
+
+    assert meta["data"]["content"] == "seismic"
+    assert meta["data"]["seismic"] == {"attribute": "amplitude", "calculation": "mean"}
+
+
+def test_content_seismic_as_wrong_pydantic_raises(regsurf, globalconfig2):
+    """Test seismic content with content_metadata input as wromg pydantic model."""
+
+    with pytest.raises(ValueError, match="content_metadata"):
+        ExportData(
+            config=globalconfig2,
+            name="MyName",
+            content="seismic",
+            content_metadata=data.FieldOutline(contact="owc"),
+        ).generate_metadata(regsurf)
 
 
 def test_content_pvt(dataframe, globalconfig2):
