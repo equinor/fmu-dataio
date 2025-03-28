@@ -263,15 +263,20 @@ def xtgeo_zones(regsurf):
 
 
 @pytest.fixture
-def xtgeo_fault_lines(polygons):
-    top = polygons.copy()
+def xtgeo_fault_lines(fault_line):
+    """
+    Create a set of fault line polygons, with stratigraphic names and a
+    NAME (fault names) column present in the dataframe.
+    """
+
+    top = fault_line.copy()
     top.name = "TopVolantis"
 
-    mid = polygons.copy()
+    mid = fault_line.copy()
     mid.name = "TopTherys"
     mid.get_dataframe(copy=False)[mid.zname] += 100
 
-    base = polygons.copy()
+    base = fault_line.copy()
     base.name = "TopVolon"
     base.get_dataframe(copy=False)[base.zname] += 200
 

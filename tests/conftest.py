@@ -527,6 +527,21 @@ def fixture_polygons():
     )
 
 
+@pytest.fixture(name="fault_line", scope="module")
+def fixture_fault_line():
+    """Create an xtgeo polygons."""
+    logger.debug("Ran %s", _current_function_name())
+    return xtgeo.Polygons(
+        [
+            [1, 22, 3, 0, "F1"],
+            [6, 25, 4, 0, "F1"],
+            [8, 27, 6, 0, "F1"],
+            [1, 22, 3, 0, "F1"],
+        ],
+        attributes={"NAME": "str"},
+    )
+
+
 @pytest.fixture(name="points", scope="module")
 def fixture_points():
     """Create an xtgeo points instance."""
