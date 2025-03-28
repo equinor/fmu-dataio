@@ -1,5 +1,6 @@
 from unittest import mock
 
+import pandas as pd
 import pytest
 
 from fmu.dataio._models.fmu_results.global_configuration import GlobalConfiguration
@@ -136,14 +137,14 @@ def test_get_polygons_in_folder_all_empty(mock_project_variable):
         get_polygons_in_folder(mock_project_variable, horizon_folder)
 
 
-def test_validate_global_config(mock_project_variable, globalconfig1):
+def test_validate_global_config(globalconfig1):
     from fmu.dataio.export.rms._utils import validate_global_config
 
     config = validate_global_config(globalconfig1)
     assert isinstance(config, GlobalConfiguration)
 
 
-def test_validate_global_config_invalid(mock_project_variable, globalconfig1):
+def test_validate_global_config_invalid(globalconfig1):
     from fmu.dataio.export.rms._utils import validate_global_config
 
     invalid_config = globalconfig1.copy()
@@ -151,3 +152,21 @@ def test_validate_global_config_invalid(mock_project_variable, globalconfig1):
 
     with pytest.raises(ValueError, match="valid config"):
         validate_global_config(invalid_config)
+
+
+def test_get_open_polygons_id(polygons):
+    """Test the function to list open polygons in an xtgoe.Polygons object"""
+    from fmu.dataio.export.rms._utils import get_open_polygons_id
+
+    df_closed = polygons.get_dataframe()
+
+    # create an open polygon dataframe
+    df_open = polygons.get_dataframe().drop(index=0)
+    df_open[polygons.pname] = 2  # set id to 2 for the open polygon
+
+    # add the open polygon to the polygons object
+    df_combined = pd.concat([df_closed, df_open])
+    polygons.set_dataframe(df_combined)
+
+    open_polygons = get_open_polygons_id(polygons)
+    assert open_polygons == [2]
