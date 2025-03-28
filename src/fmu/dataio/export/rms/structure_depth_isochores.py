@@ -18,6 +18,7 @@ from fmu.dataio.export.rms._utils import (
     get_rms_project_units,
     get_zones_in_folder,
     load_global_config,
+    validate_name_in_stratigraphy,
 )
 
 if TYPE_CHECKING:
@@ -87,8 +88,9 @@ class _ExportStructureDepthIsochores:
 
     def _validate_surfaces(self) -> None:
         """Surface validations."""
-        # TODO: check that the surfaces have a stratigraphy entry.
+
         for surf in self._surfaces:
+            validate_name_in_stratigraphy(surf.name, self._config)
             if (surf.values < 0).any():
                 raise ValidationError(
                     f"Negative values detected for the isochore surface {surf.name}. "

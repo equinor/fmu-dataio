@@ -22,6 +22,7 @@ from fmu.dataio.export.rms._utils import (
     get_open_polygons_id,
     get_rms_project_units,
     load_global_config,
+    validate_name_in_stratigraphy,
 )
 
 if TYPE_CHECKING:
@@ -117,9 +118,9 @@ class _ExportStructureDepthFaultLines:
 
     def _validate_data(self) -> None:
         """Data validations before export."""
-        # TODO: check that the fault lines have a stratigraphy entry.
 
         for pol in self._fault_lines:
+            validate_name_in_stratigraphy(pol.name, self._config)
             self._raise_on_open_polygons(pol)
 
     def export(self) -> ExportResult:

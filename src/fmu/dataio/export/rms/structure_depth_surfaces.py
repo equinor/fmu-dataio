@@ -13,6 +13,7 @@ from fmu.dataio.export.rms._utils import (
     get_horizons_in_folder,
     get_rms_project_units,
     load_global_config,
+    validate_name_in_stratigraphy,
 )
 
 if TYPE_CHECKING:
@@ -79,10 +80,12 @@ class _ExportStructureDepthSurfaces:
         """Surface validations."""
         # TODO: Add check that the surfaces are consistent, i.e. a stratigraphic
         # deeper surface should never have shallower values than the one above
-        # also check that the surfaces have a stratigraphy entry.
+        for surf in self._surfaces:
+            validate_name_in_stratigraphy(surf.name, self._config)
 
     def export(self) -> ExportResult:
         """Export the depth as a standard_result."""
+        self._validate_surfaces()
         return self._export_surfaces()
 
 
