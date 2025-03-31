@@ -126,6 +126,16 @@ def test_public_export_function(mock_project_variable, mock_export_class):
 
 
 @inside_rms
+def test_unknown_name_in_stratigraphy_raises(mock_export_class):
+    """Test that an error is raised if horizon name is missing in the stratigraphy"""
+
+    mock_export_class._fault_lines[0].name = "missing"
+
+    with pytest.raises(ValueError, match="not listed"):
+        mock_export_class.export()
+
+
+@inside_rms
 def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypatch):
     """Test that an exception is raised if the config is missing."""
 

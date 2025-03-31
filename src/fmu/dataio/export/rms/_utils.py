@@ -213,3 +213,15 @@ def get_faultlines_in_folder(project: Any, horizon_folder: str) -> list[xtgeo.Po
         pol.set_dataframe(df)
 
     return fault_lines
+
+
+def validate_name_in_stratigraphy(name: str, config: GlobalConfiguration) -> None:
+    """Validate that an input name is present in the config.stratigraphy"""
+    assert config.stratigraphy is not None
+
+    if name not in config.stratigraphy:
+        raise ValidationError(
+            f"The stratigraphic {name=} is not listed in the 'stratigraphy' "
+            "block in the config. This is required, please add it and rerun."
+            ""
+        )

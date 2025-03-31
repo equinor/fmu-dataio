@@ -89,6 +89,16 @@ def test_public_export_function(mock_project_variable, mock_export_class):
 
 
 @inside_rms
+def test_unknown_name_in_stratigraphy_raises(mock_export_class):
+    """Test that an error is raised if horizon name is missing in the stratigraphy"""
+
+    mock_export_class._surfaces[0].name = "missing"
+
+    with pytest.raises(ValueError, match="not listed"):
+        mock_export_class.export()
+
+
+@inside_rms
 def test_validation_negative_values(
     mock_project_variable, monkeypatch, rmssetup_with_fmuconfig, regsurf
 ):
@@ -100,6 +110,7 @@ def test_validation_negative_values(
 
     surf_with_negative_values = regsurf.copy()
     surf_with_negative_values.values = -20
+    surf_with_negative_values.name = "TopVolantis"  # should be a startigraphic name
 
     with mock.patch(  # noqa
         "fmu.dataio.export.rms.structure_depth_isochores.get_zones_in_folder",
