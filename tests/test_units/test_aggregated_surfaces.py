@@ -32,7 +32,7 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, aggr_surfs_mean):
     newmeta = aggdata.generate_metadata(aggr_mean)
     logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
     assert newmeta["fmu"]["aggregation"]["id"] == aggregation_uuid
-    assert newmeta["fmu"]["context"]["stage"] == "iteration"
+    assert newmeta["fmu"]["context"]["stage"] == "ensemble"
 
 
 def test_regsurf_aggregated_content_seismic(
@@ -60,7 +60,7 @@ def test_regsurf_aggregated_content_seismic(
     newmeta = aggdata.generate_metadata(aggr_mean)
     logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
     assert newmeta["fmu"]["aggregation"]["id"] == aggregation_uuid
-    assert newmeta["fmu"]["context"]["stage"] == "iteration"
+    assert newmeta["fmu"]["context"]["stage"] == "ensemble"
 
 
 def test_regsurf_aggregated_export(fmurun_w_casemetadata, aggr_surfs_mean):
