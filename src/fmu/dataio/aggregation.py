@@ -246,8 +246,8 @@ class AggregatedData:
         template["fmu"]["aggregation"]["realization_ids"] = real_ids
         template["fmu"]["aggregation"]["id"] = self.aggregation_id
 
-        # fmu.context.stage should be 'iteration'
-        template["fmu"]["context"]["stage"] = FMUContext.iteration.value
+        # fmu.context.stage should be 'ensemble'
+        template["fmu"]["context"]["stage"] = FMUContext.ensemble.value
 
         # next, the new object will trigger update of: 'file', 'data' (some fields) and
         # 'tracklog'.
