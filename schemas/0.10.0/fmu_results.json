@@ -1226,6 +1226,7 @@
       "enum": [
         "case",
         "iteration",
+        "ensemble",
         "realization"
       ],
       "title": "FMUContext",

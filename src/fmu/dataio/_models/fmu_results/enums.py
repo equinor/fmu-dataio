@@ -115,6 +115,7 @@ class FMUContext(str, Enum):
 
     case = "case"
     iteration = "iteration"
+    ensemble = "ensemble"
     realization = "realization"
 
 
