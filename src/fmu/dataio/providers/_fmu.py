@@ -195,7 +195,7 @@ class FmuProvider(Provider):
             context=self._get_fmucontext_meta(),
             model=self.model or case_meta.fmu.model,
             workflow=self._get_workflow_meta() if self.workflow else None,
-            iteration=self._get_iteration_meta(iter_uuid),
+            ensemble=self._get_iteration_meta(iter_uuid),
             realization=self._get_realization_meta(real_uuid),
             ert=self._get_ert_meta(),
         )
@@ -316,8 +316,8 @@ class FmuProvider(Provider):
             uuid=real_uuid,
         )
 
-    def _get_iteration_meta(self, iter_uuid: UUID) -> fields.Iteration:
-        return fields.Iteration(
+    def _get_iteration_meta(self, iter_uuid: UUID) -> fields.Ensemble:
+        return fields.Ensemble(
             id=self._iter_id,
             name=self._iter_name,
             uuid=iter_uuid,

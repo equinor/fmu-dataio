@@ -26,6 +26,8 @@
     "fmu.aggregation.realization_ids",
     "fmu.case",
     "fmu.context.stage",
+    "fmu.ensemble.name",
+    "fmu.ensemble.uuid",
     "fmu.iteration.name",
     "fmu.iteration.uuid",
     "fmu.model",
@@ -417,7 +419,7 @@
       "type": "object"
     },
     "Case": {
-      "description": "The ``fmu.case`` block contains information about the case from which this data\nobject was exported.\n\nA case represent a set of iterations that belong together, either by being part of\nthe same run (i.e. history matching) or by being placed together by the user,\ncorresponding to /scratch/<asset>/<user>/<my case name>/.\n\n.. note:: If an FMU data object is exported outside the case context, this block\n   will not be present.",
+      "description": "The ``fmu.case`` block contains information about the case from which this data\nobject was exported.\n\nA case represent a set of ensembles that belong together, either by being part of\nthe same run (i.e. history matching) or by being placed together by the user,\ncorresponding to /scratch/<asset>/<user>/<my case name>/.\n\n.. note:: If an FMU data object is exported outside the case context, this block\n   will not be present.",
       "properties": {
         "description": {
           "anyOf": [
@@ -1004,6 +1006,54 @@
       "title": "DomainReference",
       "type": "string"
     },
+    "Ensemble": {
+      "description": "The ``fmu.ensemble`` block contains information about the ensemble this data\nobject belongs to.",
+      "properties": {
+        "id": {
+          "minimum": 0,
+          "title": "Id",
+          "type": "integer"
+        },
+        "name": {
+          "examples": [
+            "iter-0"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "restart_from": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "title": "Restart From"
+        },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "uuid"
+      ],
+      "title": "Ensemble",
+      "type": "object"
+    },
     "Ert": {
       "description": "The ``fmu.ert`` block contains information about the current ert run.",
       "properties": {
@@ -1087,6 +1137,17 @@
         "context": {
           "$ref": "#/$defs/Context"
         },
+        "ensemble": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Ensemble"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "ert": {
           "anyOf": [
             {
@@ -1101,7 +1162,7 @@
         "iteration": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Iteration"
+              "$ref": "#/$defs/Ensemble"
             },
             {
               "type": "null"
@@ -1180,7 +1241,7 @@
           "$ref": "#/$defs/IterationContext"
         },
         "iteration": {
-          "$ref": "#/$defs/Iteration"
+          "$ref": "#/$defs/Ensemble"
         },
         "model": {
           "$ref": "#/$defs/Model"
@@ -1205,7 +1266,7 @@
           "$ref": "#/$defs/RealizationContext"
         },
         "iteration": {
-          "$ref": "#/$defs/Iteration"
+          "$ref": "#/$defs/Ensemble"
         },
         "model": {
           "$ref": "#/$defs/Model"
@@ -3335,54 +3396,6 @@
         "name"
       ],
       "title": "InplaceVolumesStandardResult",
-      "type": "object"
-    },
-    "Iteration": {
-      "description": "The ``fmu.iteration`` block contains information about the iteration this data\nobject belongs to.",
-      "properties": {
-        "id": {
-          "minimum": 0,
-          "title": "Id",
-          "type": "integer"
-        },
-        "name": {
-          "examples": [
-            "iter-0"
-          ],
-          "title": "Name",
-          "type": "string"
-        },
-        "restart_from": {
-          "anyOf": [
-            {
-              "format": "uuid",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "examples": [
-            "15ce3b84-766f-4c93-9050-b154861f9100"
-          ],
-          "title": "Restart From"
-        },
-        "uuid": {
-          "examples": [
-            "15ce3b84-766f-4c93-9050-b154861f9100"
-          ],
-          "format": "uuid",
-          "title": "Uuid",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "uuid"
-      ],
-      "title": "Iteration",
       "type": "object"
     },
     "IterationContext": {

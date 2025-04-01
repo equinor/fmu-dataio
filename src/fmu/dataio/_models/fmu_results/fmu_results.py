@@ -49,6 +49,7 @@ class FmuResultsSchema(SchemaBase):
     VERSION_CHANGELOG: str = """
     #### 0.10.0
 
+    - `fmu.ensemble` added as duplicate and future replacement of `fmu.iteration`
     - `data.property` added as optional field for data of content `property`
     - `data.property.attribute` added as optional field.
     - `data.property.is_discrete` added as optional field.
@@ -128,6 +129,8 @@ class FmuResultsSchema(SchemaBase):
         "fmu.aggregation.realization_ids",
         "fmu.case",
         "fmu.context.stage",
+        "fmu.ensemble.name",
+        "fmu.ensemble.uuid",
         "fmu.iteration.name",
         "fmu.iteration.uuid",
         "fmu.model",

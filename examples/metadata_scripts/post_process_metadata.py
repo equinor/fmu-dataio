@@ -17,6 +17,8 @@ def remove_machine_data(metadata_yaml: dict) -> dict:
             metadata_yaml["fmu"]["realization"]["uuid"] = DUMMY_UUID
         if "iteration" in metadata_yaml["fmu"]:
             metadata_yaml["fmu"]["iteration"]["uuid"] = DUMMY_UUID
+        if "ensemble" in metadata_yaml["fmu"]:
+            metadata_yaml["fmu"]["ensemble"]["uuid"] = DUMMY_UUID
 
     if "file" in metadata_yaml and "absolute_path" in metadata_yaml["file"]:
         metadata_yaml["file"]["absolute_path"] = "/some/absolute/path/"
