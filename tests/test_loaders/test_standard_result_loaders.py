@@ -1,5 +1,5 @@
 from copy import deepcopy
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import fmu.dataio.load.load_standard_results as load_standard_results
 
@@ -15,10 +15,12 @@ def test_load_inplace_volumes(metadata_examples):
         },
     }
 
-    volumes_table = deepcopy(metadata_examples["table_inplace_volumes.yml"])
+    volumes_table_metadata = deepcopy(metadata_examples["table_inplace_volumes.yml"])
+    volumes_table_metadata["data"]["product"] = product
 
-    volumes_table["data"]["product"] = product
-    volume_tables_metadata = [volumes_table]
+    table_mock = MagicMock()
+    table_mock.metadata = volumes_table_metadata
+    volume_tables = [table_mock]
 
     with (
         patch(
@@ -27,7 +29,7 @@ def test_load_inplace_volumes(metadata_examples):
         ),
         patch(
             "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_inplace_volumes_standard_results",
-            return_value=volume_tables_metadata,
+            return_value=volume_tables,
         ),
         patch(
             "fmu.dataio.external_interfaces.schema_validation_interface.SchemaValidationInterface.validate_against_schema",
@@ -37,8 +39,9 @@ def test_load_inplace_volumes(metadata_examples):
         inplace_volumes_standard_results = load_standard_results.load_inplace_volumes(
             test_case
         )
+
         assert len(inplace_volumes_standard_results) == 1
-        assert inplace_volumes_standard_results == volume_tables_metadata
+        assert inplace_volumes_standard_results[0].metadata == table_mock.metadata
 
 
 def test_load_structure_depth_surfaces():
