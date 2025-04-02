@@ -128,18 +128,11 @@ def test_tsurf_class_methods(tsurf: reader.TSurfData, rootpath: Path) -> None:
 
 
 def test_tsurf_reader_comments_emptylines(
-    tsurf_as_lines: list[str], rootpath: Path
+    tmp_path: Path, tsurf_as_lines: list[str]
 ) -> None:
     """
     Test the reader with comments and empty lines in the file.
     """
-
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/"
-        "test_read_write_comments_emptylines_invalid_start.ts"
-    )
-    filepath = rootpath / relpath
-    filepath.unlink(missing_ok=True)
 
     # Add comments and empty lines at arbitrary positions between and inside sections.
     # The numbers indicate the line number in the file, the new lines will be inserted
@@ -172,13 +165,11 @@ def test_tsurf_reader_comments_emptylines(
 
     # Two first lines: comment and empty line
     new_lines_invalid_start = _insert_new_lines(lines, empty_lines)
-
     new_lines_invalid_start = [line + "\n" for line in new_lines_invalid_start]
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath = tmp_path / "test_read_write_comments_emptylines_invalid_start.ts"
     with open(filepath, "w") as file:
         file.writelines(new_lines_invalid_start)
-    assert filepath.exists()
 
     # Ensure the file parser handles the first lines correctly
     with pytest.raises(
@@ -189,41 +180,25 @@ def test_tsurf_reader_comments_emptylines(
     ):
         reader.read_tsurf_file(filepath)
 
-    filepath.unlink(missing_ok=True)
-
     # Remove the invalid first two lines
     # Continue testing the rest of the file with all its comments and empty lines
     valid_lines = new_lines_invalid_start[1:]
 
-    relpath = (
-        "tests/data/drogon/rms/output/structural/test_read_write_comments_emptylines.ts"
-    )
-    filepath = rootpath / relpath
-    filepath.unlink(missing_ok=True)
-
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath = tmp_path / "test_read_write_comments_emptylines.ts"
     with open(filepath, "w") as file:
         file.writelines(valid_lines)
-    assert filepath.exists()
 
     instance = reader.read_tsurf_file(filepath)
-    filepath.unlink(missing_ok=True)
     _validate_tsurf(instance)
 
 
-def test_tsurf_reader_invalid_lines(tsurf_as_lines: list[str], rootpath: Path) -> None:
+def test_tsurf_reader_invalid_lines(tmp_path: Path, tsurf_as_lines: list[str]) -> None:
     """
     Test the reader with invalid lines:
     - TSurf keywords that are allowed by the file format but are
       not (yet) handled but this reader
     - plain rubbish
     """
-
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/test_read_write_invalid_lines.ts"
-    )
-    filepath = rootpath / relpath
-    filepath.unlink(missing_ok=True)
 
     # Add invalid lines at arbitrary positions between and inside sections
     # Note that 'WELL_CURVE' and 'GEOLOGICAL_FEATURE' are allowed TSurf keywords
@@ -235,13 +210,11 @@ def test_tsurf_reader_invalid_lines(tsurf_as_lines: list[str], rootpath: Path) -
         14: "Rubbish",
     }
     lines_2 = _insert_new_lines(tsurf_as_lines, invalid_lines)
-
     lines_3 = [line + "\n" for line in lines_2]
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath = tmp_path / "test_read_write_invalid_lines.ts"
     with open(filepath, "w") as file:
         file.writelines(lines_3)
-    assert filepath.exists()
 
     with pytest.raises(
         ValueError,
@@ -249,31 +222,22 @@ def test_tsurf_reader_invalid_lines(tsurf_as_lines: list[str], rootpath: Path) -
     ):
         reader.read_tsurf_file(filepath)
 
-    filepath.unlink(missing_ok=True)
-
 
 def test_parsing_file_with_errors_header_section_1(
-    tsurf_as_lines: list[str], rootpath: Path
+    tmp_path: Path, tsurf_as_lines: list[str]
 ) -> None:
     """
     Test the file parser with a TSurf file that should produce
     errors: header is missing 'name'.
     """
 
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
-    )
-    filepath = rootpath / relpath
-    filepath.unlink(missing_ok=True)
-
     # Error: header is missing line with 'name'
     invalid_lines = [line if "name" not in line else "" for line in tsurf_as_lines]
     invalid_lines = [line + "\n" for line in invalid_lines]
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath = tmp_path / "basic_tsurf_file_with_errors_header_1.ts"
     with open(filepath, "w") as file:
         file.writelines(invalid_lines)
-    assert filepath.exists()
 
     with pytest.raises(
         ValueError,
@@ -281,22 +245,14 @@ def test_parsing_file_with_errors_header_section_1(
     ):
         reader.read_tsurf_file(filepath)
 
-    filepath.unlink(missing_ok=True)
-
 
 def test_parsing_file_with_errors_header_section_2(
-    tsurf_as_lines: list[str], rootpath: Path
+    tmp_path: Path, tsurf_as_lines: list[str]
 ) -> None:
     """
     Test the file parser with a TSurf file that should produce
     errors: header has an extra keyword.
     """
-
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
-    )
-    filepath = rootpath / relpath
-    filepath.unlink(missing_ok=True)
 
     # Error: header has an extra keyword
     # Keep the name line, add an extra keyword line
@@ -308,10 +264,9 @@ def test_parsing_file_with_errors_header_section_2(
         invalid_lines.insert(idx + 1, replace_lines[1])
     invalid_lines = [line + "\n" for line in invalid_lines]
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath = tmp_path / "basic_tsurf_file_with_errors_header_2.ts"
     with open(filepath, "w") as file:
         file.writelines(invalid_lines)
-    assert filepath.exists()
 
     with pytest.raises(
         ValueError,
@@ -319,44 +274,32 @@ def test_parsing_file_with_errors_header_section_2(
     ):
         reader.read_tsurf_file(filepath)
 
-    filepath.unlink(missing_ok=True)
-
 
 def test_parsing_file_with_errors_coordinate_system_section_1(
-    tsurf_as_lines: list[str], rootpath: Path
+    tmp_path: Path, tsurf_as_lines: list[str]
 ) -> None:
     """
     Test the file parser with a TSurf file that should produce
     errors: ZPOSITIVE value is incorrect.
     """
 
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
-    )
-    filepath = rootpath / relpath
-    filepath.unlink(missing_ok=True)
-
     # Error: ZPOSITIVE value is invalid
     invalid_lines = [
         line if "ZPOSITIVE" not in line else "ZPOSITIVE error"
         for line in tsurf_as_lines
     ]
-
     invalid_lines = [line + "\n" for line in invalid_lines]
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath = tmp_path / "basic_tsurf_file_with_errors_coordsys_1.ts"
     with open(filepath, "w") as file:
         file.writelines(invalid_lines)
-    assert filepath.exists()
 
     with pytest.raises(ValueError, match="Invalid 'ZPOSITIVE' value"):
         reader.read_tsurf_file(filepath)
 
-    filepath.unlink(missing_ok=True)
-
 
 def test_parsing_file_with_errors_coordinate_system_section_2(
-    tsurf_as_lines: list[str], rootpath: Path
+    tmp_path: Path, tsurf_as_lines: list[str]
 ) -> None:
     """
     Test the file parser with a TSurf file that should produce
@@ -364,63 +307,43 @@ def test_parsing_file_with_errors_coordinate_system_section_2(
     section is incomplete.
     """
 
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
-    )
-    filepath = rootpath / relpath
-    filepath.unlink(missing_ok=True)
-
     # Error: missing line ZPOSITIVE
     invalid_lines = [line if "ZPOSITIVE" not in line else "" for line in tsurf_as_lines]
-
     invalid_lines = [line + "\n" for line in invalid_lines]
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath = tmp_path / "basic_tsurf_file_with_errors_coordsys_2.ts"
     with open(filepath, "w") as file:
         file.writelines(invalid_lines)
-    assert filepath.exists()
 
     with pytest.raises(ValueError, match="Invalid 'COORDINATE_SYSTEM' section"):
         reader.read_tsurf_file(filepath)
 
-    filepath.unlink(missing_ok=True)
-
 
 def test_parsing_file_with_errors_coordinate_system_section_3(
-    tsurf_as_lines: list[str], rootpath: Path
+    tmp_path: Path, tsurf_as_lines: list[str]
 ) -> None:
     """
     Test the file parser with a TSurf file that should produce
     errors: coordinate system section contains an invalid keyword.
     """
 
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
-    )
-    filepath = rootpath / relpath
-    filepath.unlink(missing_ok=True)
-
     # Error: missing line ZPOSITIVE
     invalid_lines = [
         line if "AXIS_NAME" not in line else "INVALID_KEYWORD error"
         for line in tsurf_as_lines
     ]
-
     invalid_lines = [line + "\n" for line in invalid_lines]
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath = tmp_path / "basic_tsurf_file_with_errors_coordsys_3.ts"
     with open(filepath, "w") as file:
         file.writelines(invalid_lines)
-    assert filepath.exists()
 
     with pytest.raises(ValueError, match="Invalid 'COORDINATE_SYSTEM' section"):
         reader.read_tsurf_file(filepath)
 
-    filepath.unlink(missing_ok=True)
-
 
 def test_parsing_file_with_errors_tface_section(
-    tsurf_as_lines: list[str], rootpath: Path
+    tmp_path: Path, tsurf_as_lines: list[str]
 ) -> None:
     """
     Test the file parser with a TSurf file that should produce
@@ -430,61 +353,41 @@ def test_parsing_file_with_errors_tface_section(
     but not handled by this reader.
     """
 
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_errors.ts"
-    )
-    filepath = rootpath / relpath
-    filepath.unlink(missing_ok=True)
-
     # Error: 'VRTX' is replaced by 'PVRTX'
     invalid_lines = [
         line if "VRTX" not in line else line.replace("VRTX", "PVRTX")
         for line in tsurf_as_lines
     ]
-
     invalid_lines = [line + "\n" for line in invalid_lines]
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath = tmp_path / "basic_tsurf_file_with_errors_tface.ts"
     with open(filepath, "w") as file:
         file.writelines(invalid_lines)
-    assert filepath.exists()
 
     with pytest.raises(
         ValueError, match="Invalid line in 'TFACE' section with triangulated data"
     ):
         reader.read_tsurf_file(filepath)
 
-    filepath.unlink(missing_ok=True)
 
-
-def test_parsing_file_with_warnings(tsurf_as_lines: list[str], rootpath: Path) -> None:
+def test_parsing_file_with_warnings(tmp_path: Path, tsurf_as_lines: list[str]) -> None:
     """
     Test the file parser with a TSurf file with content that should produce
     warnings.
     """
-
-    relpath = Path(
-        "tests/data/drogon/rms/output/structural/basic_tsurf_file_with_warnings.ts"
-    )
-    filepath = rootpath / relpath
-    filepath.unlink(missing_ok=True)
 
     # Uncommon value for AXIS_UNIT
     uncommon_lines = [
         line if "AXIS_UNIT" not in line else 'AXIS_UNIT "m" "cm" "m"'
         for line in tsurf_as_lines
     ]
-
     uncommon_lines = [line + "\n" for line in uncommon_lines]
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath = tmp_path / "basic_tsurf_file_with_warnings.ts"
     with open(filepath, "w") as file:
         file.writelines(uncommon_lines)
-    assert filepath.exists()
     with pytest.warns(UserWarning, match="Uncommon 'AXIS_UNIT' value"):
         reader.read_tsurf_file(filepath)
-
-    filepath.unlink(missing_ok=True)
 
 
 def test_tsurf_reader_RMS_file(rootpath: Path) -> None:
