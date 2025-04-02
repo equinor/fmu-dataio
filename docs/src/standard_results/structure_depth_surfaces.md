@@ -17,7 +17,7 @@ model workflow.
 | Field | Value |
 | --- | --- |
 | Version | NA |
-| Output | `share/results/maps/structure_depth_surfaces/surfacename.gri` |
+| Output | `share/results/maps/structure_depth_surface/surfacename.gri` |
 :::
 
 ## Requirements
@@ -38,7 +38,7 @@ This export function will automatically export all non-empty horizons from the p
 ## Result
 
 The surfaces from the horizon folder will be exported as 'irap_binary'
-files to `share/results/maps/structure_depth_surfaces/surfacename.gri`.
+files to `share/results/maps/structure_depth_surface/surfacename.gri`.
 
 
 ## Standard result schema

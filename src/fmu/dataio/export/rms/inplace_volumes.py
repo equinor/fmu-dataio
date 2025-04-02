@@ -79,6 +79,11 @@ class _ExportVolumetricsRMS:
         )
 
     @property
+    def _subfolder(self) -> str:
+        """Subfolder for exporting the data to."""
+        return self._standard_result.name.value
+
+    @property
     def _classification(self) -> Classification:
         """Get default classification."""
         return Classification.restricted
@@ -328,7 +333,7 @@ class _ExportVolumetricsRMS:
             unit="m3" if get_rms_project_units(self.project) == "metric" else "ft3",
             vertical_domain="depth",
             domain_reference="msl",
-            subfolder="volumes",
+            subfolder=self._subfolder,
             classification=self._classification,
             name=self.grid_name,
             rep_include=False,

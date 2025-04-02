@@ -60,7 +60,7 @@ class _ExportStructureDepthFaultLines:
     @property
     def _subfolder(self) -> str:
         """Subfolder for exporting the data to."""
-        return StandardResultName.structure_depth_fault_lines.value
+        return self._standard_result.name.value
 
     def _export_fault_line(self, pol: xtgeo.Polygons) -> ExportResultItem:
         edata = dio.ExportData(
