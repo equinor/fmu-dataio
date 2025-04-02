@@ -90,6 +90,7 @@ class FMUClass(str, Enum):
     iteration = "iteration"
     ensemble = "ensemble"
     surface = "surface"
+    triangulated_surface = "triangulated_surface"
     table = "table"
     cpgrid = "cpgrid"
     cpgrid_property = "cpgrid_property"
