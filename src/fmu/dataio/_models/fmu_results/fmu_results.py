@@ -50,6 +50,7 @@ class FmuResultsSchema(SchemaBase):
     VERSION_CHANGELOG: str = """
     #### 0.10.0
 
+    - `triangulated_surface` added as a new object class
     - `Ensemble` objects with `class=ensemble` is now supported, and will
       in the future replace `Iteration` objects
     - `fmu.context.stage` now supports option `ensemble`
@@ -275,6 +276,7 @@ class ObjectMetadata(MetadataBase):
 
     class_: Literal[
         FMUClass.surface,
+        FMUClass.triangulated_surface,
         FMUClass.table,
         FMUClass.cpgrid,
         FMUClass.cpgrid_property,
