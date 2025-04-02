@@ -157,7 +157,7 @@ class Case(BaseModel):
     The ``fmu.case`` block contains information about the case from which this data
     object was exported.
 
-    A case represent a set of iterations that belong together, either by being part of
+    A case represent a set of ensembles that belong together, either by being part of
     the same run (i.e. history matching) or by being placed together by the user,
     corresponding to /scratch/<asset>/<user>/<my case name>/.
 
@@ -199,18 +199,18 @@ class Experiment(BaseModel):
     """The unique identifier of this ert experiment run."""
 
 
-class Iteration(BaseModel):
+class Ensemble(BaseModel):
     """
-    The ``fmu.iteration`` block contains information about the iteration this data
+    The ``fmu.ensemble`` block contains information about the ensemble this data
     object belongs to.
     """
 
     id: int = Field(ge=0)
-    """The internal identification of this iteration, represented by an integer."""
+    """The internal identification of this ensemble, represented by an integer."""
 
     name: str = Field(examples=["iter-0"])
-    """The name of the iteration. This is typically reflecting the folder name on
-    scratch. In ERT, custom names for iterations are supported, e.g. "pred"."""
+    """The name of the ensemble. This is typically reflecting the folder name on
+    scratch. In ERT, custom names for ensembles are supported, e.g. "pred"."""
 
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """The unique identifier of this case. Currently made by fmu.dataio."""
@@ -219,7 +219,7 @@ class Iteration(BaseModel):
         default=None,
         examples=["15ce3b84-766f-4c93-9050-b154861f9100"],
     )
-    """A uuid reference to another iteration that this iteration was restarted
+    """A uuid reference to another ensemble that this ensemble was restarted
     from"""
 
 
@@ -259,7 +259,7 @@ class Realization(BaseModel):
 
     uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
     """The universally unique identifier for this realization. It is a hash of
-    ``fmu.case.uuid`` and ``fmu.iteration.uuid`` and ``fmu.realization.id``."""
+    ``fmu.case.uuid`` and ``fmu.ensemble.uuid`` and ``fmu.realization.id``."""
 
     is_reference: bool | None = Field(default=None)
     """
@@ -593,7 +593,7 @@ class FMUIteration(FMUBase):
     was produced. See :class:`Context`. For ``iteration`` the context is ``iteration``.
     """
 
-    iteration: Iteration
+    iteration: Ensemble
     """The ``fmu.iteration`` block contains information about the iteration this data
     object belongs to. See :class:`Iteration`. """
 
@@ -612,7 +612,7 @@ class FMURealization(FMUBase):
     ``realization``.
     """
 
-    iteration: Iteration
+    iteration: Ensemble
     """The ``fmu.iteration`` block contains information about the iteration this data
     object belongs to. See :class:`Iteration`. """
 
@@ -632,9 +632,12 @@ class FMU(FMUBase):
     """The ``fmu.context`` block contains the FMU context in which this data object
     was produced. See :class:`Context`.  """
 
-    iteration: Iteration | None = Field(default=None)
-    """The ``fmu.iteration`` block contains information about the iteration this data
-    object belongs to. See :class:`Iteration`. """
+    ensemble: Ensemble | None = Field(default=None)
+    """The ``fmu.ensemble`` block contains information about the ensemble this data
+    object belongs to. See :class:`Ensemble`. """
+
+    iteration: Ensemble | None = Field(default=None)
+    """Deprecated and replaced by ``fmu.ensemble``"""
 
     workflow: Workflow | None = Field(default=None)
     """The ``fmu.workflow`` block refers to specific subworkflows within the large
@@ -651,6 +654,15 @@ class FMU(FMUBase):
     ert: Ert | None = Field(default=None)
     """The ``fmu.ert`` block contains information about the current ert run
     See :class:`Ert`."""
+
+    @model_validator(mode="after")
+    def _set_iteration_equal_ensemble(self) -> FMU:
+        """
+        The 'fmu.ensemble' field has replaced the 'fmu.iteration' field. However in a
+        transition period we keep both, hence we set the 'fmu.iteration' here.
+        """
+        self.iteration = self.ensemble
+        return self
 
     @model_validator(mode="before")
     @classmethod
