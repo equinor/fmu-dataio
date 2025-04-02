@@ -234,8 +234,10 @@ class ExportData:
 
         grid_model: Currently allowed but planned for deprecation. See `geometry`.
 
-        table_index: This applies to Pandas (table) data only, and is a list of the
-            column names to use as index columns e.g. ["ZONE", "REGION"].
+        table_index: This applies to tabular data and is a list of the column names
+            to use as index columns e.g. ["ZONE", "REGION"]. This can also be applied
+            to points or polygons objects that are exported in table format to specify
+            attributes that should act as index columns.
 
         is_prediction: True (default) if model prediction data
 

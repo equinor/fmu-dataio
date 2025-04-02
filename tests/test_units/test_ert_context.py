@@ -163,7 +163,10 @@ def test_polys_export_file_use_xtgeo_names(
     os.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig, content="depth", name="TopVolantis"
+        config=rmsglobalconfig,
+        content="depth",
+        name="TopVolantis",
+        table_index=[polygons.pname],
     )
 
     edata.polygons_fformat = "csv|xtgeo"  # override
@@ -171,6 +174,9 @@ def test_polys_export_file_use_xtgeo_names(
 
     thefile = pd.read_csv(output)
     assert set(thefile.columns) == {"X_UTME", "Y_UTMN", "Z_TVDSS", "POLY_ID"}
+
+    meta = dataio.read_metadata(output)
+    assert meta["data"]["table_index"] == [polygons.pname]
 
     edata.polygons_fformat = "csv"  # reset
 
@@ -182,7 +188,10 @@ def test_polys_export_file_as_parquet(fmurun_w_casemetadata, rmsglobalconfig, po
     os.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig, content="depth", name="TopVolantis"
+        config=rmsglobalconfig,
+        content="depth",
+        name="TopVolantis",
+        table_index=[polygons.pname],
     )
 
     edata.polygons_fformat = "parquet"  # override
@@ -200,6 +209,7 @@ def test_polys_export_file_as_parquet(fmurun_w_casemetadata, rmsglobalconfig, po
 
     meta = dataio.read_metadata(output)
     assert meta["data"]["format"] == "parquet"
+    assert meta["data"]["table_index"] == [polygons.pname]
 
     edata.polygons_fformat = "csv"  # reset
 
@@ -213,7 +223,10 @@ def test_polys_export_file_as_irap_ascii(
     os.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig, content="depth", name="TopVolantis"
+        config=rmsglobalconfig,
+        content="depth",
+        name="TopVolantis",
+        table_index=[polygons.pname],
     )
 
     edata.polygons_fformat = "irap_ascii"  # override
@@ -223,6 +236,9 @@ def test_polys_export_file_as_irap_ascii(
     assert output == (
         edata._rootpath / "realization-0/iter-0/share/results/polygons/topvolantis.pol"
     )
+    # check that data.table_index is not set in the metadata
+    meta = dataio.read_metadata(output)
+    assert "table_index" not in meta["data"]
     edata.polygons_fformat = "csv"  # reset
 
 
@@ -233,7 +249,10 @@ def test_points_export_file_set_name(fmurun_w_casemetadata, rmsglobalconfig, poi
     os.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig, content="depth", name="TopVolantis"
+        config=rmsglobalconfig,
+        content="depth",
+        name="TopVolantis",
+        table_index=["WellName"],
     )
 
     output = edata.export(points)
@@ -251,6 +270,7 @@ def test_points_export_file_set_name(fmurun_w_casemetadata, rmsglobalconfig, poi
 
     meta = dataio.read_metadata(output)
     assert meta["data"]["spec"]["attributes"] == ["WellName"]
+    assert meta["data"]["table_index"] == ["WellName"]
 
 
 def test_points_export_file_set_name_xtgeoheaders(
@@ -295,7 +315,10 @@ def test_points_export_file_as_irap_ascii(
     os.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
-        config=rmsglobalconfig, content="depth", name="TopVolantis"
+        config=rmsglobalconfig,
+        content="depth",
+        name="TopVolantis",
+        table_index=["WellName"],
     )
 
     edata.points_fformat = "irap_ascii"  # override
@@ -305,6 +328,10 @@ def test_points_export_file_as_irap_ascii(
     assert output == (
         edata._rootpath / "realization-0/iter-0/share/results/points/topvolantis.poi"
     )
+    # check that data.table_index is not set in the metadata
+    meta = dataio.read_metadata(output)
+    assert "table_index" not in meta["data"]
+
     edata.points_fformat = "csv"  # reset
 
 
