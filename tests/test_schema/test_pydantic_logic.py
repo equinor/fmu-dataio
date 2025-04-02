@@ -516,3 +516,27 @@ def test_sumo_realization(metadata_examples):
 
     with pytest.raises(ValidationError):
         FmuResults.model_validate(_example)
+
+
+def test_fmu_iteration_set_from_fmu_ensemble(metadata_examples):
+    """Test that fmu.iteration is set from the fmu.ensemble."""
+
+    # fetch example
+    example = metadata_examples["surface_depth.yml"]
+
+    # assert validation with no changes
+    FmuResults.model_validate(example)
+
+    assert "iteration" in example["fmu"]
+    assert "ensemble" in example["fmu"]
+
+    # delete fmu.iteration and see that is set from the fmu.ensemble
+    _example = deepcopy(example)
+    del _example["fmu"]["iteration"]
+    _example["fmu"]["ensemble"]["name"] = "pytest"
+
+    model = FmuResults.model_validate(_example)
+
+    assert hasattr(model.root.fmu, "iteration")
+    assert model.root.fmu.iteration == model.root.fmu.ensemble
+    assert model.root.fmu.iteration.name == "pytest"

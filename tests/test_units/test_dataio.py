@@ -799,6 +799,9 @@ def test_exportdata_no_iter_folder(
         metadata = yaml.safe_load(f)
     assert metadata["fmu"]["realization"]["name"] == "realization-1"
     assert metadata["fmu"]["realization"]["id"] == 1
+    assert metadata["fmu"]["ensemble"]["name"] == "iter-0"
+    assert metadata["fmu"]["ensemble"]["id"] == 0
+    # check that also iteration is added to the metadata
     assert metadata["fmu"]["iteration"]["name"] == "iter-0"
     assert metadata["fmu"]["iteration"]["id"] == 0
 
