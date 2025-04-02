@@ -88,6 +88,7 @@ class FMUClass(str, Enum):
     case = "case"
     realization = "realization"
     iteration = "iteration"
+    ensemble = "ensemble"
     surface = "surface"
     table = "table"
     cpgrid = "cpgrid"

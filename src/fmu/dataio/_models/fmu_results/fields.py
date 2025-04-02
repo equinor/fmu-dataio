@@ -553,6 +553,15 @@ class IterationContext(Context):
     )
 
 
+class EnsembleContext(Context):
+    """
+    The ``fmu.context`` block contains the FMU context in which this data object
+    was produced. Here ``stage`` is required to be ``ensemble``.
+    """
+
+    stage: Literal[enums.FMUContext.ensemble] = Field(default=enums.FMUContext.ensemble)
+
+
 class RealizationContext(Context):
     """
     The ``fmu.context`` block contains the FMU context in which this data object
@@ -581,12 +590,7 @@ class FMUBase(BaseModel):
 
 
 class FMUIteration(FMUBase):
-    """
-    The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU
-    results data model can be applied to data from *other* sources - in which the
-    fmu-specific stuff may not make sense or be applicable.
-    This is a specialization of the FMU block for ``iteration`` objects.
-    """
+    """Deprecated and replaced by :class:`FMUEnsemble`."""
 
     context: IterationContext
     """The ``fmu.context`` block contains the FMU context in which this data object
@@ -596,6 +600,24 @@ class FMUIteration(FMUBase):
     iteration: Ensemble
     """The ``fmu.iteration`` block contains information about the iteration this data
     object belongs to. See :class:`Iteration`. """
+
+
+class FMUEnsemble(FMUBase):
+    """
+    The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU
+    results data model can be applied to data from *other* sources - in which the
+    fmu-specific stuff may not make sense or be applicable.
+    This is a specialization of the FMU block for ``ensemble`` objects.
+    """
+
+    context: EnsembleContext
+    """The ``fmu.context`` block contains the FMU context in which this data object
+    was produced. See :class:`Context`. For ``ensemble`` the context is ``ensemble``.
+    """
+
+    ensemble: Ensemble
+    """The ``fmu.ensemble`` block contains information about the ensemble this data
+    object belongs to. See :class:`ensemble`. """
 
 
 class FMURealization(FMUBase):
@@ -612,9 +634,12 @@ class FMURealization(FMUBase):
     ``realization``.
     """
 
-    iteration: Ensemble
-    """The ``fmu.iteration`` block contains information about the iteration this data
-    object belongs to. See :class:`Iteration`. """
+    ensemble: Ensemble
+    """The ``fmu.ensemble`` block contains information about the ensemble this data
+    object belongs to. See :class:`ensemble`. """
+
+    iteration: Ensemble | None = Field(default=None)
+    """Deprecated and replaced by ``fmu.ensemble``"""
 
     realization: Realization
     """The ``fmu.realization`` block contains information about the realization this
