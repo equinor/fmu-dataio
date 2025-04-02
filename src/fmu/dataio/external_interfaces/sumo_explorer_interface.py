@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fmu.sumo.explorer import Explorer
+from fmu.sumo.explorer.objects import Surface, Table
 
 
 class SumoExplorerInterface:
@@ -8,32 +9,28 @@ class SumoExplorerInterface:
         sumo = Explorer()
         self._case = sumo.get_case_by_uuid(case_id)
 
-    def get_inplace_volumes_standard_results(self) -> list[dict]:
+    def get_inplace_volumes_standard_results(self) -> list[Table]:
         # Later we can probably filter on "standard_result" here
         tables = self._case.tables.filter(content="volumes", dataformat="parquet")
 
-        inplace_volumes_standard_results = []
+        inplace_volumes_standard_results: list[Table] = []
         for table in tables:
-            metadata = table.metadata
-
             # While we wait for Sumo to add a filter for standard results
-            if "product" in metadata["data"]:
-                inplace_volumes_standard_results.append(metadata)
+            if "product" in table.metadata["data"]:
+                inplace_volumes_standard_results.append(table)
 
         return inplace_volumes_standard_results
 
-    def get_structure_depth_surfaces_standard_results(self) -> list[dict]:
+    def get_structure_depth_surfaces_standard_results(self) -> list[Surface]:
         # Later we can probably filter on "standard_result" here
         surfaces = self._case.surfaces.filter(
             content="depth",
         )
 
-        structure_depth_surfaces_standard_results = []
+        structure_depth_surfaces_standard_results: list[Surface] = []
         for surface in surfaces:
-            metadata = surface.metadata
-
             # While we wait for Sumo to add a filter for standard results
-            if "product" in metadata["data"]:
-                structure_depth_surfaces_standard_results.append(metadata)
+            if "product" in surface.metadata["data"]:
+                structure_depth_surfaces_standard_results.append(surface)
 
         return structure_depth_surfaces_standard_results
