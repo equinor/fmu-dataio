@@ -613,7 +613,7 @@
           "type": "number"
         },
         "xinc": {
-          "minimum": 0.0,
+          "minimum": 0,
           "title": "Xinc",
           "type": "number"
         },
@@ -625,7 +625,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "yinc": {
-          "minimum": 0.0,
+          "minimum": 0,
           "title": "Yinc",
           "type": "number"
         },
@@ -637,7 +637,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "zinc": {
-          "minimum": 0.0,
+          "minimum": 0,
           "title": "Zinc",
           "type": "number"
         },
@@ -4556,6 +4556,7 @@
         "class": {
           "enum": [
             "surface",
+            "triangulated_surface",
             "table",
             "cpgrid",
             "cpgrid_property",
@@ -8245,7 +8246,7 @@
           "type": "number"
         },
         "xinc": {
-          "minimum": 0.0,
+          "minimum": 0,
           "title": "Xinc",
           "type": "number"
         },
@@ -8257,7 +8258,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "yinc": {
-          "minimum": 0.0,
+          "minimum": 0,
           "title": "Yinc",
           "type": "number"
         },
