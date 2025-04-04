@@ -9,7 +9,7 @@ This exports the initial inplace volumes of a single grid from within RMS.
 | Field | Value |
 | --- | --- |
 | Version | **{{ InplaceVolumesSchema.VERSION }}** |
-| Output | `share/results/tables/volumes/gridname.parquet` |
+| Output | `share/results/tables/inplace_volumes/gridname.parquet` |
 :::
 
 ## Requirements
@@ -55,7 +55,7 @@ The volumetric table from RMS undergoes a couple of transformations to adhere to
    is absent, it is set equal to the `BULK` column, assuming a net-to-gross ratio of one.
 
 Given a grid model name `Geogrid` the result file will be
-`share/results/tables/volumes/geogrid.parquet`.
+`share/results/tables/inplace_volumes/geogrid.parquet`.
 
 This is a tabular file that can be converted to `.csv` or similar. It contains
 the following columns with types validated as indicated.
