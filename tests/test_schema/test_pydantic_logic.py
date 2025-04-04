@@ -458,10 +458,10 @@ def test_zmin_zmax_not_present_for_surfaces(metadata_examples):
     assert isinstance(model.root.data.root.bbox, data.BoundingBox2D)
 
 
-def test_sumo_iteration(metadata_examples):
+def test_sumo_ensemble(metadata_examples):
     """Asserting validation failure when illegal contents in case example"""
 
-    example = metadata_examples["sumo_iteration.yml"]
+    example = metadata_examples["sumo_ensemble.yml"]
 
     # assert validation with no changes
     FmuResults.model_validate(example)
@@ -473,14 +473,14 @@ def test_sumo_iteration(metadata_examples):
     with pytest.raises(ValidationError):
         FmuResults.model_validate(_example)
 
-    # assert validation error when "fmu.iteration" is missing
+    # assert validation error when "fmu.ensemble" is missing
     _example = deepcopy(example)
-    del _example["fmu"]["iteration"]
+    del _example["fmu"]["ensemble"]
 
     with pytest.raises(ValidationError):
         FmuResults.model_validate(_example)
 
-    # assert validation error when "fmu.context.stage" is not iteration
+    # assert validation error when "fmu.context.stage" is not ensemble
     _example = deepcopy(example)
     _example["fmu"]["context"]["stage"] = "case"
 

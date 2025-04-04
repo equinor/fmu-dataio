@@ -27,6 +27,7 @@ from .fields import (
     Display,
     File,
     FMUBase,
+    FMUEnsemble,
     FMUIteration,
     FMURealization,
     Masterdata,
@@ -49,6 +50,10 @@ class FmuResultsSchema(SchemaBase):
     VERSION_CHANGELOG: str = """
     #### 0.10.0
 
+    - `Ensemble` objects with `class=ensemble` is now supported, and will
+      in the future replace `Iteration` objects
+    - `fmu.context.stage` now supports option `ensemble`
+    - `$contractual.fmu.ensemble.uuid` and `$contractual.fmu.ensemble.name` added
     - `fmu.ensemble` added as duplicate and future replacement of `fmu.iteration`
     - `data.property` added as optional field for data of content `property`
     - `data.property.attribute` added as optional field.
@@ -215,10 +220,7 @@ class CaseMetadata(MetadataBase):
 
 
 class IterationMetadata(MetadataBase):
-    """The FMU metadata model for an FMU Iteration.
-
-    An object representing a single Iteration of a specific case.
-    """
+    """Deprecated and replaced by :class:`EnsembleMetadata`."""
 
     class_: Literal[FMUClass.iteration] = Field(alias="class", title="metadata_class")
     """The class of this metadata object. In this case, always an FMU iteration."""
@@ -232,10 +234,28 @@ class IterationMetadata(MetadataBase):
     this data object. See :class:`Access`."""
 
 
+class EnsembleMetadata(MetadataBase):
+    """The FMU metadata model for an FMU ensemble.
+
+    An object representing a single Ensemble of a specific case.
+    """
+
+    class_: Literal[FMUClass.ensemble] = Field(alias="class", title="metadata_class")
+    """The class of this metadata object. In this case, always an FMU ensemble."""
+
+    fmu: FMUEnsemble
+    """The ``fmu`` block contains all attributes specific to FMU.
+    See :class:`FMU`."""
+
+    access: Access
+    """The ``access`` block contains information related to access control for
+    this data object. See :class:`Access`."""
+
+
 class RealizationMetadata(MetadataBase):
     """The FMU metadata model for an FMU Realization.
 
-    An object representing a single Realization of a specific Iteration.
+    An object representing a single Realization of a specific Ensemble.
     """
 
     class_: Literal[FMUClass.realization] = Field(alias="class", title="metadata_class")
@@ -294,7 +314,11 @@ class ObjectMetadata(MetadataBase):
 class FmuResults(
     RootModel[
         Annotated[
-            CaseMetadata | ObjectMetadata | RealizationMetadata | IterationMetadata,
+            CaseMetadata
+            | ObjectMetadata
+            | RealizationMetadata
+            | IterationMetadata
+            | EnsembleMetadata,
             Field(discriminator="class_"),
         ]
     ]
