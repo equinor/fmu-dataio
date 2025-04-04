@@ -568,7 +568,7 @@ def test_rms_volumetrics_export_function(
 
     absolute_path = (
         rmssetup_with_fmuconfig.parent.parent
-        / "share/results/tables/volumes/geogrid.parquet"
+        / "share/results/tables/inplace_volumes/geogrid.parquet"
     )
 
     assert vol_table_file == absolute_path
