@@ -54,7 +54,7 @@ if TYPE_CHECKING:
 # case metadata relative to casepath
 ERT_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
 RESTART_PATH_ENVNAME: Final = "RESTART_FROM_PATH"
-DEFAULT_ITER_NAME: Final = "iter-0"
+DEFAULT_ENSMEBLE_NAME: Final = "iter-0"
 
 logger: Final = null_logger(__name__)
 
@@ -115,8 +115,8 @@ class FmuProvider(Provider):
     # private properties for this class
     _runpath: Path | None = field(default_factory=Path, init=False)
     _casepath: Path | None = field(default_factory=Path, init=False)
-    _iter_name: str = field(default="", init=False)
-    _iter_id: int = field(default=0, init=False)
+    _ensemble_name: str = field(default="", init=False)
+    _ensemble_id: int = field(default=0, init=False)
     _real_name: str = field(default="", init=False)
     _real_id: int = field(default=0, init=False)
     _case_name: str = field(default="", init=False)
@@ -129,10 +129,10 @@ class FmuProvider(Provider):
         logger.debug("Runpath is %s", self._runpath)
 
         self._real_id = (
-            int(iter_num) if (iter_num := FmuEnv.REALIZATION_NUMBER.value) else 0
+            int(real_num) if (real_num := FmuEnv.REALIZATION_NUMBER.value) else 0
         )
-        self._iter_id = (
-            int(real_num) if (real_num := FmuEnv.ITERATION_NUMBER.value) else 0
+        self._ensemble_id = (
+            int(iter_num) if (iter_num := FmuEnv.ITERATION_NUMBER.value) else 0
         )
 
         self._casepath = self._validate_and_establish_casepath()
@@ -140,22 +140,24 @@ class FmuProvider(Provider):
             self._case_name = self._casepath.name
 
             if self._runpath and self.fmu_context != FMUContext.case:
-                missing_iter_folder = self._casepath == self._runpath.parent
-                if not missing_iter_folder:
-                    logger.debug("Iteration folder found")
-                    self._iter_name = self._runpath.name
+                missing_ensemble_folder = self._casepath == self._runpath.parent
+                if not missing_ensemble_folder:
+                    logger.debug("Ensemble folder found")
+                    self._ensemble_name = self._runpath.name
                     self._real_name = self._runpath.parent.name
                 else:
-                    logger.debug("No iteration folder found, using default name iter-0")
-                    self._iter_name = DEFAULT_ITER_NAME
+                    logger.debug("No ensemble folder found, using default name iter-0")
+                    self._ensemble_name = DEFAULT_ENSMEBLE_NAME
                     self._real_name = self._runpath.name
 
-                logger.debug("Found iter name from runpath: %s", self._iter_name)
+                logger.debug(
+                    "Found ensemble name from runpath: %s", self._ensemble_name
+                )
                 logger.debug("Found real name from runpath: %s", self._real_name)
 
-    def get_iter_name(self) -> str:
-        """Return the iter_name, e.g. 'iter-3' or 'pred'."""
-        return self._iter_name
+    def get_ensemble_name(self) -> str:
+        """Return the ensemble name, e.g. 'iter-3' or 'pred'."""
+        return self._ensemble_name
 
     def get_real_name(self) -> str:
         """Return the real_name, e.g. 'realization-23'."""
@@ -187,7 +189,7 @@ class FmuProvider(Provider):
                 ert=self._get_ert_meta(),
             )
 
-        iter_uuid, real_uuid = self._get_iteration_and_real_uuid(
+        ensemble_uuid, real_uuid = self._get_ensemble_and_real_uuid(
             case_meta.fmu.case.uuid
         )
         return fields.FMU(
@@ -195,7 +197,7 @@ class FmuProvider(Provider):
             context=self._get_fmucontext_meta(),
             model=self.model or case_meta.fmu.model,
             workflow=self._get_workflow_meta() if self.workflow else None,
-            ensemble=self._get_iteration_meta(iter_uuid),
+            ensemble=self._get_ensemble_meta(ensemble_uuid),
             realization=self._get_realization_meta(real_uuid),
             ert=self._get_ert_meta(),
         )
@@ -226,7 +228,7 @@ class FmuProvider(Provider):
 
         There is also a validation here that casepath contains case metadata, and if not
         then a second guess is attempted, looking at `parent` insted of `parent.parent`
-        is case of missing iteration folder.
+        is case of missing ensemble folder.
         """
         if self.casepath_proposed:
             if _casepath_has_metadata(self.casepath_proposed):
@@ -264,12 +266,12 @@ class FmuProvider(Provider):
             restart_case_metafile = (
                 restart_path.parent.parent / ERT_RELATIVE_CASE_METADATA_FILE
             )
-            restart_iter_name = restart_path.name
+            restart_ensemble_name = restart_path.name
         elif _casepath_has_metadata(restart_path.parent):
             restart_case_metafile = (
                 restart_path.parent / ERT_RELATIVE_CASE_METADATA_FILE
             )
-            restart_iter_name = DEFAULT_ITER_NAME
+            restart_ensemble_name = DEFAULT_ENSMEBLE_NAME
         else:
             warn(
                 f"Environment variable {RESTART_PATH_ENVNAME} resolves to the path "
@@ -284,7 +286,7 @@ class FmuProvider(Provider):
                 ut.yaml_load(restart_case_metafile)
             )
             return _utils.uuid_from_string(
-                f"{restart_metadata.fmu.case.uuid}{restart_iter_name}"
+                f"{restart_metadata.fmu.case.uuid}{restart_ensemble_name}"
             )
         except pydantic.ValidationError as err:
             warn(
@@ -295,10 +297,12 @@ class FmuProvider(Provider):
             )
             return None
 
-    def _get_iteration_and_real_uuid(self, case_uuid: UUID) -> tuple[UUID, UUID]:
-        iter_uuid = _utils.uuid_from_string(f"{case_uuid}{self._iter_name}")
-        real_uuid = _utils.uuid_from_string(f"{case_uuid}{iter_uuid}{self._real_id}")
-        return iter_uuid, real_uuid
+    def _get_ensemble_and_real_uuid(self, case_uuid: UUID) -> tuple[UUID, UUID]:
+        ensemble_uuid = _utils.uuid_from_string(f"{case_uuid}{self._ensemble_name}")
+        real_uuid = _utils.uuid_from_string(
+            f"{case_uuid}{ensemble_uuid}{self._real_id}"
+        )
+        return ensemble_uuid, real_uuid
 
     def _get_case_meta(self) -> CaseMetadataExport:
         """Parse and validate the CASE metadata."""
@@ -316,11 +320,11 @@ class FmuProvider(Provider):
             uuid=real_uuid,
         )
 
-    def _get_iteration_meta(self, iter_uuid: UUID) -> fields.Ensemble:
+    def _get_ensemble_meta(self, ensemble_uuid: UUID) -> fields.Ensemble:
         return fields.Ensemble(
-            id=self._iter_id,
-            name=self._iter_name,
-            uuid=iter_uuid,
+            id=self._ensemble_id,
+            name=self._ensemble_name,
+            uuid=ensemble_uuid,
             restart_from=self._get_restart_data_uuid()
             if os.getenv(RESTART_PATH_ENVNAME)
             else None,
