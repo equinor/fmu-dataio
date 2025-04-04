@@ -121,8 +121,7 @@ def test_public_export_function(mock_project_variable, mock_export_class):
         "POLY_ID",
         "NAME",
     }
-    # TODO: Add table index to metadata
-    # assert set(metadata["data"]["table_index"]) == {"POLY_ID", "NAME"}
+    assert set(metadata["data"]["table_index"]) == {"POLY_ID", "NAME"}
 
 
 @inside_rms
