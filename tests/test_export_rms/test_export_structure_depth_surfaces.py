@@ -41,7 +41,7 @@ def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig
     mock_export_class.export()
 
     export_folder = (
-        rmssetup_with_fmuconfig / "../../share/results/maps/structure_depth_surfaces"
+        rmssetup_with_fmuconfig / "../../share/results/maps/structure_depth_surface"
     )
     assert export_folder.exists()
 

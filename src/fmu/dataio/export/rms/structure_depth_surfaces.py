@@ -47,6 +47,11 @@ class _ExportStructureDepthSurfaces:
         """Get default classification."""
         return Classification.internal
 
+    @property
+    def _subfolder(self) -> str:
+        """Subfolder for exporting the data to."""
+        return self._standard_result.name.value
+
     def _export_surface(self, surf: xtgeo.RegularSurface) -> ExportResultItem:
         edata = dio.ExportData(
             config=self._config,
@@ -54,7 +59,7 @@ class _ExportStructureDepthSurfaces:
             unit=self._unit,
             vertical_domain="depth",
             domain_reference="msl",
-            subfolder="structure_depth_surfaces",
+            subfolder=self._subfolder,
             is_prediction=True,
             name=surf.name,
             classification=self._classification,
