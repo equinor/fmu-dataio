@@ -13,7 +13,6 @@ from typing import Final, Literal
 
 from pydantic import (
     BaseModel,
-    Field,
     model_validator,
 )
 
@@ -39,22 +38,6 @@ def property_warn() -> None:
         ),
         FutureWarning,
     )
-
-
-class AllowedContentSeismic(data.Seismic):
-    # Deprecated
-    offset: str | None = Field(default=None)
-
-    @model_validator(mode="after")
-    def _check_depreciated(self) -> AllowedContentSeismic:
-        if self.offset is not None:
-            warnings.warn(
-                "Content seismic.offset is deprecated. "
-                "Please use seismic.stacking_offset insted.",
-                DeprecationWarning,
-            )
-            self.stacking_offset, self.offset = self.offset, None
-        return self
 
 
 class UnsetData(data.Data):
@@ -84,7 +67,7 @@ def content_metadata_factory(content: enums.Content) -> type[BaseModel]:
     if content == enums.Content.property:
         return data.Property
     if content == enums.Content.seismic:
-        return AllowedContentSeismic
+        return data.Seismic
     raise ValueError(f"No content_metadata model exist for content {str(content)}")
 
 
