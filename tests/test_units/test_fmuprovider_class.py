@@ -11,7 +11,7 @@ from fmu import dataio
 from fmu.dataio._models.fmu_results.enums import ErtSimulationMode, FMUContext
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import (
-    DEFAULT_ITER_NAME,
+    DEFAULT_ENSMEBLE_NAME,
     RESTART_PATH_ENVNAME,
     FmuEnv,
     FmuProvider,
@@ -114,9 +114,9 @@ def test_fmuprovider_arbitrary_iter_name(fmurun_w_casemetadata_pred):
     assert myfmu._case_name == "ertrun1"
     assert myfmu._real_name == "realization-0"
     assert myfmu._real_id == 0
-    assert myfmu._iter_name == "pred"
+    assert myfmu._ensemble_name == "pred"
     # iter_id should have the default value
-    assert myfmu._iter_id == 0
+    assert myfmu._ensemble_id == 0
     meta = myfmu.get_metadata()
     assert str(meta.case.uuid) == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
 
@@ -134,8 +134,8 @@ def test_fmuprovider_get_real_and_iter_from_env(fmurun_non_equal_real_and_iter):
     assert myfmu._case_name == "ertrun1"
     assert myfmu._real_name == "realization-1"
     assert myfmu._real_id == 1
-    assert myfmu._iter_name == "iter-0"
-    assert myfmu._iter_id == 0
+    assert myfmu._ensemble_name == "iter-0"
+    assert myfmu._ensemble_id == 0
 
 
 def test_fmuprovider_no_iter_folder(fmurun_no_iter_folder):
@@ -150,8 +150,8 @@ def test_fmuprovider_no_iter_folder(fmurun_no_iter_folder):
     assert myfmu._case_name == "ertrun1_no_iter"
     assert myfmu._real_name == "realization-1"
     assert myfmu._real_id == 1
-    assert myfmu._iter_name == "iter-0"
-    assert myfmu._iter_id == 0
+    assert myfmu._ensemble_name == "iter-0"
+    assert myfmu._ensemble_id == 0
 
     # also check that it is stored correctly in the metadata
     meta = myfmu.get_metadata()
@@ -304,7 +304,7 @@ def test_fmuprovider_restart_env_no_iter_folder(
     """
     monkeypatch.chdir(fmurun_no_iter_folder)
     meta_restart_from = FmuProvider(fmu_context=FMUContext.realization).get_metadata()
-    assert meta_restart_from.iteration.name == DEFAULT_ITER_NAME
+    assert meta_restart_from.iteration.name == DEFAULT_ENSMEBLE_NAME
 
     # using a relative path as input
     monkeypatch.setenv(RESTART_PATH_ENVNAME, str(fmurun_no_iter_folder))
