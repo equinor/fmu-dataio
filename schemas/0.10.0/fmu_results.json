@@ -1054,6 +1054,67 @@
       "title": "Ensemble",
       "type": "object"
     },
+    "EnsembleContext": {
+      "description": "The ``fmu.context`` block contains the FMU context in which this data object\nwas produced. Here ``stage`` is required to be ``ensemble``.",
+      "properties": {
+        "stage": {
+          "const": "ensemble",
+          "default": "ensemble",
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "title": "EnsembleContext",
+      "type": "object"
+    },
+    "EnsembleMetadata": {
+      "description": "The FMU metadata model for an FMU ensemble.\n\nAn object representing a single Ensemble of a specific case.",
+      "properties": {
+        "$schema": {
+          "format": "uri",
+          "minLength": 1,
+          "title": "$Schema",
+          "type": "string"
+        },
+        "access": {
+          "$ref": "#/$defs/Access"
+        },
+        "class": {
+          "const": "ensemble",
+          "title": "metadata_class",
+          "type": "string"
+        },
+        "fmu": {
+          "$ref": "#/$defs/FMUEnsemble"
+        },
+        "masterdata": {
+          "$ref": "#/$defs/Masterdata"
+        },
+        "source": {
+          "default": "fmu",
+          "title": "Source",
+          "type": "string"
+        },
+        "tracklog": {
+          "$ref": "#/$defs/Tracklog"
+        },
+        "version": {
+          "default": "0.10.0",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "class",
+        "masterdata",
+        "tracklog",
+        "fmu",
+        "access"
+      ],
+      "title": "EnsembleMetadata",
+      "type": "object"
+    },
     "Ert": {
       "description": "The ``fmu.ert`` block contains information about the current ert run.",
       "properties": {
@@ -1232,8 +1293,33 @@
       "title": "FMUContext",
       "type": "string"
     },
+    "FMUEnsemble": {
+      "description": "The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU\nresults data model can be applied to data from *other* sources - in which the\nfmu-specific stuff may not make sense or be applicable.\nThis is a specialization of the FMU block for ``ensemble`` objects.",
+      "properties": {
+        "case": {
+          "$ref": "#/$defs/Case"
+        },
+        "context": {
+          "$ref": "#/$defs/EnsembleContext"
+        },
+        "ensemble": {
+          "$ref": "#/$defs/Ensemble"
+        },
+        "model": {
+          "$ref": "#/$defs/Model"
+        }
+      },
+      "required": [
+        "case",
+        "model",
+        "context",
+        "ensemble"
+      ],
+      "title": "FMUEnsemble",
+      "type": "object"
+    },
     "FMUIteration": {
-      "description": "The ``fmu`` block contains all attributes specific to FMU. The idea is that the FMU\nresults data model can be applied to data from *other* sources - in which the\nfmu-specific stuff may not make sense or be applicable.\nThis is a specialization of the FMU block for ``iteration`` objects.",
+      "description": "Deprecated and replaced by :class:`FMUEnsemble`.",
       "properties": {
         "case": {
           "$ref": "#/$defs/Case"
@@ -1266,8 +1352,19 @@
         "context": {
           "$ref": "#/$defs/RealizationContext"
         },
-        "iteration": {
+        "ensemble": {
           "$ref": "#/$defs/Ensemble"
+        },
+        "iteration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Ensemble"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "model": {
           "$ref": "#/$defs/Model"
@@ -1280,7 +1377,7 @@
         "case",
         "model",
         "context",
-        "iteration",
+        "ensemble",
         "realization"
       ],
       "title": "FMURealization",
@@ -3413,7 +3510,7 @@
       "type": "object"
     },
     "IterationMetadata": {
-      "description": "The FMU metadata model for an FMU Iteration.\n\nAn object representing a single Iteration of a specific case.",
+      "description": "Deprecated and replaced by :class:`EnsembleMetadata`.",
       "properties": {
         "$schema": {
           "format": "uri",
@@ -6315,7 +6412,7 @@
       "type": "object"
     },
     "RealizationMetadata": {
-      "description": "The FMU metadata model for an FMU Realization.\n\nAn object representing a single Realization of a specific Iteration.",
+      "description": "The FMU metadata model for an FMU Realization.\n\nAn object representing a single Realization of a specific Ensemble.",
       "properties": {
         "$schema": {
           "format": "uri",
@@ -10567,6 +10664,9 @@
     },
     {
       "$ref": "#/$defs/IterationMetadata"
+    },
+    {
+      "$ref": "#/$defs/EnsembleMetadata"
     }
   ],
   "then": {

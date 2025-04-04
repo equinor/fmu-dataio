@@ -1,7 +1,7 @@
 # Example metadata for an FMU Realization object.
 
-$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.8.0/fmu_results.json
-version: "0.8.0"
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.10.0/fmu_results.json
+version: "0.10.0"
 source: fmu
 tracklog:
   - datetime: 2020-10-28T14:28:02
@@ -35,7 +35,7 @@ fmu: # the fmu-block contains information directly related to the FMU context
   context:
     stage: realization
 
-  iteration:
+  ensemble:
     id: 0
     name: iter-0
     uuid: fd6e8f2a-f298-434a-80f4-90f0f6f84688
