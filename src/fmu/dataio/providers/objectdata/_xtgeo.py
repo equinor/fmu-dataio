@@ -25,6 +25,7 @@ from fmu.dataio._models.fmu_results.specification import (
 from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
 
 from ._base import ObjectDataProvider
+from ._tables import _derive_index
 
 if TYPE_CHECKING:
     from io import BytesIO
@@ -141,11 +142,7 @@ class PolygonsDataProvider(ObjectDataProvider):
             self.obj.xname = "X"
             self.obj.yname = "Y"
             self.obj.zname = "Z"
-            # self.obj.pname = "ID"
-
-            # TODO: remove this hack when possible to set pname
-            self.obj._df_column_rename("ID", "POLY_ID")
-            self.obj._pname = "ID"
+            self.obj.pname = "ID"
 
         super().__post_init__()
 
@@ -170,8 +167,16 @@ class PolygonsDataProvider(ObjectDataProvider):
         return Layout.unset
 
     @property
-    def table_index(self) -> None:
+    def table_index(self) -> list[str] | None:
         """Return the table index."""
+        if self.fmt == FileFormat.irap_ascii:
+            return None
+
+        return _derive_index(
+            table_index=self.dataio.table_index,
+            table_columns=list(self.obj_dataframe.columns),
+            content=self.dataio._get_content_enum(),
+        )
 
     @property
     def obj_dataframe(self) -> pd.DataFrame:
@@ -263,8 +268,16 @@ class PointsDataProvider(ObjectDataProvider):
         return Layout.unset
 
     @property
-    def table_index(self) -> None:
+    def table_index(self) -> list[str] | None:
         """Return the table index."""
+        if self.fmt == FileFormat.irap_ascii:
+            return None
+
+        return _derive_index(
+            table_index=self.dataio.table_index,
+            table_columns=list(self.obj_dataframe.columns),
+            content=self.dataio._get_content_enum(),
+        )
 
     @property
     def obj_dataframe(self) -> pd.DataFrame:
