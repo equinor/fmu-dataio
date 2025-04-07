@@ -6,6 +6,7 @@ import fmu.dataio.load.load_standard_results as load_standard_results
 
 def test_load_inplace_volumes(metadata_examples):
     test_case = "005140af-cdc5-448c-9f34-84bcbb3f504d"
+    ensemble_name = "iter-0"
 
     product = {
         "name": "inplace_volumes",
@@ -28,20 +29,17 @@ def test_load_inplace_volumes(metadata_examples):
             return_value=None,
         ),
         patch(
-            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_inplace_volumes_standard_results",
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_volume_tables",
             return_value=volume_tables,
         ),
-        patch(
-            "fmu.dataio.external_interfaces.schema_validation_interface.SchemaValidationInterface.validate_against_schema",
-            return_value=True,
-        ),
     ):
-        inplace_volumes_standard_results = load_standard_results.load_inplace_volumes(
-            test_case
+        inplace_volumes = load_standard_results.load_inplace_volumes(
+            test_case, ensemble_name
         )
 
-        assert len(inplace_volumes_standard_results) == 1
-        assert inplace_volumes_standard_results[0].metadata == table_mock.metadata
+        assert len(inplace_volumes._inplace_volumes) == 1
+        assert len(inplace_volumes._inplace_volumes_metadata) == 1
+        assert inplace_volumes._inplace_volumes_metadata[0] == table_mock.metadata
 
 
 def test_load_structure_depth_surfaces():
