@@ -36,7 +36,7 @@
       "type": "object"
     }
   },
-  "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/file_formats/0.1.0/structure_depth_fault_lines.json",
+  "$id": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/0.1.0/structure_depth_fault_lines.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Represents the resultant structure depth fault lines parquet file, which is\nnaturally a list of rows.\n\nConsumers who retrieve this parquet file must read it into a json-dictionary\nequivalent format to validate it against the schema.",
   "items": {

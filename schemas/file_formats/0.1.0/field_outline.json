@@ -31,7 +31,7 @@
       "type": "object"
     }
   },
-  "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/file_formats/0.1.0/field_outline.json",
+  "$id": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/0.1.0/field_outline.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Represents the resultant field outline parquet file, which is\nnaturally a list of rows.\n\nConsumers who retrieve this parquet file must read it into a json-dictionary\nequivalent format to validate it against the schema.",
   "items": {
