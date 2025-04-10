@@ -152,7 +152,9 @@ def get_horizons_in_folder(
     for horizon in project.horizons:
         if not horizon[horizon_folder].is_empty():
             surfaces.append(
-                xtgeo.surface_from_roxar(project, horizon.name, horizon_folder)
+                xtgeo.surface_from_roxar(
+                    project, horizon.name, horizon_folder, stype="horizons"
+                )
             )
     return surfaces
 
@@ -166,7 +168,9 @@ def get_zones_in_folder(project: Any, zone_folder: str) -> list[xtgeo.RegularSur
     surfaces = []
     for zone in project.zones:
         if not zone[zone_folder].is_empty():
-            surfaces.append(xtgeo.surface_from_roxar(project, zone.name, zone_folder))
+            surfaces.append(
+                xtgeo.surface_from_roxar(project, zone.name, zone_folder, stype="zones")
+            )
     return surfaces
 
 
@@ -183,7 +187,11 @@ def get_polygons_in_folder(
         if not horizon[horizon_folder].is_empty():
             polygons.append(
                 xtgeo.polygons_from_roxar(
-                    project, horizon.name, horizon_folder, attributes=attributes
+                    project,
+                    horizon.name,
+                    horizon_folder,
+                    attributes=attributes,
+                    stype="horizons",
                 )
             )
     return polygons

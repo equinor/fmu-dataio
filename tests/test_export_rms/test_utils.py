@@ -31,7 +31,7 @@ def test_get_horizons_in_folder(mock_project_variable):
     # Mock xtgeo.surface_from_roxar to return just the surface name
     with mock.patch(
         "xtgeo.surface_from_roxar",
-        side_effect=lambda _project, name, _category: name,
+        side_effect=lambda _project, name, _category, stype: name,
     ):
         surfaces = get_horizons_in_folder(mock_project_variable, horizon_folder)
 
@@ -83,7 +83,7 @@ def test_get_zones_in_folder(mock_project_variable):
     # Mock xtgeo.surface_from_roxar to return just the surface name
     with mock.patch(
         "xtgeo.surface_from_roxar",
-        side_effect=lambda _project, name, _category: name,
+        side_effect=lambda _project, name, _category, stype: name,
     ):
         zones = get_zones_in_folder(mock_project_variable, zone_folder)
 
