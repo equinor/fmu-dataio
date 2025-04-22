@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import warnings
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Final
 
@@ -13,15 +12,19 @@ import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models import InplaceVolumesResult
 from fmu.dataio._models.fmu_results import standard_result
-from fmu.dataio._models.fmu_results.enums import Classification, StandardResultName
+from fmu.dataio._models.fmu_results.enums import (
+    Classification,
+    Content,
+    StandardResultName,
+)
 from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
+from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._conditional_rms_imports import import_rms_package
 from fmu.dataio.export.rms._utils import (
     check_rmsapi_version,
     get_rms_project_units,
-    load_global_config,
 )
 
 rmsapi, rmsjobs = import_rms_package()
@@ -57,15 +60,22 @@ _RENAME_COLUMNS_FROM_RMS: Final = {
 }
 
 
-@dataclass
-class _ExportVolumetricsRMS:
-    project: Any
-    grid_name: str
-    volume_job_name: str
+class _ExportVolumetricsRMS(SimpleExportRMSBase):
+    """Export volumetric tables from RMS to FMU standard result."""
 
-    def __post_init__(self) -> None:
+    def __init__(
+        self,
+        project: Any,
+        grid_name: str,
+        volume_job_name: str,
+    ) -> None:
+        super().__init__()
+
+        self.project = project
+        self.grid_name = grid_name
+        self.volume_job_name = volume_job_name
+
         _logger.debug("Process data, establish state prior to export.")
-        self._config = load_global_config()
         self._volume_job = self._get_rms_volume_job_settings()
         self._volume_table_name = self._read_volume_table_name_from_job()
         self._dataframe = self._get_table_with_volumes()
@@ -79,14 +89,19 @@ class _ExportVolumetricsRMS:
         )
 
     @property
-    def _subfolder(self) -> str:
-        """Subfolder for exporting the data to."""
-        return self._standard_result.name.value
+    def _content(self) -> Content:
+        """Get content for the exported data."""
+        return Content.volumes
 
     @property
     def _classification(self) -> Classification:
         """Get default classification."""
         return Classification.restricted
+
+    @property
+    def _rep_include(self) -> bool:
+        """rep_include status"""
+        return False
 
     def _get_rms_volume_job_settings(self) -> dict:
         """Get information out from the RMS job API."""
@@ -324,19 +339,19 @@ class _ExportVolumetricsRMS:
         df = self._dataframe.replace(np.nan, None).to_dict(orient="records")
         InplaceVolumesResult.model_validate(df)
 
-    def _export_volume_table(self) -> ExportResult:
+    def _export_data_as_standard_result(self) -> ExportResult:
         """Do the actual volume table export using dataio setup."""
 
         edata = dio.ExportData(
             config=self._config,
-            content="volumes",
+            content=self._content,
             unit="m3" if get_rms_project_units(self.project) == "metric" else "ft3",
             vertical_domain="depth",
             domain_reference="msl",
             subfolder=self._subfolder,
             classification=self._classification,
             name=self.grid_name,
-            rep_include=False,
+            rep_include=self._rep_include,
             table_index=_enums.InplaceVolumes.index_columns(),
         )
 
@@ -357,10 +372,9 @@ class _ExportVolumetricsRMS:
             ],
         )
 
-    def export(self) -> ExportResult:
-        """Validate and export the volume table."""
-        self._validate_table()
-        return self._export_volume_table()
+    def _validate_data_pre_export(self) -> None:
+        """Data validation prior to export"""
+        return self._validate_table()
 
 
 @experimental

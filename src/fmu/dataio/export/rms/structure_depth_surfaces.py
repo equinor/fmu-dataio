@@ -6,13 +6,17 @@ from typing import TYPE_CHECKING, Any, Final
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results import standard_result
-from fmu.dataio._models.fmu_results.enums import Classification, StandardResultName
+from fmu.dataio._models.fmu_results.enums import (
+    Classification,
+    Content,
+    StandardResultName,
+)
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
+from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import (
     get_horizons_in_folder,
     get_rms_project_units,
-    load_global_config,
     validate_name_in_stratigraphy,
 )
 
@@ -22,17 +26,13 @@ if TYPE_CHECKING:
 _logger: Final = null_logger(__name__)
 
 
-class _ExportStructureDepthSurfaces:
-    def __init__(
-        self,
-        project: Any,
-        horizon_folder: str,
-    ) -> None:
+class _ExportStructureDepthSurfaces(SimpleExportRMSBase):
+    def __init__(self, project: Any, horizon_folder: str) -> None:
+        super().__init__()
+
         _logger.debug("Process data, establish state prior to export.")
-        self._config = load_global_config()
         self._surfaces = get_horizons_in_folder(project, horizon_folder)
         self._unit = "m" if get_rms_project_units(project) == "metric" else "ft"
-
         _logger.debug("Process data... DONE")
 
     @property
@@ -43,19 +43,24 @@ class _ExportStructureDepthSurfaces:
         )
 
     @property
+    def _content(self) -> Content:
+        """Get content for the exported data."""
+        return Content.depth
+
+    @property
     def _classification(self) -> Classification:
         """Get default classification."""
         return Classification.internal
 
     @property
-    def _subfolder(self) -> str:
-        """Subfolder for exporting the data to."""
-        return self._standard_result.name.value
+    def _rep_include(self) -> bool:
+        """rep_include status"""
+        return True
 
     def _export_surface(self, surf: xtgeo.RegularSurface) -> ExportResultItem:
         edata = dio.ExportData(
             config=self._config,
-            content="depth",
+            content=self._content,
             unit=self._unit,
             vertical_domain="depth",
             domain_reference="msl",
@@ -63,7 +68,7 @@ class _ExportStructureDepthSurfaces:
             is_prediction=True,
             name=surf.name,
             classification=self._classification,
-            rep_include=True,
+            rep_include=self._rep_include,
         )
 
         absolute_export_path = edata._export_with_standard_result(
@@ -75,23 +80,18 @@ class _ExportStructureDepthSurfaces:
             absolute_path=Path(absolute_export_path),
         )
 
-    def _export_surfaces(self) -> ExportResult:
+    def _export_data_as_standard_result(self) -> ExportResult:
         """Do the actual surface export using dataio setup."""
         return ExportResult(
             items=[self._export_surface(surf) for surf in self._surfaces]
         )
 
-    def _validate_surfaces(self) -> None:
+    def _validate_data_pre_export(self) -> None:
         """Surface validations."""
         # TODO: Add check that the surfaces are consistent, i.e. a stratigraphic
         # deeper surface should never have shallower values than the one above
         for surf in self._surfaces:
             validate_name_in_stratigraphy(surf.name, self._config)
-
-    def export(self) -> ExportResult:
-        """Export the depth as a standard_result."""
-        self._validate_surfaces()
-        return self._export_surfaces()
 
 
 @experimental
