@@ -17,15 +17,17 @@ from fmu.dataio._models.fmu_results.standard_result import FieldOutlineStandardR
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms._utils import get_open_polygons_id, load_global_config
+from fmu.dataio.export.rms._base import SimpleExportRMSBase
+from fmu.dataio.export.rms._utils import get_open_polygons_id
 
 _logger: Final = null_logger(__name__)
 
 
-class _ExportFieldOutline:
+class _ExportFieldOutline(SimpleExportRMSBase):
     def __init__(self, project: Any) -> None:
+        super().__init__()
+
         _logger.debug("Process data, establish state prior to export.")
-        self._config = load_global_config()
         self._field_outline = self._get_field_outline_from_rms(project)
 
         _logger.debug("Process data... DONE")
@@ -36,14 +38,19 @@ class _ExportFieldOutline:
         return FieldOutlineStandardResult(name=StandardResultName.field_outline)
 
     @property
+    def _content(self) -> Content:
+        """Get content for the exported data."""
+        return Content.field_outline
+
+    @property
     def _classification(self) -> Classification:
         """Get default classification."""
         return Classification.internal
 
     @property
-    def _subfolder(self) -> str:
-        """Subfolder for exporting the data to."""
-        return self._standard_result.name.value
+    def _rep_include(self) -> bool:
+        """rep_include status"""
+        return True
 
     def _get_field_outline_from_rms(self, project: Any) -> xtgeo.Polygons:
         """Fetch the field outline polygon from RMS."""
@@ -58,10 +65,10 @@ class _ExportFieldOutline:
                 "of the 'General 2D data' folder."
             ) from err
 
-    def _export_field_outline(self) -> ExportResult:
+    def _export_data_as_standard_result(self) -> ExportResult:
         edata = dio.ExportData(
             config=self._config,
-            content=Content.field_outline.value,
+            content=self._content,
             content_metadata={"contact": FluidContactType.fwl},
             vertical_domain="depth",
             domain_reference="msl",
@@ -69,7 +76,7 @@ class _ExportFieldOutline:
             is_prediction=True,
             name=StandardResultName.field_outline.value,
             classification=self._classification,
-            rep_include=True,
+            rep_include=self._rep_include,
         )
 
         edata.polygons_fformat = "parquet"  # type: ignore
@@ -83,17 +90,12 @@ class _ExportFieldOutline:
             items=[ExportResultItem(absolute_path=Path(absolute_export_path))],
         )
 
-    def _validate_data(self) -> None:
+    def _validate_data_pre_export(self) -> None:
         """Data validations before export."""
         if get_open_polygons_id(self._field_outline):
             raise ValidationError(
                 "The field outline object can only contain closed polygons. "
             )
-
-    def export(self) -> ExportResult:
-        """Export the field outline as a standard_result."""
-        self._validate_data()
-        return self._export_field_outline()
 
 
 @experimental

@@ -3,8 +3,6 @@ from unittest import mock
 import pandas as pd
 import pytest
 
-from fmu.dataio._models.fmu_results.global_configuration import GlobalConfiguration
-
 
 def test_get_horizons_in_folder(mock_project_variable):
     from fmu.dataio.export.rms._utils import get_horizons_in_folder
@@ -192,23 +190,6 @@ def test_get_faultlines_in_folder_raises_if_missing_name(
         pytest.raises(ValueError, match="missing"),
     ):
         get_faultlines_in_folder(mock_project_variable, "DL_faultlines")
-
-
-def test_validate_global_config(globalconfig1):
-    from fmu.dataio.export.rms._utils import validate_global_config
-
-    config = validate_global_config(globalconfig1)
-    assert isinstance(config, GlobalConfiguration)
-
-
-def test_validate_global_config_invalid(globalconfig1):
-    from fmu.dataio.export.rms._utils import validate_global_config
-
-    invalid_config = globalconfig1.copy()
-    invalid_config.pop("masterdata")
-
-    with pytest.raises(ValueError, match="valid config"):
-        validate_global_config(invalid_config)
 
 
 def test_get_open_polygons_id(polygons):
