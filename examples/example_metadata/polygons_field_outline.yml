@@ -39,6 +39,7 @@ data:
     num_rows: 1059
     size: 4236
   stratigraphic: true
+  table_index: []
   tagname: polygons_field_outline
   undef_is_zero: false
   unit: m
@@ -97,7 +98,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-04-03T10:34:47.211024Z'
+- datetime: '2025-04-22T11:16:48.272792Z'
   event: created
   sysinfo:
     fmu-dataio:
