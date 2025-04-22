@@ -1,4 +1,3 @@
-from pathlib import Path
 from unittest import mock
 
 import jsonschema
@@ -102,19 +101,12 @@ def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypa
     """Test that an exception is raised if the config is missing."""
 
     from fmu.dataio.export.rms import export_field_outline
-    from fmu.dataio.export.rms._utils import CONFIG_PATH
 
-    monkeypatch.chdir(rmssetup_with_fmuconfig)
-
-    config_path_modified = Path("wrong.yml")
-
-    CONFIG_PATH.rename(config_path_modified)
+    # move up one directory to trigger not finding the config
+    monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
     with pytest.raises(FileNotFoundError, match="Could not detect"):
         export_field_outline(mock_project_variable)
-
-    # restore the global config file for later tests
-    config_path_modified.rename(CONFIG_PATH)
 
 
 @inside_rms

@@ -17,11 +17,11 @@ from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
+from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import (
     get_faultlines_in_folder,
     get_open_polygons_id,
     get_rms_project_units,
-    load_global_config,
     validate_name_in_stratigraphy,
 )
 
@@ -31,18 +31,14 @@ if TYPE_CHECKING:
 _logger: Final = null_logger(__name__)
 
 
-class _ExportStructureDepthFaultLines:
-    def __init__(
-        self,
-        project: Any,
-        horizon_folder: str,
-    ) -> None:
+class _ExportStructureDepthFaultLines(SimpleExportRMSBase):
+    def __init__(self, project: Any, horizon_folder: str) -> None:
+        super().__init__()
+
         _logger.debug("Process data, establish state prior to export.")
         self._horizon_folder = horizon_folder
-        self._config = load_global_config()
         self._fault_lines = get_faultlines_in_folder(project, horizon_folder)
         self._unit = "m" if get_rms_project_units(project) == "metric" else "ft"
-
         _logger.debug("Process data... DONE")
 
     @property
@@ -53,19 +49,24 @@ class _ExportStructureDepthFaultLines:
         )
 
     @property
+    def _content(self) -> Content:
+        """Get content for the exported data."""
+        return Content.fault_lines
+
+    @property
     def _classification(self) -> Classification:
         """Get default classification."""
         return Classification.internal
 
     @property
-    def _subfolder(self) -> str:
-        """Subfolder for exporting the data to."""
-        return self._standard_result.name.value
+    def _rep_include(self) -> bool:
+        """rep_include status"""
+        return True
 
     def _export_fault_line(self, pol: xtgeo.Polygons) -> ExportResultItem:
         edata = dio.ExportData(
             config=self._config,
-            content=Content.fault_lines.value,
+            content=self._content,
             unit=self._unit,
             vertical_domain="depth",
             domain_reference="msl",
@@ -73,7 +74,7 @@ class _ExportStructureDepthFaultLines:
             is_prediction=True,
             name=pol.name,
             classification=self._classification,
-            rep_include=True,
+            rep_include=self._rep_include,
             table_index=_enums.FaultLines.index_columns(),
         )
 
@@ -88,7 +89,7 @@ class _ExportStructureDepthFaultLines:
             absolute_path=Path(absolute_export_path),
         )
 
-    def _export_fault_lines(self) -> ExportResult:
+    def _export_data_as_standard_result(self) -> ExportResult:
         """Export the fault lines for each stratigraphic horizon."""
         return ExportResult(
             items=[self._export_fault_line(pol) for pol in self._fault_lines]
@@ -116,17 +117,12 @@ class _ExportStructureDepthFaultLines:
                 f"horizon folder {self._horizon_folder} contains valid fault lines."
             )
 
-    def _validate_data(self) -> None:
+    def _validate_data_pre_export(self) -> None:
         """Data validations before export."""
 
         for pol in self._fault_lines:
             validate_name_in_stratigraphy(pol.name, self._config)
             self._raise_on_open_polygons(pol)
-
-    def export(self) -> ExportResult:
-        """Export the fault lines as a standard_result."""
-        self._validate_data()
-        return self._export_fault_lines()
 
 
 @experimental
