@@ -14,7 +14,7 @@ from fmu.dataio.providers.objectdata._provider import objectdata_provider_factor
 from fmu.dataio.providers.objectdata._tables import _derive_index
 
 
-def _read_dict(file_path: str) -> None:
+def _read_dict(file_path: str) -> dict:
     """Reads text file into dictionary
     Args:
         file_path (string): path to generated file
@@ -23,10 +23,7 @@ def _read_dict(file_path: str) -> None:
     """
     path = Path(file_path)
     meta_path = path.parent / f".{path.name}.yml"
-    meta = yaml_load(meta_path)
-    path.unlink()
-    meta_path.unlink()
-    return meta
+    return yaml_load(meta_path)
 
 
 def assert_list_and_answer(index, answer, field_to_check):
