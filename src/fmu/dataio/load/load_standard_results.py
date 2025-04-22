@@ -1,14 +1,16 @@
+from io import BytesIO
+from pathlib import Path
 from typing import Generic, TypeVar
 from uuid import UUID
 
-import numpy as np
+from pandas import DataFrame
 
+from fmu.dataio._models.fmu_results import enums
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.external_interfaces.schema_validation_interface import (
     SchemaValidationInterface,
 )
 from fmu.dataio.external_interfaces.sumo_explorer_interface import SumoExplorerInterface
-from fmu.sumo.explorer.objects import SearchContext, Table
 
 T = TypeVar("T")
 
@@ -16,105 +18,84 @@ T = TypeVar("T")
 class LoadedStandardResults(Generic[T]):
     """The generic class for loaded standard results in fmu-dataio."""
 
+    def __init__(
+        self, case_id: UUID, ensemble_name: str, standard_result_name: str
+    ) -> None:
+        self._sumo_interface = SumoExplorerInterface(
+            case_id, ensemble_name, standard_result_name
+        )
+
     def list_realizations(self) -> list[int]:
-        return self._filter_result.realizationids  # type:ignore
+        return self._sumo_interface.get_realization_ids()
 
     def concatenate_realizations(self) -> T:
         raise NotImplementedError
 
-    def get_realization(self, realization_id: int) -> T:
-        # What should we return here?
-        return self._filter_result.tables.filter(realization_id)  # type:ignore
+    def save_realization(self, realization_id: int, folder_path: str) -> list[str]:
+        realization_data: list[tuple[DataFrame, dict]] = (
+            self._sumo_interface.get_realization_with_metadata(realization_id)
+        )
 
-    def validate_metadata(self) -> None:
-        """Validate the standard results metadata against its schema"""
+        file_paths: list[str] = []
+        for data in realization_data:
+            data_frame: DataFrame = data[0]
+            metadata: dict = data[1]
+
+            self._validate_object(
+                data_frame=data[0],
+                schema_url=metadata["data"]["standard_result"]["file_schema"]["url"],
+            )
+
+            data_name: str = metadata["data"]["name"]
+            standard_result_name: str = metadata["data"]["standard_result"]["name"]
+            file_name = f"{standard_result_name}_{data_name.lower()}.csv"
+            Path(folder_path).mkdir(parents=True, exist_ok=True)
+            file_path = folder_path / Path(file_name)
+
+            data_frame.to_csv(file_path, index=False)
+            file_paths.append(str(file_path))
+
+        return file_paths
+
+    def get_realization(self, realization_id: int) -> list[DataFrame]:
+        return self._sumo_interface.get_realization(realization_id)
+
+    def get_blob(self, realization_id: int) -> list[BytesIO]:
+        return self._sumo_interface.get_blob(realization_id)
+
+    @staticmethod
+    def _validate_object(data_frame: DataFrame, schema_url: str) -> None:
+        """Validate the standard result objects against its schema"""
 
         validator_interface = SchemaValidationInterface()
-        for metadata in self.metadata:  # type:ignore
-            # Should we return a report or fail all?
-            # Failing all for now
-            validator_interface.validate_against_schema(
-                schema_url=metadata["$schema"], data=metadata
-            )
-
-    def validate_objects(self) -> None:
-        """Validate the standard results objects against its schema"""
-
-        validator_interface = SchemaValidationInterface()
-        for object in self.standard_results:  # type:ignore
-            # Should we return a report or fail all?
-            # Failing all for now
-            data_frame = (
-                object.to_pandas().replace(np.nan, None).to_dict(orient="records")
-            )
-            validator_interface.validate_against_schema(
-                schema_url=object.metadata["data"]["product"]["file_schema"]["url"],
-                data=data_frame,
-            )
+        validator_interface.validate_against_schema(
+            schema_url=schema_url, data=data_frame.to_dict(orient="records")
+        )
 
 
 class InplaceVolumes(LoadedStandardResults[T]):
-    """Class representing a set of Inplace Volumes in fmu-dataio."""
+    """Class representing a set of Inplace Volumes standard results in fmu-dataio."""
 
-    _inplace_volumes: list[Table] = []
-    _inplace_volumes_metadata: list[dict] = []
-
-    def __init__(self, filter_result: SearchContext) -> None:
-        self._filter_result: SearchContext = filter_result
-        self._set_inplace_volumes()
-        self._set_metadata()
-
-    @property
-    def metadata(self) -> list[dict]:
-        """Return inplace volumes metadata
-
-        Returns:
-            list[dict]: the metadata for each inplace volume object
-        """
-        return self._inplace_volumes_metadata
-
-    @property
-    def standard_results(self) -> list[Table]:
-        """Return the inplace volumes
-
-        Returns:
-            list[Table]: the metadata for each inplace volume object
-        """
-        return self._inplace_volumes
-
-    def _set_inplace_volumes(self) -> None:
-        for table in self._filter_result:
-            # While we wait for Sumo to add a filter for standard results
-            if "product" in table.metadata["data"]:
-                self._inplace_volumes.append(table)
-
-    def _set_metadata(self) -> None:
-        self._inplace_volumes_metadata = [
-            table.metadata for table in self._inplace_volumes
-        ]
+    def __init__(self, case_id: UUID, ensemble_name: str):
+        super().__init__(
+            case_id, ensemble_name, enums.StandardResultName.inplace_volumes
+        )
 
 
-class StructureDepthSurfaces(LoadedStandardResults[T]):
-    def __init__(self) -> None:
-        raise NotImplementedError
+class FieldOutline(LoadedStandardResults[T]):
+    """Class representing a set of Field Outline standard results in fmu-dataio."""
+
+    def __init__(self, case_id: UUID, ensemble_name: str) -> None:
+        super().__init__(case_id, ensemble_name, enums.StandardResultName.field_outline)
 
 
 @experimental
 def load_inplace_volumes(case_id: UUID, ensemble_name: str) -> InplaceVolumes:
     """Simplified interface to load inplace volumes standard results from Sumo."""
-
-    filter_result = SumoExplorerInterface(
-        case_id=case_id, ensemble_name=ensemble_name
-    ).get_volume_tables()
-
-    return InplaceVolumes(filter_result)
+    return InplaceVolumes(case_id, ensemble_name)
 
 
 @experimental
-def load_structure_depth_surfaces(
-    case_id: UUID, ensemble_name: str
-) -> StructureDepthSurfaces:
-    """Simplified interface to load structure depth surfaces
-    standard results from Sumo."""
-
-    raise NotImplementedError
+def load_field_outlines(case_id: UUID, ensemble_name: str) -> FieldOutline:
+    """Simplified interface to load field outline standard results from Sumo."""
+    return FieldOutline(case_id, ensemble_name)
