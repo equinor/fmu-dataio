@@ -86,7 +86,7 @@ def test_rms_volumetrics_export_class(exportvolumetrics):
     # volume table name should be picked up by the mocked object
     assert exportvolumetrics._volume_table_name == "geogrid_volumes"
 
-    out = exportvolumetrics._export_volume_table()
+    out = exportvolumetrics._export_data_as_standard_result()
 
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
@@ -98,7 +98,7 @@ def test_rms_volumetrics_export_class(exportvolumetrics):
 def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolumetrics):
     """See mocks in local conftest.py"""
 
-    out = exportvolumetrics._export_volume_table()
+    out = exportvolumetrics._export_data_as_standard_result()
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
     # check that the table index is set correctly
@@ -107,7 +107,7 @@ def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolum
     # should fail if missing table index
     exportvolumetrics._dataframe = voltable_standard.drop(columns="ZONE")
     with pytest.raises(KeyError, match="are not present"):
-        exportvolumetrics._export_volume_table()
+        exportvolumetrics._export_data_as_standard_result()
 
 
 @inside_rms
@@ -141,7 +141,7 @@ def test_convert_table_from_legacy_to_standard_format(
     pd.testing.assert_frame_equal(voltable_standard, instance._dataframe)
 
     # check that the exported table is equal to the expected
-    out = instance._export_volume_table()
+    out = instance._export_data_as_standard_result()
     # Note that using `read_parquet()` more than once in the same pytest module causes
     # errors due to an issue in pandas registering a type extension globally on every
     # invocation. This is probably a pandas bug.
@@ -510,12 +510,11 @@ def test_rms_volumetrics_export_config_invalid(
 
     from fmu.dataio.export.rms.inplace_volumes import export_inplace_volumes
 
-    with mock.patch(  # noqa
-        "fmu.dataio.export.rms.inplace_volumes.load_global_config",
-        return_value={},
+    with (
+        mock.patch("fmu.dataio.export._base.load_config_from_path", return_value={}),
+        pytest.raises(ValueError, match="valid config"),
     ):
-        with pytest.raises(ValueError, match="valid config"):
-            export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
+        export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
 
 
 @inside_rms
@@ -528,19 +527,12 @@ def test_rms_volumetrics_export_config_missing(
     """Test that an exception is raised if the config is missing."""
 
     from fmu.dataio.export.rms import export_inplace_volumes
-    from fmu.dataio.export.rms._utils import CONFIG_PATH
 
-    monkeypatch.chdir(rmssetup_with_fmuconfig)
-
-    config_path_modified = Path("wrong.yml")
-
-    CONFIG_PATH.rename(config_path_modified)
+    # move up one directory to trigger not finding the config
+    monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
     with pytest.raises(FileNotFoundError, match="Could not detect"):
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
-
-    # restore the global config file for later tests
-    config_path_modified.rename(CONFIG_PATH)
 
 
 @inside_rms
@@ -590,7 +582,7 @@ def test_inplace_volumes_payload_validates_against_model(
     """Tests that the volume table exported is validated against the payload result
     model."""
 
-    out = exportvolumetrics._export_volume_table()
+    out = exportvolumetrics._export_data_as_standard_result()
     df = (
         pq.read_table(out.items[0].absolute_path)
         .to_pandas()
@@ -608,7 +600,7 @@ def test_inplace_volumes_payload_validates_against_schema(
     """Tests that the volume table exported is validated against the payload result
     schema."""
 
-    out = exportvolumetrics._export_volume_table()
+    out = exportvolumetrics._export_data_as_standard_result()
     df = (
         pq.read_table(out.items[0].absolute_path)
         .to_pandas()
@@ -643,7 +635,7 @@ def test_that_required_columns_one_to_one_in_enums_and_schema() -> None:
 def test_standard_result_in_metadata(exportvolumetrics):
     """Test that the standard result is set correctly in the metadata"""
 
-    out = exportvolumetrics._export_volume_table()
+    out = exportvolumetrics._export_data_as_standard_result()
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
     assert "standard_result" in metadata["data"]
