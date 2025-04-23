@@ -9,7 +9,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from fmu.dataio._definitions import ExportFolder, ValidFormats
+from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.data import BoundingBox2D, BoundingBox3D, Geometry
 from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
@@ -23,6 +23,7 @@ from fmu.dataio._models.fmu_results.specification import (
     ZoneDefinition,
 )
 from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
+from fmu.dataio.exceptions import ConfigurationError
 
 from ._base import ObjectDataProvider
 from ._tables import _derive_index
@@ -66,11 +67,11 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt.value, ValidFormats.surface)
+        return FileExtension.gri.value
 
     @property
     def fmt(self) -> FileFormat:
-        return FileFormat(self.dataio.surface_fformat)
+        return FileFormat.irap_binary
 
     @property
     def layout(self) -> Layout:
@@ -156,7 +157,19 @@ class PolygonsDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt.value, ValidFormats.polygons)
+        if self.fmt == FileFormat.irap_ascii:
+            return FileExtension.pol.value
+
+        if self.fmt == FileFormat.parquet:
+            return FileExtension.parquet.value
+
+        if self.fmt in [FileFormat.csv, FileFormat.csv_xtgeo]:
+            return FileExtension.csv.value
+
+        raise ConfigurationError(
+            f"The file format {self.fmt.value} is not supported. ",
+            f"Valid formats are: {['irap_ascii', 'csv', 'csv|xtgeo', 'parquet']}",
+        )
 
     @property
     def fmt(self) -> FileFormat:
@@ -257,7 +270,19 @@ class PointsDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt.value, ValidFormats.points)
+        if self.fmt == FileFormat.irap_ascii:
+            return FileExtension.poi.value
+
+        if self.fmt == FileFormat.parquet:
+            return FileExtension.parquet.value
+
+        if self.fmt in [FileFormat.csv, FileFormat.csv_xtgeo]:
+            return FileExtension.csv.value
+
+        raise ConfigurationError(
+            f"The file format {self.fmt.value} is not supported. ",
+            f"Valid formats are: {['irap_ascii', 'csv', 'csv|xtgeo', 'parquet']}",
+        )
 
     @property
     def fmt(self) -> FileFormat:
@@ -349,11 +374,11 @@ class CubeDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt.value, ValidFormats.cube)
+        return FileExtension.segy.value
 
     @property
     def fmt(self) -> FileFormat:
-        return FileFormat(self.dataio.cube_fformat)
+        return FileFormat.segy
 
     @property
     def layout(self) -> Layout:
@@ -437,11 +462,11 @@ class CPGridDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt.value, ValidFormats.grid)
+        return FileExtension.roff.value
 
     @property
     def fmt(self) -> FileFormat:
-        return FileFormat(self.dataio.grid_fformat)
+        return FileFormat.roff
 
     @property
     def layout(self) -> Layout:
@@ -527,11 +552,11 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt.value, ValidFormats.grid)
+        return FileExtension.roff.value
 
     @property
     def fmt(self) -> FileFormat:
-        return FileFormat(self.dataio.grid_fformat)
+        return FileFormat.roff
 
     @property
     def layout(self) -> Layout:
