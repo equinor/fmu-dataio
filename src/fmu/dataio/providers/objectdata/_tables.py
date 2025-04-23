@@ -10,11 +10,12 @@ import pyarrow.parquet as pq
 from fmu.dataio._definitions import (
     STANDARD_TABLE_INDEX_COLUMNS,
     ExportFolder,
-    ValidFormats,
+    FileExtension,
 )
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.enums import Content, FileFormat, FMUClass, Layout
 from fmu.dataio._models.fmu_results.specification import TableSpecification
+from fmu.dataio.exceptions import ConfigurationError
 
 from ._base import (
     ObjectDataProvider,
@@ -157,7 +158,16 @@ class DataFrameDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt.value, ValidFormats.table)
+        if self.fmt == FileFormat.parquet:
+            return FileExtension.parquet.value
+
+        if self.fmt == FileFormat.csv:
+            return FileExtension.csv.value
+
+        raise ConfigurationError(
+            f"The file format {self.fmt.value} is not supported. ",
+            f"Valid formats are: {['parquet', 'csv']}",
+        )
 
     @property
     def fmt(self) -> FileFormat:
@@ -217,11 +227,11 @@ class ArrowTableDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt.value, ValidFormats.table)
+        return FileExtension.parquet.value
 
     @property
     def fmt(self) -> FileFormat:
-        return FileFormat(self.dataio.arrow_fformat)
+        return FileFormat.parquet
 
     @property
     def layout(self) -> Layout:
