@@ -359,6 +359,16 @@ class FaciesThicknessData(Data):
     """The type of content these data represent."""
 
 
+class FaultTriangulatedSurfaceData(Data):
+    """
+    The ``data`` block contains information about the data contained in this object.
+    This class contains metadata for faults represented as triangulated surfaces.
+    """
+
+    content: Literal[enums.Content.fault_triangulated_surface]
+    """The type of content these data represent."""
+
+
 class FaultLinesData(Data):
     """
     The ``data`` block contains information about the data contained in this object.
@@ -653,6 +663,7 @@ class AnyData(RootModel):
     root: Annotated[
         DepthData
         | FaciesThicknessData
+        | FaultTriangulatedSurfaceData
         | FaultLinesData
         | FieldOutlineData
         | FieldRegionData
