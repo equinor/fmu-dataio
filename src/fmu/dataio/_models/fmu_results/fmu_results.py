@@ -45,9 +45,13 @@ if TYPE_CHECKING:
 class FmuResultsSchema(SchemaBase):
     """The main metadata export describing the results."""
 
-    VERSION: VersionStr = "0.10.0"
+    VERSION: VersionStr = "0.11.0"
 
     VERSION_CHANGELOG: str = """
+    #### 0.11.0
+
+    -
+
     #### 0.10.0
 
     - `triangulated_surface` added as a new object class

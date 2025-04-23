@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.10.0/fmu_results.json
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.11.0/fmu_results.json
 _preprocessed: true
 access:
   asset:
@@ -80,7 +80,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-04-22T11:16:51.740794Z'
+- datetime: '2025-04-23T15:45:54.438664Z'
   event: created
   sysinfo:
     fmu-dataio:
@@ -93,4 +93,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.10.0
+version: 0.11.0

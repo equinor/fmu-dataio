@@ -495,7 +495,7 @@
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
-          "default": "0.10.0",
+          "default": "0.11.0",
           "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
           "title": "Version",
           "type": "string"
@@ -613,7 +613,7 @@
           "type": "number"
         },
         "xinc": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Xinc",
           "type": "number"
         },
@@ -625,7 +625,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "yinc": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Yinc",
           "type": "number"
         },
@@ -637,7 +637,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "zinc": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Zinc",
           "type": "number"
         },
@@ -1099,7 +1099,7 @@
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
-          "default": "0.10.0",
+          "default": "0.11.0",
           "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
           "title": "Version",
           "type": "string"
@@ -3541,7 +3541,7 @@
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
-          "default": "0.10.0",
+          "default": "0.11.0",
           "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
           "title": "Version",
           "type": "string"
@@ -4593,7 +4593,7 @@
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
-          "default": "0.10.0",
+          "default": "0.11.0",
           "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
           "title": "Version",
           "type": "string"
@@ -6444,7 +6444,7 @@
           "$ref": "#/$defs/Tracklog"
         },
         "version": {
-          "default": "0.10.0",
+          "default": "0.11.0",
           "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)",
           "title": "Version",
           "type": "string"
@@ -8246,7 +8246,7 @@
           "type": "number"
         },
         "xinc": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Xinc",
           "type": "number"
         },
@@ -8258,7 +8258,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "yinc": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Yinc",
           "type": "number"
         },
@@ -10638,7 +10638,7 @@
       "type": "object"
     }
   },
-  "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.10.0/fmu_results.json",
+  "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.11.0/fmu_results.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "discriminator": {
     "propertyName": "class"
