@@ -17,7 +17,6 @@ from fmu.dataio._models.fmu_results.global_configuration import (
     StratigraphyElement,
 )
 from fmu.dataio._utils import generate_description, md5sum
-from fmu.dataio.exceptions import ConfigurationError
 from fmu.dataio.providers._base import Provider
 from fmu.dataio.providers.objectdata._export_models import (
     UnsetData,
@@ -29,7 +28,6 @@ from fmu.dataio.providers.objectdata._export_models import (
 if TYPE_CHECKING:
     from pydantic import BaseModel
 
-    from fmu.dataio._definitions import ValidFormats
     from fmu.dataio._models.fmu_results.data import (
         BoundingBox2D,
         BoundingBox3D,
@@ -303,14 +301,3 @@ class ObjectDataProvider(Provider):
         self.time0, self.time1 = start.value, stop.value if stop else None
 
         return Time(t0=start, t1=stop)
-
-    @staticmethod
-    def _validate_get_ext(fmt: str, validator: ValidFormats) -> str:
-        """Validate that fmt (file format) matches data and return legal extension."""
-        try:
-            return validator.value[fmt]
-        except KeyError as e:
-            raise ConfigurationError(
-                f"The file format {fmt} is not supported. ",
-                f"Valid formats are: {list(validator.value.keys())}",
-            ) from e
