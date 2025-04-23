@@ -64,7 +64,7 @@ def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path
     # TODO: Refactor tests and move away from outside/inside rms pattern
 
     monkeypatch.chdir(tmp_path)
-    answer = ["FLUID", "ZONE", "LICENSE"]
+    answer = ["FLUID", "ZONE", "REGION", "LICENSE"]
     exd = ExportData(config=globalconfig2, content="volumes", name="baretull")
     path = exd.export(mock_volumes)
     assert_correct_table_index(path, answer)
@@ -131,7 +131,8 @@ def test_set_from_exportdata(mock_volumes, globalconfig2, monkeypatch, tmp_path)
     exd = ExportData(
         config=globalconfig2, table_index=index, content="timeseries", name="baretull"
     )
-    path = exd.export(mock_volumes)
+    with pytest.warns(FutureWarning, match="table index"):
+        path = exd.export(mock_volumes)
     assert_correct_table_index(path, index)
 
 
@@ -145,9 +146,10 @@ def test_set_from_export(mock_volumes, globalconfig2, monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     index = ["OTHER"]
     exd = ExportData(
-        config=globalconfig2, content="timeseries", table_index=index, name="baretull"
+        config=globalconfig2, content="volumes", table_index=index, name="baretull"
     )
-    path = exd.export(mock_volumes)
+    with pytest.warns(FutureWarning, match="table index"):
+        path = exd.export(mock_volumes)
     assert_correct_table_index(path, index)
 
 
