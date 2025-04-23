@@ -11,45 +11,15 @@ from fmu.dataio._models.fmu_results.enums import Content
 from fmu.dataio.export._enums import InplaceVolumes
 
 
-class ValidFormats(Enum):
-    surface = {
-        "irap_binary": ".gri",
-    }
-
-    grid = {
-        "hdf": ".hdf",
-        "roff": ".roff",
-    }
-
-    cube = {
-        "segy": ".segy",
-    }
-
-    table = {
-        "hdf": ".hdf",
-        "csv": ".csv",
-        "parquet": ".parquet",
-    }
-
-    polygons = {
-        "hdf": ".hdf",
-        "csv": ".csv",  # columns will be X Y Z, ID
-        "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, ... POLY_ID
-        "irap_ascii": ".pol",
-        "parquet": ".parquet",
-    }
-
-    points = {
-        "hdf": ".hdf",
-        "csv": ".csv",  # columns will be X Y Z
-        "csv|xtgeo": ".csv",  # use default xtgeo columns: X_UTME, Y_UTMN, Z_TVDSS
-        "irap_ascii": ".poi",
-        "parquet": ".parquet",
-    }
-
-    dictionary = {
-        "json": ".json",
-    }
+class FileExtension(str, Enum):
+    gri = ".gri"
+    roff = ".roff"
+    segy = ".segy"
+    csv = ".csv"
+    parquet = ".parquet"
+    pol = ".pol"
+    poi = ".poi"
+    json = ".json"
 
 
 class ExportFolder(str, Enum):

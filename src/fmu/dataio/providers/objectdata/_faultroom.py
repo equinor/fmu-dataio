@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
-from fmu.dataio._definitions import ExportFolder, ValidFormats
+from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.data import BoundingBox3D
 from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
@@ -41,11 +41,11 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt.value, ValidFormats.dictionary)
+        return FileExtension.json.value
 
     @property
     def fmt(self) -> FileFormat:
-        return FileFormat(self.dataio.dict_fformat)
+        return FileFormat.json
 
     @property
     def layout(self) -> Layout:
