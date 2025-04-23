@@ -47,11 +47,16 @@ def _validate_input_table_index(
         )
 
     if content in STANDARD_TABLE_INDEX_COLUMNS:
-        standard_required_index = STANDARD_TABLE_INDEX_COLUMNS[content].required
-        if set(standard_required_index) != set(table_index):
+        standard_index = STANDARD_TABLE_INDEX_COLUMNS[content]
+
+        has_all_required = all(col in table_index for col in standard_index.required)
+        has_non_standard = any(col not in standard_index.columns for col in table_index)
+
+        if not has_all_required or has_non_standard:
             warnings.warn(
-                "The table index provided deviates from the standard: "
-                f"{standard_required_index}. This may not be allowed in the future.",
+                "The table index provided does not fully comply with the standard. "
+                f"Standard columns: {standard_index.columns}, with required ones: "
+                f"{standard_index.required}. This may not be allowed in the future.",
                 FutureWarning,
             )
 
@@ -67,13 +72,15 @@ def _derive_index_from_standard(
     standard_index = STANDARD_TABLE_INDEX_COLUMNS[content]
 
     table_index = [col for col in standard_index.columns if col in table_columns]
+    has_all_required = all(col in table_index for col in standard_index.required)
+
     if not table_index:
         warnings.warn(
             "Could not detect any standard index columns in table: "
             f"{standard_index.columns}. If the table has index columns they "
             "should be provided as input through the 'table_index' argument."
         )
-    elif set(standard_index.required) != set(table_index):
+    elif not has_all_required:
         warnings.warn(
             "The table provided does not contain all required standard "
             f"table index columns for this content: {standard_index.required}. "
