@@ -843,6 +843,7 @@ def fixture_mock_volumes():
             "ZONE": ["B", "A", "C"],
             "LICENSE": ["L3", "L2", "L1"],
             "FLUID": ["oil", "gas", "water"],
+            "REGION": ["N", "S", "E"],
             "nums": [1, 2, 3],
             "OTHER": ["q", "a", "f"],
         }

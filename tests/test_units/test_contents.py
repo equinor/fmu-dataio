@@ -223,13 +223,13 @@ def test_content_regions(polygons, globalconfig2):
     assert meta["data"]["content"] == "regions"
 
 
-def test_content_relperm(dataframe, globalconfig2):
+def test_content_relperm(mock_relperm, globalconfig2):
     """Test export of the relperm content."""
     meta = ExportData(
         config=globalconfig2,
         name="MyName",
         content="relperm",
-    ).generate_metadata(dataframe)
+    ).generate_metadata(mock_relperm)
 
     assert meta["data"]["content"] == "relperm"
 
@@ -251,13 +251,13 @@ def test_content_seismic(polygons, globalconfig2):
     # tested various other places
 
 
-def test_content_simulationtimeseries(dataframe, globalconfig2):
+def test_content_simulationtimeseries(mock_summary, globalconfig2):
     """Test export of the simulationtimeseries content."""
     meta = ExportData(
         config=globalconfig2,
         name="MyName",
         content="simulationtimeseries",
-    ).generate_metadata(dataframe)
+    ).generate_metadata(mock_summary)
 
     assert meta["data"]["content"] == "simulationtimeseries"
 
@@ -290,13 +290,13 @@ def test_content_time(polygons, globalconfig2):
     # tested various other places
 
 
-def test_content_timeseries(dataframe, globalconfig2):
+def test_content_timeseries(mock_summary, globalconfig2):
     """Test export of the timeseries content."""
     meta = ExportData(
         config=globalconfig2,
         name="MyName",
         content="timeseries",
-    ).generate_metadata(dataframe)
+    ).generate_metadata(mock_summary)
 
     assert meta["data"]["content"] == "timeseries"
 
@@ -323,24 +323,24 @@ def test_content_velocity(regsurf, globalconfig2):
     assert meta["data"]["content"] == "velocity"
 
 
-def test_content_volumes(polygons, globalconfig2):
+def test_content_volumes(mock_volumes, globalconfig2):
     """Test export of the volumes content."""
     meta = ExportData(
         config=globalconfig2,
         name="MyName",
         content="volumes",
-    ).generate_metadata(polygons)
+    ).generate_metadata(mock_volumes)
 
     assert meta["data"]["content"] == "volumes"
 
 
-def test_content_wellpicks(dataframe, globalconfig2):
+def test_content_wellpicks(wellpicks, globalconfig2):
     """Test export of the wellpicks content."""
     meta = ExportData(
         config=globalconfig2,
         name="MyName",
         content="wellpicks",
-    ).generate_metadata(dataframe)
+    ).generate_metadata(wellpicks)
 
     assert meta["data"]["content"] == "wellpicks"
 
