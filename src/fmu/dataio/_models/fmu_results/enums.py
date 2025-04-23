@@ -33,6 +33,7 @@ class Content(str, Enum):
 
     depth = "depth"
     facies_thickness = "facies_thickness"
+    fault_triangulated_surface = "fault_triangulated_surface"
     fault_lines = "fault_lines"
     fault_properties = "fault_properties"
     field_outline = "field_outline"
