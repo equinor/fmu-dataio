@@ -95,7 +95,7 @@ import pandas as pd
 import pyarrow as pa
 import xtgeo
 
-from fmu.dataio._definitions import ExportFolder, ValidFormats
+from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
 from fmu.dataio.readers import FaultRoomSurface
@@ -196,11 +196,11 @@ class DictionaryDataProvider(ObjectDataProvider):
 
     @property
     def extension(self) -> str:
-        return self._validate_get_ext(self.fmt.value, ValidFormats.dictionary)
+        return FileExtension.json.value
 
     @property
     def fmt(self) -> FileFormat:
-        return FileFormat(self.dataio.dict_fformat)
+        return FileFormat.json
 
     @property
     def layout(self) -> Layout:
