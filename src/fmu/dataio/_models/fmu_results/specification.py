@@ -31,10 +31,10 @@ class SurfaceSpecification(RowColumn):
     undef: float = Field(allow_inf_nan=False)
     """Value representing undefined data."""
 
-    xinc: float = Field(ge=0, allow_inf_nan=False)
+    xinc: float = Field(gt=0, allow_inf_nan=False)
     """Increment along the x-axis."""
 
-    yinc: float = Field(ge=0, allow_inf_nan=False)
+    yinc: float = Field(gt=0, allow_inf_nan=False)
     """Increment along the y-axis."""
 
     xori: float = Field(allow_inf_nan=False)
@@ -177,13 +177,13 @@ class CubeSpecification(SurfaceSpecification):
     nlay: int = Field(ge=0)
     """The number of layers."""
 
-    xinc: float = Field(ge=0, allow_inf_nan=False)
+    xinc: float = Field(gt=0, allow_inf_nan=False)
     """Increment along the x-axis."""
 
-    yinc: float = Field(ge=0, allow_inf_nan=False)
+    yinc: float = Field(gt=0, allow_inf_nan=False)
     """Increment along the y-axis."""
 
-    zinc: float = Field(ge=0, allow_inf_nan=False)
+    zinc: float = Field(gt=0, allow_inf_nan=False)
     """Increment along the z-axis."""
 
     xori: float = Field(allow_inf_nan=False)
