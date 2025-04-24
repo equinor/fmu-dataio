@@ -613,7 +613,7 @@
           "type": "number"
         },
         "xinc": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Xinc",
           "type": "number"
         },
@@ -625,7 +625,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "yinc": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Yinc",
           "type": "number"
         },
@@ -637,7 +637,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "zinc": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Zinc",
           "type": "number"
         },
@@ -8246,7 +8246,7 @@
           "type": "number"
         },
         "xinc": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Xinc",
           "type": "number"
         },
@@ -8258,7 +8258,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "yinc": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Yinc",
           "type": "number"
         },
