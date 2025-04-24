@@ -50,6 +50,7 @@ class FmuResultsSchema(SchemaBase):
     VERSION_CHANGELOG: str = """
     #### 0.11.0
 
+    - improved validation of grid numbering
     - improved validation of grid increments
 
 

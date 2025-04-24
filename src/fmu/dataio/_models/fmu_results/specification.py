@@ -8,17 +8,17 @@ from . import enums
 class RowColumn(BaseModel):
     """Specifies the number of rows and columns in a regular surface object."""
 
-    nrow: int = Field(ge=0)
+    nrow: int = Field(gt=0)
     """The number of rows."""
 
-    ncol: int = Field(ge=0)
+    ncol: int = Field(gt=0)
     """The number of columns."""
 
 
 class RowColumnLayer(RowColumn):
     """Specifies the number of rows, columns, and layers in grid object."""
 
-    nlay: int = Field(ge=0)
+    nlay: int = Field(gt=0)
     """The number of layers."""
 
 
@@ -174,7 +174,7 @@ class FaultRoomSurfaceSpecification(BaseModel):
 class CubeSpecification(SurfaceSpecification):
     """Specifies relevant values describing a cube object, i.e. a seismic cube."""
 
-    nlay: int = Field(ge=0)
+    nlay: int = Field(gt=0)
     """The number of layers."""
 
     xinc: float = Field(gt=0, allow_inf_nan=False)

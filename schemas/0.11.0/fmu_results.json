@@ -323,17 +323,17 @@
       "description": "Specifies relevant values describing a corner point grid property object.",
       "properties": {
         "ncol": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Ncol",
           "type": "integer"
         },
         "nlay": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Nlay",
           "type": "integer"
         },
         "nrow": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Nrow",
           "type": "integer"
         }
@@ -350,17 +350,17 @@
       "description": "Specifies relevant values describing a corner point grid object.",
       "properties": {
         "ncol": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Ncol",
           "type": "integer"
         },
         "nlay": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Nlay",
           "type": "integer"
         },
         "nrow": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Nrow",
           "type": "integer"
         },
@@ -590,17 +590,17 @@
       "description": "Specifies relevant values describing a cube object, i.e. a seismic cube.",
       "properties": {
         "ncol": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Ncol",
           "type": "integer"
         },
         "nlay": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Nlay",
           "type": "integer"
         },
         "nrow": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Nrow",
           "type": "integer"
         },
@@ -8228,12 +8228,12 @@
       "description": "Specifies relevant values describing a regular surface object.",
       "properties": {
         "ncol": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Ncol",
           "type": "integer"
         },
         "nrow": {
-          "minimum": 0,
+          "exclusiveMinimum": 0,
           "title": "Nrow",
           "type": "integer"
         },
