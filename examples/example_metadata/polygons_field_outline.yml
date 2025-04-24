@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.10.0/fmu_results.json
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.11.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -39,6 +39,7 @@ data:
     num_rows: 1059
     size: 4236
   stratigraphic: true
+  table_index: []
   tagname: polygons_field_outline
   undef_is_zero: false
   unit: m
@@ -97,7 +98,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-04-03T10:34:47.211024Z'
+- datetime: '2025-04-24T15:46:16.717417Z'
   event: created
   sysinfo:
     fmu-dataio:
@@ -110,4 +111,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.10.0
+version: 0.11.0
