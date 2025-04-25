@@ -101,6 +101,11 @@ safely be removed if present in the code.
  * ``ExportData.table_include_index`` 
  * ``ExportData.verifyfolder`` 
  * ``ExportData.meta_format`` 
+ * ``ExportData.surface_fformat`` 
+ * ``ExportData.grid_fformat`` 
+ * ``ExportData.cube_fformat`` 
+ * ``ExportData.dict_fformat`` 
+ * ``ExportData.arrow_fformat`` 
 
 
 .. code-block:: python
