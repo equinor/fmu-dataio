@@ -28,6 +28,7 @@ For exporting outlines specific to different fluid types and zones, the
 | --- | --- |
 | Version | **{{ FieldOutlineSchema.VERSION }}** |
 | Output | `share/results/polygons/field_outline/field_outline.parquet` |
+| Security classification | 🟡 Internal |
 :::
 
 ## Requirements

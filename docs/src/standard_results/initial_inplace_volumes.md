@@ -10,6 +10,7 @@ This exports the initial inplace volumes of a single grid from within RMS.
 | --- | --- |
 | Version | **{{ InplaceVolumesSchema.VERSION }}** |
 | Output | `share/results/tables/inplace_volumes/gridname.parquet` |
+| Security classification | 🔴 Restricted |
 :::
 
 ## Requirements

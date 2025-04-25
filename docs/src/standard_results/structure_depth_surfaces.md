@@ -18,6 +18,7 @@ model workflow.
 | --- | --- |
 | Version | NA |
 | Output | `share/results/maps/structure_depth_surface/surfacename.gri` |
+| Security classification | 🟡 Internal |
 :::
 
 ## Requirements

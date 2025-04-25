@@ -17,6 +17,7 @@ model workflow, i.e. one fault line polygon object per stratigraphic horizon.
 | --- | --- |
 | Version | **{{ StructureDepthFaultLinesSchema.VERSION }}** |
 | Output | `share/results/polygons/structure_depth_fault_lines/surfacename.parquet` |
+| Security classification | 🟡 Internal |
 :::
 
 ## Requirements
