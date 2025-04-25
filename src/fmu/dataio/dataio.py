@@ -309,20 +309,20 @@ class ExportData:
 
     # class variables
     allow_forcefolder_absolute: ClassVar[bool] = False  # deprecated
-    arrow_fformat: ClassVar[str] = "parquet"
+    arrow_fformat: ClassVar[str | None] = None  # deprecated and no effect
     case_folder: ClassVar[str] = "share/metadata"
     createfolder: ClassVar[bool] = True  # deprecated
-    cube_fformat: ClassVar[str] = "segy"
+    cube_fformat: ClassVar[str | None] = None  # deprecated and no effect
     filename_timedata_reverse: ClassVar[bool] = False  # reverse order output file name
-    grid_fformat: ClassVar[str] = "roff"
+    grid_fformat: ClassVar[str | None] = None  # deprecated and no effect
     include_ertjobs: ClassVar[bool] = False  # deprecated
     legacy_time_format: ClassVar[bool] = False  # deprecated
     meta_format: ClassVar[Literal["yaml", "json"] | None] = None  # deprecated
     polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
-    surface_fformat: ClassVar[str] = "irap_binary"
+    surface_fformat: ClassVar[str | None] = None  # deprecated and no effect
     table_fformat: ClassVar[str] = "csv"
-    dict_fformat: ClassVar[str] = "json"
+    dict_fformat: ClassVar[str | None] = None  # deprecated and no effect
     table_include_index: ClassVar[bool] = False  # deprecated
     verifyfolder: ClassVar[bool] = True  # deprecated
     _inside_rms: ClassVar[bool] = False  # developer only! if True pretend inside RMS
@@ -652,6 +652,22 @@ class ExportData:
             warn(
                 "The 'meta_format' option is deprecated and should be removed. "
                 "Metadata will only be exported in yaml format.",
+                UserWarning,
+            )
+
+        if any(
+            (
+                self.arrow_fformat,
+                self.cube_fformat,
+                self.grid_fformat,
+                self.surface_fformat,
+                self.dict_fformat,
+            )
+        ):
+            warn(
+                "The options 'arrow_fformat', 'cube_fformat', 'grid_fformat', "
+                "'surface_fformat', and 'dict_fformat' are deprecated. These options "
+                "no longer affect the exported file format and can safely be removed.",
                 UserWarning,
             )
 
