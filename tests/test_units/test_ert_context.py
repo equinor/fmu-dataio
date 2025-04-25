@@ -214,6 +214,28 @@ def test_polys_export_file_as_parquet(fmurun_w_casemetadata, rmsglobalconfig, po
     edata.polygons_fformat = "csv"  # reset
 
 
+def test_polys_export_file_as_parquet_no_table_index(
+    fmurun_w_casemetadata, rmsglobalconfig, polygons
+):
+    """Export the polygon to file without table index."""
+
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    os.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth", name="TopVolantis"
+    )
+
+    edata.polygons_fformat = "parquet"  # override
+    output = Path(edata.export(polygons))
+
+    meta = dataio.read_metadata(output)
+    assert meta["data"]["format"] == "parquet"
+    assert "table_index" not in meta["data"]
+
+    edata.polygons_fformat = "csv"  # reset
+
+
 def test_polys_export_file_as_irap_ascii(
     fmurun_w_casemetadata, rmsglobalconfig, polygons
 ):
