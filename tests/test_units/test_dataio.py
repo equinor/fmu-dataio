@@ -32,8 +32,9 @@ def test_generate_metadata_simple(globalconfig1):
     ExportData.grid_fformat = "grdecl"
 
     logger.info("Config in: \n%s", globalconfig1)
-
-    edata = ExportData(config=globalconfig1, content="depth")
+    # using the class variable to set the grid format has no effect
+    with pytest.warns(UserWarning, match="deprecated"):
+        edata = ExportData(config=globalconfig1, content="depth")
 
     assert edata.config.model.name == "Test"
 
