@@ -16,7 +16,8 @@ model workflow, i.e. one surface object per stratigraphic zone.
 | Field | Value |
 | --- | --- |
 | Version | NA |
-| Output | `share/results/maps/structure_depth_isochores/zonename.gri` |
+| Output | `share/results/maps/structure_depth_isochore/zonename.gri` |
+| Security classification | 🟡 Internal |
 :::
 
 ## Requirements
@@ -43,7 +44,7 @@ model, e.g if there is an erosional surface, this is correctly reflected.
 ## Result
 
 The surfaces from the horizon folder will be exported as 'irap_binary'
-files to `share/results/maps/structure_depth_isochores/zonename.gri`.
+files to `share/results/maps/structure_depth_isochore/zonename.gri`.
 
 
 ## Standard result schema
