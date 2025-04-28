@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     from xtgeo.surface import RegularSurface
     from xtgeo.xyz import Points, Polygons
 
+    from fmu.dataio._readers.tsurf import TSurfData
+
     from .readers import FaultRoomSurface
 
     # Local proxies due to xtgeo at the time of writing
@@ -39,6 +41,7 @@ if TYPE_CHECKING:
         | RegularSurfaceProxy
         | DataFrame
         | FaultRoomSurface
+        | TSurfData
         | MutableMapping
         | Table
         | pathlib.Path
