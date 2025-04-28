@@ -1139,7 +1139,6 @@
         "ensemble_smoother",
         "es_mda",
         "evaluate_ensemble",
-        "iterative_ensemble_smoother",
         "manual_update",
         "test_run",
         "workflow"
