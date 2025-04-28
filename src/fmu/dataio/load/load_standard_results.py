@@ -15,7 +15,7 @@ from fmu.dataio.external_interfaces.sumo_explorer_interface import SumoExplorerI
 T = TypeVar("T")
 
 
-class LoadedStandardResults(Generic[T]):
+class StandardResultsLoader(Generic[T]):
     """The generic class for loaded standard results in fmu-dataio."""
 
     def __init__(
@@ -73,7 +73,7 @@ class LoadedStandardResults(Generic[T]):
         )
 
 
-class InplaceVolumes(LoadedStandardResults[T]):
+class InplaceVolumesLoader(StandardResultsLoader[T]):
     """Class representing a set of Inplace Volumes standard results in fmu-dataio."""
 
     def __init__(self, case_id: UUID, ensemble_name: str):
@@ -82,7 +82,7 @@ class InplaceVolumes(LoadedStandardResults[T]):
         )
 
 
-class FieldOutline(LoadedStandardResults[T]):
+class FieldOutlineLoader(StandardResultsLoader[T]):
     """Class representing a set of Field Outline standard results in fmu-dataio."""
 
     def __init__(self, case_id: UUID, ensemble_name: str) -> None:
@@ -90,12 +90,12 @@ class FieldOutline(LoadedStandardResults[T]):
 
 
 @experimental
-def load_inplace_volumes(case_id: UUID, ensemble_name: str) -> InplaceVolumes:
+def load_inplace_volumes(case_id: UUID, ensemble_name: str) -> InplaceVolumesLoader:
     """Simplified interface to load inplace volumes standard results from Sumo."""
-    return InplaceVolumes(case_id, ensemble_name)
+    return InplaceVolumesLoader(case_id, ensemble_name)
 
 
 @experimental
-def load_field_outlines(case_id: UUID, ensemble_name: str) -> FieldOutline:
+def load_field_outlines(case_id: UUID, ensemble_name: str) -> FieldOutlineLoader:
     """Simplified interface to load field outline standard results from Sumo."""
-    return FieldOutline(case_id, ensemble_name)
+    return FieldOutlineLoader(case_id, ensemble_name)
