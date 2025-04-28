@@ -36,6 +36,7 @@ dependencies = [
     "PyYAML",
     "xtgeo>=2.16",
     "fmu-sumo",
+    "jsonschema",
 ]
 
 [project.urls]
