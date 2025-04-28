@@ -328,6 +328,28 @@ def test_points_export_file_set_name_xtgeoheaders(
     dataio.ExportData.points_fformat = "csv"
 
 
+def test_points_export_file_as_parquet_no_table_index(
+    fmurun_w_casemetadata, rmsglobalconfig, points
+):
+    """Export the points to file without table index."""
+
+    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    os.chdir(fmurun_w_casemetadata)
+
+    edata = dataio.ExportData(
+        config=rmsglobalconfig, content="depth", name="TopVolantis"
+    )
+
+    edata.points_fformat = "parquet"  # override
+    output = Path(edata.export(points))
+
+    meta = dataio.read_metadata(output)
+    assert meta["data"]["format"] == "parquet"
+    assert "table_index" not in meta["data"]
+
+    edata.points_fformat = "csv"  # reset
+
+
 def test_points_export_file_as_irap_ascii(
     fmurun_w_casemetadata, rmsglobalconfig, points
 ):

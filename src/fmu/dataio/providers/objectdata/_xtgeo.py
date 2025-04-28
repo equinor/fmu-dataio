@@ -301,10 +301,13 @@ class PointsDataProvider(ObjectDataProvider):
         if self.fmt == FileFormat.irap_ascii:
             return None
 
-        return _derive_index(
-            table_index=self.dataio.table_index,
-            table_columns=list(self.obj_dataframe.columns),
-            content=self.dataio._get_content_enum(),
+        return (
+            _derive_index(
+                table_index=self.dataio.table_index,
+                table_columns=list(self.obj_dataframe.columns),
+                content=self.dataio._get_content_enum(),
+            )
+            or None
         )
 
     @property
