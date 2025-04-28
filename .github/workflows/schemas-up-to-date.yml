@@ -2,7 +2,7 @@ name: Schema up to date
 
 on:
   pull_request:
-    branches: [main, staging]
+    branches: [main, staging, "version-*"]
   schedule:
     - cron: "0 0 * * *"
 
