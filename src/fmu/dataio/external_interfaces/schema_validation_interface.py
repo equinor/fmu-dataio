@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 import jsonschema
-import requests  # type: ignore
+import requests
 
 
 class SchemaValidationInterface:
