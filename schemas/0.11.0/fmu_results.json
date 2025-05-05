@@ -28,6 +28,7 @@
     "fmu.context.stage",
     "fmu.ensemble.name",
     "fmu.ensemble.uuid",
+    "fmu.ert.experiment.id",
     "fmu.iteration.name",
     "fmu.iteration.uuid",
     "fmu.model",

@@ -50,11 +50,10 @@ class FmuResultsSchema(SchemaBase):
     VERSION_CHANGELOG: str = """
     #### 0.11.0
 
+    - `fmu.ert.experiment.id` is added as contractual field
     - improved validation of grid numbering
     - improved validation of grid increments
     - `fmu.ert.simulation_mode` no longer supports `iterative_ensemble_smoother`
-
-
 
     #### 0.10.0
 
@@ -145,6 +144,7 @@ class FmuResultsSchema(SchemaBase):
         "fmu.context.stage",
         "fmu.ensemble.name",
         "fmu.ensemble.uuid",
+        "fmu.ert.experiment.id",
         "fmu.iteration.name",
         "fmu.iteration.uuid",
         "fmu.model",
