@@ -2,7 +2,7 @@ name: Test
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, "version-*"]
   schedule:
     - cron: "0 0 * * *"
 
@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.8"] #Only test with Python 3.8 for this branch
         os: [ubuntu-latest]
 
     steps:
