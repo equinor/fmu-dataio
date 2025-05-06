@@ -35,6 +35,8 @@ dependencies = [
     "pydantic",
     "PyYAML",
     "xtgeo>=2.16",
+    "fmu-sumo",
+    "jsonschema",
 ]
 
 [project.urls]
@@ -61,6 +63,7 @@ dev = [
     "rstcheck",
     "ruff",
     "types-PyYAML",
+    "types-requests",
 ]
 docs = [
     "Sphinx",
