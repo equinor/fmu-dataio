@@ -285,6 +285,33 @@ class TSurfData(BaseModel):
     def num_triangles(self: TSurfData) -> int:
         return len(self.triangles)
 
+    def bbox(self: TSurfData) -> dict[str, float]:
+        """
+        Return the bounding box of the triangulated surface.
+        The bounding box is defined by the minimum and maximum coordinates
+        in the x, y and z directions.
+        """
+
+        xmin = ymin = zmin = float("inf")
+        xmax = ymax = zmax = float("-inf")
+        for vertex in self.vertices:
+            xcoord, ycoord, zcoord = vertex
+            xmin = min(xcoord, xmin)
+            ymin = min(ycoord, ymin)
+            zmin = min(zcoord, zmin)
+            xmax = max(xcoord, xmax)
+            ymax = max(ycoord, ymax)
+            zmax = max(zcoord, zmax)
+
+        return {
+            "xmin": xmin,
+            "xmax": xmax,
+            "ymin": ymin,
+            "ymax": ymax,
+            "zmin": zmin,
+            "zmax": zmax,
+        }
+
 
 def read_tsurf_file(filepath: Path) -> TSurfData:
     """

@@ -125,6 +125,14 @@ def test_tsurf_class_methods(tsurf: reader.TSurfData, rootpath: Path) -> None:
 
     assert tsurf.num_vertices() == 4
     assert tsurf.num_triangles() == 2
+    assert tsurf.bbox() == {
+        "xmin": 0.1,
+        "xmax": 3.1,
+        "ymin": 0.2,
+        "ymax": 3.2,
+        "zmin": 0.3,
+        "zmax": 3.3,
+    }
 
 
 def test_tsurf_reader_comments_emptylines(
