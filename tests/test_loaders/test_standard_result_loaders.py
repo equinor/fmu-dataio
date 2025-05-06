@@ -31,7 +31,8 @@ def test_inplace_volumes_list_realizations():
 
 def test_inplace_volumes_get_realization():
     columns = ["FLUID", "ZONE", "REGION", "GIIP"]
-    data_frame = pd.DataFrame(columns=columns)
+    mocked_data_frame = pd.DataFrame(columns=columns)
+    mocked_realization_dict = {"test_volume": mocked_data_frame}
 
     with (
         patch(
@@ -40,7 +41,7 @@ def test_inplace_volumes_get_realization():
         ) as class_init_mock,
         patch(
             "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_realization",
-            return_value=[data_frame],
+            return_value=mocked_realization_dict,
         ) as get_realizations_mock,
     ):
         inplace_volumes = load_standard_results.load_inplace_volumes(
@@ -48,21 +49,26 @@ def test_inplace_volumes_get_realization():
         )
         assert class_init_mock.assert_called_once
 
-        data_frames = inplace_volumes.get_realization(0)
+        realization_dict = inplace_volumes.get_realization(0)
         assert get_realizations_mock.assert_called_once
+        assert len(realization_dict) == len(mocked_realization_dict)
 
-        actual_data_frame = data_frames[0]
+        data_frame_name = list(realization_dict.keys())[0]
+        assert data_frame_name == "test_volume"
 
-        pd.testing.assert_frame_equal(actual_data_frame, data_frame)
+        data_frame = realization_dict[data_frame_name]
+        pd.testing.assert_frame_equal(
+            data_frame, mocked_realization_dict["test_volume"]
+        )
 
-        assert actual_data_frame.FLUID.name
-        assert actual_data_frame.ZONE.name
-        assert actual_data_frame.REGION.name
-        assert actual_data_frame.GIIP.name
+        assert data_frame.FLUID.name
+        assert data_frame.ZONE.name
+        assert data_frame.REGION.name
+        assert data_frame.GIIP.name
         with pytest.raises(
             AttributeError, match="'DataFrame' object has no attribute 'STOIIP'"
         ):
-            assert actual_data_frame.STOIIP
+            assert data_frame.STOIIP
 
 
 def test_inplace_volumes_save_realization(tmp_path):

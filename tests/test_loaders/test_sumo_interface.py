@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -88,7 +87,6 @@ def test_get_realization(sumo_test_case):
         sumo_interface = SumoExplorerInterface(
             "some_case_id", ensemble_name, "inplace_volumes"
         )
-        realization_data_frames = sumo_interface.get_realization(realization_id)
 
         expected_realization_inplace_volumes = sumo_test_case.filter(
             iteration=ensemble_name,
@@ -96,23 +94,25 @@ def test_get_realization(sumo_test_case):
             realization=realization_id,
         )
 
-        expected_first_data_frame = (
-            expected_realization_inplace_volumes[0].to_pandas().replace(np.nan, None)
-        )
-        expected_second_data_frame = (
-            expected_realization_inplace_volumes[1].to_pandas().replace(np.nan, None)
-        )
+        expected_first_data_frame = expected_realization_inplace_volumes[0].to_pandas()
+        expected_second_data_frame = expected_realization_inplace_volumes[1].to_pandas()
+
+        expected_first_name = expected_realization_inplace_volumes[0].name
+        expected_second_name = expected_realization_inplace_volumes[1].name
+
+        realization_data_frames = sumo_interface.get_realization(realization_id)
 
         pd.testing.assert_frame_equal(
-            expected_first_data_frame, realization_data_frames[0]
+            realization_data_frames[expected_first_name],
+            expected_first_data_frame,
         )
         pd.testing.assert_frame_equal(
-            expected_second_data_frame, realization_data_frames[1]
+            realization_data_frames[expected_second_name], expected_second_data_frame
         )
 
         with pytest.raises(AssertionError, match="DataFrame are different"):
             pd.testing.assert_frame_equal(
-                expected_first_data_frame, realization_data_frames[1]
+                expected_first_data_frame, realization_data_frames[expected_second_name]
             )
 
 
