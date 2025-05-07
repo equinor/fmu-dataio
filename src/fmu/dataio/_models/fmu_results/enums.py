@@ -111,6 +111,7 @@ class Layout(str, Enum):
     table = "table"
     dictionary = "dictionary"
     faultroom_triangulated = "faultroom_triangulated"
+    triangulated_surface = "triangulated_surface"
 
 
 class FMUContext(str, Enum):
