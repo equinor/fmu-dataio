@@ -9,6 +9,7 @@ class StandardResultName(str, Enum):
     field_outline = "field_outline"
     inplace_volumes = "inplace_volumes"
     structure_depth_surface = "structure_depth_surface"
+    structure_time_surface = "structure_time_surface"
     structure_depth_isochore = "structure_depth_isochore"
     structure_depth_fault_lines = "structure_depth_fault_lines"
 
