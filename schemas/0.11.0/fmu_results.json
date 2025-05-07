@@ -221,6 +221,9 @@
           "$ref": "#/$defs/StructureDepthSurfaceStandardResult"
         },
         {
+          "$ref": "#/$defs/StructureTimeSurfaceStandardResult"
+        },
+        {
           "$ref": "#/$defs/StructureDepthIsochoreStandardResult"
         },
         {
@@ -617,7 +620,7 @@
           "type": "number"
         },
         "xinc": {
-          "exclusiveMinimum": 0,
+          "exclusiveMinimum": 0.0,
           "title": "Xinc",
           "type": "number"
         },
@@ -629,7 +632,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "yinc": {
-          "exclusiveMinimum": 0,
+          "exclusiveMinimum": 0.0,
           "title": "Yinc",
           "type": "number"
         },
@@ -641,7 +644,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "zinc": {
-          "exclusiveMinimum": 0,
+          "exclusiveMinimum": 0.0,
           "title": "Zinc",
           "type": "number"
         },
@@ -8227,6 +8230,32 @@
       "title": "StructureDepthSurfaceStandardResult",
       "type": "object"
     },
+    "StructureTimeSurfaceStandardResult": {
+      "description": "The ``standard_result`` field contains information about which standard results this\ndata object represent.\nThis class contains metadata for the 'structure_time_surface' standard result.",
+      "properties": {
+        "file_schema": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FileSchema"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "name": {
+          "const": "structure_time_surface",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "StructureTimeSurfaceStandardResult",
+      "type": "object"
+    },
     "SubcropData": {
       "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for subcrops.",
       "properties": {
@@ -8546,7 +8575,7 @@
           "type": "number"
         },
         "xinc": {
-          "exclusiveMinimum": 0,
+          "exclusiveMinimum": 0.0,
           "title": "Xinc",
           "type": "number"
         },
@@ -8558,7 +8587,7 @@
           "$ref": "#/$defs/AxisOrientation"
         },
         "yinc": {
-          "exclusiveMinimum": 0,
+          "exclusiveMinimum": 0.0,
           "title": "Yinc",
           "type": "number"
         },
