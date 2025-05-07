@@ -61,7 +61,6 @@ class CaseMetadataExport(CaseMetadata, populate_by_name=True):
 
 def _get_meta_filedata(
     dataio: ExportData,
-    obj: types.Inferrable,
     objdata: ObjectDataProvider,
     fmudata: FmuProvider | None,
 ) -> fields.File:
@@ -70,7 +69,6 @@ def _get_meta_filedata(
         dataio=dataio,
         objdata=objdata,
         runpath=fmudata.get_runpath() if fmudata else None,
-        obj=obj,
     ).get_metadata()
 
 
@@ -147,7 +145,7 @@ def generate_export_metadata(
         ),
         access=_get_meta_access(dataio),
         data=objdata.get_metadata(),
-        file=_get_meta_filedata(dataio, obj, objdata, fmudata),
+        file=_get_meta_filedata(dataio, objdata, fmudata),
         tracklog=fields.Tracklog.initialize(),
         display=_get_meta_display(dataio, objdata),
         preprocessed=dataio.preprocessed,

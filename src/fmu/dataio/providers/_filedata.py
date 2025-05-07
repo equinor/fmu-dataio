@@ -22,7 +22,7 @@ from ._base import Provider
 logger: Final = null_logger(__name__)
 
 if TYPE_CHECKING:
-    from fmu.dataio import ExportData, types
+    from fmu.dataio import ExportData
 
     from .objectdata._provider import ObjectDataProvider
 
@@ -47,7 +47,6 @@ class FileDataProvider(Provider):
     # input
     dataio: ExportData
     objdata: ObjectDataProvider
-    obj: types.Inferrable
     runpath: Path | None = None
 
     @property
