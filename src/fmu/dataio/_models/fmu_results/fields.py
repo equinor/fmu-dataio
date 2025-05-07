@@ -17,7 +17,6 @@ from pydantic import (
     BaseModel,
     Field,
     GetJsonSchemaHandler,
-    NaiveDatetime,
     RootModel,
     model_validator,
 )
@@ -493,13 +492,7 @@ class TracklogEvent(BaseModel):
     This data object describes a tracklog event.
     """
 
-    # TODO: Update ex. to inc. timezone
-    # update NaiveDatetime ->  AwareDatetime
-    # On upload, sumo adds timezone if its lacking.
-    # For roundtripping i need an Union here.
-    datetime: NaiveDatetime | AwareDatetime = Field(
-        examples=["2020-10-28T14:28:02"],
-    )
+    datetime: AwareDatetime = Field(examples=["2020-10-28T14:28:024286Z"])
     """A datetime representation recording when the event occurred."""
 
     event: enums.TrackLogEventType

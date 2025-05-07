@@ -4,11 +4,11 @@ $schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.10.0/fmu_resul
 version: "0.10.0"
 source: fmu
 tracklog:
-  - datetime: 2020-10-28T14:28:02
+  - datetime: 2020-10-28T14:28:02.346007Z
     user:
       id: user
     event: created
-  - datetime: 2020-10-28T14:46:14
+  - datetime: 2020-10-28T14:46:14.346007Z
     user: 
       id: user
     event: updated
