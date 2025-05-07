@@ -49,6 +49,7 @@ file:
   absolute_path: /some/absolute/path/
   checksum_md5: 370519102b2362716cdf5b8b67e44ed0
   relative_path: example_exports/share/results/polygons/volantis_gp_base--polygons_field_region.csv
+  runpath_relative_path: share/results/polygons/volantis_gp_base--polygons_field_region.csv
 fmu:
   case:
     name: MyCase
@@ -97,7 +98,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-05-06T20:30:24.698799Z'
+- datetime: '2025-05-07T18:03:33.300702Z'
   event: created
   sysinfo:
     fmu-dataio:
