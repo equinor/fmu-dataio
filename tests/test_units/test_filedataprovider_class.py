@@ -253,3 +253,56 @@ def test_filedata_has_nonascii_letters(regsurf, tmp_path, globalconfig2):
     fdata = FileDataProvider(edataobj1, objdata)
     with pytest.raises(ValueError, match="Path has non-ascii elements"):
         fdata.get_metadata()
+
+
+def test_filedata_provider_identifier_realization_context(
+    fmurun_w_casemetadata, globalconfig2, monkeypatch, regsurf
+):
+    """
+    Testing the paths set in the filedata provider with a realization context.
+    Here the runpath_relative_path and the relative_path should not be equal.
+    """
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    cfg = ExportData(config=globalconfig2, name="myname", content="depth")
+    objdata = objectdata_provider_factory(regsurf, cfg)
+
+    # need to provide the runpath (normally set by the fmu provider)
+    fdata = FileDataProvider(cfg, objdata, runpath=fmurun_w_casemetadata)
+    filemeta = fdata.get_metadata()
+
+    share_location = Path("share/results/maps/myname.gri")
+
+    assert filemeta.runpath_relative_path == share_location
+    assert filemeta.relative_path == Path("realization-0/iter-0") / share_location
+    assert filemeta.absolute_path == fmurun_w_casemetadata / share_location
+
+
+def test_filedata_provider_identifier_case_context(
+    fmurun_w_casemetadata, globalconfig2, regsurf
+):
+    """
+    Testing the paths set in the filedata provider with a case context.
+    Here the runpath_relative_path should be None.
+    """
+
+    casepath = fmurun_w_casemetadata.parent.parent
+
+    cfg = ExportData(
+        config=globalconfig2,
+        name="myname",
+        content="depth",
+        casepath=casepath,
+        fmu_context="case",
+    )
+    objdata = objectdata_provider_factory(regsurf, cfg)
+
+    # runpath set to None to simulate the case context
+    fdata = FileDataProvider(cfg, objdata, runpath=None)
+    filemeta = fdata.get_metadata()
+
+    share_location = Path("share/results/maps/myname.gri")
+
+    assert filemeta.runpath_relative_path is None
+    assert filemeta.relative_path == share_location
+    assert filemeta.absolute_path == casepath / share_location
