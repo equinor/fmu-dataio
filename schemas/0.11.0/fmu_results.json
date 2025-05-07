@@ -9649,7 +9649,7 @@
           "examples": [
             "2020-10-28T14:28:02"
           ],
-          "format": "date-time",
+          "format": "iso-date-time",
           "title": "Value",
           "type": "string"
         }
