@@ -7,7 +7,7 @@ from typing import Literal, get_args, get_origin
 import pytest
 from pydantic import ValidationError
 
-from fmu.dataio._models import FmuResults
+from fmu.dataio._models import FmuResults, FmuResultsSchema
 from fmu.dataio._models.fmu_results import data, enums
 
 from ..utils import _get_pydantic_models_from_annotation, _metadata_examples
@@ -540,3 +540,13 @@ def test_fmu_iteration_set_from_fmu_ensemble(metadata_examples):
     assert hasattr(model.root.fmu, "iteration")
     assert model.root.fmu.iteration == model.root.fmu.ensemble
     assert model.root.fmu.iteration.name == "pytest"
+
+
+def test_isodatetime_format_for_time():
+    """Test that the format for timestamps is set to iso-date-time
+    instead of datetime that pydantic resolves it to."""
+
+    schema = FmuResultsSchema.dump()
+    timestamp_value = schema["$defs"]["Timestamp"]["properties"]["value"]
+
+    assert timestamp_value["format"] == "iso-date-time"
