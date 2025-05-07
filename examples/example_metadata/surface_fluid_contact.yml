@@ -98,12 +98,10 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-05-07T18:03:40.081814Z'
+- datetime: '2025-05-08T16:24:54.381892Z'
   event: created
   sysinfo:
     fmu-dataio:
-      version: dummy_version
-    komodo:
       version: dummy_version
     operating_system:
       hostname: dummy_hostname
