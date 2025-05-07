@@ -32,7 +32,13 @@ class Timestamp(BaseModel):
     )
     """A string label corresponding to the timestamp."""
 
-    value: NaiveDatetime | AwareDatetime = Field(examples=["2020-10-28T14:28:02"])
+    # pydantic sets the format of the below field to "datetime".
+    # But "datetime" requires timezones and will fail in ajv validation.
+    # Workaround is to use the "iso-date-time" format instead.
+    value: NaiveDatetime | AwareDatetime = Field(
+        examples=["2020-10-28T14:28:02"],
+        json_schema_extra={"format": "iso-date-time"},
+    )
     """A datetime representation."""
 
 
