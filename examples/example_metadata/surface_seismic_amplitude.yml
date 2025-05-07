@@ -67,6 +67,7 @@ file:
   absolute_path: /some/absolute/path/
   checksum_md5: ab0fb42049138871749c6c367d2d094f
   relative_path: example_exports/share/results/maps/surface_seismic_amplitude--20201028_20201028.gri
+  runpath_relative_path: share/results/maps/surface_seismic_amplitude--20201028_20201028.gri
 fmu:
   case:
     name: MyCase
@@ -115,7 +116,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-05-06T20:30:31.030166Z'
+- datetime: '2025-05-07T18:03:40.142761Z'
   event: created
   sysinfo:
     fmu-dataio:

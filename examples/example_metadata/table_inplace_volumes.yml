@@ -54,6 +54,7 @@ file:
   absolute_path: /some/absolute/path/
   checksum_md5: 0cb778f91e6074c471b4bbce1f919165
   relative_path: example_exports/share/results/tables/geogrid--volumes.csv
+  runpath_relative_path: share/results/tables/geogrid--volumes.csv
 fmu:
   case:
     name: MyCase
@@ -102,7 +103,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-05-06T20:30:34.677956Z'
+- datetime: '2025-05-07T18:03:44.195246Z'
   event: created
   sysinfo:
     fmu-dataio:

@@ -94,9 +94,20 @@ class File(BaseModel):
     """The absolute path of a file, e.g. /scratch/field/user/case/etc."""
 
     relative_path: Path = Field(
-        examples=["share/results/maps/volantis_gp_base--depth.gri"],
+        examples=[
+            "realization-0/iter-0/share/results/maps/volantis_gp_base--depth.gri"
+        ],
     )
     """The path of a file relative to the case root."""
+
+    runpath_relative_path: Path | None = Field(
+        default=None,
+        examples=["share/results/maps/volantis_gp_base--depth.gri"],
+    )
+    """
+    The path of a file relative to the runpath root of the realization.
+    For files exported with the fmu.context ``case`` the field will be None.
+    """
 
     checksum_md5: MD5HashStr = Field(examples=["fa4d055b113ae5282796e328cde0ffa4"])
     """A valid MD5 checksum of the file."""

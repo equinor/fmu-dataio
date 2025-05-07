@@ -69,21 +69,23 @@ class FileDataProvider(Provider):
         return geom.name if geom else self.dataio.parent
 
     def get_metadata(self) -> fields.File:
-        rootpath = (
+        exportroot = (
             self.runpath
             if self.runpath and self.dataio.fmu_context == enums.FMUContext.realization
             else self.dataio._rootpath
         )
-        share_folders = self._get_share_folders()
-        export_folder = rootpath / share_folders
 
-        absolute_path = self._add_filename_to_path(export_folder)
+        share_folders = self._get_share_folders()
+        share_path = share_folders / self._get_filename()
+
+        absolute_path = exportroot / share_path
         relative_path = absolute_path.relative_to(self.dataio._rootpath)
 
         logger.info("Returning metadata pydantic model fields.File")
         return fields.File(
             absolute_path=absolute_path.resolve(),
             relative_path=relative_path,
+            runpath_relative_path=share_path if exportroot == self.runpath else None,
             checksum_md5=compute_md5_from_objdata(self.objdata),
         )
 
@@ -103,9 +105,9 @@ class FileDataProvider(Provider):
         logger.info("Export share folders are %s", sharefolder)
         return sharefolder
 
-    def _add_filename_to_path(self, path: Path) -> Path:
+    def _get_filename(self) -> Path:
         stem = self._get_filestem()
-        return (path / stem).with_suffix(path.suffix + self.objdata.extension)
+        return Path(stem).with_suffix(self.objdata.extension)
 
     def _get_filestem(self) -> str:
         """

@@ -1452,3 +1452,46 @@ def test_export_with_standard_result_invalid_config(mock_volumes):
                 name=StandardResultName.inplace_volumes
             ),
         )
+
+
+def test_file_paths_realization_context(
+    fmurun_w_casemetadata, globalconfig2, monkeypatch, regsurf
+):
+    """
+    Testing the file paths set in the metadata with a realization context.
+    Here the file.runpath_relative_path and the file.relative_path should not be equal.
+    """
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    meta = ExportData(
+        config=globalconfig2, name="myname", content="depth"
+    ).generate_metadata(regsurf)
+
+    share_location = "share/results/maps/myname.gri"
+
+    assert meta["file"]["runpath_relative_path"] == share_location
+    assert meta["file"]["relative_path"] == "realization-0/iter-0/" + share_location
+    assert meta["file"]["absolute_path"] == str(fmurun_w_casemetadata / share_location)
+
+
+def test_file_paths_case_context(fmurun_w_casemetadata, globalconfig2, regsurf):
+    """
+    Testing the paths set in the filedata provider with a case context.
+    Here the file.runpath_relative_path should not be present.
+    """
+
+    casepath = fmurun_w_casemetadata.parent.parent
+
+    meta = ExportData(
+        config=globalconfig2,
+        name="myname",
+        content="depth",
+        casepath=casepath,
+        fmu_context="case",
+    ).generate_metadata(regsurf)
+
+    share_location = "share/results/maps/myname.gri"
+
+    assert "runpath_relative_path" not in meta["file"]
+    assert meta["file"]["relative_path"] == share_location
+    assert meta["file"]["absolute_path"] == str(casepath / share_location)
