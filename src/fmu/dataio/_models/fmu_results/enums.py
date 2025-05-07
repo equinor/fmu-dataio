@@ -169,3 +169,4 @@ class FileFormat(str, Enum):
     roff = "roff"
     segy = "segy"
     openvds = "openvds"
+    tsurf = "tsurf"

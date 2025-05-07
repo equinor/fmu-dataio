@@ -55,6 +55,7 @@ class FmuResultsSchema(SchemaBase):
     - improved validation of grid numbering
     - improved validation of grid increments
     - `fmu.ert.simulation_mode` no longer supports `iterative_ensemble_smoother`
+    - added `TSurf` to list of supported file formats
 
     #### 0.10.0
 
