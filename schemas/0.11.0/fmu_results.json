@@ -3334,10 +3334,25 @@
         },
         "relative_path": {
           "examples": [
-            "share/results/maps/volantis_gp_base--depth.gri"
+            "realization-0/iter-0/share/results/maps/volantis_gp_base--depth.gri"
           ],
           "title": "Relative Path",
           "type": "string"
+        },
+        "runpath_relative_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "examples": [
+            "share/results/maps/volantis_gp_base--depth.gri"
+          ],
+          "title": "Runpath Relative Path"
         },
         "size_bytes": {
           "anyOf": [
