@@ -3385,7 +3385,8 @@
         "irap_binary",
         "roff",
         "segy",
-        "openvds"
+        "openvds",
+        "tsurf"
       ],
       "title": "FileFormat",
       "type": "string"
