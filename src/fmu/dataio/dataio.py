@@ -833,7 +833,6 @@ class ExportData:
         filemeta = FileDataProvider(
             dataio=self,
             objdata=objdata,
-            obj=obj,
             runpath=fmudata.get_runpath() if fmudata else None,
         ).get_metadata()
 
