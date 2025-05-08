@@ -14,8 +14,24 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12"]
         os: [ubuntu-latest]
-
+    permissions:
+      contents: read
+      id-token: write
     steps:
+      - name: Azure Login
+        uses: Azure/login@v2
+        with:
+          client-id: f96c150d-cacf-4257-9cc9-54b2c68ec4ce
+          tenant-id: 3aa4a235-b6e2-48d5-9195-7fcf05b459b0
+          subscription-id: 87897772-fb27-495f-ae40-486a2df57baa
+      - name: Run tests
+        run: |
+          az --version
+          az account list
+          access_token=$(az account get-access-token --scope api://88d2b022-3539-4dda-9e66-853801334a86/.default --query accessToken --output tsv)
+          echo $access_token
+          exit 1
+      
       - uses: actions/checkout@v4
 
       - name: Set up Python
@@ -27,12 +43,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install libegl1
-
       - name: Install fmu-dataio
         run: |
           pip install pip -U
           pip install -e .[dev]
-
        # fmu-sumo-uploader blocked by OpenVDS on Python 3.12
       - name: Install fmu-sumo-uploader for Python 3.11
         if: matrix.python-version == '3.11'
@@ -42,17 +56,15 @@ jobs:
 
       - name: Full test
         run: |
-
           # Reinstall pydantic to force latest version
           pip install -U pydantic
-
           if [[ "${{ github.event.pull_request.base.ref }}" == "staging" ]]; then
             pytest -n auto -v --cov --cov-report term-missing --prod
           else
             pytest -n auto -v --cov --cov-report term-missing
           fi
-
   docker_build:
+    needs: run_tests
     name: Build Docker image
     runs-on: [ubuntu-latest]
     steps:
