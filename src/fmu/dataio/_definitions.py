@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Final
 
 from pydantic import BaseModel, model_validator
@@ -11,7 +11,13 @@ from fmu.dataio._models.fmu_results.enums import Content
 from fmu.dataio.export._enums import InplaceVolumes
 
 
-class FileExtension(str, Enum):
+class ShareFolder(StrEnum):
+    PREPROCESSED = "share/preprocessed/"
+    OBSERVATIONS = "share/observations/"
+    RESULTS = "share/results/"
+
+
+class FileExtension(StrEnum):
     gri = ".gri"
     roff = ".roff"
     segy = ".segy"
@@ -22,7 +28,7 @@ class FileExtension(str, Enum):
     json = ".json"
 
 
-class ExportFolder(str, Enum):
+class ExportFolder(StrEnum):
     cubes = "cubes"
     dictionaries = "dictionaries"
     grids = "grids"

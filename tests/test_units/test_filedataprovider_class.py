@@ -8,9 +8,9 @@ from pathlib import Path
 import pytest
 
 from fmu.dataio import ExportData
-from fmu.dataio._definitions import ExportFolder
+from fmu.dataio._definitions import ExportFolder, ShareFolder
 from fmu.dataio._models.fmu_results import fields
-from fmu.dataio.providers._filedata import FileDataProvider
+from fmu.dataio.providers._filedata import FileDataProvider, SharePathConstructor
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 
 
@@ -112,9 +112,7 @@ def test_get_filestem(
     edataobj1.parent = parentname
     edataobj1.name = ""
 
-    fdata = FileDataProvider(edataobj1, objdata)
-
-    stem = fdata._get_filestem()
+    stem = SharePathConstructor(edataobj1, objdata)._get_filestem()
     assert stem == expected
 
 
@@ -160,10 +158,8 @@ def test_get_filestem_shall_fail(
     edataobj1.parent = parentname
     edataobj1.name = ""
 
-    fdata = FileDataProvider(edataobj1, objdata)
-
     with pytest.raises(ValueError) as msg:
-        _ = fdata._get_filestem()
+        _ = objdata.share_path
         assert message in str(msg)
 
 
@@ -176,7 +172,7 @@ def test_get_share_folders(regsurf, globalconfig2):
     objdata.name = "some"
 
     fdata = FileDataProvider(edataobj1, objdata)
-    share_folders = fdata._get_share_folders()
+    share_folders = objdata.share_path.parent
     assert isinstance(share_folders, Path)
     assert share_folders == Path(f"share/results/{ExportFolder.maps.value}")
     # check that the path present in the metadata matches the share folders
@@ -197,9 +193,9 @@ def test_get_share_folders_with_subfolder(regsurf, globalconfig2):
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
 
+    assert objdata.share_path.parent == Path("share/results/maps/sub")
+
     fdata = FileDataProvider(edataobj1, objdata)
-    share_folders = fdata._get_share_folders()
-    assert share_folders == Path("share/results/maps/sub")
 
     # check that the path present in the metadata matches the share folders
     fmeta = fdata.get_metadata()
@@ -229,15 +225,16 @@ def test_filedata_provider(regsurf, tmp_path, globalconfig2):
     objdata.time0 = datetime.strptime(t1, "%Y%m%d")
     objdata.time1 = datetime.strptime(t2, "%Y%m%d")
 
+    expected_path = Path(f"share/results/efolder/parent--name--tag--{t2}_{t1}.gri")
+
+    assert objdata.share_path == expected_path
+
     fdata = FileDataProvider(cfg, objdata)
     filemeta = fdata.get_metadata()
 
     assert isinstance(filemeta, fields.File)
-    assert (
-        str(filemeta.relative_path)
-        == f"share/results/efolder/parent--name--tag--{t2}_{t1}.gri"
-    )
-    absdata = tmp_path / f"share/results/efolder/parent--name--tag--{t2}_{t1}.gri"
+    assert filemeta.relative_path == expected_path
+    absdata = tmp_path / expected_path
     assert filemeta.absolute_path == absdata
 
 
@@ -255,54 +252,133 @@ def test_filedata_has_nonascii_letters(regsurf, tmp_path, globalconfig2):
         fdata.get_metadata()
 
 
-def test_filedata_provider_identifier_realization_context(
-    fmurun_w_casemetadata, globalconfig2, monkeypatch, regsurf
-):
-    """
-    Testing the paths set in the filedata provider with a realization context.
-    Here the runpath_relative_path and the relative_path should not be equal.
-    """
-    monkeypatch.chdir(fmurun_w_casemetadata)
+def test_sharepath_get_share_root(regsurf, globalconfig2):
+    """Test that the share root folder is correctly set."""
 
-    cfg = ExportData(config=globalconfig2, name="myname", content="depth")
-    objdata = objectdata_provider_factory(regsurf, cfg)
-
-    # need to provide the runpath (normally set by the fmu provider)
-    fdata = FileDataProvider(cfg, objdata, runpath=fmurun_w_casemetadata)
-    filemeta = fdata.get_metadata()
-
-    share_location = Path("share/results/maps/myname.gri")
-
-    assert filemeta.runpath_relative_path == share_location
-    assert filemeta.relative_path == Path("realization-0/iter-0") / share_location
-    assert filemeta.absolute_path == fmurun_w_casemetadata / share_location
-
-
-def test_filedata_provider_identifier_case_context(
-    fmurun_w_casemetadata, globalconfig2, regsurf
-):
-    """
-    Testing the paths set in the filedata provider with a case context.
-    Here the runpath_relative_path should be None.
-    """
-
-    casepath = fmurun_w_casemetadata.parent.parent
-
-    cfg = ExportData(
+    # share/results
+    edataobj1 = ExportData(
         config=globalconfig2,
-        name="myname",
         content="depth",
-        casepath=casepath,
-        fmu_context="case",
+        preprocessed=False,
+        is_observation=False,
     )
-    objdata = objectdata_provider_factory(regsurf, cfg)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    assert SharePathConstructor(edataobj1, objdata)._get_share_root() == Path(
+        ShareFolder.RESULTS.value
+    )
 
-    # runpath set to None to simulate the case context
-    fdata = FileDataProvider(cfg, objdata, runpath=None)
-    filemeta = fdata.get_metadata()
+    # share/preprosessed
+    edataobj1 = ExportData(
+        config=globalconfig2,
+        content="depth",
+        preprocessed=True,
+        is_observation=False,
+    )
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    assert SharePathConstructor(edataobj1, objdata)._get_share_root() == Path(
+        ShareFolder.PREPROCESSED.value
+    )
 
-    share_location = Path("share/results/maps/myname.gri")
+    # share/observations
+    edataobj1 = ExportData(
+        config=globalconfig2,
+        content="depth",
+        preprocessed=False,
+        is_observation=True,
+    )
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    assert SharePathConstructor(edataobj1, objdata)._get_share_root() == Path(
+        ShareFolder.OBSERVATIONS.value
+    )
 
-    assert filemeta.runpath_relative_path is None
-    assert filemeta.relative_path == share_location
-    assert filemeta.absolute_path == casepath / share_location
+    # preprosessed should win over is_observation
+    edataobj1 = ExportData(
+        config=globalconfig2,
+        content="depth",
+        preprocessed=True,
+        is_observation=True,
+    )
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    assert SharePathConstructor(edataobj1, objdata)._get_share_root() == Path(
+        ShareFolder.PREPROCESSED.value
+    )
+
+
+def test_sharepath_with_date(globalconfig2, regsurf):
+    """Test that the share root folder is correctly set here using one date."""
+
+    edataobj1 = ExportData(
+        config=globalconfig2,
+        name="test",
+        tagname="mytag",
+        timedata=[20250512],
+        content="depth",
+    )
+
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    share_path = SharePathConstructor(edataobj1, objdata)
+
+    expected_filename = Path("test--mytag--20250512.gri")
+    expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
+
+    assert share_path.get_share_path() == expected_path
+    assert objdata.share_path == expected_path
+
+
+def test_sharepath_with_two_dates(globalconfig2, regsurf):
+    """Test that the share root folder is correctly set here using two dates."""
+
+    edataobj1 = ExportData(
+        config=globalconfig2,
+        name="test",
+        tagname="mytag",
+        timedata=[20250512, 20250511],
+        content="depth",
+    )
+
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    share_path = SharePathConstructor(edataobj1, objdata)
+
+    expected_filename = Path("test--mytag--20250512_20250511.gri")
+    expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
+
+    assert share_path.get_share_path() == expected_path
+    assert objdata.share_path == expected_path
+
+
+def test_sharepath_with_parent(globalconfig2, regsurf):
+    """Test that the share root folder is correctly set here
+    using tagname and parent."""
+
+    edataobj1 = ExportData(
+        config=globalconfig2,
+        name="test",
+        tagname="mytag",
+        parent="myparent",
+        content="depth",
+    )
+
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    share_path = SharePathConstructor(edataobj1, objdata)
+
+    expected_filename = Path("myparent--test--mytag.gri")
+    expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
+
+    assert share_path.get_share_path() == expected_path
+    assert objdata.share_path == expected_path
+
+
+def test_sharepath_name_from_objprovider(globalconfig2, regsurf):
+    """Test that the share root folder is correctly set using the
+    name from the objdataprovider if not provided."""
+
+    edataobj1 = ExportData(config=globalconfig2, content="depth")
+
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    share_path = SharePathConstructor(edataobj1, objdata)
+
+    expected_filename = Path(f"{objdata.name}.gri")
+    expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
+
+    assert share_path.get_share_path() == expected_path
+    assert objdata.share_path == expected_path
