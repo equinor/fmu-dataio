@@ -194,6 +194,27 @@ def test_table_index_real_summary(edataobj3, drogon_summary):
     assert objdata.table_index == ["DATE"], "Incorrect table index "
 
 
+def test_table_index_rft_from_standard(globalconfig2):
+    """Test setting of table_index in rft file from standard table_index"""
+
+    mock_rft_table = pd.DataFrame(
+        {
+            "DATE": ["B", "A", "C"],
+            "WELL": ["L3", "L2", "L1"],
+            "PRESSURE": [1, 2, 3],
+        }
+    )
+    exd = ExportData(config=globalconfig2, content="rft", name="myname")
+
+    meta = exd.generate_metadata(mock_rft_table)
+    assert set(meta["data"]["table_index"]) == {"DATE", "WELL"}
+
+    # now drop the WELL column will give FutureWarning
+    with pytest.warns(FutureWarning, match="standard"):
+        meta = exd.generate_metadata(mock_rft_table.drop(columns="WELL"))
+    assert set(meta["data"]["table_index"]) == {"DATE"}
+
+
 def test_table_wellpicks(wellpicks, globalconfig1):
     """Test export of wellpicks"""
 
@@ -347,4 +368,4 @@ def test_table_index_in_metadata_legacy_fallback(globalconfig2):
             name="myname",
         ).generate_metadata(mock_table)
 
-    assert set(meta["data"]["table_index"]) == {"DATE", "well", "SATNUM"}
+    assert set(meta["data"]["table_index"]) == {"DATE", "SATNUM"}
