@@ -51,8 +51,8 @@ STANDARD_TABLE_INDEX_COLUMNS: Final[dict[Content, StandardTableIndex]] = {
         required=InplaceVolumes.required_index_columns(),
     ),
     Content.rft: StandardTableIndex(
-        columns=["measured_depth", "well", "time"],
-        required=["measured_depth", "well", "time"],
+        columns=["WELL", "DATE"],
+        required=["WELL", "DATE"],
     ),
     Content.timeseries: StandardTableIndex(
         columns=["DATE"],
