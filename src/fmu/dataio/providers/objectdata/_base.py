@@ -18,6 +18,7 @@ from fmu.dataio._models.fmu_results.global_configuration import (
 )
 from fmu.dataio._utils import generate_description, md5sum
 from fmu.dataio.providers._base import Provider
+from fmu.dataio.providers._filedata import SharePathConstructor
 from fmu.dataio.providers.objectdata._export_models import (
     UnsetData,
     content_metadata_factory,
@@ -161,6 +162,10 @@ class ObjectDataProvider(Provider):
     @abstractmethod
     def get_spec(self) -> AnySpecification | None:
         raise NotImplementedError
+
+    @property
+    def share_path(self) -> Path:
+        return SharePathConstructor(self.dataio, self).get_share_path()
 
     def compute_md5(self) -> str:
         """Compute an MD5 sum"""

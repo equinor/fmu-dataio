@@ -102,7 +102,7 @@ class ExportPreprocessedData:
             raise RuntimeError(
                 f"Exporting files located outside the '{ShareFolder.PREPROCESSED}' "
                 "folder is not supported. Please re-export your objects to disk "
-                "using ExportData(fmu_context='preprocessed')"
+                "using ExportData(preprocessed=True)"
             )
         return objfile
 

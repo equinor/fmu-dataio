@@ -8,11 +8,10 @@ from __future__ import annotations
 
 import re
 import warnings
-from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
+from fmu.dataio._definitions import ShareFolder
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results import enums, fields
 from fmu.dataio._utils import compute_md5_from_objdata
@@ -27,34 +26,41 @@ if TYPE_CHECKING:
     from .objectdata._provider import ObjectDataProvider
 
 
-class ShareFolder(str, Enum):
-    PREPROCESSED = "share/preprocessed/"
-    OBSERVATIONS = "share/observations/"
-    RESULTS = "share/results/"
+class SharePathConstructor:
+    """Class for providing the export share location for an object"""
 
+    def __init__(self, dataio: ExportData, objdata: ObjectDataProvider):
+        self.dataio = dataio
+        self.objdata = objdata
 
-@dataclass
-class FileDataProvider(Provider):
-    """Class for providing metadata for the 'files' block in fmu-dataio.
+        self.name = self.dataio.name or self.objdata.name
+        self.parent = self._get_parent()
 
-    Example::
+    def get_share_path(self) -> Path:
+        """Get the full share location including the filename."""
+        return self._get_share_folders() / self._get_filename()
 
-        file:
-            relative_path: ... (relative to case)
-            absolute_path: ...
-    """
+    def _get_share_root(self) -> Path:
+        """Get the main share root location as a path e.g. share/results."""
+        if self.dataio.preprocessed:
+            return Path(ShareFolder.PREPROCESSED.value)
+        if self.dataio.is_observation:
+            return Path(ShareFolder.OBSERVATIONS.value)
+        return Path(ShareFolder.RESULTS.value)
 
-    # input
-    dataio: ExportData
-    objdata: ObjectDataProvider
-    runpath: Path | None = None
+    def _get_share_folders(self) -> Path:
+        """Get the full share folders as a path."""
+        share_root = self._get_share_root()
+        if self.dataio.subfolder:
+            return share_root / self.objdata.efolder / self.dataio.subfolder
+        return share_root / self.objdata.efolder
 
-    @property
-    def name(self) -> str:
-        return self.dataio.name or self.objdata.name
+    def _get_filename(self) -> Path:
+        """Get the filename for the file."""
+        stem = self._get_filestem()
+        return Path(stem).with_suffix(self.objdata.extension)
 
-    @property
-    def parent(self) -> str:
+    def _get_parent(self) -> str:
         """Action when both parent key and geometry key are given (GridProperty)."""
         geom = self.objdata.get_geometry()
 
@@ -68,47 +74,6 @@ class FileDataProvider(Provider):
 
         return geom.name if geom else self.dataio.parent
 
-    def get_metadata(self) -> fields.File:
-        exportroot = (
-            self.runpath
-            if self.runpath and self.dataio.fmu_context == enums.FMUContext.realization
-            else self.dataio._rootpath
-        )
-
-        share_folders = self._get_share_folders()
-        share_path = share_folders / self._get_filename()
-
-        absolute_path = exportroot / share_path
-        relative_path = absolute_path.relative_to(self.dataio._rootpath)
-
-        logger.info("Returning metadata pydantic model fields.File")
-        return fields.File(
-            absolute_path=absolute_path.resolve(),
-            relative_path=relative_path,
-            runpath_relative_path=share_path if exportroot == self.runpath else None,
-            checksum_md5=compute_md5_from_objdata(self.objdata),
-        )
-
-    def _get_share_folders(self) -> Path:
-        """Get the export share folders."""
-        if self.dataio.preprocessed:
-            sharefolder = Path(ShareFolder.PREPROCESSED.value)
-        elif self.dataio.is_observation:
-            sharefolder = Path(ShareFolder.OBSERVATIONS.value)
-        else:
-            sharefolder = Path(ShareFolder.RESULTS.value)
-
-        sharefolder = sharefolder / self.objdata.efolder
-        if self.dataio.subfolder:
-            sharefolder = sharefolder / self.dataio.subfolder
-
-        logger.info("Export share folders are %s", sharefolder)
-        return sharefolder
-
-    def _get_filename(self) -> Path:
-        stem = self._get_filestem()
-        return Path(stem).with_suffix(self.objdata.extension)
-
     def _get_filestem(self) -> str:
         """
         Construct the filestem string as a combinaton of various
@@ -117,7 +82,6 @@ class FileDataProvider(Provider):
         filestem containing all components will look like this:
         filestem = 'parent--name--tagname--time1_time0'
         """
-
         if not self.name:
             raise ValueError("The 'name' entry is missing for constructing a file name")
         if not self.objdata.time0 and self.objdata.time1:
@@ -159,3 +123,41 @@ class FileDataProvider(Provider):
             .replace("å", "aa")
         )
         return re.sub(r"__+", "_", filestem)
+
+
+class FileDataProvider(Provider):
+    """Class for providing metadata for the 'files' block in fmu-dataio.
+
+    Example::
+
+        file:
+            relative_path: ... (relative to case)
+            absolute_path: ...
+    """
+
+    def __init__(
+        self,
+        dataio: ExportData,
+        objdata: ObjectDataProvider,
+        runpath: Path | None = None,
+    ):
+        self.objdata = objdata
+        self.dataio = dataio
+        self.runpath = (
+            runpath if dataio.fmu_context == enums.FMUContext.realization else None
+        )
+
+    def get_metadata(self) -> fields.File:
+        exportroot = self.runpath or self.dataio._rootpath
+        share_path = self.objdata.share_path
+
+        absolute_path = exportroot / share_path
+        relative_path = absolute_path.relative_to(self.dataio._rootpath)
+
+        logger.info("Returning metadata pydantic model fields.File")
+        return fields.File(
+            absolute_path=absolute_path.resolve(),
+            relative_path=relative_path,
+            runpath_relative_path=(share_path if self.runpath else None),
+            checksum_md5=compute_md5_from_objdata(self.objdata),
+        )
