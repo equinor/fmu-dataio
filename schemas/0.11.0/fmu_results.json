@@ -221,6 +221,9 @@
           "$ref": "#/$defs/StructureDepthSurfaceStandardResult"
         },
         {
+          "$ref": "#/$defs/StructureTimeSurfaceStandardResult"
+        },
+        {
           "$ref": "#/$defs/StructureDepthIsochoreStandardResult"
         },
         {
@@ -8241,6 +8244,32 @@
         "name"
       ],
       "title": "StructureDepthSurfaceStandardResult",
+      "type": "object"
+    },
+    "StructureTimeSurfaceStandardResult": {
+      "description": "The ``standard_result`` field contains information about which standard results this\ndata object represent.\nThis class contains metadata for the 'structure_time_surface' standard result.",
+      "properties": {
+        "file_schema": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FileSchema"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "name": {
+          "const": "structure_time_surface",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "StructureTimeSurfaceStandardResult",
       "type": "object"
     },
     "SubcropData": {
