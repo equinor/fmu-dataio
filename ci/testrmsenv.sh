@@ -39,6 +39,6 @@ install_test_dependencies () {
 run_pytest () {
     echo "Running fmu-dataio tests with pytest..."
     pushd $CI_TEST_ROOT
-    pytest ./tests -n 4 -vv -m "not skip_inside_rmsvenv" --ignore=tests/test_ert_integration
+    pytest ./tests -n 4 -vv -m "not skip_inside_rmsvenv" --ignore=tests/test_ert_integration --ignore=tests/test_loaders/test_sumo_interface.py
     popd
 }
