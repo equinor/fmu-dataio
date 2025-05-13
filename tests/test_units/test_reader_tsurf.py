@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from io import BytesIO
 from pathlib import Path
 
 import numpy as np
@@ -104,18 +105,38 @@ def test_tsurf_reader_and_writer(tsurf: reader.TSurfData, rootpath: Path) -> Non
     filepath.touch()
     with pytest.raises(
         ValueError,
-        match="File is empty",
+        match="Input is empty",
     ):
         reader.read_tsurf_file(filepath)
     filepath.unlink(missing_ok=True)
 
+    # ---------- Invalid input ----------
+    with pytest.raises(
+        TypeError,
+        match="The input must be a Path or a BytesIO object.",
+    ):
+        random_int = 42
+        reader.read_tsurf_file(random_int)
+
+    # ---------- File with valid content ----------
     reader.write_tsurf_to_file(tsurf, filepath)
     assert filepath.exists()
 
-    instance = reader.read_tsurf_file(filepath)
+    instance_from_file = reader.read_tsurf_file(filepath)
     filepath.unlink(missing_ok=True)
 
-    _validate_tsurf(instance)
+    _validate_tsurf(instance_from_file)
+
+    # ---------- Memory buffer with valid content ----------
+    buffer = BytesIO()
+    reader.write_tsurf_to_file(tsurf, buffer)
+    instance_from_buffer = reader.read_tsurf_file(buffer)
+    buffer.close()
+
+    _validate_tsurf(instance_from_buffer)
+
+    # ---------- Check of equality operator ----------
+    assert instance_from_file == instance_from_buffer
 
 
 def test_tsurf_class_methods(tsurf: reader.TSurfData, rootpath: Path) -> None:
@@ -182,9 +203,7 @@ def test_tsurf_reader_comments_emptylines(
     # Ensure the file parser handles the first lines correctly
     with pytest.raises(
         ValueError,
-        match=(
-            "The first line of the file indicates that this is not a valid TSurf file."
-        ),
+        match=("The first line indicates"),
     ):
         reader.read_tsurf_file(filepath)
 
