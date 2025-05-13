@@ -48,7 +48,7 @@ def test_initialize_inplace_volumes(sumo_test_case):
         assert sumo_interface._search_context.names == expected_search_context.names
 
 
-def test_get_realization_ids(sumo_test_case):
+def test_get_realization_ids(sumo_test_case, unregister_pandas_parquet):
     ensemble_name = "iter-0"
 
     with (
@@ -140,7 +140,7 @@ def test_get_blob(sumo_test_case):
         )
 
 
-def test_get_realization_with_metadata(sumo_test_case):
+def test_get_realization_with_metadata(sumo_test_case, unregister_pandas_parquet):
     ensemble_name = "iter-0"
     realization_id = 0
 
