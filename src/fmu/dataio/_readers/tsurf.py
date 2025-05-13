@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing
 import warnings
+from io import BytesIO
 from pathlib import Path
 from typing import Annotated, Any, ClassVar
 
@@ -313,9 +314,9 @@ class TSurfData(BaseModel):
         }
 
 
-def read_tsurf_file(filepath: Path) -> TSurfData:
+def read_tsurf_file(input: str | Path | BytesIO) -> TSurfData:
     """
-    Read a TSurf file and create a TSurfData instance.
+    Read a TSurf file stream and create a TSurfData instance.
     TSurf is a file format for triangulations used in for example
     the GOCAD software. RMS can export the surfaces in the structural model
     in the TSurf format.
@@ -325,34 +326,58 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
     The reader also warns about unknown keywords.
     """
 
-    if not filepath.exists():
-        raise FileNotFoundError(f"\nFile {filepath}:\nThe file does not exist.")
+    # Not clear if TSurf uses utf-8 encoding, but it is the safe default
+    encoding = "utf-8"
+    lines = []
 
-    if not filepath.is_file():
-        raise FileNotFoundError(f"\nFile {filepath}:\nThe file is not a regular file.")
+    if isinstance(input, str):
+        input = Path(input)
 
-    if not filepath.suffix == ".ts":
-        raise ValueError(
-            f"\nFile {filepath}:\n"
-            "The file is not a TSurf file. The file extension should be '.ts'."
+    if isinstance(input, Path):
+        if not input.exists():
+            raise FileNotFoundError(f"\nFile {input}:\nThe file does not exist.")
+
+        if not input.is_file():
+            raise FileNotFoundError(f"\nFile {input}:\nThe file is not a regular file.")
+
+        if not input.suffix == ".ts":
+            raise ValueError(
+                f"\nFile {input}:\n"
+                "The file is not a TSurf file. The file extension should be '.ts'."
+            )
+
+        with open(input, encoding=encoding) as stream:
+            # Read and process the file line by line (more memory efficient than
+            # loading entire file into memory at once)
+            for line in stream:
+                # remove leading/trailing whitespace and skip empty lines and comments
+                stripped_line = line.strip()
+                if stripped_line and not stripped_line.startswith("#"):
+                    lines.append(stripped_line)
+
+    elif isinstance(input, BytesIO):
+        input.seek(0)
+        with input as stream:
+            # The entire file is already in memory
+            for stream_line in stream:
+                # Decode bytes to string and strip whitespace
+                stripped_line = stream_line.decode(encoding=encoding).strip()
+                if stripped_line and not stripped_line.startswith("#"):
+                    lines.append(stripped_line)
+
+    else:
+        raise TypeError(
+            f"\nInput {input}:\nThe input must be a Path or a BytesIO object."
         )
 
-    with open(filepath) as file:
-        lines = [
-            # remove leading/trailing whitespace and skip empty lines and comments
-            line.strip()
-            for line in file
-            if line.strip() and not line.startswith("#")
-        ]
-
     if not lines:
-        raise ValueError(f"\nFile {filepath}:\nFile is empty.")
+        raise ValueError(f"\nInput {input}:\nInput is empty.")
 
     # Check the first line
     if lines[0] != "GOCAD TSurf 1":
         raise ValueError(
-            f"\n In file {filepath}:\n"
-            "The first line of the file indicates that this is not a valid TSurf file."
+            f"\n In input {input}:\n"
+            "The first line indicates that this is not a valid TSurf object."
             "The first line should be 'GOCAD TSurf 1'."
         )
 
@@ -382,13 +407,13 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
                 parsing_header = False
                 if header is None:
                     raise ValueError(
-                        f"\nIn file {filepath}:\n"
+                        f"\nIn file {input}:\n"
                         "The 'HEADER' section must exist and "
                         "is expected to have exactly one attribute: 'name'."
                     )
             else:
                 raise ValueError(
-                    f"\nIn file {filepath}:\n"
+                    f"\nIn file {input}:\n"
                     "The 'HEADER' section must exist and "
                     "is expected to have exactly one attribute: 'name'."
                 )
@@ -416,14 +441,14 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
                 parsing_coord_sys = False
                 if len(coord_sys) != 4:
                     raise ValueError(
-                        f"\nIn file {filepath}:\n"
+                        f"\nIn file {input}:\n"
                         "Invalid 'COORDINATE_SYSTEM' section, it is "
                         "expected to have exactly four attributes:\n"
                         "'NAME', 'AXIS_NAME', 'AXIS_UNIT' and 'ZPOSITIVE'"
                     )
             else:
                 raise ValueError(
-                    f"\nIn file {filepath}:\n"
+                    f"\nIn file {input}:\n"
                     "Invalid 'COORDINATE_SYSTEM' section, it is "
                     "expected to have exactly four attributes:\n"
                     "'NAME', 'AXIS_NAME', 'AXIS_UNIT' and 'ZPOSITIVE'"
@@ -445,7 +470,7 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
                 parsing_triangle_data = False
             else:
                 raise ValueError(
-                    f"\nIn file {filepath}:\n"
+                    f"\nIn file {input}:\n"
                     "Invalid line in 'TFACE' section with triangulated data,\n"
                     "it is expected that all lines start with 'VRTX' or 'TRGL'.\n"
                     f"Erroneous line: '{line}'",
@@ -458,7 +483,7 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
             # section ends. This may be difficult to handle.
 
             raise ValueError(
-                f"\nIn file {filepath}:\n"
+                f"\nIn file {input}:\n"
                 "The file contains an invalid line.\n"
                 "This may be either an error, or a valid TSurf keyword or attribute\n"
                 "that is not (yet) handled by the file parser.\n"
@@ -498,19 +523,20 @@ def read_tsurf_file(filepath: Path) -> TSurfData:
         complete_error_msg = (
             "\n-----------------------------\n"
             f" There is {len(e.errors())} error(s) in the TSurf file: \n"
-            f"'{filepath}' \n" + error_msg + "-----------------------------\n"
+            f"'{input}' \n" + error_msg + "-----------------------------\n"
         )
         raise ValueError(complete_error_msg) from e
 
     return tsurfdata
 
 
-def write_tsurf_to_file(data: TSurfData, filepath: str | Path) -> None:
+def write_tsurf_to_file(data: TSurfData, output: str | Path | BytesIO) -> None:
     """
-    Write a TSurfData object to file.
+    Write a TSurfData object to file stream.
     """
 
-    filepath = Path(filepath)
+    # Not clear if TSurf uses utf-8 encoding, but it is the safe default
+    encoding = "utf-8"
 
     lines = []
 
@@ -545,6 +571,11 @@ def write_tsurf_to_file(data: TSurfData, filepath: str | Path) -> None:
         lines.append(f"TRGL {triangle[0]} {triangle[1]} {triangle[2]}\n")
     lines.append("END\n")
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    with open(filepath, "w") as file:
-        file.writelines(lines)
+    if not isinstance(output, BytesIO):
+        output = Path(output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        with open(output, "w", encoding=encoding) as file:
+            file.writelines(lines)
+    else:
+        output.seek(0)
+        output.write("".join(lines).encode(encoding))
