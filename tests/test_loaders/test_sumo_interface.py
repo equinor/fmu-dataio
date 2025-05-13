@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 
 import pandas as pd
@@ -10,16 +11,12 @@ from fmu.sumo.explorer.objects import Case
 
 @pytest.fixture
 def sumo_test_case() -> Case:
-    # This should be replaced by test_data stored locally.
-    # Fetching directly from Sumo for now
+    sumo_access_token = os.environ.get("SUMO_ACCESS_TOKEN")
     test_case_id = "3ca4b782-c8e8-4f77-9a75-d6a576751123"
-    sumo = Explorer(env="dev")
-    return sumo.get_case_by_uuid(test_case_id)
+    sumo_explorer = Explorer(env="dev", token=sumo_access_token)
+    return sumo_explorer.get_case_by_uuid(test_case_id)
 
 
-@pytest.mark.skip(
-    reason="Authentication towards sumo not working from github workflow yet."
-)
 def test_initialize_inplace_volumes(sumo_test_case):
     ensemble_name = "iter-0"
 
@@ -51,10 +48,7 @@ def test_initialize_inplace_volumes(sumo_test_case):
         assert sumo_interface._search_context.names == expected_search_context.names
 
 
-@pytest.mark.skip(
-    reason="Authentication towards sumo not working from github workflow yet."
-)
-def test_get_realization_ids(sumo_test_case):
+def test_get_realization_ids(sumo_test_case, unregister_pandas_parquet):
     ensemble_name = "iter-0"
 
     with (
@@ -73,9 +67,6 @@ def test_get_realization_ids(sumo_test_case):
         assert realization_ids == expected_realization_ids
 
 
-@pytest.mark.skip(
-    reason="Authentication towards sumo not working from github workflow yet."
-)
 def test_get_realization(sumo_test_case):
     ensemble_name = "iter-0"
     realization_id = 0
@@ -88,53 +79,89 @@ def test_get_realization(sumo_test_case):
             "some_case_id", ensemble_name, "inplace_volumes"
         )
 
-        expected_realization_inplace_volumes = sumo_test_case.filter(
+        expected_data = sumo_test_case.filter(
             iteration=ensemble_name,
             standard_result="inplace_volumes",
             realization=realization_id,
         )
 
-        expected_first_data_frame = expected_realization_inplace_volumes[0].to_pandas()
-        expected_second_data_frame = expected_realization_inplace_volumes[1].to_pandas()
+        expected_first_data_frame = expected_data[0].to_pandas()
+        expected_second_data_frame = expected_data[1].to_pandas()
+        expected_first_name = expected_data[0].name
+        expected_second_name = expected_data[1].name
 
-        expected_first_name = expected_realization_inplace_volumes[0].name
-        expected_second_name = expected_realization_inplace_volumes[1].name
-
-        realization_data_frames = sumo_interface.get_realization(realization_id)
+        actual_data = sumo_interface.get_realization(realization_id)
 
         pd.testing.assert_frame_equal(
-            realization_data_frames[expected_first_name],
+            actual_data[expected_first_name],
             expected_first_data_frame,
         )
         pd.testing.assert_frame_equal(
-            realization_data_frames[expected_second_name], expected_second_data_frame
+            actual_data[expected_second_name], expected_second_data_frame
         )
 
         with pytest.raises(AssertionError, match="DataFrame are different"):
             pd.testing.assert_frame_equal(
-                expected_first_data_frame, realization_data_frames[expected_second_name]
+                expected_first_data_frame, actual_data[expected_second_name]
             )
 
 
-@pytest.mark.skip(
-    reason="Authentication towards sumo not working from github workflow yet."
-)
-def test_get_blob():
-    # TODO
-    assert True
+def test_get_blob(sumo_test_case):
+    ensemble_name = "iter-0"
+    realization_id = 0
+
+    with (
+        patch.object(Explorer, "__init__", return_value=None),
+        patch.object(Explorer, "get_case_by_uuid", return_value=sumo_test_case),
+    ):
+        sumo_interface = SumoExplorerInterface(
+            "some_case_id", ensemble_name, "inplace_volumes"
+        )
+
+        expected_data = sumo_test_case.filter(
+            iteration=ensemble_name,
+            standard_result="inplace_volumes",
+            realization=realization_id,
+        )
+        expected_first_blob = expected_data[0].blob
+        expected_second_blob = expected_data[1].blob
+        expected_first_name = expected_data[0].name
+        expected_second_name = expected_data[1].name
+
+        actual_data = sumo_interface.get_blob(realization_id)
+
+        assert (
+            actual_data[expected_first_name].getvalue()
+            == expected_first_blob.getvalue()
+        )
+        assert (
+            actual_data[expected_second_name].getvalue()
+            == expected_second_blob.getvalue()
+        )
 
 
-@pytest.mark.skip(
-    reason="Authentication towards sumo not working from github workflow yet."
-)
-def test_get_realization_with_metadata():
-    # TODO
-    assert True
+def test_get_realization_with_metadata(sumo_test_case, unregister_pandas_parquet):
+    ensemble_name = "iter-0"
+    realization_id = 0
 
+    with (
+        patch.object(Explorer, "__init__", return_value=None),
+        patch.object(Explorer, "get_case_by_uuid", return_value=sumo_test_case),
+    ):
+        sumo_interface = SumoExplorerInterface(
+            "some_case_id", ensemble_name, "inplace_volumes"
+        )
 
-@pytest.mark.skip(
-    reason="Authentication towards sumo not working from github workflow yet."
-)
-def test_get_depth_surface():
-    # TODO
-    assert True
+        expected_data = sumo_test_case.filter(
+            iteration=ensemble_name,
+            standard_result="inplace_volumes",
+            realization=realization_id,
+        )
+
+        expected_first_metadata = expected_data[0].metadata
+        expected_second_metadata = expected_data[1].metadata
+
+        actual_data = sumo_interface.get_realization_with_metadata(realization_id)
+
+        assert actual_data[0][1] == expected_first_metadata
+        assert actual_data[1][1] == expected_second_metadata

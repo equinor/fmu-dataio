@@ -118,6 +118,7 @@ def test_convert_table_from_legacy_to_standard_format(
     voltable_legacy,
     rmssetup_with_fmuconfig,
     monkeypatch,
+    unregister_pandas_parquet,
 ):
     """Test that a voltable with legacy format is converted to
     the expected standard format"""
@@ -142,10 +143,6 @@ def test_convert_table_from_legacy_to_standard_format(
 
     # check that the exported table is equal to the expected
     out = instance._export_data_as_standard_result()
-    # Note that using `read_parquet()` more than once in the same pytest module causes
-    # errors due to an issue in pandas registering a type extension globally on every
-    # invocation. This is probably a pandas bug.
-    # https://github.com/apache/arrow/issues/41857
     exported_table = pd.read_parquet(out.items[0].absolute_path)
 
     pd.testing.assert_frame_equal(voltable_standard, exported_table)
