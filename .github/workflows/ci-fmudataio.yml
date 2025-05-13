@@ -3,6 +3,8 @@ name: Test
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
   schedule:
     - cron: "0 0 * * *"
 
@@ -43,6 +45,7 @@ jobs:
             "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
 
       - name: Azure Login
+        if: ${{ github.ref == 'refs/heads/main' }}      
         uses: Azure/login@v2
         with:
           client-id: ${{ secrets.SUMO_TEST_CLIENT_ID }}
@@ -50,6 +53,7 @@ jobs:
           subscription-id: ${{ secrets.SUMO_TEST_SUBSCRIPTION_ID }}
 
       - name: Get Sumo Explorer access token from Azure
+        if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           az --version
           az account list
@@ -63,9 +67,13 @@ jobs:
           pip install -U pydantic
 
           if [[ "${{ github.event.pull_request.base.ref }}" == "staging" ]]; then
-            pytest -n auto -v --cov --cov-report term-missing --prod
+            pytest -n auto -v --cov --cov-report term-missing --prod --ignore=tests/test_loaders/test_sumo_interface.py
           else
-            pytest -n auto -v --cov --cov-report term-missing
+            if [[ -v SUMO_ACCESS_TOKEN ]]; then
+              pytest -n auto -v --cov --cov-report term-missing
+            else
+              pytest -n auto -v --cov --cov-report term-missing --ignore=tests/test_loaders/test_sumo_interface.py
+            fi
           fi
 
   docker_build:
