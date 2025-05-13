@@ -6,6 +6,7 @@ import logging
 import os
 import shutil
 import sys
+from collections.abc import Generator
 from copy import deepcopy
 from pathlib import Path
 
@@ -870,3 +871,32 @@ def fixture_drogon_volumes(rootpath):
 def pydantic_models_from_root():
     """Return all nested pydantic models from FmuResults and downwards"""
     return _get_nested_pydantic_models(FmuResults)
+
+
+@pytest.fixture
+def unregister_pandas_parquet() -> Generator[None, None, None]:
+    """Unregisters pandas extensions in pyarrow.
+
+    Use this fixture if you get errors like:
+
+    pyarrow.lib.ArrowKeyError: A type extension with name pandas.period already defined
+
+    Using `read_parquet()` or `to_parquet` more than once in the same pytest module
+    causes errors due to an issue in pandas registering a type extension globally on
+    every invocation. This cannot be patched because it's done on the C side.
+    This is probably a pandas bug. https://github.com/apache/arrow/issues/41857"""
+
+    # This condition may not be needed, or may not be sufficient
+    if sys.modules.get("pandas"):
+        try:
+            import pyarrow
+
+            try:
+                pyarrow.unregister_extension_type("pandas.interval")
+                pyarrow.unregister_extension_type("pandas.period")
+            except pyarrow.lib.ArrowKeyError:
+                # They might already be unregistered
+                pass
+            yield
+        except ImportError:
+            pass

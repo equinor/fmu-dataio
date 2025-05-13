@@ -14,7 +14,9 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12"]
         os: [ubuntu-latest]
-
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -39,6 +41,20 @@ jobs:
         run:
           pip install \
             "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
+
+      - name: Azure Login
+        uses: Azure/login@v2
+        with:
+          client-id: ${{ secrets.SUMO_TEST_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.SUMO_TEST_SUBSCRIPTION_ID }}
+
+      - name: Get Sumo Explorer access token from Azure
+        run: |
+          az --version
+          az account list
+          access_token=$(az account get-access-token --scope api://88d2b022-3539-4dda-9e66-853801334a86/.default --query accessToken --output tsv)
+          echo "SUMO_ACCESS_TOKEN=$access_token" >> "$GITHUB_ENV"
 
       - name: Full test
         run: |
