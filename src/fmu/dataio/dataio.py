@@ -36,7 +36,10 @@ from .exceptions import ValidationError
 from .preprocessed import ExportPreprocessedData
 from .providers._filedata import FileDataProvider
 from .providers._fmu import FmuProvider, get_fmu_context_from_environment
-from .providers.objectdata._provider import objectdata_provider_factory
+from .providers.objectdata._provider import (
+    ObjectDataProvider,
+    objectdata_provider_factory,
+)
 
 if TYPE_CHECKING:
     from . import types
@@ -850,12 +853,8 @@ class ExportData:
                 "When exporting standard_results it is required to have a valid config."
             )
 
-        fmudata = self._get_fmu_provider() if self._fmurun else None
-        objdata = objectdata_provider_factory(obj, self)
-
-        metadata = generate_export_metadata(
-            obj=obj, dataio=self, fmudata=fmudata, standard_result=standard_result
-        ).model_dump(mode="json", exclude_none=True, by_alias=True)
+        objdata = objectdata_provider_factory(obj, self, standard_result)
+        metadata = self._generate_export_metadata(objdata)
 
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / f".{outfile.name}.yml"
@@ -865,6 +864,17 @@ class ExportData:
 
         export_metadata_file(metafile, metadata)
         return str(outfile)
+
+    def _generate_export_metadata(self, objdata: ObjectDataProvider) -> dict[str, Any]:
+        """Generate metadata for the provided ObjectDataProvider"""
+
+        fmudata = self._get_fmu_provider() if self._fmurun else None
+
+        return generate_export_metadata(
+            objdata=objdata,
+            dataio=self,
+            fmudata=fmudata,
+        ).model_dump(mode="json", exclude_none=True, by_alias=True)
 
     # ==================================================================================
     # Public methods:
@@ -923,13 +933,8 @@ class ExportData:
                 is_observation=self.is_observation,
             ).generate_metadata(obj)
 
-        fmudata = self._get_fmu_provider() if self._fmurun else None
-
-        return generate_export_metadata(
-            obj=obj,
-            dataio=self,
-            fmudata=fmudata,
-        ).model_dump(mode="json", exclude_none=True, by_alias=True)
+        objdata = objectdata_provider_factory(obj, self)
+        return self._generate_export_metadata(objdata)
 
     def export(
         self,
@@ -969,18 +974,19 @@ class ExportData:
             ).export(obj)
 
         logger.info("Object type is: %s", type(obj))
+        self._update_check_settings(kwargs)
 
         # should only export object if config is not valid
         if not isinstance(self.config, GlobalConfiguration):
             warnings.warn("Data will be exported, but without metadata.", UserWarning)
-            self._update_check_settings(kwargs)
             return self._export_without_metadata(obj)
 
-        metadata = self.generate_metadata(obj, **kwargs)
+        objdata = objectdata_provider_factory(obj, self)
+        metadata = self._generate_export_metadata(objdata)
+
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / f".{outfile.name}.yml"
 
-        objdata = objectdata_provider_factory(obj, self)
         export_object_to_file(outfile, objdata.export_to_file)
         logger.info("Actual file is:   %s", outfile)
 

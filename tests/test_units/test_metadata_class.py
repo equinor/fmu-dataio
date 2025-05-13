@@ -50,7 +50,8 @@ def test_metadata_dollars(edataobj1, regsurf):
 
 
 def test_generate_meta_tracklog_fmu_dataio_version(regsurf, edataobj1):
-    mymeta = generate_export_metadata(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    mymeta = generate_export_metadata(objdata, edataobj1)
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog.root, list)
@@ -75,7 +76,8 @@ def test_generate_meta_tracklog_komodo_version(
     fake_komodo_release = "<FAKE_KOMODO_RELEASE_VERSION>"
     monkeypatch.setenv("KOMODO_RELEASE", fake_komodo_release)
 
-    mymeta = generate_export_metadata(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    mymeta = generate_export_metadata(objdata, edataobj1)
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog.root, list)
@@ -102,7 +104,8 @@ def test_generate_meta_tracklog_backup_komodo_version(
     monkeypatch.delenv("KOMODO_RELEASE", raising=False)
     monkeypatch.setenv("KOMODO_RELEASE_BACKUP", komodo_release)
 
-    metadata = generate_export_metadata(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    metadata = generate_export_metadata(objdata, edataobj1)
     tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
     assert tracklog.sysinfo.komodo.version == komodo_release
 
@@ -122,13 +125,15 @@ def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
     monkeypatch.setenv("KOMODO_RELEASE", komodo_release)
     monkeypatch.setenv("KOMODO_RELEASE_BACKUP", backup_komodo_release)
 
-    metadata = generate_export_metadata(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    metadata = generate_export_metadata(objdata, edataobj1)
     tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
     assert tracklog.sysinfo.komodo.version == komodo_release
 
 
 def test_generate_meta_tracklog_operating_system(edataobj1, regsurf):
-    mymeta = generate_export_metadata(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    mymeta = generate_export_metadata(objdata, edataobj1)
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog.root, list)
@@ -147,8 +152,8 @@ def test_generate_meta_tracklog_operating_system(edataobj1, regsurf):
 
 
 def test_populate_meta_objectdata(regsurf, edataobj2):
-    mymeta = generate_export_metadata(regsurf, edataobj2)
     objdata = objectdata_provider_factory(regsurf, edataobj2)
+    mymeta = generate_export_metadata(objdata, edataobj2)
 
     assert objdata.name == "VOLANTIS GP. Top"
     assert mymeta.display.name == objdata.name
@@ -167,7 +172,8 @@ def test_bbox_zmin_zmax_presence(polygons, edataobj2):
     of the bbox types (2D/3D) inside the pydantic model. If 2D is first zmin/zmax
     will be ignored even if present.
     """
-    mymeta = generate_export_metadata(polygons, edataobj2)
+    objdata = objectdata_provider_factory(polygons, edataobj2)
+    mymeta = generate_export_metadata(objdata, edataobj2)
 
     # polygons shall have data.spec
     assert mymeta.data.root.bbox.zmin
@@ -219,17 +225,19 @@ def test_metadata_populate_masterdata_is_empty(globalconfig1, regsurf):
 
     assert not some.config
 
-    mymeta = generate_export_metadata(regsurf, some)
+    objdata = objectdata_provider_factory(regsurf, some)
+    mymeta = generate_export_metadata(objdata, some)
     assert "masterdata" not in mymeta
 
 
 def test_metadata_populate_masterdata_is_present_ok(edataobj1, edataobj2, regsurf):
     """Testing the masterdata part with OK metdata."""
-
-    mymeta = generate_export_metadata(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    mymeta = generate_export_metadata(objdata, edataobj1)
     assert mymeta.masterdata == edataobj1.config.masterdata
 
-    mymeta = generate_export_metadata(regsurf, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, edataobj2)
+    mymeta = generate_export_metadata(objdata, edataobj2)
     assert mymeta.masterdata == edataobj2.config.masterdata
 
 
@@ -247,7 +255,8 @@ def test_metadata_populate_access_miss_cfg_access(globalconfig1, regsurf):
         edata = dio.ExportData(config=cfg1_edited, content="depth")
     assert not edata.config
 
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     # check that the default "internal" is used
     assert mymeta.access.classification == "internal"
 
@@ -255,7 +264,8 @@ def test_metadata_populate_access_miss_cfg_access(globalconfig1, regsurf):
 def test_metadata_populate_access_ok_config(edataobj2, regsurf):
     """Testing the access part, now with config ok access."""
 
-    mymeta = generate_export_metadata(regsurf, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, edataobj2)
+    mymeta = generate_export_metadata(objdata, edataobj2)
     assert mymeta.access.model_dump(mode="json", exclude_none=True) == {
         "asset": {"name": "Drogon"},
         "ssdl": {"access_level": "internal", "rep_include": True},
@@ -275,7 +285,8 @@ def test_metadata_populate_from_argument(globalconfig1, regsurf):
         rep_include=True,
         content="depth",
     )
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
 
     assert mymeta.access.model_dump(mode="json", exclude_none=True) == {
         "asset": {"name": "Test"},
@@ -294,7 +305,8 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1, regsurf):
     # rep_include only, but in config
     edata = dio.ExportData(config=globalconfig1, rep_include=True, content="depth")
 
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access.ssdl.rep_include is True
     assert mymeta.access.ssdl.access_level == "internal"  # default
     assert mymeta.access.classification == "internal"  # default
@@ -305,7 +317,8 @@ def test_metadata_populate_partial_access_ssdl(globalconfig1, regsurf):
         classification="restricted",
         content="depth",
     )
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access.ssdl.rep_include is False  # default
     assert mymeta.access.ssdl.access_level == "restricted"
     assert mymeta.access.classification == "restricted"
@@ -324,7 +337,8 @@ def test_metadata_populate_wrong_config(globalconfig1, regsurf):
     assert not edata.config
 
     # use default 'internal' if wrong in config
-    meta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    meta = generate_export_metadata(objdata, edata)
     assert meta.access.classification == "internal"
 
 
@@ -348,7 +362,8 @@ def test_metadata_access_correct_input(globalconfig1, regsurf):
         classification="restricted",
         rep_include=False,
     )
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access.ssdl.rep_include is False
     assert mymeta.access.ssdl.access_level == "restricted"
     assert mymeta.access.classification == "restricted"
@@ -360,7 +375,8 @@ def test_metadata_access_correct_input(globalconfig1, regsurf):
         classification="internal",
         rep_include=True,
     )
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access.ssdl.rep_include is True
     assert mymeta.access.ssdl.access_level == "internal"
     assert mymeta.access.classification == "internal"
@@ -381,7 +397,8 @@ def test_metadata_access_deprecated_input(globalconfig1, regsurf):
         )
     assert edata.config
 
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access.ssdl.access_level == "restricted"
     assert mymeta.access.classification == "restricted"
 
@@ -419,7 +436,8 @@ def test_metadata_access_no_input(globalconfig1, regsurf):
     # rep_include from config is deprecated
     with pytest.warns(FutureWarning, match="Use the 'rep_include' argument"):
         edata = dio.ExportData(config=configcopy, content="depth")
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access.ssdl.rep_include is True
     assert mymeta.access.ssdl.access_level == "restricted"
     assert mymeta.access.classification == "restricted"  # mirrored
@@ -428,7 +446,8 @@ def test_metadata_access_no_input(globalconfig1, regsurf):
     configcopy = deepcopy(globalconfig1)
     del configcopy["access"]["classification"]
     edata = dio.ExportData(config=globalconfig1, content="depth")
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access.ssdl.rep_include is False  # default
     assert mymeta.access.ssdl.access_level == "internal"  # default
     assert mymeta.access.classification == "internal"  # mirrored
@@ -441,19 +460,22 @@ def test_metadata_rep_include_deprecation(globalconfig1, regsurf):
     configcopy["access"]["ssdl"] = {"rep_include": True}
     with pytest.warns(FutureWarning, match="'rep_include' argument"):
         edata = dio.ExportData(config=configcopy, content="depth")
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access.ssdl.rep_include is True
 
     configcopy["access"]["ssdl"] = {"rep_include": False}
     with pytest.warns(FutureWarning, match="'rep_include' argument"):
         edata = dio.ExportData(config=configcopy, content="depth")
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access.ssdl.rep_include is False
 
     # check that default value is used if not present
     del configcopy["access"]["ssdl"]["rep_include"]
     edata = dio.ExportData(config=globalconfig1, content="depth")
-    mymeta = generate_export_metadata(regsurf, edata)
+    objdata = objectdata_provider_factory(regsurf, edata)
+    mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access.ssdl.rep_include is False  # default
 
 
@@ -465,8 +487,8 @@ def test_metadata_rep_include_deprecation(globalconfig1, regsurf):
 def test_metadata_display_name_not_given(regsurf, edataobj2):
     """Test that display.name == data.name when not explicitly provided."""
 
-    mymeta = generate_export_metadata(regsurf, edataobj2)
     objdata = objectdata_provider_factory(regsurf, edataobj2)
+    mymeta = generate_export_metadata(objdata, edataobj2)
 
     assert mymeta.display.name == objdata.name
 
@@ -476,8 +498,8 @@ def test_metadata_display_name_given(regsurf, edataobj2):
 
     edataobj2.display_name = "My Display Name"
 
-    mymeta = generate_export_metadata(regsurf, edataobj2)
     objdata = objectdata_provider_factory(regsurf, edataobj2)
+    mymeta = generate_export_metadata(objdata, edataobj2)
 
     assert mymeta.display.name == "My Display Name"
     assert objdata.name == "VOLANTIS GP. Top"
@@ -491,10 +513,8 @@ def test_metadata_display_name_given(regsurf, edataobj2):
 def test_generate_full_metadata(regsurf, edataobj2):
     """Generating the full metadata block for a xtgeo surface."""
 
-    metadata_result = generate_export_metadata(
-        regsurf,
-        edataobj2,
-    )
+    objdata = objectdata_provider_factory(regsurf, edataobj2)
+    metadata_result = generate_export_metadata(objdata, edataobj2)
 
     logger.debug("\n%s", prettyprint_dict(metadata_result))
 
