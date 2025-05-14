@@ -98,6 +98,7 @@ import xtgeo
 from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
+from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
@@ -105,6 +106,7 @@ from ._base import (
 )
 from ._faultroom import FaultRoomSurfaceProvider
 from ._tables import ArrowTableDataProvider, DataFrameDataProvider
+from ._triangulated_surface import TriangulatedSurfaceProvider
 from ._xtgeo import (
     CPGridDataProvider,
     CPGridPropertyDataProvider,
@@ -168,6 +170,10 @@ def objectdata_provider_factory(
         )
     if isinstance(obj, FaultRoomSurface):
         return FaultRoomSurfaceProvider(
+            obj=obj, dataio=dataio, standard_result=standard_result
+        )
+    if isinstance(obj, TSurfData):
+        return TriangulatedSurfaceProvider(
             obj=obj, dataio=dataio, standard_result=standard_result
         )
     if isinstance(obj, dict):
