@@ -50,6 +50,7 @@ class FmuResultsSchema(SchemaBase):
     VERSION_CHANGELOG: str = """
     #### 0.11.0
 
+    - `fmu.entity.uuid` added as optional field
     - `file.runpath_relative_path` added as optional field
     - `fmu.ert.experiment.id` is added as contractual field
     - improved validation of grid numbering
@@ -145,6 +146,7 @@ class FmuResultsSchema(SchemaBase):
         "fmu.aggregation.realization_ids",
         "fmu.case",
         "fmu.context.stage",
+        "fmu.entity.uuid",
         "fmu.ensemble.name",
         "fmu.ensemble.uuid",
         "fmu.ert.experiment.id",

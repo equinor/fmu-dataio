@@ -19,7 +19,7 @@ def base_ert_config() -> str:
         DEFINE <SUMO_ENV>       dev
         DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>
 
-        NUM_REALIZATIONS 5
+        NUM_REALIZATIONS 3
 
         QUEUE_SYSTEM LOCAL
         QUEUE_OPTION LOCAL MAX_RUNNING 5

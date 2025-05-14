@@ -33,6 +33,8 @@ def test_regsurf_aggregated(fmurun_w_casemetadata, aggr_surfs_mean):
     logger.debug("New metadata:\n%s", utils.prettyprint_dict(newmeta))
     assert newmeta["fmu"]["aggregation"]["id"] == aggregation_uuid
     assert newmeta["fmu"]["context"]["stage"] == "ensemble"
+    # the entity uuid of the aggregated object should match the input objects
+    assert newmeta["fmu"]["entity"]["uuid"] == metas[0]["fmu"]["entity"]["uuid"]
 
 
 def test_regsurf_aggregated_content_seismic(
