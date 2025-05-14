@@ -9,13 +9,7 @@ import os
 import warnings
 from dataclasses import dataclass, field, fields
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    ClassVar,
-    Final,
-    Literal,
-)
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
 from warnings import warn
 
 from fmu.dataio.aggregation import AggregatedData
@@ -811,32 +805,29 @@ class ExportData:
         )
         return self._pwd
 
-    def _get_fmu_provider(self) -> FmuProvider:
-        assert isinstance(self.fmu_context, enums.FMUContext)
-        return FmuProvider(
-            model=(
-                self.config.model
-                if isinstance(self.config, GlobalConfiguration)
-                else None
-            ),
-            fmu_context=self.fmu_context,
-            casepath_proposed=Path(self.casepath) if self.casepath else None,
-            workflow=self.workflow,
-        )
-
     def _export_without_metadata(self, obj: types.Inferrable) -> str:
         """
         Export the object without a metadata file. The absolute export path
         is found using the FileDataProvider directly.
         A string with full path to the exported item is returned.
         """
-        fmudata = self._get_fmu_provider() if self._fmurun else None
         objdata = objectdata_provider_factory(obj, self)
 
         filemeta = FileDataProvider(
             dataio=self,
             objdata=objdata,
-            runpath=fmudata.get_runpath() if fmudata else None,
+            runpath=(
+                (
+                    FmuProvider(
+                        fmu_context=enums.FMUContext(self.fmu_context),
+                        casepath_proposed=(
+                            Path(self.casepath) if self.casepath else None
+                        ),
+                    ).get_runpath()
+                )
+                if self._fmurun
+                else None
+            ),
         ).get_metadata()
 
         assert filemeta.absolute_path is not None  # for mypy
@@ -867,8 +858,21 @@ class ExportData:
 
     def _generate_export_metadata(self, objdata: ObjectDataProvider) -> dict[str, Any]:
         """Generate metadata for the provided ObjectDataProvider"""
-
-        fmudata = self._get_fmu_provider() if self._fmurun else None
+        fmudata = (
+            FmuProvider(
+                model=(
+                    self.config.model
+                    if isinstance(self.config, GlobalConfiguration)
+                    else None
+                ),
+                fmu_context=enums.FMUContext(self.fmu_context),
+                casepath_proposed=Path(self.casepath) if self.casepath else None,
+                workflow=self.workflow,
+                object_share_path=objdata.share_path,
+            )
+            if self._fmurun
+            else None
+        )
 
         return generate_export_metadata(
             objdata=objdata,
