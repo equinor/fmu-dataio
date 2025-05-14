@@ -10,16 +10,19 @@ from fmu.dataio._models.fmu_results.global_configuration import GlobalConfigurat
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export import _enums
 
-from ._conditional_rms_imports import import_rms_package
+try:
+    import rmsapi
+except ImportError as e:
+    raise ImportError(
+        "Module 'rmsapi' is not available. You have to be inside "
+        "RMS to use this function."
+    ) from e
 
 if TYPE_CHECKING:
     from packaging.version import Version
 
 
 logger: Final = null_logger(__name__)
-
-
-rmsapi, _ = import_rms_package()
 
 
 RMS_API_PROJECT_MAPPING = {
@@ -162,6 +165,58 @@ def get_polygons_in_folder(
     return polygons
 
 
+def get_general2d_folder(project: Any, folder_path: list[str]) -> rmsapi.Folder:
+    """
+    Get a General 2D Data folder from the project as an rmsapi.Folder.
+    If accessing a subfolder provide the full data path to it as a list
+    Example: ['main_folder', 'subfolder'].
+    """
+    try:
+        return project.general2d_data.folders[folder_path]
+    except KeyError as err:
+        raise ValueError(
+            f"The requested General 2D Data folder path {'/'.join(folder_path)} "
+            "does not exist."
+        ) from err
+
+
+def get_items_in_general2d_folder(
+    project: Any, folder_path: list[str]
+) -> rmsapi.Points | rmsapi.Polylines | rmsapi.Surface | rmsapi.Function:
+    """Get all items within a General 2D Data folder, folders are excluded"""
+    return get_general2d_folder(project, folder_path).values()
+
+
+def list_folder_names_in_general2d_folder(
+    project: Any, folder_path: list[str]
+) -> list[str]:
+    """List all subfolder names within a General 2D Data folder"""
+    folder = get_general2d_folder(project, folder_path)
+    return folder.folders.keys()
+
+
+def get_surfaces_in_general2d_folder(
+    project: Any, folder_path: list[str]
+) -> list[xtgeo.RegularSurface]:
+    """Get all surfaces from a General 2D Data folder"""
+    folder_items = get_items_in_general2d_folder(project, folder_path)
+
+    surfaces = []
+    for item in folder_items:
+        if isinstance(item, rmsapi.Surface) and not item.is_empty():
+            surfaces.append(
+                xtgeo.surface_from_roxar(
+                    project, item.name, "/".join(folder_path), stype="general2d_data"
+                )
+            )
+    if not surfaces:
+        raise RuntimeError(
+            "No surfaces detected in the provided General 2D data "
+            f"folder: '{'/'.join(folder_path)}' "
+        )
+    return surfaces
+
+
 def get_faultlines_in_folder(project: Any, horizon_folder: str) -> list[xtgeo.Polygons]:
     """
     Get all non-empty fault lines from a horizon folder stratigraphically ordered.
@@ -196,5 +251,4 @@ def validate_name_in_stratigraphy(name: str, config: GlobalConfiguration) -> Non
         raise ValidationError(
             f"The stratigraphic {name=} is not listed in the 'stratigraphy' "
             "block in the config. This is required, please add it and rerun."
-            ""
         )

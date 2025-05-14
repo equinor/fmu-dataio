@@ -153,11 +153,9 @@ def test_get_faultlines_in_folder(mock_project_variable, polygons):
     df["Name"] = "F1"
     fault_line.set_dataframe(df)
 
-    with (
-        mock.patch(
-            "fmu.dataio.export.rms._utils.get_polygons_in_folder",
-            return_value=[fault_line],
-        ),
+    with mock.patch(
+        "fmu.dataio.export.rms._utils.get_polygons_in_folder",
+        return_value=[fault_line],
     ):
         fault_lines = get_faultlines_in_folder(mock_project_variable, "DL_faultlines")
 
@@ -208,3 +206,76 @@ def test_get_open_polygons_id(polygons):
 
     open_polygons = get_open_polygons_id(polygons)
     assert open_polygons == [2]
+
+
+def test_get_surfaces_in_general2d_folder(mock_project_variable):
+    """Test that get_surfaces_in_general2d_folder only picks up non-empty surfaces"""
+
+    from fmu.dataio.export.rms._utils import get_surfaces_in_general2d_folder
+
+    folder = "MyFolder"
+    mock_folder = mock.MagicMock()
+
+    surf1 = mock.MagicMock()
+    surf1.is_empty.return_value = True
+    surf1.name = "msl"
+
+    surf2 = mock.MagicMock()
+    surf2.is_empty.return_value = False
+    surf2.name = "TopVolantis"
+
+    surf3 = mock.MagicMock()
+    surf3.is_empty.return_value = False
+    surf3.name = "TopTherys"
+
+    mock_folder.values.return_value = [surf1, surf2, surf3]
+
+    mock_project_variable.general2d_data.folders = {folder: mock_folder}
+
+    # Mock xtgeo.surface_from_roxar to return just the surface name
+    with mock.patch(
+        "xtgeo.surface_from_roxar",
+        side_effect=lambda _project, name, _category, stype: name,
+    ):
+        surfaces = get_surfaces_in_general2d_folder(mock_project_variable, folder)
+
+        # the empty 'msl' surface should not be included
+        assert surfaces == ["TopVolantis", "TopTherys"]
+
+
+def test_get_surfaces_in_general2d_folder_all_empty(mock_project_variable):
+    """Test that an error is raised if all surfaces are empty"""
+    from fmu.dataio.export.rms._utils import get_surfaces_in_general2d_folder
+
+    folder = ["MainFolder"]
+
+    surf = mock.MagicMock()
+    surf.is_empty.return_value = True
+
+    mock_folder = mock_project_variable.general2d_data.folders[folder]
+    mock_folder.values.return_value = [surf]
+
+    with pytest.raises(RuntimeError, match="No surfaces detected"):
+        get_surfaces_in_general2d_folder(mock_project_variable, folder)
+
+
+def test_get_general2d_folder(mock_project_variable):
+    """
+    Test that accessing a General 2D folder works if a folder is present.
+    While an error is raised if not.
+    """
+    from fmu.dataio.export.rms._utils import get_general2d_folder
+
+    horizon_folder = ["MainFolder"]
+    get_general2d_folder(mock_project_variable, horizon_folder)
+
+    horizon_folder = ["non_existent_folder"]
+    with pytest.raises(ValueError, match="not exist"):
+        get_general2d_folder(mock_project_variable, horizon_folder)
+
+    horizon_folder = ["MainFolder", "SubFolder"]
+    get_general2d_folder(mock_project_variable, horizon_folder)
+
+    horizon_folder = ["MainFolder", "non_existent_folder"]
+    with pytest.raises(ValueError, match="not exist"):
+        get_general2d_folder(mock_project_variable, horizon_folder)
