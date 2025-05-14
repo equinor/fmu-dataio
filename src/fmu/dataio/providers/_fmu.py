@@ -111,6 +111,7 @@ class FmuProvider(Provider):
     fmu_context: FMUContext = FMUContext.realization
     casepath_proposed: Path | None = None
     workflow: str | dict[str, str] | None = None
+    object_share_path: Path | None = None
 
     # private properties for this class
     _runpath: Path | None = field(default_factory=Path, init=False)
@@ -189,9 +190,9 @@ class FmuProvider(Provider):
                 ert=self._get_ert_meta(),
             )
 
-        ensemble_uuid, real_uuid = self._get_ensemble_and_real_uuid(
-            case_meta.fmu.case.uuid
-        )
+        case_uuid = case_meta.fmu.case.uuid
+        ensemble_uuid, real_uuid = self._get_ensemble_and_real_uuid(case_uuid)
+
         return fields.FMU(
             case=case_meta.fmu.case,
             context=self._get_fmucontext_meta(),
@@ -200,6 +201,7 @@ class FmuProvider(Provider):
             ensemble=self._get_ensemble_meta(ensemble_uuid),
             realization=self._get_realization_meta(real_uuid),
             ert=self._get_ert_meta(),
+            entity=self._get_entity_meta(case_uuid),
         )
 
     @staticmethod
@@ -332,6 +334,18 @@ class FmuProvider(Provider):
 
     def _get_fmucontext_meta(self) -> fields.Context:
         return fields.Context(stage=self.fmu_context)
+
+    def _get_entity_uuid(self, case_uuid: UUID) -> UUID:
+        """
+        Get the entity UUID generated from the case uuid and the
+        share path for the object. This is an identifer used for linking
+        objects across a case that represents the same.
+        """
+        return _utils.uuid_from_string(f"{case_uuid}{self.object_share_path}")
+
+    def _get_entity_meta(self, case_uuid: UUID) -> fields.Entity:
+        """Get the fmu.entity model"""
+        return fields.Entity(uuid=self._get_entity_uuid(case_uuid))
 
     def _get_workflow_meta(self) -> fields.Workflow:
         assert self.workflow is not None

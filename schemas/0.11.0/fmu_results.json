@@ -26,6 +26,7 @@
     "fmu.aggregation.realization_ids",
     "fmu.case",
     "fmu.context.stage",
+    "fmu.entity.uuid",
     "fmu.ensemble.name",
     "fmu.ensemble.uuid",
     "fmu.ert.experiment.id",
@@ -1122,6 +1123,24 @@
       "title": "EnsembleMetadata",
       "type": "object"
     },
+    "Entity": {
+      "description": "The ``fmu.entity`` block identifies data objects representing the same entity\nwithin a case, i.e. both realizations and aggregations of a particular entity\nwill share the same unique identifier.",
+      "properties": {
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid"
+      ],
+      "title": "Entity",
+      "type": "object"
+    },
     "Ert": {
       "description": "The ``fmu.ert`` block contains information about the current ert run.",
       "properties": {
@@ -1208,6 +1227,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Ensemble"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "entity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Entity"
             },
             {
               "type": "null"
