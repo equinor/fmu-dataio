@@ -16,9 +16,10 @@ from fmu.dataio._models.fmu_results.standard_result import InplaceVolumesStandar
 from fmu.dataio._utils import (
     convert_datestr_to_isoformat,
     prettyprint_dict,
+    uuid_from_string,
 )
 from fmu.dataio.dataio import ExportData, read_metadata
-from fmu.dataio.providers._fmu import FmuEnv
+from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE, FmuEnv
 
 # pylint: disable=no-member
 
@@ -1495,3 +1496,49 @@ def test_file_paths_case_context(fmurun_w_casemetadata, globalconfig2, regsurf):
     assert "runpath_relative_path" not in meta["file"]
     assert meta["file"]["relative_path"] == share_location
     assert meta["file"]["absolute_path"] == str(casepath / share_location)
+
+
+def test_element_id_realization_context(
+    fmurun_w_casemetadata, globalconfig2, monkeypatch, regsurf
+):
+    """Test that the entity.uuid is set in the metadata for a realization context."""
+    monkeypatch.chdir(fmurun_w_casemetadata)
+
+    meta = ExportData(
+        config=globalconfig2, name="myname", content="depth"
+    ).generate_metadata(regsurf)
+
+    share_path = "share/results/maps/myname.gri"
+    assert meta["file"]["runpath_relative_path"] == share_path
+    assert meta["file"]["relative_path"] == "realization-0/iter-0/" + share_path
+
+    casefilepath = fmurun_w_casemetadata.parent.parent / ERT_RELATIVE_CASE_METADATA_FILE
+    with open(casefilepath, encoding="utf-8") as stream:
+        casemeta = yaml.safe_load(stream)
+
+    # check that fmu.entity is present and that the
+    # id is made from the case_uuid and the share_path
+    assert "entity" in meta["fmu"]
+    assert meta["fmu"]["entity"]["uuid"] == str(
+        uuid_from_string(casemeta["fmu"]["case"]["uuid"] + share_path)
+    )
+
+
+def test_element_id_case_context(fmurun_w_casemetadata, globalconfig2, regsurf):
+    """Test that the entity.uuid is not set in the metadata for a case context."""
+    casepath = fmurun_w_casemetadata.parent.parent
+
+    meta = ExportData(
+        config=globalconfig2,
+        name="myname",
+        content="depth",
+        casepath=casepath,
+        fmu_context="case",
+    ).generate_metadata(regsurf)
+
+    share_path = "share/results/maps/myname.gri"
+    assert "runpath_relative_path" not in meta["file"]
+    assert meta["file"]["relative_path"] == share_path
+
+    # check that fmu.entity is not present for the case context
+    assert "entity" not in meta["fmu"]

@@ -52,7 +52,7 @@ display:
   name: geogrid
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: 173c646133f5a47c9bfbc4432a0a2812
+  checksum_md5: 0cb778f91e6074c471b4bbce1f919165
   relative_path: example_exports/share/results/tables/geogrid--volumes.csv
   runpath_relative_path: share/results/tables/geogrid--volumes.csv
 fmu:
@@ -67,6 +67,8 @@ fmu:
     id: 0
     name: iter-0
     uuid: 00000000-0000-0000-0000-000000000000
+  entity:
+    uuid: efc8479d-e36e-5160-db5a-a47c1642a893
   ert:
     experiment:
       id: 00000000-0000-0000-0000-000000000000
@@ -103,10 +105,12 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-05-07T18:42:33.609572Z'
+- datetime: '2025-05-15T09:01:22.276182Z'
   event: created
   sysinfo:
     fmu-dataio:
+      version: dummy_version
+    komodo:
       version: dummy_version
     operating_system:
       hostname: dummy_hostname
