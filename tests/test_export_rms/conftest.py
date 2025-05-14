@@ -197,6 +197,7 @@ def mock_rmsapi():
     mock_rmsapi = MagicMock()
     mock_rmsapi.__version__ = "1.7"
     mock_rmsapi.jobs.Job.get_job(...).get_arguments.return_value = VOLJOB_PARAMS
+    mock_rmsapi.Surface = MagicMock
     yield mock_rmsapi
 
 
@@ -219,13 +220,35 @@ def mocked_rmsapi_modules(mock_rmsapi, mock_rmsapi_jobs):
         yield mocked_modules
 
 
+class MockGeneral2DFolders:
+    def __init__(self, folders):
+        self.folders = folders
+
+    def __getitem__(self, key):
+        # Handle list-based keys by joining them into a string
+        if isinstance(key, list):
+            key = "/".join(key)
+        return self.folders[key]
+
+
 @pytest.fixture
-def mock_project_variable():
+def mock_general2d_data():
+    general2d_mock = MagicMock()
+    mock_folders = {
+        "MainFolder": MagicMock(),
+        "MainFolder/SubFolder": MagicMock(),
+    }
+    general2d_mock.folders = MockGeneral2DFolders(mock_folders)
+    return general2d_mock
+
+
+@pytest.fixture
+def mock_project_variable(mock_general2d_data):
     # A mock_project variable for the RMS 'project' (potentially extend for later use)
     mock_project = MagicMock()
     mock_project.horizons.representations = ["DS_final"]
     mock_project.zones.representations = ["IS_final"]
-
+    mock_project.general2d_data = mock_general2d_data
     yield mock_project
 
 
