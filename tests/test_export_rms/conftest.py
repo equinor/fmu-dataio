@@ -198,6 +198,7 @@ def mock_rmsapi():
     mock_rmsapi.__version__ = "1.7"
     mock_rmsapi.jobs.Job.get_job(...).get_arguments.return_value = VOLJOB_PARAMS
     mock_rmsapi.Surface = MagicMock
+    mock_rmsapi.Polylines = MagicMock
     yield mock_rmsapi
 
 
@@ -301,6 +302,24 @@ def xtgeo_fault_lines(fault_line):
 
     base = fault_line.copy()
     base.name = "TopVolon"
+    base.get_dataframe(copy=False)[base.zname] += 200
+
+    yield [top, mid, base]
+
+
+@pytest.fixture
+def xtgeo_zone_polygons(fault_line):
+    """Create a set of polygons with stratigraphic zone names"""
+
+    top = fault_line.copy()
+    top.name = "Valysar"
+
+    mid = fault_line.copy()
+    mid.name = "Therys"
+    mid.get_dataframe(copy=False)[mid.zname] += 100
+
+    base = fault_line.copy()
+    base.name = "Volon"
     base.get_dataframe(copy=False)[base.zname] += 200
 
     yield [top, mid, base]
