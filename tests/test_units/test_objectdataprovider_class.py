@@ -8,11 +8,17 @@ import pytest
 import yaml
 
 from fmu import dataio
-from fmu.dataio._models.fmu_results.specification import FaultRoomSurfaceSpecification
+from fmu.dataio._models.fmu_results.specification import (
+    FaultRoomSurfaceSpecification,
+    TriangulatedSurfaceSpecification,
+)
 from fmu.dataio.exceptions import ConfigurationError
 from fmu.dataio.providers.objectdata._faultroom import FaultRoomSurfaceProvider
 from fmu.dataio.providers.objectdata._provider import (
     objectdata_provider_factory,
+)
+from fmu.dataio.providers.objectdata._triangulated_surface import (
+    TriangulatedSurfaceProvider,
 )
 from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
 
@@ -80,6 +86,43 @@ def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_differ(
 
     assert frss.juxtaposition_fw == ["Valysar Fm.", "Therys Fm.", "Volon Fm."]
     assert frss.juxtaposition_hw == ["Valysar Fm.", "Therys Fm.", "Volon Fm."]
+
+
+def test_objectdata_triangulated_surface_validate_spec(tsurf, edataobj2):
+    """
+    Validate the specifications of the triangulated surface object represented
+    in the TSurf format.
+    TSurf is a file format used in for example the GOCAD software. RMS can export
+    triangulated surfaces in its structural model in the TSurf format.
+    """
+    objdata = objectdata_provider_factory(tsurf, edataobj2)
+    assert isinstance(objdata, TriangulatedSurfaceProvider)
+
+    assert objdata.classname.value == "triangulated_surface"
+    assert objdata.efolder == "maps"
+    assert objdata.extension == ".ts"
+    assert objdata.fmt == "tsurf"
+    assert objdata.layout == "triangulated_surface"
+
+    bbox = objdata.get_bbox()
+    assert bbox.xmin == 0.1
+    assert bbox.xmax == 3.1
+    assert bbox.ymin == 0.2
+    assert bbox.ymax == 3.2
+    assert bbox.zmin == 0.3
+    assert bbox.zmax == 3.3
+
+    tri_surf_spec = objdata.get_spec()
+    assert isinstance(tri_surf_spec, TriangulatedSurfaceSpecification)
+    assert tri_surf_spec.num_vertices == 4
+    assert tri_surf_spec.num_triangles == 2
+
+    encoding = "utf-8"
+    buffer = BytesIO()
+    objdata.export_to_file(buffer)
+    buffer.seek(0)
+    # Check the first 14 bytes of the buffer
+    assert buffer.read(14).decode(encoding=encoding) == "GOCAD TSurf 1\n"
 
 
 def test_objectdata_regularsurface_validate_extension(regsurf, edataobj1):
