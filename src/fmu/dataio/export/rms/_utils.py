@@ -217,6 +217,28 @@ def get_surfaces_in_general2d_folder(
     return surfaces
 
 
+def get_polygons_in_general2d_folder(
+    project: Any, folder_path: list[str]
+) -> list[xtgeo.Polygons]:
+    """Get all polygons from a General 2D Data folder"""
+    folder_items = get_items_in_general2d_folder(project, folder_path)
+
+    polygons = []
+    for item in folder_items:
+        if isinstance(item, rmsapi.Polylines) and not item.is_empty():
+            polygons.append(
+                xtgeo.polygons_from_roxar(
+                    project, item.name, "/".join(folder_path), stype="general2d_data"
+                )
+            )
+    if not polygons:
+        raise RuntimeError(
+            "No polygons detected in the provided General 2D data "
+            f"folder: '{'/'.join(folder_path)}' "
+        )
+    return polygons
+
+
 def get_faultlines_in_folder(project: Any, horizon_folder: str) -> list[xtgeo.Polygons]:
     """
     Get all non-empty fault lines from a horizon folder stratigraphically ordered.

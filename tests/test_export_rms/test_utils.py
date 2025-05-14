@@ -259,6 +259,57 @@ def test_get_surfaces_in_general2d_folder_all_empty(mock_project_variable):
         get_surfaces_in_general2d_folder(mock_project_variable, folder)
 
 
+def test_get_polygons_in_general2d_folder(mock_project_variable):
+    """Test that get_polygons_in_general2d_folder only picks up non-empty surfaces"""
+
+    from fmu.dataio.export.rms._utils import get_polygons_in_general2d_folder
+
+    folder = "MyFolder"
+    mock_folder = mock.MagicMock()
+
+    pol1 = mock.MagicMock()
+    pol1.is_empty.return_value = True
+    pol1.name = "msl"
+
+    pol2 = mock.MagicMock()
+    pol2.is_empty.return_value = False
+    pol2.name = "TopVolantis"
+
+    pol3 = mock.MagicMock()
+    pol3.is_empty.return_value = False
+    pol3.name = "TopTherys"
+
+    mock_folder.values.return_value = [pol1, pol2, pol3]
+
+    mock_project_variable.general2d_data.folders = {folder: mock_folder}
+
+    # Mock xtgeo.polygons_from_roxar to return just the polygon name
+    with mock.patch(
+        "xtgeo.polygons_from_roxar",
+        side_effect=lambda _project, name, _category, stype: name,
+    ):
+        polygons = get_polygons_in_general2d_folder(mock_project_variable, folder)
+
+        # the empty 'msl' polygon should not be included
+        assert polygons == ["TopVolantis", "TopTherys"]
+
+
+def test_get_polygons_in_general2d_folder_all_empty(mock_project_variable):
+    """Test that an error is raised if all polygons are empty"""
+    from fmu.dataio.export.rms._utils import get_polygons_in_general2d_folder
+
+    folder = ["MainFolder"]
+
+    pol = mock.MagicMock()
+    pol.is_empty.return_value = True
+
+    mock_folder = mock_project_variable.general2d_data.folders[folder]
+    mock_folder.values.return_value = [pol]
+
+    with pytest.raises(RuntimeError, match="No polygons detected"):
+        get_polygons_in_general2d_folder(mock_project_variable, folder)
+
+
 def test_get_general2d_folder(mock_project_variable):
     """
     Test that accessing a General 2D folder works if a folder is present.
