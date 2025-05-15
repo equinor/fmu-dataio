@@ -108,6 +108,14 @@ def test_tsurf_reader_and_writer(tsurf: reader.TSurfData, rootpath: Path) -> Non
         match="Input is empty",
     ):
         reader.read_tsurf_file(filepath)
+
+    # ---------- Filepath as string ----------
+    filepath_str = str(filepath)
+    with pytest.raises(
+        ValueError,
+        match="Input is empty",
+    ):
+        reader.read_tsurf_file(filepath_str)
     filepath.unlink(missing_ok=True)
 
     # ---------- Invalid input ----------
