@@ -845,6 +845,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -1592,6 +1595,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -1889,6 +1895,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -2184,6 +2193,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -2537,6 +2549,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -2877,6 +2892,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -3212,6 +3230,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -3642,6 +3663,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -4127,6 +4151,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -4292,7 +4319,8 @@
         "cornerpoint",
         "table",
         "dictionary",
-        "faultroom_triangulated"
+        "faultroom_triangulated",
+        "triangulated_surface"
       ],
       "title": "Layout",
       "type": "string"
@@ -4462,6 +4490,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -4812,6 +4843,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -5231,6 +5265,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -5528,6 +5565,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -5823,6 +5863,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -6331,6 +6374,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -6626,6 +6672,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -7030,6 +7079,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -7325,6 +7377,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -7715,6 +7770,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -8011,6 +8069,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -8523,6 +8584,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -8970,6 +9034,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -9291,6 +9358,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -9577,6 +9647,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -9965,6 +10038,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -10093,6 +10169,27 @@
         "is_prediction"
       ],
       "title": "TransmissibilitiesData",
+      "type": "object"
+    },
+    "TriangulatedSurfaceSpecification": {
+      "description": "Specifies relevant values describing a triangulated surface.",
+      "properties": {
+        "num_triangles": {
+          "minimum": 0,
+          "title": "Num Triangles",
+          "type": "integer"
+        },
+        "num_vertices": {
+          "minimum": 0,
+          "title": "Num Vertices",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "num_vertices",
+        "num_triangles"
+      ],
+      "title": "TriangulatedSurfaceSpecification",
       "type": "object"
     },
     "User": {
@@ -10278,6 +10375,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
@@ -10599,6 +10699,9 @@
               "$ref": "#/$defs/SurfaceSpecification"
             },
             {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
+            },
+            {
               "$ref": "#/$defs/TableSpecification"
             },
             {
@@ -10894,6 +10997,9 @@
             },
             {
               "$ref": "#/$defs/SurfaceSpecification"
+            },
+            {
+              "$ref": "#/$defs/TriangulatedSurfaceSpecification"
             },
             {
               "$ref": "#/$defs/TableSpecification"
