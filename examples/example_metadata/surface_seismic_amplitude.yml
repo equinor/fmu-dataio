@@ -81,7 +81,7 @@ fmu:
     name: iter-0
     uuid: 00000000-0000-0000-0000-000000000000
   entity:
-    uuid: efd9f409-5a7c-1fdc-cb67-6c67d519bd86
+    uuid: e917a438-4c05-bf8d-2da8-6e228e3fc291
   ert:
     experiment:
       id: 00000000-0000-0000-0000-000000000000
@@ -118,12 +118,10 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-05-15T10:09:07.266856Z'
+- datetime: '2025-05-19T12:08:51.117926Z'
   event: created
   sysinfo:
     fmu-dataio:
-      version: dummy_version
-    komodo:
       version: dummy_version
     operating_system:
       hostname: dummy_hostname
