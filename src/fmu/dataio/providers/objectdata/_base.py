@@ -34,7 +34,11 @@ if TYPE_CHECKING:
         BoundingBox3D,
         Geometry,
     )
-    from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
+    from fmu.dataio._models.fmu_results.enums import (
+        FileFormat,
+        Layout,
+        MetadataClass,
+    )
     from fmu.dataio._models.fmu_results.specification import AnySpecification
     from fmu.dataio._models.fmu_results.standard_result import StandardResult
     from fmu.dataio.dataio import ExportData
@@ -119,7 +123,7 @@ class ObjectDataProvider(Provider):
 
     @property
     @abstractmethod
-    def classname(self) -> FMUClass:
+    def classname(self) -> MetadataClass:
         raise NotImplementedError
 
     @property
