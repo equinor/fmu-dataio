@@ -20,7 +20,7 @@ from fmu.dataio._models._schema_base import (
 from fmu.dataio.types import VersionStr
 
 from .data import AnyData
-from .enums import FMUClass
+from .enums import FMUResultsMetadataClass, MetadataClass, ObjectMetadataClass
 from .fields import (
     FMU,
     Access,
@@ -192,7 +192,7 @@ class FmuResultsSchema(SchemaBase):
 class MetadataBase(BaseModel):
     """Base model for all root metadata models generated."""
 
-    class_: FMUClass = Field(alias="class", title="metadata_class")
+    class_: MetadataClass = Field(alias="class", title="metadata_class")
     """The class of this metadata object. Functions as the discriminating field."""
 
     masterdata: Masterdata
@@ -224,7 +224,9 @@ class CaseMetadata(MetadataBase):
     corresponding to /scratch/<asset>/<user>/<my case name>/.
     """
 
-    class_: Literal[FMUClass.case] = Field(alias="class", title="metadata_class")
+    class_: Literal[FMUResultsMetadataClass.case] = Field(
+        alias="class", title="metadata_class"
+    )
     """The class of this metadata object. In this case, always an FMU case."""
 
     fmu: FMUBase
@@ -239,7 +241,9 @@ class CaseMetadata(MetadataBase):
 class IterationMetadata(MetadataBase):
     """Deprecated and replaced by :class:`EnsembleMetadata`."""
 
-    class_: Literal[FMUClass.iteration] = Field(alias="class", title="metadata_class")
+    class_: Literal[FMUResultsMetadataClass.iteration] = Field(
+        alias="class", title="metadata_class"
+    )
     """The class of this metadata object. In this case, always an FMU iteration."""
 
     fmu: FMUIteration
@@ -257,7 +261,9 @@ class EnsembleMetadata(MetadataBase):
     An object representing a single Ensemble of a specific case.
     """
 
-    class_: Literal[FMUClass.ensemble] = Field(alias="class", title="metadata_class")
+    class_: Literal[FMUResultsMetadataClass.ensemble] = Field(
+        alias="class", title="metadata_class"
+    )
     """The class of this metadata object. In this case, always an FMU ensemble."""
 
     fmu: FMUEnsemble
@@ -275,7 +281,9 @@ class RealizationMetadata(MetadataBase):
     An object representing a single Realization of a specific Ensemble.
     """
 
-    class_: Literal[FMUClass.realization] = Field(alias="class", title="metadata_class")
+    class_: Literal[FMUResultsMetadataClass.realization] = Field(
+        alias="class", title="metadata_class"
+    )
     """The class of this metadata object. In this case, always an FMU realization."""
 
     fmu: FMURealization
@@ -291,16 +299,16 @@ class ObjectMetadata(MetadataBase):
     """The FMU metadata model for a given data object."""
 
     class_: Literal[
-        FMUClass.surface,
-        FMUClass.triangulated_surface,
-        FMUClass.table,
-        FMUClass.cpgrid,
-        FMUClass.cpgrid_property,
-        FMUClass.polygons,
-        FMUClass.cube,
-        FMUClass.well,
-        FMUClass.points,
-        FMUClass.dictionary,
+        ObjectMetadataClass.surface,
+        ObjectMetadataClass.triangulated_surface,
+        ObjectMetadataClass.table,
+        ObjectMetadataClass.cpgrid,
+        ObjectMetadataClass.cpgrid_property,
+        ObjectMetadataClass.polygons,
+        ObjectMetadataClass.cube,
+        ObjectMetadataClass.well,
+        ObjectMetadataClass.points,
+        ObjectMetadataClass.dictionary,
     ] = Field(
         alias="class",
         title="metadata_class",
@@ -344,7 +352,7 @@ class FmuResults(
     @model_validator(mode="after")
     def _check_class_data_spec(self) -> FmuResults:
         if (
-            self.root.class_ in (FMUClass.table, FMUClass.surface)
+            self.root.class_ in (ObjectMetadataClass.table, ObjectMetadataClass.surface)
             and hasattr(self.root, "data")
             and self.root.data.root.spec is None
         ):
