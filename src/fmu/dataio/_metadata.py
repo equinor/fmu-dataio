@@ -16,7 +16,7 @@ from pydantic import Field
 
 from ._logging import null_logger
 from ._models.fmu_results import data, fields
-from ._models.fmu_results.enums import FMUClass
+from ._models.fmu_results.enums import FMUResultsMetadataClass
 from ._models.fmu_results.fmu_results import (
     CaseMetadata,
     ObjectMetadata,
@@ -50,8 +50,8 @@ class ObjectMetadataExport(ObjectMetadata, populate_by_name=True):
 class CaseMetadataExport(CaseMetadata, populate_by_name=True):
     """Adds the optional description field for backward compatibility."""
 
-    class_: Literal[FMUClass.case] = Field(
-        default=FMUClass.case, alias="class", title="metadata_class"
+    class_: Literal[FMUResultsMetadataClass.case] = Field(
+        default=FMUResultsMetadataClass.case, alias="class", title="metadata_class"
     )
     description: list[str] | None = Field(default=None)
 
