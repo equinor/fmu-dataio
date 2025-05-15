@@ -13,6 +13,7 @@ class StandardResultName(str, Enum):
     structure_depth_isochore = "structure_depth_isochore"
     structure_depth_fault_lines = "structure_depth_fault_lines"
     fluid_contact_surface = "fluid_contact_surface"
+    fluid_contact_outline = "fluid_contact_outline"
 
 
 class Classification(str, Enum):

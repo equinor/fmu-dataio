@@ -11,6 +11,7 @@ from pydantic import (
 
 from fmu.dataio._models.standard_results import (
     FieldOutlineSchema,
+    FluidContactOutlineSchema,
     InplaceVolumesSchema,
     StructureDepthFaultLinesSchema,
 )
@@ -143,6 +144,25 @@ class FluidContactSurfaceStandardResult(StandardResult):
     """The identifying name for the 'fluid_contact_surface' standard result."""
 
 
+class FluidContactOutlineStandardResult(StandardResult):
+    """
+    The ``standard_result`` field contains information about which standard results this
+    data object represent.
+    This class contains metadata for the 'fluid_contact_outline' standard result.
+    """
+
+    name: Literal[enums.StandardResultName.fluid_contact_outline]
+    """The identifying name for the 'fluid_contact_outline' standard result."""
+
+    file_schema: FileSchema = FileSchema(
+        version=FluidContactOutlineSchema.VERSION,
+        url=AnyHttpUrl(FluidContactOutlineSchema.url()),
+    )
+    """
+    The schema identifying the format of the 'fluid_contact_outline' standard result.
+    """
+
+
 class AnyStandardResult(RootModel):
     """
     The ``standard result`` field contains information about which standard result this
@@ -161,6 +181,7 @@ class AnyStandardResult(RootModel):
         | StructureTimeSurfaceStandardResult
         | StructureDepthIsochoreStandardResult
         | StructureDepthFaultLinesStandardResult
-        | FluidContactSurfaceStandardResult,
+        | FluidContactSurfaceStandardResult
+        | FluidContactOutlineStandardResult,
         Field(discriminator="name"),
     ]
