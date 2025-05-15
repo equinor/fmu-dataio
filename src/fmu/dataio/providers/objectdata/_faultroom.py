@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Final
 from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.data import BoundingBox3D
-from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
+from fmu.dataio._models.fmu_results.enums import FileFormat, Layout, ObjectMetadataClass
 from fmu.dataio._models.fmu_results.global_configuration import (
     GlobalConfiguration,
 )
@@ -32,8 +32,8 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
     obj: FaultRoomSurface
 
     @property
-    def classname(self) -> FMUClass:
-        return FMUClass.surface
+    def classname(self) -> ObjectMetadataClass:
+        return ObjectMetadataClass.surface
 
     @property
     def efolder(self) -> str:

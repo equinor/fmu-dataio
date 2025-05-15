@@ -5,7 +5,7 @@ import pandas as pd
 import xtgeo
 from pandas import DataFrame
 
-from fmu.dataio._models.fmu_results.enums import FMUClass, StandardResultName
+from fmu.dataio._models.fmu_results.enums import ObjectMetadataClass, StandardResultName
 from fmu.dataio.external_interfaces.sumo_explorer_interface import SumoExplorerInterface
 from fmu.sumo.explorer import Explorer
 
@@ -42,7 +42,7 @@ def test_get_realization_ids():
         sumo_interface = SumoExplorerInterface(
             "some_case_id",
             ensemble_name,
-            FMUClass.table,
+            ObjectMetadataClass.table,
             StandardResultName.inplace_volumes,
         )
 
@@ -50,7 +50,7 @@ def test_get_realization_ids():
         assert actual_realization_ids == realization_ids_mock
 
 
-def test_get_realalization():
+def test_get_realization():
     ensemble_name = "iter-0"
     realization_id = 0
 
@@ -70,7 +70,7 @@ def test_get_realalization():
         sumo_interface = SumoExplorerInterface(
             "some_case_id",
             ensemble_name,
-            FMUClass.table,
+            ObjectMetadataClass.table,
             StandardResultName.inplace_volumes,
         )
 
@@ -104,7 +104,7 @@ def test_get_realization_with_metadata():
         sumo_interface = SumoExplorerInterface(
             "some_case_id",
             ensemble_name,
-            FMUClass.table,
+            ObjectMetadataClass.table,
             StandardResultName.inplace_volumes,
         )
 
@@ -138,7 +138,7 @@ def test_get_blobs():
         sumo_interface = SumoExplorerInterface(
             "some_case_id",
             ensemble_name,
-            FMUClass.table,
+            ObjectMetadataClass.table,
             StandardResultName.inplace_volumes,
         )
 
@@ -166,7 +166,7 @@ def test_correct_data_format_returned(unregister_pandas_parquet):
         sumo_interface = SumoExplorerInterface(
             "some_case_id",
             ensemble_name,
-            FMUClass.table,
+            ObjectMetadataClass.table,
             StandardResultName.inplace_volumes,
         )
         table_data = sumo_interface.get_realization(realization_id)
@@ -200,7 +200,7 @@ def test_correct_data_format_returned(unregister_pandas_parquet):
         sumo_interface = SumoExplorerInterface(
             "some_case_id",
             ensemble_name,
-            FMUClass.polygons,
+            ObjectMetadataClass.polygons,
             StandardResultName.field_outline,
         )
         polygon_data = sumo_interface.get_realization(realization_id)
@@ -228,7 +228,7 @@ def test_correct_data_format_returned(unregister_pandas_parquet):
         sumo_interface = SumoExplorerInterface(
             "some_case_id",
             ensemble_name,
-            FMUClass.surface,
+            ObjectMetadataClass.surface,
             StandardResultName.structure_depth_surface,
         )
         surface_data = sumo_interface.get_realization(realization_id)
