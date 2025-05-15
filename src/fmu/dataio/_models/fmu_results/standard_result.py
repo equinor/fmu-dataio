@@ -132,6 +132,17 @@ class FieldOutlineStandardResult(StandardResult):
     """
 
 
+class FluidContactSurfaceStandardResult(StandardResult):
+    """
+    The ``standard_result`` field contains information about which standard results this
+    data object represent.
+    This class contains metadata for the 'fluid_contact_surface' standard result.
+    """
+
+    name: Literal[enums.StandardResultName.fluid_contact_surface]
+    """The identifying name for the 'fluid_contact_surface' standard result."""
+
+
 class AnyStandardResult(RootModel):
     """
     The ``standard result`` field contains information about which standard result this
@@ -149,6 +160,7 @@ class AnyStandardResult(RootModel):
         | StructureDepthSurfaceStandardResult
         | StructureTimeSurfaceStandardResult
         | StructureDepthIsochoreStandardResult
-        | StructureDepthFaultLinesStandardResult,
+        | StructureDepthFaultLinesStandardResult
+        | FluidContactSurfaceStandardResult,
         Field(discriminator="name"),
     ]

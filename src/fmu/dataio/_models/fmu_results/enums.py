@@ -12,6 +12,7 @@ class StandardResultName(str, Enum):
     structure_time_surface = "structure_time_surface"
     structure_depth_isochore = "structure_depth_isochore"
     structure_depth_fault_lines = "structure_depth_fault_lines"
+    fluid_contact_surface = "fluid_contact_surface"
 
 
 class Classification(str, Enum):
