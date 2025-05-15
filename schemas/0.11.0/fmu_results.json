@@ -232,6 +232,9 @@
         },
         {
           "$ref": "#/$defs/FluidContactSurfaceStandardResult"
+        },
+        {
+          "$ref": "#/$defs/FluidContactOutlineStandardResult"
         }
       ],
       "title": "AnyStandardResult"
@@ -3770,6 +3773,28 @@
         "fluid_contact"
       ],
       "title": "FluidContactData",
+      "type": "object"
+    },
+    "FluidContactOutlineStandardResult": {
+      "description": "The ``standard_result`` field contains information about which standard results this\ndata object represent.\nThis class contains metadata for the 'fluid_contact_outline' standard result.",
+      "properties": {
+        "file_schema": {
+          "$ref": "#/$defs/FileSchema",
+          "default": {
+            "url": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/file_formats/0.1.0/fluid_contact_outline.json",
+            "version": "0.1.0"
+          }
+        },
+        "name": {
+          "const": "fluid_contact_outline",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "FluidContactOutlineStandardResult",
       "type": "object"
     },
     "FluidContactSurfaceStandardResult": {
