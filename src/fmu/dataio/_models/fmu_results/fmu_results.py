@@ -50,6 +50,7 @@ class FmuResultsSchema(SchemaBase):
     VERSION_CHANGELOG: str = """
     #### 0.11.0
 
+    - `data.standard_result` now supports `FluidContactSurfaceStandardResult`
     - `fmu.entity.uuid` added as optional field
     - `file.runpath_relative_path` added as optional field
     - `fmu.ert.experiment.id` is added as contractual field
