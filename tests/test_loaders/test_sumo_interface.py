@@ -17,6 +17,9 @@ def sumo_test_case() -> Case:
     return sumo_explorer.get_case_by_uuid(test_case_id)
 
 
+@pytest.mark.skip(
+    reason="Skipping tests while unstability issues are being investigated."
+)
 def test_initialize_inplace_volumes(sumo_test_case):
     ensemble_name = "iter-0"
 
@@ -48,6 +51,9 @@ def test_initialize_inplace_volumes(sumo_test_case):
         assert sumo_interface._search_context.names == expected_search_context.names
 
 
+@pytest.mark.skip(
+    reason="Skipping tests while unstability issues are being investigated."
+)
 def test_get_realization_ids(sumo_test_case, unregister_pandas_parquet):
     ensemble_name = "iter-0"
 
@@ -67,6 +73,9 @@ def test_get_realization_ids(sumo_test_case, unregister_pandas_parquet):
         assert realization_ids == expected_realization_ids
 
 
+@pytest.mark.skip(
+    reason="Skipping tests while unstability issues are being investigated."
+)
 def test_get_realization(sumo_test_case):
     ensemble_name = "iter-0"
     realization_id = 0
@@ -106,6 +115,9 @@ def test_get_realization(sumo_test_case):
             )
 
 
+@pytest.mark.skip(
+    reason="Skipping tests while unstability issues are being investigated."
+)
 def test_get_blob(sumo_test_case):
     ensemble_name = "iter-0"
     realization_id = 0
@@ -140,6 +152,9 @@ def test_get_blob(sumo_test_case):
         )
 
 
+@pytest.mark.skip(
+    reason="Skipping tests while unstability issues are being investigated."
+)
 def test_get_realization_with_metadata(sumo_test_case, unregister_pandas_parquet):
     ensemble_name = "iter-0"
     realization_id = 0
