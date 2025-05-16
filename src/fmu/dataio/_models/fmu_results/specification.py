@@ -171,6 +171,19 @@ class FaultRoomSurfaceSpecification(BaseModel):
     """A name id of the faultroom usage."""
 
 
+class TriangulatedSurfaceSpecification(BaseModel):
+    """Specifies relevant values describing a triangulated surface."""
+
+    name: str
+    """Name of the triangulated surface."""
+
+    num_vertices: int = Field(ge=0)
+    """The number of vertices."""
+
+    num_triangles: int = Field(ge=0)
+    """The number of triangles."""
+
+
 class CubeSpecification(SurfaceSpecification):
     """Specifies relevant values describing a cube object, i.e. a seismic cube."""
 
@@ -216,5 +229,6 @@ AnySpecification = (
     | CubeSpecification
     | PolygonsSpecification
     | SurfaceSpecification
+    | TriangulatedSurfaceSpecification
     | TableSpecification
 )

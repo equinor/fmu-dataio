@@ -26,6 +26,7 @@ class FileExtension(StrEnum):
     pol = ".pol"
     poi = ".poi"
     json = ".json"
+    tsurf = ".ts"
 
 
 class ExportFolder(StrEnum):
