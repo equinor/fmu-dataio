@@ -101,6 +101,7 @@ async def main(
                 pbar.write(
                     "\n".join(
                         f"{tqdm.format_sizeof(v):<8} "
+                        # TODO: @ecs: update the following lines to use the new enums
                         f"{fmuclass!s:<30} {fmucontent!s:<30} {name}"
                         for (fmuclass, fmucontent, name), v in sorted(
                             tally.items(), key=lambda x: x[1]
