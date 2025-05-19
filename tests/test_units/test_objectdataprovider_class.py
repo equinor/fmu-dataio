@@ -1,6 +1,7 @@
 """Test the _ObjectData class from the _objectdata.py module"""
 
 import os
+from io import BytesIO
 from pathlib import Path
 
 import pytest
@@ -54,9 +55,25 @@ def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_differ(
     Fault juxtaposition is a list of formations on the footwall and hangingwall sides.
     Ensure that each name is converted to the names given in the stratigraphic column
     in the global config.
+    Also perform a few other tests to verify API and functionality.
     """
     objdata = objectdata_provider_factory(faultroom_object, edataobj2)
     assert isinstance(objdata, FaultRoomSurfaceProvider)
+
+    assert objdata.extension == ".json"
+    assert objdata.layout == "faultroom_triangulated"
+
+    bbox = objdata.get_bbox()
+    assert bbox.xmin == 1.1
+    assert bbox.zmax == 2.3
+
+    encoding = "utf-8"
+    buffer = BytesIO()
+    objdata.export_to_file(buffer)
+    buffer.seek(0)
+    # Check the first bytes of the buffer
+    expected = """{\n    "metadata": {\n        "horizons":"""
+    assert buffer.read(len(expected)).decode(encoding=encoding) == expected
 
     frss = objdata.get_spec()
     assert isinstance(frss, FaultRoomSurfaceSpecification)
