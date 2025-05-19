@@ -39,14 +39,15 @@ class SumoExplorerInterface:
                 return data_object.to_pandas()
 
             case FMUClass.polygons:
-                dataFrame: DataFrame = pd.read_parquet(
+                data_frame: DataFrame = pd.read_parquet(
                     data_object.blob, engine="pyarrow"
                 )
-                return xtgeo.Polygons(dataFrame)
+                return xtgeo.Polygons(data_frame)
 
             case FMUClass.surface:
                 # Dataformat: 'irap_binary'
                 return data_object.to_regular_surface()
+
             case _:
                 raise ValueError(f"Unknown FMUClass {self._fmu_class}. in provided ")
 
@@ -92,7 +93,7 @@ class SumoExplorerInterface:
 
         return realization_data
 
-    def get_blob(self, realization_id: int) -> dict[str, BytesIO]:
+    def get_blobs(self, realization_id: int) -> dict[str, BytesIO]:
         """
         Get the standard results data blobs from Sumo,
         filtered on the provided realization id.

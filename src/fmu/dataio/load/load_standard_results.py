@@ -53,7 +53,7 @@ class StandardResultsLoader(Generic[T]):
 
         return self._sumo_interface.get_realization(realization_id)
 
-    def get_blob(self, realization_id: int) -> dict[str, BytesIO]:
+    def get_blobs(self, realization_id: int) -> dict[str, BytesIO]:
         """
         Returns a dictionary with the loaded objects blobs, filtered on the
         provided realization id. The `key` is the object name.
@@ -63,7 +63,7 @@ class StandardResultsLoader(Generic[T]):
 
         """
 
-        return self._sumo_interface.get_blob(realization_id)
+        return self._sumo_interface.get_blobs(realization_id)
 
     @staticmethod
     def _generate_path_for_saving(
