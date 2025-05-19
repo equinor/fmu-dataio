@@ -63,7 +63,7 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
         logger.info("Get bbox for FaultRoomSurface")
         return BoundingBox3D(
             xmin=float(self.obj.bbox["xmin"]),
-            xmax=float(self.obj.bbox["xmin"]),
+            xmax=float(self.obj.bbox["xmax"]),
             ymin=float(self.obj.bbox["ymin"]),
             ymax=float(self.obj.bbox["ymax"]),
             zmin=float(self.obj.bbox["zmin"]),
