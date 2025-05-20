@@ -97,7 +97,7 @@ import xtgeo
 
 from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
+from fmu.dataio._models.fmu_results.enums import FileFormat, FMUDataObjectClass, Layout
 from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
@@ -187,8 +187,8 @@ class DictionaryDataProvider(ObjectDataProvider):
     obj: dict
 
     @property
-    def classname(self) -> FMUClass:
-        return FMUClass.dictionary
+    def classname(self) -> FMUDataObjectClass:
+        return FMUDataObjectClass.dictionary
 
     @property
     def efolder(self) -> str:
