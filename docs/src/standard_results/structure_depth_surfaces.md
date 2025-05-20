@@ -46,3 +46,34 @@ files to `share/results/maps/structure_depth_surface/surfacename.gri`.
 
 This standard result is not presented in a tabular format; therefore, no validation
 schema exists.
+
+## Load structure depth surfaces
+Use the below loader function, loader object and interface to load and interact with 
+the exported structure depth surfaces standard results. For more information about the
+purpose of these loader functions, see 
+[Load standard results](../standard_results.md#load-standard-results).
+
+### Usage
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.load_structure_depth_surfaces
+```
+
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.StructureDepthSurfacesLoader
+```
+
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.StructureDepthSurfacesLoader.list_realizations
+```
+
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.StructureDepthSurfacesLoader.get_realization
+```
+ 
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.StructureDepthSurfacesLoader.get_blobs
+```
+
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.StructureDepthSurfacesLoader.save_realization
+```

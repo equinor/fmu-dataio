@@ -40,7 +40,7 @@ post-processing services, new and improved cloud-only version of Webviz and much
    overview
    preparations
    examples
-   exported_standard_results
+   standard_results
 
 .. toctree::
    :maxdepth: 2
