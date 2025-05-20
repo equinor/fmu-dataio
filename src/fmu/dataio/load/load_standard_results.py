@@ -251,7 +251,7 @@ class StructureDepthSurfacesLoader(SurfacesStandardResultsLoader):
 def load_inplace_volumes(case_id: UUID, ensemble_name: str) -> InplaceVolumesLoader:
     """
     This function provides a simplified interface for loading inplace volumes
-    standard results from Sumo. It returns an InplaceVolumeLoader object, which offers
+    standard results from Sumo. It returns an InplaceVolumesLoader object, which offers
     a set of methods to easily manage and interact with the loaded inplace volumes data.
 
     Args:
@@ -262,13 +262,17 @@ def load_inplace_volumes(case_id: UUID, ensemble_name: str) -> InplaceVolumesLoa
         This function is experimental and may change in future versions.
 
     Examples:
-        Example usage in a script:
+        Example usage in a script::
 
             from fmu.dataio.load.load_standard_results import load_inplace_volumes
 
             inplace_volumes_loader = load_inplace_volumes(case_id, ensemble_name)
 
-            realization_data = inplace_volumes_loader.get_realization(realization_id)
+            # Get all inplace volumes objects for a the given realization
+            objects = inplace_volumes_loader.get_realization(realization_id)
+
+            # Save the inplace volumes objects for a given realization
+            object_paths = inplace_volumes_loader.save_realization(realization_id, folder_path)
 
     """  # noqa: E501 line too long
 
@@ -290,13 +294,17 @@ def load_field_outlines(case_id: UUID, ensemble_name: str) -> FieldOutlinesLoade
         This function is experimental and may change in future versions.
 
     Examples:
-        Example usage in a script:
+        Example usage in a script::
 
             from fmu.dataio.load.load_standard_results import load_field_outlines
 
             field_outlines_loader = load_field_outlines(case_id, ensemble_name)
 
-            realization_data = field_outlines_loader.get_realization(realization_id)
+            # Get all field outlines objects for a given realization
+            objects = field_outlines_loader.get_realization(realization_id)
+
+            # Save the field outlines objects for a given realization
+            object_paths = field_outlines_loader.save_realization(realization_id, folder_path)
 
     """  # noqa: E501 line too long
 
@@ -321,13 +329,17 @@ def load_structure_depth_surfaces(
         This function is experimental and may change in future versions.
 
     Examples:
-        Example usage in a script:
+        Example usage in a script::
 
             from fmu.dataio.load.load_standard_results import load_structure_depth_surfaces
 
             structure_depth_surfaces_loader = load_structure_depth_surfaces(case_id, ensemble_name)
 
-            realization_data = structure_depth_surfaces_loader.get_realization(realization_id)
+            # Get all structure depth surfaces objects for a given realization
+            objects = structure_depth_surfaces_loader.get_realization(realization_id)
+
+            # Save the structure depth surfaces objects for a given realization
+            object_paths = structure_depth_surfaces_loader.save_realization(realization_id, folder_path)  
 
     """  # noqa: E501 line too long
 
