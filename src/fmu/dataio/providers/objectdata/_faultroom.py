@@ -22,7 +22,7 @@ from ._base import (
 if TYPE_CHECKING:
     from io import BytesIO
 
-    from fmu.dataio.readers import FaultRoomSurface
+    from fmu.dataio._readers.faultroom import FaultRoomSurface
 
 logger: Final = null_logger(__name__)
 
