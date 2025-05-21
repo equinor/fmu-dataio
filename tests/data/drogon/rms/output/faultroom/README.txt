@@ -1,1 +1,1 @@
-Formats from faultroom; triangualed polygons on geojson format.
+Formats from faultroom; triangulated polygons on geojson format.

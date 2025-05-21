@@ -16,7 +16,8 @@ import pytest
 import xtgeo
 import yaml
 
-from fmu.dataio import dataio, readers
+from fmu.dataio import dataio
+from fmu.dataio._readers import faultroom
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
 
@@ -720,7 +721,9 @@ def test_faultroom_export_as_file(rootpath, inside_rms_setup):
 
     for faultroom_file in faultroom_files:
         logger.info("Working with %s", faultroom_file)
-        froom = readers.read_faultroom_file(faultroom_file)  # FaultRoomSurface instance
+        froom = faultroom.read_faultroom_file(
+            faultroom_file
+        )  # FaultRoomSurface instance
         output = dataio.ExportData(
             config=inside_rms_setup["config"],
             content="fault_properties",

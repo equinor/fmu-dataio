@@ -1,4 +1,4 @@
-"""Module for reading data not supported by other tools"""
+"""Module for reading Faultroom data"""
 
 from __future__ import annotations
 

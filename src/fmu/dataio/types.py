@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
     from fmu.dataio._readers.tsurf import TSurfData
 
-    from .readers import FaultRoomSurface
+    from ._readers.faultroom import FaultRoomSurface
 
     # Local proxies due to xtgeo at the time of writing
     # not having stubs/marked itself as a typed library.
