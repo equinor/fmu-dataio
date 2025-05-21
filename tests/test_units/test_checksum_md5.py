@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fmu.dataio import readers
+from fmu.dataio._readers import faultroom
 from fmu.dataio._utils import md5sum
 from fmu.dataio.dataio import ExportData, read_metadata
 
@@ -190,7 +190,7 @@ def test_checksum_md5_for_faultroom(monkeypatch, tmp_path, globalconfig2, rootpa
     faultroom_files = (rootpath / "tests/data/drogon/rms/output/faultroom").glob(
         "*.json"
     )
-    fault_room_surface = readers.read_faultroom_file(next(faultroom_files))
+    fault_room_surface = faultroom.read_faultroom_file(next(faultroom_files))
 
     export_path = Path(
         ExportData(
