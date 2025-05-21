@@ -19,7 +19,7 @@ def export_faultroom_surfaces():
     """Export faultroom data, json files made by FaultRoom plugin in RMS"""
 
     # read file and return a FaultRoomSurface instance
-    faultroom_object = dataio.readers.read_faultroom_file(FAULTROOM_FILE)
+    faultroom_object = dataio._readers.faultroom.read_faultroom_file(FAULTROOM_FILE)
 
     ed = dataio.ExportData(
         config=CFG,
