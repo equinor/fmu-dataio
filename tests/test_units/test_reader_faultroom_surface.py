@@ -2,16 +2,25 @@
 
 import pytest
 
-from fmu.dataio import readers
+from fmu.dataio._readers import faultroom
 
 
 def test_faultroomsurface_reader(rootpath):
     """Test reading the special in-house faultroom surface."""
 
+    relpath_non_exists = "tests/data/drogon/rms/output/faultroom/non_existing_file.foo"
+    filepath_non_exists = rootpath / relpath_non_exists
+    filepath_non_exists.unlink(missing_ok=True)
+    with pytest.raises(
+        ValueError,
+        match="Cannot read faultroom file",
+    ):
+        faultroom.read_faultroom_file(filepath_non_exists)
+
     relpath = "tests/data/drogon/rms/output/faultroom/ex_faultroom_1.3.1.json"
     faultroom_file = rootpath / relpath
 
-    instance = readers.read_faultroom_file(faultroom_file)
+    instance = faultroom.read_faultroom_file(faultroom_file)
 
     assert instance.faults == ["F1", "F2", "F3", "F4", "F5", "F6"]
     assert instance.juxtaposition_fw == ["Therys", "Valysar", "Volon"]
