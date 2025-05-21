@@ -23,7 +23,7 @@ import yaml
 from fmu.config import utilities as ut
 
 from ._logging import null_logger
-from .readers import FaultRoomSurface
+from ._readers.faultroom import FaultRoomSurface
 
 if TYPE_CHECKING:
     from io import BufferedIOBase, BytesIO

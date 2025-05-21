@@ -98,8 +98,8 @@ import xtgeo
 from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.enums import FileFormat, FMUClass, Layout
+from fmu.dataio._readers.faultroom import FaultRoomSurface
 from fmu.dataio._readers.tsurf import TSurfData
-from fmu.dataio.readers import FaultRoomSurface
 
 from ._base import (
     ObjectDataProvider,
