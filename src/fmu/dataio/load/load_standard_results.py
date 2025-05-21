@@ -1,6 +1,6 @@
 from io import BytesIO
 from pathlib import Path
-from typing import Generic, TypeVar
+from typing import TypeAlias
 from uuid import UUID
 
 import numpy as np
@@ -14,10 +14,10 @@ from fmu.dataio.external_interfaces.schema_validation_interface import (
 )
 from fmu.dataio.external_interfaces.sumo_explorer_interface import SumoExplorerInterface
 
-T = TypeVar("T")
+DataFrameOrXtgeoObject: TypeAlias = DataFrame | xtgeo.Polygons | xtgeo.RegularSurface
 
 
-class StandardResultsLoader(Generic[T]):
+class StandardResultsLoader:
     """The generic class for loaded standard results in fmu-dataio."""
 
     def __init__(
@@ -36,12 +36,7 @@ class StandardResultsLoader(Generic[T]):
 
         return self._sumo_interface.get_realization_ids()
 
-    def concatenate_realizations(self) -> T:
-        raise NotImplementedError
-
-    def get_realization(
-        self, realization_id: int
-    ) -> dict[str, DataFrame | xtgeo.Polygons | xtgeo.RegularSurface]:
+    def get_realization(self, realization_id: int) -> dict[str, DataFrameOrXtgeoObject]:
         """
         Returns a dictionary with the loaded objects, filtered on the provided
         realization id. The `key` is the object name.
@@ -104,13 +99,16 @@ class StandardResultsLoader(Generic[T]):
         )
 
 
-class TabularStandardResultsLoader(StandardResultsLoader[DataFrame]):
+class TabularStandardResultsLoader(StandardResultsLoader):
     """Base class for the loaded tabular standard results in fmu-dataio"""
 
     def __init__(
         self, case_id: UUID, ensemble_name: str, standard_result_name: str
     ) -> None:
         super().__init__(case_id, ensemble_name, FMUClass.table, standard_result_name)
+
+    def get_realization(self, realization_id: int) -> dict[str, DataFrame]:
+        return super().get_realization(realization_id)
 
     def save_realization(self, realization_id: int, folder_path: str) -> list[str]:
         """
@@ -141,7 +139,7 @@ class TabularStandardResultsLoader(StandardResultsLoader[DataFrame]):
         return file_paths
 
 
-class PolygonStandardResultLoader(StandardResultsLoader[xtgeo.Polygons]):
+class PolygonStandardResultsLoader(StandardResultsLoader):
     """Base class for the loaded polygon standard results in fmu-dataio"""
 
     def __init__(
@@ -150,6 +148,9 @@ class PolygonStandardResultLoader(StandardResultsLoader[xtgeo.Polygons]):
         super().__init__(
             case_id, ensemble_name, FMUClass.polygons, standard_result_name
         )
+
+    def get_realization(self, realization_id: int) -> dict[str, xtgeo.Polygons]:
+        return super().get_realization(realization_id)
 
     def save_realization(self, realization_id: int, folder_path: str) -> list[str]:
         """
@@ -185,13 +186,16 @@ class PolygonStandardResultLoader(StandardResultsLoader[xtgeo.Polygons]):
         return file_paths
 
 
-class SurfacesStandardResultLoader(StandardResultsLoader[xtgeo.Surfaces]):
+class SurfacesStandardResultsLoader(StandardResultsLoader):
     """Base class for the loaded surface standard results in fmu-dataio"""
 
     def __init__(
         self, case_id: UUID, ensemble_name: str, standard_result_name: str
     ) -> None:
         super().__init__(case_id, ensemble_name, FMUClass.surface, standard_result_name)
+
+    def get_realization(self, realization_id: int) -> dict[str, xtgeo.RegularSurface]:
+        return super().get_realization(realization_id)
 
     def save_realization(self, realization_id: int, folder_path: str) -> list[str]:
         """
@@ -228,7 +232,7 @@ class InplaceVolumesLoader(TabularStandardResultsLoader):
         super().__init__(case_id, ensemble_name, StandardResultName.inplace_volumes)
 
 
-class FieldOutlinesLoader(PolygonStandardResultLoader):
+class FieldOutlinesLoader(PolygonStandardResultsLoader):
     """
     Loader object for the Field Outline standard results in fmu-dataio.
     Offers a set of methods to easily manage and interact
@@ -239,7 +243,7 @@ class FieldOutlinesLoader(PolygonStandardResultLoader):
         super().__init__(case_id, ensemble_name, StandardResultName.field_outline)
 
 
-class StructureDepthSurfacesLoader(SurfacesStandardResultLoader):
+class StructureDepthSurfacesLoader(SurfacesStandardResultsLoader):
     """
     Loader object for the Structure Depth Surface standard results in fmu-dataio.
     Offers a set of methods to easily manage and interact
