@@ -69,23 +69,14 @@ class StandardResultsLoader:
         based on the provided path and metadata.
         """
 
-        file_path = Path(
-            f"{folder_path}/"
-            f"{metadata['fmu']['case']['name']}/"
-            f"{metadata['fmu']['realization']['name']}/"
-            f"{metadata['fmu']['ensemble']['name']}/"
-        )
-
-        file_name = (
-            (
-                f"{metadata['data']['standard_result']['name']}-"
-                f"{metadata['data']['name']}"
-                f".{file_extention}"
-            )
-            .lower()
-            .replace(" ", "")
-        )
+        case_name = metadata["fmu"]["case"]["name"]
+        relative_path = Path(metadata["file"]["relative_path"])
+        relative_folder_path = relative_path.parent
+        file_path = Path(folder_path) / Path(case_name) / relative_folder_path
         file_path.mkdir(parents=True, exist_ok=True)
+
+        file_name = relative_path.name.replace(relative_path.suffix, file_extention)
+
         return file_path / Path(file_name)
 
     @staticmethod
@@ -132,7 +123,7 @@ class TabularStandardResultsLoader(StandardResultsLoader):
                 schema_url=metadata["data"]["standard_result"]["file_schema"]["url"],
             )
 
-            file_path = self._generate_path_for_saving(folder_path, metadata, "csv")
+            file_path = self._generate_path_for_saving(folder_path, metadata, ".csv")
             data_frame.to_csv(file_path, index=False)
             file_paths.append(str(file_path))
 
@@ -179,7 +170,7 @@ class PolygonStandardResultsLoader(StandardResultsLoader):
                 schema_url=metadata["data"]["standard_result"]["file_schema"]["url"],
             )
 
-            file_path = self._generate_path_for_saving(folder_path, metadata, "csv")
+            file_path = self._generate_path_for_saving(folder_path, metadata, ".csv")
             data_frame.to_csv(file_path, index=False)
             file_paths.append(str(file_path))
 
@@ -214,7 +205,7 @@ class SurfacesStandardResultsLoader(StandardResultsLoader):
 
         file_paths: list[str] = []
         for surface, metadata in realization_data:
-            file_path = self._generate_path_for_saving(folder_path, metadata, "gri")
+            file_path = self._generate_path_for_saving(folder_path, metadata, ".gri")
             surface.to_file(file_path, fformat="irap_binary")
             file_paths.append(str(file_path))
 

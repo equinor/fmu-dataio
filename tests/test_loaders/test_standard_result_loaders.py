@@ -1,5 +1,6 @@
 import os
 from io import BytesIO
+from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
@@ -15,7 +16,17 @@ def _generate_metadata_mock(
     ensemble_name_mock: str,
     data_name_mock: str,
     standard_result_name: str,
+    data_format: str,
 ) -> dict:
+    relative_path = (
+        f"{realization_name_mock}/"
+        f"{ensemble_name_mock}/"
+        f"share/results"
+        f"{data_format}/"
+        f"{standard_result_name}/"
+        f"{data_name_mock}.parquet"
+    )
+
     return {
         "fmu": {
             "case": {"name": case_name_mock},
@@ -23,12 +34,12 @@ def _generate_metadata_mock(
             "ensemble": {"name": ensemble_name_mock},
         },
         "data": {
-            "name": data_name_mock,
             "standard_result": {
                 "name": standard_result_name,
                 "file_schema": {"url": "http://test.com"},
             },
         },
+        "file": {"relative_path": relative_path},
     }
 
 
@@ -132,7 +143,8 @@ def test_save_realization_for_tabular(monkeypatch, tmp_path):
     case_name_mock = "test_case"
     realization_name_mock = "realization-0"
     ensemble_name_mock = "iter-0"
-    data_name_mock = "tabular_object_name"
+    data_name_mock = "simgrid"
+    data_type = "tables"
     standard_result_name = "inplace_volumes"
     mocked_metadata = _generate_metadata_mock(
         case_name_mock,
@@ -140,7 +152,9 @@ def test_save_realization_for_tabular(monkeypatch, tmp_path):
         ensemble_name_mock,
         data_name_mock,
         standard_result_name,
+        data_type,
     )
+    relative_path_mocked = Path(mocked_metadata["file"]["relative_path"])
 
     mocked_realization_data: list[tuple[DataFrame, dict]] = [
         (mocked_data_frame, mocked_metadata)
@@ -169,16 +183,15 @@ def test_save_realization_for_tabular(monkeypatch, tmp_path):
         assert get_realization_with_metadata_mock.assert_called_once
         assert validate_object_mock.assert_called_once
 
-        expected_file_path = (
-            f"{tmp_path}/"
-            f"{case_name_mock}/"
-            f"{realization_name_mock}/"
-            f"{ensemble_name_mock}/"
-            f"{standard_result_name}-{data_name_mock}.csv"
+        expected_relative_file_path = str(relative_path_mocked).replace(
+            relative_path_mocked.suffix, ".csv"
         )
+        expected_file_path = (
+            f"{tmp_path}/{case_name_mock}/{expected_relative_file_path}"
+        )
+
         assert actual_file_paths[0] == expected_file_path
         assert os.path.exists(expected_file_path)
-
         with open(expected_file_path) as file:
             content = file.read()
             assert "FLUID,ZONE,REGION,GIIP" in content
@@ -192,7 +205,8 @@ def test_save_realization_for_ploygons(monkeypatch, tmp_path):
     case_name_mock = "test_case"
     realization_name_mock = "realization-0"
     ensemble_name_mock = "iter-0"
-    data_name_mock = "polygon_object_name"
+    data_name_mock = "field_outline"
+    data_type = "polygons"
     standard_result_name = "field_outlines"
     mocked_metadata = _generate_metadata_mock(
         case_name_mock,
@@ -200,7 +214,9 @@ def test_save_realization_for_ploygons(monkeypatch, tmp_path):
         ensemble_name_mock,
         data_name_mock,
         standard_result_name,
+        data_type,
     )
+    relative_path_mocked = Path(mocked_metadata["file"]["relative_path"])
 
     mocked_realization_data: list[tuple[xtgeo.Polygons, dict]] = [
         (polygon, mocked_metadata)
@@ -229,16 +245,15 @@ def test_save_realization_for_ploygons(monkeypatch, tmp_path):
         assert get_realization_with_metadata_mock.assert_called_once
         assert validate_object_mock.assert_called_once
 
-        expected_file_path = (
-            f"{tmp_path}/"
-            f"{case_name_mock}/"
-            f"{realization_name_mock}/"
-            f"{ensemble_name_mock}/"
-            f"{standard_result_name}-{data_name_mock}.csv"
+        expected_relative_file_path = str(relative_path_mocked).replace(
+            relative_path_mocked.suffix, ".csv"
         )
+        expected_file_path = (
+            f"{tmp_path}/{case_name_mock}/{expected_relative_file_path}"
+        )
+
         assert actual_file_paths[0] == expected_file_path
         assert os.path.exists(expected_file_path)
-
         with open(expected_file_path) as file:
             content = file.read()
             assert "X_UTME,Y_UTMN,Z_TVDSS" in content
@@ -257,15 +272,18 @@ def test_save_realization_for_surfaces(monkeypatch, tmp_path):
     case_name_mock = "test_case"
     realization_name_mock = "realization-0"
     ensemble_name_mock = "iter-0"
-    data_name_mock = "surface_object_name"
+    data_name_mock = "basevolantis"
     standard_result_name = "structure_depth_surface"
+    data_type = "maps"
     mocked_metadata = _generate_metadata_mock(
         case_name_mock,
         realization_name_mock,
         ensemble_name_mock,
         data_name_mock,
         standard_result_name,
+        data_type,
     )
+    relative_path_mocked = Path(mocked_metadata["file"]["relative_path"])
 
     mocked_realization_data: list[tuple[xtgeo.Polygons, dict]] = [
         (surface, mocked_metadata)
@@ -296,12 +314,11 @@ def test_save_realization_for_surfaces(monkeypatch, tmp_path):
         assert get_realization_with_metadata_mock.assert_called_once
         assert validate_object_mock.assert_not_called
 
+        expected_relative_file_path = str(relative_path_mocked).replace(
+            relative_path_mocked.suffix, ".gri"
+        )
         expected_file_path = (
-            f"{tmp_path}/"
-            f"{case_name_mock}/"
-            f"{realization_name_mock}/"
-            f"{ensemble_name_mock}/"
-            f"{standard_result_name}-{data_name_mock}.gri"
+            f"{tmp_path}/{case_name_mock}/{expected_relative_file_path}"
         )
 
         assert actual_file_paths[0] == expected_file_path
