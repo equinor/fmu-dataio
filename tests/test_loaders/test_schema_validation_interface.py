@@ -18,7 +18,7 @@ def test_validator_when_valid_metadata(metadata_examples):
     inplace_volumes = metadata_examples["table_inplace_volumes.yml"]
 
     validator = SchemaValidationInterface()
-    validator._get_cached_validator.cache_clear()
+    validator._get_validator.cache_clear()
 
     assert validator.validate_against_schema(
         schema_url=inplace_volumes["$schema"], data=inplace_volumes
@@ -32,7 +32,7 @@ def test_validator_when_invalid_metadata():
     }
 
     validator = SchemaValidationInterface()
-    validator._get_cached_validator.cache_clear()
+    validator._get_validator.cache_clear()
 
     with pytest.raises(ValidationError):
         validator.validate_against_schema(schema_url=metadata["$schema"], data=metadata)
@@ -44,7 +44,7 @@ def test_validator_when_valid_payload():
     )
 
     validator = SchemaValidationInterface()
-    validator._get_cached_validator.cache_clear()
+    validator._get_validator.cache_clear()
 
     assert validator.validate_against_schema(
         schema_url=SCHEMA_URL_INPLACE_VOLUME, data=data_frame
@@ -59,7 +59,7 @@ def test_validator_when_ivalid_payload():
     del data_frame[0]["FLUID"]
 
     validator = SchemaValidationInterface()
-    validator._get_cached_validator.cache_clear()
+    validator._get_validator.cache_clear()
 
     with pytest.raises(ValidationError, match="'FLUID' is a required property"):
         validator.validate_against_schema(
@@ -73,17 +73,17 @@ def test_caching(metadata_examples):
     schema_url_fmu_results = inplace_volumes_metadata["$schema"]
 
     validator = SchemaValidationInterface()
-    validator._get_cached_validator.cache_clear()
+    validator._get_validator.cache_clear()
 
     # Validate against fmu results schema and assert schema is added to cache
     validator.validate_against_schema(schema_url_fmu_results, inplace_volumes_metadata)
-    cache_info = SchemaValidationInterface._get_cached_validator.cache_info()
+    cache_info = SchemaValidationInterface._get_validator.cache_info()
     assert cache_info.misses == 1
     assert cache_info.hits == 0
 
     # Validate against fmu results schema again and assert cached schema is used
     validator.validate_against_schema(schema_url_fmu_results, inplace_volumes_metadata2)
-    cache_info = SchemaValidationInterface._get_cached_validator.cache_info()
+    cache_info = SchemaValidationInterface._get_validator.cache_info()
     assert cache_info.misses == 1
     assert cache_info.hits == 1
 
@@ -94,6 +94,6 @@ def test_caching(metadata_examples):
     validator.validate_against_schema(
         SCHEMA_URL_INPLACE_VOLUME, inplace_volumes_payload
     )
-    cache_info = SchemaValidationInterface._get_cached_validator.cache_info()
+    cache_info = SchemaValidationInterface._get_validator.cache_info()
     assert cache_info.hits == 1
     assert cache_info.misses == 2
