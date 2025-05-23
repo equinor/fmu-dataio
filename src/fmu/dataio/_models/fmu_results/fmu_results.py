@@ -45,9 +45,11 @@ if TYPE_CHECKING:
 class FmuResultsSchema(SchemaBase):
     """The main metadata export describing the results."""
 
-    VERSION: VersionStr = "0.11.0"
+    VERSION: VersionStr = "0.12.0"
 
     VERSION_CHANGELOG: str = """
+    #### 0.12.0
+
     #### 0.11.0
 
     - `data.standard_result` now supports `FluidContactSurfaceStandardResult`
