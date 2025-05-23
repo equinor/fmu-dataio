@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.11.0/fmu_results.json
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.12.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -60,7 +60,7 @@ fmu:
     name: iter-0
     uuid: 00000000-0000-0000-0000-000000000000
   entity:
-    uuid: 4415a4a7-4e88-4fe0-4f85-64274ea50da9
+    uuid: 92c2dfac-e9a4-43c1-7598-b3f569f05bdd
   ert:
     experiment:
       id: 00000000-0000-0000-0000-000000000000
@@ -97,10 +97,12 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-05-19T12:08:51.078533Z'
+- datetime: '2025-05-23T10:18:18.589394Z'
   event: created
   sysinfo:
     fmu-dataio:
+      version: dummy_version
+    komodo:
       version: dummy_version
     operating_system:
       hostname: dummy_hostname
@@ -110,4 +112,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.11.0
+version: 0.12.0
