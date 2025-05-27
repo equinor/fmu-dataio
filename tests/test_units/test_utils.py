@@ -9,9 +9,10 @@ import pytest
 from xtgeo import Grid, Polygons, RegularSurface
 
 from fmu.dataio import _utils as utils
+from fmu.dataio._definitions import RMSExecutionMode
 from fmu.dataio._models.fmu_results import fields
 
-from ..utils import _get_pydantic_models_from_annotation, inside_rms
+from ..utils import _get_pydantic_models_from_annotation
 
 
 @pytest.mark.parametrize(
@@ -84,15 +85,41 @@ def test_get_object_name():
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_detect_inside_rms_decorator():
     assert utils.detect_inside_rms()
+    assert utils.get_rms_exec_mode() == RMSExecutionMode.interactive
 
 
 @pytest.mark.skip_inside_rmsvenv
 def test_detect_not_inside_rms():
     # TODO: Refactor tests and move away from outside/inside rms pattern
     assert not utils.detect_inside_rms()
+
+
+def test_get_rms_exec_mode_batch(monkeypatch):
+    """Test the rms execution mode in RMS batch."""
+    monkeypatch.setenv("RUNRMS_EXEC_MODE", "batch")
+    assert utils.get_rms_exec_mode() == RMSExecutionMode.batch
+
+
+def test_get_rms_exec_mode_interactive(monkeypatch):
+    """Test the rms execution mode in RMS interactive."""
+    monkeypatch.setenv("RUNRMS_EXEC_MODE", "interactive")
+    assert utils.get_rms_exec_mode() == RMSExecutionMode.interactive
+
+
+def test_get_rms_exec_mode_outside(monkeypatch):
+    """Test that rms execution mode outside of RMS is None."""
+    monkeypatch.delenv("RUNRMS_EXEC_MODE", raising=False)
+    assert utils.get_rms_exec_mode() is None
+
+
+def test_get_rms_exec_mode_unknown(monkeypatch):
+    """Test that an unknow rms execution mode fails."""
+    monkeypatch.setenv("RUNRMS_EXEC_MODE", "unknown")
+    with pytest.raises(ValueError, match="not a valid"):
+        utils.get_rms_exec_mode()
 
 
 def test_non_metadata_export_metadata_file():

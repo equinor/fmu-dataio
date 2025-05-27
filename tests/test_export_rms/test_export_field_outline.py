@@ -12,7 +12,6 @@ from fmu.dataio._models.standard_results.field_outline import (
     FieldOutlineResult,
     FieldOutlineSchema,
 )
-from tests.utils import inside_rms
 
 logger = null_logger(__name__)
 
@@ -40,7 +39,7 @@ def mock_export_class(
         yield _ExportFieldOutline(mock_project_variable)
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig):
     """Test that the standard_result is set correctly in the metadata"""
 
@@ -54,7 +53,7 @@ def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig
     assert (export_folder / "field_outline.parquet").exists()
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_standard_result_in_metadata(mock_export_class):
     """Test that the standard_result is set correctly in the metadata"""
 
@@ -75,7 +74,7 @@ def test_standard_result_in_metadata(mock_export_class):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_public_export_function(mock_project_variable, mock_export_class):
     """Test that the export function works"""
 
@@ -96,7 +95,7 @@ def test_public_export_function(mock_project_variable, mock_export_class):
     assert metadata["data"]["format"] == "parquet"
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypatch):
     """Test that an exception is raised if the config is missing."""
 
@@ -109,7 +108,7 @@ def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypa
         export_field_outline(mock_project_variable)
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_payload_validates_against_model(
     mock_export_class,
 ):
@@ -126,7 +125,7 @@ def test_payload_validates_against_model(
     FieldOutlineResult.model_validate(df)  # Throws if invalid
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_payload_validates_against_schema(
     mock_export_class,
 ):
