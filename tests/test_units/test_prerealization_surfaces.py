@@ -19,7 +19,6 @@ from fmu import dataio
 from fmu.dataio import _utils as utils
 
 from ..conftest import remove_ert_env, set_ert_env_prehook
-from ..utils import inside_rms
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +59,7 @@ def test_regsurf_preprocessed_observation(
     Later, a fmu run will update this (merge metadata)
     """
 
-    @inside_rms
+    @pytest.mark.usefixtures("inside_rms_interactive")
     def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)
@@ -168,7 +167,7 @@ def test_regsurf_preprocessed_filename_retained(
     retained when re-exporting preprocessed data.
     """
 
-    @inside_rms
+    @pytest.mark.usefixtures("inside_rms_interactive")
     def _export_data_from_rms(
         rmssetup,
         rmsglobalconfig,
@@ -238,7 +237,7 @@ def test_regsurf_preprocessed_observation_subfolder(
     Alternatively the subfolder can be given another name.
     """
 
-    @inside_rms
+    @pytest.mark.usefixtures("inside_rms_interactive")
     def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)
@@ -289,7 +288,7 @@ def test_regsurf_preprocessed_observation_subfolder(
     _run_case_fmu(fmurun_prehook, mysurf)
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_preprocessed_with_abs_forcefolder_shall_fail(
     rmssetup, rmsglobalconfig, regsurf
 ):
@@ -311,7 +310,7 @@ def test_preprocessed_with_abs_forcefolder_shall_fail(
         edata.generate_metadata(regsurf)
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_preprocessed_with_rel_forcefolder_ok(rmssetup, rmsglobalconfig, regsurf):
     """Run an export of a preprocessed surface inside RMS, with forcefolder."""
     logger.info("Active folder is %s", rmssetup)
@@ -340,7 +339,7 @@ def test_access_settings_retained(
     The stub metadata is produced when data is made/pre-processed.
     When adding metadata during FMU runtime, the access shall be retained."""
 
-    @inside_rms
+    @pytest.mark.usefixtures("inside_rms_interactive")
     def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)

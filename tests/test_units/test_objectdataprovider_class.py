@@ -23,7 +23,6 @@ from fmu.dataio.providers.objectdata._triangulated_surface import (
 from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
 
 from ..conftest import remove_ert_env, set_ert_env_prehook
-from ..utils import inside_rms
 
 # --------------------------------------------------------------------------------------
 # RegularSurface
@@ -187,7 +186,7 @@ def test_regsurf_preprocessed_observation(
     Later, a fmu run will update this (merge metadata)
     """
 
-    @inside_rms
+    @pytest.mark.usefixtures("inside_rms_interactive")
     def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
         """Run an export of a preprocessed surface inside RMS."""
 

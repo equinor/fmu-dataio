@@ -1062,19 +1062,17 @@ def test_metadata_format_deprecated(globalconfig1, regsurf, tmp_path, monkeypatc
     ExportData.meta_format = None  # reset
 
 
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_establish_runpath(tmp_path, globalconfig2):
     """Testing pwd and rootpath from RMS"""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
     os.chdir(rmspath)
 
-    ExportData._inside_rms = True
     edata = ExportData(config=globalconfig2, content="depth")
     edata._establish_rootpath()
 
     assert edata._rootpath == rmspath.parent.parent
-
-    ExportData._inside_rms = False  # reset
 
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")

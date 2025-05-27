@@ -22,6 +22,7 @@ import yaml
 
 from fmu.config import utilities as ut
 
+from ._definitions import RMSExecutionMode
 from ._logging import null_logger
 from ._readers.faultroom import FaultRoomSurface
 
@@ -41,19 +42,18 @@ def npfloat_to_float(v: Any) -> Any:
 
 
 def detect_inside_rms() -> bool:
-    """Detect if 'truly' inside RMS GUI, where predefined variable project exist.
+    """Detect if inside RMS GUI"""
+    return get_rms_exec_mode() is not None
 
-    However this will be overriden by an environment variable for unit testing
-    when using the Roxar API python, so that unit test outside of RMS behaves
-    properly
+
+def get_rms_exec_mode() -> RMSExecutionMode | None:
     """
-    with contextlib.suppress(ModuleNotFoundError):
-        import rmsapi
-
-        logger.info("RMSAPI version is %s", rmsapi.__version__)
-        return True
-    logger.info("Running truly in RMS GUI status: %s", False)
-    return False
+    Get the RMS GUI execution mode from the environment.
+    The RUNRMS_EXEC_MODE variable is set when the RMS GUI is started by runrms,
+    and holds information about the execution mode (interactive or batch).
+    """
+    rms_exec_mode = os.environ.get("RUNRMS_EXEC_MODE")
+    return RMSExecutionMode(rms_exec_mode) if rms_exec_mode else None
 
 
 def dataio_examples() -> bool:
