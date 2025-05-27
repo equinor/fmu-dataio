@@ -7,7 +7,6 @@ import pytest
 from fmu import dataio
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.enums import StandardResultName
-from tests.utils import inside_rms
 
 logger = null_logger(__name__)
 
@@ -33,7 +32,7 @@ def mock_export_class(
         yield _ExportStructureDepthSurfaces(mock_project_variable, "geogrid_vol")
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig):
     """Test that the standard_result is set correctly in the metadata"""
 
@@ -53,7 +52,7 @@ def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig
     assert (export_folder / ".topvolon.gri.yml").exists()
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_standard_result_in_metadata(mock_export_class):
     """Test that the standard_result is set correctly in the metadata"""
 
@@ -67,7 +66,7 @@ def test_standard_result_in_metadata(mock_export_class):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_public_export_function(mock_project_variable, mock_export_class):
     """Test that the export function works"""
 
@@ -88,7 +87,7 @@ def test_public_export_function(mock_project_variable, mock_export_class):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_unknown_name_in_stratigraphy_raises(mock_export_class):
     """Test that an error is raised if horizon name is missing in the stratigraphy"""
 
@@ -98,7 +97,7 @@ def test_unknown_name_in_stratigraphy_raises(mock_export_class):
         mock_export_class.export()
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypatch):
     """Test that an exception is raised if the config is missing."""
 

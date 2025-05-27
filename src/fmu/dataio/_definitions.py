@@ -78,3 +78,11 @@ STANDARD_TABLE_INDEX_COLUMNS: Final[dict[Content, StandardTableIndex]] = {
         required=["SATNUM"],
     ),
 }
+
+
+class RMSExecutionMode(StrEnum):
+    """The modes RMS can execute in. These definitions come from
+    `runrms.executor._rms_executor`."""
+
+    interactive = "interactive"
+    batch = "batch"

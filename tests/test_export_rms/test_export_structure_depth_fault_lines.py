@@ -14,7 +14,6 @@ from fmu.dataio._models.standard_results.structure_depth_fault_lines import (
     StructureDepthFaultLinesResult,
     StructureDepthFaultLinesSchema,
 )
-from tests.utils import inside_rms
 
 logger = null_logger(__name__)
 
@@ -40,7 +39,7 @@ def mock_export_class(
         yield _ExportStructureDepthFaultLines(mock_project_variable, "DL_extract")
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig):
     """Test that the standard_result is set correctly in the metadata"""
 
@@ -61,7 +60,7 @@ def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig
     assert (export_folder / ".topvolon.parquet.yml").exists()
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_standard_result_in_metadata(mock_export_class):
     """Test that the standard_result is set correctly in the metadata"""
 
@@ -83,7 +82,7 @@ def test_standard_result_in_metadata(mock_export_class):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_raise_on_open_fault_lines(mock_export_class):
     """Test that an error is given if a fault line is not closed"""
 
@@ -94,7 +93,7 @@ def test_raise_on_open_fault_lines(mock_export_class):
         mock_export_class.export()
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_public_export_function(mock_project_variable, mock_export_class):
     """Test that the export function works"""
 
@@ -123,7 +122,7 @@ def test_public_export_function(mock_project_variable, mock_export_class):
     assert set(metadata["data"]["table_index"]) == {"POLY_ID", "NAME"}
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_unknown_name_in_stratigraphy_raises(mock_export_class):
     """Test that an error is raised if horizon name is missing in the stratigraphy"""
 
@@ -133,7 +132,7 @@ def test_unknown_name_in_stratigraphy_raises(mock_export_class):
         mock_export_class.export()
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypatch):
     """Test that an exception is raised if the config is missing."""
 
@@ -146,7 +145,7 @@ def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypa
         export_structure_depth_fault_lines(mock_project_variable, "DS_extract")
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_payload_validates_against_model(
     mock_export_class,
 ):
@@ -163,7 +162,7 @@ def test_payload_validates_against_model(
     StructureDepthFaultLinesResult.model_validate(df)  # Throws if invalid
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_payload_validates_against_schema(
     mock_export_class,
 ):

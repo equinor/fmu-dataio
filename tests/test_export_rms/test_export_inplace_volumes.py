@@ -19,7 +19,6 @@ from fmu.dataio._models.standard_results.inplace_volumes import (
     InplaceVolumesSchema,
 )
 from fmu.dataio.export import _enums
-from tests.utils import inside_rms
 
 logger = null_logger(__name__)
 
@@ -73,7 +72,7 @@ def exportvolumetrics(
         yield _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_rms_volumetrics_export_class(exportvolumetrics):
     """See mocks in local conftest.py"""
 
@@ -94,7 +93,7 @@ def test_rms_volumetrics_export_class(exportvolumetrics):
     assert metadata["access"]["classification"] == "restricted"
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolumetrics):
     """See mocks in local conftest.py"""
 
@@ -110,7 +109,7 @@ def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolum
         exportvolumetrics._export_data_as_standard_result()
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_convert_table_from_legacy_to_standard_format(
     mock_project_variable,
     mocked_rmsapi_modules,
@@ -219,7 +218,7 @@ def test_convert_table_from_legacy_to_standard_format(
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_net_column_equal_bulk_if_missing(exportvolumetrics, voltable_standard):
     """Test that the NET column is set equal to BULK if it is missing"""
 
@@ -498,7 +497,7 @@ def test_validate_table_against_pydantic_model_before_export(
         exportvolumetrics._validate_table()
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_rms_volumetrics_export_config_invalid(
     mock_project_variable,
     exportvolumetrics,
@@ -514,7 +513,7 @@ def test_rms_volumetrics_export_config_invalid(
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_rms_volumetrics_export_config_missing(
     mock_project_variable,
     mocked_rmsapi_modules,
@@ -532,7 +531,7 @@ def test_rms_volumetrics_export_config_missing(
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_rms_volumetrics_export_function(
     mock_project_variable,
     mocked_rmsapi_modules,
@@ -571,7 +570,7 @@ def test_rms_volumetrics_export_function(
     assert metadata["data"]["table_index"] == _enums.InplaceVolumes.index_columns()
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_inplace_volumes_payload_validates_against_model(
     exportvolumetrics,
     monkeypatch,
@@ -589,7 +588,7 @@ def test_inplace_volumes_payload_validates_against_model(
     InplaceVolumesResult.model_validate(df)  # Throws if invalid
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_inplace_volumes_payload_validates_against_schema(
     exportvolumetrics,
     monkeypatch,
@@ -609,7 +608,7 @@ def test_inplace_volumes_payload_validates_against_schema(
     )  # Throws if invalid
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_inplace_volumes_export_and_result_columns_are_the_same(
     mocked_rmsapi_modules,
 ) -> None:

@@ -14,14 +14,15 @@ from warnings import warn
 
 from fmu.dataio.aggregation import AggregatedData
 
+from ._definitions import RMSExecutionMode
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._models.fmu_results import enums, global_configuration
 from ._models.fmu_results.global_configuration import GlobalConfiguration
 from ._utils import (
-    detect_inside_rms,  # dataio_examples,
     export_metadata_file,
     export_object_to_file,
+    get_rms_exec_mode,
     read_metadata_from_file,
     some_config_from_env,
 )
@@ -41,8 +42,6 @@ if TYPE_CHECKING:
 
 
 # DATAIO_EXAMPLES: Final = dataio_examples()
-INSIDE_RMS: Final = detect_inside_rms()
-
 
 GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
 SETTINGS_ENVNAME: Final = (
@@ -322,7 +321,6 @@ class ExportData:
     dict_fformat: ClassVar[str | None] = None  # deprecated and no effect
     table_include_index: ClassVar[bool] = False  # deprecated
     verifyfolder: ClassVar[bool] = True  # deprecated
-    _inside_rms: ClassVar[bool] = False  # developer only! if True pretend inside RMS
 
     # input keys (alphabetic)
     access_ssdl: dict = field(default_factory=dict)
@@ -780,10 +778,10 @@ class ExportData:
         3: When none of the above conditions apply, the rootpath value will be equal
            to the present working directory (pwd).
         """
+        rms_exec_mode = get_rms_exec_mode()
+
         logger.info("Establish roothpath")
-        logger.debug(
-            "inside RMS flag is %s (actual: %s))", ExportData._inside_rms, INSIDE_RMS
-        )
+        logger.debug("RMS execution mode from environment: %s", rms_exec_mode)
 
         if self._fmurun:
             assert isinstance(self.fmu_context, enums.FMUContext)
@@ -794,9 +792,8 @@ class ExportData:
                 logger.info("Run from ERT")
                 return casepath.absolute()
 
-        if ExportData._inside_rms or INSIDE_RMS:
-            logger.info("Run from inside RMS")
-            ExportData._inside_rms = True
+        if rms_exec_mode == RMSExecutionMode.interactive:
+            logger.info("Run from inside RMS interactive")
             return self._pwd.parent.parent.absolute().resolve()
 
         logger.info(
