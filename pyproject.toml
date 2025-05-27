@@ -89,9 +89,6 @@ write_to = "src/fmu/dataio/version.py"
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = "tests"
-markers = [
-    "skip_inside_rmsvenv: tests that should be skipped if inside rmsvenv",
-]
 
 [tool.coverage.run]
 omit = [

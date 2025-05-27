@@ -91,7 +91,6 @@ def test_detect_inside_rms_decorator():
     assert utils.get_rms_exec_mode() == RMSExecutionMode.interactive
 
 
-@pytest.mark.skip_inside_rmsvenv
 def test_detect_not_inside_rms():
     # TODO: Refactor tests and move away from outside/inside rms pattern
     assert not utils.detect_inside_rms()
