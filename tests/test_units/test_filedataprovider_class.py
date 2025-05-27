@@ -202,7 +202,6 @@ def test_get_share_folders_with_subfolder(regsurf, globalconfig2):
     assert str(fmeta.absolute_path.parent).endswith("share/results/maps/sub")
 
 
-@pytest.mark.skip_inside_rmsvenv
 def test_filedata_provider(regsurf, tmp_path, globalconfig2):
     """Testing the derive_filedata function."""
 
