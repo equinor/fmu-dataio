@@ -1,22 +1,11 @@
 from __future__ import annotations
 
 import datetime
-from functools import wraps
 from pathlib import Path
 from typing import Any, get_args
 
-import pytest
 import yaml
 from pydantic import BaseModel
-
-
-def inside_rms(func):
-    @pytest.mark.usefixtures("set_export_data_inside_rms", "set_environ_inside_rms")
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        return func(*args, **kwargs)
-
-    return wrapper
 
 
 def _parse_yaml(yaml_path):

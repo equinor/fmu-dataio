@@ -88,13 +88,8 @@ def return_to_original_directory():
 
 
 @pytest.fixture
-def set_export_data_inside_rms(monkeypatch):
-    monkeypatch.setattr(ExportData, "_inside_rms", True)
-
-
-@pytest.fixture
-def set_environ_inside_rms(monkeypatch):
-    monkeypatch.setattr("fmu.dataio._utils.detect_inside_rms", lambda: True)
+def inside_rms_interactive(monkeypatch):
+    monkeypatch.setenv("RUNRMS_EXEC_MODE", "interactive")
 
 
 @pytest.fixture(scope="session")

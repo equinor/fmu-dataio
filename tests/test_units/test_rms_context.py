@@ -21,11 +21,7 @@ from fmu.dataio._readers import faultroom
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
 
-from ..utils import inside_rms
-
 logger = logging.getLogger(__name__)
-
-logger.info("Inside RMS status %s", dataio.ExportData._inside_rms)
 
 
 @pytest.fixture(scope="module")
@@ -55,7 +51,7 @@ def inside_rms_setup(tmp_path_factory, rootpath):
     os.chdir(rootpath)
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_regsurf_generate_metadata(inside_rms_setup, regsurf):
     """Test generating metadata for a surface pretend inside RMS"""
     logger.info("Active folder is %s", inside_rms_setup["path"])
@@ -66,8 +62,6 @@ def test_regsurf_generate_metadata(inside_rms_setup, regsurf):
         config=inside_rms_setup["config"],
         content="depth",  # read from global config
     )
-    logger.info("Inside RMS status now %s", dataio.ExportData._inside_rms)
-
     edata.generate_metadata(regsurf)
     assert str(edata._pwd) == str(inside_rms_setup["path"])
     assert str(edata._rootpath.resolve()) == str(
@@ -75,7 +69,7 @@ def test_regsurf_generate_metadata(inside_rms_setup, regsurf):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_regsurf_generate_metadata_change_content(inside_rms_setup, regsurf):
     """As above but change a key in the generate_metadata"""
 
@@ -89,7 +83,7 @@ def test_regsurf_generate_metadata_change_content(inside_rms_setup, regsurf):
     assert meta2["data"]["content"] == "time"
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_regsurf_generate_metadata_change_content_invalid(inside_rms_setup, regsurf):
     """As above but change an invalid name of key in the generate_metadata"""
     edata = dataio.ExportData(
@@ -100,7 +94,7 @@ def test_regsurf_generate_metadata_change_content_invalid(inside_rms_setup, regs
         _ = edata.generate_metadata(regsurf, blablabla="time")
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_regsurf_export_file(inside_rms_setup, regsurf):
     """Export the regular surface to file with correct metadata."""
     logger.info("Active folder is %s", inside_rms_setup["path"])
@@ -114,7 +108,7 @@ def test_regsurf_export_file(inside_rms_setup, regsurf):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_regsurf_export_file_set_name(inside_rms_setup, regsurf):
     """Export the regular surface to file with correct metadata and name."""
     edata = dataio.ExportData(
@@ -133,7 +127,7 @@ def test_regsurf_export_file_set_name(inside_rms_setup, regsurf):
     assert "TopVolantis" in meta["data"]["alias"]
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_regsurf_metadata_with_timedata(inside_rms_setup, regsurf):
     """Export a regular surface to file with correct metadata and name and timedata."""
 
@@ -164,7 +158,7 @@ def test_regsurf_metadata_with_timedata(inside_rms_setup, regsurf):
     logger.debug(prettyprint_dict(meta1))
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_regsurf_metadata_with_timedata_legacy(inside_rms_setup, regsurf):
     """Export the regular surface to file with correct metadata timedata, legacy ver."""
     dataio.ExportData.legacy_time_format = True
@@ -194,7 +188,7 @@ def test_regsurf_metadata_with_timedata_legacy(inside_rms_setup, regsurf):
     assert meta2["data"]["time"] == meta1["data"]["time"]
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_regsurf_export_file_fmurun(inside_rms_setup, regsurf):
     """Being in RMS and in an active FMU ERT run with case metadata present.
 
@@ -237,7 +231,7 @@ def test_regsurf_export_file_fmurun(inside_rms_setup, regsurf):
 # ======================================================================================
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_polys_export_file_set_name(inside_rms_setup, polygons):
     """Export the polygon to file with correct metadata and name."""
 
@@ -253,7 +247,7 @@ def test_polys_export_file_set_name(inside_rms_setup, polygons):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_points_export_file_set_name(inside_rms_setup, points):
     """Export the points to file with correct metadata and name."""
     edata = dataio.ExportData(
@@ -271,7 +265,7 @@ def test_points_export_file_set_name(inside_rms_setup, points):
     assert thefile.columns[0] == "X"
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_points_export_file_set_name_xtgeoheaders(inside_rms_setup, points):
     """Export the points to file with correct metadata and name but here xtgeo var."""
 
@@ -300,7 +294,7 @@ def test_points_export_file_set_name_xtgeoheaders(inside_rms_setup, points):
 # ======================================================================================
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_cube_export_file_set_name(inside_rms_setup, cube):
     """Export the cube to file with correct metadata and name."""
 
@@ -316,7 +310,7 @@ def test_cube_export_file_set_name(inside_rms_setup, cube):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_cube_export_file_set_name_as_observation(inside_rms_setup, cube):
     """Export the cube to file with correct metadata and name, is_observation."""
     edata = dataio.ExportData(
@@ -334,7 +328,7 @@ def test_cube_export_file_set_name_as_observation(inside_rms_setup, cube):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_cube_export_file_set_name_as_observation_forcefolder(inside_rms_setup, cube):
     """Export the cube to file with correct metadata and name, is_observation.
 
@@ -359,7 +353,7 @@ def test_cube_export_file_set_name_as_observation_forcefolder(inside_rms_setup, 
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_cube_export_as_case(inside_rms_setup, cube):
     """Export the cube to file with correct metadata and name, is_observation.
 
@@ -383,7 +377,7 @@ def test_cube_export_as_case(inside_rms_setup, cube):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_case_symlink_realization_raises_error(inside_rms_setup):
     """Test that fmu_context="case_symlink_realization" raises error."""
 
@@ -396,7 +390,7 @@ def test_case_symlink_realization_raises_error(inside_rms_setup):
         )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_cube_export_as_observation_forcefolder_w_added_folder(inside_rms_setup, cube):
     """Export the cube to file with correct metadata and name, is_observation.
 
@@ -421,7 +415,7 @@ def test_cube_export_as_observation_forcefolder_w_added_folder(inside_rms_setup,
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_cube_export_as_observation_forcefolder_w_true_subfolder(
     inside_rms_setup, cube
 ):
@@ -450,7 +444,7 @@ def test_cube_export_as_observation_forcefolder_w_true_subfolder(
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_cube_export_as_observation_forcefolder_w_subfolder_case(
     inside_rms_setup, cube
 ):
@@ -485,7 +479,7 @@ def test_cube_export_as_observation_forcefolder_w_subfolder_case(
 # ======================================================================================
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_grid_export_file_set_name(inside_rms_setup, grid):
     """Export the grid to file with correct metadata and name."""
     edata = dataio.ExportData(
@@ -500,7 +494,7 @@ def test_grid_export_file_set_name(inside_rms_setup, grid):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_grid_zonation_in_metadata(inside_rms_setup):
     """Export the grid to file with correct metadata and name."""
 
@@ -547,7 +541,7 @@ def test_grid_zonation_in_metadata(inside_rms_setup):
         grid.set_subgrids({"zone1": 1, "zone2": 1})
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_gridproperty_export_file_set_name(inside_rms_setup, gridproperty):
     """Export the gridprop to file with correct metadata and name."""
 
@@ -563,7 +557,7 @@ def test_gridproperty_export_file_set_name(inside_rms_setup, gridproperty):
     )
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_gridproperty_export_with_geometry(inside_rms_setup, grid, gridproperty):
     """Export the the grid and the gridprop(s) with connected geometry."""
 
@@ -622,7 +616,7 @@ def test_gridproperty_export_with_geometry(inside_rms_setup, grid, gridproperty)
     assert "this_is_parent" in output
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_gridproperty_export_with_geometry_and_bad_character(
     inside_rms_setup, grid, gridproperty, monkeypatch
 ):
@@ -664,7 +658,7 @@ def test_gridproperty_export_with_geometry_and_bad_character(
 # ======================================================================================
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_dataframe_export_file_set_name(inside_rms_setup, dataframe):
     """Export the dataframe to file with correct metadata and name."""
 
@@ -683,7 +677,7 @@ def test_dataframe_export_file_set_name(inside_rms_setup, dataframe):
     assert metaout["data"]["spec"]["columns"] == ["COL1", "COL2"]
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_pyarrow_export_file_set_name(inside_rms_setup, arrowtable):
     """Export the arrow to file with correct metadata and name."""
     edata = dataio.ExportData(
@@ -707,7 +701,7 @@ def test_pyarrow_export_file_set_name(inside_rms_setup, arrowtable):
 # ======================================================================================
 
 
-@inside_rms
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_faultroom_export_as_file(rootpath, inside_rms_setup):
     """Export the faultroom surfaces, use input as file"""
 
