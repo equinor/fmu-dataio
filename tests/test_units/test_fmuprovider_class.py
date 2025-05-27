@@ -407,7 +407,6 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
         FmuProvider(model=GLOBAL_CONFIG_MODEL, workflow=123.4).get_metadata()
 
 
-@pytest.mark.skip_inside_rmsvenv
 def test_ert_simulation_modes_one_to_one() -> None:
     """Ensure dataio known modes match those defined by Ert.
 
