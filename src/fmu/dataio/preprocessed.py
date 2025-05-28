@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import shutil
 import warnings
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Final
 
@@ -14,14 +13,11 @@ from ._metadata import ObjectMetadataExport
 from ._models.fmu_results import enums
 from ._models.fmu_results.enums import FMUContext
 from ._models.fmu_results.fields import File
+from ._runcontext import RunContext
 from ._utils import export_metadata_file, md5sum
 from .exceptions import InvalidMetadataError
 from .providers._filedata import ShareFolder
-from .providers._fmu import (
-    ERT_RELATIVE_CASE_METADATA_FILE,
-    FmuProvider,
-    get_fmu_context_from_environment,
-)
+from .providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE, FmuProvider
 
 logger: Final = null_logger(__name__)
 
@@ -33,7 +29,6 @@ logger: Final = null_logger(__name__)
 # ######################################################################################
 
 
-@dataclass
 class ExportPreprocessedData:
     """Export a preprocessed file and its metadata into a FMU run at case level.
 
@@ -55,35 +50,33 @@ class ExportPreprocessedData:
             "casepath/share/observations" folder, otherwise on casepath/share/result.
     """
 
-    casepath: str | Path
-    is_observation: bool = True
+    def __init__(
+        self,
+        casepath: str | Path,
+        is_observation: bool = True,
+    ) -> None:
+        self._is_observation = is_observation
+        self._runcontext = RunContext(
+            casepath_proposed=Path(casepath), fmu_context=FMUContext.case
+        )
 
-    _fmudata: FmuProvider | None = field(default=None)
-
-    def __post_init__(self) -> None:
-        if get_fmu_context_from_environment() != FMUContext.case:
+        if self._runcontext.fmu_context_from_env != FMUContext.case:
             raise RuntimeError(
                 "Only possible to run re-export of preprocessed data inside FMU "
                 "using a pre-simulation workflow in ERT."
             )
 
-        self._fmudata = FmuProvider(
-            fmu_context=FMUContext.case,
-            casepath_proposed=Path(self.casepath),
-            workflow=None,
-        )
-
-        if not (casepath := self._fmudata.get_casepath()):
+        if not self._runcontext.casepath:
             raise ValueError(
                 "Could not detect valid case metadata at file location:"
-                f"{Path(self.casepath) / ERT_RELATIVE_CASE_METADATA_FILE}. Provide an "
+                f"{Path(casepath) / ERT_RELATIVE_CASE_METADATA_FILE}. Provide an "
                 "updated casepath. Note, it is required to have run the ERT workflow "
                 "'WF_CREATE_CASE_METADATA' prior to this export job. See how-to here: "
                 "https://fmu-dataio.readthedocs.io/en/latest/"
                 "preparations.html#workflow-for-creating-case-metadata"
             )
 
-        self.casepath = casepath.absolute()
+        self.casepath = self._runcontext.casepath.absolute()
 
     @staticmethod
     def _validate_object(obj: str | Path) -> Path:
@@ -127,7 +120,7 @@ class ExportPreprocessedData:
             ShareFolder.PREPROCESSED, maxsplit=1
         )[-1]
 
-        if self.is_observation:
+        if self._is_observation:
             return (
                 Path(ShareFolder.OBSERVATIONS.value) / existing_subfolders_and_filename
             )
@@ -167,7 +160,6 @@ class ExportPreprocessedData:
         Subsequently the final metadata is validated against the schema to ensure
         it is ready for sumo upload, before it is returned.
         """
-        assert self._fmudata is not None
 
         checksum_md5_file = md5sum(objfile)
         if checksum_md5_meta := meta_existing["file"].get("checksum_md5"):
@@ -181,7 +173,7 @@ class ExportPreprocessedData:
                 "Please re-export your objects to disk."
             )
 
-        meta_existing["fmu"] = self._fmudata.get_metadata()
+        meta_existing["fmu"] = FmuProvider(self._runcontext).get_metadata()
         meta_existing["file"] = self._get_meta_file(objfile, checksum_md5_file)
 
         try:

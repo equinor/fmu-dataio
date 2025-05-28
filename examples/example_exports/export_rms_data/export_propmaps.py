@@ -44,8 +44,6 @@ INPUT_FOLDER = Path("../output/maps/grid_averages")
 def export_propmaps():
     """Exporting maps from clipboard"""
 
-    dataio.ExportData._inside_rms = True
-
     files = INPUT_FOLDER.glob("*.gri")
     for file in files:
         surf = xtgeo.surface_from_file(file)

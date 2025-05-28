@@ -14,23 +14,21 @@ from warnings import warn
 
 from fmu.dataio.aggregation import AggregatedData
 
-from ._definitions import RMSExecutionMode
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._models.fmu_results import enums, global_configuration
 from ._models.fmu_results.global_configuration import GlobalConfiguration
+from ._runcontext import RunContext, get_fmu_context_from_environment
 from ._utils import (
     export_metadata_file,
     export_object_to_file,
-    get_rms_exec_mode,
     read_metadata_from_file,
     some_config_from_env,
 )
 from .case import CreateCaseMetadata
 from .exceptions import ValidationError
 from .preprocessed import ExportPreprocessedData
-from .providers._filedata import FileDataProvider
-from .providers._fmu import FmuProvider, get_fmu_context_from_environment
+from .providers._fmu import FmuProvider
 from .providers.objectdata._provider import (
     ObjectDataProvider,
     objectdata_provider_factory,
@@ -40,8 +38,6 @@ if TYPE_CHECKING:
     from . import types
     from ._models.fmu_results.standard_result import StandardResult
 
-
-# DATAIO_EXAMPLES: Final = dataio_examples()
 
 GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
 SETTINGS_ENVNAME: Final = (
@@ -357,23 +353,14 @@ class ExportData:
     workflow: str | dict[str, str] | None = None  # dict input is deprecated
     table_index: list | None = None
 
-    # storing resulting state variables for instance, non-public:
-    _pwd: Path = field(default_factory=Path, init=False)
-    _fmurun: bool = field(default=False, init=False)
-
     # Need to store these temporarily in variables until we stop
     # updating state of the class also on export and generate_metadata
     _classification: enums.Classification = enums.Classification.internal
     _rep_include: bool = field(default=False, init=False)
 
-    # << NB! storing ACTUAL casepath:
-    _rootpath: Path = field(default_factory=Path, init=False)
-
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
         self._show_deprecations_or_notimplemented()
-
-        self._fmurun = get_fmu_context_from_environment() is not None
 
         # if input is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
@@ -408,12 +395,14 @@ class ExportData:
         self._classification = self._get_classification()
         self._rep_include = self._get_rep_include()
 
-        self._pwd = Path().cwd()
-        self._rootpath = self._establish_rootpath()
-        logger.debug("pwd:   %s", str(self._pwd))
-        logger.info("rootpath:   %s", str(self._rootpath))
-
+        self._runcontext = self._get_runcontext()
         logger.info("Ran __post_init__")
+
+    def _get_runcontext(self) -> RunContext:
+        """Get the run context for this ExportData instance."""
+        assert isinstance(self.fmu_context, enums.FMUContext | None)
+        casepath_proposed = Path(self.casepath) if self.casepath else None
+        return RunContext(casepath_proposed, fmu_context=self.fmu_context)
 
     def _get_classification(self) -> enums.Classification:
         """
@@ -705,7 +694,7 @@ class ExportData:
             )
             self.fmu_context = env_fmu_context
 
-        elif not self._fmurun:
+        elif not env_fmu_context:
             logger.warning(
                 "Requested fmu_context is <%s> but since this is detected as a non "
                 "FMU run, the actual context is force set to None",
@@ -761,46 +750,10 @@ class ExportData:
 
         self._show_deprecations_or_notimplemented()
         self._validate_and_establish_fmucontext()
-        self._rootpath = self._establish_rootpath()
 
+        self._runcontext = self._get_runcontext()
         self._classification = self._get_classification()
         self._rep_include = self._get_rep_include()
-
-    def _establish_rootpath(self) -> Path:
-        """
-        Establish the rootpath. The rootpath is the folder that acts as the
-        base root for all relative output files. The rootpath is dependent on
-        whether this is run in a FMU context via ERT and whether it's being
-        run from inside or outside RMS.
-
-        1: Running ERT: the rootpath will be equal to the casepath
-        2: Running RMS interactively: The rootpath will be rootpath/rms/model
-        3: When none of the above conditions apply, the rootpath value will be equal
-           to the present working directory (pwd).
-        """
-        rms_exec_mode = get_rms_exec_mode()
-
-        logger.info("Establish roothpath")
-        logger.debug("RMS execution mode from environment: %s", rms_exec_mode)
-
-        if self._fmurun:
-            assert isinstance(self.fmu_context, enums.FMUContext)
-            if casepath := FmuProvider(
-                fmu_context=self.fmu_context,
-                casepath_proposed=Path(self.casepath) if self.casepath else None,
-            ).get_casepath():
-                logger.info("Run from ERT")
-                return casepath.absolute()
-
-        if rms_exec_mode == RMSExecutionMode.interactive:
-            logger.info("Run from inside RMS interactive")
-            return self._pwd.parent.parent.absolute().resolve()
-
-        logger.info(
-            "Running outside FMU context or casepath with valid case metadata "
-            "could not be detected, will use pwd as roothpath."
-        )
-        return self._pwd
 
     def _export_without_metadata(self, obj: types.Inferrable) -> str:
         """
@@ -810,26 +763,10 @@ class ExportData:
         """
         objdata = objectdata_provider_factory(obj, self)
 
-        filemeta = FileDataProvider(
-            dataio=self,
-            objdata=objdata,
-            runpath=(
-                (
-                    FmuProvider(
-                        fmu_context=enums.FMUContext(self.fmu_context),
-                        casepath_proposed=(
-                            Path(self.casepath) if self.casepath else None
-                        ),
-                    ).get_runpath()
-                )
-                if self._fmurun
-                else None
-            ),
-        ).get_metadata()
+        absolute_path = self._runcontext.exportroot / objdata.share_path
 
-        assert filemeta.absolute_path is not None  # for mypy
-        export_object_to_file(filemeta.absolute_path, objdata.export_to_file)
-        return str(filemeta.absolute_path)
+        export_object_to_file(absolute_path, objdata.export_to_file)
+        return str(absolute_path)
 
     def _export_with_standard_result(
         self, obj: types.Inferrable, standard_result: StandardResult
@@ -857,17 +794,16 @@ class ExportData:
         """Generate metadata for the provided ObjectDataProvider"""
         fmudata = (
             FmuProvider(
+                runcontext=self._runcontext,
                 model=(
                     self.config.model
                     if isinstance(self.config, GlobalConfiguration)
                     else None
                 ),
-                fmu_context=enums.FMUContext(self.fmu_context),
-                casepath_proposed=Path(self.casepath) if self.casepath else None,
                 workflow=self.workflow,
                 object_share_path=objdata.share_path,
             )
-            if self._fmurun
+            if self._runcontext.inside_fmu
             else None
         )
 

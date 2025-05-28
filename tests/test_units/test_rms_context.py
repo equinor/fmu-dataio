@@ -63,8 +63,7 @@ def test_regsurf_generate_metadata(inside_rms_setup, regsurf):
         content="depth",  # read from global config
     )
     edata.generate_metadata(regsurf)
-    assert str(edata._pwd) == str(inside_rms_setup["path"])
-    assert str(edata._rootpath.resolve()) == str(
+    assert str(edata._runcontext.exportroot) == str(
         inside_rms_setup["path"].parent.parent.resolve()
     )
 
@@ -104,7 +103,7 @@ def test_regsurf_export_file(inside_rms_setup, regsurf):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/maps/unknown.gri").resolve()
+        (edata._runcontext.exportroot / "share/results/maps/unknown.gri").resolve()
     )
 
 
@@ -119,7 +118,7 @@ def test_regsurf_export_file_set_name(inside_rms_setup, regsurf):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/maps/topvolantis.gri").resolve()
+        (edata._runcontext.exportroot / "share/results/maps/topvolantis.gri").resolve()
     )
 
     meta = edata.generate_metadata(regsurf)
@@ -243,7 +242,9 @@ def test_polys_export_file_set_name(inside_rms_setup, polygons):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/polygons/topvolantis.csv").resolve()
+        (
+            edata._runcontext.exportroot / "share/results/polygons/topvolantis.csv"
+        ).resolve()
     )
 
 
@@ -258,10 +259,14 @@ def test_points_export_file_set_name(inside_rms_setup, points):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/points/topvolantis.csv").resolve()
+        (
+            edata._runcontext.exportroot / "share/results/points/topvolantis.csv"
+        ).resolve()
     )
 
-    thefile = pd.read_csv(edata._rootpath / "share/results/points/topvolantis.csv")
+    thefile = pd.read_csv(
+        edata._runcontext.exportroot / "share/results/points/topvolantis.csv"
+    )
     assert thefile.columns[0] == "X"
 
 
@@ -279,10 +284,14 @@ def test_points_export_file_set_name_xtgeoheaders(inside_rms_setup, points):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/points/topvolantiz.csv").resolve()
+        (
+            edata._runcontext.exportroot / "share/results/points/topvolantiz.csv"
+        ).resolve()
     )
 
-    thefile = pd.read_csv(edata._rootpath / "share/results/points/topvolantiz.csv")
+    thefile = pd.read_csv(
+        edata._runcontext.exportroot / "share/results/points/topvolantiz.csv"
+    )
     assert thefile.columns[0] == "X_UTME"
 
     dataio.ExportData.points_fformat = "csv"
@@ -306,7 +315,7 @@ def test_cube_export_file_set_name(inside_rms_setup, cube):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/cubes/mycube.segy").resolve()
+        (edata._runcontext.exportroot / "share/results/cubes/mycube.segy").resolve()
     )
 
 
@@ -324,7 +333,9 @@ def test_cube_export_file_set_name_as_observation(inside_rms_setup, cube):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
+        (
+            edata._runcontext.exportroot / "share/observations/cubes/mycube.segy"
+        ).resolve()
     )
 
 
@@ -349,7 +360,9 @@ def test_cube_export_file_set_name_as_observation_forcefolder(inside_rms_setup, 
 
     logger.info("Output after force is %s", output)
     assert str(output) == str(
-        (edata._rootpath / "share/observations/seismic/mycube.segy").resolve()
+        (
+            edata._runcontext.exportroot / "share/observations/seismic/mycube.segy"
+        ).resolve()
     )
 
 
@@ -373,7 +386,9 @@ def test_cube_export_as_case(inside_rms_setup, cube):
     logger.info("Output %s", output)
     assert edata.fmu_context is None
     assert str(output) == str(
-        (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
+        (
+            edata._runcontext.exportroot / "share/observations/cubes/mycube.segy"
+        ).resolve()
     )
 
 
@@ -411,7 +426,9 @@ def test_cube_export_as_observation_forcefolder_w_added_folder(inside_rms_setup,
     logger.info("Output after force is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/observations/seismic/xxx/mycube.segy").resolve()
+        (
+            edata._runcontext.exportroot / "share/observations/seismic/xxx/mycube.segy"
+        ).resolve()
     )
 
 
@@ -439,7 +456,8 @@ def test_cube_export_as_observation_forcefolder_w_true_subfolder(
 
     assert str(output) == str(
         (
-            edata._rootpath / "share/observations/seismic/xxx/mysubfolder/mycube.segy"
+            edata._runcontext.exportroot
+            / "share/observations/seismic/xxx/mysubfolder/mycube.segy"
         ).resolve()
     )
 
@@ -470,7 +488,9 @@ def test_cube_export_as_observation_forcefolder_w_subfolder_case(
     logger.info("Output after force is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/observations/seismic/xxx/mycube.segy").resolve()
+        (
+            edata._runcontext.exportroot / "share/observations/seismic/xxx/mycube.segy"
+        ).resolve()
     )
 
 
@@ -490,7 +510,7 @@ def test_grid_export_file_set_name(inside_rms_setup, grid):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/grids/mygrid.roff").resolve()
+        (edata._runcontext.exportroot / "share/results/grids/mygrid.roff").resolve()
     )
 
 
@@ -553,7 +573,9 @@ def test_gridproperty_export_file_set_name(inside_rms_setup, gridproperty):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/grids/mygridproperty.roff").resolve()
+        (
+            edata._runcontext.exportroot / "share/results/grids/mygridproperty.roff"
+        ).resolve()
     )
 
 
@@ -670,7 +692,9 @@ def test_dataframe_export_file_set_name(inside_rms_setup, dataframe):
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/results/tables/mydataframe.csv").resolve()
+        (
+            edata._runcontext.exportroot / "share/results/tables/mydataframe.csv"
+        ).resolve()
     )
 
     metaout = dataio.read_metadata(output)
@@ -689,7 +713,10 @@ def test_pyarrow_export_file_set_name(inside_rms_setup, arrowtable):
         logger.info("Output is %s", output)
 
         assert str(output) == str(
-            (edata._rootpath / "share/results/tables/myarrowtable.parquet").resolve()
+            (
+                edata._runcontext.exportroot
+                / "share/results/tables/myarrowtable.parquet"
+            ).resolve()
         )
 
         metaout = dataio.read_metadata(output)

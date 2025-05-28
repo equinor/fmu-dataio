@@ -27,6 +27,7 @@ from .providers._filedata import FileDataProvider
 from .providers.objectdata._base import UnsetData
 
 if TYPE_CHECKING:
+    from ._runcontext import RunContext
     from .dataio import ExportData
     from .providers._fmu import FmuProvider
     from .providers.objectdata._base import ObjectDataProvider
@@ -57,16 +58,10 @@ class CaseMetadataExport(CaseMetadata, populate_by_name=True):
 
 
 def _get_meta_filedata(
-    dataio: ExportData,
-    objdata: ObjectDataProvider,
-    fmudata: FmuProvider | None,
+    runcontext: RunContext, objdata: ObjectDataProvider
 ) -> fields.File:
     """Derive metadata for the file."""
-    return FileDataProvider(
-        dataio=dataio,
-        objdata=objdata,
-        runpath=fmudata.get_runpath() if fmudata else None,
-    ).get_metadata()
+    return FileDataProvider(runcontext, objdata).get_metadata()
 
 
 def _get_meta_fmu(fmudata: FmuProvider) -> fields.FMU | None:
@@ -139,7 +134,7 @@ def generate_export_metadata(
         ),
         access=_get_meta_access(dataio),
         data=objdata.get_metadata(),
-        file=_get_meta_filedata(dataio, objdata, fmudata),
+        file=_get_meta_filedata(dataio._runcontext, objdata),
         tracklog=fields.Tracklog.initialize(),
         display=_get_meta_display(dataio, objdata),
         preprocessed=dataio.preprocessed,
