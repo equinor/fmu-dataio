@@ -13,7 +13,8 @@ from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._definitions import ShareFolder
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results import enums, fields
+from fmu.dataio._models.fmu_results import fields
+from fmu.dataio._models.fmu_results.enums import FMUContext
 from fmu.dataio._utils import compute_md5_from_objdata
 
 from ._base import Provider
@@ -22,6 +23,7 @@ logger: Final = null_logger(__name__)
 
 if TYPE_CHECKING:
     from fmu.dataio import ExportData
+    from fmu.dataio._runcontext import RunContext
 
     from .objectdata._provider import ObjectDataProvider
 
@@ -137,27 +139,28 @@ class FileDataProvider(Provider):
 
     def __init__(
         self,
-        dataio: ExportData,
+        runcontext: RunContext,
         objdata: ObjectDataProvider,
-        runpath: Path | None = None,
     ):
         self.objdata = objdata
-        self.dataio = dataio
-        self.runpath = (
-            runpath if dataio.fmu_context == enums.FMUContext.realization else None
-        )
+        self.runcontext = runcontext
 
     def get_metadata(self) -> fields.File:
-        exportroot = self.runpath or self.dataio._rootpath
+        casepath = self.runcontext.casepath
+        exportroot = self.runcontext.exportroot
         share_path = self.objdata.share_path
 
         absolute_path = exportroot / share_path
-        relative_path = absolute_path.relative_to(self.dataio._rootpath)
+        relative_path = absolute_path.relative_to(casepath or exportroot)
 
         logger.info("Returning metadata pydantic model fields.File")
         return fields.File(
             absolute_path=absolute_path.resolve(),
             relative_path=relative_path,
-            runpath_relative_path=(share_path if self.runpath else None),
+            runpath_relative_path=(
+                share_path
+                if self.runcontext.fmu_context == FMUContext.realization
+                else None
+            ),
             checksum_md5=compute_md5_from_objdata(self.objdata),
         )

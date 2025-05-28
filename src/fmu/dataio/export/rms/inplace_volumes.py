@@ -283,7 +283,7 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         table = self._add_missing_columns_to_table(table)
         return self._set_table_column_order(table)
 
-    def _is_column_missing_in_table(self, column: str) -> bool:
+    def _is_column_missing_in_table(self, column: str) -> bool | np.bool:
         """Check if a column is present in the final dataframe and has values"""
         return column not in self._dataframe or self._dataframe[column].isna().all()
 

@@ -13,13 +13,14 @@ import yaml
 
 from fmu.dataio._models.fmu_results.enums import FMUContext, StandardResultName
 from fmu.dataio._models.fmu_results.standard_result import InplaceVolumesStandardResult
+from fmu.dataio._runcontext import FmuEnv
 from fmu.dataio._utils import (
     convert_datestr_to_isoformat,
     prettyprint_dict,
     uuid_from_string,
 )
 from fmu.dataio.dataio import ExportData, read_metadata
-from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE, FmuEnv
+from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE
 
 # pylint: disable=no-member
 
@@ -784,7 +785,7 @@ def test_fmurun_attribute_outside_fmu(rmsglobalconfig):
     assert FmuEnv.ENSEMBLE_ID.value is None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
-    assert edata._fmurun is False
+    assert edata._runcontext.inside_fmu is False
 
 
 def test_exportdata_no_iter_folder(
@@ -794,7 +795,7 @@ def test_exportdata_no_iter_folder(
 
     monkeypatch.chdir(fmurun_no_iter_folder)
     edata = ExportData(config=rmsglobalconfig, content="depth")
-    assert edata._fmurun is True
+    assert edata._runcontext.inside_fmu is True
 
     out = Path(edata.export(regsurf))
     with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
@@ -823,9 +824,8 @@ def test_fmucontext_case_casepath(fmurun_prehook, rmsglobalconfig, regsurf):
     with pytest.warns(UserWarning, match="Could not auto detect"):
         edata = ExportData(config=rmsglobalconfig, content="depth")
 
-    # should still give warning when casepath not provided and create empty fmu metadata
-    with pytest.warns(UserWarning, match="Could not auto detect"):
-        meta = edata.generate_metadata(regsurf)
+    # create empty fmu metadata
+    meta = edata.generate_metadata(regsurf)
     assert "fmu" not in meta
 
     # no warning when casepath is provided and metadata is valid
@@ -844,7 +844,7 @@ def test_fmurun_attribute_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig):
     assert FmuEnv.SIMULATION_MODE.value is not None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
-    assert edata._fmurun is True
+    assert edata._runcontext.inside_fmu is True
 
 
 def test_fmu_context_not_given_fetch_from_env_realization(
@@ -859,7 +859,7 @@ def test_fmu_context_not_given_fetch_from_env_realization(
     assert FmuEnv.EXPERIMENT_ID.value is not None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
-    assert edata._fmurun is True
+    assert edata._runcontext.inside_fmu is True
     assert edata.fmu_context == FMUContext.realization
 
 
@@ -878,9 +878,9 @@ def test_fmu_context_not_given_fetch_from_env_case(fmurun_prehook, rmsglobalconf
 
     # test that it runs properly when casepath is provided
     edata = ExportData(config=rmsglobalconfig, content="depth", casepath=fmurun_prehook)
-    assert edata._fmurun is True
+    assert edata._runcontext.inside_fmu is True
     assert edata.fmu_context == FMUContext.case
-    assert edata._rootpath == fmurun_prehook
+    assert edata._runcontext.exportroot == fmurun_prehook
 
 
 def test_fmu_context_not_given_fetch_from_env_nonfmu(rmsglobalconfig):
@@ -893,7 +893,7 @@ def test_fmu_context_not_given_fetch_from_env_nonfmu(rmsglobalconfig):
     assert FmuEnv.SIMULATION_MODE.value is None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
-    assert edata._fmurun is False
+    assert edata._runcontext.inside_fmu is False
     assert edata.fmu_context is None
 
 
@@ -905,7 +905,7 @@ def test_fmu_context_outside_fmu_input_overwrite(rmsglobalconfig):
     edata = ExportData(
         config=rmsglobalconfig, content="depth", fmu_context="realization"
     )
-    assert edata._fmurun is False
+    assert edata._runcontext.inside_fmu is False
     assert edata.fmu_context is None
 
 
@@ -915,7 +915,7 @@ def test_fmu_context_outside_fmu_no_input_overwrite(rmsglobalconfig):
     is "preprocessed"
     """
     edata = ExportData(config=rmsglobalconfig, content="depth", preprocessed=True)
-    assert edata._fmurun is False
+    assert edata._runcontext.inside_fmu is False
     assert edata.preprocessed is True
     assert edata.fmu_context is None
 
@@ -989,7 +989,7 @@ def test_preprocessed_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig, regsurf
         fmu_context="case",
         preprocessed=True,
     )
-    assert edata._fmurun is True
+    assert edata._runcontext.inside_fmu is True
     assert edata.preprocessed is True
     assert edata.fmu_context == FMUContext.case
 
@@ -1070,9 +1070,8 @@ def test_establish_runpath(tmp_path, globalconfig2):
     os.chdir(rmspath)
 
     edata = ExportData(config=globalconfig2, content="depth")
-    edata._establish_rootpath()
 
-    assert edata._rootpath == rmspath.parent.parent
+    assert edata._runcontext.exportroot == rmspath.parent.parent
 
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
@@ -1082,13 +1081,11 @@ def test_forcefolder(tmp_path, globalconfig2, regsurf):
     rmspath.mkdir(parents=True, exist_ok=True)
     os.chdir(rmspath)
 
-    ExportData._inside_rms = True
     edata = ExportData(config=globalconfig2, content="depth", forcefolder="whatever")
     meta = edata.generate_metadata(regsurf)
     logger.info("RMS PATH %s", rmspath)
     logger.info("\n %s", prettyprint_dict(meta))
     assert meta["file"]["relative_path"].startswith("share/results/whatever/")
-    ExportData._inside_rms = False  # reset
 
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
@@ -1098,7 +1095,6 @@ def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsu
     rmspath.mkdir(parents=True, exist_ok=True)
     os.chdir(rmspath)
 
-    ExportData._inside_rms = True
     ExportData.allow_forcefolder_absolute = False
 
     edata = ExportData(
@@ -1111,7 +1107,6 @@ def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsu
         ExportData.allow_forcefolder_absolute = True
         ExportData(config=globalconfig2, content="depth", forcefolder="/tmp/what")
 
-    ExportData._inside_rms = False
     ExportData.allow_forcefolder_absolute = False
 
 
