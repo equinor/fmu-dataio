@@ -7,7 +7,10 @@ import numpy as np
 import xtgeo
 from pandas import DataFrame
 
-from fmu.dataio._models.fmu_results.enums import FMUClass, StandardResultName
+from fmu.dataio._models.fmu_results.enums import (
+    ObjectMetadataClass,
+    StandardResultName,
+)
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.external_interfaces.schema_validation_interface import (
     SchemaValidationInterface,
@@ -24,7 +27,7 @@ class StandardResultsLoader:
         self,
         case_id: UUID,
         ensemble_name: str,
-        fmu_class: FMUClass,
+        fmu_class: ObjectMetadataClass,
         standard_result_name: str,
     ) -> None:
         self._sumo_interface = SumoExplorerInterface(
@@ -96,7 +99,12 @@ class TabularStandardResultsLoader(StandardResultsLoader):
     def __init__(
         self, case_id: UUID, ensemble_name: str, standard_result_name: str
     ) -> None:
-        super().__init__(case_id, ensemble_name, FMUClass.table, standard_result_name)
+        super().__init__(
+            case_id,
+            ensemble_name,
+            ObjectMetadataClass.table,
+            standard_result_name,
+        )
 
     def get_realization(self, realization_id: int) -> dict[str, DataFrame]:
         return super().get_realization(realization_id)
@@ -137,7 +145,7 @@ class PolygonStandardResultsLoader(StandardResultsLoader):
         self, case_id: UUID, ensemble_name: str, standard_result_name: str
     ) -> None:
         super().__init__(
-            case_id, ensemble_name, FMUClass.polygons, standard_result_name
+            case_id, ensemble_name, ObjectMetadataClass.polygons, standard_result_name
         )
 
     def get_realization(self, realization_id: int) -> dict[str, xtgeo.Polygons]:
@@ -183,7 +191,12 @@ class SurfacesStandardResultsLoader(StandardResultsLoader):
     def __init__(
         self, case_id: UUID, ensemble_name: str, standard_result_name: str
     ) -> None:
-        super().__init__(case_id, ensemble_name, FMUClass.surface, standard_result_name)
+        super().__init__(
+            case_id,
+            ensemble_name,
+            ObjectMetadataClass.surface,
+            standard_result_name,
+        )
 
     def get_realization(self, realization_id: int) -> dict[str, xtgeo.RegularSurface]:
         return super().get_realization(realization_id)

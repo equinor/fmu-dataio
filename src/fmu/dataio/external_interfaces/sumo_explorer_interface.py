@@ -5,7 +5,7 @@ import pandas as pd
 import xtgeo
 from pandas import DataFrame
 
-from fmu.dataio._models.fmu_results.enums import FMUClass
+from fmu.dataio._models.fmu_results.enums import ObjectMetadataClass
 from fmu.sumo.explorer import Explorer
 from fmu.sumo.explorer.objects import SearchContext
 
@@ -15,12 +15,12 @@ class SumoExplorerInterface:
         self,
         case_id: UUID,
         ensemble_name: str,
-        fmu_class: FMUClass,
+        fmu_class: ObjectMetadataClass,
         standard_result_name: str,
     ) -> None:
         self._case_id: UUID = case_id
         self._ensemble_name: str = ensemble_name
-        self._fmu_class: FMUClass = fmu_class
+        self._fmu_class: ObjectMetadataClass = fmu_class
 
         # TODO: Use sumo prod when ready
         sumo = Explorer(env="dev")
@@ -35,16 +35,16 @@ class SumoExplorerInterface:
         """Get a fmu-dataio formatted data object from the Sumo Explorer object."""
 
         match self._fmu_class:
-            case FMUClass.table:
+            case ObjectMetadataClass.table:
                 return data_object.to_pandas()
 
-            case FMUClass.polygons:
+            case ObjectMetadataClass.polygons:
                 data_frame: DataFrame = pd.read_parquet(
                     data_object.blob, engine="pyarrow"
                 )
                 return xtgeo.Polygons(data_frame)
 
-            case FMUClass.surface:
+            case ObjectMetadataClass.surface:
                 # Dataformat: 'irap_binary'
                 return data_object.to_regular_surface()
 

@@ -13,7 +13,12 @@ from fmu.dataio._definitions import (
     FileExtension,
 )
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import Content, FileFormat, FMUClass, Layout
+from fmu.dataio._models.fmu_results.enums import (
+    Content,
+    FileFormat,
+    Layout,
+    ObjectMetadataClass,
+)
 from fmu.dataio._models.fmu_results.specification import TableSpecification
 from fmu.dataio.exceptions import ConfigurationError
 
@@ -149,8 +154,8 @@ class DataFrameDataProvider(ObjectDataProvider):
     obj: pd.DataFrame
 
     @property
-    def classname(self) -> FMUClass:
-        return FMUClass.table
+    def classname(self) -> ObjectMetadataClass:
+        return ObjectMetadataClass.table
 
     @property
     def efolder(self) -> str:
@@ -218,8 +223,8 @@ class ArrowTableDataProvider(ObjectDataProvider):
     obj: pyarrow.Table
 
     @property
-    def classname(self) -> FMUClass:
-        return FMUClass.table
+    def classname(self) -> ObjectMetadataClass:
+        return ObjectMetadataClass.table
 
     @property
     def efolder(self) -> str:

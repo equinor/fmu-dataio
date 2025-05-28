@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from enum import Enum, IntEnum
+from enum import Enum, IntEnum, StrEnum
 
 
-class StandardResultName(str, Enum):
+class StandardResultName(StrEnum):
     """The standard result name of a given data object."""
 
     field_outline = "field_outline"
@@ -16,7 +16,7 @@ class StandardResultName(str, Enum):
     fluid_contact_outline = "fluid_contact_outline"
 
 
-class Classification(str, Enum):
+class Classification(StrEnum):
     """The security classification for a given data object."""
 
     asset = "asset"
@@ -31,7 +31,7 @@ class AxisOrientation(IntEnum):
     flipped = -1
 
 
-class Content(str, Enum):
+class Content(StrEnum):
     """The content type of a given data object."""
 
     depth = "depth"
@@ -83,13 +83,13 @@ class ErtSimulationMode(str, Enum):
     workflow = "workflow"
 
 
-class FMUClass(str, Enum):
-    """The class of a data object by FMU convention or standards."""
+class MetadataClass(StrEnum):
+    """Base class for objects by FMU convention or standards."""
 
-    case = "case"
-    realization = "realization"
-    iteration = "iteration"
-    ensemble = "ensemble"
+
+class ObjectMetadataClass(MetadataClass):
+    """The class of a data object (typically originating from an RMS model)."""
+
     surface = "surface"
     triangulated_surface = "triangulated_surface"
     table = "table"
@@ -102,7 +102,16 @@ class FMUClass(str, Enum):
     dictionary = "dictionary"
 
 
-class Layout(str, Enum):
+class FMUResultsMetadataClass(MetadataClass):
+    """The class of an FMU results object."""
+
+    case = "case"
+    realization = "realization"
+    iteration = "iteration"
+    ensemble = "ensemble"
+
+
+class Layout(StrEnum):
     """The layout of a given data object."""
 
     regular = "regular"
@@ -123,18 +132,18 @@ class FMUContext(str, Enum):
     realization = "realization"
 
 
-class VerticalDomain(str, Enum):
+class VerticalDomain(StrEnum):
     depth = "depth"
     time = "time"
 
 
-class DomainReference(str, Enum):
+class DomainReference(StrEnum):
     msl = "msl"
     sb = "sb"
     rkb = "rkb"
 
 
-class TrackLogEventType(str, Enum):
+class TrackLogEventType(StrEnum):
     """The type of event being logged"""
 
     created = "created"
@@ -142,7 +151,7 @@ class TrackLogEventType(str, Enum):
     merged = "merged"
 
 
-class FluidContactType(str, Enum):
+class FluidContactType(StrEnum):
     """The type of fluid contact."""
 
     fgl = "fgl"
@@ -161,7 +170,7 @@ class FluidContactType(str, Enum):
     """Oil-water contact."""
 
 
-class FileFormat(str, Enum):
+class FileFormat(StrEnum):
     """The format of a given data object."""
 
     parquet = "parquet"
