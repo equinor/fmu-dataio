@@ -11,29 +11,30 @@ import fmu.dataio.load.load_standard_results as load_standard_results
 
 
 def _generate_metadata_mock(
-    case_name_mock: str,
-    realization_name_mock: str,
-    ensemble_name_mock: str,
-    data_name_mock: str,
-    standard_result_name: str,
-    data_format: str,
+    case_name: str = "mock_case",
+    realization_name: str = "realization-0",
+    ensemble_name: str = "iter-0",
+    data_name: str = "test_data",
+    standard_result_name: str = "inplace_volumes",
+    data_type: str = "tables",
 ) -> dict:
     relative_path = (
-        f"{realization_name_mock}/"
-        f"{ensemble_name_mock}/"
+        f"{realization_name}/"
+        f"{ensemble_name}/"
         f"share/results"
-        f"{data_format}/"
+        f"{data_type}/"
         f"{standard_result_name}/"
-        f"{data_name_mock}.parquet"
+        f"{data_name}.parquet"
     )
 
     return {
         "fmu": {
-            "case": {"name": case_name_mock},
-            "realization": {"name": realization_name_mock},
-            "ensemble": {"name": ensemble_name_mock},
+            "case": {"name": case_name},
+            "realization": {"name": realization_name},
+            "ensemble": {"name": ensemble_name},
         },
         "data": {
+            "name": data_name,
             "standard_result": {
                 "name": standard_result_name,
                 "file_schema": {"url": "http://test.com"},
@@ -68,11 +69,17 @@ def test_list_realizations():
 
 def test_get_blobs(unregister_pandas_parquet):
     mocked_data_frame = pd.DataFrame(columns=["FLUID", "ZONE", "REGION", "GIIP"])
+    mocked_blob = BytesIO()
+    mocked_data_frame.to_parquet(mocked_blob)
 
-    buffer = BytesIO()
-    mocked_data_frame.to_parquet(buffer)
-    blob = buffer.getvalue()
-    mocked_blobs_dict = {"test_blob_name": blob}
+    data_name_mock = "simgrid"
+    mocked_metadata = _generate_metadata_mock(
+        data_name_mock=data_name_mock, standard_result_name="inplace_volumes"
+    )
+
+    mocked_blobs_with_metadata: list[tuple[BytesIO, dict]] = [
+        (mocked_blob, mocked_metadata)
+    ]
 
     with (
         patch(
@@ -80,8 +87,8 @@ def test_get_blobs(unregister_pandas_parquet):
             return_value=None,
         ) as class_init_mock,
         patch(
-            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_blobs",
-            return_value=mocked_blobs_dict,
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_blobs_with_metadata",
+            return_value=mocked_blobs_with_metadata,
         ) as get_blobs_mock,
     ):
         inplace_volumes_loader = load_standard_results.load_inplace_volumes(
@@ -91,20 +98,28 @@ def test_get_blobs(unregister_pandas_parquet):
 
         actual_blobs_dict = inplace_volumes_loader.get_blobs(0)
         assert get_blobs_mock.assert_called_once
-        assert len(actual_blobs_dict) == len(mocked_blobs_dict)
+        assert len(actual_blobs_dict) == len(mocked_blobs_with_metadata)
 
         blob_name = list(actual_blobs_dict.keys())[0]
-        assert blob_name == "test_blob_name"
+        assert blob_name == data_name_mock
 
         actual_blob = actual_blobs_dict[blob_name]
-        actual_data_frame = pd.read_parquet(BytesIO(actual_blob))
+        actual_data_frame = pd.read_parquet(actual_blob)
         pd.testing.assert_frame_equal(actual_data_frame, mocked_data_frame)
 
 
 def test_get_realization():
     columns = ["FLUID", "ZONE", "REGION", "GIIP"]
     mocked_data_frame = pd.DataFrame(columns=columns)
-    mocked_realization_dict = {"test_volume": mocked_data_frame}
+
+    data_name_mock = "geogrid"
+    mocked_metadata = _generate_metadata_mock(
+        data_name=data_name_mock, standard_result_name="inplace_volumes"
+    )
+
+    mocked_objects_with_metadata: list[tuple[DataFrame, dict]] = [
+        (mocked_data_frame, mocked_metadata)
+    ]
 
     with (
         patch(
@@ -112,8 +127,8 @@ def test_get_realization():
             return_value=None,
         ) as class_init_mock,
         patch(
-            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_realization",
-            return_value=mocked_realization_dict,
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_objects_with_metadata",
+            return_value=mocked_objects_with_metadata,
         ) as get_realizations_mock,
     ):
         inplace_volumes_loader = load_standard_results.load_inplace_volumes(
@@ -121,16 +136,15 @@ def test_get_realization():
         )
         assert class_init_mock.assert_called_once
 
-        realization_dict = inplace_volumes_loader.get_realization(0)
+        actual_data_dict = inplace_volumes_loader.get_realization(0)
         assert get_realizations_mock.assert_called_once
-        assert len(realization_dict) == len(mocked_realization_dict)
+        assert len(actual_data_dict) == len(mocked_objects_with_metadata)
 
-        data_frame_name = list(realization_dict.keys())[0]
-        assert data_frame_name == "test_volume"
+        data_frame_name = list(actual_data_dict.keys())[0]
+        assert data_frame_name == data_name_mock
 
-        data_frame = realization_dict[data_frame_name]
         pd.testing.assert_frame_equal(
-            data_frame, mocked_realization_dict["test_volume"]
+            actual_data_dict[data_frame_name], mocked_data_frame
         )
 
 
@@ -140,19 +154,15 @@ def test_save_realization_for_tabular(monkeypatch, tmp_path):
     columns = ["FLUID", "ZONE", "REGION", "GIIP"]
     mocked_data_frame = pd.DataFrame(columns=columns)
 
-    case_name_mock = "test_case"
-    realization_name_mock = "realization-0"
-    ensemble_name_mock = "iter-0"
+    case_name_mock = "test_case_tabular"
     data_name_mock = "simgrid"
     data_type = "tables"
     standard_result_name = "inplace_volumes"
     mocked_metadata = _generate_metadata_mock(
-        case_name_mock,
-        realization_name_mock,
-        ensemble_name_mock,
-        data_name_mock,
-        standard_result_name,
-        data_type,
+        case_name=case_name_mock,
+        data_name=data_name_mock,
+        standard_result_name=standard_result_name,
+        data_type=data_type,
     )
     relative_path_mocked = Path(mocked_metadata["file"]["relative_path"])
 
@@ -166,7 +176,7 @@ def test_save_realization_for_tabular(monkeypatch, tmp_path):
             return_value=None,
         ) as class_init_mock,
         patch(
-            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_realization_with_metadata",
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_objects_with_metadata",
             return_value=mocked_realization_data,
         ) as get_realization_with_metadata_mock,
         patch(
@@ -202,19 +212,15 @@ def test_save_realization_for_ploygons(monkeypatch, tmp_path):
 
     polygon = xtgeo.Polygons()
 
-    case_name_mock = "test_case"
-    realization_name_mock = "realization-0"
-    ensemble_name_mock = "iter-0"
+    case_name_mock = "test_case_polygons"
     data_name_mock = "field_outline"
     data_type = "polygons"
     standard_result_name = "field_outlines"
     mocked_metadata = _generate_metadata_mock(
-        case_name_mock,
-        realization_name_mock,
-        ensemble_name_mock,
-        data_name_mock,
-        standard_result_name,
-        data_type,
+        case_name=case_name_mock,
+        data_name=data_name_mock,
+        standard_result_name=standard_result_name,
+        data_type=data_type,
     )
     relative_path_mocked = Path(mocked_metadata["file"]["relative_path"])
 
@@ -228,7 +234,7 @@ def test_save_realization_for_ploygons(monkeypatch, tmp_path):
             return_value=None,
         ) as class_init_mock,
         patch(
-            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_realization_with_metadata",
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_objects_with_metadata",
             return_value=mocked_realization_data,
         ) as get_realization_with_metadata_mock,
         patch(
@@ -269,20 +275,17 @@ def test_save_realization_for_surfaces(monkeypatch, tmp_path):
         yinc=0.211,
     )
 
-    case_name_mock = "test_case"
-    realization_name_mock = "realization-0"
-    ensemble_name_mock = "iter-0"
+    case_name_mock = "test_case_surfaces"
     data_name_mock = "basevolantis"
     standard_result_name = "structure_depth_surface"
     data_type = "maps"
     mocked_metadata = _generate_metadata_mock(
-        case_name_mock,
-        realization_name_mock,
-        ensemble_name_mock,
-        data_name_mock,
-        standard_result_name,
-        data_type,
+        case_name=case_name_mock,
+        data_name=data_name_mock,
+        standard_result_name=standard_result_name,
+        data_type=data_type,
     )
+
     relative_path_mocked = Path(mocked_metadata["file"]["relative_path"])
 
     mocked_realization_data: list[tuple[xtgeo.Polygons, dict]] = [
@@ -295,7 +298,7 @@ def test_save_realization_for_surfaces(monkeypatch, tmp_path):
             return_value=None,
         ) as class_init_mock,
         patch(
-            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_realization_with_metadata",
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_objects_with_metadata",
             return_value=mocked_realization_data,
         ) as get_realization_with_metadata_mock,
         patch(
@@ -329,3 +332,35 @@ def test_save_realization_for_surfaces(monkeypatch, tmp_path):
         )
         assert round(surface_from_file.xinc, 3) == 0.319
         assert round(surface_from_file.yinc, 3) == 0.211
+
+
+def test_construct_object_key():
+    data_name_mock = "Valysar Fm."
+    fluid_contact_type_mock = "goc"
+
+    mocked_metadata = _generate_metadata_mock(
+        data_name=data_name_mock, standard_result_name="fluid_contact_surface"
+    )
+    mocked_metadata["data"].update(
+        {"fluid_contact": {"contact": fluid_contact_type_mock}}
+    )
+
+    with (
+        patch(
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.__init__",
+            return_value=None,
+        ),
+    ):
+        fluid_contact_surfaces_loader = (
+            load_standard_results.load_fluid_contact_surfaces(
+                "test_id", "some_ensemble_name"
+            )
+        )
+
+        expected_object_key = (
+            f"{data_name_mock.lower().replace(' ', '-')}_{fluid_contact_type_mock}"
+        )
+        actual_object_key = fluid_contact_surfaces_loader._construct_object_key(
+            mocked_metadata
+        )
+        assert actual_object_key == expected_object_key
