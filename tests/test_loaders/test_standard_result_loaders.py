@@ -74,7 +74,7 @@ def test_get_blobs(unregister_pandas_parquet):
 
     data_name_mock = "simgrid"
     mocked_metadata = _generate_metadata_mock(
-        data_name_mock=data_name_mock, standard_result_name="inplace_volumes"
+        data_name=data_name_mock, standard_result_name="inplace_volumes"
     )
 
     mocked_blobs_with_metadata: list[tuple[BytesIO, dict]] = [
