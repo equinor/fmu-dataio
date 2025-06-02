@@ -119,8 +119,10 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         if isinstance(voltable, list):
             voltable = voltable[0]
 
-        volume_table_name = voltable.get("ReportTableName")
-        if not volume_table_name:
+        if isinstance(voltable, dict):
+            volume_table_name = voltable.get("ReportTableName")
+
+        if not volume_table_name or not isinstance(voltable, dict):
             raise RuntimeError(
                 "You need to configure output to Report file: Report table "
                 "in the volumetric job. Provide a table name and rerun the job."
