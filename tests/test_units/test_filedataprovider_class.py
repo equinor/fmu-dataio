@@ -171,7 +171,7 @@ def test_get_share_folders(regsurf, globalconfig2):
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
 
-    fdata = FileDataProvider(edataobj1, objdata)
+    fdata = FileDataProvider(edataobj1._runcontext, objdata)
     share_folders = objdata.share_path.parent
     assert isinstance(share_folders, Path)
     assert share_folders == Path(f"share/results/{ExportFolder.maps.value}")
@@ -195,7 +195,7 @@ def test_get_share_folders_with_subfolder(regsurf, globalconfig2):
 
     assert objdata.share_path.parent == Path("share/results/maps/sub")
 
-    fdata = FileDataProvider(edataobj1, objdata)
+    fdata = FileDataProvider(edataobj1._runcontext, objdata)
 
     # check that the path present in the metadata matches the share folders
     fmeta = fdata.get_metadata()
@@ -228,7 +228,7 @@ def test_filedata_provider(regsurf, tmp_path, globalconfig2):
 
     assert objdata.share_path == expected_path
 
-    fdata = FileDataProvider(cfg, objdata)
+    fdata = FileDataProvider(cfg._runcontext, objdata)
     filemeta = fdata.get_metadata()
 
     assert isinstance(filemeta, fields.File)
@@ -246,7 +246,7 @@ def test_filedata_has_nonascii_letters(regsurf, tmp_path, globalconfig2):
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "anynõme"
 
-    fdata = FileDataProvider(edataobj1, objdata)
+    fdata = FileDataProvider(edataobj1._runcontext, objdata)
     with pytest.raises(ValueError, match="Path has non-ascii elements"):
         fdata.get_metadata()
 
