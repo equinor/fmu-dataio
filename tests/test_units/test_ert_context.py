@@ -29,8 +29,7 @@ def test_regsurf_generate_metadata(fmurun_w_casemetadata, rmsglobalconfig, regsu
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth")
 
     meta = edata.generate_metadata(regsurf)
-    assert str(edata._pwd) == str(fmurun_w_casemetadata)
-    assert str(edata._rootpath.resolve()) == str(
+    assert str(edata._runcontext.casepath) == str(
         fmurun_w_casemetadata.parent.parent.resolve()
     )
     assert meta["file"]["relative_path"].startswith("realization-0/iter-0/share")
@@ -145,7 +144,7 @@ def test_polys_export_file_set_name(fmurun_w_casemetadata, rmsglobalconfig, poly
 
     assert str(output) == str(
         (
-            edata._rootpath
+            edata._runcontext.casepath
             / "realization-0/iter-0/share/results/polygons/topvolantis.csv"
         ).resolve()
     )
@@ -199,7 +198,7 @@ def test_polys_export_file_as_parquet(fmurun_w_casemetadata, rmsglobalconfig, po
 
     assert output.exists()
     assert output == (
-        edata._rootpath
+        edata._runcontext.casepath
         / "realization-0/iter-0/share/results/polygons/topvolantis.parquet"
     )
 
@@ -256,7 +255,8 @@ def test_polys_export_file_as_irap_ascii(
 
     assert output.exists()
     assert output == (
-        edata._rootpath / "realization-0/iter-0/share/results/polygons/topvolantis.pol"
+        edata._runcontext.casepath
+        / "realization-0/iter-0/share/results/polygons/topvolantis.pol"
     )
     # check that data.table_index is not set in the metadata
     meta = dataio.read_metadata(output)
@@ -282,7 +282,7 @@ def test_points_export_file_set_name(fmurun_w_casemetadata, rmsglobalconfig, poi
 
     assert str(output) == str(
         (
-            edata._rootpath
+            edata._runcontext.casepath
             / "realization-0/iter-0/share/results/points/topvolantis.csv"
         ).resolve()
     )
@@ -314,7 +314,7 @@ def test_points_export_file_set_name_xtgeoheaders(
 
     assert str(output) == str(
         (
-            edata._rootpath
+            edata._runcontext.casepath
             / "realization-0/iter-0/share/results/points/topvolantiz.csv"
         ).resolve()
     )
@@ -370,7 +370,8 @@ def test_points_export_file_as_irap_ascii(
 
     assert output.exists()
     assert output == (
-        edata._rootpath / "realization-0/iter-0/share/results/points/topvolantis.poi"
+        edata._runcontext.casepath
+        / "realization-0/iter-0/share/results/points/topvolantis.poi"
     )
     # check that data.table_index is not set in the metadata
     meta = dataio.read_metadata(output)
@@ -394,7 +395,7 @@ def test_points_export_file_as_parquet(fmurun_w_casemetadata, rmsglobalconfig, p
 
     assert output.exists()
     assert output == (
-        edata._rootpath
+        edata._runcontext.casepath
         / "realization-0/iter-0/share/results/points/topvolantis.parquet"
     )
 
@@ -531,7 +532,8 @@ def test_cube_export_file_set_name(fmurun_w_casemetadata, rmsglobalconfig, cube)
 
     assert str(output) == str(
         (
-            edata._rootpath / "realization-0/iter-0/share/results/cubes/mycube.segy"
+            edata._runcontext.casepath
+            / "realization-0/iter-0/share/results/cubes/mycube.segy"
         ).resolve()
     )
 
@@ -555,7 +557,7 @@ def test_cube_export_file_is_observation(fmurun_w_casemetadata, rmsglobalconfig,
 
     assert str(output) == str(
         (
-            edata._rootpath
+            edata._runcontext.casepath
             / "realization-0/iter-0/share/observations/cubes/mycube.segy"
         ).resolve()
     )
@@ -581,7 +583,7 @@ def test_cube_export_file_is_case_observation(
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._rootpath / "share/observations/cubes/mycube.segy").resolve()
+        (edata._runcontext.casepath / "share/observations/cubes/mycube.segy").resolve()
     )
 
 
@@ -607,7 +609,7 @@ def test_cube_export_file_is_observation_forcefolder(
 
     assert str(output) == str(
         (
-            edata._rootpath
+            edata._runcontext.casepath
             / "realization-0/iter-0/share/observations/seismic/mycube.segy"
         ).resolve()
     )
@@ -661,7 +663,8 @@ def test_grid_export_file_set_name(fmurun_w_casemetadata, rmsglobalconfig, grid)
 
     assert str(output) == str(
         (
-            edata._rootpath / "realization-0/iter-0/share/results/grids/mygrid.roff"
+            edata._runcontext.casepath
+            / "realization-0/iter-0/share/results/grids/mygrid.roff"
         ).resolve()
     )
 
@@ -684,7 +687,7 @@ def test_gridproperty_export_file_set_name(
 
     assert str(output) == str(
         (
-            edata._rootpath
+            edata._runcontext.casepath
             / "realization-0/iter-0/share/results/grids/mygridproperty.roff"
         ).resolve()
     )
@@ -712,7 +715,7 @@ def test_dataframe_export_file_set_name(
 
     assert str(output) == str(
         (
-            edata._rootpath
+            edata._runcontext.casepath
             / "realization-0/iter-0/share/results/tables/mydataframe.csv"
         ).resolve()
     )
@@ -742,7 +745,7 @@ def test_pyarrow_export_file_set_name(
 
         assert str(output) == str(
             (
-                edata._rootpath
+                edata._runcontext.casepath
                 / "realization-0/iter-0/share/results/tables/myarrowtable.parquet"
             ).resolve()
         )

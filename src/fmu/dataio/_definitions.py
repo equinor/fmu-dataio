@@ -10,6 +10,8 @@ from pydantic import BaseModel, model_validator
 from fmu.dataio._models.fmu_results.enums import Content
 from fmu.dataio.export._enums import InplaceVolumes
 
+ERT_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
+
 
 class ShareFolder(StrEnum):
     PREPROCESSED = "share/preprocessed/"
