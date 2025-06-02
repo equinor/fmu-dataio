@@ -27,8 +27,8 @@ from fmu.config import utilities as ut
 from fmu.dataio._models.fmu_results import FmuResults, fields, global_configuration
 from fmu.dataio._readers.faultroom import FaultRoomSurface
 from fmu.dataio._readers.tsurf import TSurfData
+from fmu.dataio._runcontext import FmuEnv
 from fmu.dataio.dataio import ExportData, read_metadata
-from fmu.dataio.providers._fmu import FmuEnv
 
 from .utils import _get_nested_pydantic_models, _metadata_examples
 

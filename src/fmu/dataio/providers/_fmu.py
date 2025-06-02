@@ -30,21 +30,20 @@ from __future__ import annotations
 
 import os
 import uuid
-from dataclasses import dataclass, field
-from enum import Enum, auto
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 from warnings import warn
 
 import pydantic
-from typing_extensions import override  # Remove when Python 3.11 dropped
 
 from fmu.config import utilities as ut
 from fmu.dataio import _utils
+from fmu.dataio._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from fmu.dataio._logging import null_logger
 from fmu.dataio._metadata import CaseMetadataExport
 from fmu.dataio._models.fmu_results import fields
 from fmu.dataio._models.fmu_results.enums import ErtSimulationMode, FMUContext
+from fmu.dataio._runcontext import FmuEnv
 from fmu.dataio.exceptions import InvalidMetadataError
 
 from ._base import Provider
@@ -52,138 +51,58 @@ from ._base import Provider
 if TYPE_CHECKING:
     from uuid import UUID
 
+    from fmu.dataio._runcontext import RunContext
+
 # case metadata relative to casepath
-ERT_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
 RESTART_PATH_ENVNAME: Final = "RESTART_FROM_PATH"
 DEFAULT_ENSMEBLE_NAME: Final = "iter-0"
 
 logger: Final = null_logger(__name__)
 
 
-def get_fmu_context_from_environment() -> FMUContext | None:
-    """return the ERT run context as an FMUContext"""
-    if FmuEnv.RUNPATH.value:
-        return FMUContext.realization
-    if FmuEnv.EXPERIMENT_ID.value:
-        return FMUContext.case
-    return None
-
-
-def _casepath_has_metadata(casepath: Path) -> bool:
-    """Check if a proposed casepath has a metadata file"""
-    if (casepath / ERT_RELATIVE_CASE_METADATA_FILE).exists():
-        logger.debug("Found metadata for proposed casepath <%s>", casepath)
-        return True
-    logger.debug("Did not find metadata for proposed casepath <%s>", casepath)
-    return False
-
-
-class FmuEnv(Enum):
-    EXPERIMENT_ID = auto()
-    ENSEMBLE_ID = auto()
-    SIMULATION_MODE = auto()
-    REALIZATION_NUMBER = auto()
-    ITERATION_NUMBER = auto()
-    RUNPATH = auto()
-
-    @property
-    @override
-    def value(self) -> str | None:  # type: ignore[override]
-        # Fetch the environment variable; name of the enum member prefixed with _ERT_
-        return os.getenv(f"_ERT_{self.name}")
-
-    @property
-    def keyname(self) -> str:
-        # Fetch the environment variable; name of the enum member prefixed with _ERT_
-        return f"_ERT_{self.name}"
-
-
-@dataclass
 class FmuProvider(Provider):
-    """Class for getting the run environment (e.g. an ERT) and provide metadata.
+    """Class for providing metadata regarding the ERT run.
 
     Args:
         model: Name of the model (usually from global config)
-        fmu_context: The FMU context this is ran in; see FMUContext enum class
-        casepath_proposed: Proposed casepath. Needed if FMUContext is CASE
+        runcontext: The context this is ran in, with paths and case metadata
         workflow: Descriptive work flow info
+        object_share_path: The share path location for the object
     """
 
-    model: fields.Model | None = None
-    fmu_context: FMUContext = FMUContext.realization
-    casepath_proposed: Path | None = None
-    workflow: str | dict[str, str] | None = None
-    object_share_path: Path | None = None
-
-    # private properties for this class
-    _runpath: Path | None = field(default_factory=Path, init=False)
-    _casepath: Path | None = field(default_factory=Path, init=False)
-    _ensemble_name: str = field(default="", init=False)
-    _ensemble_id: int = field(default=0, init=False)
-    _real_name: str = field(default="", init=False)
-    _real_id: int = field(default=0, init=False)
-    _case_name: str = field(default="", init=False)
-
-    def __post_init__(self) -> None:
+    def __init__(
+        self,
+        runcontext: RunContext,
+        model: fields.Model | None = None,
+        workflow: str | dict[str, str] | None = None,
+        object_share_path: Path | None = None,
+    ) -> None:
         logger.info("Initialize %s...", self.__class__)
-        logger.debug("Case path is initially <%s>...", self.casepath_proposed)
+        self.model = model
+        self.workflow = workflow
+        self.object_share_path = object_share_path
 
-        self._runpath = self._get_runpath_from_env()
-        logger.debug("Runpath is %s", self._runpath)
-
+        self._runpath = runcontext.runpath
+        self._casepath = runcontext.casepath
+        self._casemeta = runcontext.casemeta
+        self._fmu_context = runcontext.fmu_context
         self._real_id = (
             int(real_num) if (real_num := FmuEnv.REALIZATION_NUMBER.value) else 0
         )
         self._ensemble_id = (
             int(iter_num) if (iter_num := FmuEnv.ITERATION_NUMBER.value) else 0
         )
-
-        self._casepath = self._validate_and_establish_casepath()
-        if self._casepath:
-            self._case_name = self._casepath.name
-
-            if self._runpath and self.fmu_context != FMUContext.case:
-                missing_ensemble_folder = self._casepath == self._runpath.parent
-                if not missing_ensemble_folder:
-                    logger.debug("Ensemble folder found")
-                    self._ensemble_name = self._runpath.name
-                    self._real_name = self._runpath.parent.name
-                else:
-                    logger.debug("No ensemble folder found, using default name iter-0")
-                    self._ensemble_name = DEFAULT_ENSMEBLE_NAME
-                    self._real_name = self._runpath.name
-
-                logger.debug(
-                    "Found ensemble name from runpath: %s", self._ensemble_name
-                )
-                logger.debug("Found real name from runpath: %s", self._real_name)
-
-    def get_ensemble_name(self) -> str:
-        """Return the ensemble name, e.g. 'iter-3' or 'pred'."""
-        return self._ensemble_name
-
-    def get_real_name(self) -> str:
-        """Return the real_name, e.g. 'realization-23'."""
-        return self._real_name
-
-    def get_casepath(self) -> Path | None:
-        """Return updated casepath in a FMU run, will be updated if initially blank."""
-        return self._casepath
-
-    def get_runpath(self) -> Path | None:
-        """Return runpath for a FMU run."""
-        return self._runpath
+        self._ensemble_name, self._real_name = self._establish_ensemble_and_real_name()
 
     def get_metadata(self) -> fields.FMU:
         """Construct the metadata FMU block for an ERT forward job."""
         logger.debug("Generate ERT metadata...")
 
-        if self._casepath is None:
-            raise InvalidMetadataError("Missing casepath")
+        case_meta = self._casemeta
+        if case_meta is None:
+            raise InvalidMetadataError("Missing casepath or case metadata.")
 
-        case_meta = self._get_case_meta()
-
-        if self.fmu_context != FMUContext.realization:
+        if self._fmu_context != FMUContext.realization:
             return fields.FMU(
                 case=case_meta.fmu.case,
                 context=self._get_fmucontext_meta(),
@@ -206,10 +125,28 @@ class FmuProvider(Provider):
             entity=self._get_entity_meta(case_uuid),
         )
 
-    @staticmethod
-    def _get_runpath_from_env() -> Path | None:
-        """get runpath as an absolute path if detected from the enviroment"""
-        return Path(runpath).resolve() if (runpath := FmuEnv.RUNPATH.value) else None
+    def _establish_ensemble_and_real_name(self) -> tuple[str, str]:
+        """
+        Establish the ensemble and real name from the runpath.
+        If no ensemble folder is found, the default name `iter-0` is used.
+        If the runpath and casepath is not set empty strings are returned.
+        """
+        if not (self._casepath and self._runpath):
+            return ("", "")
+
+        missing_ensemble_folder = self._casepath == self._runpath.parent
+        if not missing_ensemble_folder:
+            logger.debug("Ensemble folder found")
+            ensemble_name = self._runpath.name
+            real_name = self._runpath.parent.name
+        else:
+            logger.debug("No ensemble folder found, using default name iter-0")
+            ensemble_name = DEFAULT_ENSMEBLE_NAME
+            real_name = self._runpath.name
+
+        logger.debug("Found ensemble name from runpath: %s", ensemble_name)
+        logger.debug("Found real name from runpath: %s", real_name)
+        return ensemble_name, real_name
 
     @staticmethod
     def _get_ert_meta() -> fields.Ert | None:
@@ -227,51 +164,18 @@ class FmuProvider(Provider):
             else None
         )
 
-    def _validate_and_establish_casepath(self) -> Path | None:
-        """If casepath is not given, then try update _casepath (if in realization).
-
-        There is also a validation here that casepath contains case metadata, and if not
-        then a second guess is attempted, looking at `parent` insted of `parent.parent`
-        is case of missing ensemble folder.
-        """
-        if self.casepath_proposed:
-            if _casepath_has_metadata(self.casepath_proposed):
-                return self.casepath_proposed
-            warn(
-                "Could not detect metadata for the proposed casepath "
-                f"{self.casepath_proposed}. Will try to detect from runpath."
-            )
-        if self._runpath:
-            if _casepath_has_metadata(self._runpath.parent.parent):
-                return self._runpath.parent.parent
-
-            if _casepath_has_metadata(self._runpath.parent):
-                return self._runpath.parent
-
-        if self.fmu_context == FMUContext.case:
-            # TODO: add ValueError when no longer kwargs are accepted in export()
-            ...
-
-        logger.debug("No case metadata, issue a warning!")
-        warn(
-            "Could not auto detect the case metadata, please provide the "
-            "'casepath' as input. Metadata will be empty!",
-            UserWarning,
-        )
-        return None
-
     def _get_restart_data_uuid(self) -> UUID | None:
         """Load restart_from information"""
         assert self._runpath is not None
         logger.debug("Detected a restart run from environment variable")
         restart_path = (self._runpath / os.environ[RESTART_PATH_ENVNAME]).resolve()
 
-        if _casepath_has_metadata(restart_path.parent.parent):
+        if _utils.casepath_has_metadata(restart_path.parent.parent):
             restart_case_metafile = (
                 restart_path.parent.parent / ERT_RELATIVE_CASE_METADATA_FILE
             )
             restart_ensemble_name = restart_path.name
-        elif _casepath_has_metadata(restart_path.parent):
+        elif _utils.casepath_has_metadata(restart_path.parent):
             restart_case_metafile = (
                 restart_path.parent / ERT_RELATIVE_CASE_METADATA_FILE
             )
@@ -308,15 +212,6 @@ class FmuProvider(Provider):
         )
         return ensemble_uuid, real_uuid
 
-    def _get_case_meta(self) -> CaseMetadataExport:
-        """Parse and validate the CASE metadata."""
-        logger.debug("Loading case metadata file and return pydantic case model")
-        assert self._casepath is not None
-        case_metafile = self._casepath / ERT_RELATIVE_CASE_METADATA_FILE
-        return CaseMetadataExport.model_validate(
-            ut.yaml_load(case_metafile, loader="standard")
-        )
-
     def _get_realization_meta(self, real_uuid: UUID) -> fields.Realization:
         return fields.Realization(
             id=self._real_id,
@@ -335,7 +230,8 @@ class FmuProvider(Provider):
         )
 
     def _get_fmucontext_meta(self) -> fields.Context:
-        return fields.Context(stage=self.fmu_context)
+        assert self._fmu_context is not None
+        return fields.Context(stage=self._fmu_context)
 
     def _get_entity_uuid(self, case_uuid: UUID) -> UUID:
         """
