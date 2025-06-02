@@ -37,6 +37,7 @@ from typing import TYPE_CHECKING, Final
 from warnings import warn
 
 import pydantic
+from typing_extensions import override  # Remove when Python 3.11 dropped
 
 from fmu.config import utilities as ut
 from fmu.dataio import _utils
@@ -86,7 +87,8 @@ class FmuEnv(Enum):
     RUNPATH = auto()
 
     @property
-    def value(self) -> str | None:
+    @override
+    def value(self) -> str | None:  # type: ignore[override]
         # Fetch the environment variable; name of the enum member prefixed with _ERT_
         return os.getenv(f"_ERT_{self.name}")
 
