@@ -22,7 +22,7 @@ import yaml
 
 from fmu.config import utilities as ut
 
-from ._definitions import RMSExecutionMode
+from ._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from ._logging import null_logger
 from ._readers.faultroom import FaultRoomSurface
 
@@ -39,21 +39,6 @@ logger: Final = null_logger(__name__)
 
 def npfloat_to_float(v: Any) -> Any:
     return float(v) if isinstance(v, np.float64 | np.float32) else v
-
-
-def detect_inside_rms() -> bool:
-    """Detect if inside RMS GUI"""
-    return get_rms_exec_mode() is not None
-
-
-def get_rms_exec_mode() -> RMSExecutionMode | None:
-    """
-    Get the RMS GUI execution mode from the environment.
-    The RUNRMS_EXEC_MODE variable is set when the RMS GUI is started by runrms,
-    and holds information about the execution mode (interactive or batch).
-    """
-    rms_exec_mode = os.environ.get("RUNRMS_EXEC_MODE")
-    return RMSExecutionMode(rms_exec_mode) if rms_exec_mode else None
 
 
 def dataio_examples() -> bool:
@@ -77,6 +62,15 @@ def export_metadata_file(file: Path, metadata: dict) -> None:
         )
 
     logger.info("Yaml file on: %s", file)
+
+
+def casepath_has_metadata(casepath: Path) -> bool:
+    """Check if a proposed casepath has a metadata file"""
+    if (casepath / ERT_RELATIVE_CASE_METADATA_FILE).exists():
+        logger.debug("Found metadata for proposed casepath <%s>", casepath)
+        return True
+    logger.debug("Did not find metadata for proposed casepath <%s>", casepath)
+    return False
 
 
 def export_object_to_file(
