@@ -55,7 +55,7 @@ class SumoExplorerInterface:
         self, realization_id: int
     ) -> list[tuple[DataFrame | xtgeo.Polygons | xtgeo.RegularSurface, dict]]:
         """
-        Get the standard results data and metadata from Sumo,
+        Get the standard results data objects and metadata from Sumo,
         filtered on the provided realization id. The results are returned
         as a list of tuples containing the data and metadata.
         """
