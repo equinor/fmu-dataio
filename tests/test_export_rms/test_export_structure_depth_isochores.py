@@ -1,3 +1,5 @@
+"""Test the dataio running RMS specific utility function for depth isochores"""
+
 from unittest import mock
 
 import pytest

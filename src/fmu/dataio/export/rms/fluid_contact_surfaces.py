@@ -9,8 +9,10 @@ from fmu.dataio._models.fmu_results import standard_result
 from fmu.dataio._models.fmu_results.enums import (
     Classification,
     Content,
+    DomainReference,
     FluidContactType,
     StandardResultName,
+    VerticalDomain,
 )
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._decorators import experimental
@@ -120,8 +122,8 @@ class _ExportFluidContactSurfaces(SimpleExportRMSBase):
             content=self._content,
             content_metadata={"contact": contact, "truncated": False},
             unit=self._unit,
-            vertical_domain="depth",
-            domain_reference="msl",
+            vertical_domain=VerticalDomain.depth.value,
+            domain_reference=DomainReference.msl.value,
             subfolder=f"{self._subfolder}/{contact.value}",
             is_prediction=True,
             name=surf.name,

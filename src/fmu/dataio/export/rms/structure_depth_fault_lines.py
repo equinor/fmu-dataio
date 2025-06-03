@@ -8,7 +8,9 @@ from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.enums import (
     Classification,
     Content,
+    DomainReference,
     StandardResultName,
+    VerticalDomain,
 )
 from fmu.dataio._models.fmu_results.standard_result import (
     StructureDepthFaultLinesStandardResult,
@@ -68,8 +70,8 @@ class _ExportStructureDepthFaultLines(SimpleExportRMSBase):
             config=self._config,
             content=self._content,
             unit=self._unit,
-            vertical_domain="depth",
-            domain_reference="msl",
+            vertical_domain=VerticalDomain.depth.value,
+            domain_reference=DomainReference.msl.value,
             subfolder=self._subfolder,
             is_prediction=True,
             name=pol.name,
