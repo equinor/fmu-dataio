@@ -51,3 +51,6 @@ files to `share/results/maps/structure_depth_isochore/zonename.gri`.
 
 This standard result is not presented in a tabular format; therefore, no validation
 schema exists.
+
+## Load structure depth isochores
+The loader interface for structure depth isochores standard results is still under development and not supported yet.
