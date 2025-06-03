@@ -358,7 +358,8 @@ def test_construct_object_key():
         )
 
         expected_object_key = (
-            f"{data_name_mock.lower().replace(' ', '-')}_{fluid_contact_type_mock}"
+            f"{data_name_mock.lower().replace(' ', '_').replace('.', '')}-"
+            f"{fluid_contact_type_mock}"
         )
         actual_object_key = fluid_contact_surfaces_loader._construct_object_key(
             mocked_metadata

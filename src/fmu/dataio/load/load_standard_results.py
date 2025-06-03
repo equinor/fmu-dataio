@@ -101,12 +101,12 @@ class StandardResultsLoader:
         """Construct a unique key from the provided object metadata"""
 
         data_name: str = object_metadata["data"]["name"]
-        object_name = data_name.lower().replace(" ", "-")
+        object_name = data_name.lower().replace(" ", "_").replace(".", "")
         standard_result_name = object_metadata["data"]["standard_result"]["name"]
 
         if standard_result_name == StandardResultName.fluid_contact_surface:
             fluid_contact_type = object_metadata["data"]["fluid_contact"]["contact"]
-            return f"{object_name}_{fluid_contact_type}"
+            return f"{object_name}-{fluid_contact_type}"
 
         return object_name
 
