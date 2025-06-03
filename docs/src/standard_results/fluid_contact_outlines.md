@@ -85,3 +85,6 @@ present within the `data.standard_result` key in its associated object metadata.
 The current JSON schema is embedded here.
 
 {{ FluidContactOutlineSchema.literalinclude }}
+
+## Load fluid contact outlines
+The loader interface for fluid contact outlines standard results is still under development and not supported yet.
