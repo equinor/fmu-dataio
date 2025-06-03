@@ -72,7 +72,7 @@ def test_public_export_function(mock_project_variable, mock_export_class):
 
     from fmu.dataio.export.rms import export_structure_time_surfaces
 
-    out = export_structure_time_surfaces(mock_project_variable, "TS_extract")
+    out = export_structure_time_surfaces(mock_project_variable, "TS_extracted")
 
     assert len(out.items) == 3
 
@@ -107,4 +107,4 @@ def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypa
     monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
     with pytest.raises(FileNotFoundError, match="Could not detect"):
-        export_structure_time_surfaces(mock_project_variable, "TS_extract")
+        export_structure_time_surfaces(mock_project_variable, "TS_extracted")
