@@ -1,4 +1,4 @@
-"""Test the dataio running RMS spesici utility function for volumetrics"""
+"""Test the dataio running RMS specific utility function for depth surfaces"""
 
 from unittest import mock
 
@@ -29,7 +29,7 @@ def mock_export_class(
         "fmu.dataio.export.rms.structure_depth_surfaces.get_horizons_in_folder",
         return_value=xtgeo_surfaces,
     ):
-        yield _ExportStructureDepthSurfaces(mock_project_variable, "geogrid_vol")
+        yield _ExportStructureDepthSurfaces(mock_project_variable, "DS_extracted")
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -72,7 +72,7 @@ def test_public_export_function(mock_project_variable, mock_export_class):
 
     from fmu.dataio.export.rms import export_structure_depth_surfaces
 
-    out = export_structure_depth_surfaces(mock_project_variable, "DS_extract")
+    out = export_structure_depth_surfaces(mock_project_variable, "DS_extracted")
 
     assert len(out.items) == 3
 
@@ -107,4 +107,4 @@ def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypa
     monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
     with pytest.raises(FileNotFoundError, match="Could not detect"):
-        export_structure_depth_surfaces(mock_project_variable, "DS_extract")
+        export_structure_depth_surfaces(mock_project_variable, "DS_extracted")

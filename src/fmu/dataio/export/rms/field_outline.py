@@ -10,8 +10,10 @@ from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.enums import (
     Classification,
     Content,
+    DomainReference,
     FluidContactType,
     StandardResultName,
+    VerticalDomain,
 )
 from fmu.dataio._models.fmu_results.standard_result import FieldOutlineStandardResult
 from fmu.dataio.exceptions import ValidationError
@@ -70,8 +72,8 @@ class _ExportFieldOutline(SimpleExportRMSBase):
             config=self._config,
             content=self._content,
             content_metadata={"contact": FluidContactType.fwl},
-            vertical_domain="depth",
-            domain_reference="msl",
+            vertical_domain=VerticalDomain.depth.value,
+            domain_reference=DomainReference.msl.value,
             subfolder=self._subfolder,
             is_prediction=True,
             name=StandardResultName.field_outline.value,

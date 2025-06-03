@@ -1,3 +1,5 @@
+"""Test the dataio running RMS specific utility function for fluid contact surfaces"""
+
 from unittest import mock
 
 import pytest

@@ -1,4 +1,4 @@
-"""Test the dataio running RMS spesici utility function for volumetrics"""
+"""Test the dataio running RMS specific utility function for depth fault lines"""
 
 from unittest import mock
 
@@ -36,7 +36,7 @@ def mock_export_class(
         "fmu.dataio.export.rms.structure_depth_fault_lines.get_faultlines_in_folder",
         return_value=xtgeo_fault_lines,
     ):
-        yield _ExportStructureDepthFaultLines(mock_project_variable, "DL_extract")
+        yield _ExportStructureDepthFaultLines(mock_project_variable, "DL_extracted")
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -99,7 +99,7 @@ def test_public_export_function(mock_project_variable, mock_export_class):
 
     from fmu.dataio.export.rms import export_structure_depth_fault_lines
 
-    out = export_structure_depth_fault_lines(mock_project_variable, "DS_extract")
+    out = export_structure_depth_fault_lines(mock_project_variable, "DS_extracted")
 
     assert len(out.items) == 3
 
@@ -142,7 +142,7 @@ def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypa
     monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
     with pytest.raises(FileNotFoundError, match="Could not detect"):
-        export_structure_depth_fault_lines(mock_project_variable, "DS_extract")
+        export_structure_depth_fault_lines(mock_project_variable, "DS_extracted")
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")

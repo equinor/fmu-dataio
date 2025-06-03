@@ -1,4 +1,4 @@
-"""Test the dataio running RMS spesici utility function for volumetrics"""
+"""Test the dataio running RMS specific utility function for volumetrics"""
 
 from pathlib import Path
 from unittest import mock

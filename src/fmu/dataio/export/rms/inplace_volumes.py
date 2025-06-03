@@ -15,7 +15,9 @@ from fmu.dataio._models.fmu_results import standard_result
 from fmu.dataio._models.fmu_results.enums import (
     Classification,
     Content,
+    DomainReference,
     StandardResultName,
+    VerticalDomain,
 )
 from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
@@ -348,8 +350,8 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
             config=self._config,
             content=self._content,
             unit="m3" if get_rms_project_units(self.project) == "metric" else "ft3",
-            vertical_domain="depth",
-            domain_reference="msl",
+            vertical_domain=VerticalDomain.depth.value,
+            domain_reference=DomainReference.msl.value,
             subfolder=self._subfolder,
             classification=self._classification,
             name=self.grid_name,
