@@ -1,3 +1,5 @@
+"""Test the dataio running RMS specific utility function for fluid contact outlines"""
+
 from unittest import mock
 
 import jsonschema
