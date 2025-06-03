@@ -57,3 +57,34 @@ The fluid contact surfaces from the `General 2D data` folder will be exported as
 
 This standard result is not presented in a tabular format; therefore, no validation
 schema exists.
+
+## Load fluid contact surfaces
+Use the below loader function, loader object and interface to load and interact with 
+the exported fluid contact surfaces standard results. For more information about the
+purpose of these loader functions, see
+[Load standard results](../standard_results.md#load-standard-results).
+
+### Usage
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.load_fluid_contact_surfaces
+```
+
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.FluidContactSurfacesLoader
+```
+
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.FluidContactSurfacesLoader.list_realizations
+```
+
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.FluidContactSurfacesLoader.get_realization
+```
+ 
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.FluidContactSurfacesLoader.get_blobs
+```
+
+```{eval-rst}
+.. autofunction:: fmu.dataio.load.load_standard_results.FluidContactSurfacesLoader.save_realization
+```
