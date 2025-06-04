@@ -29,8 +29,8 @@ install_test_dependencies () {
     echo "Installing test dependencies..."
     pip install ".[dev]"
     
-    # Reinstall pydantic to force latest version
-    pip install -U pydantic
+    # Reinstall pydantic and pytest to force latest version
+    pip install -U pydantic pytest
 
     echo "Dependencies installed successfully. Listing installed dependencies..."
     pip list
