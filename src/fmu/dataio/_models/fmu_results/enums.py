@@ -12,6 +12,7 @@ class StandardResultName(StrEnum):
     structure_time_surface = "structure_time_surface"
     structure_depth_isochore = "structure_depth_isochore"
     structure_depth_fault_lines = "structure_depth_fault_lines"
+    structure_depth_fault_surface = "structure_depth_fault_surface"
     fluid_contact_surface = "fluid_contact_surface"
     fluid_contact_outline = "fluid_contact_outline"
 
