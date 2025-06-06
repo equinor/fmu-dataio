@@ -31,7 +31,6 @@ EXPECTED_COLUMN_ORDER = [
     "ZONE",
     "REGION",
     "FACIES",
-    "LICENSE",
     "BULK",
     "NET",
     "PORV",
@@ -100,13 +99,20 @@ def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolum
     out = exportvolumetrics._export_data_as_standard_result()
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
-    # check that the table index is set correctly
-    assert metadata["data"]["table_index"] == _enums.InplaceVolumes.index_columns()
+    # check that the table index is set correctly (LICENSE is optional and not present)
+    assert metadata["data"]["table_index"] == [
+        col for col in _enums.InplaceVolumes.index_columns() if col != "LICENSE"
+    ]
+    assert metadata["data"]["table_index"] == ["FLUID", "ZONE", "REGION", "FACIES"]
 
-    # should fail if missing table index
+    # should fail if missing required table index
     exportvolumetrics._dataframe = voltable_standard.drop(columns="ZONE")
-    with pytest.raises(KeyError, match="are not present"):
-        exportvolumetrics._export_data_as_standard_result()
+    with pytest.raises(RuntimeError, match="Required index column"):
+        exportvolumetrics._validate_data_pre_export()
+
+    # should not fail if missing optional table index
+    exportvolumetrics._dataframe = voltable_standard.drop(columns="FACIES")
+    exportvolumetrics._validate_data_pre_export()
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -567,7 +573,10 @@ def test_rms_volumetrics_export_function(
 
     assert "volumes" in metadata["data"]["content"]
     assert metadata["access"]["classification"] == "restricted"
-    assert metadata["data"]["table_index"] == _enums.InplaceVolumes.index_columns()
+    assert metadata["data"]["table_index"] == [
+        col for col in _enums.InplaceVolumes.index_columns() if col != "LICENSE"
+    ]
+    assert metadata["data"]["table_index"] == ["FLUID", "ZONE", "REGION", "FACIES"]
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
