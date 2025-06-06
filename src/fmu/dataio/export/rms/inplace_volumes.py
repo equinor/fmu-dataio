@@ -209,15 +209,6 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         return table.drop(columns=total_columns)
 
     @staticmethod
-    def _add_missing_columns_to_table(table: pd.DataFrame) -> pd.DataFrame:
-        """Add columns with nan values if not present in table."""
-        _logger.debug("Add table index columns to table if missing...")
-        for col in _enums.InplaceVolumes.table_columns():
-            if col not in table:
-                table[col] = np.nan
-        return table
-
-    @staticmethod
     def _set_net_equal_to_bulk_if_missing_in_table(table: pd.DataFrame) -> pd.DataFrame:
         """
         Add a NET column to the table equal to the BULK column if NET is missing,
@@ -232,7 +223,9 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
     def _set_table_column_order(table: pd.DataFrame) -> pd.DataFrame:
         """Set the column order in the table."""
         _logger.debug("Settting the table column order...")
-        return table[_enums.InplaceVolumes.table_columns()]
+        return table[
+            [col for col in _enums.InplaceVolumes.table_columns() if col in table]
+        ]
 
     @staticmethod
     def _transform_and_add_fluid_column_to_table(
@@ -275,21 +268,22 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
     ) -> pd.DataFrame:
         """
         Convert the table from legacy to standard format for the 'inplace_volumes'
-        standard result. The standard format has a fluid column, and all table_index
-        and volumetric columns are present with a standard order in the table.
+        standard result. The standard format has a fluid column, and all required
+        table_index and volumetric columns are present with a standard order.
         """
-        table_index = [
-            col for col in _enums.InplaceVolumes.index_columns() if col in table
-        ]
+        table_index = self._get_table_index(table)
         table = self._compute_water_zone_volumes_from_totals(table)
         table = self._transform_and_add_fluid_column_to_table(table, table_index)
         table = self._set_net_equal_to_bulk_if_missing_in_table(table)
-        table = self._add_missing_columns_to_table(table)
         return self._set_table_column_order(table)
 
     def _is_column_missing_in_table(self, column: str) -> bool | np.bool:
         """Check if a column is present in the final dataframe and has values"""
         return column not in self._dataframe or self._dataframe[column].isna().all()
+
+    def _get_table_index(self, table: pd.DataFrame) -> list[str]:
+        """Get the table index columns for the volumetric table."""
+        return [col for col in _enums.InplaceVolumes.index_columns() if col in table]
 
     def _validate_table(self) -> None:
         """
@@ -356,7 +350,7 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
             classification=self._classification,
             name=self.grid_name,
             rep_include=self._rep_include,
-            table_index=_enums.InplaceVolumes.index_columns(),
+            table_index=self._get_table_index(self._dataframe),
         )
 
         volume_table = pa.Table.from_pandas(self._dataframe)
