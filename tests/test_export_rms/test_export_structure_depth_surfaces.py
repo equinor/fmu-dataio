@@ -7,6 +7,7 @@ import pytest
 from fmu import dataio
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.enums import StandardResultName
+from fmu.dataio.manifest._manifest import MANIFEST_FILENAME, load_export_manifest
 
 logger = null_logger(__name__)
 
@@ -50,6 +51,31 @@ def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig
     assert (export_folder / ".topvolantis.gri.yml").exists()
     assert (export_folder / ".toptherys.gri.yml").exists()
     assert (export_folder / ".topvolon.gri.yml").exists()
+
+
+def test_files_exported_inside_fmu(mock_export_class, fmurun_w_casemetadata):
+    """Test that files are exported correctly inside an FMU run"""
+
+    mock_export_class.export()
+
+    export_folder = fmurun_w_casemetadata / "share/results/maps/structure_depth_surface"
+    assert export_folder.exists()
+
+    assert (export_folder / "topvolantis.gri").exists()
+    assert (export_folder / "toptherys.gri").exists()
+    assert (export_folder / "topvolon.gri").exists()
+
+    assert (export_folder / ".topvolantis.gri.yml").exists()
+    assert (export_folder / ".toptherys.gri.yml").exists()
+    assert (export_folder / ".topvolon.gri.yml").exists()
+
+    # check that the manifest is created correctly
+    assert (fmurun_w_casemetadata / MANIFEST_FILENAME).exists()
+    manifest = load_export_manifest()
+    assert len(manifest) == 3
+    assert manifest[0].absolute_path == export_folder / "topvolantis.gri"
+    assert manifest[1].absolute_path == export_folder / "toptherys.gri"
+    assert manifest[2].absolute_path == export_folder / "topvolon.gri"
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")

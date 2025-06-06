@@ -17,6 +17,7 @@ import yaml
 
 from fmu.dataio import dataio
 from fmu.dataio._utils import prettyprint_dict
+from fmu.dataio.manifest._manifest import MANIFEST_FILENAME, load_export_manifest
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +123,13 @@ def test_regsurf_export_file_fmurun(fmurun_w_casemetadata, rmsglobalconfig, regs
         metadata = yaml.safe_load(f)
     assert metadata["access"]["ssdl"]["access_level"] == "restricted"
     assert metadata["data"]["unit"] == "forthnite"
+
+    # check that the two exported files have been written to the manifest
+    assert (fmurun_w_casemetadata / MANIFEST_FILENAME).exists()
+    manifest = load_export_manifest()
+    assert len(manifest) == 2
+    assert manifest[0].absolute_path == Path(output)
+    assert manifest[1].absolute_path == out
 
 
 # ======================================================================================

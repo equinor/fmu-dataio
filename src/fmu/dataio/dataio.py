@@ -27,6 +27,7 @@ from ._utils import (
 )
 from .case import CreateCaseMetadata
 from .exceptions import ValidationError
+from .manifest._manifest import update_export_manifest
 from .preprocessed import ExportPreprocessedData
 from .providers._fmu import FmuProvider
 from .providers.objectdata._provider import (
@@ -788,6 +789,10 @@ class ExportData:
         logger.info("Actual file is:   %s", outfile)
 
         export_metadata_file(metafile, metadata)
+
+        if self._runcontext.inside_fmu:
+            update_export_manifest(outfile, casepath=self._runcontext.casepath)
+
         return str(outfile)
 
     def _generate_export_metadata(self, objdata: ObjectDataProvider) -> dict[str, Any]:
@@ -929,4 +934,8 @@ class ExportData:
 
         export_metadata_file(metafile, metadata)
         logger.info("Metadata file is: %s", metafile)
+
+        if self._runcontext.inside_fmu:
+            update_export_manifest(outfile, casepath=self._runcontext.casepath)
+
         return str(outfile)
