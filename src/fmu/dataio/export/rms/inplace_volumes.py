@@ -294,12 +294,18 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         """
         _logger.debug("Validating the dataframe...")
 
+        standard_error_msg = (
+            "Please update and rerun the volumetric job before export. "
+            "If an issue occur while running the volumetrics job try "
+            "deleting the table in RMS upfront."
+        )
+
         # check that all required index columns are present
         for col in _enums.InplaceVolumes.required_index_columns():
             if self._is_column_missing_in_table(col):
                 raise RuntimeError(
                     f"Required index column {col} is missing in the volumetric table. "
-                    "Please update and rerun the volumetric job before export."
+                    + standard_error_msg
                 )
 
         has_oil = "oil" in self._dataframe[_TableIndexColumns.FLUID.value].values
@@ -309,8 +315,7 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         if not (has_oil or has_gas):
             raise RuntimeError(
                 "One or both 'oil' and 'gas' needs to be selected as 'Main types'"
-                "in the volumetric job. Please update and rerun the volumetric job "
-                "before export."
+                "in the volumetric job. " + standard_error_msg
             )
 
         # check that all required value columns are present
@@ -330,8 +335,8 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         if missing_calculations:
             raise RuntimeError(
                 f"Required calculations {missing_calculations} are missing "
-                f"in the volumetric table {self._volume_table_name}. Please update and "
-                "rerun the volumetric job before export."
+                f"in the volumetric table {self._volume_table_name}. "
+                + standard_error_msg
             )
 
         df = self._dataframe.replace(np.nan, None).to_dict(orient="records")
