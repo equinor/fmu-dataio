@@ -195,7 +195,7 @@ VOLJOB_PARAMS = {
 def mock_rmsapi():
     # Create a mock rmsapi module
     mock_rmsapi = MagicMock()
-    mock_rmsapi.__version__ = "1.7"
+    mock_rmsapi.__version__ = "1.10"
     mock_rmsapi.jobs.Job.get_job(...).get_arguments.return_value = VOLJOB_PARAMS
     mock_rmsapi.Surface = MagicMock
     mock_rmsapi.Polylines = MagicMock

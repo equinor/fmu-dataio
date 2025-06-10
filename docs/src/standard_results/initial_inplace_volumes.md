@@ -15,7 +15,7 @@ This exports the initial inplace volumes of a single grid from within RMS.
 
 ## Requirements
 
-- RMS
+- RMS (minimum version 14.2)
 - RMS volumetrics job stored to report table
 - Proper grid erosion
 
