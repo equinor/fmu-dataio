@@ -374,7 +374,7 @@ def export_inplace_volumes(
 
     """  # noqa: E501 line too long
 
-    check_rmsapi_version(minimum_version="1.7")
+    check_rmsapi_version(minimum_version="1.10")
 
     return _ExportVolumetricsRMS(
         project,

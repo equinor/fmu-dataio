@@ -80,7 +80,7 @@ def test_rms_volumetrics_export_class(exportvolumetrics):
     import rmsapi  # type: ignore # noqa
     import rmsapi.jobs as jobs  # type: ignore # noqa
 
-    assert rmsapi.__version__ == "1.7"
+    assert rmsapi.__version__ == "1.10"
     assert "Report" in jobs.Job.get_job("whatever").get_arguments.return_value
 
     # volume table name should be picked up by the mocked object
@@ -463,6 +463,24 @@ def test_validate_table_against_pydantic_model_before_export(
     exportvolumetrics._dataframe = df
     with pytest.raises(ValidationError, match="Input should be a valid number"):
         exportvolumetrics._validate_table()
+
+
+@inside_rms
+def test_rms_volumetrics_export_rmsapi_requirement(
+    mock_project_variable, mocked_rmsapi_modules, exportvolumetrics
+):
+    """Test that an exception is raised if minimum rmsapi version 1.10 is not met"""
+
+    from fmu.dataio.export.rms.inplace_volumes import export_inplace_volumes
+
+    # mock the rmsapi version to be lower than 1.10
+    mocked_rmsapi_modules["rmsapi"].__version__ = "1.9"
+    with pytest.raises(RuntimeError, match="RMS 14.2"):
+        export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
+
+    # no error should be raised if the version is 1.10 or higher
+    mocked_rmsapi_modules["rmsapi"].__version__ = "1.10"
+    export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
 
 
 @inside_rms
