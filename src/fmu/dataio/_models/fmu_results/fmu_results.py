@@ -50,6 +50,8 @@ class FmuResultsSchema(SchemaBase):
     VERSION_CHANGELOG: str = """
     #### 0.12.0
 
+    - `fmu.ert.simulation_mode` now supports `ensemble_information_filter`
+
     #### 0.11.0
 
     - `data.standard_result` now supports `FluidContactSurfaceStandardResult`

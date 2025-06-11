@@ -1171,6 +1171,7 @@
       "description": "The simulation mode ert was run in. These definitions come from\n`ert.mode_definitions`.",
       "enum": [
         "ensemble_experiment",
+        "ensemble_information_filter",
         "ensemble_smoother",
         "es_mda",
         "evaluate_ensemble",

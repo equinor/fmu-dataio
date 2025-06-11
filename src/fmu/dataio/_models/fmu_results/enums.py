@@ -76,6 +76,7 @@ class ErtSimulationMode(str, Enum):
     `ert.mode_definitions`."""
 
     ensemble_experiment = "ensemble_experiment"
+    ensemble_information_filter = "ensemble_information_filter"
     ensemble_smoother = "ensemble_smoother"
     es_mda = "es_mda"
     evaluate_ensemble = "evaluate_ensemble"

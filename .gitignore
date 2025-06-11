@@ -108,3 +108,6 @@ src/fmu/dataio/version.py
 node_modules/
 package-lock.json
 package.json
+
+# manifest file in examples
+examples/example_exports/.dataio_export_manifest.json
