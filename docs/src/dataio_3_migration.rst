@@ -87,6 +87,8 @@ Additionally
    now the table_index will remain empty. An exception exists for tables associated with content types
    that have a predefined standard index; then the ``table_index`` will be set to the intersection of
    the table's columns and the standard.
+ - Previously it was possible to set an empty column as a table index, this is no longer allowed.
+
 
 
 Changes to class variables 

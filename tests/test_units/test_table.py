@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 from pydantic import ValidationError
@@ -60,13 +61,28 @@ def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path
         globalconfig2 (dict): one global variables dict
     """
 
-    # TODO: Refactor tests and move away from outside/inside rms pattern
-
     monkeypatch.chdir(tmp_path)
     answer = ["FLUID", "ZONE", "REGION", "LICENSE"]
     exd = ExportData(config=globalconfig2, content="volumes", name="baretull")
     path = exd.export(mock_volumes)
     assert_correct_table_index(path, answer)
+
+
+def test_inplace_volume_empty_index(mock_volumes, globalconfig2, monkeypatch, tmp_path):
+    """Test volumetric data with some empty table index columns"""
+    monkeypatch.chdir(tmp_path)
+
+    df = mock_volumes.copy()
+    df["FLUID"] = np.nan  # test with nan values
+
+    with pytest.warns(FutureWarning, match="only empty values"):
+        ExportData(config=globalconfig2, content="volumes", name="baretull").export(df)
+
+    df = mock_volumes.copy()
+    df["REGION"] = None  # test with None values
+
+    with pytest.warns(FutureWarning, match="only empty values"):
+        ExportData(config=globalconfig2, content="volumes", name="baretull").export(df)
 
 
 def test_relperm_index(mock_relperm, globalconfig2, monkeypatch, tmp_path):
@@ -114,6 +130,32 @@ def test_derive_summary_index_pyarrow(
     )
     path = exd.export(Table.from_pandas(mock_summary))
     assert_correct_table_index(path, answer)
+
+
+def test_summary_index_pyarrow_empty_index(
+    mock_summary, globalconfig2, monkeypatch, tmp_path
+):
+    """Test summary data in arrow format with empty table index columns"""
+
+    from pyarrow import Table
+
+    monkeypatch.chdir(tmp_path)
+
+    df = mock_summary.copy()
+    df["DATE"] = np.nan  # test with nan values
+
+    with pytest.warns(FutureWarning, match="only empty values"):
+        ExportData(
+            config=globalconfig2, content="simulationtimeseries", name="baretull"
+        ).export(Table.from_pandas(df))
+
+    df = mock_summary.copy()
+    df["DATE"] = None  # test with None values
+
+    with pytest.warns(FutureWarning, match="only empty values"):
+        ExportData(
+            config=globalconfig2, content="simulationtimeseries", name="baretull"
+        ).export(Table.from_pandas(df))
 
 
 def test_set_from_exportdata(mock_volumes, globalconfig2, monkeypatch, tmp_path):
