@@ -25,6 +25,7 @@ from fmu.dataio.exceptions import ConfigurationError
 from ._base import (
     ObjectDataProvider,
 )
+from ._utils import is_empty_column
 
 if TYPE_CHECKING:
     from io import BytesIO
@@ -149,6 +150,21 @@ def _derive_index(
     return table_index
 
 
+def _drop_empty_table_index_columns(
+    table: pd.DataFrame | pa.Table, table_index: list[str]
+) -> list[str]:
+    """Drop table index columns if they have only empty values."""
+    empty_columns = [col for col in table_index if is_empty_column(table, col)]
+    if empty_columns:
+        warnings.warn(
+            "The following table index columns are dropped due to having "
+            f"only empty values: {empty_columns}. In the future it will not be "
+            "allowed to export a table with empty table index columns.",
+            FutureWarning,
+        )
+    return [col for col in table_index if col not in empty_columns]
+
+
 @dataclass
 class DataFrameDataProvider(ObjectDataProvider):
     obj: pd.DataFrame
@@ -185,11 +201,12 @@ class DataFrameDataProvider(ObjectDataProvider):
     @property
     def table_index(self) -> list[str]:
         """Return the table index."""
-        return _derive_index(
+        table_index = _derive_index(
             table_index=self.dataio.table_index,
             table_columns=list(self.obj.columns),
             content=self.dataio._get_content_enum(),
         )
+        return _drop_empty_table_index_columns(self.obj, table_index)
 
     def get_geometry(self) -> None:
         """Derive data.geometry for data frame"""
@@ -245,11 +262,12 @@ class ArrowTableDataProvider(ObjectDataProvider):
     @property
     def table_index(self) -> list[str]:
         """Return the table index."""
-        return _derive_index(
+        table_index = _derive_index(
             table_index=self.dataio.table_index,
             table_columns=list(self.obj.column_names),
             content=self.dataio._get_content_enum(),
         )
+        return _drop_empty_table_index_columns(self.obj, table_index)
 
     def get_geometry(self) -> None:
         """Derive data.geometry for Arrow table."""
