@@ -15,7 +15,7 @@ from fmu.dataio._definitions import ShareFolder
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results import fields
 from fmu.dataio._models.fmu_results.enums import FMUContext
-from fmu.dataio._utils import compute_md5_from_objdata
+from fmu.dataio._utils import compute_md5_and_size_from_objdata
 
 from ._base import Provider
 
@@ -153,6 +153,8 @@ class FileDataProvider(Provider):
         absolute_path = exportroot / share_path
         relative_path = absolute_path.relative_to(casepath or exportroot)
 
+        checksum, size = compute_md5_and_size_from_objdata(self.objdata)
+
         logger.info("Returning metadata pydantic model fields.File")
         return fields.File(
             absolute_path=absolute_path.resolve(),
@@ -162,5 +164,6 @@ class FileDataProvider(Provider):
                 if self.runcontext.fmu_context == FMUContext.realization
                 else None
             ),
-            checksum_md5=compute_md5_from_objdata(self.objdata),
+            checksum_md5=checksum,
+            size_bytes=size,
         )
