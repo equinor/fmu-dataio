@@ -40,7 +40,7 @@ def test_simple_export_case_metadata(snakeoil_export_surface: Path) -> None:
         fmu_case = yaml.safe_load(f)
 
     assert fmu_case["fmu"]["case"]["name"] == "snakeoil"
-    assert fmu_case["fmu"]["case"]["user"]["id"] == "user"
+    assert fmu_case["fmu"]["case"]["user"]["id"] == getpass.getuser()
     assert fmu_case["source"] == "fmu"
     assert len(fmu_case["tracklog"]) == 1
     assert fmu_case["tracklog"][0]["user"]["id"] == getpass.getuser()

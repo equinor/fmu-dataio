@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import copy
+import getpass
 import uuid
 import warnings
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Final
 
@@ -26,8 +26,7 @@ logger: Final = null_logger(__name__)
 # ######################################################################################
 
 
-@dataclass
-class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
+class CreateCaseMetadata:
     """Create metadata for an FMU Case.
 
     In ERT this is typically ran as an hook workflow in advance.
@@ -40,26 +39,25 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
             parse that file instead.
         rootfolder: Absolute path to the case root, including case name.
         casename: Name of case (experiment)
-        caseuser: Username provided
         description (Optional): Description text as string or list of strings.
     """
 
-    config: dict
-    rootfolder: str | Path
-    casename: str
-    caseuser: str
+    def __init__(
+        self,
+        config: dict,
+        rootfolder: str | Path,
+        casename: str,
+        description: str | list | None = None,
+    ) -> None:
+        """Initialize the CreateCaseMetadata class."""
+        self.config = config
+        self.rootfolder = rootfolder
+        self.casename = casename
+        self.description = description
 
-    description: str | list | None = None
-
-    _metadata: dict = field(default_factory=dict, init=False)
-    _metafile: Path = field(default_factory=Path, init=False)
-    _pwd: Path = field(default_factory=Path, init=False)
-    _casepath: Path = field(default_factory=Path, init=False)
-
-    def __post_init__(self) -> None:
-        self._pwd = Path().absolute()
         self._casepath = Path(self.rootfolder)
         self._metafile = self._casepath / "share/metadata/fmu_case.yml"
+        self._metadata: dict = {}
 
         # For this class, the global config must be valid; hence error if not
         try:
@@ -67,7 +65,7 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
         except ValidationError as e:
             global_configuration.validation_error_warning(e)
             raise
-        logger.info("Ran __post_init__ for CreateCaseMetadata")
+        logger.info("Ran __init__ for CreateCaseMetadata")
 
     def _establish_metadata_files(self) -> bool:
         """Checks if the metadata files and directories are established and creates
@@ -128,7 +126,7 @@ class CreateCaseMetadata:  # pylint: disable=too-few-public-methods
                 case=fields.Case(
                     name=self.casename,
                     uuid=self._case_uuid(),
-                    user=fields.User(id=self.caseuser),
+                    user=fields.User(id=getpass.getuser()),
                     description=None,
                 ),
             ),

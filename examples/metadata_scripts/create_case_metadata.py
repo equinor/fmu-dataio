@@ -18,7 +18,6 @@ def create_case_metadata():
         config=CFG,
         rootfolder="",
         casename="MyCase",
-        caseuser="user",
     )
 
     fname = case.export()
