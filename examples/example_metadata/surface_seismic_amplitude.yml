@@ -60,6 +60,7 @@ data:
     stratigraphic: true
   undef_is_zero: false
   unit: m
+  uuid: 30bdfa2b-23fe-7c6a-02d4-687162ff1ff5
   vertical_domain: depth
 display:
   name: surface_seismic_amplitude
@@ -81,7 +82,7 @@ fmu:
     name: iter-0
     uuid: 00000000-0000-0000-0000-000000000000
   entity:
-    uuid: 699b770d-bae9-d463-f1f7-a1c7c6f18162
+    uuid: eac23fc1-251d-731b-f5cc-0ad80f3349ba
   ert:
     experiment:
       id: 00000000-0000-0000-0000-000000000000
@@ -118,7 +119,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-06-11T07:38:04.457370Z'
+- datetime: '2025-06-13T13:21:13.946779Z'
   event: created
   sysinfo:
     fmu-dataio:

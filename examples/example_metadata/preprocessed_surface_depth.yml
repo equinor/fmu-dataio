@@ -39,6 +39,7 @@ data:
   tagname: ''
   undef_is_zero: false
   unit: ''
+  uuid: bf9cdfff-2488-78ed-4202-66544c702a75
   vertical_domain: depth
 display:
   name: preprocessedmap
@@ -80,7 +81,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-06-11T07:38:01.668196Z'
+- datetime: '2025-06-13T13:21:11.340461Z'
   event: created
   sysinfo:
     fmu-dataio:

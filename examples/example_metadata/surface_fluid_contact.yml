@@ -42,6 +42,7 @@ data:
   tagname: ''
   undef_is_zero: false
   unit: m
+  uuid: a15a9d09-d972-f3e0-2dc7-8f3813ecc597
   vertical_domain: depth
 display:
   name: surface_fluid_contact
@@ -63,7 +64,7 @@ fmu:
     name: iter-0
     uuid: 00000000-0000-0000-0000-000000000000
   entity:
-    uuid: 4a055a3a-470f-80ee-ed18-9e3c4594f604
+    uuid: cb335861-9e4e-2189-58c1-7ba325da3822
   ert:
     experiment:
       id: 00000000-0000-0000-0000-000000000000
@@ -100,7 +101,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-06-11T07:38:04.383548Z'
+- datetime: '2025-06-13T13:21:13.872675Z'
   event: created
   sysinfo:
     fmu-dataio:

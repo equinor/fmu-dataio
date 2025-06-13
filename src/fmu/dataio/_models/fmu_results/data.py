@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 from typing import TYPE_CHECKING, Annotated, Any, Literal
+from uuid import UUID
 
 from pydantic import (
     AwareDatetime,
@@ -220,6 +221,9 @@ class Data(BaseModel):
     standard_result: AnyStandardResult | None = Field(default=None)
     """Information about the standard result that these data represent. The presence of
     this field indicates that these data conforms to a specified standard."""
+
+    uuid: UUID = Field(examples=["15ce3b84-766f-4c93-9050-b154861f9100"])
+    """The unique identifier of this data object."""
 
     name: str = Field(examples=["VIKING GP. Top"])
     """This is the identifying name of this data object. For surfaces, this is typically
