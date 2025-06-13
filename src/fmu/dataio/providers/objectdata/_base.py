@@ -171,19 +171,19 @@ class ObjectDataProvider(Provider):
     def share_path(self) -> Path:
         return SharePathConstructor(self.dataio, self).get_share_path()
 
-    def compute_md5(self) -> str:
-        """Compute an MD5 sum"""
+    def compute_md5_and_size(self) -> tuple[str, int]:
+        """Compute an MD5 sum and the buffer size"""
         memory_stream = BytesIO()
         self.export_to_file(memory_stream)
-        return md5sum(memory_stream)
+        return md5sum(memory_stream), memory_stream.getbuffer().nbytes
 
-    def compute_md5_using_temp_file(self) -> str:
-        """Compute an MD5 sum using a temporary file."""
+    def compute_md5_and_size_using_temp_file(self) -> tuple[str, int]:
+        """Compute an MD5 sum and the file size using a temporary file."""
         with NamedTemporaryFile(buffering=0, suffix=".tmp") as tf:
             logger.info("Compute MD5 sum for tmp file")
             tempfile = Path(tf.name)
             self.export_to_file(tempfile)
-            return md5sum(tempfile)
+            return md5sum(tempfile), tempfile.stat().st_size
 
     def get_metadata(self) -> AnyData | UnsetData:
         assert self._metadata is not None
