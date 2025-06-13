@@ -268,11 +268,14 @@ class AggregatedData:
 
         objdata = objectdata_provider_factory(obj=obj, dataio=etemp)
 
+        checksum_md5, size = _utils.compute_md5_and_size_from_objdata(objdata)
+
         template["tracklog"] = [Tracklog.initialize()[0]]
         template["file"] = {
             "relative_path": str(relpath),
             "absolute_path": str(abspath) if abspath else None,
-            "checksum_md5": _utils.compute_md5_from_objdata(objdata),
+            "checksum_md5": checksum_md5,
+            "size_bytes": size,
         }
 
         # data section

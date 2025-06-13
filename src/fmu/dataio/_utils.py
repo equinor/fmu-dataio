@@ -174,16 +174,16 @@ def md5sum_stream(stream: BufferedIOBase) -> str:
     return hash_md5.hexdigest()
 
 
-def compute_md5_from_objdata(objdata: ObjectDataProvider) -> str:
+def compute_md5_and_size_from_objdata(objdata: ObjectDataProvider) -> tuple[str, int]:
     """Compute an MD5 sum for an object."""
     try:
-        return objdata.compute_md5()
+        return objdata.compute_md5_and_size()
     except Exception as e:
         logger.debug(
             f"Exception {e} occured when trying to compute md5 from memory stream "
             f"for an object of type {type(objdata.obj)}. Will use tempfile instead."
         )
-        return objdata.compute_md5_using_temp_file()
+        return objdata.compute_md5_and_size_using_temp_file()
 
 
 def create_symlink(source: str, target: str) -> None:

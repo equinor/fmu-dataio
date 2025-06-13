@@ -236,4 +236,6 @@ def test_objectdata_compute_md5(gridproperty, edataobj1):
     myobj = objectdata_provider_factory(gridproperty, edataobj1)
 
     metadata = edataobj1.generate_metadata(gridproperty)
-    assert metadata["file"]["checksum_md5"] == myobj.compute_md5()
+    checksum, size = myobj.compute_md5_and_size()
+    assert metadata["file"]["checksum_md5"] == checksum
+    assert metadata["file"]["size_bytes"] == size
