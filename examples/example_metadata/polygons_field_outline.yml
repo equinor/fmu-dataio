@@ -42,6 +42,7 @@ data:
   tagname: polygons_field_outline
   undef_is_zero: false
   unit: m
+  uuid: aa8ac31c-4f80-7f64-7e35-9f9f9dba1a99
   vertical_domain: depth
 display:
   name: VOLANTIS GP. Base
@@ -63,7 +64,7 @@ fmu:
     name: iter-0
     uuid: 00000000-0000-0000-0000-000000000000
   entity:
-    uuid: 85a58443-3beb-23f8-c91a-86ff6e247346
+    uuid: 37fac59f-6aaf-3479-4ccb-92ebd2201e6b
   ert:
     experiment:
       id: 00000000-0000-0000-0000-000000000000
@@ -100,7 +101,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-06-11T07:37:51.865324Z'
+- datetime: '2025-06-13T13:21:03.323724Z'
   event: created
   sysinfo:
     fmu-dataio:

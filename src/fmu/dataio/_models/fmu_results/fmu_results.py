@@ -51,6 +51,7 @@ class FmuResultsSchema(SchemaBase):
     #### 0.12.0
 
     - `fmu.ert.simulation_mode` now supports `ensemble_information_filter`
+    - `data.uuid` added as required field
 
     #### 0.11.0
 

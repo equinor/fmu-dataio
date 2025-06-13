@@ -951,6 +951,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "const": "depth",
           "title": "Vertical Domain",
@@ -959,6 +967,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -1702,6 +1711,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -1720,6 +1737,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -2002,6 +2020,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -2020,6 +2046,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -2302,6 +2329,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -2320,6 +2355,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -2656,6 +2692,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -2674,6 +2718,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -2999,6 +3044,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -3017,6 +3070,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -3339,6 +3393,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -3357,6 +3419,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -3772,6 +3835,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -3790,6 +3861,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -4258,6 +4330,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -4276,6 +4356,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -4599,6 +4680,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -4617,6 +4706,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -4952,6 +5042,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -4970,6 +5068,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -5372,6 +5471,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -5390,6 +5497,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -5672,6 +5780,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -5690,6 +5806,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -5972,6 +6089,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -5990,6 +6115,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -6481,6 +6607,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -6499,6 +6633,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -6781,6 +6916,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -6799,6 +6942,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -7186,6 +7330,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -7204,6 +7356,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -7486,6 +7639,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -7504,6 +7665,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -7877,6 +8039,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -7895,6 +8065,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -8178,6 +8349,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -8196,6 +8375,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -8691,6 +8871,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -8709,6 +8897,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -9141,6 +9330,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -9159,6 +9356,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -9465,6 +9663,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "const": "time",
           "title": "Vertical Domain",
@@ -9473,6 +9679,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -9756,6 +9963,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -9774,6 +9989,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -10145,6 +10361,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -10163,6 +10387,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -10484,6 +10709,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -10502,6 +10735,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -10806,6 +11040,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -10824,6 +11066,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",
@@ -11106,6 +11349,14 @@
           "title": "Unit",
           "type": "string"
         },
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        },
         "vertical_domain": {
           "anyOf": [
             {
@@ -11124,6 +11375,7 @@
       },
       "required": [
         "content",
+        "uuid",
         "name",
         "stratigraphic",
         "format",

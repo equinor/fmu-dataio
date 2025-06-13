@@ -16,7 +16,7 @@ from fmu.dataio._models.fmu_results.global_configuration import (
     GlobalConfiguration,
     StratigraphyElement,
 )
-from fmu.dataio._utils import generate_description, md5sum
+from fmu.dataio._utils import generate_description, md5sum, uuid_from_string
 from fmu.dataio.providers._base import Provider
 from fmu.dataio.providers._filedata import SharePathConstructor
 from fmu.dataio.providers.objectdata._export_models import (
@@ -27,6 +27,8 @@ from fmu.dataio.providers.objectdata._export_models import (
 )
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from pydantic import BaseModel
 
     from fmu.dataio._models.fmu_results.data import (
@@ -41,6 +43,7 @@ if TYPE_CHECKING:
     )
     from fmu.dataio._models.fmu_results.specification import AnySpecification
     from fmu.dataio._models.fmu_results.standard_result import StandardResult
+    from fmu.dataio._runcontext import RunContext
     from fmu.dataio.dataio import ExportData
     from fmu.dataio.types import Inferrable
 
@@ -85,6 +88,7 @@ class ObjectDataProvider(Provider):
         self.name = strat_element.name
 
         metadata: dict[str, Any] = {}
+        metadata["uuid"] = self.uuid
         metadata["name"] = self.name
         metadata["stratigraphic"] = strat_element.stratigraphic
         metadata["offset"] = strat_element.offset
@@ -170,6 +174,14 @@ class ObjectDataProvider(Provider):
     @property
     def share_path(self) -> Path:
         return SharePathConstructor(self.dataio, self).get_share_path()
+
+    @property
+    def uuid(self) -> UUID:
+        """The UUID for the object."""
+        return self._get_object_uuid(
+            runcontext=self.dataio._runcontext,
+            share_path=self.share_path,
+        )
 
     def compute_md5(self) -> str:
         """Compute an MD5 sum"""
@@ -310,3 +322,20 @@ class ObjectDataProvider(Provider):
         self.time0, self.time1 = start.value, stop.value if stop else None
 
         return Time(t0=start, t1=stop)
+
+    @staticmethod
+    def _get_object_uuid(runcontext: RunContext, share_path: Path) -> UUID:
+        """Get a UUID for the object. The uuid is made as a hash of the
+        case uuid and the file.relative_path. If no casepath is detected (outside fmu)
+        the uuid is returned as an hash of the absolute path"""
+
+        absolute_path = runcontext.exportroot / share_path
+
+        casepath = runcontext.casepath
+        casemeta = runcontext.casemeta
+
+        if casemeta and casepath:
+            relative_path = absolute_path.relative_to(casepath)
+            return uuid_from_string(f"{casemeta.fmu.case.uuid}{relative_path}")
+
+        return uuid_from_string(f"{absolute_path}")
