@@ -4,6 +4,7 @@ In this case a user sits in RMS, which is in folder rms/model and runs
 interactive. Hence the basepath will be ../../
 """
 
+import getpass
 import logging
 from copy import deepcopy
 from pathlib import Path
@@ -18,13 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 def test_crease_case_metadata_barebone(globalconfig2):
-    icase = CreateCaseMetadata(
-        config=globalconfig2, rootfolder="", casename="", caseuser="MyUser"
-    )
+    icase = CreateCaseMetadata(config=globalconfig2, rootfolder="", casename="")
     assert icase.config == globalconfig2
     assert icase.rootfolder == ""
     assert icase.casename == ""
-    assert icase.caseuser == "MyUser"
     assert not icase.description
 
 
@@ -37,13 +35,11 @@ def test_create_case_metadata_post_init(monkeypatch, fmurun, globalconfig2):
         config=globalconfig2,
         rootfolder=caseroot,
         casename="mycase",
-        caseuser="user",
         description="Some description",
     )
     logger.info("Casepath is %s", icase._casepath)
 
     assert icase._casepath == caseroot
-    assert icase._pwd == fmurun
     assert icase._metafile == caseroot / "share/metadata/fmu_case.yml"
 
 
@@ -64,7 +60,6 @@ def test_create_case_metadata_post_init_bad_globalconfig(
             config=config,
             rootfolder=caseroot,
             casename="mycase",
-            caseuser="user",
         )
 
 
@@ -78,7 +73,7 @@ def test_create_case_metadata_establish_metadata_files(
     logger.info("Case folder is now %s", caseroot)
 
     icase = CreateCaseMetadata(
-        config=globalconfig2, rootfolder=caseroot, casename="mycase", caseuser="user"
+        config=globalconfig2, rootfolder=caseroot, casename="mycase"
     )
     share_metadata = caseroot / "share/metadata"
     assert not share_metadata.exists()
@@ -98,7 +93,7 @@ def test_create_case_metadata_establish_metadata_files_exists(
     logger.info("Case folder is now %s", caseroot)
 
     icase = CreateCaseMetadata(
-        config=globalconfig2, rootfolder=caseroot, casename="mycase", caseuser="user"
+        config=globalconfig2, rootfolder=caseroot, casename="mycase"
     )
     (caseroot / "share/metadata").mkdir(parents=True, exist_ok=True)
     assert icase._establish_metadata_files()
@@ -116,12 +111,12 @@ def test_create_case_metadata_generate_metadata(monkeypatch, fmurun, globalconfi
     logger.info("Case folder is now %s", myroot)
 
     icase = CreateCaseMetadata(
-        config=globalconfig2, rootfolder=myroot, casename="mycase", caseuser="user"
+        config=globalconfig2, rootfolder=myroot, casename="mycase"
     )
     metadata = icase.generate_metadata()
     assert metadata
     assert metadata["fmu"]["case"]["name"] == "mycase"
-    assert metadata["fmu"]["case"]["user"]["id"] == "user"
+    assert metadata["fmu"]["case"]["user"]["id"] == getpass.getuser()
 
 
 def test_create_case_metadata_generate_metadata_warn_if_exists(
@@ -135,7 +130,6 @@ def test_create_case_metadata_generate_metadata_warn_if_exists(
         config=globalconfig2,
         rootfolder=casemetafolder,
         casename="abc",
-        caseuser="user",
     )
     with pytest.warns(UserWarning, match=r"Using existing case metadata from runpath:"):
         icase.generate_metadata()
@@ -149,7 +143,6 @@ def test_create_case_metadata_with_export(monkeypatch, globalconfig2, fmurun):
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName",
-        caseuser="MyUser",
         description="Some description",
     )
     fmu_case_yml = Path(icase.export())
@@ -173,7 +166,6 @@ def test_create_case_metadata_export_with_norsk_alphabet(
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName_with_Æ",
-        caseuser="MyUser",
         description="Søme description",
     )
     globalconfig2["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import warnings
 from pathlib import Path
 from typing import Final
 
@@ -37,7 +38,6 @@ contents::
     <ert_caseroot> (Path): Absolute path to root of the case, typically <SCRATCH>/<US...
     <ert_config_path> (Path): Absolute path to ERT config, typically /project/etc/etc
     <ert_casename> (str): The ERT case name, typically <CASE_DIR>
-    <ert_user> (str): The ERT user name, typically <USER>
     <sumo> (optional) (bool): If passed, do not register case on Sumo. Default: False
     <sumo_env> (str) (optional): Sumo environment to use. Default: "prod"
     <global_variables_path> (str): Path to global_variables relative to config path
@@ -95,6 +95,13 @@ def check_arguments(args: argparse.Namespace) -> None:
         logger.debug("Argument ert_caseroot was not absolute: %s", args.ert_caseroot)
         raise ValueError("ert_caseroot must be an absolute path")
 
+    if args.ert_username:
+        warnings.warn(
+            "The argument 'ert_username' is deprecated. It is no "
+            "longer used and can safely be removed.",
+            FutureWarning,
+        )
+
 
 def create_metadata(args: argparse.Namespace) -> str:
     """Create the case metadata and print them to the disk"""
@@ -107,7 +114,6 @@ def create_metadata(args: argparse.Namespace) -> str:
         config=global_variables,
         rootfolder=args.ert_caseroot,
         casename=args.ert_casename,
-        caseuser=args.ert_username,
     ).export()
 
 
@@ -135,7 +141,11 @@ def get_parser() -> argparse.ArgumentParser:
         "ert_config_path", type=str, help="ERT config path (<CONFIG_PATH>)"
     )
     parser.add_argument("ert_casename", type=str, help="ERT case name (<CASE>)")
-    parser.add_argument("ert_username", type=str, help="ERT user name (<USER>)")
+    parser.add_argument(
+        "ert_username",
+        type=str,
+        help="Deprecated and can safely be removed",
+    )
     parser.add_argument(
         "--sumo",
         action="store_true",

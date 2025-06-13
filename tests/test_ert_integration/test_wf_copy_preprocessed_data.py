@@ -1,3 +1,5 @@
+import getpass
+
 import ert.__main__
 import pytest
 import yaml
@@ -63,7 +65,7 @@ def test_copy_preprocessed_runs_successfully(
         meta = yaml.safe_load(f)
 
     assert meta["fmu"]["case"]["name"] == "snakeoil"
-    assert meta["fmu"]["case"]["user"]["id"] == "user"
+    assert meta["fmu"]["case"]["user"]["id"] == getpass.getuser()
     assert meta["fmu"]["context"]["stage"] == "case"
     assert len(meta["tracklog"]) == 2
 
