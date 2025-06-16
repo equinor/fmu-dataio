@@ -9,11 +9,11 @@ from typing import Final
 
 from pydantic import ValidationError
 
-from fmu.dataio._models.fmu_results import fields, global_configuration
+from fmu.dataio._models.fmu_results import enums, fields, global_configuration
+from fmu.dataio._models.fmu_results.fmu_results import CaseMetadata
 
 from . import _utils
 from ._logging import null_logger
-from ._metadata import CaseMetadataExport
 
 logger: Final = null_logger(__name__)
 
@@ -47,13 +47,18 @@ class CreateCaseMetadata:
         config: dict,
         rootfolder: str | Path,
         casename: str,
-        description: str | list | None = None,
+        description: str | list | None = None,  # deprecated
     ) -> None:
         """Initialize the CreateCaseMetadata class."""
         self.config = config
         self.rootfolder = rootfolder
         self.casename = casename
-        self.description = description
+
+        if description:
+            warnings.warn(
+                "The 'description' argument is deprecated and no longer used.",
+                FutureWarning,
+            )
 
         self._casepath = Path(self.rootfolder)
         self._metafile = self._casepath / "share/metadata/fmu_case.yml"
@@ -116,7 +121,8 @@ class CreateCaseMetadata:
             warnings.warn(exists_warning, UserWarning)
             return {}
 
-        self._metadata = CaseMetadataExport(
+        self._metadata = CaseMetadata(  # type: ignore[call-arg]
+            class_=enums.FMUResultsMetadataClass.case,
             masterdata=fields.Masterdata.model_validate(self.config["masterdata"]),
             access=fields.Access.model_validate(self.config["access"]),
             fmu=fields.FMUBase(
@@ -131,7 +137,6 @@ class CreateCaseMetadata:
                 ),
             ),
             tracklog=fields.Tracklog.initialize(),
-            description=_utils.generate_description(self.description),
         ).model_dump(
             mode="json",
             exclude_none=True,

@@ -218,7 +218,7 @@ class MetadataBase(BaseModel):
     """The url of the schema that generated this data."""
 
 
-class CaseMetadata(MetadataBase):
+class CaseMetadata(MetadataBase, populate_by_name=True):
     """The FMU metadata model for an FMU case.
 
     A case represent a set of iterations that belong together, either by being part of
