@@ -50,7 +50,7 @@ def test_runcontext_rms_interactive(monkeypatch):
 
     assert runcontext.runpath is None
     assert runcontext.casepath is None
-    assert runcontext.casemeta is None
+    assert runcontext.case_metadata is None
 
     # exportroot should be up two folders from rms/model
     assert runcontext.exportroot == Path.cwd().parent.parent
@@ -68,7 +68,7 @@ def test_runcontext_rms_batch_inside_fmu(monkeypatch, fmurun_w_casemetadata):
 
     assert runcontext.runpath == fmurun_w_casemetadata
     assert runcontext.casepath == fmurun_w_casemetadata.parent.parent
-    assert runcontext.casemeta.fmu.case.name == "somecasename"
+    assert runcontext.case_metadata.fmu.case.name == "somecasename"
 
     # exportroot should be the runpath
     assert runcontext.exportroot == runcontext.runpath
@@ -86,7 +86,7 @@ def test_runcontext_outside_rms_inside_fmu(monkeypatch, fmurun_w_casemetadata):
 
     assert runcontext.runpath == fmurun_w_casemetadata
     assert runcontext.casepath == fmurun_w_casemetadata.parent.parent
-    assert runcontext.casemeta.fmu.case.name == "somecasename"
+    assert runcontext.case_metadata.fmu.case.name == "somecasename"
 
     # exportroot should be the runpath
     assert runcontext.exportroot == runcontext.runpath
@@ -106,7 +106,7 @@ def test_runcontext_inside_fmu_prehook(monkeypatch, fmurun_prehook):
 
     assert runcontext.runpath is None
     assert runcontext.casepath == fmurun_prehook
-    assert runcontext.casemeta.fmu.case.name == "somecasename"
+    assert runcontext.case_metadata.fmu.case.name == "somecasename"
 
     # exportroot should be the casepath
     assert runcontext.exportroot == runcontext.casepath
@@ -130,7 +130,7 @@ def test_runcontext_inside_fmu_prehook_no_casepath(monkeypatch, fmurun_prehook):
 
     assert runcontext.runpath is None
     assert runcontext.casepath is None
-    assert runcontext.casemeta is None
+    assert runcontext.case_metadata is None
 
     # exportroot should be the casepath
     assert runcontext.exportroot == Path.cwd()
@@ -154,7 +154,7 @@ def test_runcontext_inside_fmu_prehook_invalid_casepath(monkeypatch, fmurun_preh
 
     assert runcontext.runpath is None
     assert runcontext.casepath is None
-    assert runcontext.casemeta is None
+    assert runcontext.case_metadata is None
 
     # exportroot should be the casepath
     assert runcontext.exportroot == Path.cwd()
@@ -172,7 +172,7 @@ def test_runcontext_outside(monkeypatch):
 
     assert runcontext.runpath is None
     assert runcontext.casepath is None
-    assert runcontext.casemeta is None
+    assert runcontext.case_metadata is None
 
     # exportroot should be the current working directory
     assert runcontext.exportroot == Path.cwd()

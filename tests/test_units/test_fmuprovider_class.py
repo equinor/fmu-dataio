@@ -166,7 +166,6 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName",
-        description="Some description",
     )
     exp = icase.export()
 

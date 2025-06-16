@@ -23,7 +23,6 @@ def test_crease_case_metadata_barebone(globalconfig2):
     assert icase.config == globalconfig2
     assert icase.rootfolder == ""
     assert icase.casename == ""
-    assert not icase.description
 
 
 def test_create_case_metadata_post_init(monkeypatch, fmurun, globalconfig2):
@@ -31,12 +30,13 @@ def test_create_case_metadata_post_init(monkeypatch, fmurun, globalconfig2):
     caseroot = fmurun.parent.parent
     logger.info("Active folder is %s", fmurun)
 
-    icase = CreateCaseMetadata(
-        config=globalconfig2,
-        rootfolder=caseroot,
-        casename="mycase",
-        description="Some description",
-    )
+    with pytest.warns(FutureWarning, match="description"):
+        icase = CreateCaseMetadata(
+            config=globalconfig2,
+            rootfolder=caseroot,
+            casename="mycase",
+            description="Some description",
+        )
     logger.info("Casepath is %s", icase._casepath)
 
     assert icase._casepath == caseroot
@@ -143,7 +143,6 @@ def test_create_case_metadata_with_export(monkeypatch, globalconfig2, fmurun):
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName",
-        description="Some description",
     )
     fmu_case_yml = Path(icase.export())
     assert fmu_case_yml.exists()
@@ -166,7 +165,6 @@ def test_create_case_metadata_export_with_norsk_alphabet(
         config=globalconfig2,
         rootfolder=caseroot,
         casename="MyCaseName_with_Æ",
-        description="Søme description",
     )
     globalconfig2["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"
 
