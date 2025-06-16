@@ -10,15 +10,13 @@ dependencies on the internals.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final, Literal
+from typing import TYPE_CHECKING, Final
 
 from pydantic import Field
 
 from ._logging import null_logger
 from ._models.fmu_results import data, fields
-from ._models.fmu_results.enums import FMUResultsMetadataClass
 from ._models.fmu_results.fmu_results import (
-    CaseMetadata,
     ObjectMetadata,
 )
 from ._models.fmu_results.global_configuration import GlobalConfiguration
@@ -46,15 +44,6 @@ class ObjectMetadataExport(ObjectMetadata, populate_by_name=True):
     # !! Keep UnsetData first in this union
     data: UnsetData | data.AnyData  # type: ignore
     preprocessed: bool | None = Field(alias="_preprocessed", default=None)
-
-
-class CaseMetadataExport(CaseMetadata, populate_by_name=True):
-    """Adds the optional description field for backward compatibility."""
-
-    class_: Literal[FMUResultsMetadataClass.case] = Field(
-        default=FMUResultsMetadataClass.case, alias="class", title="metadata_class"
-    )
-    description: list[str] | None = Field(default=None)
 
 
 def _get_meta_filedata(

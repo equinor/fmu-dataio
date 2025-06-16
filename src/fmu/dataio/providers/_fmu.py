@@ -40,9 +40,9 @@ from fmu.config import utilities as ut
 from fmu.dataio import _utils
 from fmu.dataio._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from fmu.dataio._logging import null_logger
-from fmu.dataio._metadata import CaseMetadataExport
 from fmu.dataio._models.fmu_results import fields
 from fmu.dataio._models.fmu_results.enums import ErtSimulationMode, FMUContext
+from fmu.dataio._models.fmu_results.fmu_results import CaseMetadata
 from fmu.dataio._runcontext import FmuEnv
 from fmu.dataio.exceptions import InvalidMetadataError
 
@@ -84,7 +84,7 @@ class FmuProvider(Provider):
 
         self._runpath = runcontext.runpath
         self._casepath = runcontext.casepath
-        self._casemeta = runcontext.casemeta
+        self._casemeta = runcontext.case_metadata
         self._fmu_context = runcontext.fmu_context
         self._real_id = (
             int(real_num) if (real_num := FmuEnv.REALIZATION_NUMBER.value) else 0
@@ -190,7 +190,7 @@ class FmuProvider(Provider):
             return None
 
         try:
-            restart_metadata = CaseMetadataExport.model_validate(
+            restart_metadata = CaseMetadata.model_validate(
                 ut.yaml_load(restart_case_metafile)
             )
             return _utils.uuid_from_string(

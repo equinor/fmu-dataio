@@ -11,8 +11,8 @@ from typing_extensions import override  # Remove when Python 3.11 dropped
 from fmu.config import utilities as ut
 from fmu.dataio._definitions import ERT_RELATIVE_CASE_METADATA_FILE, RMSExecutionMode
 from fmu.dataio._logging import null_logger
-from fmu.dataio._metadata import CaseMetadataExport
 from fmu.dataio._models.fmu_results.enums import FMUContext
+from fmu.dataio._models.fmu_results.fmu_results import CaseMetadata
 from fmu.dataio._utils import casepath_has_metadata
 
 logger: Final = null_logger(__name__)
@@ -38,7 +38,7 @@ class RunContext:
         self._fmu_context = fmu_context or self.fmu_context_from_env
         self._runpath = get_runpath_from_env()
         self._casepath = self._establish_casepath(casepath_proposed)
-        self._casemeta = self._load_case_meta() if self._casepath else None
+        self._case_metadata = self._load_case_meta() if self._casepath else None
         self._exportroot = self._establish_exportroot()
 
         logger.debug("Runpath is %s", self._runpath)
@@ -81,9 +81,9 @@ class RunContext:
         return self._casepath
 
     @property
-    def casemeta(self) -> CaseMetadataExport | None:
+    def case_metadata(self) -> CaseMetadata | None:
         """The case metadata."""
-        return self._casemeta
+        return self._case_metadata
 
     @property
     def runpath(self) -> Path | None:
@@ -159,12 +159,12 @@ class RunContext:
         )
         return None
 
-    def _load_case_meta(self) -> CaseMetadataExport:
+    def _load_case_meta(self) -> CaseMetadata:
         """Parse and validate the CASE metadata."""
         logger.debug("Loading case metadata file and return pydantic case model")
         assert self.casepath is not None
         case_metafile = self.casepath / ERT_RELATIVE_CASE_METADATA_FILE
-        return CaseMetadataExport.model_validate(
+        return CaseMetadata.model_validate(
             ut.yaml_load(case_metafile, loader="standard")
         )
 
