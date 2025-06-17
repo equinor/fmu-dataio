@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.12.0/fmu_results.json
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.13.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -50,6 +50,7 @@ file:
   checksum_md5: ab0fb42049138871749c6c367d2d094f
   relative_path: example_exports/share/results/maps/surface_fluid_contact.gri
   runpath_relative_path: share/results/maps/surface_fluid_contact.gri
+  size_bytes: 1481020
 fmu:
   case:
     name: MyCase
@@ -63,7 +64,7 @@ fmu:
     name: iter-0
     uuid: 00000000-0000-0000-0000-000000000000
   entity:
-    uuid: 4a055a3a-470f-80ee-ed18-9e3c4594f604
+    uuid: 0725ec3e-5abb-7190-7a02-b191bdf5b801
   ert:
     experiment:
       id: 00000000-0000-0000-0000-000000000000
@@ -100,12 +101,10 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-06-11T07:38:04.383548Z'
+- datetime: '2025-06-17T09:31:10.350679Z'
   event: created
   sysinfo:
     fmu-dataio:
-      version: dummy_version
-    komodo:
       version: dummy_version
     operating_system:
       hostname: dummy_hostname
@@ -115,4 +114,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.12.0
+version: 0.13.0
