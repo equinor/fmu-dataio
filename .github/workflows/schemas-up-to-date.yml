@@ -34,3 +34,8 @@ jobs:
         run: |
           npm install ajv ajv-formats
           ./tools/schema-validate-ajv.mjs ./schemas/
+
+      - name: Ensure examples validates with AJV
+        run: |
+          npm install yaml
+          ./tools/examples-validate-ajv.mjs ./examples/example_metadata ./schemas/

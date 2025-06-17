@@ -85,7 +85,7 @@ async function validateSchemasInDirectory(dirPath) {
 const directory = process.argv[2];
 
 if (!directory) {
-  console.error("Usage: validate-schema-ajv.mjs <directory>");
+  console.error("Usage: schema-validate-ajv.mjs <directory>");
   process.exit(1);
 }
 
