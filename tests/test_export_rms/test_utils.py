@@ -60,6 +60,27 @@ def test_get_horizons_in_folder_all_empty(mock_project_variable):
         get_horizons_in_folder(mock_project_variable, horizon_folder)
 
 
+def test_get_horizons_in_folder_wrong_type(mock_project_variable):
+    """Test that an error is raised if no surfaces are detected due to wrong type"""
+    from fmu.dataio.export.rms._utils import get_horizons_in_folder
+
+    horizon_folder = "DS_final"
+
+    class MockSurface(mock.MagicMock): ...
+
+    class MockPolygon(mock.MagicMock): ...
+
+    with mock.patch("fmu.dataio.export.rms._utils.rmsapi.Surface", MockSurface):
+        horizon1 = mock.MagicMock()
+        horizon1[horizon_folder] = MockPolygon  # Mock not being a Surface
+        horizon1[horizon_folder].is_empty.return_value = False
+
+        mock_project_variable.horizons.__iter__.return_value = [horizon1]
+
+        with pytest.raises(RuntimeError, match="No surfaces detected"):
+            get_horizons_in_folder(mock_project_variable, horizon_folder)
+
+
 def test_get_zones_in_folder(mock_project_variable):
     from fmu.dataio.export.rms._utils import get_zones_in_folder
 
@@ -112,6 +133,27 @@ def test_get_zones_in_folder_all_empty(mock_project_variable):
         get_zones_in_folder(mock_project_variable, zone_folder)
 
 
+def test_get_zones_in_folder_wrong_type(mock_project_variable):
+    """Test that an error is raised if no surfaces are detected due to wrong type"""
+    from fmu.dataio.export.rms._utils import get_zones_in_folder
+
+    zone_folder = "IS_final"
+
+    class MockSurface(mock.MagicMock): ...
+
+    class MockPolygon(mock.MagicMock): ...
+
+    with mock.patch("fmu.dataio.export.rms._utils.rmsapi.Surface", MockSurface):
+        zone1 = mock.MagicMock()
+        zone1[zone_folder] = MockPolygon  # Mock not being a Surface
+        zone1[zone_folder].is_empty.return_value = False
+
+        mock_project_variable.zones.__iter__.return_value = [zone1]
+
+        with pytest.raises(RuntimeError, match="No surfaces detected"):
+            get_zones_in_folder(mock_project_variable, zone_folder)
+
+
 def test_get_polygons_in_folder_folder_not_exist(mock_project_variable):
     from fmu.dataio.export.rms._utils import get_polygons_in_folder
 
@@ -133,6 +175,27 @@ def test_get_polygons_in_folder_all_empty(mock_project_variable):
 
     with pytest.raises(RuntimeError, match="only empty items"):
         get_polygons_in_folder(mock_project_variable, horizon_folder)
+
+
+def test_get_polygons_in_folder_wrong_type(mock_project_variable):
+    """Test that an error is raised if no polygons are detected due to wrong type"""
+    from fmu.dataio.export.rms._utils import get_polygons_in_folder
+
+    horizon_folder = "DS_final"
+
+    class MockSurface(mock.MagicMock): ...
+
+    class MockPolygon(mock.MagicMock): ...
+
+    with mock.patch("fmu.dataio.export.rms._utils.rmsapi.Polylines", MockPolygon):
+        horizon1 = mock.MagicMock()
+        horizon1[horizon_folder] = MockSurface  # Mock not being a Polygon
+        horizon1[horizon_folder].is_empty.return_value = False
+
+        mock_project_variable.horizons.__iter__.return_value = [horizon1]
+
+        with pytest.raises(RuntimeError, match="No polygons detected"):
+            get_polygons_in_folder(mock_project_variable, horizon_folder)
 
 
 def test_get_faultlines_in_folder(mock_project_variable, polygons):
