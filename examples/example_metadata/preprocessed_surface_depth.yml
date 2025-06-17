@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.12.0/fmu_results.json
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.13.0/fmu_results.json
 _preprocessed: true
 access:
   asset:
@@ -46,6 +46,7 @@ file:
   absolute_path: /some/absolute/path/
   checksum_md5: ab0fb42049138871749c6c367d2d094f
   relative_path: share/preprocessed/maps/mysub/preprocessedmap.gri
+  size_bytes: 1481020
 fmu:
   case:
     name: MyCase
@@ -80,12 +81,10 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-06-11T07:38:01.668196Z'
+- datetime: '2025-06-17T09:31:09.191895Z'
   event: created
   sysinfo:
     fmu-dataio:
-      version: dummy_version
-    komodo:
       version: dummy_version
     operating_system:
       hostname: dummy_hostname
@@ -95,4 +94,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.12.0
+version: 0.13.0

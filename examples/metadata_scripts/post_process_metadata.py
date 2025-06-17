@@ -13,6 +13,7 @@ def remove_machine_data(metadata_yaml: dict) -> dict:
 
     if "fmu" in metadata_yaml:
         metadata_yaml["fmu"]["case"]["uuid"] = DUMMY_UUID
+        metadata_yaml["fmu"]["case"]["user"]["id"] = "user"
         if "realization" in metadata_yaml["fmu"]:
             metadata_yaml["fmu"]["realization"]["uuid"] = DUMMY_UUID
         if "iteration" in metadata_yaml["fmu"]:
