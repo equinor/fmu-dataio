@@ -118,12 +118,17 @@ def get_horizons_in_folder(
 
     surfaces = []
     for horizon in project.horizons:
-        if not horizon[horizon_folder].is_empty():
+        rms_object = horizon[horizon_folder]
+        if isinstance(rms_object, rmsapi.Surface) and not rms_object.is_empty():
             surfaces.append(
                 xtgeo.surface_from_roxar(
                     project, horizon.name, horizon_folder, stype="horizons"
                 )
             )
+    if not surfaces:
+        raise RuntimeError(
+            f"No surfaces detected in the provided folder '{horizon_folder}'"
+        )
     return surfaces
 
 
@@ -135,10 +140,15 @@ def get_zones_in_folder(project: Any, zone_folder: str) -> list[xtgeo.RegularSur
 
     surfaces = []
     for zone in project.zones:
-        if not zone[zone_folder].is_empty():
+        rms_object = zone[zone_folder]
+        if isinstance(rms_object, rmsapi.Surface) and not rms_object.is_empty():
             surfaces.append(
                 xtgeo.surface_from_roxar(project, zone.name, zone_folder, stype="zones")
             )
+    if not surfaces:
+        raise RuntimeError(
+            f"No surfaces detected in the provided folder '{zone_folder}'"
+        )
     return surfaces
 
 
@@ -152,7 +162,8 @@ def get_polygons_in_folder(
 
     polygons = []
     for horizon in project.horizons:
-        if not horizon[horizon_folder].is_empty():
+        rms_object = horizon[horizon_folder]
+        if isinstance(rms_object, rmsapi.Polylines) and not rms_object.is_empty():
             polygons.append(
                 xtgeo.polygons_from_roxar(
                     project,
@@ -162,6 +173,10 @@ def get_polygons_in_folder(
                     stype="horizons",
                 )
             )
+    if not polygons:
+        raise RuntimeError(
+            f"No polygons detected in the provided folder '{horizon_folder}'"
+        )
     return polygons
 
 
