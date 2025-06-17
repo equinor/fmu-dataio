@@ -27,7 +27,4 @@ jobs:
       - name: Mypy
         run: |
 
-          # Reinstall pydantic to force latest version
-          pip install -U pydantic
-
           mypy .
