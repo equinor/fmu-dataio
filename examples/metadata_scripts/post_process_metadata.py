@@ -20,6 +20,8 @@ def remove_machine_data(metadata_yaml: dict) -> dict:
             metadata_yaml["fmu"]["iteration"]["uuid"] = DUMMY_UUID
         if "ensemble" in metadata_yaml["fmu"]:
             metadata_yaml["fmu"]["ensemble"]["uuid"] = DUMMY_UUID
+        if "entity" in metadata_yaml["fmu"]:
+            metadata_yaml["fmu"]["entity"]["uuid"] = DUMMY_UUID
 
     if "file" in metadata_yaml and "absolute_path" in metadata_yaml["file"]:
         metadata_yaml["file"]["absolute_path"] = "/some/absolute/path/"
@@ -27,6 +29,7 @@ def remove_machine_data(metadata_yaml: dict) -> dict:
     if "tracklog" in metadata_yaml:
         for tracklog_event in metadata_yaml["tracklog"]:
             tracklog_event["user"]["id"] = "user"
+            tracklog_event["datetime"] = "1970-01-01T00:00:00Z"  # Set to the Unix epoch
             if "sysinfo" in tracklog_event:
                 if "operating_system" in tracklog_event["sysinfo"]:
                     tracklog_event["sysinfo"]["operating_system"] = {
