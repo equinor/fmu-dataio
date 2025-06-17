@@ -173,8 +173,13 @@ class ExportPreprocessedData:
                 "Please re-export your objects to disk."
             )
 
-        meta_existing["fmu"] = FmuProvider(self._runcontext).get_metadata()
-        meta_existing["file"] = self._get_meta_file(objfile, checksum_md5_file)
+        file_meta = self._get_meta_file(objfile, checksum_md5_file)
+
+        # for preprocessed data the share path is the same as the relative_path
+        meta_existing["fmu"] = FmuProvider(
+            self._runcontext, object_share_path=file_meta.relative_path
+        ).get_metadata()
+        meta_existing["file"] = file_meta
 
         try:
             # TODO: Would like to use meta.Root.model_validate() here

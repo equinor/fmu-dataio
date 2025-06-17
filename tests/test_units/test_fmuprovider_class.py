@@ -3,6 +3,7 @@
 import importlib
 import logging
 import os
+from pathlib import Path
 
 import pydantic
 import pytest
@@ -21,13 +22,14 @@ logger = logging.getLogger(__name__)
 
 WORKFLOW = {"reference": "some_work_flow"}
 GLOBAL_CONFIG_MODEL = {"name": "Model2", "revision": "22.1.0"}
+OBJECT_SHARE_PATH = Path("share/results/maps/mymap.gri")
 
 
 def test_fmuprovider_no_provider():
     """Testing the FmuProvider where no ERT context is found from env variables."""
     runcontext = RunContext(casepath_proposed="")
 
-    myfmu = FmuProvider(runcontext=runcontext)
+    myfmu = FmuProvider(runcontext=runcontext, object_share_path=OBJECT_SHARE_PATH)
     with pytest.raises(InvalidMetadataError, match="Missing casepath"):
         myfmu.get_metadata()
 
@@ -35,10 +37,7 @@ def test_fmuprovider_no_provider():
 def test_fmuprovider_model_info_in_metadata(fmurun_w_casemetadata):
     """Test that the model info is stored and preserved in the metadata."""
     runcontext = RunContext()
-    myfmu = FmuProvider(
-        runcontext,
-        model=GLOBAL_CONFIG_MODEL,
-    )
+    myfmu = FmuProvider(runcontext, OBJECT_SHARE_PATH, model=GLOBAL_CONFIG_MODEL)
     meta = myfmu.get_metadata()
     assert "model" in meta.model_fields_set
     assert meta.model.model_dump(mode="json", exclude_none=True) == GLOBAL_CONFIG_MODEL
@@ -49,6 +48,7 @@ def test_fmuprovider_no_model_info_use_case(fmurun_w_casemetadata):
     runcontext = RunContext()
     myfmu = FmuProvider(
         runcontext,
+        OBJECT_SHARE_PATH,
         model=None,
         workflow=WORKFLOW,
     )
@@ -68,7 +68,7 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
     with pytest.warns(UserWarning, match="case metadata"):
         runcontext = RunContext(casepath_proposed="")
 
-    myfmu = FmuProvider(runcontext)
+    myfmu = FmuProvider(runcontext, OBJECT_SHARE_PATH)
 
     assert myfmu._casepath is None
     with pytest.raises(InvalidMetadataError, match="Missing casepath"):
@@ -83,7 +83,7 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(fmurun_w_casemetadata):
 
     # delete the file for this test
     (fmurun_w_casemetadata / "parameters.txt").unlink()
-    myfmu = FmuProvider(runcontext)
+    myfmu = FmuProvider(runcontext, OBJECT_SHARE_PATH)
 
     assert myfmu._casepath.name == "ertrun1"
     assert myfmu._real_name == "realization-0"
@@ -96,7 +96,7 @@ def test_fmuprovider_arbitrary_iter_name(fmurun_w_casemetadata_pred):
     os.chdir(fmurun_w_casemetadata_pred)
 
     runcontext = RunContext()
-    myfmu = FmuProvider(runcontext)
+    myfmu = FmuProvider(runcontext, OBJECT_SHARE_PATH)
 
     assert myfmu._casepath.name == "ertrun1"
     assert myfmu._real_name == "realization-0"
@@ -113,7 +113,7 @@ def test_fmuprovider_get_real_and_iter_from_env(fmurun_non_equal_real_and_iter):
     os.chdir(fmurun_non_equal_real_and_iter)
 
     runcontext = RunContext()
-    myfmu = FmuProvider(runcontext)
+    myfmu = FmuProvider(runcontext, OBJECT_SHARE_PATH)
 
     assert myfmu._runpath == fmurun_non_equal_real_and_iter
     assert myfmu._casepath.name == "ertrun1"
@@ -129,7 +129,7 @@ def test_fmuprovider_no_iter_folder(fmurun_no_iter_folder):
     os.chdir(fmurun_no_iter_folder)
 
     runcontext = RunContext()
-    myfmu = FmuProvider(runcontext)
+    myfmu = FmuProvider(runcontext, OBJECT_SHARE_PATH)
 
     assert myfmu._runpath == fmurun_no_iter_folder
     assert myfmu._casepath == fmurun_no_iter_folder.parent
@@ -177,7 +177,7 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
     os.chdir(fmurun_prehook)
     logger.debug("Case root proposed is: %s", caseroot)
     runcontext = RunContext(casepath_proposed=caseroot, fmu_context=FMUContext.case)
-    myfmu = FmuProvider(runcontext)
+    myfmu = FmuProvider(runcontext, OBJECT_SHARE_PATH)
 
     assert myfmu._casepath.name == "prehook"
     assert myfmu._real_name == ""
@@ -192,7 +192,7 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
 
     with pytest.warns(UserWarning, match="case metadata"):
         runcontext = RunContext()
-        myfmu = FmuProvider(runcontext)
+        myfmu = FmuProvider(runcontext, OBJECT_SHARE_PATH)
     with pytest.raises(InvalidMetadataError, match="Missing casepath"):
         myfmu.get_metadata()
 
@@ -211,13 +211,13 @@ def test_fmuprovider_case_run(fmurun_prehook):
 
     with pytest.warns(UserWarning, match="Could not auto detect the case metadata"):
         runcontext = RunContext(fmu_context=FMUContext.case)
-        FmuProvider(runcontext)
+        FmuProvider(runcontext, OBJECT_SHARE_PATH)
 
     # providing the casepath is the solution, and no error is thrown
     runcontext = RunContext(
         fmu_context=FMUContext.case, casepath_proposed=fmurun_prehook
     )
-    myfmu = FmuProvider(runcontext)
+    myfmu = FmuProvider(runcontext, OBJECT_SHARE_PATH)
     meta = myfmu.get_metadata()
     assert meta.realization is None
     assert myfmu._casepath.name == fmurun_prehook.name
@@ -230,14 +230,14 @@ def test_fmuprovider_valid_restart_env(monkeypatch, fmurun_w_casemetadata, fmuru
     """
     os.chdir(fmurun_w_casemetadata)
     runcontext = RunContext()
-    fmu_restart_from = FmuProvider(runcontext)
+    fmu_restart_from = FmuProvider(runcontext, OBJECT_SHARE_PATH)
     meta_restart_from = fmu_restart_from.get_metadata()
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, str(fmurun_w_casemetadata))
 
     os.chdir(fmurun_pred)
     runcontext = RunContext()
-    fmu_restart = FmuProvider(runcontext)
+    fmu_restart = FmuProvider(runcontext, OBJECT_SHARE_PATH)
 
     meta_restart = fmu_restart.get_metadata()
     assert meta_restart.iteration.restart_from is not None
@@ -253,14 +253,14 @@ def test_fmuprovider_valid_relative_restart_env(
     """
     monkeypatch.chdir(fmurun_w_casemetadata)
     runcontext = RunContext()
-    meta_restart_from = FmuProvider(runcontext).get_metadata()
+    meta_restart_from = FmuProvider(runcontext, OBJECT_SHARE_PATH).get_metadata()
 
     # using a relative path as input
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "../iter-0")
 
     monkeypatch.chdir(fmurun_pred)
     runcontext = RunContext()
-    meta_restart = FmuProvider(runcontext).get_metadata()
+    meta_restart = FmuProvider(runcontext, OBJECT_SHARE_PATH).get_metadata()
 
     assert meta_restart.iteration.restart_from is not None
     assert meta_restart.iteration.restart_from == meta_restart_from.iteration.uuid
@@ -275,7 +275,7 @@ def test_fmuprovider_restart_env_no_iter_folder(
     """
     monkeypatch.chdir(fmurun_no_iter_folder)
     runcontext = RunContext()
-    meta_restart_from = FmuProvider(runcontext).get_metadata()
+    meta_restart_from = FmuProvider(runcontext, OBJECT_SHARE_PATH).get_metadata()
     assert meta_restart_from.iteration.name == DEFAULT_ENSMEBLE_NAME
 
     # using a relative path as input
@@ -283,7 +283,7 @@ def test_fmuprovider_restart_env_no_iter_folder(
 
     monkeypatch.chdir(fmurun_pred)
     runcontext = RunContext()
-    meta_restart = FmuProvider(runcontext).get_metadata()
+    meta_restart = FmuProvider(runcontext, OBJECT_SHARE_PATH).get_metadata()
     assert meta_restart.iteration.restart_from is not None
     assert meta_restart.iteration.restart_from == meta_restart_from.iteration.uuid
 
@@ -298,14 +298,14 @@ def test_fmuprovider_invalid_restart_env(
     os.chdir(fmurun_w_casemetadata)
 
     runcontext = RunContext()
-    _ = FmuProvider(runcontext)
+    _ = FmuProvider(runcontext, OBJECT_SHARE_PATH)
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "/path/to/somewhere/invalid")
 
     os.chdir(fmurun_pred)
     with pytest.warns(UserWarning, match="non existing"):
         runcontext = RunContext()
-        meta = FmuProvider(runcontext).get_metadata()
+        meta = FmuProvider(runcontext, OBJECT_SHARE_PATH).get_metadata()
     assert meta.iteration.restart_from is None
 
 
@@ -317,14 +317,14 @@ def test_fmuprovider_no_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_p
     os.chdir(fmurun_w_casemetadata)
 
     runcontext = RunContext()
-    _ = FmuProvider(runcontext)
+    _ = FmuProvider(runcontext, OBJECT_SHARE_PATH)
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "/path/to/somewhere/invalid")
     monkeypatch.delenv(RESTART_PATH_ENVNAME)
 
     os.chdir(fmurun_pred)
     runcontext = RunContext()
-    restart_meta = FmuProvider(runcontext).get_metadata()
+    restart_meta = FmuProvider(runcontext, OBJECT_SHARE_PATH).get_metadata()
     assert restart_meta.iteration.restart_from is None
 
 
@@ -347,6 +347,7 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
     runcontext = RunContext()
     myfmu_meta = FmuProvider(
         runcontext,
+        OBJECT_SHARE_PATH,
         workflow="workflow as string",
     ).get_metadata()
     assert myfmu_meta.workflow is not None
@@ -363,6 +364,7 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
     # test that workflow as a dict still gives valid results
     myfmu_meta = FmuProvider(
         runcontext,
+        OBJECT_SHARE_PATH,
         workflow={"reference": "workflow as dict"},
     ).get_metadata()
 
@@ -375,6 +377,7 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
     with pytest.raises(pydantic.ValidationError):
         FmuProvider(
             runcontext,
+            OBJECT_SHARE_PATH,
             workflow={"wrong": "workflow as dict"},
         ).get_metadata()
 
@@ -384,6 +387,7 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
     ):
         FmuProvider(
             runcontext,
+            OBJECT_SHARE_PATH,
             workflow=123.4,
         ).get_metadata()
 

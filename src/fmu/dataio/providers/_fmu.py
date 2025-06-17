@@ -73,11 +73,12 @@ class FmuProvider(Provider):
     def __init__(
         self,
         runcontext: RunContext,
+        object_share_path: Path,
         model: fields.Model | None = None,
         workflow: str | dict[str, str] | None = None,
-        object_share_path: Path | None = None,
     ) -> None:
         logger.info("Initialize %s...", self.__class__)
+        self.runcontext = runcontext
         self.model = model
         self.workflow = workflow
         self.object_share_path = object_share_path
@@ -102,6 +103,8 @@ class FmuProvider(Provider):
         if case_meta is None:
             raise InvalidMetadataError("Missing casepath or case metadata.")
 
+        case_uuid = case_meta.fmu.case.uuid
+
         if self._fmu_context != FMUContext.realization:
             return fields.FMU(
                 case=case_meta.fmu.case,
@@ -109,9 +112,9 @@ class FmuProvider(Provider):
                 model=self.model or case_meta.fmu.model,
                 workflow=self._get_workflow_meta() if self.workflow else None,
                 ert=self._get_ert_meta(),
+                object=self._get_object_meta(case_uuid),
             )
 
-        case_uuid = case_meta.fmu.case.uuid
         ensemble_uuid, real_uuid = self._get_ensemble_and_real_uuid(case_uuid)
 
         return fields.FMU(
@@ -123,6 +126,7 @@ class FmuProvider(Provider):
             realization=self._get_realization_meta(real_uuid),
             ert=self._get_ert_meta(),
             entity=self._get_entity_meta(case_uuid),
+            object=self._get_object_meta(case_uuid),
         )
 
     def _establish_ensemble_and_real_name(self) -> tuple[str, str]:
@@ -244,6 +248,20 @@ class FmuProvider(Provider):
     def _get_entity_meta(self, case_uuid: UUID) -> fields.Entity:
         """Get the fmu.entity model"""
         return fields.Entity(uuid=self._get_entity_uuid(case_uuid))
+
+    def _get_object_uuid(self, case_uuid: UUID) -> UUID:
+        """Get a UUID for the object. The uuid is made as a hash of the
+        case uuid and the file.relative_path."""
+        assert self._casepath
+
+        absolute_path = self.runcontext.exportroot / self.object_share_path
+        relative_path = absolute_path.relative_to(self._casepath)
+
+        return _utils.uuid_from_string(f"{case_uuid}{relative_path}")
+
+    def _get_object_meta(self, case_uuid: UUID) -> fields.Object:
+        """Get the fmu.entity model"""
+        return fields.Object(uuid=self._get_object_uuid(case_uuid))
 
     def _get_workflow_meta(self) -> fields.Workflow:
         assert self.workflow is not None

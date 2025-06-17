@@ -27,6 +27,7 @@
     "fmu.case",
     "fmu.context.stage",
     "fmu.entity.uuid",
+    "fmu.object.uuid",
     "fmu.ensemble.name",
     "fmu.ensemble.uuid",
     "fmu.ert.experiment.id",
@@ -1279,6 +1280,17 @@
         },
         "model": {
           "$ref": "#/$defs/Model"
+        },
+        "object": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "realization": {
           "anyOf": [
@@ -4977,6 +4989,24 @@
         "is_prediction"
       ],
       "title": "NamedAreaData",
+      "type": "object"
+    },
+    "Object": {
+      "description": "The ``fmu.object`` block contains information about this data object",
+      "properties": {
+        "uuid": {
+          "examples": [
+            "15ce3b84-766f-4c93-9050-b154861f9100"
+          ],
+          "format": "uuid",
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid"
+      ],
+      "title": "Object",
       "type": "object"
     },
     "ObjectMetadata": {

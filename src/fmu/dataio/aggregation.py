@@ -286,6 +286,11 @@ class AggregatedData:
         if bbox := objdata.get_bbox():
             template["data"]["bbox"] = bbox
 
+        # object uuid should be a hash of case uuid + relative_path
+        template["fmu"]["object"]["uuid"] = _utils.uuid_from_string(
+            template["fmu"]["case"]["uuid"] + str(relpath)
+        )
+
         try:
             self._metadata = ObjectMetadataExport.model_validate(template)
         except ValidationError as err:

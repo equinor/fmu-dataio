@@ -53,6 +53,7 @@ class FmuResultsSchema(SchemaBase):
     #### 0.12.0
 
     - `fmu.ert.simulation_mode` now supports `ensemble_information_filter`
+    - `fmu.object.uuid` added as optional field
 
     #### 0.11.0
 
@@ -154,6 +155,7 @@ class FmuResultsSchema(SchemaBase):
         "fmu.case",
         "fmu.context.stage",
         "fmu.entity.uuid",
+        "fmu.object.uuid",
         "fmu.ensemble.name",
         "fmu.ensemble.uuid",
         "fmu.ert.experiment.id",

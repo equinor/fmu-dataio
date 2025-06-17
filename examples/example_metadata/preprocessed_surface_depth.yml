@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.13.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.13.0/fmu_results.json
 _preprocessed: true
 access:
   asset:
@@ -62,6 +62,8 @@ fmu:
   model:
     name: ff
     revision: 21.1.0.dev
+  object:
+    uuid: 00000000-0000-0000-0000-000000000000
 masterdata:
   smda:
     coordinate_system:
@@ -81,10 +83,12 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-06-17T09:31:09.191895Z'
+- datetime: '2025-06-17T10:47:00.492070Z'
   event: created
   sysinfo:
     fmu-dataio:
+      version: dummy_version
+    komodo:
       version: dummy_version
     operating_system:
       hostname: dummy_hostname
