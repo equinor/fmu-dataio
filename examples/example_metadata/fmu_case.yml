@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.12.0/fmu_results.json
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.13.0/fmu_results.json
 access:
   asset:
     name: Drogon
@@ -32,7 +32,7 @@ masterdata:
       uuid: ad214d85-8a1d-19da-e053-c918a4889310
 source: fmu
 tracklog:
-- datetime: '2025-06-11T07:37:46.256673Z'
+- datetime: '2025-06-17T09:31:03.551274Z'
   event: created
   sysinfo:
     fmu-dataio:
@@ -45,4 +45,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.12.0
+version: 0.13.0

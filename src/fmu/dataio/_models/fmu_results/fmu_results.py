@@ -45,9 +45,11 @@ if TYPE_CHECKING:
 class FmuResultsSchema(SchemaBase):
     """The main metadata export describing the results."""
 
-    VERSION: VersionStr = "0.12.0"
+    VERSION: VersionStr = "0.13.0"
 
     VERSION_CHANGELOG: str = """
+    #### 0.13.0
+
     #### 0.12.0
 
     - `fmu.ert.simulation_mode` now supports `ensemble_information_filter`
