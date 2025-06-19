@@ -37,19 +37,12 @@ class AllowedKeywordValues:
     # For example, it makes no sense to let two elements in axis_names be equal.
     # Or to use two wildly different axis_units laterally.
     # This is quite strict and could be relaxed if needed.
-    axis_names = [
-        # Assumed to be the most common value.
-        ("X", "Y", "Z"),
-    ]
-    axis_units = [
-        # There are many possible units.
-        # 'meters' is the most common.
-        ("m", "m", "m"),
-    ]
-    z_positives = [
-        "Depth",  # Z is increasing downwards
-        "Elevation",  # Z is increasing upwards
-    ]
+    axis_names = {"xyz": ("X", "Y", "Z")}
+    """ XYZ are the most common axis names """
+    axis_units = {"mmm": ("m", "m", "m"), "fff": ("ft", "ft", "ft")}
+    """ meters is the most common unit """
+    z_positives = {"depth": "Depth", "elevation": "Elevation"}
+    """ Z is increasing downwards and upwards, respectively """
 
 
 class Header(BaseModel):
@@ -83,11 +76,11 @@ class CoordinateSystem(BaseModel):
         # the file.
         if len(v) != 3:
             raise ValueError("Invalid number of elements in 'AXIS_NAME', must be 3")
-        if v not in AllowedKeywordValues.axis_names:
+        if v not in AllowedKeywordValues.axis_names.values():
             tuples_str = ", ".join(
                 [
                     "(" + ", ".join([f"'{s}'" for s in tup]) + ")"
-                    for tup in AllowedKeywordValues.axis_names
+                    for tup in AllowedKeywordValues.axis_names.values()
                 ]
             )
             # The user is allowed to use any value
@@ -108,11 +101,11 @@ class CoordinateSystem(BaseModel):
         # the file.
         if len(v) != 3:
             raise ValueError("Invalid number of elements in 'AXIS_UNIT', must be 3")
-        if v not in AllowedKeywordValues.axis_units:
+        if v not in AllowedKeywordValues.axis_units.values():
             tuples_str = ", ".join(
                 [
                     "(" + ", ".join([f"'{s}'" for s in tup]) + ")"
-                    for tup in AllowedKeywordValues.axis_units
+                    for tup in AllowedKeywordValues.axis_units.values()
                 ]
             )
             # Different softwares may handle units differently,
@@ -129,7 +122,7 @@ class CoordinateSystem(BaseModel):
     @field_validator("z_positive", mode="before")
     @classmethod
     def validate_z_positive_value(cls, v: str) -> str:
-        if v not in AllowedKeywordValues.z_positives:
+        if v not in AllowedKeywordValues.z_positives.values():
             raise ValueError(
                 "Invalid 'ZPOSITIVE' value, must be one of the two following values: \n"
                 + "'Depth' (Z increase downwards), or 'Elevation' (Z increase upwards)."

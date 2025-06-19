@@ -16,10 +16,22 @@ def _validate_tsurf(instance: reader.TSurfData) -> None:
     """
     assert isinstance(instance, reader.TSurfData)
     assert instance.header.name == "Fault F1"
-    assert instance.coordinate_system.name == "Default"
-    assert instance.coordinate_system.axis_name == ("X", "Y", "Z")
-    assert instance.coordinate_system.axis_unit == ("m", "m", "m")
-    assert instance.coordinate_system.z_positive == "Depth"
+    assert (
+        instance.coordinate_system is not None
+        and instance.coordinate_system.name == "Default"
+    )
+    assert (
+        instance.coordinate_system is not None
+        and instance.coordinate_system.axis_name == ("X", "Y", "Z")
+    )
+    assert (
+        instance.coordinate_system is not None
+        and instance.coordinate_system.axis_unit == ("m", "m", "m")
+    )
+    assert (
+        instance.coordinate_system is not None
+        and instance.coordinate_system.z_positive == "Depth"
+    )
     assert len(instance.vertices) == 4
     assert isinstance(instance.vertices, np.ndarray)
     assert instance.vertices.dtype == np.float64
@@ -436,18 +448,21 @@ def test_tsurf_reader_RMS_file(rootpath: Path) -> None:
     instance = reader.read_tsurf_file(filepath)
 
     assert instance.header.name == "F5"
-    assert instance.coordinate_system.name == "Default"
     assert (
+        instance.coordinate_system is not None
+        and instance.coordinate_system.name == "Default"
+    )
+    assert instance.coordinate_system is not None and (
         instance.coordinate_system.axis_name
-        == reader.AllowedKeywordValues.axis_names[0]
+        == reader.AllowedKeywordValues.axis_names["xyz"]
     )
-    assert (
+    assert instance.coordinate_system is not None and (
         instance.coordinate_system.axis_unit
-        == reader.AllowedKeywordValues.axis_units[0]
+        == reader.AllowedKeywordValues.axis_units["mmm"]
     )
-    assert (
+    assert instance.coordinate_system is not None and (
         instance.coordinate_system.z_positive
-        == reader.AllowedKeywordValues.z_positives[0]
+        == reader.AllowedKeywordValues.z_positives["depth"]
     )
     assert len(instance.vertices) == 44
     assert (
@@ -628,9 +643,9 @@ def test_validation_tsurf_instantiation() -> None:
     header = reader.Header(name="Fault F1")
     coord_sys = reader.CoordinateSystem(
         name="Default",
-        axis_name=reader.AllowedKeywordValues.axis_names[0],
-        axis_unit=reader.AllowedKeywordValues.axis_units[0],
-        z_positive=reader.AllowedKeywordValues.z_positives[0],
+        axis_name=reader.AllowedKeywordValues.axis_names["xyz"],
+        axis_unit=reader.AllowedKeywordValues.axis_units["mmm"],
+        z_positive=reader.AllowedKeywordValues.z_positives["depth"],
     )
     vertices = np.array(
         [
@@ -650,8 +665,9 @@ def test_validation_tsurf_instantiation() -> None:
     )
 
     assert (
-        instance.coordinate_system.axis_name
-        == reader.AllowedKeywordValues.axis_names[0]
+        instance.coordinate_system is not None
+        and instance.coordinate_system.axis_name
+        == reader.AllowedKeywordValues.axis_names["xyz"]
     )
 
     #########################
