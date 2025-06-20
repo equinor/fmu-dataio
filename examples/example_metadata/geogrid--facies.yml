@@ -1,0 +1,108 @@
+$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.13.0/fmu_results.json
+_preprocessed: false
+access:
+  asset:
+    name: Drogon
+  classification: internal
+  ssdl:
+    access_level: internal
+    rep_include: false
+class: cpgrid_property
+data:
+  alias: []
+  content: property
+  domain_reference: msl
+  format: roff
+  geometry:
+    name: geogrid
+    relative_path: example_exports/share/results/grids/geogrid.roff
+  is_observation: false
+  is_prediction: true
+  layout: cornerpoint
+  name: facies
+  offset: 0.0
+  property:
+    is_discrete: false
+  spec:
+    ncol: 92
+    nlay: 65
+    nrow: 146
+  stratigraphic: false
+  tagname: ''
+  undef_is_zero: false
+  unit: ''
+  vertical_domain: depth
+display:
+  name: facies
+file:
+  absolute_path: /some/absolute/path/
+  checksum_md5: d205770796667096bac52031c0c6c421
+  relative_path: example_exports/share/results/grids/geogrid--facies.roff
+  runpath_relative_path: share/results/grids/geogrid--facies.roff
+  size_bytes: 3492813
+fmu:
+  case:
+    name: MyCase
+    user:
+      id: user
+    uuid: 00000000-0000-0000-0000-000000000000
+  context:
+    stage: realization
+  ensemble:
+    id: 0
+    name: iter-0
+    uuid: 00000000-0000-0000-0000-000000000000
+  entity:
+    uuid: 00000000-0000-0000-0000-000000000000
+  ert:
+    experiment:
+      id: 00000000-0000-0000-0000-000000000000
+    simulation_mode: test_run
+  iteration:
+    id: 0
+    name: iter-0
+    uuid: 00000000-0000-0000-0000-000000000000
+  model:
+    name: ff
+    revision: 21.1.0.dev
+  realization:
+    id: 0
+    name: example_exports
+    uuid: 00000000-0000-0000-0000-000000000000
+  workflow:
+    reference: rms property model
+masterdata:
+  smda:
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    country:
+    - identifier: Norway
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+    - short_identifier: DROGON
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    field:
+    - identifier: DROGON
+      uuid: 00000000-0000-0000-0000-000000000000
+    stratigraphic_column:
+      identifier: DROGON_2020
+      uuid: ad214d85-8a1d-19da-e053-c918a4889310
+source: fmu
+tracklog:
+- datetime: '1970-01-01T00:00:00Z'
+  event: created
+  sysinfo:
+    fmu-dataio:
+      version: dummy_version
+    komodo:
+      version: dummy_version
+    operating_system:
+      hostname: dummy_hostname
+      operating_system: dummy_os
+      release: dummy_release
+      system: dummy_system
+      version: dummy_version
+  user:
+    id: user
+version: 0.13.0
