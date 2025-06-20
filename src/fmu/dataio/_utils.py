@@ -99,6 +99,8 @@ def export_file(
     xtgeo xyz-column names will be preserved for xtgeo.Points and xtgeo.Polygons
     """
 
+    hash_md5 = hashlib.md5()
+    _ = hash_md5
     if isinstance(file, Path):
         # create output folder if not existing
         file.parent.mkdir(parents=True, exist_ok=True)
