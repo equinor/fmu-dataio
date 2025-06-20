@@ -3033,7 +3033,7 @@
         "file_schema": {
           "$ref": "#/$defs/FileSchema",
           "default": {
-            "url": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/file_formats/0.1.0/field_outline.json",
+            "url": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/0.1.0/field_outline.json",
             "version": "0.1.0"
           }
         },
@@ -3806,7 +3806,7 @@
         "file_schema": {
           "$ref": "#/$defs/FileSchema",
           "default": {
-            "url": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/file_formats/0.1.0/fluid_contact_outline.json",
+            "url": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/0.1.0/fluid_contact_outline.json",
             "version": "0.1.0"
           }
         },
@@ -3908,7 +3908,7 @@
         "file_schema": {
           "$ref": "#/$defs/FileSchema",
           "default": {
-            "url": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/file_formats/0.1.0/inplace_volumes.json",
+            "url": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/0.1.0/inplace_volumes.json",
             "version": "0.1.0"
           }
         },
@@ -8324,7 +8324,7 @@
         "file_schema": {
           "$ref": "#/$defs/FileSchema",
           "default": {
-            "url": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/file_formats/0.1.0/structure_depth_fault_lines.json",
+            "url": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/0.1.0/structure_depth_fault_lines.json",
             "version": "0.1.0"
           }
         },
@@ -11174,7 +11174,7 @@
       "type": "object"
     }
   },
-  "$id": "https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.12.0/fmu_results.json",
+  "$id": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.12.0/fmu_results.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "discriminator": {
     "propertyName": "class"
