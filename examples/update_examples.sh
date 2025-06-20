@@ -21,6 +21,7 @@ examples_rootpath=$current/examples
 
 #--------- Remove old exported results and metadata ---------#
 echo "Remove old exported results and metadata..."
+rm -rf $examples_rootpath/example_exports/.dataio_export_manifest.json
 rm -rf $examples_rootpath/example_exports/share
 rm -rf $examples_rootpath/share
 rm -rf $examples_rootpath/example_metadata/metadata_scripts/share/metadata/fmu_case.yml
@@ -83,6 +84,11 @@ cp $examples_rootpath/example_exports/share/results/tables/.geogrid--volumes.csv
 # Update polygon metadata
 cp $examples_rootpath/example_exports/share/results/polygons/.volantis_gp_base--polygons_field_region.csv.yml example_metadata/polygons_field_region.yml
 cp $examples_rootpath/example_exports/share/results/polygons/.volantis_gp_base--polygons_field_outline.csv.yml example_metadata/polygons_field_outline.yml
+
+# Update grid and grid property metadata 
+cp $examples_rootpath/example_exports/share/results/grids/.geogrid.roff.yml example_metadata/geogrid.yml
+cp $examples_rootpath/example_exports/share/results/grids/.geogrid--phit.roff.yml example_metadata/geogrid--phit.yml
+cp $examples_rootpath/example_exports/share/results/grids/.geogrid--facies.roff.yml example_metadata/geogrid--facies.yml
 
 #Update aggregation metadata
 cp $examples_rootpath/share/results/maps/.aggregated_surfaces.gri.yml share/metadata/aggregated_surface_depth.yml
