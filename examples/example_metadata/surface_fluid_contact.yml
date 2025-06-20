@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.12.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.12.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -50,6 +50,7 @@ file:
   checksum_md5: ab0fb42049138871749c6c367d2d094f
   relative_path: example_exports/share/results/maps/surface_fluid_contact.gri
   runpath_relative_path: share/results/maps/surface_fluid_contact.gri
+  size_bytes: 1481020
 fmu:
   case:
     name: MyCase
@@ -104,10 +105,6 @@ tracklog:
   event: created
   sysinfo:
     fmu-dataio:
-      version: dummy_version
-    komodo:
-      version: dummy_version
-    komodo:
       version: dummy_version
     operating_system:
       hostname: dummy_hostname
