@@ -126,7 +126,7 @@
           "$ref": "#/$defs/FaciesThicknessData"
         },
         {
-          "$ref": "#/$defs/FaultTriangulatedSurfaceData"
+          "$ref": "#/$defs/FaultSurfaceData"
         },
         {
           "$ref": "#/$defs/FaultLinesData"
@@ -2383,7 +2383,7 @@
       "title": "FaultRoomSurfaceSpecification",
       "type": "object"
     },
-    "FaultTriangulatedSurfaceData": {
+    "FaultSurfaceData": {
       "description": "The ``data`` block contains information about the data contained in this object.\nThis class contains metadata for faults represented as triangulated surfaces.",
       "properties": {
         "alias": {
@@ -2428,7 +2428,7 @@
           "title": "Bbox"
         },
         "content": {
-          "const": "fault_triangulated_surface",
+          "const": "fault_surface",
           "title": "Content",
           "type": "string"
         },
@@ -2680,7 +2680,7 @@
         "is_observation",
         "is_prediction"
       ],
-      "title": "FaultTriangulatedSurfaceData",
+      "title": "FaultSurfaceData",
       "type": "object"
     },
     "FieldItem": {

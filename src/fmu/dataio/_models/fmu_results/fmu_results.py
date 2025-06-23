@@ -50,6 +50,8 @@ class FmuResultsSchema(SchemaBase):
     VERSION_CHANGELOG: str = """
     #### 0.13.0
 
+    - Content 'fault_triangulated_surface' renamed to 'fault_surface'
+
     #### 0.12.0
 
     - `fmu.ert.simulation_mode` now supports `ensemble_information_filter`

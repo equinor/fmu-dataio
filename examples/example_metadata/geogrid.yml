@@ -54,7 +54,7 @@ display:
   name: geogrid
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: bc9ff702f0ca2d389f2a3219ba85e3de
+  checksum_md5: e731649fd1b59c2998c7d0edce9a5b7f
   relative_path: example_exports/share/results/grids/geogrid.roff
   runpath_relative_path: share/results/grids/geogrid.roff
   size_bytes: 16540658
@@ -112,8 +112,6 @@ tracklog:
   event: created
   sysinfo:
     fmu-dataio:
-      version: dummy_version
-    komodo:
       version: dummy_version
     operating_system:
       hostname: dummy_hostname
