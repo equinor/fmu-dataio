@@ -33,15 +33,15 @@ def test_content_fault_lines(polygons, globalconfig2):
     assert meta["data"]["content"] == "fault_lines"
 
 
-def test_content_fault_triangulated_surface(tsurf, globalconfig2):
-    """Test export of the fault_triangulated_surface content."""
+def test_content_fault_surface(tsurf, globalconfig2):
+    """Test export of the fault_surface content."""
     meta = ExportData(
         config=globalconfig2,
         name="MyName",
-        content="fault_triangulated_surface",
+        content="fault_surface",
     ).generate_metadata(tsurf)
 
-    assert meta["data"]["content"] == "fault_triangulated_surface"
+    assert meta["data"]["content"] == "fault_surface"
 
 
 def test_fault_properties():
