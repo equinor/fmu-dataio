@@ -4,6 +4,10 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   build-n-publish:
     name: Build and publish Python 🐍 distributions 📦 to PyPI

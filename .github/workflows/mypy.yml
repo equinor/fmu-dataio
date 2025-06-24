@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   mypy:
     runs-on: ubuntu-latest
@@ -26,5 +30,4 @@ jobs:
 
       - name: Mypy
         run: |
-
           mypy .
