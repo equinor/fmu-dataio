@@ -38,11 +38,11 @@ class AllowedKeywordValues:
     # Or to use two wildly different axis_units laterally.
     # This is quite strict and could be relaxed if needed.
     axis_names = {"xyz": ("X", "Y", "Z")}
-    """ XYZ are the most common axis names """
+    """XYZ are the most common axis names"""
     axis_units = {"mmm": ("m", "m", "m"), "fff": ("ft", "ft", "ft")}
-    """ meters is the most common unit """
+    """meters is the most common unit"""
     z_positives = {"depth": "Depth", "elevation": "Elevation"}
-    """ Z is increasing downwards and upwards, respectively """
+    """Z is increasing downwards and upwards, respectively"""
 
 
 class Header(BaseModel):
