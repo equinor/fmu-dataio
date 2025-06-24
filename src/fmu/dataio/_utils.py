@@ -24,6 +24,7 @@ from fmu.config import utilities as ut
 
 from ._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from ._logging import null_logger
+from ._models.fmu_results.data import Geometry
 from ._readers.faultroom import FaultRoomSurface
 
 if TYPE_CHECKING:
@@ -359,9 +360,7 @@ def read_metadata_from_file(filename: str | Path) -> dict:
         return yaml.safe_load(stream)
 
 
-def get_geometry_ref(
-    geometrypath: str | None, obj: Any
-) -> tuple[str | None, str | None]:
+def get_geometry_ref(geometrypath: Path, obj: Any) -> Geometry | None:
     """Get a reference to a geometry.
 
     Read the metadata file for an already exported file, and returns info like this
@@ -375,10 +374,18 @@ def get_geometry_ref(
     This means that the geometry may be 'located' both on disk (relative path) and in
     Sumo
     """
-    if not geometrypath:
-        return None, None
 
-    gmeta = read_metadata_from_file(geometrypath)
+    if not geometrypath.exists():
+        raise FileNotFoundError(
+            f"The 'geometry'={geometrypath} is not a path to an existing file. "
+            "Ensure it points to an exported grid object."
+        )
+    try:
+        gmeta = read_metadata_from_file(geometrypath)
+    except OSError as err:
+        raise FileNotFoundError(
+            f"Could not detect a metadata file for 'geometry'='{geometrypath}'. "
+        ) from err
 
     # some basic checks (may be exteneded to e.g. match on NCOL, NROW, ...?)
     if isinstance(obj, xtgeo.GridProperty) and gmeta["class"] != "cpgrid":
@@ -387,10 +394,10 @@ def get_geometry_ref(
     if isinstance(obj, xtgeo.RegularSurface) and gmeta["class"] != "surface":
         raise ValueError("The geometry for a surface must be another surface")
 
-    geom_name = gmeta["data"].get("name")
+    geom_name = gmeta["data"].get("name", "")
     relpath = gmeta["file"]["relative_path"]
 
-    return geom_name, relpath
+    return Geometry(name=geom_name, relative_path=relpath)
 
 
 def load_config_from_path(config_path: Path) -> dict[str, Any]:

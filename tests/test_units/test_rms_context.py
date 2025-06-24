@@ -675,6 +675,66 @@ def test_gridproperty_export_with_geometry_and_bad_character(
     # Will raise an exception if decoding fails
 
 
+def test_gridproperty_export_with_geometry_lacking_metadata(
+    inside_rms_setup, tmp_path, grid, gridproperty, monkeypatch
+):
+    """Export the the grid and the gridprop(s) without valid metadatda"""
+    monkeypatch.chdir(tmp_path)
+
+    # use an invalid config to export the grid without metadata
+    grid_output = dataio.ExportData(
+        config={},
+        content="depth",
+        name="MyGrid",
+    ).export(grid)
+
+    expected_path = tmp_path / "share/results/grids/mygrid.roff"
+    expected_metadata_path = tmp_path / "share/results/grids/.mygrid.roff.yml"
+
+    assert Path(grid_output) == expected_path.resolve()
+    assert Path(grid_output).exists()
+    assert not Path(expected_metadata_path).exists()
+
+    # with valid config the export does not work when
+    # geometry points to a grid file without metadata
+    with pytest.raises(FileNotFoundError, match="metadata file"):
+        prop_output = dataio.ExportData(
+            config=inside_rms_setup["config"],
+            content="property",
+            content_metadata={"is_discrete": False},
+            name="MyProperty",
+            geometry=grid_output,
+        ).export(gridproperty)
+
+    # with invalid config the export works but produces no metadata
+    prop_output = dataio.ExportData(
+        config={},
+        content="property",
+        content_metadata={"is_discrete": False},
+        name="MyProperty",
+        geometry=grid_output,
+    ).export(gridproperty)
+
+    expected_path = tmp_path / "share/results/grids/myproperty.roff"
+    expected_metadata_path = tmp_path / "share/results/grids/.myproperty.roff.yml"
+    assert Path(prop_output) == expected_path.resolve()
+    assert Path(prop_output).exists()
+    assert not Path(expected_metadata_path).exists()
+
+
+def test_gridproperty_export_with_non_existent_geometry(inside_rms_setup, gridproperty):
+    """Export the gridprop without valid geometry path"""
+
+    with pytest.raises(FileNotFoundError, match="geometry"):
+        dataio.ExportData(
+            config=inside_rms_setup["config"],
+            content="property",
+            content_metadata={"is_discrete": False},
+            name="MyProperty",
+            geometry="non_existent_path",
+        ).export(gridproperty)
+
+
 # ======================================================================================
 # Dataframe and PyArrow
 # ======================================================================================

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass
+from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, Final
 
@@ -13,6 +14,7 @@ from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
 from fmu.dataio._models.fmu_results.data import BoundingBox2D, BoundingBox3D, Geometry
 from fmu.dataio._models.fmu_results.enums import FileFormat, Layout, ObjectMetadataClass
+from fmu.dataio._models.fmu_results.global_configuration import GlobalConfiguration
 from fmu.dataio._models.fmu_results.specification import (
     CPGridPropertySpecification,
     CPGridSpecification,
@@ -30,7 +32,6 @@ from ._tables import _derive_index
 
 if TYPE_CHECKING:
     from io import BytesIO
-    from pathlib import Path
 
     import pandas as pd
     import xtgeo
@@ -589,13 +590,16 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
         """Derive data.geometry for xtgeo.GridProperty."""
         logger.info("Get geometry for a GridProperty, if present")
 
-        name, relpath = get_geometry_ref(self.dataio.geometry, self.obj)
+        # when invalid config this is not relevant
+        if not isinstance(self.dataio.config, GlobalConfiguration):
+            return None
 
-        # issue a warning if geometry is missing:
-        if not relpath:
+        geometry_path = self.dataio.geometry
+        if not geometry_path or not isinstance(geometry_path, str | Path):
             lack_of_geometry_warn()
+            return None
 
-        return Geometry(name=name, relative_path=relpath) if name and relpath else None
+        return get_geometry_ref(Path(geometry_path), self.obj)
 
     def export_to_file(self, file: Path | BytesIO) -> None:
         """Export the object to file or memory buffer"""
