@@ -1,5 +1,6 @@
+import os
 from io import BytesIO
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import pandas as pd
 import xtgeo
@@ -210,3 +211,51 @@ def test_correct_data_format_returned(unregister_pandas_parquet):
         objects_with_metadata = sumo_interface.get_objects_with_metadata(realization_id)
         for object, _ in objects_with_metadata:
             assert isinstance(object, xtgeo.RegularSurface)
+
+
+def test_use_sumo_dev_when_komodo_bleeding():
+    sumo_table_object_mock = MagicMock()
+    sumo_case_with_table_mock = _generate_sumo_case_mock(sumo_table_object_mock)
+    os.environ["KOMODO_RELEASE"] = "bleeding-20250626-1456-py311-rhel8"
+
+    with (
+        patch.object(
+            Explorer, "__init__", return_value=None
+        ) as mock_sumo_explorer_init,
+        patch.object(
+            Explorer, "get_case_by_uuid", return_value=sumo_case_with_table_mock
+        ),
+    ):
+        SumoExplorerInterface(
+            "some_case_id",
+            "iter-0",
+            ObjectMetadataClass.polygons,
+            StandardResultName.field_outline,
+        )
+
+        mock_sumo_explorer_init.assert_called_once()
+        assert mock_sumo_explorer_init.call_args == call(env="dev")
+
+
+def test_use_sumo_prod_when_komodo_stable():
+    sumo_table_object_mock = MagicMock()
+    sumo_case_with_table_mock = _generate_sumo_case_mock(sumo_table_object_mock)
+    os.environ["KOMODO_RELEASE"] = "2025.06.02-py311-rhel8"
+
+    with (
+        patch.object(
+            Explorer, "__init__", return_value=None
+        ) as mock_sumo_explorer_init,
+        patch.object(
+            Explorer, "get_case_by_uuid", return_value=sumo_case_with_table_mock
+        ),
+    ):
+        SumoExplorerInterface(
+            "some_case_id",
+            "iter-0",
+            ObjectMetadataClass.polygons,
+            StandardResultName.field_outline,
+        )
+
+        mock_sumo_explorer_init.assert_called_once()
+        assert mock_sumo_explorer_init.call_args == call(env="prod")
