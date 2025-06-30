@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+import xtgeo
 
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import ExportFolder, ShareFolder
@@ -92,15 +93,15 @@ from fmu.dataio.providers.objectdata._provider import objectdata_provider_factor
     ],
 )
 def test_get_filestem(
-    regsurf,
-    edataobj1,
-    name,
-    tagname,
-    parentname,
-    time0,
-    time1,
-    expected,
-):
+    regsurf: xtgeo.RegularSurface,
+    edataobj1: ExportData,
+    name: str,
+    tagname: str,
+    parentname: str,
+    time0: datetime | None,
+    time1: datetime | None,
+    expected: str,
+) -> None:
     """Testing the private _get_filestem method."""
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = name
@@ -133,34 +134,33 @@ def test_get_filestem(
             "parent",
             None,
             datetime.strptime("2020-01-01", "%Y-%m-%d"),
-            "'time1' is missing while",
+            "'time0' is missing while",
         ),
     ],
 )
 def test_get_filestem_shall_fail(
-    regsurf,
-    edataobj1,
-    name,
-    tagname,
-    parentname,
-    time0,
-    time1,
-    message,
-):
+    regsurf: xtgeo.RegularSurface,
+    edataobj1: ExportData,
+    name: str,
+    tagname: str,
+    parentname: str,
+    time0: datetime | None,
+    time1: datetime,
+    message: str,
+) -> None:
     """Testing the private _get_filestem method when it shall fail."""
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    objdata.name = name
-    objdata.time0 = time0
-    objdata.time1 = time1
-
     edataobj1 = deepcopy(edataobj1)
     edataobj1.tagname = tagname
     edataobj1.parent = parentname
     edataobj1.name = ""
 
-    with pytest.raises(ValueError) as msg:
+    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata.name = name
+    objdata.time0 = time0
+    objdata.time1 = time1
+
+    with pytest.raises(ValueError, match=message):
         _ = objdata.share_path
-        assert message in str(msg)
 
 
 def test_get_share_folders(regsurf, globalconfig2):
