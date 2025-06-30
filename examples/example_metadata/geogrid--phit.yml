@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.13.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.13.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -36,7 +36,7 @@ display:
   name: phit
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: 42f6de6d3e989d41e88369105d7d4ce0
+  checksum_md5: b4211a8413f67d6758df1e3182ab835a
   relative_path: example_exports/share/results/grids/geogrid--phit.roff
   runpath_relative_path: share/results/grids/geogrid--phit.roff
   size_bytes: 3492651

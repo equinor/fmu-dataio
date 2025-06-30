@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-dev.radix.equinor.com/schemas/0.13.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.13.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -36,7 +36,7 @@ display:
   name: facies
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: dcb63dea7fee7baaae6e0c04d80317b1
+  checksum_md5: 66b69b66dda70efb4d8a8d7e60060349
   relative_path: example_exports/share/results/grids/geogrid--facies.roff
   runpath_relative_path: share/results/grids/geogrid--facies.roff
   size_bytes: 3492813
