@@ -7,8 +7,8 @@ from typing import Literal, get_args, get_origin
 import pytest
 from pydantic import ValidationError
 
-from fmu.dataio._models import FmuResults, FmuResultsSchema
-from fmu.dataio._models.fmu_results import data, enums
+from fmu.datamodels import FmuResults, FmuResultsSchema
+from fmu.datamodels.fmu_results import data, enums
 
 from ..utils import _get_pydantic_models_from_annotation, _metadata_examples
 

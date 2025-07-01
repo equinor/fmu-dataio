@@ -8,7 +8,6 @@ import pydantic
 import pytest
 
 from fmu import dataio
-from fmu.dataio._models.fmu_results.enums import ErtSimulationMode, FMUContext
 from fmu.dataio._runcontext import FmuEnv, RunContext
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import (
@@ -16,6 +15,7 @@ from fmu.dataio.providers._fmu import (
     RESTART_PATH_ENVNAME,
     FmuProvider,
 )
+from fmu.datamodels.fmu_results.enums import ErtSimulationMode, FMUContext
 
 logger = logging.getLogger(__name__)
 

@@ -9,7 +9,7 @@ import pytest
 from xtgeo import Grid, Polygons, RegularSurface
 
 from fmu.dataio import _utils as utils
-from fmu.dataio._models.fmu_results import fields
+from fmu.datamodels.fmu_results import fields
 
 from ..utils import _get_pydantic_models_from_annotation
 
