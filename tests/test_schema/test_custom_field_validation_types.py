@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from fmu.dataio._models import FmuResults
+from fmu.datamodels import FmuResults
 
 
 def test_version_string_type(metadata_examples: dict[str, Any]) -> None:

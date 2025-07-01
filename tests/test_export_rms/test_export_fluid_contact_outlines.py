@@ -9,8 +9,9 @@ import pytest
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import FluidContactType, StandardResultName
-from fmu.dataio._models.standard_results.fluid_contact_outline import (
+from fmu.datamodels.fmu_results.enums import FluidContactType
+from fmu.datamodels.standard_results.enums import StandardResultName
+from fmu.datamodels.standard_results.fluid_contact_outline import (
     FluidContactOutlineResult,
     FluidContactOutlineSchema,
 )

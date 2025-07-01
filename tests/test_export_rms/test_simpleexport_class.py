@@ -1,7 +1,7 @@
 import pytest
 
-from fmu.dataio._models.fmu_results.global_configuration import GlobalConfiguration
 from fmu.dataio.export._base import SimpleExportBase
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 
 def test_validate_global_config_invalid(globalconfig1):

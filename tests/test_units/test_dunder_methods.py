@@ -2,7 +2,7 @@
 
 import pytest
 
-from fmu.dataio._models.fmu_results.global_configuration import (
+from fmu.datamodels.fmu_results.global_configuration import (
     Stratigraphy,
     StratigraphyElement,
 )

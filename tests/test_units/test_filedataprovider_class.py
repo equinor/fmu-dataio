@@ -10,9 +10,9 @@ import xtgeo
 
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import ExportFolder, ShareFolder
-from fmu.dataio._models.fmu_results import fields
 from fmu.dataio.providers._filedata import FileDataProvider, SharePathConstructor
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
+from fmu.datamodels.fmu_results import fields
 
 
 @pytest.mark.parametrize(

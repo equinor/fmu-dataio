@@ -9,8 +9,8 @@ import pytest
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import StandardResultName
-from fmu.dataio._models.standard_results.structure_depth_fault_lines import (
+from fmu.datamodels.standard_results.enums import StandardResultName
+from fmu.datamodels.standard_results.structure_depth_fault_lines import (
     StructureDepthFaultLinesResult,
     StructureDepthFaultLinesSchema,
 )

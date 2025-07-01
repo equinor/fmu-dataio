@@ -6,8 +6,8 @@ from typing import Any
 import pytest
 from pytest import MonkeyPatch
 
-from fmu.dataio._models import schemas
-from fmu.dataio._models._schema_base import FmuSchemas, SchemaBase
+from fmu.datamodels import schemas
+from fmu.datamodels._schema_base import FmuSchemas, SchemaBase
 
 
 def contains_discriminator_mapping(schema: Any) -> bool:

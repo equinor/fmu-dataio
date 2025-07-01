@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 
 from fmu.dataio._definitions import RMSExecutionMode
-from fmu.dataio._models.fmu_results.enums import FMUContext
 from fmu.dataio._runcontext import RunContext, get_rms_exec_mode
+from fmu.datamodels.fmu_results.enums import FMUContext
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
