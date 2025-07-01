@@ -6,9 +6,9 @@ import xtgeo
 from packaging.version import parse as versionparse
 
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.global_configuration import GlobalConfiguration
 from fmu.dataio.exceptions import ValidationError
-from fmu.dataio.export import _enums
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+from fmu.datamodels.standard_results import enums
 
 try:
     import rmsapi
@@ -274,7 +274,7 @@ def get_faultlines_in_folder(project: Any, horizon_folder: str) -> list[xtgeo.Po
                 "using the 'Extract Fault Lines' job in RMS."
             )
 
-        df = df.rename(columns={"Name": _enums.FaultLines.TableIndexColumns.NAME.value})
+        df = df.rename(columns={"Name": enums.FaultLines.TableIndexColumns.NAME.value})
         pol.set_dataframe(df)
 
     return fault_lines

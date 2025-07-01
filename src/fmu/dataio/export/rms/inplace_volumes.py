@@ -10,16 +10,6 @@ import pyarrow as pa
 
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models import InplaceVolumesResult
-from fmu.dataio._models.fmu_results import standard_result
-from fmu.dataio._models.fmu_results.enums import (
-    Classification,
-    Content,
-    DomainReference,
-    StandardResultName,
-    VerticalDomain,
-)
-from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
@@ -28,14 +18,23 @@ from fmu.dataio.export.rms._utils import (
     check_rmsapi_version,
     get_rms_project_units,
 )
+from fmu.datamodels import InplaceVolumesResult
+from fmu.datamodels.fmu_results import standard_result
+from fmu.datamodels.fmu_results.enums import (
+    Classification,
+    Content,
+    DomainReference,
+    VerticalDomain,
+)
+from fmu.datamodels.standard_results import enums
 
 rmsapi, rmsjobs = import_rms_package()
 
 _logger: Final = null_logger(__name__)
 
 
-_VolumetricColumns = _enums.InplaceVolumes.VolumetricColumns
-_TableIndexColumns = _enums.InplaceVolumes.TableIndexColumns
+_VolumetricColumns = enums.InplaceVolumes.VolumetricColumns
+_TableIndexColumns = enums.InplaceVolumes.TableIndexColumns
 
 # rename columns to FMU standard
 _RENAME_COLUMNS_FROM_RMS: Final = {
@@ -87,7 +86,7 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
     def _standard_result(self) -> standard_result.InplaceVolumesStandardResult:
         """Standard result type for the exported data."""
         return standard_result.InplaceVolumesStandardResult(
-            name=StandardResultName.inplace_volumes
+            name=enums.StandardResultName.inplace_volumes
         )
 
     @property
@@ -224,7 +223,7 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         """Set the column order in the table."""
         _logger.debug("Settting the table column order...")
         return table[
-            [col for col in _enums.InplaceVolumes.table_columns() if col in table]
+            [col for col in enums.InplaceVolumes.table_columns() if col in table]
         ]
 
     @staticmethod
@@ -240,9 +239,9 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
 
         tables = []
         for fluid in (
-            _enums.InplaceVolumes.Fluid.gas.value,
-            _enums.InplaceVolumes.Fluid.oil.value,
-            _enums.InplaceVolumes.Fluid.water.value,
+            enums.InplaceVolumes.Fluid.gas.value,
+            enums.InplaceVolumes.Fluid.oil.value,
+            enums.InplaceVolumes.Fluid.water.value,
         ):
             fluid_suffix = fluid.upper()
             fluid_columns = [
@@ -283,7 +282,7 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
 
     def _get_table_index(self, table: pd.DataFrame) -> list[str]:
         """Get the table index columns for the volumetric table."""
-        return [col for col in _enums.InplaceVolumes.index_columns() if col in table]
+        return [col for col in enums.InplaceVolumes.index_columns() if col in table]
 
     def _validate_table(self) -> None:
         """
@@ -301,7 +300,7 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         )
 
         # check that all required index columns are present
-        for col in _enums.InplaceVolumes.required_index_columns():
+        for col in enums.InplaceVolumes.required_index_columns():
             if self._is_column_missing_in_table(col):
                 raise RuntimeError(
                     f"Required index column {col} is missing in the volumetric table. "
@@ -320,7 +319,7 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
 
         # check that all required value columns are present
         missing_calculations = []
-        for col in _enums.InplaceVolumes.required_value_columns():
+        for col in enums.InplaceVolumes.required_value_columns():
             if self._is_column_missing_in_table(col):
                 missing_calculations.append(col)
 

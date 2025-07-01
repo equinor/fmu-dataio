@@ -5,18 +5,7 @@ from typing import TYPE_CHECKING, Any, Final
 
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import (
-    Classification,
-    Content,
-    DomainReference,
-    StandardResultName,
-    VerticalDomain,
-)
-from fmu.dataio._models.fmu_results.standard_result import (
-    StructureDepthFaultLinesStandardResult,
-)
 from fmu.dataio.exceptions import ValidationError
-from fmu.dataio.export import _enums
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
@@ -26,6 +15,17 @@ from fmu.dataio.export.rms._utils import (
     get_rms_project_units,
     validate_name_in_stratigraphy,
 )
+from fmu.datamodels.fmu_results.enums import (
+    Classification,
+    Content,
+    DomainReference,
+    VerticalDomain,
+)
+from fmu.datamodels.fmu_results.standard_result import (
+    StructureDepthFaultLinesStandardResult,
+)
+from fmu.datamodels.standard_results import enums
+from fmu.datamodels.standard_results.enums import StandardResultName
 
 if TYPE_CHECKING:
     import xtgeo
@@ -77,7 +77,7 @@ class _ExportStructureDepthFaultLines(SimpleExportRMSBase):
             name=pol.name,
             classification=self._classification,
             rep_include=self._rep_include,
-            table_index=_enums.FaultLines.index_columns(),
+            table_index=enums.FaultLines.index_columns(),
         )
 
         edata.polygons_fformat = "parquet"  # type: ignore
@@ -108,7 +108,7 @@ class _ExportStructureDepthFaultLines(SimpleExportRMSBase):
             fault_names = (
                 df.loc[
                     df[pol.pname].isin(open_polygons),
-                    _enums.FaultLines.TableIndexColumns.NAME.value,
+                    enums.FaultLines.TableIndexColumns.NAME.value,
                 ]
                 .unique()
                 .tolist()

@@ -8,11 +8,12 @@ from typing import Final
 import yaml
 from pydantic import ValidationError
 
+from fmu.datamodels.fmu_results import enums
+from fmu.datamodels.fmu_results.enums import FMUContext
+from fmu.datamodels.fmu_results.fields import File
+
 from ._logging import null_logger
 from ._metadata import ObjectMetadataExport
-from ._models.fmu_results import enums
-from ._models.fmu_results.enums import FMUContext
-from ._models.fmu_results.fields import File
 from ._runcontext import RunContext
 from ._utils import export_metadata_file, md5sum
 from .exceptions import InvalidMetadataError

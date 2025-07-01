@@ -13,7 +13,7 @@ import pytz
 from pydantic import ValidationError
 from tqdm import tqdm
 
-from fmu.dataio._models import FmuResults
+from fmu.datamodels import FmuResults
 from fmu.sumo.explorer import Explorer
 
 

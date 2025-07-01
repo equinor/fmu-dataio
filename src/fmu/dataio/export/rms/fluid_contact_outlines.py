@@ -5,15 +5,6 @@ from typing import TYPE_CHECKING, Any, Final
 
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results import standard_result
-from fmu.dataio._models.fmu_results.enums import (
-    Classification,
-    Content,
-    DomainReference,
-    FluidContactType,
-    StandardResultName,
-    VerticalDomain,
-)
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
@@ -24,6 +15,15 @@ from fmu.dataio.export.rms._utils import (
     list_folder_names_in_general2d_folder,
     validate_name_in_stratigraphy,
 )
+from fmu.datamodels.fmu_results import standard_result
+from fmu.datamodels.fmu_results.enums import (
+    Classification,
+    Content,
+    DomainReference,
+    FluidContactType,
+    VerticalDomain,
+)
+from fmu.datamodels.standard_results.enums import StandardResultName
 
 if TYPE_CHECKING:
     import xtgeo
