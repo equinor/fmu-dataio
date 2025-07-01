@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, TypeVar
 
 if TYPE_CHECKING:
-    from fmu.dataio._models._schema_base import SchemaBase
+    from fmu.datamodels._schema_base import SchemaBase
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -308,7 +308,7 @@ def main() -> None:
 
     os.environ["DEV_SCHEMA"] = "" if args.prod else "1"
     # Ensures URLs will differ based on above
-    import fmu.dataio._models as models
+    import fmu.datamodels as models
 
     writer = SchemaWriter(
         is_release=args.prod,

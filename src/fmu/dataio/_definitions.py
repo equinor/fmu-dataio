@@ -7,8 +7,8 @@ from typing import Final
 
 from pydantic import BaseModel, model_validator
 
-from fmu.dataio._models.fmu_results.enums import Content
-from fmu.dataio.export._enums import InplaceVolumes
+from fmu.datamodels.fmu_results.enums import Content
+from fmu.datamodels.standard_results.enums import InplaceVolumes
 
 ERT_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
 

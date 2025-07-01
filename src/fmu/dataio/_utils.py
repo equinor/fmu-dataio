@@ -21,10 +21,10 @@ import xtgeo
 import yaml
 
 from fmu.config import utilities as ut
+from fmu.datamodels.fmu_results.data import Geometry
 
 from ._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from ._logging import null_logger
-from ._models.fmu_results.data import Geometry
 from ._readers.faultroom import FaultRoomSurface
 
 if TYPE_CHECKING:

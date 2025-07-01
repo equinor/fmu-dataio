@@ -6,7 +6,7 @@ import sys
 from orjson import dumps
 from yaml import safe_load
 
-from fmu.dataio._models import FmuResults
+from fmu.datamodels import FmuResults
 
 
 def read(file):

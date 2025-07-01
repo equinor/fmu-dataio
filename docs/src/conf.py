@@ -9,8 +9,8 @@ from textwrap import dedent
 
 import fmu.dataio
 import fmu.dataio.dataio
-from fmu.dataio._models import schemas
-from fmu.dataio._models._schema_base import SchemaBase
+from fmu.datamodels import schemas
+from fmu.datamodels._schema_base import SchemaBase
 
 sys.path.insert(0, os.path.abspath("../../src/fmu"))
 sys.path.insert(1, os.path.abspath("../ext"))

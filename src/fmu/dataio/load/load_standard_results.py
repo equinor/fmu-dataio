@@ -7,15 +7,13 @@ import numpy as np
 import xtgeo
 from pandas import DataFrame
 
-from fmu.dataio._models.fmu_results.enums import (
-    ObjectMetadataClass,
-    StandardResultName,
-)
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.external_interfaces.schema_validation_interface import (
     SchemaValidationInterface,
 )
 from fmu.dataio.external_interfaces.sumo_explorer_interface import SumoExplorerInterface
+from fmu.datamodels.fmu_results.enums import ObjectMetadataClass
+from fmu.datamodels.standard_results.enums import StandardResultName
 
 DataFrameOrXtgeoObject: TypeAlias = DataFrame | xtgeo.Polygons | xtgeo.RegularSurface
 
