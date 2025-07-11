@@ -12,13 +12,13 @@ from pydantic import ValidationError
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import StandardResultName
-from fmu.dataio._models.standard_results.inplace_volumes import (
+from fmu.datamodels.standard_results import enums
+from fmu.datamodels.standard_results.enums import StandardResultName
+from fmu.datamodels.standard_results.inplace_volumes import (
     InplaceVolumesResult,
     InplaceVolumesResultRow,
     InplaceVolumesSchema,
 )
-from fmu.dataio.export import _enums
 
 logger = null_logger(__name__)
 
@@ -101,7 +101,7 @@ def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolum
 
     # check that the table index is set correctly (LICENSE is optional and not present)
     assert metadata["data"]["table_index"] == [
-        col for col in _enums.InplaceVolumes.index_columns() if col != "LICENSE"
+        col for col in enums.InplaceVolumes.index_columns() if col != "LICENSE"
     ]
     assert metadata["data"]["table_index"] == ["FLUID", "ZONE", "REGION", "FACIES"]
 
@@ -158,7 +158,7 @@ def test_convert_table_from_legacy_to_standard_format(
     assert np.allclose(exported_table["NET"], exported_table["BULK"])
 
     # check that the fluid column exists and contains oil and gas
-    fluid_col = _enums.InplaceVolumes.TableIndexColumns.FLUID.value
+    fluid_col = enums.InplaceVolumes.TableIndexColumns.FLUID.value
     assert fluid_col in exported_table
     assert set(exported_table[fluid_col].unique()) == {"oil", "gas", "water"}
 
@@ -416,7 +416,7 @@ def test_total_volumes_required(exportvolumetrics, voltable_legacy):
         exportvolumetrics._compute_water_zone_volumes_from_totals(df)
 
 
-@pytest.mark.parametrize("required_col", _enums.InplaceVolumes.required_columns())
+@pytest.mark.parametrize("required_col", enums.InplaceVolumes.required_columns())
 def test_validate_table_required_col_missing(
     exportvolumetrics, voltable_standard, required_col
 ):
@@ -592,7 +592,7 @@ def test_rms_volumetrics_export_function(
     assert "volumes" in metadata["data"]["content"]
     assert metadata["access"]["classification"] == "restricted"
     assert metadata["data"]["table_index"] == [
-        col for col in _enums.InplaceVolumes.index_columns() if col != "LICENSE"
+        col for col in enums.InplaceVolumes.index_columns() if col != "LICENSE"
     ]
     assert metadata["data"]["table_index"] == ["FLUID", "ZONE", "REGION", "FACIES"]
 
@@ -639,7 +639,7 @@ def test_inplace_volumes_payload_validates_against_schema(
 def test_inplace_volumes_export_and_result_columns_are_the_same(
     mocked_rmsapi_modules,
 ) -> None:
-    assert _enums.InplaceVolumes.table_columns() == list(
+    assert enums.InplaceVolumes.table_columns() == list(
         InplaceVolumesResultRow.model_fields.keys()
     )
 
@@ -652,7 +652,7 @@ def test_that_required_columns_one_to_one_in_enums_and_schema() -> None:
     for field_name, field_info in InplaceVolumesResultRow.model_fields.items():
         if field_info.is_required():
             schema_required_fields.append(field_name)
-    assert set(_enums.InplaceVolumes.required_columns()) == set(schema_required_fields)
+    assert set(enums.InplaceVolumes.required_columns()) == set(schema_required_fields)
 
 
 def test_standard_result_in_metadata(exportvolumetrics):

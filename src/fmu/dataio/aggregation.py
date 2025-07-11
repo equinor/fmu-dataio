@@ -8,10 +8,11 @@ from typing import ClassVar, Final, Literal
 
 from pydantic import ValidationError
 
-from fmu.dataio._models.fmu_results.enums import FMUContext
-from fmu.dataio._models.fmu_results.fields import Tracklog
+from fmu.dataio import types
+from fmu.datamodels.fmu_results.enums import FMUContext
+from fmu.datamodels.fmu_results.fields import Tracklog
 
-from . import _utils, dataio, types
+from . import _utils, dataio
 from ._logging import null_logger
 from ._metadata import ObjectMetadataExport
 from .exceptions import InvalidMetadataError

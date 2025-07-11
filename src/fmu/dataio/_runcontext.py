@@ -11,9 +11,9 @@ from typing_extensions import override  # Remove when Python 3.11 dropped
 from fmu.config import utilities as ut
 from fmu.dataio._definitions import ERT_RELATIVE_CASE_METADATA_FILE, RMSExecutionMode
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import FMUContext
-from fmu.dataio._models.fmu_results.fmu_results import CaseMetadata
 from fmu.dataio._utils import casepath_has_metadata
+from fmu.datamodels.fmu_results.enums import FMUContext
+from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
 logger: Final = null_logger(__name__)
 

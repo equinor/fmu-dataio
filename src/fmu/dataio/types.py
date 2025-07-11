@@ -1,7 +1,5 @@
 from collections.abc import MutableMapping
-from typing import TYPE_CHECKING, Annotated, Literal, TypeAlias, Union
-
-from pydantic import Field
+from typing import TYPE_CHECKING, Annotated, TypeAlias, Union
 
 if TYPE_CHECKING:
     import pathlib
@@ -49,32 +47,7 @@ if TYPE_CHECKING:
         "Collection of 'inferrable' objects with metadata deduction capabilities",
     ]
 
-VersionStr: TypeAlias = Annotated[
-    str, Field(pattern=r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)")
-]
-
-MD5HashStr: TypeAlias = Annotated[str, Field(pattern=r"^([a-f\d]{32}|[A-F\d]{32})$")]
-
 Parameters: TypeAlias = Annotated[
     MutableMapping[str, Union[str, float, int, None, "Parameters"]],
     "Nested or flat configurations for dynamically structured parameters.",
-]
-
-Efolder: TypeAlias = Literal[
-    "maps",
-    "polygons",
-    "points",
-    "cubes",
-    "grids",
-    "tables",
-    "dictionaries",
-]
-
-Layout: TypeAlias = Literal[
-    "regular",
-    "unset",
-    "cornerpoint",
-    "table",
-    "dictionary",
-    "faultroom_triangulated",
 ]

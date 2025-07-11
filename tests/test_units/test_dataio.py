@@ -11,8 +11,6 @@ import pydantic
 import pytest
 import yaml
 
-from fmu.dataio._models.fmu_results.enums import FMUContext, StandardResultName
-from fmu.dataio._models.fmu_results.standard_result import InplaceVolumesStandardResult
 from fmu.dataio._runcontext import FmuEnv
 from fmu.dataio._utils import (
     convert_datestr_to_isoformat,
@@ -21,6 +19,9 @@ from fmu.dataio._utils import (
 )
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE
+from fmu.datamodels.fmu_results.enums import FMUContext
+from fmu.datamodels.fmu_results.standard_result import InplaceVolumesStandardResult
+from fmu.datamodels.standard_results.enums import StandardResultName
 
 # pylint: disable=no-member
 

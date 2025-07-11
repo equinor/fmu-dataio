@@ -9,8 +9,8 @@ from typing import Final
 
 from pydantic import ValidationError
 
-from fmu.dataio._models.fmu_results import enums, fields, global_configuration
-from fmu.dataio._models.fmu_results.fmu_results import CaseMetadata
+from fmu.datamodels.fmu_results import enums, fields, global_configuration
+from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
 from . import _utils
 from ._logging import null_logger

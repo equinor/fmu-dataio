@@ -9,7 +9,7 @@ import pyarrow.compute as pc
 if TYPE_CHECKING:
     import pandas as pd
 
-    from fmu.dataio._models.fmu_results.global_configuration import Stratigraphy
+    from fmu.datamodels.fmu_results.global_configuration import Stratigraphy
 
 
 class Utils:

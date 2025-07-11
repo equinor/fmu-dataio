@@ -12,10 +12,12 @@ import pyarrow.parquet as pq
 
 from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.data import BoundingBox2D, BoundingBox3D, Geometry
-from fmu.dataio._models.fmu_results.enums import FileFormat, Layout, ObjectMetadataClass
-from fmu.dataio._models.fmu_results.global_configuration import GlobalConfiguration
-from fmu.dataio._models.fmu_results.specification import (
+from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
+from fmu.dataio.exceptions import ConfigurationError
+from fmu.datamodels.fmu_results.data import BoundingBox2D, BoundingBox3D, Geometry
+from fmu.datamodels.fmu_results.enums import FileFormat, Layout, ObjectMetadataClass
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+from fmu.datamodels.fmu_results.specification import (
     CPGridPropertySpecification,
     CPGridSpecification,
     CubeSpecification,
@@ -24,8 +26,6 @@ from fmu.dataio._models.fmu_results.specification import (
     SurfaceSpecification,
     ZoneDefinition,
 )
-from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
-from fmu.dataio.exceptions import ConfigurationError
 
 from ._base import ObjectDataProvider
 from ._tables import _derive_index

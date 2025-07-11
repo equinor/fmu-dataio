@@ -13,9 +13,9 @@ from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._definitions import ShareFolder
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results import fields
-from fmu.dataio._models.fmu_results.enums import FMUContext
 from fmu.dataio._utils import compute_md5_and_size_from_objdata
+from fmu.datamodels.fmu_results import fields
+from fmu.datamodels.fmu_results.enums import FMUContext
 
 from ._base import Provider
 

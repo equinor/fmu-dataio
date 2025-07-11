@@ -6,7 +6,7 @@ import pytest
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import StandardResultName
+from fmu.datamodels.standard_results.enums import StandardResultName
 
 logger = null_logger(__name__)
 

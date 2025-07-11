@@ -6,7 +6,7 @@ import pandas as pd
 import xtgeo
 from pandas import DataFrame
 
-from fmu.dataio._models.fmu_results.enums import ObjectMetadataClass
+from fmu.datamodels.fmu_results.enums import ObjectMetadataClass
 from fmu.sumo.explorer import Explorer
 from fmu.sumo.explorer.objects import SearchContext
 

@@ -13,11 +13,11 @@ from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
 from warnings import warn
 
 from fmu.dataio.aggregation import AggregatedData
+from fmu.datamodels.fmu_results import enums, global_configuration
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
-from ._models.fmu_results import enums, global_configuration
-from ._models.fmu_results.global_configuration import GlobalConfiguration
 from ._runcontext import RunContext, get_fmu_context_from_environment
 from ._utils import (
     export_metadata_file,
@@ -36,8 +36,9 @@ from .providers.objectdata._provider import (
 )
 
 if TYPE_CHECKING:
+    from fmu.datamodels.fmu_results.standard_result import StandardResult
+
     from . import types
-    from ._models.fmu_results.standard_result import StandardResult
 
 
 GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"

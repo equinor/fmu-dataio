@@ -10,12 +10,6 @@ from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Final
 
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.data import AnyData, Time, Timestamp
-from fmu.dataio._models.fmu_results.enums import Content
-from fmu.dataio._models.fmu_results.global_configuration import (
-    GlobalConfiguration,
-    StratigraphyElement,
-)
 from fmu.dataio._utils import generate_description, md5sum
 from fmu.dataio.providers._base import Provider
 from fmu.dataio.providers._filedata import SharePathConstructor
@@ -25,24 +19,30 @@ from fmu.dataio.providers.objectdata._export_models import (
     content_requires_metadata,
     property_warn,
 )
+from fmu.datamodels.fmu_results.data import AnyData, Time, Timestamp
+from fmu.datamodels.fmu_results.enums import Content
+from fmu.datamodels.fmu_results.global_configuration import (
+    GlobalConfiguration,
+    StratigraphyElement,
+)
 
 if TYPE_CHECKING:
     from pydantic import BaseModel
 
-    from fmu.dataio._models.fmu_results.data import (
+    from fmu.dataio.dataio import ExportData
+    from fmu.dataio.types import Inferrable
+    from fmu.datamodels.fmu_results.data import (
         BoundingBox2D,
         BoundingBox3D,
         Geometry,
     )
-    from fmu.dataio._models.fmu_results.enums import (
+    from fmu.datamodels.fmu_results.enums import (
         FileFormat,
         Layout,
         MetadataClass,
     )
-    from fmu.dataio._models.fmu_results.specification import AnySpecification
-    from fmu.dataio._models.fmu_results.standard_result import StandardResult
-    from fmu.dataio.dataio import ExportData
-    from fmu.dataio.types import Inferrable
+    from fmu.datamodels.fmu_results.specification import AnySpecification
+    from fmu.datamodels.fmu_results.standard_result import StandardResult
 
 logger: Final = null_logger(__name__)
 

@@ -40,11 +40,11 @@ from fmu.config import utilities as ut
 from fmu.dataio import _utils
 from fmu.dataio._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results import fields
-from fmu.dataio._models.fmu_results.enums import ErtSimulationMode, FMUContext
-from fmu.dataio._models.fmu_results.fmu_results import CaseMetadata
 from fmu.dataio._runcontext import FmuEnv
 from fmu.dataio.exceptions import InvalidMetadataError
+from fmu.datamodels.fmu_results import fields
+from fmu.datamodels.fmu_results.enums import ErtSimulationMode, FMUContext
+from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
 from ._base import Provider
 

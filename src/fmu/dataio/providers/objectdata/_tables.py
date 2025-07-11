@@ -13,14 +13,14 @@ from fmu.dataio._definitions import (
     FileExtension,
 )
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import (
+from fmu.dataio.exceptions import ConfigurationError
+from fmu.datamodels.fmu_results.enums import (
     Content,
     FileFormat,
     Layout,
     ObjectMetadataClass,
 )
-from fmu.dataio._models.fmu_results.specification import TableSpecification
-from fmu.dataio.exceptions import ConfigurationError
+from fmu.datamodels.fmu_results.specification import TableSpecification
 
 from ._base import (
     ObjectDataProvider,

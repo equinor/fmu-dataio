@@ -7,16 +7,16 @@ from typing import TYPE_CHECKING, Any, Final
 import pydantic
 
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import Content
-from fmu.dataio._models.fmu_results.global_configuration import GlobalConfiguration
 from fmu.dataio._utils import load_config_from_path
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._export_result import ExportResult
+from fmu.datamodels.fmu_results.enums import Content
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 if TYPE_CHECKING:
-    from fmu.dataio._models.fmu_results.enums import Classification
-    from fmu.dataio._models.fmu_results.standard_result import StandardResult
     from fmu.dataio.export._export_result import ExportResult
+    from fmu.datamodels.fmu_results.enums import Classification
+    from fmu.datamodels.fmu_results.standard_result import StandardResult
 
 logger: Final = null_logger(__name__)
 

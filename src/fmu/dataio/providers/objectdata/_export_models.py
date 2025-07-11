@@ -18,7 +18,7 @@ from pydantic import (
 )
 
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results import data, enums
+from fmu.datamodels.fmu_results import data, enums
 
 logger: Final = null_logger(__name__)
 

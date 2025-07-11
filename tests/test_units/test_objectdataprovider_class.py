@@ -8,10 +8,6 @@ import pytest
 import yaml
 
 from fmu import dataio
-from fmu.dataio._models.fmu_results.specification import (
-    FaultRoomSurfaceSpecification,
-    TriangulatedSurfaceSpecification,
-)
 from fmu.dataio.exceptions import ConfigurationError
 from fmu.dataio.providers.objectdata._faultroom import FaultRoomSurfaceProvider
 from fmu.dataio.providers.objectdata._provider import (
@@ -21,6 +17,10 @@ from fmu.dataio.providers.objectdata._triangulated_surface import (
     TriangulatedSurfaceProvider,
 )
 from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
+from fmu.datamodels.fmu_results.specification import (
+    FaultRoomSurfaceSpecification,
+    TriangulatedSurfaceSpecification,
+)
 
 from ..conftest import remove_ert_env, set_ert_env_prehook
 

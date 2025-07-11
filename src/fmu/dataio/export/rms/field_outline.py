@@ -7,20 +7,20 @@ import xtgeo
 
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results.enums import (
-    Classification,
-    Content,
-    DomainReference,
-    FluidContactType,
-    StandardResultName,
-    VerticalDomain,
-)
-from fmu.dataio._models.fmu_results.standard_result import FieldOutlineStandardResult
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import get_open_polygons_id
+from fmu.datamodels.fmu_results.enums import (
+    Classification,
+    Content,
+    DomainReference,
+    FluidContactType,
+    VerticalDomain,
+)
+from fmu.datamodels.fmu_results.standard_result import FieldOutlineStandardResult
+from fmu.datamodels.standard_results.enums import StandardResultName
 
 _logger: Final = null_logger(__name__)
 

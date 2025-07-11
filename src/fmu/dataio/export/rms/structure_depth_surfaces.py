@@ -5,14 +5,6 @@ from typing import TYPE_CHECKING, Any, Final
 
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models.fmu_results import standard_result
-from fmu.dataio._models.fmu_results.enums import (
-    Classification,
-    Content,
-    DomainReference,
-    StandardResultName,
-    VerticalDomain,
-)
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
@@ -21,6 +13,14 @@ from fmu.dataio.export.rms._utils import (
     get_rms_project_units,
     validate_name_in_stratigraphy,
 )
+from fmu.datamodels.fmu_results import standard_result
+from fmu.datamodels.fmu_results.enums import (
+    Classification,
+    Content,
+    DomainReference,
+    VerticalDomain,
+)
+from fmu.datamodels.standard_results.enums import StandardResultName
 
 if TYPE_CHECKING:
     import xtgeo

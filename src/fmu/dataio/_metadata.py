@@ -14,12 +14,13 @@ from typing import TYPE_CHECKING, Final
 
 from pydantic import Field
 
-from ._logging import null_logger
-from ._models.fmu_results import data, fields
-from ._models.fmu_results.fmu_results import (
+from fmu.datamodels.fmu_results import data, fields
+from fmu.datamodels.fmu_results.fmu_results import (
     ObjectMetadata,
 )
-from ._models.fmu_results.global_configuration import GlobalConfiguration
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+
+from ._logging import null_logger
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers.objectdata._base import UnsetData
