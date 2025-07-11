@@ -16,12 +16,6 @@ import pytest
 import xtgeo
 import yaml
 
-# This must be set before anything in dataio is imported if not using pytest-xdist.
-if "--prod" in sys.argv:
-    os.environ["DEV_SCHEMA"] = ""
-else:
-    os.environ["DEV_SCHEMA"] = "1"
-
 import fmu.dataio as dio
 from fmu.config import utilities as ut
 from fmu.dataio._readers.faultroom import FaultRoomSurface
@@ -52,21 +46,6 @@ ERTRUN_ENV_FORWARD = {
 ERTRUN_ENV_FULLRUN = {**ERTRUN_ENV_PREHOOK, **ERTRUN_ENV_FORWARD}
 
 ERT_RUNPATH = f"_ERT_{FmuEnv.RUNPATH.name}"
-
-
-def pytest_addoption(parser):
-    parser.addoption(
-        "--prod", action="store_true", help="Use schemas/metadata with production URLs."
-    )
-
-
-def pytest_configure(config) -> None:
-    """If '--prod' is given to pytest, use schemas/metadata with prod urls (i.e. not dev
-    urls)."""
-    if config.getoption("--prod"):
-        os.environ["DEV_SCHEMA"] = ""
-    else:
-        os.environ["DEV_SCHEMA"] = "1"
 
 
 def _current_function_name():
