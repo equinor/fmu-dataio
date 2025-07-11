@@ -29,6 +29,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "fmu-config>=1.1.0",
+    "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels",
     "numpy",
     "pandas",
     "pyarrow",
