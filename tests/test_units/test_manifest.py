@@ -2,13 +2,15 @@ from pathlib import Path
 
 import pytest
 
-from fmu.dataio import ExportData
+from fmu.dataio import ExportData, ExportPreprocessedData
 from fmu.dataio.manifest._manifest import (
     MANIFEST_FILENAME,
     _get_manifest_path,
     load_export_manifest,
 )
 from fmu.dataio.manifest._models import ExportManifest
+
+from ..conftest import remove_ert_env, set_ert_env_prehook
 
 
 def test_export_manifest_from_file(tmp_path):
@@ -197,3 +199,32 @@ def test_load_export_manifest_file_not_exist(tmp_path):
 
     with pytest.raises(FileNotFoundError, match="manifest file not found"):
         load_export_manifest(tmp_path / MANIFEST_FILENAME)
+
+
+def test_export_preprocessed_surface_appends_to_case_manifest(
+    fmurun_prehook, globalconfig1, regsurf, monkeypatch
+):
+    casepath = fmurun_prehook
+    monkeypatch.chdir(casepath)
+
+    remove_ert_env(monkeypatch)
+    export_data = ExportData(
+        config=globalconfig1,
+        preprocessed=True,
+        name="TopVolantis",
+        content="depth",
+        timedata=[[20240802, "moni"], [20200909, "base"]],
+        casepath=casepath,
+    )
+    surface_path = Path(export_data.export(regsurf))
+    with pytest.raises(FileNotFoundError, match="manifest file not found"):
+        load_export_manifest(casepath)
+
+    set_ert_env_prehook(monkeypatch)
+    preprocessed_surface_path = ExportPreprocessedData(
+        is_observation=False, casepath=casepath
+    ).export(surface_path)
+
+    manifest = load_export_manifest(casepath)
+    assert len(manifest) == 1
+    assert manifest[0].absolute_path == Path(preprocessed_surface_path)

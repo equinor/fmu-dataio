@@ -17,6 +17,7 @@ from ._metadata import ObjectMetadataExport
 from ._runcontext import RunContext
 from ._utils import export_metadata_file, md5sum
 from .exceptions import InvalidMetadataError
+from .manifest._manifest import update_export_manifest
 from .providers._filedata import ShareFolder
 from .providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE, FmuProvider
 
@@ -243,6 +244,10 @@ class ExportPreprocessedData:
                 metafile = outfile.parent / f".{outfile.name}.yml"
                 export_metadata_file(file=metafile, metadata=meta_updated)
                 logger.info("Updated metadata file is: %s", metafile)
+
+                if self._runcontext.inside_fmu:
+                    update_export_manifest(outfile, casepath=self._runcontext.casepath)
+
         else:
             warnings.warn(
                 f"Could not detect existing metadata with name {objmetafile}. "
