@@ -2,13 +2,15 @@ from pathlib import Path
 
 import pytest
 
-from fmu.dataio import ExportData
+from fmu.dataio import ExportData, ExportPreprocessedData
 from fmu.dataio.manifest._manifest import (
     MANIFEST_FILENAME,
-    _get_manifest_path,
+    get_manifest_path,
     load_export_manifest,
 )
 from fmu.dataio.manifest._models import ExportManifest
+
+from ..conftest import remove_ert_env, set_ert_env_prehook
 
 
 def test_export_manifest_from_file(tmp_path):
@@ -50,7 +52,7 @@ def test_get_manifest_path_realization_context(fmurun_w_casemetadata):
     # check test assumption that the fixture points to the runpath
     assert fmurun_w_casemetadata.name == "iter-0"
 
-    manifest_path = _get_manifest_path()
+    manifest_path = get_manifest_path()
     # check that the manifest path is correct
     assert manifest_path == fmurun_w_casemetadata / MANIFEST_FILENAME
 
@@ -60,7 +62,7 @@ def test_get_manifest_path_case_context(fmurun_prehook):
     # check test assumption that the fixture points to the casepath
     assert fmurun_prehook.name == "ertrun1"
 
-    manifest_path = _get_manifest_path(casepath=fmurun_prehook)
+    manifest_path = get_manifest_path(casepath=fmurun_prehook)
     # check that the manifest path is correct
     assert manifest_path == fmurun_prehook / MANIFEST_FILENAME
 
@@ -68,7 +70,7 @@ def test_get_manifest_path_case_context(fmurun_prehook):
 def test_get_manifest_path_case_context_no_casepath(fmurun_prehook):
     """Test that an error is raised when no casepath is provided in case context."""
     with pytest.raises(ValueError):
-        _get_manifest_path(casepath=None)
+        get_manifest_path(casepath=None)
 
 
 def test_manifest_realization_context(fmurun_w_casemetadata, globalconfig1, regsurf):
@@ -197,3 +199,32 @@ def test_load_export_manifest_file_not_exist(tmp_path):
 
     with pytest.raises(FileNotFoundError, match="manifest file not found"):
         load_export_manifest(tmp_path / MANIFEST_FILENAME)
+
+
+def test_export_preprocessed_surface_appends_to_case_manifest(
+    fmurun_prehook, globalconfig1, regsurf, monkeypatch
+):
+    casepath = fmurun_prehook
+    monkeypatch.chdir(casepath)
+
+    remove_ert_env(monkeypatch)
+    export_data = ExportData(
+        config=globalconfig1,
+        preprocessed=True,
+        name="TopVolantis",
+        content="depth",
+        timedata=[[20240802, "moni"], [20200909, "base"]],
+        casepath=casepath,
+    )
+    surface_path = Path(export_data.export(regsurf))
+    with pytest.raises(FileNotFoundError, match="manifest file not found"):
+        load_export_manifest(casepath)
+
+    set_ert_env_prehook(monkeypatch)
+    preprocessed_surface_path = ExportPreprocessedData(
+        is_observation=False, casepath=casepath
+    ).export(surface_path)
+
+    manifest = load_export_manifest(casepath)
+    assert len(manifest) == 1
+    assert manifest[0].absolute_path == Path(preprocessed_surface_path)
