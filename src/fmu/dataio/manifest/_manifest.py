@@ -19,7 +19,7 @@ logger = null_logger(__name__)
 MANIFEST_FILENAME: Final = ".dataio_export_manifest.json"
 
 
-def _get_manifest_path(casepath: Path | str | None = None) -> Path:
+def get_manifest_path(casepath: Path | str | None = None) -> Path:
     """Determine the manifest path based on the FMU context.
     - 'realization': located at the runpath (inferred from environment)
     - 'case': located at the provided casepath"""
@@ -34,7 +34,7 @@ def _get_manifest_path(casepath: Path | str | None = None) -> Path:
 def update_export_manifest(absolute_path: Path, casepath: Path | None = None) -> None:
     """Update the export manifest with a new file entry.
     If the manifest does not exist, it will be created."""
-    manifest_path = _get_manifest_path(casepath)
+    manifest_path = get_manifest_path(casepath)
 
     if manifest_path.exists():
         logger.debug(f"Export manifest found at {manifest_path}")
@@ -52,7 +52,7 @@ def load_export_manifest(casepath: Path | str | None = None) -> ExportManifest:
     the manifest location is derived from the environment. If running in a `case`
     context, the casepath must be provided."""
 
-    manifest_path = _get_manifest_path(casepath)
+    manifest_path = get_manifest_path(casepath)
     logger.debug(f"Loading export manifest from {manifest_path}")
 
     if not manifest_path.exists():
