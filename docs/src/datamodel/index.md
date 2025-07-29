@@ -31,8 +31,8 @@ documentation of these two models can be inspected from here.
    .. toctree::
       :maxdepth: -1
 
-      ~fmu.dataio._models.fmu_results.fmu_results.ObjectMetadata
-      ~fmu.dataio._models.fmu_results.fmu_results.CaseMetadata
+      ~fmu.datamodels.fmu_results.fmu_results.ObjectMetadata
+      ~fmu.datamodels.fmu_results.fmu_results.CaseMetadata
 ```
 
 

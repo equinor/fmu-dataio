@@ -103,10 +103,11 @@ togglebutton_hint = "Expand"
 apidoc_module_dir = "../../src/fmu/dataio"
 apidoc_output_dir = "apiref"
 apidoc_excluded_paths = [
-    "case",
     "_models",
+    "case",
     "hook_implementations",
     "providers",
+    "readers",
     "scripts",
     "tests",
     "types",

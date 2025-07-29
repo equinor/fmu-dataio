@@ -4,7 +4,7 @@ This exports the modelled structural depth fault lines from within RMS.
 These fault lines are polygons that represent the intersection of a modelled
 stratigraphic horizon surface with the modelled fault surfaces.
 
-:::{note} 
+:::{note}
 It is only possible to export **one single set** of depth fault lines per
 model workflow, i.e. one fault line polygon object per stratigraphic horizon.
 :::
@@ -49,7 +49,7 @@ This is a tabular file on `.parquet` format. It contains
 the following columns with types validated as indicated.
 
 ```{eval-rst}
-.. autopydantic_model:: fmu.dataio._models.standard_result.structure_depth_fault_lines.StructureDepthFaultLinesResultRow
+.. autopydantic_model:: fmu.datamodels.standard_result.structure_depth_fault_lines.StructureDepthFaultLinesResultRow
    :members:
    :inherited-members: BaseModel
    :model-show-config-summary: False

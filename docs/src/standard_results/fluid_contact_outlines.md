@@ -1,12 +1,12 @@
-# Initial fluid contact outlines 
+# Initial fluid contact outlines
 
 This exports modelled initial fluid contact outlines from within RMS.
 
-Each fluid contact outline corresponds to a specific zone or a group of zones 
+Each fluid contact outline corresponds to a specific zone or a group of zones
 that share a common fluid contact. They are polygons representing the outline of
 the hydrocarbon-filled zone above a specific contact.
 
-The fluid contact types supported is 
+The fluid contact types supported is
 - `fwl` (Free water level)
 - `fgl` (Free gas level)
 - `goc` (Gas-oil contact)
@@ -56,7 +56,7 @@ This is a tabular file on `.parquet` format. It contains
 the following columns with types validated as indicated.
 
 ```{eval-rst}
-.. autopydantic_model:: fmu.dataio._models.standard_result.fluid_contact_outline.FluidContactOutlineResultRow
+.. autopydantic_model:: fmu.datamodels.standard_result.fluid_contact_outline.FluidContactOutlineResultRow
    :members:
    :inherited-members: BaseModel
    :model-show-config-summary: False
