@@ -12,9 +12,9 @@ properties. It is up to each asset to decide which definition best suits their f
 The primary use case for the field outline is visualization. Unlike the deterministic
 outlines from NPD, it is derived directly from the reservoir model, providing greater
 precision, alignment with recent data, and adaptability to the unique structure and
-fluid contact of each realization.   
+fluid contact of each realization.
 
-:::{note} 
+:::{note}
 It is only possible to export **one** field outline object per model workflow.
 For exporting outlines specific to different fluid types and zones, the
 `fluid_contact_outline` standard result should be used instead.
@@ -37,7 +37,7 @@ For exporting outlines specific to different fluid types and zones, the
 - a field outline polygon stored in the `General 2D data` folder within RMS.
 
 The field outline polygon object must be named `field_outline` and be located
-within the root of the `General 2D data` folder in RMS. 
+within the root of the `General 2D data` folder in RMS.
 
 The export function will ensure that the polygon object consists of closed polygons
 before proceeding with the export.
@@ -57,7 +57,7 @@ This is a tabular file on `.parquet` format. It contains
 the following columns with types validated as indicated.
 
 ```{eval-rst}
-.. autopydantic_model:: fmu.dataio._models.standard_result.field_outline.FieldOutlineResultRow
+.. autopydantic_model:: fmu.datamodels.standard_result.field_outline.FieldOutlineResultRow
    :members:
    :inherited-members: BaseModel
    :model-show-config-summary: False
@@ -89,9 +89,9 @@ The current JSON schema is embedded here.
 {{ FieldOutlineSchema.literalinclude }}
 
 ## Load field outlines
-Use the below loader function, loader object and interface to load and interact with 
+Use the below loader function, loader object and interface to load and interact with
 the exported field outlines standard results. For more information about the
-purpose of these loader functions, see 
+purpose of these loader functions, see
 [Load standard results](../standard_results.md#load-standard-results).
 
 ### Usage
@@ -110,7 +110,7 @@ purpose of these loader functions, see
 ```{eval-rst}
 .. autofunction:: fmu.dataio.load.load_standard_results.FieldOutlinesLoader.get_realization
 ```
- 
+
 ```{eval-rst}
 .. autofunction:: fmu.dataio.load.load_standard_results.FieldOutlinesLoader.get_blobs
 ```

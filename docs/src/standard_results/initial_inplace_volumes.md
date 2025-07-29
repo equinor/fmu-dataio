@@ -62,7 +62,7 @@ This is a tabular file that can be converted to `.csv` or similar. It contains
 the following columns with types validated as indicated.
 
 ```{eval-rst}
-.. autopydantic_model:: fmu.dataio._models.standard_results.inplace_volumes.InplaceVolumesResultRow
+.. autopydantic_model:: fmu.datamodels.standard_results.inplace_volumes.InplaceVolumesResultRow
    :members:
    :inherited-members: BaseModel
    :model-show-config-summary: False
@@ -102,7 +102,7 @@ The current JSON schema is embedded here.
 {{ InplaceVolumesSchema.literalinclude }}
 
 ## Load initial inplace volumes
-Use the below loader function, loader object and interface to load and interact with 
+Use the below loader function, loader object and interface to load and interact with
 the exported initial inplace volumes standard results. For more information about the
 purpose of these loader functions, see
 [Load standard results](../standard_results.md#load-standard-results).
@@ -123,7 +123,7 @@ purpose of these loader functions, see
 ```{eval-rst}
 .. autofunction:: fmu.dataio.load.load_standard_results.InplaceVolumesLoader.get_realization
 ```
- 
+
 ```{eval-rst}
 .. autofunction:: fmu.dataio.load.load_standard_results.InplaceVolumesLoader.get_blobs
 ```

@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Final, get_args, get_origin
 
-_DATAIO_METADATA_PACKAGE: Final = "fmu.dataio._models"
+_DATAIO_METADATA_PACKAGE: Final = "fmu.datamodels"
 
 
 def _is_dataio(annotation: Any) -> bool:
