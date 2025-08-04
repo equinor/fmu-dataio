@@ -300,7 +300,7 @@ class FluidContactSurfacesLoader(SurfacesStandardResultsLoader):
 
 
 @experimental
-def load_inplace_volumes(case_id: UUID, ensemble_name: str) -> InplaceVolumesLoader:
+def load_inplace_volumes(case_id: str, ensemble_name: str) -> InplaceVolumesLoader:
     """
     This function provides a simplified interface for loading inplace volumes
     standard results from Sumo. It returns an InplaceVolumesLoader object, which offers
@@ -328,11 +328,11 @@ def load_inplace_volumes(case_id: UUID, ensemble_name: str) -> InplaceVolumesLoa
 
     """  # noqa: E501 line too long
 
-    return InplaceVolumesLoader(case_id, ensemble_name)
+    return InplaceVolumesLoader(UUID(case_id), ensemble_name)
 
 
 @experimental
-def load_field_outlines(case_id: UUID, ensemble_name: str) -> FieldOutlinesLoader:
+def load_field_outlines(case_id: str, ensemble_name: str) -> FieldOutlinesLoader:
     """
     This function provides a simplified interface for loading field outlines
     standard results from Sumo. It returns a FieldOutlinesLoader object, which offers
@@ -360,12 +360,12 @@ def load_field_outlines(case_id: UUID, ensemble_name: str) -> FieldOutlinesLoade
 
     """  # noqa: E501 line too long
 
-    return FieldOutlinesLoader(case_id, ensemble_name)
+    return FieldOutlinesLoader(UUID(case_id), ensemble_name)
 
 
 @experimental
 def load_structure_depth_surfaces(
-    case_id: UUID, ensemble_name: str
+    case_id: str, ensemble_name: str
 ) -> StructureDepthSurfacesLoader:
     """
     This function provides a simplified interface for loading structure depth surfaces
@@ -395,12 +395,12 @@ def load_structure_depth_surfaces(
 
     """  # noqa: E501 line too long
 
-    return StructureDepthSurfacesLoader(case_id, ensemble_name)
+    return StructureDepthSurfacesLoader(UUID(case_id), ensemble_name)
 
 
 @experimental
 def load_fluid_contact_surfaces(
-    case_id: UUID, ensemble_name: str
+    case_id: str, ensemble_name: str
 ) -> FluidContactSurfacesLoader:
     """
     This function provides a simplified interface for loading fluid contact surfaces
@@ -430,4 +430,4 @@ def load_fluid_contact_surfaces(
 
     """  # noqa: E501 line too long
 
-    return FluidContactSurfacesLoader(case_id, ensemble_name)
+    return FluidContactSurfacesLoader(UUID(case_id), ensemble_name)
