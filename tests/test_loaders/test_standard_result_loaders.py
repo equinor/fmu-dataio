@@ -9,6 +9,8 @@ from pandas import DataFrame
 
 import fmu.dataio.load.load_standard_results as load_standard_results
 
+TEST_UUID = "00000000-0000-0000-0000-000000000000"
+
 
 def _generate_metadata_mock(
     case_name: str = "mock_case",
@@ -57,7 +59,7 @@ def test_list_realizations():
         ) as get_realizations_mock,
     ):
         inplace_volumes = load_standard_results.load_inplace_volumes(
-            "test_id", "some_ensemble_name"
+            TEST_UUID, "some_ensemble_name"
         )
         assert class_init_mock.assert_called_once
 
@@ -92,7 +94,7 @@ def test_get_blobs(unregister_pandas_parquet):
         ) as get_blobs_mock,
     ):
         inplace_volumes_loader = load_standard_results.load_inplace_volumes(
-            "test_id", "some_ensemble_name"
+            TEST_UUID, "some_ensemble_name"
         )
         assert class_init_mock.assert_called_once
 
@@ -132,7 +134,7 @@ def test_get_realization():
         ) as get_realizations_mock,
     ):
         inplace_volumes_loader = load_standard_results.load_inplace_volumes(
-            "test_id", "some_ensemble_name"
+            TEST_UUID, "some_ensemble_name"
         )
         assert class_init_mock.assert_called_once
 
@@ -185,7 +187,7 @@ def test_save_realization_for_tabular(monkeypatch, tmp_path):
         ) as validate_object_mock,
     ):
         inplace_volumes_loader = load_standard_results.load_inplace_volumes(
-            "test_id", "some_ensemble_name"
+            TEST_UUID, "some_ensemble_name"
         )
         assert class_init_mock.assert_called_once
 
@@ -243,7 +245,7 @@ def test_save_realization_for_ploygons(monkeypatch, tmp_path):
         ) as validate_object_mock,
     ):
         field_outlines_loader = load_standard_results.load_field_outlines(
-            "test_id", "some_ensemble_name"
+            TEST_UUID, "some_ensemble_name"
         )
         assert class_init_mock.assert_called_once
 
@@ -308,7 +310,7 @@ def test_save_realization_for_surfaces(monkeypatch, tmp_path):
     ):
         structure_depth_surface_loader = (
             load_standard_results.load_structure_depth_surfaces(
-                "test_id", "some_ensemble_name"
+                TEST_UUID, "some_ensemble_name"
             )
         )
         assert class_init_mock.assert_called_once
@@ -353,7 +355,7 @@ def test_construct_object_key():
     ):
         fluid_contact_surfaces_loader = (
             load_standard_results.load_fluid_contact_surfaces(
-                "test_id", "some_ensemble_name"
+                TEST_UUID, "some_ensemble_name"
             )
         )
 
