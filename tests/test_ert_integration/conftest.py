@@ -54,8 +54,7 @@ def fmu_snakeoil_project(
         "WF_CREATE_CASE_METADATA "
         "<SCRATCH>/<USER>/<CASE_DIR> "  # ert case root
         "<CONFIG_PATH> "  # ert config path
-        "<CASE_DIR> "  # ert case dir
-        "<USER>",  # ert username
+        "<CASE_DIR>",  # ert case dir
         encoding="utf-8",
     )
     pathlib.Path(

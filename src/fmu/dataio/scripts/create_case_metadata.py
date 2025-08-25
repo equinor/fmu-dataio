@@ -145,6 +145,8 @@ def get_parser() -> argparse.ArgumentParser:
         "ert_username",
         type=str,
         help="Deprecated and can safely be removed",
+        nargs="?",  # Makes it optional
+        default=None,
     )
     parser.add_argument(
         "--sumo",
