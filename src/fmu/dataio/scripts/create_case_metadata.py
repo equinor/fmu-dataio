@@ -33,7 +33,8 @@ and on Sumo.
 EXAMPLES = """
 Create an ERT workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with the
 contents::
-  WF_CREATE_CASE_METADATA <caseroot> <casename> <username> <sumo> <sumo_env>
+  WF_CREATE_CASE_METADATA <ert_caseroot> <ert_config_path> <ert_casename> \
+  <sumo> <sumo_env>
   ...where
     <ert_caseroot> (Path): Absolute path to root of the case, typically <SCRATCH>/<US...
     <ert_config_path> (Path): Absolute path to ERT config, typically /project/etc/etc
