@@ -250,7 +250,7 @@ def mock_general2d_data():
 
 @pytest.fixture
 def mock_project_variable(mock_general2d_data, mock_structural_model):
-    # A mock_project variable for the RMS 'project' (potentially extend for later use)
+    # A mock_project variable for the RMS 'project' (TODO: potentially extend for later use)
     mock_project = MagicMock()
     mock_project.horizons.representations = ["DS_final"]
     mock_project.zones.representations = ["IS_final"]

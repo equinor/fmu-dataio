@@ -18,7 +18,6 @@ def mock_export_class(
     mock_project_variable,
     monkeypatch,
     rmssetup_with_fmuconfig,
-    mock_structural_model,
     fault_surfaces_triangulated,
 ):
     monkeypatch.chdir(rmssetup_with_fmuconfig)
@@ -28,7 +27,7 @@ def mock_export_class(
     )
 
     with mock.patch(
-        "fmu.dataio.export.rms.structure_depth_fault_surfaces.get_fault_surfaces_from_rms",
+        "fmu.dataio.export.rms.structure_depth_fault_surfaces._get_fault_surfaces_from_rms",
         return_value=fault_surfaces_triangulated,
     ):
         yield _ExportStructureDepthFaultSurfaces(mock_project_variable, "GF_depth_hum")
@@ -45,14 +44,7 @@ def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig
         / "../../share/results/maps/structure_depth_fault_surface"
     )
 
-    # TODO: @ecs: use 'maps' or make new folder 'fault_surfaces'?
     assert export_folder.exists()
-
-    # TODO: remove this print statement
-    print(export_folder)
-
-    # TODO: remove line with "non_existing.ts"
-    ## assert (export_folder / "non_existing.ts").exists()
 
     filename_f3 = "F3.ts".lower()
     filename_f3_yaml = "." + filename_f3 + ".yml"
@@ -74,14 +66,11 @@ def test_standard_result_in_metadata(mock_export_class):
     )
 
 
-# TODO: @ecs: why are metadata data tested in different functions?
-# I assume it is because different parts or different ways of generating the metadata
-# are tested, but not clear to me
-
-
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_public_export_function(
-    mock_project_variable, mock_structural_model, mock_export_class
+    mock_project_variable,
+    mock_structural_model,
+    mock_export_class,  # 'mock_export_class' must be present
 ):
     """Test that the export function works"""
 
@@ -91,9 +80,7 @@ def test_public_export_function(
 
     with pytest.warns(UserWarning, match="is experimental and may change in future"):
         out = export_structure_depth_fault_surfaces(
-            mock_project_variable,
-            struct_mod_name,
-            mock_structural_model[struct_mod_name].fault_model.fault_names,
+            mock_project_variable, struct_mod_name
         )
 
     assert len(out.items) == 6
@@ -110,14 +97,11 @@ def test_public_export_function(
 
     assert metadata["data"]["format"] == "tsurf"
 
-    # TODO: @ecs: additional checks
     # TODO: @ecs: 'triangulated_surface' two times?
     assert metadata["data"]["layout"] == "triangulated_surface"
     assert metadata["class"] == "triangulated_surface"
     assert metadata["data"]["spec"]["num_triangles"] == 2
     assert metadata["data"]["spec"]["num_vertices"] == 4
-
-    # TODO: @ecs: should more (or less) metadata be checked?
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -137,17 +121,15 @@ def test_config_missing(
         export_structure_depth_fault_surfaces(
             mock_project_variable,
             struct_mod_name,
-            mock_structural_model[struct_mod_name].fault_model.fault_names,
         )
-
-
-# TODO: @ecs: the above tests are "complete" wrt. 'test_export_structure_time_surfaces',
-# no more tests should be needed
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_unknown_structural_model_name_raises(
-    mock_project_variable, monkeypatch, rmssetup_with_fmuconfig, mock_structural_model
+    mock_project_variable,
+    monkeypatch,
+    rmssetup_with_fmuconfig,
+    mock_structural_model,
 ):
     """
     Test that an exception is raised if the structural model is not found
@@ -158,42 +140,13 @@ def test_unknown_structural_model_name_raises(
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
-    struct_mod_name = next(iter(mock_structural_model))
-    fault_names = mock_structural_model[struct_mod_name].fault_model.fault_names
-    missing_struct_mod_name = "missing_structural_model_name"
-
     with (
-        pytest.raises(ValueError, match="Invalid input for export of fault surfaces."),
+        pytest.raises(
+            ValueError, match="Project does not contain a structural model named"
+        ),
         pytest.warns(UserWarning, match="is experimental and may change in future"),
     ):
         export_structure_depth_fault_surfaces(
             mock_project_variable,
-            missing_struct_mod_name,
-            fault_names,
-        )
-
-
-@pytest.mark.usefixtures("inside_rms_interactive")
-def test_unknown_fault_name_raises(
-    mock_project_variable, monkeypatch, rmssetup_with_fmuconfig, mock_structural_model
-):
-    """
-    Test that an exception is raised if the fault name
-    is not found among the modelled fault surfaces in RMS.
-    """
-
-    from fmu.dataio.export.rms import export_structure_depth_fault_surfaces
-
-    monkeypatch.chdir(rmssetup_with_fmuconfig)
-
-    struct_mod_name = next(iter(mock_structural_model))
-
-    with (
-        pytest.raises(ValueError, match="Invalid input for export of fault surfaces."),
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
-    ):
-        export_structure_depth_fault_surfaces(
-            mock_project_variable,
-            struct_mod_name,
-            ["non_existing_fault_name"],
+            "Non-existing structural model name",
         )
