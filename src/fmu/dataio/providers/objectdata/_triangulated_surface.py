@@ -33,7 +33,7 @@ class TriangulatedSurfaceProvider(ObjectDataProvider):
 
     @property
     def classname(self) -> ObjectMetadataClass:
-        return ObjectMetadataClass.triangulated_surface
+        return ObjectMetadataClass.surface
 
     @property
     def efolder(self) -> str:
@@ -49,7 +49,7 @@ class TriangulatedSurfaceProvider(ObjectDataProvider):
 
     @property
     def layout(self) -> Layout:
-        return Layout.triangulated_surface
+        return Layout.triangulated
 
     @property
     def table_index(self) -> None:

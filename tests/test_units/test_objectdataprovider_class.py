@@ -97,11 +97,11 @@ def test_objectdata_triangulated_surface_validate_spec(tsurf, edataobj2):
     objdata = objectdata_provider_factory(tsurf, edataobj2)
     assert isinstance(objdata, TriangulatedSurfaceProvider)
 
-    assert objdata.classname.value == "triangulated_surface"
+    assert objdata.classname.value == "surface"
     assert objdata.efolder == "maps"
     assert objdata.extension == ".ts"
     assert objdata.fmt == "tsurf"
-    assert objdata.layout == "triangulated_surface"
+    assert objdata.layout == "triangulated"
 
     bbox = objdata.get_bbox()
     assert bbox.xmin == 0.1
