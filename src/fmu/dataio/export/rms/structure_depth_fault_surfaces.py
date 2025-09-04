@@ -164,8 +164,20 @@ def _get_fault_surfaces_from_rms(
 
         # Both triangles and vertices are on the same format as in TSurfData
         vertices = fault_surface.get_vertices()
-        # TODO: @ecs: verify that RMS returns 0-based indices
         triangles = fault_surface.get_triangles().astype(np.int64) + 1
+
+        # @ecs: debug start
+        # TODO: @ecs: verify that RMS returns 0-based indices
+        aaa = fault_surface.get_triangles()
+        # print aaa to file
+        np.savetxt("/private/esut/triangle_indices.txt", aaa, fmt="%d")
+
+        if not np.any(aaa < 1):
+            raise ValueError(
+                f"Fault surface '{fault_name}' in structural model "
+                f"'{structural_model_name}' does not return 0-based indices."
+            )
+        # @ecs: debug end
 
         tsurf = TSurfData(
             header=tsurf_header,
