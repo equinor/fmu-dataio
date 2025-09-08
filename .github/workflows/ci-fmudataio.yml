@@ -32,13 +32,23 @@ jobs:
           pip install pip -U
           pip install -e .[dev]
 
+
+      # Install repos from their Github main branches instead of Pypi.
+      # This removes the need to manually pin these version of the repos
+      # during the development phase.
+
+      - name: Install fmu-datamodels
+        run: |
+          pip install \
+            "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels.git"
+
        # fmu-sumo-uploader blocked by OpenVDS on Python 3.12
       - name: Install fmu-sumo-uploader for Python 3.11
         if: matrix.python-version == '3.11'
         run:
           pip install \
             "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
-
+      
       - name: Full test
         run: |
 

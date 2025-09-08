@@ -26,6 +26,16 @@ jobs:
         run: |
           pip install -U pip
           pip install .[docs]
+      
+      # Install repos from their Github main branches instead of Pypi.
+      # This removes the need to manually pin these version of the repos
+      # during the development phase.
+
+      - name: Install fmu-datamodels
+        run: |
+          pip install \
+            "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels.git"
+
 
       - name: Generate updated examples
         run: sh examples/update_examples.sh
