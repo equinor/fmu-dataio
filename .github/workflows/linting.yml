@@ -23,6 +23,15 @@ jobs:
           pip install -U pip
           pip install ".[dev]"
 
+      # Install repos from their Github main branches instead of Pypi.
+      # This removes the need to manually pin these version of the repos
+      # during the development phase.
+
+      - name: Install fmu-datamodels
+        run: |
+          pip install \
+            "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels.git"
+
       - name: Ruff check
         if: ${{ always() }}
         run: ruff check .
