@@ -35,6 +35,10 @@ jobs:
       # Install repos from their Github main branches instead of Pypi.
       # This removes the need to manually pin these version of the repos
       # during the development phase.
+      - name: Install bleeding ert
+        run: |
+          pip install \
+            "ert @ git+https://github.com/equinor/ert.git"
 
       - name: Install fmu-datamodels
         run: |
