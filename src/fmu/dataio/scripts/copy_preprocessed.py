@@ -140,15 +140,16 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 @ert.plugin(name="fmu_dataio")
-def legacy_ertscript_workflow(config: ert.WorkflowConfigs) -> None:
+def ertscript_workflow(config: ert.WorkflowConfigs) -> None:
     """Hook the WfCopyPreprocessedData class with documentation into ERT."""
-    workflow = config.add_workflow(
-        WfCopyPreprocessedData, "WF_COPY_PREPROCESSED_DATAIO"
+    config.add_workflow(
+        WfCopyPreprocessedData,
+        "WF_COPY_PREPROCESSED_DATAIO",
+        parser=get_parser,
+        description=DESCRIPTION,
+        examples=EXAMPLES,
+        category="export",
     )
-    workflow.parser = get_parser
-    workflow.description = DESCRIPTION
-    workflow.examples = EXAMPLES
-    workflow.category = "export"
 
 
 if __name__ == "__main__":
