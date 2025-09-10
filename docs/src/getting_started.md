@@ -6,8 +6,8 @@ less than an hour.
 
 You will do the following:
 
-- Find and enter some key model metadata into `global_variables.yml`, including
-  references to Equinor masterdata.
+- Find and enter some key model metadata into `global_master_config.yml`,
+  including references to Equinor masterdata.
 - Include an ERT workflow for generating case metadata
 - Include one script for data export
 
@@ -15,7 +15,7 @@ You may also find it helpful to look at the Drogon tutorial project for this.
 This is in the category "really easy when you know how to do it" so don't
 hesitate to ask for help!
 
-## global_variables.yml | **masterdata**
+## global_master_config.yml | **masterdata**
 
 References to the Equinor masterdata are essential context for enabling other
 systems to use FMU results.
@@ -92,7 +92,7 @@ To find the coordinate system used in RMS: In RMS, select `tools` >
 Copy the generated YAML content into your `_masterdata.yml`
 
 
-## global_variables.yml | **access**
+## global_master_config.yml | **access**
 
 Next, create `_access.yml`. In this file, you will enter some information
 related to how FMU results from your workflow are to be governed when it comes
@@ -127,7 +127,7 @@ The `access.classification` is currently also used for access handling in
 Sumo.
 ```
 
-## global_variables.yml | **stratigraphy**
+## global_master_config.yml | **stratigraphy**
 
 Finally, establish `_stratigraphy.yml`. This is a bit more heavy, and
 relates to the `stratigraphic_column` referred to earlier. In short, when
@@ -193,9 +193,9 @@ mistakes here.
 ```
 
 
-## global_variables.yml | **model**
+## global_master_config.yml | **model**
 
-Now we insert the `model` entry in `global_variables.yml`.
+Now we insert the `model` entry in `global_master_config.yml`.
 
 `model` block contains basic information about the model. According to the FMU
 standard, all model setups should have a name and a revision. This is
@@ -209,17 +209,17 @@ and `_stratigraphy.yml`)
 ```{note}
 The `!include` statement simply inserts contents from another file into the
 main yaml file. You could also put the contents directly into
-`global_variables.yml`, but we encourage using `!include` to keep the main
-`global_variables.yml` somewhat tidy.
+`global_master_config.yml`, but we encourage using `!include` to keep the main
+`global_master_config.yml` somewhat tidy.
 ```
 
-The global_variables.yml now looks like this:
+The global_master_config.yml now looks like this:
 
 
 ```yaml
 # [...]
 
-# (rest of global_variables.yml)
+# (rest of global_master_config.yml)
 
 #===================================================================================
 # Elements pertaining to metadata
