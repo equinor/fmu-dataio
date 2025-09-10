@@ -88,7 +88,7 @@ Exporting volume tables RMS or file
 
 Below is an example of exporting volume tables from csv-files, 
 while an example of a simple export of RMS volumetrics can be found 
-`here <./standard_results/initial_inplace_volumes.html>`__.
+`here <./simple_exports/initial_inplace_volumes.html>`__.
 
 Python script
 ~~~~~~~~~~~~~

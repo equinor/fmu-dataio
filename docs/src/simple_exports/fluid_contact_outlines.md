@@ -3,8 +3,8 @@
 This exports modelled initial fluid contact outlines from within RMS.
 
 Each fluid contact outline corresponds to a specific zone or a group of zones
-that share a common fluid contact. They are polygons representing the outline of
-the hydrocarbon-filled zone above a specific contact.
+that share a common fluid contact. They are polygons representing the outline
+of the hydrocarbon-filled zone above a specific contact.
 
 The fluid contact types supported is
 - `fwl` (Free water level)
@@ -31,14 +31,15 @@ The fluid contact types supported is
 - fluid contact outlines stored in the `General 2D data` folder within RMS.
 - names of outlines defined in the `stratigraphy` block
 
-A folder named `fluid_contact_outlines` must exist in the root of the `General 2D data`
-folder in RMS. This folder should contain at least one subfolder with a valid fluid contact
-name (e.g., `fwl`, see the list above). The export function will automatically process
-and export all outlines found within these subfolders.
+A folder named `fluid_contact_outlines` must exist in the root of the `General
+2D data` folder in RMS. This folder should contain at least one subfolder with
+a valid fluid contact name (e.g., `fwl`, see the list above). The export
+function will automatically process and export all outlines found within these
+subfolders.
 
 :::{note}
-The names of the fluid contact outlines must be defined in the `stratigraphy` block of the
-global configuration to enable mapping against masterdata.
+The names of the fluid contact outlines must be defined in the `stratigraphy`
+block of the global configuration to enable mapping against masterdata.
 :::
 
 ## Usage
@@ -49,11 +50,11 @@ global configuration to enable mapping against masterdata.
 
 ## Result
 
-The fluid contact outlines from the `General 2D data` folder will be exported as
-to `share/results/maps/fluid_contact_outline/contactname/zonename.parquet`.
+The fluid contact outlines from the `General 2D data` folder will be exported
+as to `share/results/maps/fluid_contact_outline/contactname/zonename.parquet`.
 
-This is a tabular file on `.parquet` format. It contains
-the following columns with types validated as indicated.
+This is a tabular file on `.parquet` format. It contains the following columns
+with types validated as indicated.
 
 ```{eval-rst}
 .. autopydantic_model:: fmu.datamodels.standard_result.fluid_contact_outline.FluidContactOutlineResultRow
@@ -70,7 +71,8 @@ the following columns with types validated as indicated.
 
 This standard result is made available with a validation schema that can be
 used by consumers. A reference to the URL where this schema is located is
-present within the `data.standard_result` key in its associated object metadata.
+present within the `data.standard_result` key in its associated object
+metadata.
 
 | Field | Value |
 | --- | --- |
@@ -87,4 +89,6 @@ The current JSON schema is embedded here.
 {{ FluidContactOutlineSchema.literalinclude }}
 
 ## Load fluid contact outlines
-The loader interface for fluid contact outlines standard results is still under development and not supported yet.
+
+The loader interface for fluid contact outlines standard results is still
+under development and not supported yet.
