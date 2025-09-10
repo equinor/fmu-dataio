@@ -168,13 +168,16 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 @ert.plugin(name="fmu_dataio")
-def legacy_ertscript_workflow(config: ert.WorkflowConfigs) -> None:
+def ertscript_workflow(config: ert.WorkflowConfigs) -> None:
     """Hook the WfCreateCaseMetadata class with documentation into ERT."""
-    workflow = config.add_workflow(WfCreateCaseMetadata, "WF_CREATE_CASE_METADATA")
-    workflow.parser = get_parser
-    workflow.description = DESCRIPTION
-    workflow.examples = EXAMPLES
-    workflow.category = "export"
+    config.add_workflow(
+        WfCreateCaseMetadata,
+        "WF_CREATE_CASE_METADATA",
+        parser=get_parser,
+        description=DESCRIPTION,
+        examples=EXAMPLES,
+        category="export",
+    )
 
 
 if __name__ == "__main__":
