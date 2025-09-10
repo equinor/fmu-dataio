@@ -27,12 +27,13 @@ retrieve this table, and all necessary data needed for `fmu.dataio`.
 The performance of the volumetrics jobs in RMS has greatly improved from the
 past, now typically representing the fastest method for calculating in-place
 volumes. However, it is important to note that generating output maps, such as
-Zone maps, during the volumetrics job can significantly decelerate the process.
+Zone maps, during the volumetrics job can significantly decelerate the
+process.
 
 :::{note}
-Some assets are using erosion multipliers as a means to reduce the bulk
-and pore volume, instead of performing actual erosion by cell removal in the
-grid. This is not supported, and proper grid erosion is required. If the erosion
+Some assets are using erosion multipliers as a means to reduce the bulk and
+pore volume, instead of performing actual erosion by cell removal in the grid.
+This is not supported, and proper grid erosion is required. If the erosion
 multiplier is important for flow simulation, the erosion and volumetrics job
 should be moved to after the export for flow simulation.
 :::
@@ -45,15 +46,16 @@ should be moved to after the export for flow simulation.
 
 ## Result
 
-The volumetric table from RMS undergoes a couple of transformations to adhere to the
-`inplace_volumes` standard format:
+The volumetric table from RMS undergoes a couple of transformations to adhere
+to the `inplace_volumes` standard format:
 
-1. Water zone bulk and pore volumes are calculated by subtracting oil and gas zone
-   volumes from the total volumes. The total volumes are removed, and any negative
-   values caused by precision issues in RMS are truncated to zero.
-2. The fluid-specific columns are unfied into a single set of volumetric columns,
-   with an additional `FLUID` column indicating the fluid type. If the `NET` column
-   is absent, it is set equal to the `BULK` column, assuming a net-to-gross ratio of one.
+1. Water zone bulk and pore volumes are calculated by subtracting oil and gas
+   zone volumes from the total volumes. The total volumes are removed, and any
+   negative values caused by precision issues in RMS are truncated to zero.
+2. The fluid-specific columns are unfied into a single set of volumetric
+   columns, with an additional `FLUID` column indicating the fluid type. If
+   the `NET` column is absent, it is set equal to the `BULK` column, assuming
+   a net-to-gross ratio of one.
 
 Given a grid model name `Geogrid` the result file will be
 `share/results/tables/inplace_volumes/geogrid.parquet`.
@@ -81,7 +83,8 @@ However, when these columns are present, their type is validated.
 
 This standard result is made available with a validation schema that can be
 used by consumers. A reference to the URL where this schema is located is
-present within the `data.standard_result` key in its associated object metadata.
+present within the `data.standard_result` key in its associated object
+metadata.
 
 | Field | Value |
 | --- | --- |
@@ -102,12 +105,17 @@ The current JSON schema is embedded here.
 {{ InplaceVolumesSchema.literalinclude }}
 
 ## Load initial inplace volumes
-Use the below loader function, loader object and interface to load and interact with
-the exported initial inplace volumes standard results. For more information about the
-purpose of these loader functions, see
-[Load standard results](../standard_results.md#load-standard-results).
+
+Use the below loader function, loader object and interface to load and
+interact with the exported initial inplace volumes standard results.
+
+```{hint}
+For more information about the purpose of these loader functions, see [Loading
+Data](../overview.md#loading-data) in the [Overview](../overview.md).
+```
 
 ### Usage
+
 ```{eval-rst}
 .. autofunction:: fmu.dataio.load.load_standard_results.load_inplace_volumes
 ```

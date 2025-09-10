@@ -27,8 +27,8 @@ If you find bugs, need help, or want to talk to the developers, reach out via:
 
 overview
 getting_started
-standard_results
-examples
+simple_exports
+custom_exports
 ```
 
 ```{toctree}

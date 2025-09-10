@@ -1,18 +1,19 @@
 # Field outline
 
-This exports the modelled field outline from within RMS.
-This field outline is a polygon representing the outline of the hydrocarbon-filled
-reservoir under initial conditions.
+This exports the modelled field outline from within RMS. This field outline
+is a polygon representing the outline of the hydrocarbon-filled reservoir
+under initial conditions.
 
-The field outline is typically calculated as the intersection between the modelled
-top reservoir surface (in depth) and the fluid contact surface. Some assets may
-choose to further refine the outline by limiting it to areas with `net` reservoir
-properties. It is up to each asset to decide which definition best suits their field.
+The field outline is typically calculated as the intersection between the
+modelled top reservoir surface (in depth) and the fluid contact surface. Some
+assets may choose to further refine the outline by limiting it to areas with
+`net` reservoir properties. It is up to each asset to decide which definition
+best suits their field.
 
-The primary use case for the field outline is visualization. Unlike the deterministic
-outlines from NPD, it is derived directly from the reservoir model, providing greater
-precision, alignment with recent data, and adaptability to the unique structure and
-fluid contact of each realization.
+The primary use case for the field outline is visualization. Unlike the
+deterministic outlines from NPD, it is derived directly from the reservoir
+model, providing greater precision, alignment with recent data, and
+adaptability to the unique structure and fluid contact of each realization.
 
 :::{note}
 It is only possible to export **one** field outline object per model workflow.
@@ -39,8 +40,8 @@ For exporting outlines specific to different fluid types and zones, the
 The field outline polygon object must be named `field_outline` and be located
 within the root of the `General 2D data` folder in RMS.
 
-The export function will ensure that the polygon object consists of closed polygons
-before proceeding with the export.
+The export function will ensure that the polygon object consists of closed
+polygons before proceeding with the export.
 
 
 ## Usage
@@ -51,10 +52,11 @@ before proceeding with the export.
 
 ## Result
 
-The result file will be `share/results/polygons/field_outline/field_outline.parquet`.
+The result file will be
+`share/results/polygons/field_outline/field_outline.parquet`.
 
-This is a tabular file on `.parquet` format. It contains
-the following columns with types validated as indicated.
+This is a tabular file on `.parquet` format. It contains the following columns
+with types validated as indicated.
 
 ```{eval-rst}
 .. autopydantic_model:: fmu.datamodels.standard_result.field_outline.FieldOutlineResultRow
@@ -72,7 +74,8 @@ the following columns with types validated as indicated.
 
 This standard result is made available with a validation schema that can be
 used by consumers. A reference to the URL where this schema is located is
-present within the `data.standard_result` key in its associated object metadata.
+present within the `data.standard_result` key in its associated object
+metadata.
 
 | Field | Value |
 | --- | --- |
@@ -89,10 +92,14 @@ The current JSON schema is embedded here.
 {{ FieldOutlineSchema.literalinclude }}
 
 ## Load field outlines
-Use the below loader function, loader object and interface to load and interact with
-the exported field outlines standard results. For more information about the
-purpose of these loader functions, see
-[Load standard results](../standard_results.md#load-standard-results).
+
+Use the below loader function, loader object, and interface to load and
+interact with the exported field outlines standard results.
+
+```{hint}
+For more information about the purpose of these loader functions, see [Loading
+Data](../overview.md#loading-data) in the [Overview](../overview.md).
+```
 
 ### Usage
 ```{eval-rst}

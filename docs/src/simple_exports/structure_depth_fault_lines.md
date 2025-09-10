@@ -1,7 +1,7 @@
 # Structure depth fault lines
 
-This exports the modelled structural depth fault lines from within RMS.
-These fault lines are polygons that represent the intersection of a modelled
+This exports the modelled structural depth fault lines from within RMS. These
+fault lines are polygons that represent the intersection of a modelled
 stratigraphic horizon surface with the modelled fault surfaces.
 
 :::{note}
@@ -25,13 +25,14 @@ model workflow, i.e. one fault line polygon object per stratigraphic horizon.
 - RMS
 - depth fault line polygons stored in a horizon folder within RMS
 
-The fault line polygons must be located within a horizon folder in RMS and be in domain `depth`.
-This export function will automatically export all non-empty polygon objects from the provided folder.
-
+The fault line polygons must be located within a horizon folder in RMS and be
+in domain `depth`. This export function will automatically export all
+non-empty polygon objects from the provided folder.
 
 :::{important}
-These polygons should be extracted from the final depth horizon model using the `Extract Fault Lines`
-job in RMS. This will ensure that all fault polygons are closed and that the fault name is added as an attribute.
+These polygons should be extracted from the final depth horizon model using
+the `Extract Fault Lines` job in RMS. This will ensure that all fault polygons
+are closed and that the fault name is added as an attribute.
 :::
 
 ## Usage
@@ -45,8 +46,8 @@ job in RMS. This will ensure that all fault polygons are closed and that the fau
 Given a stratigraphic horizon name `TopVolantis` the result file will be
 `share/results/polygons/structure_depth_fault_lines/topvolantis.parquet`.
 
-This is a tabular file on `.parquet` format. It contains
-the following columns with types validated as indicated.
+This is a tabular file on `.parquet` format. It contains the following columns
+with types validated as indicated.
 
 ```{eval-rst}
 .. autopydantic_model:: fmu.datamodels.standard_result.structure_depth_fault_lines.StructureDepthFaultLinesResultRow
@@ -59,12 +60,12 @@ the following columns with types validated as indicated.
    :field-list-validators: False
 ```
 
-
 ## Standard result schema
 
 This standard result is made available with a validation schema that can be
 used by consumers. A reference to the URL where this schema is located is
-present within the `data.standard_result` key in its associated object metadata.
+present within the `data.standard_result` key in its associated object
+metadata.
 
 | Field | Value |
 | --- | --- |
@@ -81,4 +82,6 @@ The current JSON schema is embedded here.
 {{ StructureDepthFaultLinesSchema.literalinclude }}
 
 ## Load structure depth fault lines
-The loader interface for structure depth fault lines standard results is still under development and not supported yet.
+
+The loader interface for structure depth fault lines standard results is still
+under development and not supported yet.
