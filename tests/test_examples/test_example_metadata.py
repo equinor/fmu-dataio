@@ -1,9 +1,9 @@
 from copy import deepcopy
 
 import pytest
+from fmu.datamodels.fmu_results.fmu_results import FmuResults
 from pydantic import ValidationError
 
-from fmu.datamodels.fmu_results.fmu_results import FmuResults
 from tests.utils import _metadata_examples
 
 

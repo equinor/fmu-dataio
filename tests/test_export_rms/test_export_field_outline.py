@@ -6,14 +6,14 @@ import jsonschema
 import numpy as np
 import pyarrow.parquet as pq
 import pytest
-
-from fmu import dataio
-from fmu.dataio._logging import null_logger
 from fmu.datamodels.standard_results.enums import StandardResultName
 from fmu.datamodels.standard_results.field_outline import (
     FieldOutlineResult,
     FieldOutlineSchema,
 )
+
+from fmu import dataio
+from fmu.dataio._logging import null_logger
 
 logger = null_logger(__name__)
 

@@ -5,7 +5,6 @@ from typing import Any
 import ert.__main__
 import pytest
 import yaml
-
 from fmu.datamodels import FmuResults
 from fmu.datamodels.fmu_results.enums import ErtSimulationMode
 

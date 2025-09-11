@@ -4,9 +4,9 @@ import logging
 from pathlib import Path
 
 import xtgeo
+from fmu.config import utilities as utils
 
 from fmu import dataio
-from fmu.config import utilities as utils
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)

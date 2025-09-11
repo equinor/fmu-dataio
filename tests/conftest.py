@@ -15,14 +15,14 @@ import pandas as pd
 import pytest
 import xtgeo
 import yaml
+from fmu.config import utilities as ut
+from fmu.datamodels.fmu_results import FmuResults, fields, global_configuration
 
 import fmu.dataio as dio
-from fmu.config import utilities as ut
 from fmu.dataio._readers.faultroom import FaultRoomSurface
 from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio._runcontext import FmuEnv
 from fmu.dataio.dataio import ExportData, read_metadata
-from fmu.datamodels.fmu_results import FmuResults, fields, global_configuration
 
 from .utils import _get_nested_pydantic_models, _metadata_examples
 

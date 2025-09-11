@@ -110,7 +110,6 @@ exclude = ["version.py", "docs/ext/**"]
 ignore = [
     "B028",  # No explicit `stacklevel` keyword argument found
     "C901",  # mccabe complex-structure
-    "PD901",  # Avoid using the generic variable name `df` for dataframes
     "PD011",  # Avoid using .values on dataframes (gives false positives)
     "TC001",  # Move imports under TYPE_CHECKING. Breaks Pydantic annotations
     "TC003",  # Move stdlib imports under TYPE_CHECKING. Breaks Pydantic annotations

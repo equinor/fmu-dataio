@@ -4,10 +4,10 @@ from typing import Any
 import ert.__main__
 import pytest
 import yaml
-
-from fmu.dataio._utils import uuid_from_string
 from fmu.datamodels import FmuResults
 from fmu.datamodels.fmu_results.enums import ErtSimulationMode
+
+from fmu.dataio._utils import uuid_from_string
 
 from .ert_config_utils import (
     add_create_case_workflow,

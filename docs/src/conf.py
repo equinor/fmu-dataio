@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 
 import logging
 import os
@@ -7,10 +6,11 @@ import sys
 from datetime import date
 from textwrap import dedent
 
-import fmu.dataio
-import fmu.dataio.dataio
 from fmu.datamodels import schemas
 from fmu.datamodels._schema_base import SchemaBase
+
+import fmu.dataio
+import fmu.dataio.dataio
 
 sys.path.insert(0, os.path.abspath("../../src/fmu"))
 sys.path.insert(1, os.path.abspath("../ext"))
