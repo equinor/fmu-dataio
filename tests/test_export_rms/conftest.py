@@ -1,4 +1,7 @@
-"""The conftest.py, providing magical fixtures to tests."""
+"""
+The conftest.py, providing magical fixtures to tests.
+All fixtures represent datasets from Drogon.
+"""
 
 import sys
 from unittest.mock import MagicMock, patch
@@ -244,13 +247,46 @@ def mock_general2d_data():
 
 
 @pytest.fixture
-def mock_project_variable(mock_general2d_data):
-    # A mock_project variable for the RMS 'project' (potentially extend for later use)
+def mock_project_variable(mock_general2d_data, mock_structural_model):
+    # A mock_project variable for the RMS 'project'
     mock_project = MagicMock()
     mock_project.horizons.representations = ["DS_final"]
     mock_project.zones.representations = ["IS_final"]
+    mock_project.structural_models = mock_structural_model
     mock_project.general2d_data = mock_general2d_data
+    # Units in the RMS project
+    mock_project.project_units = "metric"
+
     yield mock_project
+
+
+@pytest.fixture
+def mock_fault_model():
+    """A mock fault model."""
+    return MagicMock(fault_names=["F1", "F2", "F3", "F4", "F5", "F6"])
+
+
+@pytest.fixture
+def mock_structural_model(mock_fault_model):
+    """A mock structural model with faults and potentially stratigraphic zones."""
+    structural_model_mock = MagicMock()
+
+    structural_model_mock.fault_model = mock_fault_model
+    # Could add a stratigrapic model
+    return {"GF_depth_hum": structural_model_mock}
+
+
+@pytest.fixture
+def fault_surfaces_triangulated(tsurf, mock_fault_model):
+    """Mock for triangulated fault surfaces on TSurf format."""
+
+    surfaces = []
+    for fault_name in mock_fault_model.fault_names:
+        fault = tsurf.model_copy(deep=True)
+        fault.header.name = fault_name
+        surfaces.append(fault)
+
+    yield surfaces
 
 
 @pytest.fixture
