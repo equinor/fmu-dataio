@@ -16,6 +16,8 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -37,6 +39,8 @@ jobs:
       # during the development phase.
       - name: Install bleeding ert
         run: |
+          git config --global credential.helper store
+          git lfs install
           pip install \
             "ert @ git+https://github.com/equinor/ert.git"
 
@@ -51,7 +55,7 @@ jobs:
         run:
           pip install \
             "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
-      
+
       - name: Full test
         run: |
           if [[ "${{ github.event.pull_request.base.ref }}" == "staging" ]]; then
