@@ -25,10 +25,10 @@ If you find bugs, need help, or want to talk to the developers, reach out via:
 :maxdepth: 2
 :hidden:
 
-overview
-getting_started
-simple_exports
-custom_exports
+overview.md
+getting_started.md
+simple_exports/index.md
+custom_exports/index.md
 ```
 
 ```{toctree}
