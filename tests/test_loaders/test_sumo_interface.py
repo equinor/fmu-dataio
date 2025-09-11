@@ -4,12 +4,12 @@ from unittest.mock import MagicMock, call, patch
 
 import pandas as pd
 import xtgeo
-from pandas import DataFrame
-
-from fmu.dataio.external_interfaces.sumo_explorer_interface import SumoExplorerInterface
 from fmu.datamodels.fmu_results.enums import ObjectMetadataClass
 from fmu.datamodels.standard_results.enums import StandardResultName
 from fmu.sumo.explorer import Explorer
+from pandas import DataFrame
+
+from fmu.dataio.external_interfaces.sumo_explorer_interface import SumoExplorerInterface
 
 
 def _generate_sumo_case_mock(sumo_object_mock: MagicMock):

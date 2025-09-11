@@ -5,17 +5,17 @@ from copy import deepcopy
 
 import pytest
 import xtgeo
+from fmu.datamodels.fmu_results import FmuResultsSchema, enums
+from fmu.datamodels.fmu_results.fields import (
+    OperatingSystem,
+    TracklogEvent,
+)
 from pytest import MonkeyPatch
 
 import fmu.dataio as dio
 from fmu.dataio._metadata import generate_export_metadata
 from fmu.dataio._utils import prettyprint_dict, read_metadata_from_file
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
-from fmu.datamodels.fmu_results import FmuResultsSchema, enums
-from fmu.datamodels.fmu_results.fields import (
-    OperatingSystem,
-    TracklogEvent,
-)
 
 # pylint: disable=no-member
 

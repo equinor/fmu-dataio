@@ -10,9 +10,9 @@ import logging
 import pathlib
 
 import pandas as pd
+from fmu.config import utilities as ut
 
 import fmu.dataio
-from fmu.config import utilities as ut
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)

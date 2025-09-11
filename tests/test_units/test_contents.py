@@ -1,11 +1,11 @@
 """Explicitly test all allowed contents."""
 
 import pytest
+from fmu.datamodels.fmu_results import enums
 from pydantic import ValidationError
 
 from fmu.dataio.dataio import ExportData
 from fmu.dataio.providers.objectdata._export_models import content_requires_metadata
-from fmu.datamodels.fmu_results import enums
 
 # generic testing of functionality related to content is done elsewhere,
 # mainly in test_dataio.py.

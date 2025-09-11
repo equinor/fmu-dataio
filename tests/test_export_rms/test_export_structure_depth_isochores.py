@@ -3,11 +3,11 @@
 from unittest import mock
 
 import pytest
+from fmu.datamodels.standard_results.enums import StandardResultName
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
-from fmu.datamodels.standard_results.enums import StandardResultName
 
 logger = null_logger(__name__)
 

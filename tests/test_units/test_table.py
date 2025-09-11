@@ -5,14 +5,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from fmu.config.utilities import yaml_load
+from fmu.datamodels.fmu_results.enums import Content
 from pydantic import ValidationError
 
-from fmu.config.utilities import yaml_load
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import STANDARD_TABLE_INDEX_COLUMNS, StandardTableIndex
 from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 from fmu.dataio.providers.objectdata._tables import _derive_index
-from fmu.datamodels.fmu_results.enums import Content
 
 
 def _read_dict(file_path: str) -> dict:

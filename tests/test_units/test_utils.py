@@ -6,10 +6,10 @@ from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pytest
+from fmu.datamodels.fmu_results import fields
 from xtgeo import Grid, Polygons, RegularSurface
 
 from fmu.dataio import _utils as utils
-from fmu.datamodels.fmu_results import fields
 
 from ..utils import _get_pydantic_models_from_annotation
 

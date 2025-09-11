@@ -4,8 +4,8 @@ import logging
 from pathlib import Path
 
 import xtgeo
-
 from fmu.config import utilities as utils
+
 from fmu.dataio.dataio import ExportData
 
 logger = logging.getLogger(__name__)

@@ -3,6 +3,7 @@
 import logging
 
 from fmu.config import utilities as utils
+
 from fmu.dataio.case import CreateCaseMetadata
 
 logger = logging.getLogger(__name__)

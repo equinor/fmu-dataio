@@ -8,10 +8,6 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import pytest
-from pydantic import ValidationError
-
-from fmu import dataio
-from fmu.dataio._logging import null_logger
 from fmu.datamodels.standard_results import enums
 from fmu.datamodels.standard_results.enums import StandardResultName
 from fmu.datamodels.standard_results.inplace_volumes import (
@@ -19,6 +15,10 @@ from fmu.datamodels.standard_results.inplace_volumes import (
     InplaceVolumesResultRow,
     InplaceVolumesSchema,
 )
+from pydantic import ValidationError
+
+from fmu import dataio
+from fmu.dataio._logging import null_logger
 
 logger = null_logger(__name__)
 
