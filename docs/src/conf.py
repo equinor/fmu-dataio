@@ -118,6 +118,7 @@ apidoc_module_first = True
 apidoc_extra_args = ["-H", "API reference for fmu.dataio"]
 
 autoclass_content = "class"
+autodoc_class_signature = "separated"
 # Sort members by input order in classes
 autodoc_member_order = "bysource"
 autodoc_pydantic_model_summary_list_order = "bysource"

@@ -95,202 +95,92 @@ def read_metadata(filename: str | Path) -> dict:
 
 @dataclass
 class ExportData:
-    """Class for exporting data with rich metadata in FMU.
+    """This class provides context for the metadata generated when data is exported.
 
-    This class sets up the general metadata content to be applied in export.
-    For example::
+    Here is a complete example of how it is used:
 
-        for name in ["TopOne", TopTwo", "TopThree"]:
-            poly = xtgeo.polygons_from_roxar(PRJ, hname, POL_FOLDER)
+    .. code-block:: python
 
-            ed = dataio.ExportData(
-                config=CFG,
-                content="depth",
-                unit="m",
-                vertical_domain="depth",
-                domain_reference="msl",
-                timedata=None,
-                is_prediction=True,
-                is_observation=False,
-                tagname="faultlines",
-                workflow="rms structural model",
-                name=name
-            )
-            out = ed.export(poly)
+       for name in ["TopOne", "TopTwo", "TopThree"]:
+           poly = xtgeo.polygons_from_roxar(project, name, POL_FOLDER)
 
-    A note on 'pwd' and 'rootpath' and 'casepath': The 'pwd' is the process working
-    directory, which is folder where the process (script) starts. The 'rootpath' is the
-    folder from which relative file names are relative to and is normally auto-detected.
-    The user can however force set the 'actual' rootpath by providing the input
-    `casepath`. In case of running a RMS project interactive on disk::
-
-        /project/foo/resmod/ff/2022.1.0/rms/model                   << pwd
-        /project/foo/resmod/ff/2022.1.0/                            << rootpath
-
-        A file:
-
-        /project/foo/resmod/ff/2022.1.0/share/results/maps/xx.gri   << example absolute
-                                        share/results/maps/xx.gri   << example relative
-
-    When running an ERT forward job using a normal ERT job (e.g. a script)::
-
-        /scratch/nn/case/realization-44/iter-2                      << pwd
-        /scratch/nn/case                                            << rootpath
-
-        A file:
-
-        /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  << absolute
-                         realization-44/iter-2/share/results/maps/xx.gri  << relative
-
-    When running an ERT forward job but here executed from RMS::
-
-        /scratch/nn/case/realization-44/iter-2/rms/model            << pwd
-        /scratch/nn/case                                            << rootpath
-
-        A file:
-
-        /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  << absolute
-                         realization-44/iter-2/share/results/maps/xx.gri  << relative
+           ed = dataio.ExportData(
+               config=CFG,
+               content="depth",
+               unit="m",
+               vertical_domain="fault_lines",
+               domain_reference="msl",
+               timedata=None,
+               is_observation=False,
+               tagname="faultlines",
+               workflow="rms structural model",
+               name=name
+           )
+           out = ed.export(poly)
 
 
-    Args:
-        access_ssdl: Optional. A dictionary that will overwrite or append
-            to the default ssdl settings read from the config. Example:
-            ``{"access_level": "restricted", "rep_include": False}``
-            Deprecated and replaced by 'classification' and 'rep_include' arguments.
+    In general, fmu-dataio tries to take care of exporting data automatically to
+    conventional and standard locations. In the documentation below you might find
+    references to the following terms.
 
-        casepath: Optional path to a case directory that contains valid case metadata
-            "fmu_case.yml" in folder "<casepath>/share/metadata/".
-            Note for the fmu_context ``case`` the ``casepath`` is required, while
-            for fmu_context ``realization`` it will be attempted inferred from
-            an ERT environment variable.
+    ``pwd``
+       The present working directory. This is the directory a script or application is
+       started from.
 
-        classification: Optional. Security classification level of the data object.
-            If present it will override the default found in the config.
-            Valid values are either "restricted" or "internal".
+    ``rootpath``
+       The directory from which relative file names are relative to. This is
+       auto-detected by fmu-dataio.
 
-        config: Required in order to produce valid metadata, either as key (here) or
-            through an environment variable. A dictionary with static settings.
-            In the standard case this is read from FMU global variables
-            (via fmuconfig). The dictionary must contain some
-            predefined main level keys to work with fmu-dataio. If the key is missing or
-            key value is None, then it will look for the environment variable
-            FMU_GLOBAL_CONFIG to detect the file. If no success in finding the file, a
-            UserWarning is made. If both a valid config is provided and
-            FMU_GLOBAL_CONFIG is provided in addition, the latter will be used.
-            Note that this key shall be set while initializing the instance, ie. it
-            cannot be used in ``generate_metadata()`` or ``export()``.
-            Note also: If missing or empty, export() may still be done, but without a
-            metadata file (this feature may change in future releases).
+    ``casepath``
+       The path where the FMU case originates from (is started from). This should be
+       equivalent to the ``rootpath`` in most circumstances.
 
-        content: A required string describing the content of the data e.g. 'volumes'.
-            Content is checked agains a white-list for validation!
-            Some contents like 'seismic' requires additional information. This
-            should be provided through the 'content_metadata' argument.
+    Examples:
 
-        content_metadata: Optional. Dictionary with additional information about the
-            provided content. Only required for some contents, e.g. 'seismic'.
-            Example {"attribute": "amplitude", "calculation": "mean"}.
+    .. code-block:: shell
 
-        fmu_context: Optional string with value ``realization`` or ``case``. If not
-            explicitly given it will be inferred based on the presence of ERT
-            environment variables.
-            The fmu_context ``realization`` will export data per realization, and should
-            be used in normal ERT forward models, while the fmu_context ``case``
-            will export data relative to the case directory. Note that for the
-            fmu_context ``case`` the case directory needs to be provided through the
-            argument ``casepath``.
+       /project/foo/resmod/ff/2022.1.0/rms/model                   # pwd
+       /project/foo/resmod/ff/2022.1.0/                            # rootpath
 
-        domain_reference: Optional, reference for the vertical scale of the data.
-            Valid references are "msl"/"sb"/"rkb", and the default is "msl".
-            Note use the ``vertical_domain`` key to set the domain (depth or time).
+    A file:
 
-        description: A multiline description of the data either as a string or a list
-            of strings.
+    .. code-block:: shell
 
-        display_name: Optional, set name for clients to use when visualizing.
+       /project/foo/resmod/ff/2022.1.0/share/results/maps/xx.gri   # example absolute
+                                       share/results/maps/xx.gri   # example relative
 
-        forcefolder: This setting shall only be used as exception, and will make it
-            possible to output to a non-standard folder relative to casepath/rootpath,
-            as dependent on the both fmu_context and the is_observations boolean value.
-            A typical use-case is forcefolder="seismic" which will replace the "cubes"
-            standard folder for Cube output with "seismic". Use with care and avoid if
-            possible!
+    When running an Ert forward job using a normal Ert job (e.g. a script):
 
-        geometry: Optional, and for grid properties only, which may need a
-            reference to the 3D grid geometry object. The value shall
-            point to an existing file which is already exported with dataio,
-            and hence has an assosiated metadata file. The grid name will be derived
-            from the grid metadata, if present, and applied as part of the gridproperty
-            file name (same behaviour as the `parent` key; replacing this).
-            Note that this key may replace the usage of both the `parent` key and the
-            `grid_model` key in the near future.
+    .. code-block:: shell
 
-        grid_model: Currently allowed but planned for deprecation. See `geometry`.
+       /scratch/nn/case/realization-44/iter-2                      # pwd
+       /scratch/nn/case                                            # rootpath
 
-        table_index: This applies to tabular data and is a list of the column names
-            to use as index columns e.g. ["ZONE", "REGION"]. This can also be applied
-            to points or polygons objects that are exported in table format to specify
-            attributes that should act as index columns.
+    A file:
 
-        is_prediction: True (default) if model prediction data
+    .. code-block:: shell
 
-        is_observation: Default is False. If True, then disk storage will be on the
-            "share/observations" folder, otherwise on "share/result". An exception arise
-            if ``preprocessed=True``, then the folder will be set to
-            "share/preprocessed" irrespective the value of ``is_observation``.
+       /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  # absolute
+                        realization-44/iter-2/share/results/maps/xx.gri  # relative
 
-        name: Optional but recommended. The name of the object. If not set it is tried
-            to be inferred from the xtgeo/pandas/... object. The name is then checked
-            towards the stratigraphy list, and name is replaced with official
-            stratigraphic name if found in static metadata `stratigraphy`. For example,
-            if "TopValysar" is the model name and the actual name is "Valysar Top Fm."
-            that latter name will be used.
+    When running an Ert forward job but here executed from RMS:
 
-        parent: Optional. This key is required for datatype GridProperty, unless the
-            `geometry` is given, and refers to the name of the grid geometry. It will
-            only be added in the filename, and not as genuine metadata entry.
-            This key is a candidate for deprecation, and users shall use the
-            `geometry` key instead. If both `parent` and `geometry` is given, the grid
-            name derived from the `geometry` object will have predence.
+    .. code-block:: shell
 
-        preprocessed: Default is False. If True, the data exported are output to a
-            dedicated "share/preprocessed" folder, and metadata can be partially re-used
-            in an ERT model run using the ``ExportPreprocessedData`` class.
+       /scratch/nn/case/realization-44/iter-2/rms/model            # pwd
+       /scratch/nn/case                                            # rootpath
 
-        rep_include: Optional. If True then the data object will be available in REP.
-            Default is False.
+    A file:
 
-        runpath: TODO! Optional and deprecated. The relative location of the current run
-            root. Optional and will in most cases be auto-detected, assuming that FMU
-            folder conventions are followed. For an ERT run e.g.
-            /scratch/xx/nn/case/realization-0/iter-0/. while in a revision at project
-            disc it will the revision root e.g. /project/xx/resmod/ff/21.1.0/.
+    .. code-block:: shell
 
-        subfolder: It is possible to set one level of subfolders for file output.
-            The input should only accept a single folder name, i.e. no paths. If paths
-            are present, a deprecation warning will be raised.
-
-        tagname: This is a short tag description which be be a part of file name.
-
-        timedata: Optional. List of dates, where the dates are strings on form
-            'YYYYMMDD', example ['20200101']. A maximum of two dates can be input,
-            the oldest date will be set as t0 in the metadata and the latest date will
-            be t1. Note it is also possible to provide a label to each date by using
-            a list of lists, .e.g. [[20200101, "monitor"], [20180101, "base"]].
-
-        vertical_domain: Optional. String with vertical domain either "time" or "depth"
-            (default). It is also possible to provide a reference for the vertical
-            scale, see the domain_reference key. Note that if the ``content`` is "depth"
-            or "time" the vertical_domain will be set accordingly.
-
-        workflow: Short tag desciption of workflow (as description)
-
-        undef_is_zero: Flags that nans should be considered as zero in aggregations
+       /scratch/nn/case/realization-44/iter-2/share/results/maps/xx.gri  # absolute
+                        realization-44/iter-2/share/results/maps/xx.gri  # relative
 
     """
 
     # ----------------------------------------------------------------------------------
+    #
     # This role for this class is to be:
     # - public (end user) interface
     # - collect the full settings from global config, user keys and class variables
@@ -299,9 +189,391 @@ class ExportData:
     #
     # Then other classes will further do the detailed metadata processing, cf _MetaData
     # and subsequent classes called by _MetaData
+    #
     # ----------------------------------------------------------------------------------
 
-    # class variables
+    # ##################################################################################
+
+    # ----------------------------------------------------------------------------------
+    #
+    # Required input values to create metadata. These should be ordered from Required
+    # parameters first, and in order of importance, as they will be rendered in the
+    # documentation in the order listed here.
+    #
+    # ----------------------------------------------------------------------------------
+
+    config: dict | GlobalConfiguration = field(default_factory=dict)
+    """Required in order to produce valid metadata.
+
+    This global config must be provided either as an input value here or through an
+    environment variable.
+
+    This value should be a dictionary with static settings. In the standard case
+    this is read from FMU global variables produced by ``fmuconfig``. The dictionary
+    must contain some predefined main level keys to work with fmu-dataio.
+
+    .. note::
+       If missing or empty, an :meth:`export` may still be done, but without any
+       metadata produced.
+
+    """
+
+    content: str | dict | None = None
+    """A required string describing the content of the data, e.g. ``"volumes"``.
+
+    .. warning::
+       Using the ``content`` argument as a ``dict`` to set both the content and the
+       content metadata will be deprecated. Set the ``content`` argument to a valid
+       content string, and provide the extra information through the
+       :attr:`content_metadata` argument instead.
+
+    Some content types, like ``"seismic"``, require additional information. This should
+    be provided through the :attr:`content_metadata` argument described below.
+
+    The list of content types that can be provided is controlled and input values are
+    validated against a current list of them. In the following enumeration you would use
+    **only** the string values of the content type.
+
+    .. autoclass:: fmu.datamodels.fmu_results.enums.Content
+       :members:
+       :undoc-members:
+       :exclude-members: __new__
+       :no-index:
+       :no-special-members:
+
+    """
+
+    content_metadata: dict | None = None
+    """Optional. Dictionary with additional information about the provided content. Only
+    required for some :attr:`content` types, e.g. ``"seismic"``.
+
+    Example:
+
+    .. code-block:: python
+
+       content_metadata={"attribute": "amplitude", "calculation": "mean"},
+
+    """
+
+    classification: str | None = None
+    """Optional. Security classification level of the data object.
+
+    If present it will override the default found in the config.
+
+    The list of classification types that can be provided is controlled and input values
+    are validated against a current list of them. In the following enumeration you would
+    use **only** the string values of the classification type.
+
+    .. autoclass:: fmu.datamodels.fmu_results.enums.Classification
+       :members:
+       :undoc-members:
+       :exclude-members: __new__
+       :no-index:
+       :no-special-members:
+
+    """
+
+    domain_reference: str = "msl"
+    """Optional. Reference to the vertical scale of the data.
+
+    The list of classification types that can be provided is controlled and input values
+    are validated against a current list of them. In the following enumeration you would
+    use **only** the string values of the classification type.
+
+    .. autoclass:: fmu.datamodels.fmu_results.enums.DomainReference
+       :members:
+       :undoc-members:
+       :exclude-members: __new__
+       :no-index:
+       :no-special-members:
+
+    .. note:: Use the :attr:`vertical_domain` key to set the domain (depth or time).
+
+    """
+
+    vertical_domain: str | dict = "depth"
+    """Optional. The vertical domain of the data.
+
+    The list of classification types that can be provided is controlled and input values
+    are validated against a current list of them. In the following enumeration you would
+    use **only** the string values of the classification type.
+
+    .. autoclass:: fmu.datamodels.fmu_results.enums.VerticalDomain
+       :members:
+       :undoc-members:
+       :exclude-members: __new__
+       :no-index:
+       :no-special-members:
+
+    A reference for the vertical scale can be provided with the
+    :attr:`domain_reference` value.
+
+    .. note::
+       If the :attr:`content` is ``"depth"`` or ``"time"`` this value will be set
+       accordingly.
+
+    .. warning::
+       Providing a dictionary as a value is deprecated.
+
+    """
+
+    geometry: str | None = None
+    """Optional. For grid properties **only** which need a reference to the 3D grid
+    geometry object.
+
+    The value must point to an existing file which has already been exported with
+    fmu-dataio, and hence has an associated metadata file. The grid name will be derived
+    from the grid metadata, if present, and applied as part of the grid property file
+    name.
+
+    .. note::
+       This value may replace the usage of both the :attr:`parent` value and the
+       ``grid_model`` value in the near future.
+
+    """
+
+    is_observation: bool = False
+    """If ``True`` then data will be exported to the ``share/observations/`` directory.
+
+    By default this is ``False`` which will export results to the ``share/results/``
+    directory..
+
+    However, if :attr:`preprocessed` is ``True``, then the export directory will be set
+    to ``share/preprocessed/`` irrespective the value of :attr:`is_observation`.
+    """
+
+    is_prediction: bool = True
+    """Indicates if the exported data is model prediction data."""
+
+    timedata: list[str] | list[list[str]] | None = None
+    """Optional. List of dates, where the dates are strings on form ``"YYYYMMDD"``.
+
+    .. code-block:: python
+
+       timedata=["20200101"],
+
+
+    .. code-block:: python
+
+       timedata=["20200101", "20180101"],
+
+    A maximum of two dates can be input. The oldest date will be set as ``t0`` in the
+    metadata and the latest date will be ``t1``.
+
+    .. note::
+
+       It is also possible to provide a label to each date by using a list of lists,
+       e.g. ``[["20200101", "monitor"], ["20180101", "base"]]``.
+
+    """
+
+    unit: str | None = ""
+    """Optional. The measurement unit relevant to the exported data.
+
+    For example, ``"m"`` would be set if the measurement unit is meters.
+
+    .. caution::
+       This value is not currently controlled by a known list but will be in the future.
+
+    """
+
+    table_index: list[str] | None = None
+    """Optional. A list of strings indicating the index columns for tabular data.
+
+    This value should be set for tabular data like Pandas data frames **only**.
+
+    Example:
+
+    .. code-block::
+
+       table_index=["ZONE", "REGION"],
+
+    This can also be applied to points or polygons objects that are exported in table
+    format to specify attributes that should act as index columns.
+
+    .. tip::
+       Index columns in tabular data refer to one or more columns that uniquely identify
+       each row in the dataset. They serve as a reference point for data retrieval and
+       manipulation, enabling simple and efficient access to specific rows.
+
+    """
+
+    preprocessed: bool = False
+    """If True, data is exported to the ``"share/preprocessed/"`` directory.
+
+    This metadata can be partially re-used in an Ert model run using the
+    ``ExportPreprocessedData`` class.
+
+    .. note::
+       Most data are not preprocessed data, and as such this key shouldn't often be
+       used. An example of preprocessed data is seismic data.
+
+    """
+
+    description: str | list = ""
+    """Optional. A multi-line description of the data either as a string or a list of
+    strings.
+
+    .. tip::
+       You do not need to set this.
+
+    """
+
+    display_name: str | None = None
+    """Optional. Set a display name for clients to use when visualizing.
+
+    .. tip::
+       You do not need to set this.
+
+    """
+
+    name: str = ""
+    """Optional. The name of the data object being exported.
+
+    If not set, fmu-dataio infers it from object data type. If the name is found in the
+    ``stratigraphy`` static metadata list, the official stratigraphic name will be used.
+
+    For example, if ``"TopValysar"`` is the model name and the actual name is ``"Valysar
+    Top Fm."``, the latter name will be used.
+
+    .. tip::
+       You do not need to set this.
+
+    """
+
+    tagname: str = ""
+    """Optional. A short tag description which will be a part of the file name.
+
+    As an example, if exporting a fault polygon from a horizon named ``"TopVolantis"``,
+
+    .. code-block:: python
+
+       tagname="faultlines",
+
+    The exported filename will be ``volantis_gp_top--faultlines.csv``
+
+    .. tip::
+       You do not need to set this, but it may be useful for local workflows.
+
+    """
+
+    workflow: str | dict[str, str] | None = None
+    """Optional. Short string description of workflow.
+
+    .. warning::
+       Providing a dictionary as a value is deprecated.
+
+    .. tip::
+       You do not need to set this.
+
+    """
+
+    forcefolder: str = ""
+    """Optional. This value allows exporting to a non-standard directory relative to
+    the casepath/rootpath.
+
+    .. warning::
+       Using this optional is generally not recommended.
+
+    This option is dependent upon the FMU context (case or realization) and the
+    :attr:`is_observation` boolean value.
+
+    Example:
+
+    .. code-block:: python
+
+       forcefolder="seismic",
+
+    This will replace the ``cubes/`` standard directory for ``xtgeo.Cube`` output with
+    ``seismic/``.
+
+    .. caution::
+       Use with care and avoid if possible!
+
+    """
+
+    parent: str = ""
+    """Optional. This value is required for datatype ``xtgeo.GridProperty``, unless the
+    :attr:`geometry` value is given.
+
+    "Parent" refers to the name of the grid geometry. It will only be added in the
+    filename, and not as genuine metadata entry.
+
+    .. warning::
+       This value is a candidate for deprecation. Use :attr:`geometry` instead.
+
+    If both :attr:`parent` and :attr:`geometry` are given, the grid name derived from
+    the :attr:`geometry` object will have precedence.
+    """
+
+    casepath: str | Path | None = None
+    """Optional. Path to a case directory that contains valid case metadata
+    ``fmu_case.yml`` in folder ``<CASE_DIR>/share/metadata/``.
+
+    .. tip::
+       You typically do not need to set this.
+
+    """
+
+    # ----------------------------------------------------------------------------------
+    #
+    # Undocumented members.
+    #
+    # These are not yet deprecated, but are not encouraged for use. Convert the doc
+    # string to a comment to prevent it from rendering in the documentation.
+    #
+    # ----------------------------------------------------------------------------------
+
+    aggregation: bool = False
+    # Does not appear to have been used for anything.
+
+    fmu_context: str | None = None
+    # Optional string with value ``realization`` or ``case``.
+    #
+    # .. tip::
+    #    You most likely do not need to set this. fmu-dataio infers this by itself.
+    #
+    # If not explicitly given it will be inferred based on the presence of Ert
+    # environment variables.
+    #
+    # If ``fmu_context="realization"`` fmu-dataio will export data per realization, and
+    # should be used in normal Ert forward models.
+    #
+    # If ``fmu_context="case"`` fmu-dataio will export data relative to the case
+    # directory. When specifying the case context the ``casepath`` must provided through
+    # the ``casepath`` value.
+
+    grid_model: str | None = None
+    # Currently allowed but planned for deprecation. See `geometry`.
+
+    rep_include: bool | None = None
+    # Optional. If True then the data object will be available in REP.
+
+    subfolder: str = ""
+    # Set subfolders for file output. The input should be a string representing a
+    # relative path of at least one additional directory.
+
+    undef_is_zero: bool = False
+    # Flags that NaNs should be considered as zero in aggregations.
+
+    # ----------------------------------------------------------------------------------
+    #
+    # Deprecated members.
+    #
+    # Convert the doc string to a comment, or remove it, to prevent it from rendering in
+    # the documentation.
+    #
+    # ----------------------------------------------------------------------------------
+
+    access_ssdl: dict = field(default_factory=dict)  # deprecated
+    depth_reference: str | None = None  # deprecated
+    realization: int | None = None  # deprecated
+    reuse_metadata_rule: str | None = None  # deprecated
+    runpath: str | Path | None = None  # Deprecated. Issues warning.
+    verbosity: str = "DEPRECATED"  # remove in version 2
+
+    # Class variables
+
     allow_forcefolder_absolute: ClassVar[bool] = False  # deprecated
     arrow_fformat: ClassVar[str | None] = None  # deprecated and no effect
     case_folder: ClassVar[str] = "share/metadata"
@@ -320,43 +592,15 @@ class ExportData:
     table_include_index: ClassVar[bool] = False  # deprecated
     verifyfolder: ClassVar[bool] = True  # deprecated
 
-    # input keys (alphabetic)
-    access_ssdl: dict = field(default_factory=dict)
-    aggregation: bool = False  # deprecated
-    casepath: str | Path | None = None
-    classification: str | None = None
-    config: dict | GlobalConfiguration = field(default_factory=dict)
-    content: dict | str | None = None
-    content_metadata: dict | None = None
-    depth_reference: str | None = None  # deprecated
-    domain_reference: str = "msl"
-    description: str | list = ""
-    display_name: str | None = None
-    fmu_context: str | None = None
-    forcefolder: str = ""
-    geometry: str | None = None
-    grid_model: str | None = None
-    is_observation: bool = False
-    is_prediction: bool = True
-    name: str = ""
-    undef_is_zero: bool = False
-    parent: str = ""
-    preprocessed: bool = False
-    realization: int | None = None  # deprecated
-    rep_include: bool | None = None
-    reuse_metadata_rule: str | None = None  # deprecated
-    runpath: str | Path | None = None
-    subfolder: str = ""
-    tagname: str = ""
-    timedata: list[str] | list[list[str]] | None = None
-    unit: str | None = ""
-    verbosity: str = "DEPRECATED"  # remove in version 2
-    vertical_domain: str | dict = "depth"  # dict input is deprecated
-    workflow: str | dict[str, str] | None = None  # dict input is deprecated
-    table_index: list | None = None
+    # ----------------------------------------------------------------------------------
+    #
+    # Stateful members.
+    #
+    # Need to store these temporarily in variables until we stop updating state of the
+    # class also on export and generate_metadata
+    #
+    # ----------------------------------------------------------------------------------
 
-    # Need to store these temporarily in variables until we stop
-    # updating state of the class also on export and generate_metadata
     _classification: enums.Classification = enums.Classification.internal
     _rep_include: bool = field(default=False, init=False)
 
@@ -534,7 +778,7 @@ class ExportData:
         if isinstance(self.content, dict):
             warn(
                 "Using the 'content' argument to set both the content and "
-                "and the content metadata will be deprecated. Set the 'content' "
+                "the content metadata will be deprecated. Set the 'content' "
                 "argument to a valid content string, and provide the extra "
                 "information through the 'content_metadata' argument instead.",
                 FutureWarning,
@@ -891,10 +1135,10 @@ class ExportData:
         return_symlink: bool = False,
         **kwargs: Any,
     ) -> str:
-        """Export data objects of 'known' type to FMU storage solution with metadata.
+        """Export data objects of 'known' type with metadata.
 
-        This function will also collect the data spesific class metadata. For "classic"
-        files, the metadata will be stored i a YAML file with same name stem as the
+        This function will also collect the data specific class metadata. For "classic"
+        files, the metadata will be stored in a YAML file with same name stem as the
         data, but with a . in front and "yml" and suffix, e.g.::
 
             top_volantis--depth.gri
@@ -902,11 +1146,9 @@ class ExportData:
 
         Args:
             obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
-            **kwargs: Using other ExportData() input keys is now deprecated, input the
-                arguments when initializing the ExportData() instance instead.
 
         Returns:
-            String: full path to exported item.
+            str: The full path to the exported item.
         """
         if return_symlink:
             warnings.warn(
