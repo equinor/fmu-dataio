@@ -410,7 +410,14 @@ def load_config_from_path(config_path: Path) -> dict[str, Any]:
     if not config_path.is_file():
         raise FileNotFoundError(f"Cannot find file for global config: {config_path}")
 
-    return ut.yaml_load(config_path)
+    config = ut.yaml_load(config_path)
+    if not config:
+        # This should never happen because we don't provide tool=.. to yaml_load.
+        raise RuntimeError(
+            f"Attempted to use unknown tool when loading config: {config_path}"
+        )
+
+    return config
 
 
 def convert_datestr_to_isoformat(value: str, format: str = "%Y%m%d") -> str:
