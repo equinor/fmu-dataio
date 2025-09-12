@@ -322,7 +322,7 @@ class ExportData:
 
     # input keys (alphabetic)
     access_ssdl: dict = field(default_factory=dict)
-    aggregation: bool = False
+    aggregation: bool = False  # deprecated
     casepath: str | Path | None = None
     classification: str | None = None
     config: dict | GlobalConfiguration = field(default_factory=dict)
@@ -593,6 +593,12 @@ class ExportData:
         if self.realization:
             warn(
                 "The 'realization' key is deprecated and has no effect. "
+                "Please remove it from the argument list.",
+                UserWarning,
+            )
+        if self.aggregation:
+            warn(
+                "The 'aggregation' key is deprecated and has no effect. "
                 "Please remove it from the argument list.",
                 UserWarning,
             )

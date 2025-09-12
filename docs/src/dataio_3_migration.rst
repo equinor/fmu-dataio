@@ -69,6 +69,7 @@ They can safely be removed.
    the ``geometry`` argument instead.
  - ``realization`` is deprecated, realization number is automatically picked up from environment variables.
  - ``verbosity`` is deprecated, logging level should be set from client script in a standard manner instead.
+ - ``aggregation`` is deprecated and was never used.
 
 
 The following arguments will be required if specific data types are exported.
