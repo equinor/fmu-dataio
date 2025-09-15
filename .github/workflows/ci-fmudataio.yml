@@ -39,8 +39,9 @@ jobs:
       # during the development phase.
       - name: Install bleeding ert
         run: |
-          git config --global credential.helper store
           git lfs install
+          export GIT_LFS_SKIP_SMUDGE=1
+
           pip install \
             "ert @ git+https://github.com/equinor/ert.git"
 
