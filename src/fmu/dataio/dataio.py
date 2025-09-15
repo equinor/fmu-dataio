@@ -1132,10 +1132,9 @@ class ExportData:
     def export(
         self,
         obj: types.Inferrable,
-        return_symlink: bool = False,
         **kwargs: Any,
     ) -> str:
-        """Export data objects of 'known' type with metadata.
+        """Export support data objects with metadata.
 
         This function will also collect the data specific class metadata. For "classic"
         files, the metadata will be stored in a YAML file with same name stem as the
@@ -1150,7 +1149,7 @@ class ExportData:
         Returns:
             str: The full path to the exported item.
         """
-        if return_symlink:
+        if "return_symlink" in kwargs:
             warnings.warn(
                 "The return_symlink option is deprecated and can safely be removed."
             )
