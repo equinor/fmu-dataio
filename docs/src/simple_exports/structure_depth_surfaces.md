@@ -30,6 +30,7 @@ The surfaces must be located within a horizon folder in RMS and be in domain
 `depth`. This export function will automatically export all non-empty
 horizons from the provided folder.
 
+## Usage
 
 ```{eval-rst}
 .. autofunction:: fmu.dataio.export.rms.structure_depth_surfaces.export_structure_depth_surfaces
