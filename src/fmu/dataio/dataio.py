@@ -336,7 +336,7 @@ class ExportData:
     """If ``True`` then data will be exported to the ``share/observations/`` directory.
 
     By default this is ``False`` which will export results to the ``share/results/``
-    directory..
+    directory.
 
     However, if :attr:`preprocessed` is ``True``, then the export directory will be set
     to ``share/preprocessed/`` irrespective the value of :attr:`is_observation`.
@@ -410,7 +410,7 @@ class ExportData:
 
     """
 
-    description: str | list = ""
+    description: str | list[str] = ""
     """Optional. A multi-line description of the data either as a string or a list of
     strings.
 
@@ -1134,20 +1134,30 @@ class ExportData:
         obj: types.Inferrable,
         **kwargs: Any,
     ) -> str:
-        """Export support data objects with metadata.
+        """Export supported data objects with metadata.
 
-        This function will also collect the data specific class metadata. For "classic"
-        files, the metadata will be stored in a YAML file with same name stem as the
-        data, but with a . in front and "yml" and suffix, e.g.::
+        This function exports data without changing the *content* of the data. The *file
+        format* of the data may be determined by values set in the class.
 
-            top_volantis--depth.gri
-            .top_volantis--depth.gri.yml
+        A file containing metadata will be exported next to it. It will have the same
+        name as the data, but will be prefixed with a `.`. This causes the metadata to
+        not be visible by a standard `ls` command. The metadata is stored in a YAML
+        file.
+
+        .. code-block:: shell
+
+           top_volantis--depth.gri
+           .top_volantis--depth.gri.yml
 
         Args:
-            obj: XTGeo instance, a Pandas Dataframe instance or other supported object.
+            obj: An xtgeo object, Pandas dataframe, or other supported object. A full
+              list of supported data types can be found in the documentation.
 
         Returns:
             str: The full path to the exported item.
+
+        Note:
+            Providing ``**kwargs`` is deprecated and will be removed in a later version.
         """
         if "return_symlink" in kwargs:
             warnings.warn(
