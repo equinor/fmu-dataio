@@ -1,4 +1,3 @@
-import contextlib
 import os
 import pathlib
 import shutil
@@ -16,7 +15,6 @@ def base_ert_config() -> str:
         DEFINE <SCRATCH>    $DATAIO_TMP_PATH/scratch
         DEFINE <CASE_DIR>   snakeoil
 
-        DEFINE <SUMO_ENV>       dev
         DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>
 
         NUM_REALIZATIONS 3
@@ -103,12 +101,12 @@ def mock_sumo_uploader():
             f.write("1")
         return 1
 
-    with contextlib.ExitStack() as stack:
-        stack.enter_context(patch("fmu.sumo.uploader.SumoConnection", spec=True))
-        stack.enter_context(
-            patch(
-                "fmu.sumo.uploader.CaseOnDisk.register",
-                side_effect=register_side_effect,
-            )
-        )
-        yield
+    with (
+        patch("fmu.sumo.uploader.SumoConnection", spec=True) as mock_sumo_connection,
+        patch(
+            "fmu.sumo.uploader.CaseOnDisk.register", side_effect=register_side_effect
+        ),
+    ):
+        yield {
+            "SumoConnection": mock_sumo_connection,
+        }

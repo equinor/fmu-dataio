@@ -282,12 +282,11 @@ WF_CREATE_CASE_METADATA  <SCRATCH>/<USER>/<CASE_DIR>  <CONFIG_PATH>     <CASE_DI
 
 -- Optional arguments:
 --  --sumo: If passed, case will be registered on Sumo. Use this is intention to upload data.
---  --sumo_env (str): Specify Sumo environment. Default: prod
 --  --global_variables_path (str): Path to global variables relative to CONFIG path
 --
 -- NOTE! If using optional arguments, note that the "--" annotation will be interpreted
 --       as comments by ERT if not wrapped in quotes. This is the syntax to use:
---       (existing arguments) "--sumo" "--sumo_env" dev
+--       (existing arguments) "--sumo"
 ```
 
 ```{note}
