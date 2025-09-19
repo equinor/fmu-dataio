@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import warnings
 from pathlib import Path
 from typing import Final
@@ -33,14 +34,12 @@ and on Sumo.
 EXAMPLES = """
 Create an ERT workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with the
 contents::
-  WF_CREATE_CASE_METADATA <ert_caseroot> <ert_config_path> <ert_casename> \
-  <sumo> <sumo_env>
+  WF_CREATE_CASE_METADATA <ert_caseroot> <ert_config_path> <ert_casename> "--sumo"
   ...where
     <ert_caseroot> (Path): Absolute path to root of the case, typically <SCRATCH>/<US...
     <ert_config_path> (Path): Absolute path to ERT config, typically /project/etc/etc
     <ert_casename> (str): The ERT case name, typically <CASE_DIR>
     <sumo> (optional) (bool): If passed, do not register case on Sumo. Default: False
-    <sumo_env> (str) (optional): Sumo environment to use. Default: "prod"
     <global_variables_path> (str): Path to global_variables relative to config path
     <verbosity> (str): Set log level. Default: WARNING
 """
@@ -81,8 +80,9 @@ def create_case_metadata_main(args: argparse.Namespace) -> None:
 
     case_metadata_path = create_metadata(args)
     if args.sumo:
-        logger.info("Registering case on Sumo (%s)", args.sumo_env)
-        register_on_sumo(args.sumo_env, case_metadata_path)
+        sumo_env = os.environ.get("SUMO_ENV", "prod")
+        logger.info("Registering case on Sumo (%s)", sumo_env)
+        register_on_sumo(sumo_env, case_metadata_path)
 
     logger.debug("create_case_metadata.py has finished.")
 
@@ -102,6 +102,17 @@ def check_arguments(args: argparse.Namespace) -> None:
             "longer used and can safely be removed.",
             FutureWarning,
         )
+    if args.sumo_env:
+        if args.sumo_env == "prod":
+            warnings.warn(
+                "The argument 'sumo_env' is ignored and can safely be removed.",
+                FutureWarning,
+            )
+        else:
+            raise ValueError(
+                "Setting sumo environment through argument input is not allowed. "
+                "It must be set as an environment variable SUMO_ENV"
+            )
 
 
 def create_metadata(args: argparse.Namespace) -> str:
@@ -154,7 +165,12 @@ def get_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="If passed, register the case on Sumo.",
     )
-    parser.add_argument("--sumo_env", type=str, help="Sumo environment", default="prod")
+    parser.add_argument(
+        "--sumo_env",
+        type=str,
+        help="Deprecated and can safely be removed",
+        default=None,
+    )
     parser.add_argument(
         "--global_variables_path",
         type=str,
