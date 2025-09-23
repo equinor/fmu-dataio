@@ -1,6 +1,7 @@
 import getpass
 import importlib
 import os
+import pathlib
 import sys
 
 import ert.__main__
@@ -54,7 +55,7 @@ def test_create_case_metadata_warns_without_overwriting(
     with open(fmu_case_yml, encoding="utf-8") as f:
         first_run = yaml.safe_load(f)
 
-    with pytest.warns(UserWarning, match="Using existing case metadata from runpath:"):
+    with pytest.warns(UserWarning, match="Using existing case metadata from casepath:"):
         ert.__main__.main()
 
     ls_share_metadata = os.listdir(share_metadata)
@@ -64,6 +65,29 @@ def test_create_case_metadata_warns_without_overwriting(
         second_run = yaml.safe_load(f)
 
     assert first_run == second_run
+
+
+def test_create_case_metadata_caseroot_not_defined(
+    fmu_snakeoil_project, monkeypatch, mocker, capsys
+):
+    """Test that a proper error message is given if the case root is
+    input as an undefined ERT variable"""
+    pathlib.Path(
+        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
+    ).write_text(
+        "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED> <CONFIG_PATH> <CASE_DIR>",
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
+    add_create_case_workflow("snakeoil.ert")
+
+    mocker.patch(
+        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
+    )
+    ert.__main__.main()
+
+    _stdout, stderr = capsys.readouterr()
+    assert "ValueError: ERT variable used for the case root is not defined" in stderr
 
 
 @pytest.mark.skipif(

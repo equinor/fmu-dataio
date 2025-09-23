@@ -131,7 +131,7 @@ def test_create_case_metadata_generate_metadata_warn_if_exists(
         rootfolder=casemetafolder,
         casename="abc",
     )
-    with pytest.warns(UserWarning, match=r"Using existing case metadata from runpath:"):
+    with pytest.warns(UserWarning, match="Using existing case metadata from casepath:"):
         icase.generate_metadata()
 
 

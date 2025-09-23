@@ -109,11 +109,11 @@ class CreateCaseMetadata:
         """
         if not self._establish_metadata_files():
             exists_warning = (
-                "Using existing case metadata from runpath: "
+                f"Using existing case metadata from casepath: '{self.rootfolder}'. "
                 "All data exported to Sumo will be stored to this existing case in "
                 "Sumo. If you want to create a new case in Sumo to store your data to, "
-                "delete the old case through Ert, or run on a different runpath "
-                "by editing it in your Ert configuration model.\n\n"
+                "delete the old case from the scratch disk, or run on a different "
+                "casepath by editing your ERT configuration file.\n\n"
                 "Ignore this warning if your model is not enabled for Sumo yet, "
                 "or if storing to the existing case in Sumo is what you want."
             )

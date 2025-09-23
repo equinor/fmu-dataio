@@ -92,9 +92,17 @@ def check_arguments(args: argparse.Namespace) -> None:
     logger.debug("Checking input arguments")
     logger.debug("Arguments: %s", args)
 
-    if not Path(args.ert_caseroot).is_absolute():
-        logger.debug("Argument ert_caseroot was not absolute: %s", args.ert_caseroot)
-        raise ValueError("ert_caseroot must be an absolute path")
+    casepath = args.ert_caseroot
+    if not Path(casepath).is_absolute():
+        logger.debug("Argument ert_caseroot was not absolute: %s", casepath)
+        if casepath.startswith("<") and casepath.endswith(">"):
+            raise ValueError(
+                f"ERT variable used for the case root is not defined: {casepath}"
+            )
+        raise ValueError(
+            "The 'ert_caseroot' argument must be an absolute path, "
+            f"received {casepath}."
+        )
 
     if args.ert_username:
         warnings.warn(
