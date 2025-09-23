@@ -3,10 +3,12 @@ from io import BytesIO
 
 import pandas as pd
 import xtgeo
-from fmu.datamodels.fmu_results.enums import ObjectMetadataClass
+from fmu.datamodels.fmu_results.enums import Layout, ObjectMetadataClass
 from fmu.sumo.explorer import Explorer
 from fmu.sumo.explorer.objects import SearchContext
 from pandas import DataFrame
+
+from fmu.dataio._readers.tsurf import TSurfData, read_tsurf_file
 
 
 class SumoExplorerInterface:
@@ -15,11 +17,13 @@ class SumoExplorerInterface:
         case_id: str,
         ensemble_name: str,
         fmu_class: ObjectMetadataClass,
+        fmu_layout: Layout,
         standard_result_name: str,
     ) -> None:
         self._case_id: str = case_id
         self._ensemble_name: str = ensemble_name
         self._fmu_class: ObjectMetadataClass = fmu_class
+        self._fmu_layout: Layout = fmu_layout
 
         env = "prod"
         if "bleeding" in os.environ.get(
@@ -27,15 +31,25 @@ class SumoExplorerInterface:
         ):
             env = "dev"
 
+        # TODO: @ecs: hack for "testing" start
+        print()
+        print("*************** Using SUMO DEV environment ***************")
+        print()
+        env = "dev"
+        # TODO: @ecs: hack for "testing" end
+
         sumo = Explorer(env=env)
+
         case = sumo.get_case_by_uuid(self._case_id)
+
         self._search_context: SearchContext = case.filter(
             iteration=self._ensemble_name, standard_result=standard_result_name
         )
 
+    # NOTE: 'SeachContext' could possibly be replaced by 'Child'
     def _get_formatted_data(
         self, data_object: SearchContext
-    ) -> DataFrame | xtgeo.Polygons | xtgeo.RegularSurface:
+    ) -> DataFrame | xtgeo.Polygons | xtgeo.RegularSurface | TSurfData:
         """Get a fmu-dataio formatted data object from the Sumo Explorer object."""
 
         match self._fmu_class:
@@ -49,15 +63,28 @@ class SumoExplorerInterface:
                 return xtgeo.Polygons(data_frame)
 
             case ObjectMetadataClass.surface:
-                # Dataformat: 'irap_binary'
-                return data_object.to_regular_surface()
+                match self._fmu_layout:
+                    case Layout.regular:
+                        # TODO: @ecs: "data_object.to_regular_surface()": is defined
+                        # somewhere in SUMO; Child, Document, Realization...?
+                        return data_object.to_regular_surface()
+
+                    case Layout.triangulated:
+                        return read_tsurf_file(data_object.blob)
+
+                    case _:
+                        raise ValueError(
+                            f"Unknown FMULayout {self._fmu_layout} in provided"
+                        )
 
             case _:
                 raise ValueError(f"Unknown FMUClass {self._fmu_class}. in provided ")
 
     def get_objects_with_metadata(
         self, realization_id: int
-    ) -> list[tuple[DataFrame | xtgeo.Polygons | xtgeo.RegularSurface, dict]]:
+    ) -> list[
+        tuple[DataFrame | xtgeo.Polygons | xtgeo.RegularSurface | TSurfData, dict]
+    ]:
         """
         Get the standard results data objects and metadata from Sumo,
         filtered on the provided realization id. The results are returned
@@ -69,7 +96,7 @@ class SumoExplorerInterface:
         )
 
         realization_data: list[
-            tuple[DataFrame | xtgeo.Polygons | xtgeo.RegularSurface, dict]
+            tuple[DataFrame | xtgeo.Polygons | xtgeo.RegularSurface | TSurfData, dict]
         ] = []
         for object in search_context_realization:
             realization_data.append((self._get_formatted_data(object), object.metadata))

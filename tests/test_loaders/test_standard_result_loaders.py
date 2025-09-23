@@ -8,6 +8,7 @@ import xtgeo
 from pandas import DataFrame
 
 import fmu.dataio.load.load_standard_results as load_standard_results
+from fmu.dataio._readers import tsurf as reader
 
 TEST_UUID = "00000000-0000-0000-0000-000000000000"
 
@@ -209,7 +210,7 @@ def test_save_realization_for_tabular(monkeypatch, tmp_path):
             assert "FLUID,ZONE,REGION,GIIP" in content
 
 
-def test_save_realization_for_ploygons(monkeypatch, tmp_path):
+def test_save_realization_for_polygons(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
 
     polygon = xtgeo.Polygons()
@@ -267,7 +268,7 @@ def test_save_realization_for_ploygons(monkeypatch, tmp_path):
             assert "X_UTME,Y_UTMN,Z_TVDSS" in content
 
 
-def test_save_realization_for_surfaces(monkeypatch, tmp_path):
+def test_save_realization_for_xtgeo_regular_surfaces(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
 
     surface = xtgeo.RegularSurface(
@@ -290,7 +291,7 @@ def test_save_realization_for_surfaces(monkeypatch, tmp_path):
 
     relative_path_mocked = Path(mocked_metadata["file"]["relative_path"])
 
-    mocked_realization_data: list[tuple[xtgeo.Polygons, dict]] = [
+    mocked_realization_data: list[tuple[xtgeo.RegularSurface, dict]] = [
         (surface, mocked_metadata)
     ]
 
@@ -334,6 +335,81 @@ def test_save_realization_for_surfaces(monkeypatch, tmp_path):
         )
         assert round(surface_from_file.xinc, 3) == 0.319
         assert round(surface_from_file.yinc, 3) == 0.211
+
+
+def test_save_realization_for_tsurf_surfaces(monkeypatch, tmp_path, tsurf):
+    monkeypatch.chdir(tmp_path)
+
+    surface = tsurf
+
+    case_name_mock = "test_case_structure_depth_fault_surfaces"
+    data_name_mock = "Fault F1"
+    standard_result_name = "structure_depth_fault_surface"
+    data_type = "maps"
+    mocked_metadata = _generate_metadata_mock(
+        case_name=case_name_mock,
+        data_name=data_name_mock,
+        standard_result_name=standard_result_name,
+        data_type=data_type,
+    )
+
+    # TODO: @ecs: this path is wrong:
+    # 'realization-0/iter-0/share/resultsmaps/structure_depth_fault_surface/Fault F1.parquet'
+    # - Not parquet file
+    # - results/maps, not resultsmaps
+    # - Implies there is a schema, but tsurf files do not have schema in SUMO
+    # TODO: may be wrong also in the method I made this method from
+
+    relative_path_mocked = Path(mocked_metadata["file"]["relative_path"])
+
+    mocked_realization_data: list[tuple[reader.TSurfData, dict]] = [
+        (surface, mocked_metadata)
+    ]
+
+    with (
+        patch(
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.__init__",
+            return_value=None,
+        ) as class_init_mock,
+        patch(
+            "fmu.dataio.external_interfaces.sumo_explorer_interface.SumoExplorerInterface.get_objects_with_metadata",
+            return_value=mocked_realization_data,
+        ) as get_realization_with_metadata_mock,
+        # TODO: @ ecs: there is no schema, so probably don't need this.
+        # Check with one of the other classes that don't have schema
+        # patch(
+        #     "fmu.dataio.external_interfaces.schema_validation_interface.SchemaValidationInterface.validate_against_schema",
+        #     return_value=True,
+        # ) as validate_object_mock,
+    ):
+        structure_depth_fault_surface_loader = (
+            load_standard_results.load_structure_depth_fault_surfaces(
+                TEST_UUID, "some_ensemble_name"
+            )
+        )
+        assert class_init_mock.assert_called_once
+
+        actual_file_paths = structure_depth_fault_surface_loader.save_realization(
+            0,
+            tmp_path,
+        )
+        assert get_realization_with_metadata_mock.assert_called_once
+        # assert validate_object_mock.assert_not_called
+
+        expected_relative_file_path = str(relative_path_mocked).replace(
+            relative_path_mocked.suffix, ".ts"
+        )
+        expected_file_path = (
+            f"{tmp_path}/{case_name_mock}/{expected_relative_file_path}"
+        )
+
+        assert actual_file_paths[0] == expected_file_path
+        assert os.path.exists(expected_file_path)
+
+        surface_from_file = reader.read_tsurf_file(expected_file_path)
+
+        assert surface_from_file.num_vertices() == 4
+        assert surface_from_file.num_triangles() == 2
 
 
 def test_construct_object_key():
