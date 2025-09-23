@@ -7,6 +7,7 @@ import numpy as np
 import xtgeo
 from pandas import DataFrame
 
+from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.external_interfaces.schema_validation_interface import (
     SchemaValidationInterface,
@@ -15,7 +16,10 @@ from fmu.dataio.external_interfaces.sumo_explorer_interface import SumoExplorerI
 from fmu.datamodels.fmu_results.enums import ObjectMetadataClass
 from fmu.datamodels.standard_results.enums import StandardResultName
 
-DataFrameOrXtgeoObject: TypeAlias = DataFrame | xtgeo.Polygons | xtgeo.RegularSurface
+# TODO: could probably use dataio/types.py::Inferrable, which contains all these types
+DataFrameOrXtgeoObject: TypeAlias = (
+    DataFrame | xtgeo.Polygons | xtgeo.RegularSurface | TSurfData
+)
 
 
 class StandardResultsLoader:
@@ -132,6 +136,8 @@ class TabularStandardResultsLoader(StandardResultsLoader):
             standard_result_name,
         )
 
+    # NOTE: Could possibly avoid this overriding method.
+    # It is there only because of the typing, to narrow the return type.
     def get_realization(self, realization_id: int) -> dict[str, DataFrame]:
         return super().get_realization(realization_id)
 
@@ -249,6 +255,70 @@ class SurfacesStandardResultsLoader(StandardResultsLoader):
             file_paths.append(str(file_path))
 
         return file_paths
+
+
+class TriangulatedSurfacesStandardResultsLoader(StandardResultsLoader):
+    """
+    Base class for the loaded triangulated surface standard results
+    in fmu-dataio
+    """
+
+    # TODO: @ecs: this method is identical to SurfacesStandardResultsLoader, up to
+    # the type of the surface object (xtgeo.RegularSurface / TSurfData).
+    # Can we make this more generic?
+    # By using a type alias or make a generic class?
+    # Note that the file extension is also different ('.gri' / '.ts') ...
+
+    def __init__(
+        self, case_id: UUID, ensemble_name: str, standard_result_name: str
+    ) -> None:
+        super().__init__(
+            case_id,
+            ensemble_name,
+            ObjectMetadataClass.surface,
+            standard_result_name,
+        )
+
+    def get_realization(self, realization_id: int) -> dict[str, TSurfData]:
+        return super().get_realization(realization_id)
+
+    def save_realization(self, realization_id: int, folder_path: str) -> list[str]:
+        """
+        Saves the loaded surface objects, filtered on the provided
+        realization id, as tsurf files at the provided path.
+
+        Args:
+            realization_id: The id of the realization to filter on.
+            folder_path: The path to where to store the generated tsurf files.
+
+        """
+
+        surfaces_with_metadata: list[tuple[TSurfData, dict]] = (
+            self._sumo_interface.get_objects_with_metadata(realization_id)
+        )
+
+        file_paths: list[str] = []
+        for surface, metadata in surfaces_with_metadata:
+            file_path = self._generate_path_for_saving(folder_path, metadata, ".ts")
+            # TODO: might need something different here ...
+            TSurfData.write_tsurf_to_file(surface, file_path)
+            file_paths.append(str(file_path))
+
+        return file_paths
+
+
+class StructureDepthFaultSurfacesLoader(TriangulatedSurfacesStandardResultsLoader):
+    """
+    Loader object for the Structure Depth Fault Surface standard results
+    in fmu-dataio.
+    Offers a set of methods to easily manage and interact
+    with the loaded structure depth fault surfaces data.
+    """
+
+    def __init__(self, case_id: UUID, ensemble_name: str) -> None:
+        super().__init__(
+            case_id, ensemble_name, StandardResultName.structure_depth_fault_surface
+        )
 
 
 class InplaceVolumesLoader(TabularStandardResultsLoader):
@@ -396,6 +466,42 @@ def load_structure_depth_surfaces(
     """  # noqa: E501 line too long
 
     return StructureDepthSurfacesLoader(UUID(case_id), ensemble_name)
+
+
+@experimental
+def load_structure_depth_fault_surfaces(
+    case_id: str, ensemble_name: str
+) -> StructureDepthFaultSurfacesLoader:
+    """
+    This function provides a simplified interface for loading
+    structure depth fault surfaces standard results from Sumo.
+    It returns a StructureDepthFaultSurfacesLoader object,
+    which offers a set of methods to easily manage and interact with the
+    loaded structure depth fault surfaces data.
+
+    Args:
+        case_id: The id of the case to load structure depth fault surfaces from.
+        ensemble_name: The name of the ensemble to load structure depth fault surfaces from.
+
+    Note:
+        This function is experimental and may change in future versions.
+
+    Examples:
+        Example usage in a script::
+
+            from fmu.dataio.load.load_standard_results import load_structure_depth_fault_surfaces
+
+            structure_depth_fault_surfaces_loader = load_structure_depth_fault_surfaces(case_id, ensemble_name)
+
+            # Get all structure depth fault surfaces objects for a given realization
+            objects = structure_depth_fault_surfaces_loader.get_realization(realization_id)
+
+            # Save the structure depth fault surfaces objects for a given realization
+            object_paths = structure_depth_fault_surfaces_loader.save_realization(realization_id, folder_path)
+
+    """  # noqa: E501 line too long
+
+    return StructureDepthFaultSurfacesLoader(UUID(case_id), ensemble_name)
 
 
 @experimental
