@@ -1,7 +1,5 @@
 """Top-level package for fmu-dataio"""
 
-# Re-export this for one version cycle
-import fmu.datamodels as _models
 from fmu.dataio.dataio import (
     AggregatedData,
     CreateCaseMetadata,
@@ -18,7 +16,6 @@ except ImportError:
     __version__ = "0.0.0"
 
 __all__ = [
-    "_models",
     "AggregatedData",
     "ExportData",
     "CreateCaseMetadata",
