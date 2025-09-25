@@ -117,10 +117,11 @@ def check_arguments(args: argparse.Namespace) -> None:
                 FutureWarning,
             )
         else:
-            raise ValueError(
-                "Setting sumo environment through argument input is not allowed. "
-                "It must be set as an environment variable SUMO_ENV"
-            )
+            if os.getenv("SUMO_ENV") is None:
+                raise ValueError(
+                    "Setting sumo environment through argument input is not allowed. "
+                    "It must be set as an environment variable SUMO_ENV"
+                )
 
 
 def create_metadata(args: argparse.Namespace) -> str:
