@@ -1,6 +1,5 @@
 import os
 from io import BytesIO
-from uuid import UUID
 
 import pandas as pd
 import xtgeo
@@ -13,12 +12,12 @@ from pandas import DataFrame
 class SumoExplorerInterface:
     def __init__(
         self,
-        case_id: UUID,
+        case_id: str,
         ensemble_name: str,
         fmu_class: ObjectMetadataClass,
         standard_result_name: str,
     ) -> None:
-        self._case_id: UUID = case_id
+        self._case_id: str = case_id
         self._ensemble_name: str = ensemble_name
         self._fmu_class: ObjectMetadataClass = fmu_class
 
