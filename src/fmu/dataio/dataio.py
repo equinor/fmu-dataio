@@ -236,12 +236,13 @@ class ExportData:
 
     .. autoclass:: fmu.datamodels.fmu_results.enums.Content
        :members:
-       :undoc-members:
-       :exclude-members: __new__
+       :exclude-members: __new__, parameters
        :no-index:
        :no-special-members:
 
     """
+    # ^ parameters is specially excluded to discourage users from attempting this
+    # It is handled automatically.
 
     content_metadata: dict | None = None
     """Optional. Dictionary with additional information about the provided content. Only
@@ -266,7 +267,6 @@ class ExportData:
 
     .. autoclass:: fmu.datamodels.fmu_results.enums.Classification
        :members:
-       :undoc-members:
        :exclude-members: __new__
        :no-index:
        :no-special-members:
@@ -282,7 +282,6 @@ class ExportData:
 
     .. autoclass:: fmu.datamodels.fmu_results.enums.DomainReference
        :members:
-       :undoc-members:
        :exclude-members: __new__
        :no-index:
        :no-special-members:
@@ -300,7 +299,6 @@ class ExportData:
 
     .. autoclass:: fmu.datamodels.fmu_results.enums.VerticalDomain
        :members:
-       :undoc-members:
        :exclude-members: __new__
        :no-index:
        :no-special-members:
