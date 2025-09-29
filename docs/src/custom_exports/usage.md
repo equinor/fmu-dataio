@@ -1,6 +1,6 @@
 # Usage
 
-Custom exports requires an instance of the
+Custom exports require an instance of the
 [`ExportData`](#fmu.dataio.ExportData) class. When creating an instance of
 this class, some information must be provided, and this information is in part
 dependent upon the type of data you are exporting.
