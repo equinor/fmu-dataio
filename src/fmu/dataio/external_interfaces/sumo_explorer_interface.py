@@ -1,6 +1,5 @@
 import os
 from io import BytesIO
-from uuid import UUID
 
 import pandas as pd
 import xtgeo
@@ -15,13 +14,13 @@ from fmu.dataio._readers.tsurf import TSurfData
 class SumoExplorerInterface:
     def __init__(
         self,
-        case_id: UUID,
+        case_id: str,
         ensemble_name: str,
         fmu_class: ObjectMetadataClass,
         fmu_layout: Layout,
         standard_result_name: str,
     ) -> None:
-        self._case_id: UUID = case_id
+        self._case_id: str = case_id
         self._ensemble_name: str = ensemble_name
         self._fmu_class: ObjectMetadataClass = fmu_class
         self._fmu_layout: Layout = fmu_layout

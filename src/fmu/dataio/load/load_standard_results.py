@@ -1,7 +1,6 @@
 from io import BytesIO
 from pathlib import Path
 from typing import TypeAlias
-from uuid import UUID
 
 import numpy as np
 import xtgeo
@@ -27,7 +26,7 @@ class StandardResultsLoader:
 
     def __init__(
         self,
-        case_id: UUID,
+        case_id: str,
         ensemble_name: str,
         fmu_class: ObjectMetadataClass,
         standard_result_name: str,
@@ -127,7 +126,7 @@ class TabularStandardResultsLoader(StandardResultsLoader):
     """Base class for the loaded tabular standard results in fmu-dataio"""
 
     def __init__(
-        self, case_id: UUID, ensemble_name: str, standard_result_name: str
+        self, case_id: str, ensemble_name: str, standard_result_name: str
     ) -> None:
         super().__init__(
             case_id,
@@ -174,7 +173,7 @@ class PolygonStandardResultsLoader(StandardResultsLoader):
     """Base class for the loaded polygon standard results in fmu-dataio"""
 
     def __init__(
-        self, case_id: UUID, ensemble_name: str, standard_result_name: str
+        self, case_id: str, ensemble_name: str, standard_result_name: str
     ) -> None:
         super().__init__(
             case_id, ensemble_name, ObjectMetadataClass.polygons, standard_result_name
@@ -221,7 +220,7 @@ class SurfacesStandardResultsLoader(StandardResultsLoader):
     """Base class for the loaded surface standard results in fmu-dataio"""
 
     def __init__(
-        self, case_id: UUID, ensemble_name: str, standard_result_name: str
+        self, case_id: str, ensemble_name: str, standard_result_name: str
     ) -> None:
         super().__init__(
             case_id,
@@ -328,7 +327,7 @@ class InplaceVolumesLoader(TabularStandardResultsLoader):
     with the loaded inplace volumes data.
     """
 
-    def __init__(self, case_id: UUID, ensemble_name: str):
+    def __init__(self, case_id: str, ensemble_name: str):
         super().__init__(case_id, ensemble_name, StandardResultName.inplace_volumes)
 
 
@@ -339,7 +338,7 @@ class FieldOutlinesLoader(PolygonStandardResultsLoader):
     with the loaded field outlines data.
     """
 
-    def __init__(self, case_id: UUID, ensemble_name: str) -> None:
+    def __init__(self, case_id: str, ensemble_name: str) -> None:
         super().__init__(case_id, ensemble_name, StandardResultName.field_outline)
 
 
@@ -350,7 +349,7 @@ class StructureDepthSurfacesLoader(SurfacesStandardResultsLoader):
     with the loaded structure depth surfaces data.
     """
 
-    def __init__(self, case_id: UUID, ensemble_name: str) -> None:
+    def __init__(self, case_id: str, ensemble_name: str) -> None:
         super().__init__(
             case_id, ensemble_name, StandardResultName.structure_depth_surface
         )
@@ -363,7 +362,7 @@ class FluidContactSurfacesLoader(SurfacesStandardResultsLoader):
     with the loaded fluid contact surfaces data.
     """
 
-    def __init__(self, case_id: UUID, ensemble_name: str) -> None:
+    def __init__(self, case_id: str, ensemble_name: str) -> None:
         super().__init__(
             case_id, ensemble_name, StandardResultName.fluid_contact_surface
         )
@@ -398,7 +397,7 @@ def load_inplace_volumes(case_id: str, ensemble_name: str) -> InplaceVolumesLoad
 
     """  # noqa: E501 line too long
 
-    return InplaceVolumesLoader(UUID(case_id), ensemble_name)
+    return InplaceVolumesLoader(case_id, ensemble_name)
 
 
 @experimental
@@ -430,7 +429,7 @@ def load_field_outlines(case_id: str, ensemble_name: str) -> FieldOutlinesLoader
 
     """  # noqa: E501 line too long
 
-    return FieldOutlinesLoader(UUID(case_id), ensemble_name)
+    return FieldOutlinesLoader(case_id, ensemble_name)
 
 
 @experimental
@@ -465,7 +464,7 @@ def load_structure_depth_surfaces(
 
     """  # noqa: E501 line too long
 
-    return StructureDepthSurfacesLoader(UUID(case_id), ensemble_name)
+    return StructureDepthSurfacesLoader(case_id, ensemble_name)
 
 
 @experimental
@@ -536,4 +535,4 @@ def load_fluid_contact_surfaces(
 
     """  # noqa: E501 line too long
 
-    return FluidContactSurfacesLoader(UUID(case_id), ensemble_name)
+    return FluidContactSurfacesLoader(case_id, ensemble_name)
