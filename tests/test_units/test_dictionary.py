@@ -1,7 +1,6 @@
 """Test dictionary functionality"""
 
 import json
-import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -23,7 +22,7 @@ def _fixture_simple():
 
 
 @pytest.fixture(name="json_dict", scope="function")
-def _fixture_json(fmurun_w_casemetadata):
+def _fixture_json(fmurun_w_casemetadata, monkeypatch: pytest.MonkeyPatch):
     """Return dictionary read from json file
 
     Args:
@@ -32,7 +31,7 @@ def _fixture_json(fmurun_w_casemetadata):
     Returns:
         dict: The parameters read from json file
     """
-    os.chdir(fmurun_w_casemetadata)
+    monkeypatch.chdir(fmurun_w_casemetadata)
     print(fmurun_w_casemetadata)
     with open(fmurun_w_casemetadata / "parameters.json", encoding="utf-8") as stream:
         return json.load(stream)

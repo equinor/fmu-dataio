@@ -1,7 +1,6 @@
 """Test the dataio ExportData etc from the dataio.py module."""
 
 import logging
-import os
 import pathlib
 import sys
 from copy import deepcopy
@@ -993,7 +992,7 @@ def test_preprocessed_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig, regsurf
 def test_norwegian_letters_globalconfig(
     globalvars_norwegian_letters,
     regsurf,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Testing using norwegian letters in global config.
 
@@ -1002,7 +1001,7 @@ def test_norwegian_letters_globalconfig(
 
     path, cfg, cfg_asfile = globalvars_norwegian_letters
 
-    os.chdir(path)
+    monkeypatch.chdir(path)
 
     edata = ExportData(content="depth", config=cfg, name="TopBlåbær")
     meta = edata.generate_metadata(regsurf)
@@ -1055,11 +1054,11 @@ def test_metadata_format_deprecated(globalconfig1, regsurf, tmp_path, monkeypatc
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_establish_runpath(tmp_path, globalconfig2):
+def test_establish_runpath(tmp_path, globalconfig2, monkeypatch: pytest.MonkeyPatch):
     """Testing pwd and rootpath from RMS"""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
-    os.chdir(rmspath)
+    monkeypatch.chdir(rmspath)
 
     edata = ExportData(config=globalconfig2, content="depth")
 
@@ -1067,11 +1066,11 @@ def test_establish_runpath(tmp_path, globalconfig2):
 
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
-def test_forcefolder(tmp_path, globalconfig2, regsurf):
+def test_forcefolder(tmp_path, globalconfig2, regsurf, monkeypatch: pytest.MonkeyPatch):
     """Testing the forcefolder mechanism."""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
-    os.chdir(rmspath)
+    monkeypatch.chdir(rmspath)
 
     edata = ExportData(config=globalconfig2, content="depth", forcefolder="whatever")
     meta = edata.generate_metadata(regsurf)
@@ -1081,11 +1080,13 @@ def test_forcefolder(tmp_path, globalconfig2, regsurf):
 
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
-def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsurf):
+def test_forcefolder_absolute_shall_raise_or_warn(
+    tmp_path, globalconfig2, regsurf, monkeypatch: pytest.MonkeyPatch
+):
     """Testing the forcefolder mechanism."""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
-    os.chdir(rmspath)
+    monkeypatch.chdir(rmspath)
 
     ExportData.allow_forcefolder_absolute = False
 

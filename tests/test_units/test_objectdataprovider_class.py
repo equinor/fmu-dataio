@@ -1,6 +1,5 @@
 """Test the _ObjectData class from the _objectdata.py module"""
 
-import os
 from io import BytesIO
 from pathlib import Path
 
@@ -179,7 +178,7 @@ def test_objectdata_provider_factory_raises_on_unknown(edataobj1):
 
 
 def test_regsurf_preprocessed_observation(
-    fmurun_prehook, rmssetup, rmsglobalconfig, regsurf, monkeypatch
+    fmurun_prehook, rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
 ):
     """Test generating pre-realization surfaces that comes to share/preprocessed.
 
@@ -187,10 +186,12 @@ def test_regsurf_preprocessed_observation(
     """
 
     @pytest.mark.usefixtures("inside_rms_interactive")
-    def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
+    def _export_data_from_rms(
+        rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
+    ):
         """Run an export of a preprocessed surface inside RMS."""
 
-        os.chdir(rmssetup)
+        monkeypatch.chdir(rmssetup)
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             preprocessed=True,
@@ -201,7 +202,7 @@ def test_regsurf_preprocessed_observation(
         )
         return edata, edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, surfacepath):
+    def _run_case_fmu(fmurun_prehook, surfacepath, monkeypatch: pytest.MonkeyPatch):
         """Run FMU workflow, using the preprocessed data as case data.
 
         When re-using metadata, the input object to dataio shall not be a XTGeo or
@@ -212,7 +213,7 @@ def test_regsurf_preprocessed_observation(
         But it requires that valid metadata for that file is found. The rule for
         merging is currently defaulted to "preprocessed".
         """
-        os.chdir(fmurun_prehook)
+        monkeypatch.chdir(fmurun_prehook)
 
         casepath = fmurun_prehook
         edata = dataio.ExportPreprocessedData(is_observation=True, casepath=casepath)
@@ -220,9 +221,11 @@ def test_regsurf_preprocessed_observation(
 
     # run two stage process
     remove_ert_env(monkeypatch)
-    edata, mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
+    edata, mysurf = _export_data_from_rms(
+        rmssetup, rmsglobalconfig, regsurf, monkeypatch
+    )
     set_ert_env_prehook(monkeypatch)
-    case_meta = _run_case_fmu(fmurun_prehook, mysurf)
+    case_meta = _run_case_fmu(fmurun_prehook, mysurf, monkeypatch)
 
     out = Path(mysurf)
     with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:

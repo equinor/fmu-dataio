@@ -1,0 +1,84 @@
+class: surface
+masterdata:
+  smda:
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: 15ce3b84-766f-4c93-9050-b154861f9100
+    country:
+    - identifier: Norway
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+    - short_identifier: abdcef
+      uuid: 56c92484-8798-4f1f-9f14-d237a3e1a4ff
+    field: []
+    stratigraphic_column:
+      identifier: TestStratigraphicColumn
+      uuid: 56c92484-8798-4f1f-9f14-d237a3e1a4ff
+tracklog:
+- datetime: '2025-09-30T11:36:00.407768Z'
+  event: created
+  user:
+    id: NMB
+  sysinfo:
+    fmu-dataio:
+      version: 0.15.2
+    komodo:
+      version: 2025.06.02-py311-rhel8
+    operating_system:
+      hostname: AC-CQ469GD92M
+      operating_system: macOS-15.6.1-arm64-arm-64bit
+      release: 24.6.0
+      system: Darwin
+      version: 'Darwin Kernel Version 24.6.0: Mon Jul 14 11:30:40 PDT 2025; root:xnu-11417.140.69~1/RELEASE_ARM64_T6041'
+source: fmu
+version: 0.15.0
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.15.0/fmu_results.json
+access:
+  asset:
+    name: Test
+  classification: internal
+  ssdl:
+    access_level: internal
+    rep_include: false
+data:
+  content: depth
+  name: Whatever Top
+  alias:
+  - TopDindong
+  - TopWhatever
+  tagname: mytag
+  stratigraphic: true
+  bbox:
+    xmin: 0.0
+    xmax: 220.0
+    ymin: 0.0
+    ymax: 180.0
+    zmin: 1234.0
+    zmax: 1234.0
+  format: irap_binary
+  is_observation: false
+  is_prediction: true
+  layout: regular
+  offset: 0.0
+  spec:
+    nrow: 10
+    ncol: 12
+    rotation: 0.0
+    undef: 1.0e+30
+    xinc: 20.0
+    yinc: 20.0
+    xori: 0.0
+    yflip: 1
+    yori: 0.0
+  undef_is_zero: false
+  unit: ''
+  vertical_domain: depth
+  domain_reference: msl
+file:
+  absolute_path: /Users/NMB/src/fmu-dataio/share/results/maps/topwhatever--mytag.gri
+  relative_path: share/results/maps/topwhatever--mytag.gri
+  checksum_md5: eb6a16d365586da79ea54e0f4dc172d2
+  size_bytes: 660
+display:
+  name: Whatever Top
+_preprocessed: false

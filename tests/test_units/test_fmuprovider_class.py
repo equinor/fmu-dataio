@@ -2,7 +2,6 @@
 
 import importlib
 import logging
-import os
 
 import pydantic
 import pytest
@@ -59,12 +58,14 @@ def test_fmuprovider_no_model_info_use_case(fmurun_w_casemetadata):
     assert meta.model.revision == casemeta.fmu.model.revision
 
 
-def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
+def test_fmuprovider_ert_provider_guess_casemeta_path(
+    fmurun, monkeypatch: pytest.MonkeyPatch
+):
     """The casepath input is empty, but try guess from ERT RUNPATH without success.
 
     Since there are mot metadata here, this will issue a warning
     """
-    os.chdir(fmurun)
+    monkeypatch.chdir(fmurun)
     with pytest.warns(UserWarning, match="case metadata"):
         runcontext = RunContext(casepath_proposed="")
 
@@ -75,10 +76,12 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(fmurun):
         myfmu.get_metadata()
 
 
-def test_fmuprovider_ert_provider_missing_parameter_txt(fmurun_w_casemetadata):
+def test_fmuprovider_ert_provider_missing_parameter_txt(
+    fmurun_w_casemetadata, monkeypatch: pytest.MonkeyPatch
+):
     """Test for an ERT case, when missing file parameter.txt runs ok"""
 
-    os.chdir(fmurun_w_casemetadata)
+    monkeypatch.chdir(fmurun_w_casemetadata)
     runcontext = RunContext()
 
     # delete the file for this test
@@ -90,10 +93,12 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(fmurun_w_casemetadata):
     assert myfmu._real_id == 0
 
 
-def test_fmuprovider_arbitrary_iter_name(fmurun_w_casemetadata_pred):
+def test_fmuprovider_arbitrary_iter_name(
+    fmurun_w_casemetadata_pred, monkeypatch: pytest.MonkeyPatch
+):
     """Test iteration block is correctly set, also with arbitrary iteration names."""
 
-    os.chdir(fmurun_w_casemetadata_pred)
+    monkeypatch.chdir(fmurun_w_casemetadata_pred)
 
     runcontext = RunContext()
     myfmu = FmuProvider(runcontext)
@@ -108,9 +113,11 @@ def test_fmuprovider_arbitrary_iter_name(fmurun_w_casemetadata_pred):
     assert str(meta.case.uuid) == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
 
 
-def test_fmuprovider_get_real_and_iter_from_env(fmurun_non_equal_real_and_iter):
+def test_fmuprovider_get_real_and_iter_from_env(
+    fmurun_non_equal_real_and_iter, monkeypatch: pytest.MonkeyPatch
+):
     """Test that iter and real number is picked up correctly from env"""
-    os.chdir(fmurun_non_equal_real_and_iter)
+    monkeypatch.chdir(fmurun_non_equal_real_and_iter)
 
     runcontext = RunContext()
     myfmu = FmuProvider(runcontext)
@@ -123,10 +130,12 @@ def test_fmuprovider_get_real_and_iter_from_env(fmurun_non_equal_real_and_iter):
     assert myfmu._ensemble_id == 0
 
 
-def test_fmuprovider_no_iter_folder(fmurun_no_iter_folder):
+def test_fmuprovider_no_iter_folder(
+    fmurun_no_iter_folder, monkeypatch: pytest.MonkeyPatch
+):
     """Test that the fmuprovider works without a iteration folder"""
 
-    os.chdir(fmurun_no_iter_folder)
+    monkeypatch.chdir(fmurun_no_iter_folder)
 
     runcontext = RunContext()
     myfmu = FmuProvider(runcontext)
@@ -147,7 +156,9 @@ def test_fmuprovider_no_iter_folder(fmurun_no_iter_folder):
     assert meta.iteration.id == 0
 
 
-def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
+def test_fmuprovider_prehook_case(
+    tmp_path, globalconfig2, fmurun_prehook, monkeypatch: pytest.MonkeyPatch
+):
     """The fmu run case metadata is created with Create case; then get provider.
 
     A typical prehook section in a ERT run is to establish case metadata, and then
@@ -160,7 +171,7 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
     """
     caseroot = tmp_path / "prehook"
     caseroot.mkdir(parents=True)
-    os.chdir(caseroot)
+    monkeypatch.chdir(caseroot)
 
     icase = dataio.CreateCaseMetadata(
         config=globalconfig2,
@@ -174,7 +185,7 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
     assert casemetafile.is_file()
     assert exp == str(casemetafile.resolve())
 
-    os.chdir(fmurun_prehook)
+    monkeypatch.chdir(fmurun_prehook)
     logger.debug("Case root proposed is: %s", caseroot)
     runcontext = RunContext(casepath_proposed=caseroot, fmu_context=FMUContext.case)
     myfmu = FmuProvider(runcontext)
@@ -183,12 +194,12 @@ def test_fmuprovider_prehook_case(tmp_path, globalconfig2, fmurun_prehook):
     assert myfmu._real_name == ""
 
 
-def test_fmuprovider_detect_no_case_metadata(fmurun):
+def test_fmuprovider_detect_no_case_metadata(fmurun, monkeypatch: pytest.MonkeyPatch):
     """Testing the case metadata file which is not found here.
 
     That will still provide a file path but the metadata will be {} i.e. empty
     """
-    os.chdir(fmurun)
+    monkeypatch.chdir(fmurun)
 
     with pytest.warns(UserWarning, match="case metadata"):
         runcontext = RunContext()
@@ -197,14 +208,14 @@ def test_fmuprovider_detect_no_case_metadata(fmurun):
         myfmu.get_metadata()
 
 
-def test_fmuprovider_case_run(fmurun_prehook):
+def test_fmuprovider_case_run(fmurun_prehook, monkeypatch: pytest.MonkeyPatch):
     """
     When fmu_context="case" and no runpath can be detected from environment
     an error should be raised if no casepath is provided.
     """
     logger.info("Active folder is %s", fmurun_prehook)
 
-    os.chdir(fmurun_prehook)
+    monkeypatch.chdir(fmurun_prehook)
 
     # make sure that no runpath environment value is present
     assert FmuEnv.RUNPATH.value is None
@@ -223,19 +234,21 @@ def test_fmuprovider_case_run(fmurun_prehook):
     assert myfmu._casepath.name == fmurun_prehook.name
 
 
-def test_fmuprovider_valid_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_pred):
+def test_fmuprovider_valid_restart_env(
+    monkeypatch: pytest.MonkeyPatch, fmurun_w_casemetadata, fmurun_pred
+):
     """Testing the scenario given a valid RESTART_FROM_PATH environment variable
 
     This shall give the correct restart_from uuid
     """
-    os.chdir(fmurun_w_casemetadata)
+    monkeypatch.chdir(fmurun_w_casemetadata)
     runcontext = RunContext()
     fmu_restart_from = FmuProvider(runcontext)
     meta_restart_from = fmu_restart_from.get_metadata()
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, str(fmurun_w_casemetadata))
 
-    os.chdir(fmurun_pred)
+    monkeypatch.chdir(fmurun_pred)
     runcontext = RunContext()
     fmu_restart = FmuProvider(runcontext)
 
@@ -245,7 +258,7 @@ def test_fmuprovider_valid_restart_env(monkeypatch, fmurun_w_casemetadata, fmuru
 
 
 def test_fmuprovider_valid_relative_restart_env(
-    monkeypatch, fmurun_w_casemetadata, fmurun_pred
+    monkeypatch: pytest.MonkeyPatch, fmurun_w_casemetadata, fmurun_pred
 ):
     """
     Test giving a valid RESTART_FROM_PATH environment variable that contains
@@ -289,32 +302,34 @@ def test_fmuprovider_restart_env_no_iter_folder(
 
 
 def test_fmuprovider_invalid_restart_env(
-    monkeypatch, fmurun_w_casemetadata, fmurun_pred
+    monkeypatch: pytest.MonkeyPatch, fmurun_w_casemetadata, fmurun_pred
 ):
     """Testing the scenario given invalid RESTART_FROM_PATH environment variable
 
     The iteration metadata will not contain restart_from key
     """
-    os.chdir(fmurun_w_casemetadata)
+    monkeypatch.chdir(fmurun_w_casemetadata)
 
     runcontext = RunContext()
     _ = FmuProvider(runcontext)
 
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "/path/to/somewhere/invalid")
 
-    os.chdir(fmurun_pred)
+    monkeypatch.chdir(fmurun_pred)
     with pytest.warns(UserWarning, match="non existing"):
         runcontext = RunContext()
         meta = FmuProvider(runcontext).get_metadata()
     assert meta.iteration.restart_from is None
 
 
-def test_fmuprovider_no_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_pred):
+def test_fmuprovider_no_restart_env(
+    monkeypatch: pytest.MonkeyPatch, fmurun_w_casemetadata, fmurun_pred
+):
     """Testing the scenario without RESTART_FROM_PATH environment variable
 
     The iteration metadata will not contain restart_from key
     """
-    os.chdir(fmurun_w_casemetadata)
+    monkeypatch.chdir(fmurun_w_casemetadata)
 
     runcontext = RunContext()
     _ = FmuProvider(runcontext)
@@ -322,13 +337,15 @@ def test_fmuprovider_no_restart_env(monkeypatch, fmurun_w_casemetadata, fmurun_p
     monkeypatch.setenv(RESTART_PATH_ENVNAME, "/path/to/somewhere/invalid")
     monkeypatch.delenv(RESTART_PATH_ENVNAME)
 
-    os.chdir(fmurun_pred)
+    monkeypatch.chdir(fmurun_pred)
     runcontext = RunContext()
     restart_meta = FmuProvider(runcontext).get_metadata()
     assert restart_meta.iteration.restart_from is None
 
 
-def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
+def test_fmuprovider_workflow_reference(
+    fmurun_w_casemetadata, globalconfig2, monkeypatch: pytest.MonkeyPatch
+):
     """Testing the handling of workflow reference input.
 
     Metadata definitions of fmu.workflow is that it is a dictionary with 'reference'
@@ -341,7 +358,7 @@ def test_fmuprovider_workflow_reference(fmurun_w_casemetadata, globalconfig2):
     it shall always produce valid metadata, or give a validation error if not.
 
     """
-    os.chdir(fmurun_w_casemetadata)
+    monkeypatch.chdir(fmurun_w_casemetadata)
 
     # workflow input is a string
     runcontext = RunContext()
