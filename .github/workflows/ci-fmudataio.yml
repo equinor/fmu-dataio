@@ -50,22 +50,12 @@ jobs:
           pip install \
             "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels.git"
 
-       # fmu-sumo-uploader blocked by OpenVDS on Python 3.12
+        # fmu-sumo-uploader blocked by OpenVDS on Python 3.12
       - name: Install fmu-sumo-uploader for Python 3.11
         if: matrix.python-version == '3.11'
-        run:
-          pip install \
-            "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
+        run: pip install \
+          "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
 
       - name: Full test
         run: |
-          if [[ "${{ github.event.pull_request.base.ref }}" == "staging" ]]; then
-            pytest -n auto -v --cov --cov-report term-missing --prod
-          else
-            if [[ -v SUMO_ACCESS_TOKEN ]]; then
-              pytest -n auto -v --cov --cov-report term-missing
-            else
-              pytest -n auto -v --cov --cov-report term-missing
-            fi
-          fi
-
+          pytest -n auto -v --cov --cov-report term-missing
