@@ -8,40 +8,46 @@ You can contribute in many ways:
 ## Types of Contributions
 
 ### Report Bugs
+
 Report bugs at https://github.com/equinor/fmu-dataio/issues.
 
 If you are reporting a bug, please include:
 
-* Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
+- Your operating system name and version.
+- Any details about your local setup that might be helpful in troubleshooting.
+- Detailed steps to reproduce the bug.
 
 ### Fix Bugs
+
 Look through the Git issues for bugs. Anything tagged with "bug"
 and "help wanted" is open to whoever wants to implement it.
 
 ### Implement Features
+
 Look through the Git issues for features. Anything tagged with "enhancement"
 and "help wanted" is open to whoever wants to implement it.
 
 ### Write Documentation
+
 Yes, fmu-dataio could always use more documentation, whether as part of the
 official fmu-dataio docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 ### Submit Feedback
+
 The best way to send feedback is to file an issue
 at https://github.com/equinor/fmu-dataio/issues.
 
 If you are proposing a feature:
 
-* Explain in detail how it would work.
-* Keep the scope as narrow as possible, to make it easier to implement.
+- Explain in detail how it would work.
+- Keep the scope as narrow as possible, to make it easier to implement.
 
 ### Get Started!
-Ready to contribute? Here's how to set up ``fmu-dataio`` for local development.
 
-1. Fork the ``fmu-dataio`` repo on Github equinor to your personal user
+Ready to contribute? Here's how to set up `fmu-dataio` for local development.
+
+1. Fork the `fmu-dataio` repo on Github equinor to your personal user
 2. Clone your fork locally:
 
 ```bash
@@ -56,7 +62,7 @@ Ready to contribute? Here's how to set up ``fmu-dataio`` for local development.
 ```
 
 3. Install your local copy into a virtualenv. Using python 3, this is how you set
-up your fork for local development (first time):
+   up your fork for local development (first time):
 
 ```bash
     $ cd <fmu-dataio>
@@ -93,8 +99,8 @@ Now you can make your changes locally.
 
 7. Submit a pull request through the Github website.
 
-
 ### Writing commit messages
+
 The following takes effect from year 2021.
 
 Commit messages should be clear and follow a few basic rules. Example:
@@ -104,12 +110,12 @@ Commit messages should be clear and follow a few basic rules. Example:
 ```
 
 The first line of the commit message starts with a capitalized acronym
-(options listed below) indicating what type of commit this is.  Then a blank
-line, then more text if needed.  Lines shouldn't be longer than 72
-characters.  If the commit is related to a ticket, indicate that with
-``"See #3456", "Cf. #3344, "See ticket 3456", "Closes #3456"`` or similar.
+(options listed below) indicating what type of commit this is. Then a blank
+line, then more text if needed. Lines shouldn't be longer than 72
+characters. If the commit is related to a ticket, indicate that with
+`"See #3456", "Cf. #3344, "See ticket 3456", "Closes #3456"` or similar.
 
-Read `Chris Beams hints on commit messages <https://chris.beams.io/posts/git-commit/>`_.
+Read [Chris Beams hints on commit messages](https://chris.beams.io/posts/git-commit/).
 
 Describing the motivation for a change, the nature of a bug for bug fixes or
 some details on what an enhancement does are also good to include in a commit message.
@@ -135,13 +141,14 @@ Standard acronyms to start the commit message with are:
 ```
 
 ### Type Hints
+
 As of 2024, fmu-dataio requires the use of type annotations in all new feature
 developments, incorporating Python 3.10's enhanced syntax for type hints.
 This facilitates a more concise and readable style.
 
 ### Style Guidelines
+
 - For Python versions prior to 3.10, include the following import for compatibility:
-  
 
 ```python
     from __future__ import annotations
@@ -164,6 +171,6 @@ This facilitates a more concise and readable style.
 Note: These guidelines align with PEP 604 and are preferred for all new code submissions and when
 updating existing code.
 
-
 ### Pull Request Guidelines
+
 Before you submit a pull request: Ensure that your feature includes a test.
