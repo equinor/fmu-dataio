@@ -66,8 +66,8 @@ Ready to contribute? Here's how to set up `fmu-dataio` for local development.
 
 ```bash
     $ cd <fmu-dataio>
-    $ python -m venv .
-    $ source bin/activate
+    $ python -m venv .venv
+    $ source .venv/bin/activate
     $ pip install pip -U
     $ pip install ".[dev,docs]"
     $ pytest  # No tests should fail. (exit code 0)
