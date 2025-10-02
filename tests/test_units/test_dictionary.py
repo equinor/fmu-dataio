@@ -31,7 +31,6 @@ def _fixture_json(fmurun_w_casemetadata, monkeypatch: pytest.MonkeyPatch):
     Returns:
         dict: The parameters read from json file
     """
-    monkeypatch.chdir(fmurun_w_casemetadata)
     print(fmurun_w_casemetadata)
     with open(fmurun_w_casemetadata / "parameters.json", encoding="utf-8") as stream:
         return json.load(stream)

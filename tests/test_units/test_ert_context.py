@@ -26,7 +26,6 @@ def test_regsurf_generate_metadata(
 ):
     """Test generating metadata for a surface pretend ERT job"""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth")
 
@@ -55,8 +54,6 @@ def test_regsurf_metadata_with_timedata(
     fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
 ):
     """Export the regular surface to file with correct metadata/name/timedata."""
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     meta1 = dataio.ExportData(
         config=rmsglobalconfig,
@@ -93,7 +90,6 @@ def test_regsurf_export_file_fmurun(
     """
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -146,7 +142,6 @@ def test_polys_export_file_set_name(
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
@@ -172,7 +167,6 @@ def test_polys_export_file_use_xtgeo_names(
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -199,7 +193,6 @@ def test_polys_export_file_as_parquet(
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -234,7 +227,6 @@ def test_polys_export_file_as_parquet_no_table_index(
     """Export the polygon to file without table index."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
@@ -256,7 +248,6 @@ def test_polys_export_file_as_irap_ascii(
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -285,7 +276,6 @@ def test_points_export_file_set_name(
     """Export the points to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -318,7 +308,6 @@ def test_points_export_file_set_name_xtgeoheaders(
     """Export the points to file with correct metadata and name but here xtgeo var."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     dataio.ExportData.points_fformat = "csv"
     edata = dataio.ExportData(
@@ -351,7 +340,6 @@ def test_points_export_file_as_parquet_no_table_index(
     """Export the points to file without table index."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
@@ -373,7 +361,6 @@ def test_points_export_file_as_irap_ascii(
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -403,7 +390,6 @@ def test_points_export_file_as_parquet(
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
@@ -442,8 +428,6 @@ def test_exported_points_spec_table_format(
 ):
     """Test that data.spec is set correctly for points exported on table format"""
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
-
     edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
 
     edata.points_fformat = fformat
@@ -462,8 +446,6 @@ def test_exported_points_spec_irap_ascii(
     fmurun_w_casemetadata, globalconfig2, monkeypatch, points
 ):
     """Test that data.spec is set correctly for points exported on irap_ascii format"""
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
 
@@ -497,8 +479,6 @@ def test_exported_polygon_spec_table_format(
 ):
     """Test that data.spec is set correctly for polygons exported on table format"""
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
-
     edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
 
     edata.polygons_fformat = fformat
@@ -516,8 +496,6 @@ def test_exported_polygon_spec_irap_ascii(
     fmurun_w_casemetadata, globalconfig2, monkeypatch, polygons
 ):
     """Test that data.spec is set correct for polygons exported on irap_ascii format"""
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
 
@@ -544,7 +522,6 @@ def test_cube_export_file_set_name(
     """Export the cube to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth", name="MyCube")
 
@@ -565,7 +542,6 @@ def test_cube_export_file_is_observation(
     """Export the cube to file with correct metadata..., with is_observation flag."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -592,7 +568,6 @@ def test_cube_export_file_is_case_observation(
     """Export the cube..., with is_observation flag and fmu_context is case."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -616,7 +591,6 @@ def test_cube_export_file_is_observation_forcefolder(
     """Export the cube to file..., with is_observation flag and forcefolder."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -648,7 +622,6 @@ def test_cube_export_file_is_observation_forcefolder_abs(
     """
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     dataio.ExportData.allow_forcefolder_absolute = True
     with pytest.warns(UserWarning, match="deprecated"):
@@ -679,7 +652,6 @@ def test_grid_export_file_set_name(
     """Export the grid to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth", name="MyGrid")
 
@@ -703,7 +675,6 @@ def test_gridproperty_export_file_set_name(
     """Export the gridprop to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyGridProperty"
@@ -732,7 +703,6 @@ def test_dataframe_export_file_set_name(
     """Export the dataframe to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyDataframe"
@@ -761,7 +731,6 @@ def test_pyarrow_export_file_set_name(
     """Export the arrow to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyArrowtable"

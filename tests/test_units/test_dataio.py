@@ -120,7 +120,6 @@ def test_wrong_config_exports_correctly_in_fmu(
     inside an fmu run.
     """
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
     name = "mysurface"
 
     with (
@@ -643,8 +642,6 @@ def test_workflow_as_string(fmurun_w_casemetadata, monkeypatch, globalconfig1, r
     Check that having workflow as string works both in ExportData and on export.
     The workflow string input is given into the metadata as fmu.workflow.reference
     """
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     workflow = "My test workflow"
 
@@ -1195,8 +1192,6 @@ def test_ert_experiment_id_present_in_generated_metadata(
     """Test that the ert experiment id has been set correctly
     in the generated metadata"""
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
-
     edata = ExportData(config=globalconfig1, content="depth")
     meta = edata.generate_metadata(regsurf)
     expected_id = "6a8e1e0f-9315-46bb-9648-8de87151f4c7"
@@ -1208,8 +1203,6 @@ def test_ert_experiment_id_present_in_exported_metadata(
 ):
     """Test that the ert experiment id has been set correctly
     in the exported metadata"""
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = ExportData(config=globalconfig1, content="depth")
     out = Path(edata.export(regsurf))
@@ -1225,8 +1218,6 @@ def test_ert_simulation_mode_present_in_generated_metadata(
     """Test that the ert simulation mode has been set correctly
     in the generated metadata"""
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
-
     edata = ExportData(config=globalconfig1, content="depth")
     meta = edata.generate_metadata(regsurf)
     assert meta["fmu"]["ert"]["simulation_mode"] == "test_run"
@@ -1237,8 +1228,6 @@ def test_ert_simulation_mode_present_in_exported_metadata(
 ):
     """Test that the ert simulation mode has been set correctly
     in the exported metadata"""
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = ExportData(config=globalconfig1, content="depth")
     out = Path(edata.export(regsurf))
@@ -1398,7 +1387,6 @@ def test_export_with_standard_result_valid_config(
 ):
     """Test that standard result is set in metadata when
     export_with_standard_result is used"""
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = ExportData(
         config=globalconfig1,
@@ -1448,7 +1436,6 @@ def test_file_paths_realization_context(
     Testing the file paths set in the metadata with a realization context.
     Here the file.runpath_relative_path and the file.relative_path should not be equal.
     """
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     meta = ExportData(
         config=globalconfig2, name="myname", content="depth"
@@ -1488,7 +1475,6 @@ def test_element_id_realization_context(
     fmurun_w_casemetadata, globalconfig2, monkeypatch, regsurf
 ):
     """Test that the entity.uuid is set in the metadata for a realization context."""
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     meta = ExportData(
         config=globalconfig2, name="myname", content="depth"

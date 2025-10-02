@@ -17,6 +17,7 @@ import xtgeo
 import yaml
 from fmu.config import utilities as ut
 from fmu.datamodels.fmu_results import FmuResults, fields, global_configuration
+from pytest import MonkeyPatch
 
 import fmu.dataio as dio
 from fmu.dataio._readers.faultroom import FaultRoomSurface
@@ -59,7 +60,7 @@ def source_root(request) -> Path:
 
 
 @pytest.fixture(scope="function", autouse=True)
-def return_to_original_directory(monkeypatch: pytest.MonkeyPatch):
+def return_to_original_directory(monkeypatch: MonkeyPatch):
     # store original folder, and restore after each function (before and after yield)
     original_directory = os.getcwd()
     yield
@@ -130,18 +131,20 @@ def fixture_fmurun_prehook(tmp_path_factory, monkeypatch, rootpath):
     return newpath
 
 
-@pytest.fixture(name="fmurun_w_casemetadata", scope="function")
-def fixture_fmurun_w_casemetadata(tmp_path_factory, monkeypatch, rootpath):
+@pytest.fixture(scope="function")
+def fmurun_w_casemetadata(
+    tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
+) -> Path:
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
-    tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / ERTRUN
+    newpath = tmp_path / ERTRUN
     shutil.copytree(rootpath / ERTRUN, newpath)
-    rootpath = newpath / "realization-0/iter-0"
+    iter_path = newpath / "realization-0/iter-0"
 
-    _fmu_run1_env_variables(monkeypatch, usepath=rootpath, case_only=False)
+    _fmu_run1_env_variables(monkeypatch, usepath=iter_path, case_only=False)
 
     logger.debug("Ran %s", _current_function_name())
-    return rootpath
+    monkeypatch.chdir(iter_path)
+    return iter_path
 
 
 @pytest.fixture(name="fmurun_non_equal_real_and_iter", scope="function")
@@ -248,7 +251,7 @@ def rmssetup_with_fmuconfig(tmp_path_factory, global_config2_path):
 
 
 @pytest.fixture(name="rmsglobalconfig", scope="function")
-def fixture_rmsglobalconfig(rmssetup, monkeypatch: pytest.MonkeyPatch):
+def fixture_rmsglobalconfig(rmssetup, monkeypatch: MonkeyPatch):
     """Read global config."""
     # read the global config
     monkeypatch.chdir(rmssetup)
@@ -263,7 +266,7 @@ def fixture_rmsglobalconfig(rmssetup, monkeypatch: pytest.MonkeyPatch):
 
 @pytest.fixture(name="globalvars_norwegian_letters", scope="function")
 def fixture_globalvars_norwegian_letters(
-    tmp_path_factory, rootpath, monkeypatch: pytest.MonkeyPatch
+    tmp_path_factory, rootpath, monkeypatch: MonkeyPatch
 ):
     """Read a global config with norwegian special letters w/ fmu.config utilities."""
 
@@ -353,11 +356,11 @@ def global_config2_path(rootpath) -> Path:
     return rootpath / "tests/data/drogon/global_config2/global_variables.yml"
 
 
-@pytest.fixture(name="edataobj1", scope="function")
-def fixture_edataobj1(globalconfig1):
+@pytest.fixture(scope="function")
+def edataobj1(globalconfig1, tmp_path: Path, monkeypatch: MonkeyPatch):
     """Combined globalconfig and settings to instance, for internal testing"""
     logger.debug("Establish edataobj1")
-
+    monkeypatch.chdir(tmp_path)
     eobj = dio.ExportData(
         config=globalconfig1,
         name="TopWhatever",
@@ -711,13 +714,12 @@ def _create_aggregated_surface_dataset(
 
 @pytest.fixture(name="aggr_sesimic_surfs_mean", scope="function")
 def fixture_aggr_seismic_surfs_mean(
-    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
+    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: MonkeyPatch
 ):
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
     logger.debug("Ran %s", _current_function_name())
 
     origfolder = os.getcwd()
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     surfs, metas = _create_aggregated_surface_dataset(
         rmsglobalconfig,
@@ -738,13 +740,12 @@ def fixture_aggr_seismic_surfs_mean(
 
 @pytest.fixture(name="aggr_surfs_mean", scope="function")
 def fixture_aggr_surfs_mean(
-    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
+    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: MonkeyPatch
 ):
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
     logger.debug("Ran %s", _current_function_name())
 
     origfolder = os.getcwd()
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     surfs, metas = _create_aggregated_surface_dataset(
         rmsglobalconfig, regsurf, content="depth"
