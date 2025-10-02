@@ -17,8 +17,6 @@ def test_regsurf_aggregated(
     """Test generating aggragated metadata for a surface, where input has metadata."""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
-
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
 
@@ -47,8 +45,6 @@ def test_regsurf_aggregated_content_seismic(
     """
     logger.info("Active folder is %s", fmurun_w_casemetadata)
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
-
     aggr_mean, metas = aggr_sesimic_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
 
@@ -75,8 +71,6 @@ def test_regsurf_aggregated_export(
     metadata, which are the basis for generating the paths to the aggregated data,
     """
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
@@ -110,8 +104,6 @@ def test_regsurf_aggregated_alt_keys(
 ):
     """Test generating aggragated metadata, putting keys in export instead."""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
@@ -166,7 +158,6 @@ def test_regsurf_aggr_export_give_casepath(
     """
     logger.info("Active folder is %s", fmurun_w_casemetadata)
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
     casepath = fmurun_w_casemetadata.parent.parent.parent / "customcase"
     casepath.mkdir(parents=True, exist_ok=True)
 
@@ -202,7 +193,6 @@ def test_regsurf_aggr_export_give_casepath_noex(
     """
     logger.info("Active folder is %s", fmurun_w_casemetadata)
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
     casepath = fmurun_w_casemetadata.parent.parent.parent / "customcase2"
     # ... but do not create it
 
@@ -229,8 +219,6 @@ def test_regsurf_aggr_export_abspath_none(
     This should give None as abspath also for the result
     """
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
 
@@ -260,8 +248,6 @@ def test_regsurf_aggregated_aggregation_id(
 ):
     """Test generating aggragated metadata, tests on aggrd id"""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())  # shall be 1238.5
@@ -327,8 +313,6 @@ def test_generate_aggr_uuid(
     """Test the _generate_aggr_uuid private method."""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
-
     aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())  # shall be 1238.5
 
@@ -358,8 +342,6 @@ def test_regsurf_aggregated_diffdata(
 ):
     """Test surfaces, where input is diffdata."""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     aggs = []
     # create "forward" files

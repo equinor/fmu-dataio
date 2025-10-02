@@ -81,7 +81,6 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(
 ):
     """Test for an ERT case, when missing file parameter.txt runs ok"""
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
     runcontext = RunContext()
 
     # delete the file for this test
@@ -241,7 +240,6 @@ def test_fmuprovider_valid_restart_env(
 
     This shall give the correct restart_from uuid
     """
-    monkeypatch.chdir(fmurun_w_casemetadata)
     runcontext = RunContext()
     fmu_restart_from = FmuProvider(runcontext)
     meta_restart_from = fmu_restart_from.get_metadata()
@@ -264,7 +262,6 @@ def test_fmuprovider_valid_relative_restart_env(
     Test giving a valid RESTART_FROM_PATH environment variable that contains
     a relative path from the existing runpath, which is a common use case.
     """
-    monkeypatch.chdir(fmurun_w_casemetadata)
     runcontext = RunContext()
     meta_restart_from = FmuProvider(runcontext).get_metadata()
 
@@ -308,7 +305,6 @@ def test_fmuprovider_invalid_restart_env(
 
     The iteration metadata will not contain restart_from key
     """
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     runcontext = RunContext()
     _ = FmuProvider(runcontext)
@@ -329,7 +325,6 @@ def test_fmuprovider_no_restart_env(
 
     The iteration metadata will not contain restart_from key
     """
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     runcontext = RunContext()
     _ = FmuProvider(runcontext)
@@ -358,7 +353,6 @@ def test_fmuprovider_workflow_reference(
     it shall always produce valid metadata, or give a validation error if not.
 
     """
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     # workflow input is a string
     runcontext = RunContext()

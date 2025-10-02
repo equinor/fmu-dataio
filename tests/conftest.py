@@ -717,7 +717,6 @@ def fixture_aggr_seismic_surfs_mean(
     logger.debug("Ran %s", _current_function_name())
 
     origfolder = os.getcwd()
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     surfs, metas = _create_aggregated_surface_dataset(
         rmsglobalconfig,
@@ -744,7 +743,6 @@ def fixture_aggr_surfs_mean(
     logger.debug("Ran %s", _current_function_name())
 
     origfolder = os.getcwd()
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     surfs, metas = _create_aggregated_surface_dataset(
         rmsglobalconfig, regsurf, content="depth"
