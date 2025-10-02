@@ -1,7 +1,6 @@
 """Test the dataio ExportData etc from the dataio.py module."""
 
 import logging
-import os
 import pathlib
 import sys
 from copy import deepcopy
@@ -121,7 +120,6 @@ def test_wrong_config_exports_correctly_in_fmu(
     inside an fmu run.
     """
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
     name = "mysurface"
 
     with (
@@ -645,8 +643,6 @@ def test_workflow_as_string(fmurun_w_casemetadata, monkeypatch, globalconfig1, r
     The workflow string input is given into the metadata as fmu.workflow.reference
     """
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
-
     workflow = "My test workflow"
 
     # check that it works in ExportData
@@ -993,7 +989,7 @@ def test_preprocessed_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig, regsurf
 def test_norwegian_letters_globalconfig(
     globalvars_norwegian_letters,
     regsurf,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Testing using norwegian letters in global config.
 
@@ -1002,7 +998,7 @@ def test_norwegian_letters_globalconfig(
 
     path, cfg, cfg_asfile = globalvars_norwegian_letters
 
-    os.chdir(path)
+    monkeypatch.chdir(path)
 
     edata = ExportData(content="depth", config=cfg, name="TopBlåbær")
     meta = edata.generate_metadata(regsurf)
@@ -1055,11 +1051,11 @@ def test_metadata_format_deprecated(globalconfig1, regsurf, tmp_path, monkeypatc
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_establish_runpath(tmp_path, globalconfig2):
+def test_establish_runpath(tmp_path, globalconfig2, monkeypatch: pytest.MonkeyPatch):
     """Testing pwd and rootpath from RMS"""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
-    os.chdir(rmspath)
+    monkeypatch.chdir(rmspath)
 
     edata = ExportData(config=globalconfig2, content="depth")
 
@@ -1067,11 +1063,11 @@ def test_establish_runpath(tmp_path, globalconfig2):
 
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
-def test_forcefolder(tmp_path, globalconfig2, regsurf):
+def test_forcefolder(tmp_path, globalconfig2, regsurf, monkeypatch: pytest.MonkeyPatch):
     """Testing the forcefolder mechanism."""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
-    os.chdir(rmspath)
+    monkeypatch.chdir(rmspath)
 
     edata = ExportData(config=globalconfig2, content="depth", forcefolder="whatever")
     meta = edata.generate_metadata(regsurf)
@@ -1081,11 +1077,13 @@ def test_forcefolder(tmp_path, globalconfig2, regsurf):
 
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
-def test_forcefolder_absolute_shall_raise_or_warn(tmp_path, globalconfig2, regsurf):
+def test_forcefolder_absolute_shall_raise_or_warn(
+    tmp_path, globalconfig2, regsurf, monkeypatch: pytest.MonkeyPatch
+):
     """Testing the forcefolder mechanism."""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
-    os.chdir(rmspath)
+    monkeypatch.chdir(rmspath)
 
     ExportData.allow_forcefolder_absolute = False
 
@@ -1194,8 +1192,6 @@ def test_ert_experiment_id_present_in_generated_metadata(
     """Test that the ert experiment id has been set correctly
     in the generated metadata"""
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
-
     edata = ExportData(config=globalconfig1, content="depth")
     meta = edata.generate_metadata(regsurf)
     expected_id = "6a8e1e0f-9315-46bb-9648-8de87151f4c7"
@@ -1207,8 +1203,6 @@ def test_ert_experiment_id_present_in_exported_metadata(
 ):
     """Test that the ert experiment id has been set correctly
     in the exported metadata"""
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = ExportData(config=globalconfig1, content="depth")
     out = Path(edata.export(regsurf))
@@ -1224,8 +1218,6 @@ def test_ert_simulation_mode_present_in_generated_metadata(
     """Test that the ert simulation mode has been set correctly
     in the generated metadata"""
 
-    monkeypatch.chdir(fmurun_w_casemetadata)
-
     edata = ExportData(config=globalconfig1, content="depth")
     meta = edata.generate_metadata(regsurf)
     assert meta["fmu"]["ert"]["simulation_mode"] == "test_run"
@@ -1236,8 +1228,6 @@ def test_ert_simulation_mode_present_in_exported_metadata(
 ):
     """Test that the ert simulation mode has been set correctly
     in the exported metadata"""
-
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = ExportData(config=globalconfig1, content="depth")
     out = Path(edata.export(regsurf))
@@ -1397,7 +1387,6 @@ def test_export_with_standard_result_valid_config(
 ):
     """Test that standard result is set in metadata when
     export_with_standard_result is used"""
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     edata = ExportData(
         config=globalconfig1,
@@ -1447,7 +1436,6 @@ def test_file_paths_realization_context(
     Testing the file paths set in the metadata with a realization context.
     Here the file.runpath_relative_path and the file.relative_path should not be equal.
     """
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     meta = ExportData(
         config=globalconfig2, name="myname", content="depth"
@@ -1487,7 +1475,6 @@ def test_element_id_realization_context(
     fmurun_w_casemetadata, globalconfig2, monkeypatch, regsurf
 ):
     """Test that the entity.uuid is set in the metadata for a realization context."""
-    monkeypatch.chdir(fmurun_w_casemetadata)
 
     meta = ExportData(
         config=globalconfig2, name="myname", content="depth"

@@ -1,6 +1,5 @@
 """Test the _MetaData class from the _metadata.py module"""
 
-import os
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
@@ -202,10 +201,12 @@ def test_get_share_folders_with_subfolder(regsurf, globalconfig2):
     assert str(fmeta.absolute_path.parent).endswith("share/results/maps/sub")
 
 
-def test_filedata_provider(regsurf, tmp_path, globalconfig2):
+def test_filedata_provider(
+    regsurf, tmp_path, globalconfig2, monkeypatch: pytest.MonkeyPatch
+):
     """Testing the derive_filedata function."""
 
-    os.chdir(tmp_path)
+    monkeypatch.chdir(tmp_path)
 
     cfg = ExportData(
         config=globalconfig2,
@@ -235,10 +236,12 @@ def test_filedata_provider(regsurf, tmp_path, globalconfig2):
     assert filemeta.absolute_path == absdata
 
 
-def test_filedata_has_nonascii_letters(regsurf, tmp_path, globalconfig2):
+def test_filedata_has_nonascii_letters(
+    regsurf, tmp_path, globalconfig2, monkeypatch: pytest.MonkeyPatch
+):
     """Testing the get_metadata function."""
 
-    os.chdir(tmp_path)
+    monkeypatch.chdir(tmp_path)
     edataobj1 = ExportData(config=globalconfig2, name="mynõme", content="depth")
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)

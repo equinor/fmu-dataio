@@ -122,7 +122,6 @@ def test_create_case_metadata_generate_metadata(monkeypatch, fmurun, globalconfi
 def test_create_case_metadata_generate_metadata_warn_if_exists(
     monkeypatch, fmurun_w_casemetadata, globalconfig2
 ):
-    monkeypatch.chdir(fmurun_w_casemetadata)
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     casemetafolder = fmurun_w_casemetadata.parent.parent
 

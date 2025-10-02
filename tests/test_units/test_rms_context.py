@@ -6,7 +6,6 @@ interactive or from ERT. Hence the rootpath will be ../../
 
 import builtins
 import logging
-import os
 import shutil
 from copy import deepcopy
 from pathlib import Path
@@ -24,8 +23,8 @@ from fmu.dataio.dataio import ValidationError
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture(scope="module")
-def inside_rms_setup(tmp_path_factory, rootpath):
+@pytest.fixture(scope="function")
+def inside_rms_setup(tmp_path_factory, rootpath, monkeypatch: pytest.MonkeyPatch):
     """Set up test env pretending being inside RMS, and with a parsed global config."""
 
     with open(
@@ -45,10 +44,8 @@ def inside_rms_setup(tmp_path_factory, rootpath):
     for file_ in f_room_files:
         shutil.copy(file_, target_folder)
 
-    os.chdir(rmspath)
+    monkeypatch.chdir(rmspath)
     yield {"path": rmspath, "config": global_cfg}
-
-    os.chdir(rootpath)
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
