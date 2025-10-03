@@ -183,7 +183,7 @@ class ExportPreprocessedData:
             # TODO: Would like to use meta.Root.model_validate() here
             # but then the '$schema' field is dropped from the meta_existing
             validated_metadata = ObjectMetadataExport.model_validate(meta_existing)
-            validated_metadata.tracklog.extend(
+            validated_metadata.tracklog.append(
                 enums.TrackLogEventType.merged, __version__
             )
             return validated_metadata.model_dump(
