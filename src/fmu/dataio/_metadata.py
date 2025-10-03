@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Final
 
 from pydantic import Field
 
+from fmu.dataio.version import __version__
 from fmu.datamodels.fmu_results import data, fields
 from fmu.datamodels.fmu_results.fmu_results import (
     ObjectMetadata,
@@ -125,7 +126,7 @@ def generate_export_metadata(
         access=_get_meta_access(dataio),
         data=objdata.get_metadata(),
         file=_get_meta_filedata(dataio._runcontext, objdata),
-        tracklog=fields.Tracklog.initialize(),
+        tracklog=fields.Tracklog.initialize(__version__),
         display=_get_meta_display(dataio, objdata),
         preprocessed=dataio.preprocessed,
     )
