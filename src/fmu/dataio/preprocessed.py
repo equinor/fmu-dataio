@@ -8,6 +8,7 @@ from typing import Final
 import yaml
 from pydantic import ValidationError
 
+from fmu.dataio.version import __version__
 from fmu.datamodels.fmu_results import enums
 from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.fields import File
@@ -182,7 +183,9 @@ class ExportPreprocessedData:
             # TODO: Would like to use meta.Root.model_validate() here
             # but then the '$schema' field is dropped from the meta_existing
             validated_metadata = ObjectMetadataExport.model_validate(meta_existing)
-            validated_metadata.tracklog.extend(enums.TrackLogEventType.merged)
+            validated_metadata.tracklog.extend(
+                enums.TrackLogEventType.merged, __version__
+            )
             return validated_metadata.model_dump(
                 mode="json", exclude_none=True, by_alias=True
             )
