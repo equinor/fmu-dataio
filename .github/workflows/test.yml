@@ -34,17 +34,6 @@ jobs:
           pip install pip -U
           pip install -e .[dev]
 
-      # Install repos from their Github main branches instead of Pypi.
-      # This removes the need to manually pin these version of the repos
-      # during the development phase.
-      - name: Install bleeding ert
-        run: |
-          git lfs install
-          export GIT_LFS_SKIP_SMUDGE=1
-
-          pip install \
-            "ert @ git+https://github.com/equinor/ert.git"
-
       - name: Install fmu-datamodels
         run: |
           pip install \
