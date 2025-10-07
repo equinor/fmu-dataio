@@ -118,8 +118,8 @@ def fmurun(tmp_path_factory, monkeypatch, rootpath):
     return newpath
 
 
-@pytest.fixture(name="fmurun_prehook", scope="function")
-def fixture_fmurun_prehook(tmp_path_factory, monkeypatch, rootpath):
+@pytest.fixture(scope="function")
+def fmurun_prehook(tmp_path_factory, monkeypatch, rootpath):
     """A tmp folder structure for testing; here a new fmurun without case metadata."""
     tmppath = tmp_path_factory.mktemp("data")
     newpath = tmppath / ERTRUN
@@ -147,8 +147,8 @@ def fmurun_w_casemetadata(
     return iter_path
 
 
-@pytest.fixture(name="fmurun_non_equal_real_and_iter", scope="function")
-def fixture_fmurun_non_equal_real_and_iter(tmp_path_factory, monkeypatch, rootpath):
+@pytest.fixture(scope="function")
+def fmurun_non_equal_real_and_iter(tmp_path_factory, monkeypatch, rootpath):
     """Create a tmp folder structure for testing; with non equal real and iter num!"""
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / ERTRUN
@@ -163,8 +163,8 @@ def fixture_fmurun_non_equal_real_and_iter(tmp_path_factory, monkeypatch, rootpa
     return rootpath
 
 
-@pytest.fixture(name="fmurun_no_iter_folder", scope="function")
-def fixture_fmurun_no_iter_folder(tmp_path_factory, monkeypatch, rootpath):
+@pytest.fixture(scope="function")
+def fmurun_no_iter_folder(tmp_path_factory, monkeypatch, rootpath):
     """Create a tmp folder structure for testing; with no iter folder!"""
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / ERTRUN_NO_ITER
@@ -179,8 +179,8 @@ def fixture_fmurun_no_iter_folder(tmp_path_factory, monkeypatch, rootpath):
     return rootpath
 
 
-@pytest.fixture(name="fmurun_w_casemetadata_pred", scope="function")
-def fixture_fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch, rootpath):
+@pytest.fixture(scope="function")
+def fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch, rootpath):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / ERTRUN
@@ -193,8 +193,8 @@ def fixture_fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch, rootpath):
     return rootpath
 
 
-@pytest.fixture(name="fmurun_pred", scope="session")
-def fixture_fmurun_pred(tmp_path_factory, rootpath):
+@pytest.fixture(scope="session")
+def fmurun_pred(tmp_path_factory, rootpath):
     """Create a tmp folder structure for testing; here a new fmurun for prediction."""
     tmppath = tmp_path_factory.mktemp("data_pred")
     newpath = tmppath / ERTRUN_PRED
@@ -203,8 +203,8 @@ def fixture_fmurun_pred(tmp_path_factory, rootpath):
     return newpath
 
 
-@pytest.fixture(name="rmsrun_fmu_w_casemetadata", scope="session")
-def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory, rootpath):
+@pytest.fixture(scope="session")
+def rmsrun_fmu_w_casemetadata(tmp_path_factory, rootpath):
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!
 
     Then we locate the folder to the ...rms/model folder, pretending running RMS
@@ -250,8 +250,8 @@ def rmssetup_with_fmuconfig(tmp_path_factory, global_config2_path):
     return rmspath
 
 
-@pytest.fixture(name="rmsglobalconfig", scope="function")
-def fixture_rmsglobalconfig(rmssetup, monkeypatch: MonkeyPatch):
+@pytest.fixture(scope="function")
+def rmsglobalconfig(rmssetup, monkeypatch: MonkeyPatch):
     """Read global config."""
     # read the global config
     monkeypatch.chdir(rmssetup)
@@ -264,10 +264,8 @@ def fixture_rmsglobalconfig(rmssetup, monkeypatch: MonkeyPatch):
     return global_cfg
 
 
-@pytest.fixture(name="globalvars_norwegian_letters", scope="function")
-def fixture_globalvars_norwegian_letters(
-    tmp_path_factory, rootpath, monkeypatch: MonkeyPatch
-):
+@pytest.fixture(scope="function")
+def globalvars_norwegian_letters(tmp_path_factory, rootpath, monkeypatch: MonkeyPatch):
     """Read a global config with norwegian special letters w/ fmu.config utilities."""
 
     tmppath = tmp_path_factory.mktemp("revisionxx")
@@ -288,8 +286,8 @@ def fixture_globalvars_norwegian_letters(
     return (rmspath, cfg, gname)
 
 
-@pytest.fixture(name="casesetup", scope="function")
-def fixture_casesetup(tmp_path_factory):
+@pytest.fixture(scope="function")
+def casesetup(tmp_path_factory):
     """Create the folder structure to mimic a fmu run"""
 
     tmppath = tmp_path_factory.mktemp("mycase")
@@ -301,8 +299,8 @@ def fixture_casesetup(tmp_path_factory):
     return tmppath
 
 
-@pytest.fixture(name="globalconfig1", scope="function")
-def fixture_globalconfig1():
+@pytest.fixture(scope="function")
+def globalconfig1():
     """Minimalistic global config variables no. 1 in ExportData class."""
     return global_configuration.GlobalConfiguration(
         masterdata=fields.Masterdata(
@@ -383,8 +381,8 @@ def globalconfig2(global_config2_path) -> dict:
         return yaml.safe_load(stream)
 
 
-@pytest.fixture(name="edataobj2", scope="function")
-def fixture_edataobj2(globalconfig2):
+@pytest.fixture(scope="function")
+def edataobj2(globalconfig2):
     """Combined globalconfig2 and other settings; NB for internal unit testing"""
     eobj = dio.ExportData(
         config=globalconfig2,
@@ -437,15 +435,15 @@ def metadata_examples():
     return _metadata_examples()
 
 
-@pytest.fixture(name="regsurf_nan_only", scope="function")
-def fixture_regsurf_nan_only():
+@pytest.fixture(scope="function")
+def regsurf_nan_only():
     """Create an xtgeo surface with only NaNs."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=np.nan)
 
 
-@pytest.fixture(name="regsurf_masked_only", scope="function")
-def fixture_regsurf_masked_only():
+@pytest.fixture(scope="function")
+def regsurf_masked_only():
     """Create an xtgeo surface with only masked values."""
     logger.debug("Ran %s", _current_function_name())
     regsurf = xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1000)
@@ -458,15 +456,15 @@ def fixture_regsurf_masked_only():
 # ======================================================================================
 
 
-@pytest.fixture(name="regsurf", scope="function")
-def fixture_regsurf():
+@pytest.fixture(scope="function")
+def regsurf():
     """Create an xtgeo surface."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
 
 
-@pytest.fixture(name="faultroom_object", scope="function")
-def fixture_faultroom_object(globalconfig2):
+@pytest.fixture(scope="function")
+def faultroom_object(globalconfig2):
     """Create a faultroom object."""
     logger.debug("Ran %s", _current_function_name())
     cfg = deepcopy(globalconfig2)
@@ -494,8 +492,8 @@ def fixture_faultroom_object(globalconfig2):
     return FaultRoomSurface({"metadata": faultroom_data, "features": features})
 
 
-@pytest.fixture(name="tsurf")
-def fixture_tsurf() -> TSurfData:
+@pytest.fixture()
+def tsurf() -> TSurfData:
     """
     Create a basic TSurfData object from a dictionary.
     """
@@ -521,8 +519,8 @@ def fixture_tsurf() -> TSurfData:
     return TSurfData.model_validate(tsurf_dict)
 
 
-@pytest.fixture(name="tsurf_as_lines")
-def fixture_tsurf_as_lines(tsurf: TSurfData) -> list[str]:
+@pytest.fixture()
+def tsurf_as_lines(tsurf: TSurfData) -> list[str]:
     """
     Create lines to simulate the results of parsing a file with a basic TSurf object.
     """
@@ -560,8 +558,8 @@ def fixture_tsurf_as_lines(tsurf: TSurfData) -> list[str]:
     ]
 
 
-@pytest.fixture(name="polygons", scope="function")
-def fixture_polygons():
+@pytest.fixture(scope="function")
+def polygons():
     """Create an xtgeo polygons."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.Polygons(
@@ -574,8 +572,8 @@ def fixture_polygons():
     )
 
 
-@pytest.fixture(name="fault_line", scope="function")
-def fixture_fault_line():
+@pytest.fixture(scope="function")
+def fault_line():
     """Create an xtgeo polygons."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.Polygons(
@@ -589,8 +587,8 @@ def fixture_fault_line():
     )
 
 
-@pytest.fixture(name="points", scope="function")
-def fixture_points():
+@pytest.fixture(scope="function")
+def points():
     """Create an xtgeo points instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.Points(
@@ -604,36 +602,36 @@ def fixture_points():
     )
 
 
-@pytest.fixture(name="cube", scope="function")
-def fixture_cube():
+@pytest.fixture(scope="function")
+def cube():
     """Create an xtgeo cube instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.Cube(ncol=3, nrow=4, nlay=5, xinc=12, yinc=12, zinc=4, rotation=30)
 
 
-@pytest.fixture(name="grid", scope="function")
-def fixture_grid():
+@pytest.fixture(scope="function")
+def grid():
     """Create an xtgeo grid instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.create_box_grid((3, 4, 5))
 
 
-@pytest.fixture(name="gridproperty", scope="function")
-def fixture_gridproperty():
+@pytest.fixture(scope="function")
+def gridproperty():
     """Create an xtgeo gridproperty instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.GridProperty(ncol=3, nrow=7, nlay=3, values=123.0)
 
 
-@pytest.fixture(name="dataframe", scope="function")
-def fixture_dataframe():
+@pytest.fixture(scope="function")
+def dataframe():
     """Create an pandas dataframe instance."""
     logger.debug("Ran %s", _current_function_name())
     return pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
 
 
-@pytest.fixture(name="wellpicks", scope="function")
-def fixture_wellpicks():
+@pytest.fixture(scope="function")
+def wellpicks():
     """Create a pandas dataframe containing wellpicks"""
     logger.debug("Ran %s", _current_function_name())
     return pd.DataFrame(
@@ -664,8 +662,8 @@ def fixture_wellpicks():
     )
 
 
-@pytest.fixture(name="arrowtable", scope="function")
-def fixture_arrowtable():
+@pytest.fixture(scope="function")
+def arrowtable():
     """Create an arrow table instance."""
     try:
         from pyarrow import Table
@@ -712,8 +710,8 @@ def _create_aggregated_surface_dataset(
     return surfs, metas
 
 
-@pytest.fixture(name="aggr_sesimic_surfs_mean", scope="function")
-def fixture_aggr_seismic_surfs_mean(
+@pytest.fixture(scope="function")
+def aggr_seismic_surfs_mean(
     fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: MonkeyPatch
 ):
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
@@ -738,8 +736,8 @@ def fixture_aggr_seismic_surfs_mean(
     return (aggregated["mean"], metas)
 
 
-@pytest.fixture(name="aggr_surfs_mean", scope="function")
-def fixture_aggr_surfs_mean(
+@pytest.fixture(scope="function")
+def aggr_surfs_mean(
     fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: MonkeyPatch
 ):
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
@@ -761,8 +759,8 @@ def fixture_aggr_surfs_mean(
     return (aggregated["mean"], metas)
 
 
-@pytest.fixture(name="edataobj3")
-def fixture_edataobj3(globalconfig1):
+@pytest.fixture()
+def edataobj3(globalconfig1):
     """Combined globalconfig and settings to instance, for internal testing"""
 
     return ExportData(
@@ -785,8 +783,8 @@ def export_data_obj_timeseries(globalconfig1):
     )
 
 
-@pytest.fixture(name="mock_summary")
-def fixture_summary():
+@pytest.fixture()
+def mock_summary():
     """Return summary mock data
 
     Returns:
@@ -795,14 +793,14 @@ def fixture_summary():
     return pd.DataFrame({"alf": ["A", "B", "C"], "DATE": [1, 2, 3]})
 
 
-@pytest.fixture(name="mock_relperm")
-def fixture_relperm():
+@pytest.fixture()
+def mock_relperm():
     """Return relperm mock data"""
     return pd.DataFrame({"alf": ["A", "B", "C"], "SATNUM": [1, 2, 3]})
 
 
-@pytest.fixture(name="drogon_summary")
-def fixture_drogon_sum(rootpath):
+@pytest.fixture()
+def drogon_summary(rootpath):
     """Return pyarrow table
 
     Returns:
@@ -813,8 +811,8 @@ def fixture_drogon_sum(rootpath):
     return feather.read_table(rootpath / "tests/data/drogon/tabular/summary.arrow")
 
 
-@pytest.fixture(name="mock_volumes")
-def fixture_mock_volumes():
+@pytest.fixture()
+def mock_volumes():
     """Return volume mock data
 
     Returns:
@@ -832,8 +830,8 @@ def fixture_mock_volumes():
     )
 
 
-@pytest.fixture(name="drogon_volumes")
-def fixture_drogon_volumes(rootpath):
+@pytest.fixture()
+def drogon_volumes(rootpath):
     """Return pyarrow table
 
     Returns:
