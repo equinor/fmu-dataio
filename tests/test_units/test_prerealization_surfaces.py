@@ -11,7 +11,6 @@ and are typically used to compare results.
 """
 
 import logging
-import os
 
 import pytest
 
@@ -23,14 +22,16 @@ from ..conftest import remove_ert_env, set_ert_env_prehook
 logger = logging.getLogger(__name__)
 
 
-def test_regsurf_case_observation(fmurun_prehook, rmsglobalconfig, regsurf):
+def test_regsurf_case_observation(
+    fmurun_prehook, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
+):
     """Test generating pre-realization surfaces that comes right to case.
 
     Notice the difference between this use-case and the 'preprocessed' example later!
     """
     logger.info("Active folder is %s", fmurun_prehook)
 
-    os.chdir(fmurun_prehook)
+    monkeypatch.chdir(fmurun_prehook)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,  # read from global config
@@ -60,11 +61,13 @@ def test_regsurf_preprocessed_observation(
     """
 
     @pytest.mark.usefixtures("inside_rms_interactive")
-    def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
+    def _export_data_from_rms(
+        rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
+    ):
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)
 
-        os.chdir(rmssetup)
+        monkeypatch.chdir(rmssetup)
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             preprocessed=True,
@@ -86,7 +89,7 @@ def test_regsurf_preprocessed_observation(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, surfacepath):
+    def _run_case_fmu(fmurun_prehook, surfacepath, monkeypatch: pytest.MonkeyPatch):
         """Run FMU workflow, using the preprocessed data as case data.
 
         When re-using metadata, the input object to dataio shall not be a XTGeo or
@@ -97,7 +100,7 @@ def test_regsurf_preprocessed_observation(
         But it requires that valid metadata for that file is found. The rule for
         merging is currently defaulted to "preprocessed".
         """
-        os.chdir(fmurun_prehook)
+        monkeypatch.chdir(fmurun_prehook)
         logger.info("Active folder is %s", fmurun_prehook)
 
         casepath = fmurun_prehook
@@ -129,9 +132,9 @@ def test_regsurf_preprocessed_observation(
 
     # run two stage process
     remove_ert_env(monkeypatch)
-    mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
+    mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf, monkeypatch)
     set_ert_env_prehook(monkeypatch)
-    _run_case_fmu(fmurun_prehook, mysurf)
+    _run_case_fmu(fmurun_prehook, mysurf, monkeypatch)
 
     logger.info("Preprocessed surface is %s", mysurf)
 
@@ -176,11 +179,12 @@ def test_regsurf_preprocessed_filename_retained(
         name,
         tagname,
         exproot,
+        monkeypatch: pytest.MonkeyPatch,
     ):
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)
 
-        os.chdir(rmssetup)
+        monkeypatch.chdir(rmssetup)
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             preprocessed=True,
@@ -202,10 +206,12 @@ def test_regsurf_preprocessed_filename_retained(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, surfacepath, exproot):
+    def _run_case_fmu(
+        fmurun_prehook, surfacepath, exproot, monkeypatch: pytest.MonkeyPatch
+    ):
         """Run FMU workflow, using the preprocessed data on a subfolder."""
 
-        os.chdir(fmurun_prehook)
+        monkeypatch.chdir(fmurun_prehook)
         logger.info("Active folder is %s", fmurun_prehook)
 
         edata = dataio.ExportPreprocessedData(
@@ -220,10 +226,10 @@ def test_regsurf_preprocessed_filename_retained(
 
     remove_ert_env(monkeypatch)
     mysurf = _export_data_from_rms(
-        rmssetup, rmsglobalconfig, regsurf, parent, name, tagname, exproot
+        rmssetup, rmsglobalconfig, regsurf, parent, name, tagname, exproot, monkeypatch
     )
     set_ert_env_prehook(monkeypatch)
-    _run_case_fmu(fmurun_prehook, mysurf, exproot)
+    _run_case_fmu(fmurun_prehook, mysurf, exproot, monkeypatch)
 
 
 def test_regsurf_preprocessed_observation_subfolder(
@@ -238,11 +244,13 @@ def test_regsurf_preprocessed_observation_subfolder(
     """
 
     @pytest.mark.usefixtures("inside_rms_interactive")
-    def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
+    def _export_data_from_rms(
+        rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
+    ):
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)
 
-        os.chdir(rmssetup)
+        monkeypatch.chdir(rmssetup)
         edata = dataio.ExportData(
             config=rmsglobalconfig,  # read from global config
             preprocessed=True,
@@ -263,10 +271,10 @@ def test_regsurf_preprocessed_observation_subfolder(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, surfacepath):
+    def _run_case_fmu(fmurun_prehook, surfacepath, monkeypatch: pytest.MonkeyPatch):
         """Run FMU workflow, using the preprocessed data on a subfolder."""
 
-        os.chdir(fmurun_prehook)
+        monkeypatch.chdir(fmurun_prehook)
         logger.info("Active folder is %s", fmurun_prehook)
 
         edata = dataio.ExportPreprocessedData(
@@ -282,20 +290,20 @@ def test_regsurf_preprocessed_observation_subfolder(
 
     # run two stage process
     remove_ert_env(monkeypatch)
-    mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
+    mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf, monkeypatch)
 
     set_ert_env_prehook(monkeypatch)
-    _run_case_fmu(fmurun_prehook, mysurf)
+    _run_case_fmu(fmurun_prehook, mysurf, monkeypatch)
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_preprocessed_with_abs_forcefolder_shall_fail(
-    rmssetup, rmsglobalconfig, regsurf
+    rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
 ):
     """Run an export of a preprocessed surface inside RMS, with absolute forcefolder."""
     logger.info("Active folder is %s", rmssetup)
 
-    os.chdir(rmssetup)
+    monkeypatch.chdir(rmssetup)
     edata = dataio.ExportData(
         config=rmsglobalconfig,  # read from global config
         preprocessed=True,
@@ -311,11 +319,13 @@ def test_preprocessed_with_abs_forcefolder_shall_fail(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_preprocessed_with_rel_forcefolder_ok(rmssetup, rmsglobalconfig, regsurf):
+def test_preprocessed_with_rel_forcefolder_ok(
+    rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
+):
     """Run an export of a preprocessed surface inside RMS, with forcefolder."""
     logger.info("Active folder is %s", rmssetup)
 
-    os.chdir(rmssetup)
+    monkeypatch.chdir(rmssetup)
     edata = dataio.ExportData(
         config=rmsglobalconfig,  # read from global config
         preprocessed=True,
@@ -340,14 +350,16 @@ def test_access_settings_retained(
     When adding metadata during FMU runtime, the access shall be retained."""
 
     @pytest.mark.usefixtures("inside_rms_interactive")
-    def _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf):
+    def _export_data_from_rms(
+        rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
+    ):
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)
 
         # Confirm assumption: Access level in config is "internal"
         assert rmsglobalconfig["access"]["classification"] == "internal"
 
-        os.chdir(rmssetup)
+        monkeypatch.chdir(rmssetup)
         edata = dataio.ExportData(
             config=rmsglobalconfig,
             preprocessed=True,
@@ -363,10 +375,10 @@ def test_access_settings_retained(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, surfacepath):
+    def _run_case_fmu(fmurun_prehook, surfacepath, monkeypatch: pytest.MonkeyPatch):
         """Run FMU workflow, test that access is retained from preprocessed."""
 
-        os.chdir(fmurun_prehook)
+        monkeypatch.chdir(fmurun_prehook)
         logger.info("Active folder is %s", fmurun_prehook)
 
         edata = dataio.ExportPreprocessedData(casepath=fmurun_prehook)
@@ -377,6 +389,6 @@ def test_access_settings_retained(
 
     # run two stage process
     remove_ert_env(monkeypatch)
-    surfacepath = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf)
+    surfacepath = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf, monkeypatch)
     set_ert_env_prehook(monkeypatch)
-    _run_case_fmu(fmurun_prehook, surfacepath)
+    _run_case_fmu(fmurun_prehook, surfacepath, monkeypatch)

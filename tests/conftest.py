@@ -17,6 +17,7 @@ import xtgeo
 import yaml
 from fmu.config import utilities as ut
 from fmu.datamodels.fmu_results import FmuResults, fields, global_configuration
+from pytest import MonkeyPatch
 
 import fmu.dataio as dio
 from fmu.dataio._readers.faultroom import FaultRoomSurface
@@ -59,11 +60,11 @@ def source_root(request) -> Path:
 
 
 @pytest.fixture(scope="function", autouse=True)
-def return_to_original_directory():
+def return_to_original_directory(monkeypatch: MonkeyPatch):
     # store original folder, and restore after each function (before and after yield)
     original_directory = os.getcwd()
     yield
-    os.chdir(original_directory)
+    monkeypatch.chdir(original_directory)
 
 
 @pytest.fixture
@@ -130,18 +131,20 @@ def fixture_fmurun_prehook(tmp_path_factory, monkeypatch, rootpath):
     return newpath
 
 
-@pytest.fixture(name="fmurun_w_casemetadata", scope="function")
-def fixture_fmurun_w_casemetadata(tmp_path_factory, monkeypatch, rootpath):
+@pytest.fixture(scope="function")
+def fmurun_w_casemetadata(
+    tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
+) -> Path:
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
-    tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / ERTRUN
+    newpath = tmp_path / ERTRUN
     shutil.copytree(rootpath / ERTRUN, newpath)
-    rootpath = newpath / "realization-0/iter-0"
+    iter_path = newpath / "realization-0/iter-0"
 
-    _fmu_run1_env_variables(monkeypatch, usepath=rootpath, case_only=False)
+    _fmu_run1_env_variables(monkeypatch, usepath=iter_path, case_only=False)
 
     logger.debug("Ran %s", _current_function_name())
-    return rootpath
+    monkeypatch.chdir(iter_path)
+    return iter_path
 
 
 @pytest.fixture(name="fmurun_non_equal_real_and_iter", scope="function")
@@ -217,7 +220,7 @@ def fixture_rmsrun_fmu_w_casemetadata(tmp_path_factory, rootpath):
     return rmspath
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def rmssetup(tmp_path_factory, global_config2_path):
     """Create the folder structure to mimic RMS project."""
 
@@ -231,7 +234,7 @@ def rmssetup(tmp_path_factory, global_config2_path):
     return rmspath
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def rmssetup_with_fmuconfig(tmp_path_factory, global_config2_path):
     """Create the folder structure to mimic RMS project and standard global config."""
 
@@ -247,11 +250,11 @@ def rmssetup_with_fmuconfig(tmp_path_factory, global_config2_path):
     return rmspath
 
 
-@pytest.fixture(name="rmsglobalconfig", scope="module")
-def fixture_rmsglobalconfig(rmssetup):
+@pytest.fixture(name="rmsglobalconfig", scope="function")
+def fixture_rmsglobalconfig(rmssetup, monkeypatch: MonkeyPatch):
     """Read global config."""
     # read the global config
-    os.chdir(rmssetup)
+    monkeypatch.chdir(rmssetup)
     logger.debug("Global config is %s", str(rmssetup / "global_variables.yml"))
     with open("global_variables.yml", encoding="utf8") as stream:
         global_cfg = yaml.safe_load(stream)
@@ -261,8 +264,10 @@ def fixture_rmsglobalconfig(rmssetup):
     return global_cfg
 
 
-@pytest.fixture(name="globalvars_norwegian_letters", scope="module")
-def fixture_globalvars_norwegian_letters(tmp_path_factory, rootpath):
+@pytest.fixture(name="globalvars_norwegian_letters", scope="function")
+def fixture_globalvars_norwegian_letters(
+    tmp_path_factory, rootpath, monkeypatch: MonkeyPatch
+):
     """Read a global config with norwegian special letters w/ fmu.config utilities."""
 
     tmppath = tmp_path_factory.mktemp("revisionxx")
@@ -277,13 +282,13 @@ def fixture_globalvars_norwegian_letters(tmp_path_factory, rootpath):
         rmspath,
     )
 
-    os.chdir(rmspath)
+    monkeypatch.chdir(rmspath)
     cfg = ut.yaml_load(rmspath / gname)
 
     return (rmspath, cfg, gname)
 
 
-@pytest.fixture(name="casesetup", scope="module")
+@pytest.fixture(name="casesetup", scope="function")
 def fixture_casesetup(tmp_path_factory):
     """Create the folder structure to mimic a fmu run"""
 
@@ -296,7 +301,7 @@ def fixture_casesetup(tmp_path_factory):
     return tmppath
 
 
-@pytest.fixture(name="globalconfig1", scope="module")
+@pytest.fixture(name="globalconfig1", scope="function")
 def fixture_globalconfig1():
     """Minimalistic global config variables no. 1 in ExportData class."""
     return global_configuration.GlobalConfiguration(
@@ -345,17 +350,17 @@ def fixture_globalconfig1():
     ).model_dump(exclude_none=True)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def global_config2_path(rootpath) -> Path:
     """The path to the second global config."""
     return rootpath / "tests/data/drogon/global_config2/global_variables.yml"
 
 
-@pytest.fixture(name="edataobj1", scope="module")
-def fixture_edataobj1(globalconfig1):
+@pytest.fixture(scope="function")
+def edataobj1(globalconfig1, tmp_path: Path, monkeypatch: MonkeyPatch):
     """Combined globalconfig and settings to instance, for internal testing"""
     logger.debug("Establish edataobj1")
-
+    monkeypatch.chdir(tmp_path)
     eobj = dio.ExportData(
         config=globalconfig1,
         name="TopWhatever",
@@ -371,7 +376,7 @@ def fixture_edataobj1(globalconfig1):
     return eobj
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def globalconfig2(global_config2_path) -> dict:
     """More advanced global config from file state variable in ExportData class."""
     with open(global_config2_path, encoding="utf-8") as stream:
@@ -432,14 +437,14 @@ def metadata_examples():
     return _metadata_examples()
 
 
-@pytest.fixture(name="regsurf_nan_only", scope="module")
+@pytest.fixture(name="regsurf_nan_only", scope="function")
 def fixture_regsurf_nan_only():
     """Create an xtgeo surface with only NaNs."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=np.nan)
 
 
-@pytest.fixture(name="regsurf_masked_only", scope="module")
+@pytest.fixture(name="regsurf_masked_only", scope="function")
 def fixture_regsurf_masked_only():
     """Create an xtgeo surface with only masked values."""
     logger.debug("Ran %s", _current_function_name())
@@ -453,14 +458,14 @@ def fixture_regsurf_masked_only():
 # ======================================================================================
 
 
-@pytest.fixture(name="regsurf", scope="module")
+@pytest.fixture(name="regsurf", scope="function")
 def fixture_regsurf():
     """Create an xtgeo surface."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
 
 
-@pytest.fixture(name="faultroom_object", scope="module")
+@pytest.fixture(name="faultroom_object", scope="function")
 def fixture_faultroom_object(globalconfig2):
     """Create a faultroom object."""
     logger.debug("Ran %s", _current_function_name())
@@ -555,7 +560,7 @@ def fixture_tsurf_as_lines(tsurf: TSurfData) -> list[str]:
     ]
 
 
-@pytest.fixture(name="polygons", scope="module")
+@pytest.fixture(name="polygons", scope="function")
 def fixture_polygons():
     """Create an xtgeo polygons."""
     logger.debug("Ran %s", _current_function_name())
@@ -569,7 +574,7 @@ def fixture_polygons():
     )
 
 
-@pytest.fixture(name="fault_line", scope="module")
+@pytest.fixture(name="fault_line", scope="function")
 def fixture_fault_line():
     """Create an xtgeo polygons."""
     logger.debug("Ran %s", _current_function_name())
@@ -584,7 +589,7 @@ def fixture_fault_line():
     )
 
 
-@pytest.fixture(name="points", scope="module")
+@pytest.fixture(name="points", scope="function")
 def fixture_points():
     """Create an xtgeo points instance."""
     logger.debug("Ran %s", _current_function_name())
@@ -599,35 +604,35 @@ def fixture_points():
     )
 
 
-@pytest.fixture(name="cube", scope="module")
+@pytest.fixture(name="cube", scope="function")
 def fixture_cube():
     """Create an xtgeo cube instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.Cube(ncol=3, nrow=4, nlay=5, xinc=12, yinc=12, zinc=4, rotation=30)
 
 
-@pytest.fixture(name="grid", scope="module")
+@pytest.fixture(name="grid", scope="function")
 def fixture_grid():
     """Create an xtgeo grid instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.create_box_grid((3, 4, 5))
 
 
-@pytest.fixture(name="gridproperty", scope="module")
+@pytest.fixture(name="gridproperty", scope="function")
 def fixture_gridproperty():
     """Create an xtgeo gridproperty instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.GridProperty(ncol=3, nrow=7, nlay=3, values=123.0)
 
 
-@pytest.fixture(name="dataframe", scope="module")
+@pytest.fixture(name="dataframe", scope="function")
 def fixture_dataframe():
     """Create an pandas dataframe instance."""
     logger.debug("Ran %s", _current_function_name())
     return pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
 
 
-@pytest.fixture(name="wellpicks", scope="module")
+@pytest.fixture(name="wellpicks", scope="function")
 def fixture_wellpicks():
     """Create a pandas dataframe containing wellpicks"""
     logger.debug("Ran %s", _current_function_name())
@@ -659,7 +664,7 @@ def fixture_wellpicks():
     )
 
 
-@pytest.fixture(name="arrowtable", scope="module")
+@pytest.fixture(name="arrowtable", scope="function")
 def fixture_arrowtable():
     """Create an arrow table instance."""
     try:
@@ -708,12 +713,13 @@ def _create_aggregated_surface_dataset(
 
 
 @pytest.fixture(name="aggr_sesimic_surfs_mean", scope="function")
-def fixture_aggr_seismic_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
+def fixture_aggr_seismic_surfs_mean(
+    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: MonkeyPatch
+):
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
     logger.debug("Ran %s", _current_function_name())
 
     origfolder = os.getcwd()
-    os.chdir(fmurun_w_casemetadata)
 
     surfs, metas = _create_aggregated_surface_dataset(
         rmsglobalconfig,
@@ -727,18 +733,19 @@ def fixture_aggr_seismic_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regs
         "Aggr. mean is %s", aggregated["mean"].values.mean()
     )  # shall be 1238.5
 
-    os.chdir(origfolder)
+    monkeypatch.chdir(origfolder)
 
     return (aggregated["mean"], metas)
 
 
 @pytest.fixture(name="aggr_surfs_mean", scope="function")
-def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
+def fixture_aggr_surfs_mean(
+    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: MonkeyPatch
+):
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
     logger.debug("Ran %s", _current_function_name())
 
     origfolder = os.getcwd()
-    os.chdir(fmurun_w_casemetadata)
 
     surfs, metas = _create_aggregated_surface_dataset(
         rmsglobalconfig, regsurf, content="depth"
@@ -749,7 +756,7 @@ def fixture_aggr_surfs_mean(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
         "Aggr. mean is %s", aggregated["mean"].values.mean()
     )  # shall be 1238.5
 
-    os.chdir(origfolder)
+    monkeypatch.chdir(origfolder)
 
     return (aggregated["mean"], metas)
 
