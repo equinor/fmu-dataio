@@ -67,7 +67,7 @@ def test_generate_meta_tracklog_fmu_dataio_version(regsurf, edataobj1):
     assert parsed.datetime.utcoffset().total_seconds() == 0
 
     assert parsed.sysinfo.fmu_dataio is not None
-    assert parsed.sysinfo.fmu_dataio.version is not None
+    assert parsed.sysinfo.fmu_dataio.version == dio.__version__
 
 
 def test_generate_meta_tracklog_komodo_version(
@@ -94,6 +94,7 @@ def test_generate_meta_tracklog_komodo_version(
 
     assert parsed.sysinfo.komodo is not None
     assert parsed.sysinfo.komodo.version == fake_komodo_release
+    assert parsed.sysinfo.fmu_dataio.version == dio.__version__
 
 
 def test_generate_meta_tracklog_backup_komodo_version(
@@ -108,6 +109,7 @@ def test_generate_meta_tracklog_backup_komodo_version(
     metadata = generate_export_metadata(objdata, edataobj1)
     tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
     assert tracklog.sysinfo.komodo.version == komodo_release
+    assert tracklog.sysinfo.fmu_dataio.version == dio.__version__
 
 
 def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
@@ -129,6 +131,7 @@ def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
     metadata = generate_export_metadata(objdata, edataobj1)
     tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
     assert tracklog.sysinfo.komodo.version == komodo_release
+    assert tracklog.sysinfo.fmu_dataio.version == dio.__version__
 
 
 def test_generate_meta_tracklog_operating_system(edataobj1, regsurf):

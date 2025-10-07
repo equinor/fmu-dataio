@@ -9,6 +9,7 @@ from typing import ClassVar, Final, Literal
 from pydantic import ValidationError
 
 from fmu.dataio import types
+from fmu.dataio.version import __version__
 from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.fields import Tracklog
 
@@ -271,7 +272,7 @@ class AggregatedData:
 
         checksum_md5, size = _utils.compute_md5_and_size_from_objdata(objdata)
 
-        template["tracklog"] = [Tracklog.initialize()[0]]
+        template["tracklog"] = [Tracklog.initialize(__version__)[0]]
         template["file"] = {
             "relative_path": str(relpath),
             "absolute_path": str(abspath) if abspath else None,

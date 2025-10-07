@@ -9,6 +9,7 @@ from typing import Final
 
 from pydantic import ValidationError
 
+from fmu.dataio.version import __version__
 from fmu.datamodels.fmu_results import enums, fields, global_configuration
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
@@ -136,7 +137,7 @@ class CreateCaseMetadata:
                     description=None,
                 ),
             ),
-            tracklog=fields.Tracklog.initialize(),
+            tracklog=fields.Tracklog.initialize(__version__),
         ).model_dump(
             mode="json",
             exclude_none=True,
