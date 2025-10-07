@@ -37,7 +37,7 @@ def test_regsurf_aggregated(
 
 
 def test_regsurf_aggregated_content_seismic(
-    fmurun_w_casemetadata, aggr_sesimic_surfs_mean, monkeypatch: pytest.MonkeyPatch
+    fmurun_w_casemetadata, aggr_seismic_surfs_mean, monkeypatch: pytest.MonkeyPatch
 ):
     """
     Test generating aggragated metadata for a surface, where the content is seismic
@@ -45,7 +45,7 @@ def test_regsurf_aggregated_content_seismic(
     """
     logger.info("Active folder is %s", fmurun_w_casemetadata)
 
-    aggr_mean, metas = aggr_sesimic_surfs_mean  # xtgeo_object, list-of-metadata-dicts
+    aggr_mean, metas = aggr_seismic_surfs_mean  # xtgeo_object, list-of-metadata-dicts
     logger.info("Aggr. mean is %s", aggr_mean.values.mean())
 
     aggregation_uuid = str(utils.uuid_from_string("1234"))
