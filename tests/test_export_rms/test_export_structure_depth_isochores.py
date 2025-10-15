@@ -99,6 +99,26 @@ def test_unknown_name_in_stratigraphy_raises(mock_export_class):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
+def test_stratigraphy_missing_raises(
+    mock_project_variable, mock_export_class, globalconfig1
+):
+    """Test that an error is raised if stratigraphy is missing from the config"""
+
+    from fmu.dataio.export.rms import export_structure_depth_isochores
+
+    # remove the stratigraphy block
+    del globalconfig1["stratigraphy"]
+
+    with (
+        mock.patch(
+            "fmu.dataio.export._base.load_config_from_path", return_value=globalconfig1
+        ),
+        pytest.raises(ValueError, match=r"stratigraphy.*is lacking"),
+    ):
+        export_structure_depth_isochores(mock_project_variable, "IS_extracted")
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_validation_negative_values(
     mock_project_variable, monkeypatch, rmssetup_with_fmuconfig, regsurf
 ):
