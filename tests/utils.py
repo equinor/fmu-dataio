@@ -7,8 +7,20 @@ from typing import Any, get_args
 import yaml
 from pydantic import BaseModel
 
+YamlLike = (
+    dict[str, Any]
+    | list[Any]
+    | datetime.datetime
+    | datetime.date
+    | str
+    | int
+    | float
+    | bool
+    | None
+)
 
-def _parse_yaml(yaml_path):
+
+def _parse_yaml(yaml_path: str | Path) -> YamlLike:
     """Parse the filename as json, return data"""
     with open(yaml_path, encoding="utf-8") as stream:
         data = yaml.safe_load(stream)
@@ -16,7 +28,7 @@ def _parse_yaml(yaml_path):
     return _isoformat_all_datetimes(data)
 
 
-def _isoformat_all_datetimes(indate):
+def _isoformat_all_datetimes(indate: YamlLike) -> YamlLike:
     """Recursive function to isoformat all datetimes in a dictionary"""
 
     if isinstance(indate, list):
@@ -31,7 +43,7 @@ def _isoformat_all_datetimes(indate):
     return indate
 
 
-def _metadata_examples():
+def _metadata_examples() -> dict[str, Any]:
     return {
         path.name: _isoformat_all_datetimes(_parse_yaml(path))
         for path in Path(".").absolute().glob("examples/example_metadata/*.yml")
