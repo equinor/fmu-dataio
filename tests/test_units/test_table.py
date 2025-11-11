@@ -267,6 +267,56 @@ def test_table_wellpicks(wellpicks, globalconfig1):
     assert metadata["data"]["table_index"] == ["WELL", "HORIZON"]
 
 
+def test_production_network_index(globalconfig1):
+    """Test that the table index is set correct for production network data"""
+
+    mock_table = pd.DataFrame(
+        {
+            "DATE": ["2000-01-01", "2000-01-01"],
+            "CHILD": ["OPWEST", "OP1"],
+            "PARENT": ["OP", "OPWEST"],
+            "KEYWORD": ["GROUPTREE", "WELSPECS"],
+            "TERMINAL_PRESSURE": [100, 90],
+        }
+    )
+
+    exp = ExportData(
+        config=globalconfig1, name="production_network", content="production_network"
+    )
+
+    metadata = exp.generate_metadata(mock_table)
+
+    assert metadata["data"]["content"] == "production_network"
+
+    # table index shall be inserted automatically
+    assert metadata["data"]["table_index"] == ["DATE", "CHILD", "PARENT", "KEYWORD"]
+
+
+def test_well_completions_index(globalconfig1):
+    """Test that the table index is set correct for well completions data"""
+
+    mock_table = pd.DataFrame(
+        {
+            "DATE": ["2000-01-01", "2000-01-01"],
+            "WELL": ["OP2", "OP1"],
+            "OP/SH": ["OPEN", "SHUT"],
+            "ZONE": ["UPPER", "LOWER"],
+            "KH": [10, 50],
+        }
+    )
+
+    exp = ExportData(
+        config=globalconfig1, name="well_completions", content="well_completions"
+    )
+
+    metadata = exp.generate_metadata(mock_table)
+
+    assert metadata["data"]["content"] == "well_completions"
+
+    # table index shall be inserted automatically
+    assert metadata["data"]["table_index"] == ["WELL", "DATE", "ZONE"]
+
+
 def test_standard_table_index_valid():
     """Test the StandardTableIndex model"""
     index = StandardTableIndex(

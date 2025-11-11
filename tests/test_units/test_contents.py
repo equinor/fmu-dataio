@@ -356,6 +356,28 @@ def test_content_wellpicks(wellpicks, globalconfig2):
     assert meta["data"]["content"] == "wellpicks"
 
 
+def test_content_production_network(wellpicks, globalconfig2):
+    """Test export of the production network content."""
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content="production_network",
+    ).generate_metadata(wellpicks)
+
+    assert meta["data"]["content"] == "production_network"
+
+
+def test_content_well_completions(wellpicks, globalconfig2):
+    """Test export of the well completions content."""
+    meta = ExportData(
+        config=globalconfig2,
+        name="MyName",
+        content="well_completions",
+    ).generate_metadata(wellpicks)
+
+    assert meta["data"]["content"] == "well_completions"
+
+
 def test_content_requires_metadata():
     """Test the content_requires_metadata function"""
 

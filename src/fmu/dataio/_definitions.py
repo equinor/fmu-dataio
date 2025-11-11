@@ -59,6 +59,10 @@ STANDARD_TABLE_INDEX_COLUMNS: Final[dict[Content, StandardTableIndex]] = {
         columns=InplaceVolumes.index_columns(),
         required=InplaceVolumes.required_index_columns(),
     ),
+    Content.production_network: StandardTableIndex(
+        columns=["DATE", "CHILD", "PARENT", "KEYWORD"],
+        required=["DATE", "CHILD", "PARENT", "KEYWORD"],
+    ),
     Content.rft: StandardTableIndex(
         columns=["WELL", "DATE"],
         required=["WELL", "DATE"],
@@ -78,6 +82,10 @@ STANDARD_TABLE_INDEX_COLUMNS: Final[dict[Content, StandardTableIndex]] = {
     Content.relperm: StandardTableIndex(
         columns=["SATNUM"],
         required=["SATNUM"],
+    ),
+    Content.well_completions: StandardTableIndex(
+        columns=["WELL", "DATE", "ZONE"],
+        required=["WELL", "DATE", "ZONE"],
     ),
 }
 
