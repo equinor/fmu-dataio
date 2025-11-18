@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import ert
 from ert.plugins.plugin_manager import ErtPluginManager
+from packaging.version import Version
 
 import fmu.dataio.hook_implementations.jobs
 from fmu.dataio.scripts import copy_preprocessed, create_case_metadata
@@ -16,7 +18,10 @@ def test_hook_implementations() -> None:
     )
 
     expected_forward_models: set[str] = set()
-    installable_fms = plugin_manager.get_installable_jobs()
+    if Version(ert.shared.__version__) > Version("17.0.0"):
+        installable_fms = plugin_manager.forward_model_steps
+    else:
+        installable_fms = plugin_manager.get_installable_jobs()
     assert set(installable_fms) == expected_forward_models
 
     expected_workflow_jobs = {"WF_CREATE_CASE_METADATA", "WF_COPY_PREPROCESSED_DATAIO"}
@@ -36,9 +41,15 @@ def test_hook_implementations_docs() -> None:
         ]
     )
 
-    installable_fms = plugin_manager.get_installable_jobs()
-    fm_docs = plugin_manager.get_documentation_for_jobs()
+    if Version(ert.shared.__version__) > Version("17.0.0"):
+        installable_fms = plugin_manager.forward_model_steps
+        fm_docs = plugin_manager.get_documentation_for_forward_model_steps()
+    else:
+        installable_fms = plugin_manager.get_installable_jobs()
+        fm_docs = plugin_manager.get_documentation_for_jobs()
+
     assert set(fm_docs) == set(installable_fms)
+
     for fm_name in installable_fms:
         assert fm_docs[fm_name]["description"] != ""
         assert fm_docs[fm_name]["examples"] != ""
