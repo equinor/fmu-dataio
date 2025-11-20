@@ -1,6 +1,10 @@
 name: linting
 
 on: [push, pull_request]
+   pull_request: 
+     branches: [main] 
+   schedule: 
+     - cron: "0 0 * * *" 
 
 permissions:
   contents: read
