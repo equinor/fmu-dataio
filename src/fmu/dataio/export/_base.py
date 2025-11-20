@@ -95,7 +95,7 @@ class SimpleExportBase(ABC):
             if "masterdata" not in config:
                 error_message += (
                     "Follow the 'Getting started' steps to do necessary preparations: "
-                    "https://fmu-dataio.readthedocs.io/en/latest/preparations.html "
+                    "https://fmu-dataio.readthedocs.io/en/latest/getting_started.html "
                 )
 
             raise ValidationError(

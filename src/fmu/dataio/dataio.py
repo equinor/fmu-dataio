@@ -629,7 +629,7 @@ class ExportData:
                     "The global config file is lacking masterdata definitions, hence "
                     "no metadata will be exported. Follow the simple 'Getting started' "
                     "steps to do necessary preparations and enable metadata export: "
-                    "https://fmu-dataio.readthedocs.io/en/latest/preparations.html ",
+                    "https://fmu-dataio.readthedocs.io/en/latest/getting_started.html ",
                     UserWarning,
                 )
             else:
