@@ -19,14 +19,15 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
         os: [ubuntu-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5 
         with:
           fetch-depth: 0
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Install Ert Ubuntu dependencies
         run: |
@@ -35,20 +36,23 @@ jobs:
 
       - name: Install fmu-dataio
         run: |
-          pip install pip -U
-          pip install -e .[dev]
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            uv sync --all-extras --upgrade
+          else
+            uv sync --all-extras --frozen
+          fi
 
       - name: Install fmu-datamodels
         run: |
-          pip install \
+          uv pip install \
             "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels.git"
 
         # fmu-sumo-uploader blocked by OpenVDS on Python 3.12
       - name: Install fmu-sumo-uploader for Python 3.11
         if: matrix.python-version == '3.11'
-        run: pip install \
+        run: uv pip install \
           "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
 
       - name: Full test
         run: |
-          pytest -n auto -v --cov --cov-report term-missing
+          uv run pytest -n auto -v --cov --cov-report term-missing

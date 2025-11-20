@@ -20,17 +20,21 @@ jobs:
         python-version: ["3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
 
       - name: Set up python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Install dev-env.
         run: |
-          pip install -U pip
-          pip install ".[dev]"
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            uv sync --all-extras --upgrade
+          else
+            uv sync --all-extras --frozen
+          fi
 
       # Install repos from their Github main branches instead of Pypi.
       # This removes the need to manually pin these version of the repos
@@ -38,9 +42,9 @@ jobs:
 
       - name: Install fmu-datamodels
         run: |
-          pip install \
+          uv pip install \
             "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels.git"
 
       - name: Mypy
         run: |
-          mypy .
+          uv run mypy .
