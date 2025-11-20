@@ -76,7 +76,7 @@ class ExportPreprocessedData:
                 "updated casepath. Note, it is required to have run the ERT workflow "
                 "'WF_CREATE_CASE_METADATA' prior to this export job. See how-to here: "
                 "https://fmu-dataio.readthedocs.io/en/latest/"
-                "preparations.html#workflow-for-creating-case-metadata"
+                "getting_started.html#workflow-for-creating-case-metadata"
             )
 
         self.casepath = self._runcontext.casepath.absolute()
