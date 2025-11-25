@@ -116,6 +116,64 @@ def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolum
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
+def test_no_grid_raises(
+    mock_project_variable,
+    mocked_rmsapi_modules,
+    monkeypatch,
+    rmssetup_with_fmuconfig,
+):
+    """Test that ValueError is raised if the grid name is not found."""
+    from fmu.dataio.export.rms import export_inplace_volumes
+
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
+
+    missing_grid_name = "nonexistent_grid"
+
+    with (
+        pytest.raises(
+            ValueError,
+            match=f"No grid model with name '{missing_grid_name}' exists.",
+        ),
+        pytest.warns(UserWarning, match="is experimental and may change in future"),
+    ):
+        export_inplace_volumes(
+            mock_project_variable,
+            missing_grid_name,
+            "name_irrelevant_volume_job",
+        )
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
+def test_no_volume_job_for_grid_raises(
+    mock_project_variable,
+    mocked_rmsapi_modules,
+    monkeypatch,
+    rmssetup_with_fmuconfig,
+):
+    """Test that ValueError is raised if the volume job does not exist for the grid."""
+    from fmu.dataio.export.rms import export_inplace_volumes
+
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
+
+    grid_name = "Geogrid"
+    missing_volume_job_name = "nonexistent_volume_job"
+
+    with (
+        pytest.raises(
+            ValueError,
+            match=f"No volume job with name '{missing_volume_job_name}' "
+            f"exists for grid model named '{grid_name}'",
+        ),
+        pytest.warns(UserWarning, match="is experimental and may change in future"),
+    ):
+        export_inplace_volumes(
+            mock_project_variable,
+            grid_name,
+            missing_volume_job_name,
+        )
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_convert_table_from_legacy_to_standard_format(
     mock_project_variable,
     mocked_rmsapi_modules,
@@ -140,7 +198,9 @@ def test_convert_table_from_legacy_to_standard_format(
         return_value=voltable_legacy.copy(),
     ):
         instance = _ExportVolumetricsRMS(
-            mock_project_variable, "Geogrid", "geogrid_vol"
+            mock_project_variable,
+            "Geogrid",
+            "geogrid_vol",
         )
 
     # the _dataframe attribute should now have been converted to standard
@@ -513,12 +573,16 @@ def test_rms_volumetrics_export_rmsapi_requirement(
 
     # mock the rmsapi version to be lower than 1.10
     mocked_rmsapi_modules["rmsapi"].__version__ = "1.9"
-    with pytest.raises(RuntimeError, match="RMS 14.2"):
-        export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
+    with (
+        pytest.raises(RuntimeError, match="RMS 14.2"),
+        pytest.warns(UserWarning, match="is experimental and may change in future"),
+    ):
+        export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_vol")
 
     # no error should be raised if the version is 1.10 or higher
     mocked_rmsapi_modules["rmsapi"].__version__ = "1.10"
-    export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
+    with pytest.warns(UserWarning, match="is experimental and may change in future"):
+        export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_vol")
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -533,6 +597,7 @@ def test_rms_volumetrics_export_config_invalid(
     with (
         mock.patch("fmu.dataio.export._base.load_config_from_path", return_value={}),
         pytest.raises(ValueError, match="valid config"),
+        pytest.warns(UserWarning, match="is experimental and may change in future"),
     ):
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
 
@@ -551,7 +616,10 @@ def test_rms_volumetrics_export_config_missing(
     # move up one directory to trigger not finding the config
     monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
-    with pytest.raises(FileNotFoundError, match="Could not detect"):
+    with (
+        pytest.raises(FileNotFoundError, match="Could not detect"),
+        pytest.warns(UserWarning, match="is experimental and may change in future"),
+    ):
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
 
 
@@ -570,12 +638,15 @@ def test_rms_volumetrics_export_function(
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
-    with mock.patch.object(
-        _ExportVolumetricsRMS, "_get_table_with_volumes", return_value=voltable_standard
+    with (
+        mock.patch.object(
+            _ExportVolumetricsRMS,
+            "_get_table_with_volumes",
+            return_value=voltable_standard,
+        ),
+        pytest.warns(UserWarning, match="is experimental and may change in future"),
     ):
-        result = export_inplace_volumes(
-            mock_project_variable, "Geogrid", "geogrid_volume"
-        )
+        result = export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_vol")
     vol_table_file = result.items[0].absolute_path
 
     absolute_path = (
