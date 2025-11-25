@@ -200,6 +200,7 @@ def mock_rmsapi():
     mock_rmsapi = MagicMock()
     mock_rmsapi.__version__ = "1.10"
     mock_rmsapi.jobs.Job.get_job(...).get_arguments.return_value = VOLJOB_PARAMS
+    mock_rmsapi.jobs.Job.get_job_names.return_value = ["geogrid_vol"]
     mock_rmsapi.Surface = MagicMock
     mock_rmsapi.Polylines = MagicMock
     yield mock_rmsapi
@@ -250,6 +251,7 @@ def mock_general2d_data():
 def mock_project_variable(mock_general2d_data, mock_structural_model):
     # A mock_project variable for the RMS 'project'
     mock_project = MagicMock()
+    mock_project.grid_models = {"Geogrid": MagicMock()}
     mock_project.horizons.representations = ["DS_final"]
     mock_project.zones.representations = ["IS_final"]
     mock_project.structural_models = mock_structural_model

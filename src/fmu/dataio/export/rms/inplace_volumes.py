@@ -107,6 +107,21 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
     def _get_rms_volume_job_settings(self) -> dict:
         """Get information out from the RMS job API."""
         _logger.debug("RMS VOLJOB settings...")
+
+        if self.grid_name not in self.project.grid_models:
+            raise ValueError(f"No grid model with name '{self.grid_name}' exists.")
+
+        available_volume_jobs = rmsapi.jobs.Job.get_job_names(
+            owner=["Grid models", self.grid_name, "Grid"], type="Volumetrics"
+        )
+
+        if self.volume_job_name not in available_volume_jobs:
+            raise ValueError(
+                f"No volume job with name '{self.volume_job_name}' exists "
+                f"for grid model named '{self.grid_name}'.\n"
+                f"Available volume jobs:\n{available_volume_jobs}"
+            )
+
         return rmsjobs.Job.get_job(
             owner=["Grid models", self.grid_name, "Grid"],
             type="Volumetrics",
