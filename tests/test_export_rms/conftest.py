@@ -3,10 +3,19 @@ The conftest.py, providing magical fixtures to tests.
 All fixtures represent datasets from Drogon.
 """
 
+from __future__ import annotations
+
 import sys
+from collections.abc import Generator
+from typing import TYPE_CHECKING, Self
 from unittest.mock import MagicMock, patch
 
 import pytest
+
+if TYPE_CHECKING:
+    import xtgeo
+
+    from fmu.dataio._readers.tsurf import TSurfData
 
 # retrieved from Drogon in RMS 14.2
 VOLJOB_PARAMS = {
@@ -195,7 +204,7 @@ VOLJOB_PARAMS = {
 
 
 @pytest.fixture
-def mock_rmsapi():
+def mock_rmsapi() -> Generator[MagicMock, None, None]:
     # Create a mock rmsapi module
     mock_rmsapi = MagicMock()
     mock_rmsapi.__version__ = "1.10"
@@ -207,14 +216,17 @@ def mock_rmsapi():
 
 
 @pytest.fixture
-def mock_rmsapi_jobs():
+def mock_rmsapi_jobs() -> Generator[MagicMock, None, None]:
     # Create a mock rmsapi.jobs module
     mock_rmsapi_jobs = MagicMock()
     yield mock_rmsapi_jobs
 
 
 @pytest.fixture(autouse=True)
-def mocked_rmsapi_modules(mock_rmsapi, mock_rmsapi_jobs):
+def mocked_rmsapi_modules(
+    mock_rmsapi: Generator[MagicMock, None, None],
+    mock_rmsapi_jobs: Generator[MagicMock, None, None],
+) -> Generator[dict[str, MagicMock], None, None]:
     with patch.dict(
         sys.modules,
         {
@@ -226,10 +238,10 @@ def mocked_rmsapi_modules(mock_rmsapi, mock_rmsapi_jobs):
 
 
 class MockGeneral2DFolders:
-    def __init__(self, folders):
+    def __init__(self: Self, folders: dict[str, MagicMock]) -> None:
         self.folders = folders
 
-    def __getitem__(self, key):
+    def __getitem__(self: Self, key: str | list[str]) -> MagicMock:
         # Handle list-based keys by joining them into a string
         if isinstance(key, list):
             key = "/".join(key)
@@ -237,7 +249,7 @@ class MockGeneral2DFolders:
 
 
 @pytest.fixture
-def mock_general2d_data():
+def mock_general2d_data() -> MagicMock:
     general2d_mock = MagicMock()
     mock_folders = {
         "MainFolder": MagicMock(),
@@ -248,7 +260,9 @@ def mock_general2d_data():
 
 
 @pytest.fixture
-def mock_project_variable(mock_general2d_data, mock_structural_model):
+def mock_project_variable(
+    mock_general2d_data: MagicMock, mock_structural_model: dict[str, MagicMock]
+) -> Generator[MagicMock, None, None]:
     # A mock_project variable for the RMS 'project'
     mock_project = MagicMock()
     mock_project.grid_models = {"Geogrid": MagicMock()}
@@ -263,13 +277,13 @@ def mock_project_variable(mock_general2d_data, mock_structural_model):
 
 
 @pytest.fixture
-def mock_fault_model():
+def mock_fault_model() -> MagicMock:
     """A mock fault model."""
     return MagicMock(fault_names=["F1", "F2", "F3", "F4", "F5", "F6"])
 
 
 @pytest.fixture
-def mock_structural_model(mock_fault_model):
+def mock_structural_model(mock_fault_model: MagicMock) -> dict[str, MagicMock]:
     """A mock structural model with faults and potentially stratigraphic zones."""
     structural_model_mock = MagicMock()
 
@@ -279,7 +293,9 @@ def mock_structural_model(mock_fault_model):
 
 
 @pytest.fixture
-def fault_surfaces_triangulated(tsurf, mock_fault_model):
+def fault_surfaces_triangulated(
+    tsurf: TSurfData, mock_fault_model: MagicMock
+) -> Generator[list[TSurfData], None, None]:
     """Mock for triangulated fault surfaces on TSurf format."""
 
     surfaces = []
@@ -292,7 +308,9 @@ def fault_surfaces_triangulated(tsurf, mock_fault_model):
 
 
 @pytest.fixture
-def xtgeo_surfaces(regsurf):
+def xtgeo_surfaces(
+    regsurf: xtgeo.RegularSurface,
+) -> Generator[list[xtgeo.RegularSurface], None, None]:
     regsurf_top = regsurf.copy()
     regsurf_top.name = "TopVolantis"
 
@@ -308,7 +326,9 @@ def xtgeo_surfaces(regsurf):
 
 
 @pytest.fixture
-def xtgeo_zones(regsurf):
+def xtgeo_zones(
+    regsurf: xtgeo.RegularSurface,
+) -> Generator[list[xtgeo.RegularSurface], None, None]:
     regsurf_top = regsurf.copy()
     regsurf_top.name = "Valysar"
     regsurf_top.values = 30
@@ -325,7 +345,9 @@ def xtgeo_zones(regsurf):
 
 
 @pytest.fixture
-def xtgeo_fault_lines(fault_line):
+def xtgeo_fault_lines(
+    fault_line: xtgeo.Polygons,
+) -> Generator[list[xtgeo.Polygons], None, None]:
     """
     Create a set of fault line polygons, with stratigraphic names and a
     NAME (fault names) column present in the dataframe.
@@ -346,7 +368,9 @@ def xtgeo_fault_lines(fault_line):
 
 
 @pytest.fixture
-def xtgeo_zone_polygons(fault_line):
+def xtgeo_zone_polygons(
+    fault_line: xtgeo.Polygons,
+) -> Generator[list[xtgeo.Polygons], None, None]:
     """Create a set of polygons with stratigraphic zone names"""
 
     top = fault_line.copy()
