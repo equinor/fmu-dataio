@@ -1,7 +1,12 @@
 """Test the dataio running RMS specific utility function for volumetrics"""
 
+from __future__ import annotations
+
+from collections.abc import Generator
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
+from unittest.mock import MagicMock
 
 import jsonschema
 import numpy as np
@@ -19,6 +24,11 @@ from pydantic import ValidationError
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
+
+if TYPE_CHECKING:
+    from pytest.MonkeyPatch import MonkeyPatch  # pyright: ignore[reportMissingImports]
+
+    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
 
 logger = null_logger(__name__)
 
@@ -43,23 +53,25 @@ EXPECTED_COLUMN_ORDER = [
 
 
 @pytest.fixture(scope="package")
-def voltable_legacy():
+def voltable_legacy() -> pd.DataFrame:
     return pd.read_csv(VOLDATA_LEGACY)
 
 
 @pytest.fixture(scope="package")
-def voltable_standard():
+def voltable_standard() -> pd.DataFrame:
     return pd.read_csv(VOLDATA_STANDARD)
 
 
 @pytest.fixture
 def exportvolumetrics(
-    mocked_rmsapi_modules,
-    mock_project_variable,
-    voltable_standard,
-    monkeypatch,
-    rmssetup_with_fmuconfig,
-):
+    mocked_rmsapi_modules: dict[str, MagicMock],
+    mock_project_variable: MagicMock,
+    voltable_standard: pd.DataFrame,
+    monkeypatch: MonkeyPatch,
+    rmssetup_with_fmuconfig: Path,
+) -> Generator[_ExportVolumetricsRMS, None, None]:
+    """Fixture that yields an instance of the export class with mocked"""
+
     # needed to find the global config at correct place
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
@@ -72,7 +84,7 @@ def exportvolumetrics(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_rms_volumetrics_export_class(exportvolumetrics):
+def test_rms_volumetrics_export_class(exportvolumetrics: _ExportVolumetricsRMS) -> None:
     """See mocks in local conftest.py"""
 
     import rmsapi  # type: ignore # noqa
@@ -93,7 +105,9 @@ def test_rms_volumetrics_export_class(exportvolumetrics):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolumetrics):
+def test_rms_volumetrics_export_class_table_index(
+    voltable_standard: pd.DataFrame, exportvolumetrics: _ExportVolumetricsRMS
+) -> None:
     """See mocks in local conftest.py"""
 
     out = exportvolumetrics._export_data_as_standard_result()
@@ -117,11 +131,11 @@ def test_rms_volumetrics_export_class_table_index(voltable_standard, exportvolum
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_no_grid_raises(
-    mock_project_variable,
-    mocked_rmsapi_modules,
-    monkeypatch,
-    rmssetup_with_fmuconfig,
-):
+    mock_project_variable: MagicMock,
+    mocked_rmsapi_modules: dict[str, MagicMock],
+    monkeypatch: MonkeyPatch,
+    rmssetup_with_fmuconfig: Path,
+) -> None:
     """Test that ValueError is raised if the grid name is not found."""
     from fmu.dataio.export.rms import export_inplace_volumes
 
@@ -145,11 +159,11 @@ def test_no_grid_raises(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_no_volume_job_for_grid_raises(
-    mock_project_variable,
-    mocked_rmsapi_modules,
-    monkeypatch,
-    rmssetup_with_fmuconfig,
-):
+    mock_project_variable: MagicMock,
+    mocked_rmsapi_modules: dict[str, MagicMock],
+    monkeypatch: MonkeyPatch,
+    rmssetup_with_fmuconfig: Path,
+) -> None:
     """Test that ValueError is raised if the volume job does not exist for the grid."""
     from fmu.dataio.export.rms import export_inplace_volumes
 
@@ -175,14 +189,14 @@ def test_no_volume_job_for_grid_raises(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_convert_table_from_legacy_to_standard_format(
-    mock_project_variable,
-    mocked_rmsapi_modules,
-    voltable_standard,
-    voltable_legacy,
-    rmssetup_with_fmuconfig,
-    monkeypatch,
-    unregister_pandas_parquet,
-):
+    mock_project_variable: MagicMock,
+    mocked_rmsapi_modules: dict[str, MagicMock],
+    voltable_standard: pd.DataFrame,
+    voltable_legacy: pd.DataFrame,
+    rmssetup_with_fmuconfig: Path,
+    monkeypatch: MonkeyPatch,
+    unregister_pandas_parquet: Generator[None, None, None],
+) -> None:
     """Test that a voltable with legacy format is converted to
     the expected standard format"""
 
@@ -285,7 +299,9 @@ def test_convert_table_from_legacy_to_standard_format(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_net_column_equal_bulk_if_missing(exportvolumetrics, voltable_standard):
+def test_net_column_equal_bulk_if_missing(
+    exportvolumetrics: _ExportVolumetricsRMS, voltable_standard: pd.DataFrame
+) -> None:
     """Test that the NET column is set equal to BULK if it is missing"""
 
     df_in = voltable_standard.copy()
@@ -307,8 +323,10 @@ def test_net_column_equal_bulk_if_missing(exportvolumetrics, voltable_standard):
 
 @pytest.mark.parametrize("volumetric_col", ["BULK", "PORV"])
 def test_compute_water_zone_volumes_from_totals_oil_and_gas(
-    exportvolumetrics, voltable_legacy, volumetric_col
-):
+    exportvolumetrics: _ExportVolumetricsRMS,
+    voltable_legacy: pd.DataFrame,
+    volumetric_col: str,
+) -> None:
     """
     Test that the method to compute water zone volumes works as expected by
     comparing the input and result table from the method.
@@ -352,8 +370,10 @@ def test_compute_water_zone_volumes_from_totals_oil_and_gas(
 
 @pytest.mark.parametrize("volumetric_col", ["BULK", "PORV"])
 def test_compute_water_zone_volumes_from_totals_oil(
-    exportvolumetrics, voltable_legacy, volumetric_col
-):
+    exportvolumetrics: _ExportVolumetricsRMS,
+    voltable_legacy: pd.DataFrame,
+    volumetric_col: str,
+) -> None:
     """
     Test that the method to compute water zone volumes works as expected by
     comparing the input and result table from the method.
@@ -363,8 +383,13 @@ def test_compute_water_zone_volumes_from_totals_oil(
     df_in = voltable_legacy.copy()
 
     # drop all OIL columns
-    df_in = df_in.drop(columns=[col for col in df_in if col.endswith("_OIL")])
-
+    df_in = df_in.drop(
+        columns=[
+            col
+            for col in df_in.columns
+            if isinstance(col, str) and col.endswith("_OIL")
+        ]
+    )
     assert f"{volumetric_col}_TOTAL" in df_in
     assert f"{volumetric_col}_OIL" not in df_in
     assert f"{volumetric_col}_GAS" in df_in
@@ -392,8 +417,10 @@ def test_compute_water_zone_volumes_from_totals_oil(
 
 @pytest.mark.parametrize("volumetric_col", ["BULK", "PORV"])
 def test_compute_water_zone_volumes_from_totals_gas(
-    exportvolumetrics, voltable_legacy, volumetric_col
-):
+    exportvolumetrics: _ExportVolumetricsRMS,
+    voltable_legacy: pd.DataFrame,
+    volumetric_col: str,
+) -> None:
     """
     Test that the method to compute water zone volumes works as expected by
     comparing the input and result table from the method.
@@ -403,7 +430,13 @@ def test_compute_water_zone_volumes_from_totals_gas(
     df_in = voltable_legacy.copy()
 
     # drop all GAS columns
-    df_in = df_in.drop(columns=[col for col in df_in if col.endswith("_GAS")])
+    df_in = df_in.drop(
+        columns=[
+            col
+            for col in df_in.columns
+            if isinstance(col, str) and col.endswith("_GAS")
+        ]
+    )
 
     assert f"{volumetric_col}_TOTAL" in df_in
     assert f"{volumetric_col}_OIL" in df_in
@@ -432,8 +465,8 @@ def test_compute_water_zone_volumes_from_totals_gas(
 
 @pytest.mark.parametrize("volumetric_col", ["BULK", "PORV"])
 def test_compute_water_zone_volumes_truncate_negative_values(
-    exportvolumetrics, volumetric_col
-):
+    exportvolumetrics: _ExportVolumetricsRMS, volumetric_col: str
+) -> None:
     """Test that negative water zone values are truncated to 0"""
 
     # make a minimum dataframe where first row have OIL volumes larger than TOTALS
@@ -466,11 +499,17 @@ def test_compute_water_zone_volumes_truncate_negative_values(
     assert df_in["PORV_OIL"].equals(df_out["PORV_OIL"])
 
 
-def test_total_volumes_required(exportvolumetrics, voltable_legacy):
+def test_total_volumes_required(
+    exportvolumetrics: _ExportVolumetricsRMS, voltable_legacy: pd.DataFrame
+) -> None:
     """Test that the job fails if a required total volumes are missing"""
 
     df = voltable_legacy.copy()
-    df = df.drop(columns=[col for col in df if col.endswith("_TOTAL")])
+    df = df.drop(
+        columns=[
+            col for col in df.columns if isinstance(col, str) and col.endswith("_TOTAL")
+        ]
+    )
 
     with pytest.raises(RuntimeError, match="Found no 'Totals' volumes"):
         exportvolumetrics._compute_water_zone_volumes_from_totals(df)
@@ -478,8 +517,10 @@ def test_total_volumes_required(exportvolumetrics, voltable_legacy):
 
 @pytest.mark.parametrize("required_col", enums.InplaceVolumes.required_columns())
 def test_validate_table_required_col_missing(
-    exportvolumetrics, voltable_standard, required_col
-):
+    exportvolumetrics: _ExportVolumetricsRMS,
+    voltable_standard: pd.DataFrame,
+    required_col: str,
+) -> None:
     """Test that the job fails if a required volumetric column is missing"""
     df = voltable_standard.drop(columns=required_col)
     exportvolumetrics._dataframe = df
@@ -490,8 +531,10 @@ def test_validate_table_required_col_missing(
 
 @pytest.mark.parametrize("required_col", ["BULK", "PORV", "HCPV"])
 def test_validate_table_required_col_has_nan(
-    exportvolumetrics, voltable_standard, required_col
-):
+    exportvolumetrics: _ExportVolumetricsRMS,
+    voltable_standard: pd.DataFrame,
+    required_col: str,
+) -> None:
     """Test that the job fails if a required volumetric column has nan values"""
 
     df = voltable_standard.copy()
@@ -503,7 +546,9 @@ def test_validate_table_required_col_has_nan(
         exportvolumetrics._validate_table()
 
 
-def test_validate_table_has_oil_or_gas(exportvolumetrics, voltable_standard):
+def test_validate_table_has_oil_or_gas(
+    exportvolumetrics: _ExportVolumetricsRMS, voltable_standard: pd.DataFrame
+) -> None:
     """Test that the job fails if a required volumetric column has nan values"""
 
     df = voltable_standard.copy()
@@ -515,7 +560,9 @@ def test_validate_table_has_oil_or_gas(exportvolumetrics, voltable_standard):
         exportvolumetrics._validate_table()
 
 
-def test_validate_table_has_oil_and_stoiip(exportvolumetrics, voltable_standard):
+def test_validate_table_has_oil_and_stoiip(
+    exportvolumetrics: _ExportVolumetricsRMS, voltable_standard: pd.DataFrame
+) -> None:
     """Test that the validation fails if oil columns are present but no STOIIP"""
 
     df = voltable_standard.copy()
@@ -531,7 +578,9 @@ def test_validate_table_has_oil_and_stoiip(exportvolumetrics, voltable_standard)
     exportvolumetrics._validate_table()
 
 
-def test_validate_table_has_gas_and_giip(exportvolumetrics, voltable_standard):
+def test_validate_table_has_gas_and_giip(
+    exportvolumetrics: _ExportVolumetricsRMS, voltable_standard: pd.DataFrame
+) -> None:
     """Test that the validations fails if gas columns are present but no GIIP"""
 
     df = voltable_standard.copy()
@@ -548,8 +597,8 @@ def test_validate_table_has_gas_and_giip(exportvolumetrics, voltable_standard):
 
 
 def test_validate_table_against_pydantic_model_before_export(
-    exportvolumetrics, voltable_standard
-):
+    exportvolumetrics: _ExportVolumetricsRMS, voltable_standard: pd.DataFrame
+) -> None:
     """Test that the validation fails if the volumes table does not conform to the
     Pydantic model specifying the result."""
 
@@ -565,8 +614,10 @@ def test_validate_table_against_pydantic_model_before_export(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_rms_volumetrics_export_rmsapi_requirement(
-    mock_project_variable, mocked_rmsapi_modules, exportvolumetrics
-):
+    mock_project_variable: MagicMock,
+    mocked_rmsapi_modules: dict[str, MagicMock],
+    exportvolumetrics: _ExportVolumetricsRMS,
+) -> None:
     """Test that an exception is raised if minimum rmsapi version 1.10 is not met"""
 
     from fmu.dataio.export.rms.inplace_volumes import export_inplace_volumes
@@ -587,9 +638,9 @@ def test_rms_volumetrics_export_rmsapi_requirement(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_rms_volumetrics_export_config_invalid(
-    mock_project_variable,
-    exportvolumetrics,
-):
+    mock_project_variable: MagicMock,
+    exportvolumetrics: _ExportVolumetricsRMS,
+) -> None:
     """Test that an exception is raised if the config is invalid."""
 
     from fmu.dataio.export.rms.inplace_volumes import export_inplace_volumes
@@ -604,11 +655,11 @@ def test_rms_volumetrics_export_config_invalid(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_rms_volumetrics_export_config_missing(
-    mock_project_variable,
-    mocked_rmsapi_modules,
-    rmssetup_with_fmuconfig,
-    monkeypatch,
-):
+    mock_project_variable: MagicMock,
+    mocked_rmsapi_modules: dict[str, MagicMock],
+    rmssetup_with_fmuconfig: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test that an exception is raised if the config is missing."""
 
     from fmu.dataio.export.rms import export_inplace_volumes
@@ -625,12 +676,12 @@ def test_rms_volumetrics_export_config_missing(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_rms_volumetrics_export_function(
-    mock_project_variable,
-    mocked_rmsapi_modules,
-    voltable_standard,
-    rmssetup_with_fmuconfig,
-    monkeypatch,
-):
+    mock_project_variable: MagicMock,
+    mocked_rmsapi_modules: dict[str, MagicMock],
+    voltable_standard: pd.DataFrame,
+    rmssetup_with_fmuconfig: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test the public function."""
 
     from fmu.dataio.export.rms import export_inplace_volumes
@@ -670,9 +721,9 @@ def test_rms_volumetrics_export_function(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_inplace_volumes_payload_validates_against_model(
-    exportvolumetrics,
-    monkeypatch,
-):
+    exportvolumetrics: _ExportVolumetricsRMS,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Tests that the volume table exported is validated against the payload result
     model."""
 
@@ -688,9 +739,9 @@ def test_inplace_volumes_payload_validates_against_model(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_inplace_volumes_payload_validates_against_schema(
-    exportvolumetrics,
-    monkeypatch,
-):
+    exportvolumetrics: _ExportVolumetricsRMS,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Tests that the volume table exported is validated against the payload result
     schema."""
 
@@ -708,7 +759,7 @@ def test_inplace_volumes_payload_validates_against_schema(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_inplace_volumes_export_and_result_columns_are_the_same(
-    mocked_rmsapi_modules,
+    mocked_rmsapi_modules: dict[str, MagicMock],
 ) -> None:
     assert enums.InplaceVolumes.table_columns() == list(
         InplaceVolumesResultRow.model_fields.keys()
@@ -726,7 +777,7 @@ def test_that_required_columns_one_to_one_in_enums_and_schema() -> None:
     assert set(enums.InplaceVolumes.required_columns()) == set(schema_required_fields)
 
 
-def test_standard_result_in_metadata(exportvolumetrics):
+def test_standard_result_in_metadata(exportvolumetrics: _ExportVolumetricsRMS) -> None:
     """Test that the standard result is set correctly in the metadata"""
 
     out = exportvolumetrics._export_data_as_standard_result()
