@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 from fmu.datamodels.fmu_results.fmu_results import FmuResults
@@ -8,18 +9,18 @@ from tests.utils import _metadata_examples
 
 
 @pytest.mark.parametrize("file, example", _metadata_examples().items())
-def test_schema_example_filenames(file, example):
+def test_schema_example_filenames(file: str, example: dict) -> None:
     """Assert that all examples are .yml, not .yaml"""
     assert file.endswith(".yml")
 
 
 @pytest.mark.parametrize("file, example", _metadata_examples().items())
-def test_validate(file, example):
+def test_validate(file: str, example: dict) -> None:
     """Confirm that examples are valid against the schema"""
     FmuResults.model_validate(example)
 
 
-def test_sumo_ensemble(metadata_examples):
+def test_sumo_ensemble(metadata_examples: dict[str, Any]) -> None:
     """Asserting validation failure when illegal contents in ensemble metadata"""
 
     example = metadata_examples["sumo_ensemble.yml"]
@@ -49,7 +50,7 @@ def test_sumo_ensemble(metadata_examples):
         FmuResults.model_validate(_example)
 
 
-def test_sumo_realization(metadata_examples):
+def test_sumo_realization(metadata_examples: dict[str, Any]) -> None:
     """Asserting validation failure when illegal contents in realization example"""
 
     example = metadata_examples["sumo_realization.yml"]
@@ -79,7 +80,7 @@ def test_sumo_realization(metadata_examples):
         FmuResults.model_validate(_example)
 
 
-def test_fmu_iteration_set_from_fmu_ensemble(metadata_examples):
+def test_fmu_iteration_set_from_fmu_ensemble(metadata_examples: dict[str, Any]) -> None:
     """Test that fmu.iteration is set from the fmu.ensemble."""
 
     # fetch example
@@ -99,5 +100,6 @@ def test_fmu_iteration_set_from_fmu_ensemble(metadata_examples):
     model = FmuResults.model_validate(_example)
 
     assert hasattr(model.root.fmu, "iteration")
+    assert hasattr(model.root.fmu, "ensemble")
     assert model.root.fmu.iteration == model.root.fmu.ensemble
     assert model.root.fmu.iteration.name == "pytest"
