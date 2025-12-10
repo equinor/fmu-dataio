@@ -16,6 +16,7 @@ import pytest
 import xtgeo
 import yaml
 from fmu.config import utilities as ut
+from fmu.datamodels.common.masterdata import Masterdata
 from fmu.datamodels.fmu_results import FmuResults, fields, global_configuration
 from pytest import MonkeyPatch
 
@@ -303,7 +304,7 @@ def casesetup(tmp_path_factory):
 def globalconfig1():
     """Minimalistic global config variables no. 1 in ExportData class."""
     return global_configuration.GlobalConfiguration(
-        masterdata=fields.Masterdata(
+        masterdata=Masterdata(
             smda=fields.Smda(
                 coordinate_system=fields.CoordinateSystem(
                     identifier="ST_WGS84_UTM37N_P32637",
