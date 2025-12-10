@@ -8,14 +8,14 @@ from pydantic import ValidationError
 from tests.utils import _metadata_examples
 
 
-@pytest.mark.parametrize("file, example", _metadata_examples().items())
-def test_schema_example_filenames(file: str, example: dict) -> None:
+@pytest.mark.parametrize("file", _metadata_examples().keys())
+def test_schema_example_filenames(file: str) -> None:
     """Assert that all examples are .yml, not .yaml"""
     assert file.endswith(".yml")
 
 
-@pytest.mark.parametrize("file, example", _metadata_examples().items())
-def test_validate(file: str, example: dict) -> None:
+@pytest.mark.parametrize("example", _metadata_examples().values())
+def test_validate(example: dict[str, Any]) -> None:
     """Confirm that examples are valid against the schema"""
     FmuResults.model_validate(example)
 
