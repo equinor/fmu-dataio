@@ -65,7 +65,7 @@ def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_differ(
     assert isinstance(objdata, FaultRoomSurfaceProvider)
 
     assert objdata.extension == ".json"
-    assert objdata.layout == "faultroom_triangulated"
+    assert objdata.layout == "triangulated"
 
     bbox = objdata.get_bbox()
     assert bbox.xmin == 1.1

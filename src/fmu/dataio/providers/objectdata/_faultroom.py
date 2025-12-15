@@ -49,7 +49,7 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
 
     @property
     def layout(self) -> Layout:
-        return Layout.faultroom_triangulated
+        return Layout.triangulated
 
     @property
     def table_index(self) -> None:
