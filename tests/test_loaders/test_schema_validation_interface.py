@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -15,7 +16,7 @@ VOLUME_PATH = Path("tests/data/drogon/tabular/volumes/geogrid.csv").absolute()
 SCHEMA_URL_INPLACE_VOLUME = "https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/0.1.0/inplace_volumes.json"
 
 
-def schema_exists(schema_url):
+def schema_exists(schema_url: str) -> bool:
     """Check if the schema exists by making a HEAD request."""
     try:
         response = requests.head(schema_url)
@@ -24,7 +25,7 @@ def schema_exists(schema_url):
         return False
 
 
-def test_validator_when_valid_metadata(metadata_examples):
+def test_validator_when_valid_metadata(metadata_examples: dict[str, Any]) -> None:
     inplace_volumes = metadata_examples["table_inplace_volumes.yml"]
     schema_url = inplace_volumes["$schema"]
 
@@ -40,7 +41,7 @@ def test_validator_when_valid_metadata(metadata_examples):
     )
 
 
-def test_validator_when_invalid_metadata():
+def test_validator_when_invalid_metadata() -> None:
     metadata = {
         "$schema": "https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json",
         "version": "0.8.0",
@@ -53,7 +54,7 @@ def test_validator_when_invalid_metadata():
         validator.validate_against_schema(schema_url=metadata["$schema"], data=metadata)
 
 
-def test_validator_when_valid_payload():
+def test_validator_when_valid_payload() -> None:
     data_frame = (
         pd.read_csv(VOLUME_PATH).replace(np.nan, None).to_dict(orient="records")
     )
@@ -66,7 +67,7 @@ def test_validator_when_valid_payload():
     )
 
 
-def test_validator_when_ivalid_payload():
+def test_validator_when_ivalid_payload() -> None:
     data_frame = (
         pd.read_csv(VOLUME_PATH).replace(np.nan, None).to_dict(orient="records")
     )
@@ -82,7 +83,7 @@ def test_validator_when_ivalid_payload():
         )
 
 
-def test_caching(metadata_examples):
+def test_caching(metadata_examples: dict[str, Any]) -> None:
     inplace_volumes_metadata = metadata_examples["table_inplace_volumes.yml"]
     inplace_volumes_metadata2 = inplace_volumes_metadata
     schema_url_fmu_results = inplace_volumes_metadata["$schema"]

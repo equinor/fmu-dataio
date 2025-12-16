@@ -1,4 +1,5 @@
 import os
+from collections.abc import Generator
 from io import BytesIO
 from unittest.mock import MagicMock, call, patch
 
@@ -12,7 +13,7 @@ from pandas import DataFrame
 from fmu.dataio.external_interfaces.sumo_explorer_interface import SumoExplorerInterface
 
 
-def _generate_sumo_case_mock(sumo_object_mock: MagicMock):
+def _generate_sumo_case_mock(sumo_object_mock: MagicMock) -> MagicMock:
     summo_search_context_realization_mock = MagicMock()
     summo_search_context_realization_mock.__iter__.return_value = iter(
         [sumo_object_mock]
@@ -29,7 +30,7 @@ def _generate_sumo_case_mock(sumo_object_mock: MagicMock):
     return sumo_case_mock
 
 
-def test_get_realization_ids():
+def test_get_realization_ids() -> None:
     ensemble_name = "iter-0"
     realization_ids_mock = [0, 16, 48]
     sumo_case_mock = MagicMock()
@@ -52,7 +53,7 @@ def test_get_realization_ids():
         assert actual_realization_ids == realization_ids_mock
 
 
-def test_get_realization_with_metadata():
+def test_get_realization_with_metadata() -> None:
     ensemble_name = "iter-0"
     realization_id = 0
 
@@ -88,7 +89,7 @@ def test_get_realization_with_metadata():
         assert actual_data[0][1] == metadata_mock
 
 
-def test_get_blobs():
+def test_get_blobs() -> None:
     ensemble_name = "iter-0"
     realization_id = 0
 
@@ -120,10 +121,12 @@ def test_get_blobs():
         assert actual_blob_data[0][1]["name"] == "metadata_name"
 
 
-def test_correct_data_format_returned(unregister_pandas_parquet):
+def test_correct_data_format_returned(
+    unregister_pandas_parquet: Generator[None, None, None],
+) -> None:
     ensemble_name = "iter-0"
     realization_id = 0
-    metadata_mock = {}
+    metadata_mock: dict = {}
 
     # Table class
     data_frame_mock = pd.DataFrame()
@@ -214,7 +217,7 @@ def test_correct_data_format_returned(unregister_pandas_parquet):
             assert isinstance(object, xtgeo.RegularSurface)
 
 
-def test_use_sumo_dev_when_komodo_bleeding():
+def test_use_sumo_dev_when_komodo_bleeding() -> None:
     sumo_table_object_mock = MagicMock()
     sumo_case_with_table_mock = _generate_sumo_case_mock(sumo_table_object_mock)
     os.environ["KOMODO_RELEASE"] = "bleeding-20250626-1456-py311-rhel8"
@@ -238,7 +241,7 @@ def test_use_sumo_dev_when_komodo_bleeding():
         assert mock_sumo_explorer_init.call_args == call(env="dev")
 
 
-def test_use_sumo_prod_when_komodo_stable():
+def test_use_sumo_prod_when_komodo_stable() -> None:
     sumo_table_object_mock = MagicMock()
     sumo_case_with_table_mock = _generate_sumo_case_mock(sumo_table_object_mock)
     os.environ["KOMODO_RELEASE"] = "2025.06.02-py311-rhel8"

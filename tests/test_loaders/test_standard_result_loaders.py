@@ -1,4 +1,5 @@
 import os
+from collections.abc import Generator
 from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
@@ -6,6 +7,7 @@ from unittest.mock import patch
 import pandas as pd
 import xtgeo
 from pandas import DataFrame
+from pytest import MonkeyPatch
 
 import fmu.dataio.load.load_standard_results as load_standard_results
 
@@ -46,7 +48,7 @@ def _generate_metadata_mock(
     }
 
 
-def test_list_realizations():
+def test_list_realizations() -> None:
     realization_ids = [0, 1, 2, 3]
     with (
         patch(
@@ -61,15 +63,15 @@ def test_list_realizations():
         inplace_volumes = load_standard_results.load_inplace_volumes(
             TEST_UUID, "some_ensemble_name"
         )
-        assert class_init_mock.assert_called_once
+        class_init_mock.assert_called_once()
 
         actual_ids = inplace_volumes.list_realizations()
-        assert get_realizations_mock.assert_called_once
+        get_realizations_mock.assert_called_once()
 
         assert actual_ids == realization_ids
 
 
-def test_get_blobs(unregister_pandas_parquet):
+def test_get_blobs(unregister_pandas_parquet: Generator[None, None, None]) -> None:
     mocked_data_frame = pd.DataFrame(columns=["FLUID", "ZONE", "REGION", "GIIP"])
     mocked_blob = BytesIO()
     mocked_data_frame.to_parquet(mocked_blob)
@@ -96,10 +98,10 @@ def test_get_blobs(unregister_pandas_parquet):
         inplace_volumes_loader = load_standard_results.load_inplace_volumes(
             TEST_UUID, "some_ensemble_name"
         )
-        assert class_init_mock.assert_called_once
+        class_init_mock.assert_called_once()
 
         actual_blobs_dict = inplace_volumes_loader.get_blobs(0)
-        assert get_blobs_mock.assert_called_once
+        get_blobs_mock.assert_called_once()
         assert len(actual_blobs_dict) == len(mocked_blobs_with_metadata)
 
         blob_name = list(actual_blobs_dict.keys())[0]
@@ -110,7 +112,7 @@ def test_get_blobs(unregister_pandas_parquet):
         pd.testing.assert_frame_equal(actual_data_frame, mocked_data_frame)
 
 
-def test_get_realization():
+def test_get_realization() -> None:
     columns = ["FLUID", "ZONE", "REGION", "GIIP"]
     mocked_data_frame = pd.DataFrame(columns=columns)
 
@@ -136,10 +138,10 @@ def test_get_realization():
         inplace_volumes_loader = load_standard_results.load_inplace_volumes(
             TEST_UUID, "some_ensemble_name"
         )
-        assert class_init_mock.assert_called_once
+        class_init_mock.assert_called_once()
 
         actual_data_dict = inplace_volumes_loader.get_realization(0)
-        assert get_realizations_mock.assert_called_once
+        get_realizations_mock.assert_called_once()
         assert len(actual_data_dict) == len(mocked_objects_with_metadata)
 
         data_frame_name = list(actual_data_dict.keys())[0]
@@ -150,7 +152,7 @@ def test_get_realization():
         )
 
 
-def test_save_realization_for_tabular(monkeypatch, tmp_path):
+def test_save_realization_for_tabular(monkeypatch: MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.chdir(tmp_path)
 
     columns = ["FLUID", "ZONE", "REGION", "GIIP"]
@@ -189,11 +191,11 @@ def test_save_realization_for_tabular(monkeypatch, tmp_path):
         inplace_volumes_loader = load_standard_results.load_inplace_volumes(
             TEST_UUID, "some_ensemble_name"
         )
-        assert class_init_mock.assert_called_once
+        class_init_mock.assert_called_once()
 
         actual_file_paths = inplace_volumes_loader.save_realization(0, tmp_path)
-        assert get_realization_with_metadata_mock.assert_called_once
-        assert validate_object_mock.assert_called_once
+        get_realization_with_metadata_mock.assert_called_once()
+        validate_object_mock.assert_called_once()
 
         expected_relative_file_path = str(relative_path_mocked).replace(
             relative_path_mocked.suffix, ".csv"
@@ -209,7 +211,9 @@ def test_save_realization_for_tabular(monkeypatch, tmp_path):
             assert "FLUID,ZONE,REGION,GIIP" in content
 
 
-def test_save_realization_for_ploygons(monkeypatch, tmp_path):
+def test_save_realization_for_ploygons(
+    monkeypatch: MonkeyPatch, tmp_path: Path
+) -> None:
     monkeypatch.chdir(tmp_path)
 
     polygon = xtgeo.Polygons()
@@ -247,11 +251,11 @@ def test_save_realization_for_ploygons(monkeypatch, tmp_path):
         field_outlines_loader = load_standard_results.load_field_outlines(
             TEST_UUID, "some_ensemble_name"
         )
-        assert class_init_mock.assert_called_once
+        class_init_mock.assert_called_once()
 
         actual_file_paths = field_outlines_loader.save_realization(0, tmp_path)
-        assert get_realization_with_metadata_mock.assert_called_once
-        assert validate_object_mock.assert_called_once
+        get_realization_with_metadata_mock.assert_called_once()
+        validate_object_mock.assert_called_once()
 
         expected_relative_file_path = str(relative_path_mocked).replace(
             relative_path_mocked.suffix, ".csv"
@@ -267,7 +271,9 @@ def test_save_realization_for_ploygons(monkeypatch, tmp_path):
             assert "X_UTME,Y_UTMN,Z_TVDSS" in content
 
 
-def test_save_realization_for_surfaces(monkeypatch, tmp_path):
+def test_save_realization_for_surfaces(
+    monkeypatch: MonkeyPatch, tmp_path: Path
+) -> None:
     monkeypatch.chdir(tmp_path)
 
     surface = xtgeo.RegularSurface(
@@ -313,11 +319,11 @@ def test_save_realization_for_surfaces(monkeypatch, tmp_path):
                 TEST_UUID, "some_ensemble_name"
             )
         )
-        assert class_init_mock.assert_called_once
+        class_init_mock.assert_called_once()
 
         actual_file_paths = structure_depth_surface_loader.save_realization(0, tmp_path)
-        assert get_realization_with_metadata_mock.assert_called_once
-        assert validate_object_mock.assert_not_called
+        get_realization_with_metadata_mock.assert_called_once()
+        validate_object_mock.assert_not_called()
 
         expected_relative_file_path = str(relative_path_mocked).replace(
             relative_path_mocked.suffix, ".gri"
@@ -336,7 +342,7 @@ def test_save_realization_for_surfaces(monkeypatch, tmp_path):
         assert round(surface_from_file.yinc, 3) == 0.211
 
 
-def test_construct_object_key():
+def test_construct_object_key() -> None:
     data_name_mock = "Valysar Fm."
     fluid_contact_type_mock = "goc"
 
