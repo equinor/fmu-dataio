@@ -16,6 +16,15 @@ import pytest
 import xtgeo
 import yaml
 from fmu.config import utilities as ut
+from fmu.datamodels.common.access import Asset
+from fmu.datamodels.common.masterdata import (
+    CoordinateSystem,
+    CountryItem,
+    DiscoveryItem,
+    Masterdata,
+    Smda,
+    StratigraphicColumn,
+)
 from fmu.datamodels.fmu_results import FmuResults, fields, global_configuration
 from pytest import MonkeyPatch
 
@@ -303,25 +312,25 @@ def casesetup(tmp_path_factory):
 def globalconfig1():
     """Minimalistic global config variables no. 1 in ExportData class."""
     return global_configuration.GlobalConfiguration(
-        masterdata=fields.Masterdata(
-            smda=fields.Smda(
-                coordinate_system=fields.CoordinateSystem(
+        masterdata=Masterdata(
+            smda=Smda(
+                coordinate_system=CoordinateSystem(
                     identifier="ST_WGS84_UTM37N_P32637",
                     uuid="15ce3b84-766f-4c93-9050-b154861f9100",
                 ),
                 country=[
-                    fields.CountryItem(
+                    CountryItem(
                         identifier="Norway",
                         uuid="ad214d85-8a1d-19da-e053-c918a4889309",
                     ),
                 ],
                 discovery=[
-                    fields.DiscoveryItem(
+                    DiscoveryItem(
                         short_identifier="abdcef",
                         uuid="56c92484-8798-4f1f-9f14-d237a3e1a4ff",
                     ),
                 ],
-                stratigraphic_column=fields.StratigraphicColumn(
+                stratigraphic_column=StratigraphicColumn(
                     identifier="TestStratigraphicColumn",
                     uuid="56c92484-8798-4f1f-9f14-d237a3e1a4ff",
                 ),
@@ -329,8 +338,8 @@ def globalconfig1():
             )
         ),
         access=global_configuration.Access(
-            asset=fields.Asset(name="Test"),
-            classification=global_configuration.enums.Classification.internal,
+            asset=Asset(name="Test"),
+            classification=global_configuration.Classification.internal,
         ),
         model=fields.Model(
             name="Test",

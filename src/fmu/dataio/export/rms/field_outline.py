@@ -12,8 +12,8 @@ from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import get_open_polygons_id
+from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import (
-    Classification,
     Content,
     DomainReference,
     FluidContactType,

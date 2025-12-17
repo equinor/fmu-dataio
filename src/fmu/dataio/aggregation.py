@@ -10,8 +10,8 @@ from pydantic import ValidationError
 
 from fmu.dataio import types
 from fmu.dataio.version import __version__
+from fmu.datamodels.common.tracklog import Tracklog
 from fmu.datamodels.fmu_results.enums import FMUContext
-from fmu.datamodels.fmu_results.fields import Tracklog
 
 from . import _utils, dataio
 from ._logging import null_logger
