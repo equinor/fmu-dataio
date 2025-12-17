@@ -6,11 +6,12 @@ from typing import Any
 
 import pytest
 import xtgeo
-from fmu.datamodels.fmu_results import FmuResultsSchema, enums
-from fmu.datamodels.fmu_results.fields import (
+from fmu.datamodels.common.enums import TrackLogEventType
+from fmu.datamodels.common.tracklog import (
     OperatingSystem,
     TracklogEvent,
 )
+from fmu.datamodels.fmu_results import FmuResultsSchema
 from pytest import MonkeyPatch
 
 import fmu.dataio as dio
@@ -61,10 +62,10 @@ def test_generate_meta_tracklog_fmu_dataio_version(
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog.root, list)
-    assert len(tracklog.root) == 1  # assume enums.TrackLogEventType.created
+    assert len(tracklog.root) == 1  # assume TrackLogEventType.created
 
     parsed = TracklogEvent.model_validate(tracklog[0])
-    assert parsed.event == enums.TrackLogEventType.created
+    assert parsed.event == TrackLogEventType.created
 
     # datetime in tracklog shall include time zone offset
     assert parsed.datetime.tzinfo is not None
@@ -90,10 +91,10 @@ def test_generate_meta_tracklog_komodo_version(
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog.root, list)
-    assert len(tracklog.root) == 1  # assume enums.TrackLogEventType.created
+    assert len(tracklog.root) == 1  # assume TrackLogEventType.created
 
     parsed = TracklogEvent.model_validate(tracklog[0])
-    assert parsed.event == enums.TrackLogEventType.created
+    assert parsed.event == TrackLogEventType.created
 
     # datetime in tracklog shall include time zone offset
     assert parsed.datetime.tzinfo is not None
@@ -163,7 +164,7 @@ def test_generate_meta_tracklog_operating_system(
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog.root, list)
-    assert len(tracklog.root) == 1  # assume enums.TrackLogEventType.created
+    assert len(tracklog.root) == 1  # assume TrackLogEventType.created
 
     parsed = TracklogEvent.model_validate(tracklog[0])
     assert isinstance(

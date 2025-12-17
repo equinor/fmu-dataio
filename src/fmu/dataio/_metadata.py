@@ -15,6 +15,9 @@ from typing import TYPE_CHECKING, Final
 from pydantic import Field
 
 from fmu.dataio.version import __version__
+from fmu.datamodels.common.access import Asset, Ssdl, SsdlAccess
+from fmu.datamodels.common.masterdata import Masterdata
+from fmu.datamodels.common.tracklog import Tracklog
 from fmu.datamodels.fmu_results import data, fields
 from fmu.datamodels.fmu_results.fmu_results import (
     ObjectMetadata,
@@ -41,8 +44,8 @@ class ObjectMetadataExport(ObjectMetadata, populate_by_name=True):
 
     # These type ignores are for making the field optional
     fmu: fields.FMU | None  # type: ignore
-    access: fields.SsdlAccess | None  # type: ignore
-    masterdata: fields.Masterdata | None  # type: ignore
+    access: SsdlAccess | None  # type: ignore
+    masterdata: Masterdata | None  # type: ignore
     # !! Keep UnsetData first in this union
     data: UnsetData | data.AnyData  # type: ignore
     preprocessed: bool | None = Field(alias="_preprocessed", default=None)
@@ -62,15 +65,15 @@ def _get_meta_fmu(fmudata: FmuProvider) -> fields.FMU | None:
         return None
 
 
-def _get_meta_access(dataio: ExportData) -> fields.SsdlAccess:
-    return fields.SsdlAccess(
+def _get_meta_access(dataio: ExportData) -> SsdlAccess:
+    return SsdlAccess(
         asset=(
             dataio.config.access.asset
             if isinstance(dataio.config, GlobalConfiguration)
-            else fields.Asset(name="")
+            else Asset(name="")
         ),
         classification=dataio._classification,
-        ssdl=fields.Ssdl(
+        ssdl=Ssdl(
             access_level=dataio._classification,
             rep_include=dataio._rep_include,
         ),
@@ -126,7 +129,7 @@ def generate_export_metadata(
         access=_get_meta_access(dataio),
         data=objdata.get_metadata(),
         file=_get_meta_filedata(dataio._runcontext, objdata),
-        tracklog=fields.Tracklog.initialize(__version__),
+        tracklog=Tracklog.initialize(__version__),
         display=_get_meta_display(dataio, objdata),
         preprocessed=dataio.preprocessed,
     )

@@ -15,9 +15,9 @@ from fmu.dataio.export.rms._utils import (
     list_folder_names_in_general2d_folder,
     validate_name_in_stratigraphy,
 )
+from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results import standard_result
 from fmu.datamodels.fmu_results.enums import (
-    Classification,
     Content,
     DomainReference,
     FluidContactType,
