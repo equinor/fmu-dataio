@@ -10,6 +10,9 @@ from typing import Final
 from pydantic import ValidationError
 
 from fmu.dataio.version import __version__
+from fmu.datamodels.common.access import Access
+from fmu.datamodels.common.masterdata import Masterdata
+from fmu.datamodels.common.tracklog import Tracklog, User
 from fmu.datamodels.fmu_results import enums, fields, global_configuration
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
@@ -124,8 +127,8 @@ class CreateCaseMetadata:
 
         self._metadata = CaseMetadata(  # type: ignore[call-arg]
             class_=enums.FMUResultsMetadataClass.case,
-            masterdata=fields.Masterdata.model_validate(self.config["masterdata"]),
-            access=fields.Access.model_validate(self.config["access"]),
+            masterdata=Masterdata.model_validate(self.config["masterdata"]),
+            access=Access.model_validate(self.config["access"]),
             fmu=fields.FMUBase(
                 model=fields.Model.model_validate(
                     self.config["model"],
@@ -133,11 +136,11 @@ class CreateCaseMetadata:
                 case=fields.Case(
                     name=self.casename,
                     uuid=self._case_uuid(),
-                    user=fields.User(id=getpass.getuser()),
+                    user=User(id=getpass.getuser()),
                     description=None,
                 ),
             ),
-            tracklog=fields.Tracklog.initialize(__version__),
+            tracklog=Tracklog.initialize(__version__),
         ).model_dump(
             mode="json",
             exclude_none=True,

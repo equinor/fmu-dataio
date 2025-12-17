@@ -15,8 +15,9 @@ from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 if TYPE_CHECKING:
     from fmu.dataio.export._export_result import ExportResult
-    from fmu.datamodels.fmu_results.enums import Classification
     from fmu.datamodels.fmu_results.standard_result import StandardResult
+
+from fmu.datamodels.common.enums import Classification
 
 logger: Final = null_logger(__name__)
 

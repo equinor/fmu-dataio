@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
 from warnings import warn
 
 from fmu.dataio.aggregation import AggregatedData
+from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results import enums, global_configuration
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
@@ -265,7 +266,7 @@ class ExportData:
     are validated against a current list of them. In the following enumeration you would
     use **only** the string values of the classification type.
 
-    .. autoclass:: fmu.datamodels.fmu_results.enums.Classification
+    .. autoclass:: fmu.datamodels.common.enums.Classification
        :members:
        :exclude-members: __new__
        :no-index:
@@ -599,7 +600,7 @@ class ExportData:
     #
     # ----------------------------------------------------------------------------------
 
-    _classification: enums.Classification = enums.Classification.internal
+    _classification: Classification = Classification.internal
     _rep_include: bool = field(default=False, init=False)
 
     def __post_init__(self) -> None:
@@ -648,7 +649,7 @@ class ExportData:
         casepath_proposed = Path(self.casepath) if self.casepath else None
         return RunContext(casepath_proposed, fmu_context=self.fmu_context)
 
-    def _get_classification(self) -> enums.Classification:
+    def _get_classification(self) -> Classification:
         """
         Get the security classification.
         The order of how the classification is set is:
@@ -674,17 +675,17 @@ class ExportData:
             # note the one below here will never be used, because that
             # means the config is invalid and no metadata will be produced
             logger.info("Using default classification 'internal'")
-            classification = enums.Classification.internal
+            classification = Classification.internal
 
-        if enums.Classification(classification) == enums.Classification.asset:
+        if Classification(classification) == Classification.asset:
             warnings.warn(
                 "The value 'asset' for access.ssdl.access_level is deprecated. "
                 "Please use 'restricted' in input arguments or global variables "
                 "to silence this warning.",
                 FutureWarning,
             )
-            return enums.Classification.restricted
-        return enums.Classification(classification)
+            return Classification.restricted
+        return Classification(classification)
 
     def _get_rep_include(self) -> bool:
         """

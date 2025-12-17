@@ -6,6 +6,8 @@ from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pytest
+from fmu.datamodels.common.access import Access
+from fmu.datamodels.common.tracklog import Tracklog
 from fmu.datamodels.fmu_results import fields
 from xtgeo import Grid, Polygons, RegularSurface
 
@@ -141,27 +143,27 @@ def test_read_named_envvar() -> None:
     assert utils.read_named_envvar("MYTESTENV") == "mytestvalue"
 
 
-def test_get_pydantic_models_from_annotation() -> None:
-    annotation = list[fields.Access] | fields.File
+def test_get_pydantic_models_from_annotation():
+    annotation = list[Access] | fields.File
     assert _get_pydantic_models_from_annotation(annotation) == [
-        fields.Access,
+        Access,
         fields.File,
     ]
-    annotation = dict[str, fields.Access] | list[fields.File] | None
+    annotation = dict[str, Access] | list[fields.File] | None
     assert _get_pydantic_models_from_annotation(annotation) == [
-        fields.Access,
+        Access,
         fields.File,
     ]
 
-    annotation = list[fields.Access | fields.File | fields.Tracklog]
+    annotation = list[Access | fields.File | Tracklog]
     assert _get_pydantic_models_from_annotation(annotation) == [
-        fields.Access,
+        Access,
         fields.File,
-        fields.Tracklog,
+        Tracklog,
     ]
 
-    annotation = list[list[list[list[fields.Tracklog]]]]
-    assert _get_pydantic_models_from_annotation(annotation) == [fields.Tracklog]
+    annotation = list[list[list[list[Tracklog]]]]
+    assert _get_pydantic_models_from_annotation(annotation) == [Tracklog]
 
     annotation = str | list[int] | dict[str, int]
     assert not _get_pydantic_models_from_annotation(annotation)

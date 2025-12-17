@@ -14,9 +14,9 @@ from fmu.dataio.export.rms._utils import (
     get_zones_in_folder,
     validate_name_in_stratigraphy,
 )
+from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results import standard_result
 from fmu.datamodels.fmu_results.enums import (
-    Classification,
     Content,
     DomainReference,
     VerticalDomain,
