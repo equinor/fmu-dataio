@@ -6,17 +6,21 @@ import logging
 import os
 import shutil
 import sys
+import uuid
 from collections.abc import Generator
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
 import pytest
 import xtgeo
 import yaml
 from fmu.config import utilities as ut
 from fmu.datamodels.fmu_results import FmuResults, fields, global_configuration
+from pydantic import BaseModel
 from pytest import MonkeyPatch
 
 import fmu.dataio as dio
@@ -49,18 +53,25 @@ ERTRUN_ENV_FULLRUN = {**ERTRUN_ENV_PREHOOK, **ERTRUN_ENV_FORWARD}
 ERT_RUNPATH = f"_ERT_{FmuEnv.RUNPATH.name}"
 
 
-def _current_function_name():
+def _current_function_name() -> str:
     """Helper to retrieve current function name, e.g. for logging"""
-    return inspect.currentframe().f_back.f_code.co_name
+    curr_frame = inspect.currentframe()
+    assert curr_frame is not None
+    assert curr_frame.f_back is not None
+    f_code = curr_frame.f_back.f_code
+    assert f_code is not None
+    co_name = f_code.co_name
+    assert co_name is not None
+    return co_name
 
 
 @pytest.fixture(scope="session")
-def source_root(request) -> Path:
+def source_root(request: pytest.FixtureRequest) -> Path:
     return request.config.rootpath
 
 
 @pytest.fixture(scope="function", autouse=True)
-def return_to_original_directory(monkeypatch: MonkeyPatch):
+def return_to_original_directory(monkeypatch: MonkeyPatch) -> Generator[None]:
     # store original folder, and restore after each function (before and after yield)
     original_directory = os.getcwd()
     yield
@@ -68,16 +79,18 @@ def return_to_original_directory(monkeypatch: MonkeyPatch):
 
 
 @pytest.fixture
-def inside_rms_interactive(monkeypatch):
+def inside_rms_interactive(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setenv("RUNRMS_EXEC_MODE", "interactive")
 
 
 @pytest.fixture(scope="session")
-def rootpath(request):
+def rootpath(request: pytest.FixtureRequest) -> Path:
     return request.config.rootpath
 
 
-def _fmu_run1_env_variables(monkeypatch, usepath="", case_only=False):
+def _fmu_run1_env_variables(
+    monkeypatch: MonkeyPatch, usepath: str = "", case_only: bool = False
+) -> None:
     """Helper function for fixtures below.
 
     Will here monkeypatch the ENV variables, with a particular setting for RUNPATH
@@ -90,42 +103,46 @@ def _fmu_run1_env_variables(monkeypatch, usepath="", case_only=False):
         logger.debug("Setting env %s as %s", key, env_value)
 
 
-def remove_ert_env(monkeypatch):
+def remove_ert_env(monkeypatch: MonkeyPatch) -> None:
     for key in ERTRUN_ENV_FULLRUN:
         monkeypatch.delenv(key, raising=False)
 
 
-def set_ert_env_forward(monkeypatch):
+def set_ert_env_forward(monkeypatch: MonkeyPatch) -> None:
     for key, val in ERTRUN_ENV_FORWARD.items():
         monkeypatch.setenv(key, val)
 
 
-def set_ert_env_prehook(monkeypatch):
+def set_ert_env_prehook(monkeypatch: MonkeyPatch) -> None:
     for key, val in ERTRUN_ENV_PREHOOK.items():
         monkeypatch.setenv(key, val)
 
 
 @pytest.fixture(scope="function")
-def fmurun(tmp_path_factory, monkeypatch, rootpath):
+def fmurun(
+    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+) -> Path:
     """A tmp folder structure for testing; here a new fmurun without case metadata."""
     tmppath = tmp_path_factory.mktemp("data")
     newpath = tmppath / ERTRUN_REAL0_ITER0
     shutil.copytree(rootpath / ERTRUN_REAL0_ITER0, newpath)
 
-    _fmu_run1_env_variables(monkeypatch, usepath=newpath, case_only=False)
+    _fmu_run1_env_variables(monkeypatch, usepath=str(newpath), case_only=False)
 
     logger.debug("Ran %s", _current_function_name())
     return newpath
 
 
 @pytest.fixture(scope="function")
-def fmurun_prehook(tmp_path_factory, monkeypatch, rootpath):
+def fmurun_prehook(
+    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+) -> Path:
     """A tmp folder structure for testing; here a new fmurun without case metadata."""
     tmppath = tmp_path_factory.mktemp("data")
     newpath = tmppath / ERTRUN
     shutil.copytree(rootpath / ERTRUN, newpath)
 
-    _fmu_run1_env_variables(monkeypatch, usepath=newpath, case_only=True)
+    _fmu_run1_env_variables(monkeypatch, usepath=str(newpath), case_only=True)
 
     logger.debug("Ran %s", _current_function_name())
     return newpath
@@ -140,7 +157,7 @@ def fmurun_w_casemetadata(
     shutil.copytree(rootpath / ERTRUN, newpath)
     iter_path = newpath / "realization-0/iter-0"
 
-    _fmu_run1_env_variables(monkeypatch, usepath=iter_path, case_only=False)
+    _fmu_run1_env_variables(monkeypatch, usepath=str(iter_path), case_only=False)
 
     logger.debug("Ran %s", _current_function_name())
     monkeypatch.chdir(iter_path)
@@ -148,7 +165,9 @@ def fmurun_w_casemetadata(
 
 
 @pytest.fixture(scope="function")
-def fmurun_non_equal_real_and_iter(tmp_path_factory, monkeypatch, rootpath):
+def fmurun_non_equal_real_and_iter(
+    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+) -> Path:
     """Create a tmp folder structure for testing; with non equal real and iter num!"""
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / ERTRUN
@@ -164,7 +183,9 @@ def fmurun_non_equal_real_and_iter(tmp_path_factory, monkeypatch, rootpath):
 
 
 @pytest.fixture(scope="function")
-def fmurun_no_iter_folder(tmp_path_factory, monkeypatch, rootpath):
+def fmurun_no_iter_folder(
+    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+) -> Path:
     """Create a tmp folder structure for testing; with no iter folder!"""
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / ERTRUN_NO_ITER
@@ -180,21 +201,23 @@ def fmurun_no_iter_folder(tmp_path_factory, monkeypatch, rootpath):
 
 
 @pytest.fixture(scope="function")
-def fmurun_w_casemetadata_pred(tmp_path_factory, monkeypatch, rootpath):
+def fmurun_w_casemetadata_pred(
+    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+) -> Path:
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
     tmppath = tmp_path_factory.mktemp("data3")
     newpath = tmppath / ERTRUN
     shutil.copytree(rootpath / ERTRUN, newpath)
     rootpath = newpath / "realization-0/pred"
 
-    _fmu_run1_env_variables(monkeypatch, usepath=rootpath, case_only=False)
+    _fmu_run1_env_variables(monkeypatch, usepath=str(rootpath), case_only=False)
 
     logger.debug("Ran %s", _current_function_name())
     return rootpath
 
 
 @pytest.fixture(scope="session")
-def fmurun_pred(tmp_path_factory, rootpath):
+def fmurun_pred(tmp_path_factory: pytest.TempPathFactory, rootpath: Path) -> Path:
     """Create a tmp folder structure for testing; here a new fmurun for prediction."""
     tmppath = tmp_path_factory.mktemp("data_pred")
     newpath = tmppath / ERTRUN_PRED
@@ -204,7 +227,9 @@ def fmurun_pred(tmp_path_factory, rootpath):
 
 
 @pytest.fixture(scope="session")
-def rmsrun_fmu_w_casemetadata(tmp_path_factory, rootpath):
+def rmsrun_fmu_w_casemetadata(
+    tmp_path_factory: pytest.TempPathFactory, rootpath: Path
+) -> Path:
     """Create a tmp folder structure for testing; here existing fmurun w/ case meta!
 
     Then we locate the folder to the ...rms/model folder, pretending running RMS
@@ -221,7 +246,9 @@ def rmsrun_fmu_w_casemetadata(tmp_path_factory, rootpath):
 
 
 @pytest.fixture(scope="function")
-def rmssetup(tmp_path_factory, global_config2_path):
+def rmssetup(
+    tmp_path_factory: pytest.TempPathFactory, global_config2_path: Path
+) -> Path:
     """Create the folder structure to mimic RMS project."""
 
     tmppath = tmp_path_factory.mktemp("revision")
@@ -235,7 +262,9 @@ def rmssetup(tmp_path_factory, global_config2_path):
 
 
 @pytest.fixture(scope="function")
-def rmssetup_with_fmuconfig(tmp_path_factory, global_config2_path):
+def rmssetup_with_fmuconfig(
+    tmp_path_factory: pytest.TempPathFactory, global_config2_path: Path
+) -> Path:
     """Create the folder structure to mimic RMS project and standard global config."""
 
     tmppath = tmp_path_factory.mktemp("revision")
@@ -251,7 +280,7 @@ def rmssetup_with_fmuconfig(tmp_path_factory, global_config2_path):
 
 
 @pytest.fixture(scope="function")
-def rmsglobalconfig(rmssetup, monkeypatch: MonkeyPatch):
+def rmsglobalconfig(rmssetup: Path, monkeypatch: MonkeyPatch) -> dict[str, Any]:
     """Read global config."""
     # read the global config
     monkeypatch.chdir(rmssetup)
@@ -265,7 +294,9 @@ def rmsglobalconfig(rmssetup, monkeypatch: MonkeyPatch):
 
 
 @pytest.fixture(scope="function")
-def globalvars_norwegian_letters(tmp_path_factory, rootpath, monkeypatch: MonkeyPatch):
+def globalvars_norwegian_letters(
+    tmp_path_factory: pytest.TempPathFactory, rootpath: Path, monkeypatch: MonkeyPatch
+) -> tuple[Path, dict[str, Any] | None, str]:
     """Read a global config with norwegian special letters w/ fmu.config utilities."""
 
     tmppath = tmp_path_factory.mktemp("revisionxx")
@@ -287,7 +318,7 @@ def globalvars_norwegian_letters(tmp_path_factory, rootpath, monkeypatch: Monkey
 
 
 @pytest.fixture(scope="function")
-def casesetup(tmp_path_factory):
+def casesetup(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create the folder structure to mimic a fmu run"""
 
     tmppath = tmp_path_factory.mktemp("mycase")
@@ -300,30 +331,30 @@ def casesetup(tmp_path_factory):
 
 
 @pytest.fixture(scope="function")
-def globalconfig1():
+def globalconfig1() -> dict[str, Any]:
     """Minimalistic global config variables no. 1 in ExportData class."""
     return global_configuration.GlobalConfiguration(
         masterdata=fields.Masterdata(
             smda=fields.Smda(
                 coordinate_system=fields.CoordinateSystem(
                     identifier="ST_WGS84_UTM37N_P32637",
-                    uuid="15ce3b84-766f-4c93-9050-b154861f9100",
+                    uuid=uuid.UUID("15ce3b84-766f-4c93-9050-b154861f9100"),
                 ),
                 country=[
                     fields.CountryItem(
                         identifier="Norway",
-                        uuid="ad214d85-8a1d-19da-e053-c918a4889309",
+                        uuid=uuid.UUID("ad214d85-8a1d-19da-e053-c918a4889309"),
                     ),
                 ],
                 discovery=[
                     fields.DiscoveryItem(
                         short_identifier="abdcef",
-                        uuid="56c92484-8798-4f1f-9f14-d237a3e1a4ff",
+                        uuid=uuid.UUID("56c92484-8798-4f1f-9f14-d237a3e1a4ff"),
                     ),
                 ],
                 stratigraphic_column=fields.StratigraphicColumn(
                     identifier="TestStratigraphicColumn",
-                    uuid="56c92484-8798-4f1f-9f14-d237a3e1a4ff",
+                    uuid=uuid.UUID("56c92484-8798-4f1f-9f14-d237a3e1a4ff"),
                 ),
                 field=[],
             )
@@ -349,16 +380,20 @@ def globalconfig1():
 
 
 @pytest.fixture(scope="function")
-def global_config2_path(rootpath) -> Path:
+def global_config2_path(rootpath: Path) -> Path:
     """The path to the second global config."""
     return rootpath / "tests/data/drogon/global_config2/global_variables.yml"
 
 
 @pytest.fixture(scope="function")
-def edataobj1(globalconfig1, tmp_path: Path, monkeypatch: MonkeyPatch):
+def edataobj1(
+    globalconfig1: Any, tmp_path: Path, monkeypatch: MonkeyPatch
+) -> ExportData:
     """Combined globalconfig and settings to instance, for internal testing"""
     logger.debug("Establish edataobj1")
+
     monkeypatch.chdir(tmp_path)
+
     eobj = dio.ExportData(
         config=globalconfig1,
         name="TopWhatever",
@@ -366,23 +401,25 @@ def edataobj1(globalconfig1, tmp_path: Path, monkeypatch: MonkeyPatch):
         tagname="mytag",
         is_observation=False,
     )
-    eobj.surface_fformat = "irap_binary"
 
-    logger.debug(
-        "Ran %s returning %s", inspect.currentframe().f_code.co_name, type(eobj)
-    )
+    curr_frame = inspect.currentframe()
+    if curr_frame is not None and curr_frame.f_code is not None:
+        logger.debug("Ran %s returning %s", curr_frame.f_code.co_name, type(eobj))
+    else:
+        logger.debug("Ran unknown frame returning %s", type(eobj))
+
     return eobj
 
 
 @pytest.fixture(scope="function")
-def globalconfig2(global_config2_path) -> dict:
+def globalconfig2(global_config2_path: Path) -> dict[str, Any]:
     """More advanced global config from file state variable in ExportData class."""
     with open(global_config2_path, encoding="utf-8") as stream:
         return yaml.safe_load(stream)
 
 
 @pytest.fixture(scope="function")
-def edataobj2(globalconfig2):
+def edataobj2(globalconfig2: dict[str, Any]) -> ExportData:
     """Combined globalconfig2 and other settings; NB for internal unit testing"""
     eobj = dio.ExportData(
         config=globalconfig2,
@@ -391,20 +428,13 @@ def edataobj2(globalconfig2):
         unit="m",
         tagname="mytag",
         parent="",
-        timedata=[[20330105, "moni"], [19990102, "base"]],
+        timedata=[["20330105", "moni"], ["19990102", "base"]],
         is_prediction=True,
         is_observation=False,
-        forcefolder=None,
         subfolder="",
         fmu_context="realization",
         rep_include=True,
     )
-
-    eobj.surface_fformat = "irap_binary"
-    eobj.legacy_time_format = False
-
-    eobj._rootpath = Path(".")
-    eobj._pwd = Path(".")
 
     logger.debug("Ran %s", _current_function_name())
     return eobj
@@ -416,7 +446,7 @@ def edataobj2(globalconfig2):
 
 
 @pytest.fixture(scope="session")
-def schema_080(rootpath):
+def schema_080(rootpath: Path) -> dict[str, Any]:
     """Return 0.8.0 version of schema as json."""
     with open(
         rootpath / "schema/definitions/0.8.0/schema/fmu_results.json", encoding="utf-8"
@@ -425,7 +455,7 @@ def schema_080(rootpath):
 
 
 @pytest.fixture(scope="session")
-def metadata_examples():
+def metadata_examples() -> dict[str, Any]:
     """Parse all metadata examples.
 
     Returns:
@@ -436,14 +466,14 @@ def metadata_examples():
 
 
 @pytest.fixture(scope="function")
-def regsurf_nan_only():
+def regsurf_nan_only() -> xtgeo.RegularSurface:
     """Create an xtgeo surface with only NaNs."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=np.nan)
 
 
 @pytest.fixture(scope="function")
-def regsurf_masked_only():
+def regsurf_masked_only() -> xtgeo.RegularSurface:
     """Create an xtgeo surface with only masked values."""
     logger.debug("Ran %s", _current_function_name())
     regsurf = xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1000)
@@ -457,14 +487,14 @@ def regsurf_masked_only():
 
 
 @pytest.fixture(scope="function")
-def regsurf():
+def regsurf() -> xtgeo.RegularSurface:
     """Create an xtgeo surface."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
 
 
 @pytest.fixture(scope="function")
-def faultroom_object(globalconfig2):
+def faultroom_object(globalconfig2: dict[str, Any]) -> FaultRoomSurface:
     """Create a faultroom object."""
     logger.debug("Ran %s", _current_function_name())
     cfg = deepcopy(globalconfig2)
@@ -498,7 +528,7 @@ def tsurf() -> TSurfData:
     Create a basic TSurfData object from a dictionary.
     """
 
-    tsurf_dict = {}
+    tsurf_dict: dict[str, Any] = {}
     tsurf_dict["header"] = {"name": "Fault F1"}
     tsurf_dict["coordinate_system"] = {
         "name": "Default",
@@ -536,6 +566,7 @@ def tsurf_as_lines(tsurf: TSurfData) -> list[str]:
         for i in range(len(tsurf.triangles))
     ]
 
+    assert tsurf.coordinate_system is not None
     return [
         "GOCAD TSurf 1",
         "HEADER {",
@@ -559,7 +590,7 @@ def tsurf_as_lines(tsurf: TSurfData) -> list[str]:
 
 
 @pytest.fixture(scope="function")
-def polygons():
+def polygons() -> xtgeo.Polygons:
     """Create an xtgeo polygons."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.Polygons(
@@ -573,7 +604,7 @@ def polygons():
 
 
 @pytest.fixture(scope="function")
-def fault_line():
+def fault_line() -> xtgeo.Polygons:
     """Create an xtgeo polygons."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.Polygons(
@@ -588,7 +619,7 @@ def fault_line():
 
 
 @pytest.fixture(scope="function")
-def points():
+def points() -> xtgeo.Points:
     """Create an xtgeo points instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.Points(
@@ -603,35 +634,35 @@ def points():
 
 
 @pytest.fixture(scope="function")
-def cube():
+def cube() -> xtgeo.Cube:
     """Create an xtgeo cube instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.Cube(ncol=3, nrow=4, nlay=5, xinc=12, yinc=12, zinc=4, rotation=30)
 
 
 @pytest.fixture(scope="function")
-def grid():
+def grid() -> xtgeo.Grid:
     """Create an xtgeo grid instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.create_box_grid((3, 4, 5))
 
 
 @pytest.fixture(scope="function")
-def gridproperty():
+def gridproperty() -> xtgeo.GridProperty:
     """Create an xtgeo gridproperty instance."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.GridProperty(ncol=3, nrow=7, nlay=3, values=123.0)
 
 
 @pytest.fixture(scope="function")
-def dataframe():
+def dataframe() -> pd.DataFrame:
     """Create an pandas dataframe instance."""
     logger.debug("Ran %s", _current_function_name())
     return pd.DataFrame({"COL1": [1, 2, 3, 4], "COL2": [99.0, 98.0, 97.0, 96.0]})
 
 
 @pytest.fixture(scope="function")
-def wellpicks():
+def wellpicks() -> pd.DataFrame:
     """Create a pandas dataframe containing wellpicks"""
     logger.debug("Ran %s", _current_function_name())
     return pd.DataFrame(
@@ -663,27 +694,25 @@ def wellpicks():
 
 
 @pytest.fixture(scope="function")
-def arrowtable():
+def arrowtable() -> pa.Table:
     """Create an arrow table instance."""
-    try:
-        from pyarrow import Table
-
-        return Table.from_pandas(
-            pd.DataFrame(
-                {
-                    "COL1": [1, 2, 3, 4],
-                    "COL2": [99.0, 98.0, 97.0, 96.0],
-                }
-            )
+    return pa.Table.from_pandas(
+        pd.DataFrame(
+            {
+                "COL1": [1, 2, 3, 4],
+                "COL2": [99.0, 98.0, 97.0, 96.0],
+            }
         )
-    except ImportError:
-        return None
+    )
 
 
 # helper function for the two fixtures below
 def _create_aggregated_surface_dataset(
-    rmsglobalconfig, regsurf, content, content_metadata=None
-):
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    content: str,
+    content_metadata: dict[str, str] | None = None,
+) -> tuple[xtgeo.Surfaces, list[dict[str, Any]]]:
     aggs = []
     # create "forward" files
     for i in range(10):  # TODO! 10
@@ -712,8 +741,11 @@ def _create_aggregated_surface_dataset(
 
 @pytest.fixture(scope="function")
 def aggr_seismic_surfs_mean(
-    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: MonkeyPatch
-):
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+    fmurun_w_casemetadata: Path,
+) -> tuple[xtgeo.RegularSurface, list[dict[str, Any]]]:
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
     logger.debug("Ran %s", _current_function_name())
 
@@ -738,8 +770,10 @@ def aggr_seismic_surfs_mean(
 
 @pytest.fixture(scope="function")
 def aggr_surfs_mean(
-    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: MonkeyPatch
-):
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
     logger.debug("Ran %s", _current_function_name())
 
@@ -760,7 +794,7 @@ def aggr_surfs_mean(
 
 
 @pytest.fixture()
-def edataobj3(globalconfig1):
+def edataobj3(globalconfig1: dict[str, Any]) -> ExportData:
     """Combined globalconfig and settings to instance, for internal testing"""
 
     return ExportData(
@@ -772,7 +806,7 @@ def edataobj3(globalconfig1):
 
 
 @pytest.fixture
-def export_data_obj_timeseries(globalconfig1):
+def export_data_obj_timeseries(globalconfig1: dict[str, Any]) -> ExportData:
     """Combined globalconfig and settings to instance, for internal testing"""
 
     return ExportData(
@@ -784,7 +818,7 @@ def export_data_obj_timeseries(globalconfig1):
 
 
 @pytest.fixture()
-def mock_summary():
+def mock_summary() -> pd.DataFrame:
     """Return summary mock data
 
     Returns:
@@ -794,25 +828,25 @@ def mock_summary():
 
 
 @pytest.fixture()
-def mock_relperm():
+def mock_relperm() -> pd.DataFrame:
     """Return relperm mock data"""
     return pd.DataFrame({"alf": ["A", "B", "C"], "SATNUM": [1, 2, 3]})
 
 
 @pytest.fixture()
-def drogon_summary(rootpath):
+def drogon_summary(rootpath: Path) -> pa.Table:
     """Return pyarrow table
 
     Returns:
         pa.Table: table with summary data
     """
-    from pyarrow import feather
+    import pyarrow.feather as feather
 
     return feather.read_table(rootpath / "tests/data/drogon/tabular/summary.arrow")
 
 
 @pytest.fixture()
-def mock_volumes():
+def mock_volumes() -> pd.DataFrame:
     """Return volume mock data
 
     Returns:
@@ -831,15 +865,14 @@ def mock_volumes():
 
 
 @pytest.fixture()
-def drogon_volumes(rootpath):
+def drogon_volumes(rootpath: Path) -> pa.Table:
     """Return pyarrow table
 
     Returns:
         pa.Table: table with summary data
     """
-    from pyarrow import Table
 
-    return Table.from_pandas(
+    return pa.Table.from_pandas(
         pd.read_csv(
             rootpath / "tests/data/drogon/tabular/geogrid--vol.csv",
         )
@@ -847,7 +880,7 @@ def drogon_volumes(rootpath):
 
 
 @pytest.fixture(scope="session")
-def pydantic_models_from_root():
+def pydantic_models_from_root() -> set[type[BaseModel]]:
     """Return all nested pydantic models from FmuResults and downwards"""
     return _get_nested_pydantic_models(FmuResults)
 
