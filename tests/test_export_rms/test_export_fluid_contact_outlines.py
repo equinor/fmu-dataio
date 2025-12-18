@@ -1,6 +1,12 @@
 """Test the dataio running RMS specific utility function for fluid contact outlines"""
 
+from __future__ import annotations
+
+from collections.abc import Generator
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 from unittest import mock
+from unittest.mock import MagicMock
 
 import jsonschema
 import numpy as np
@@ -12,6 +18,14 @@ from fmu.datamodels.standard_results.fluid_contact_outline import (
     FluidContactOutlineResult,
     FluidContactOutlineSchema,
 )
+from pytest import MonkeyPatch
+
+if TYPE_CHECKING:
+    import xtgeo
+
+    from fmu.dataio.export.rms.fluid_contact_outlines import (
+        _ExportFluidContactOutlines,
+    )
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
@@ -24,11 +38,11 @@ CONTACT_FOLDERS = ["fwl", "goc"]
 
 @pytest.fixture
 def mock_export_class(
-    mock_project_variable,
-    monkeypatch,
-    rmssetup_with_fmuconfig,
-    xtgeo_zone_polygons,
-):
+    mock_project_variable: MagicMock,
+    monkeypatch: MonkeyPatch,
+    rmssetup_with_fmuconfig: Path,
+    xtgeo_zone_polygons: list[xtgeo.Polygons],
+) -> Generator[_ExportFluidContactOutlines]:
     # needed to find the global config at correct place
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
@@ -55,8 +69,10 @@ def mock_export_class(
 @pytest.mark.parametrize("contact", CONTACT_FOLDERS)
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_files_exported_with_metadata(
-    mock_export_class, rmssetup_with_fmuconfig, contact
-):
+    mock_export_class: _ExportFluidContactOutlines,
+    rmssetup_with_fmuconfig: Path,
+    contact: list[str],
+) -> None:
     """Test that the standard_result is set correctly in the metadata"""
 
     mock_export_class.export()
@@ -77,7 +93,9 @@ def test_files_exported_with_metadata(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_no_valid_contact_folders_found(mock_export_class):
+def test_no_valid_contact_folders_found(
+    mock_export_class: _ExportFluidContactOutlines,
+) -> None:
     """Test that an error is raised if no valid contact surfaces are found"""
 
     with (
@@ -92,8 +110,8 @@ def test_no_valid_contact_folders_found(mock_export_class):
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_only_valid_contact_folders_processed(
-    rmssetup_with_fmuconfig, mock_export_class
-):
+    rmssetup_with_fmuconfig: Path, mock_export_class: _ExportFluidContactOutlines
+) -> None:
     """Test that only folders with valid contact names are processed"""
 
     with mock.patch(
@@ -130,7 +148,9 @@ def test_only_valid_contact_folders_processed(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_standard_result_in_metadata(mock_export_class):
+def test_standard_result_in_metadata(
+    mock_export_class: _ExportFluidContactOutlines,
+) -> None:
     """Test that the standard_result is set correctly in the metadata"""
 
     out = mock_export_class.export()
@@ -152,7 +172,9 @@ def test_standard_result_in_metadata(mock_export_class):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_public_export_function(mock_project_variable, mock_export_class):
+def test_public_export_function(
+    mock_project_variable: MagicMock, mock_export_class: _ExportFluidContactOutlines
+) -> None:
     """Test that the export function works"""
 
     from fmu.dataio.export.rms import export_fluid_contact_outlines
@@ -176,10 +198,12 @@ def test_public_export_function(mock_project_variable, mock_export_class):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_unknown_name_in_stratigraphy_raises(mock_export_class):
+def test_unknown_name_in_stratigraphy_raises(
+    mock_export_class: _ExportFluidContactOutlines,
+) -> None:
     """Test that an error is raised if horizon name is missing in the stratigraphy"""
 
-    mock_export_class._contact_outlines["fwl"][0].name = "missing"
+    mock_export_class._contact_outlines[FluidContactType.fwl][0].name = "missing"
 
     with pytest.raises(ValueError, match="not listed"):
         mock_export_class.export()
@@ -187,8 +211,10 @@ def test_unknown_name_in_stratigraphy_raises(mock_export_class):
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_stratigraphy_missing_raises(
-    mock_project_variable, mock_export_class, globalconfig1
-):
+    mock_project_variable: MagicMock,
+    mock_export_class: _ExportFluidContactOutlines,
+    globalconfig1: dict[str, Any],
+) -> None:
     """Test that an error is raised if stratigraphy is missing from the config"""
 
     from fmu.dataio.export.rms import export_fluid_contact_outlines
@@ -206,7 +232,11 @@ def test_stratigraphy_missing_raises(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypatch):
+def test_config_missing(
+    mock_project_variable: MagicMock,
+    rmssetup_with_fmuconfig: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test that an exception is raised if the config is missing."""
 
     from fmu.dataio.export.rms import export_fluid_contact_outlines
@@ -220,8 +250,8 @@ def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypa
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_payload_validates_against_model(
-    mock_export_class,
-):
+    mock_export_class: _ExportFluidContactOutlines,
+) -> None:
     """Tests that the table exported is validated against the payload result
     model."""
 
@@ -237,8 +267,8 @@ def test_payload_validates_against_model(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_payload_validates_against_schema(
-    mock_export_class,
-):
+    mock_export_class: _ExportFluidContactOutlines,
+) -> None:
     """Tests that the table exported is validated against the payload result
     schema."""
 
