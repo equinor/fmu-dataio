@@ -1,6 +1,12 @@
 """Test the dataio running RMS specific utility function for field outline"""
 
+from __future__ import annotations
+
+from collections.abc import Generator
+from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
+from unittest.mock import MagicMock
 
 import jsonschema
 import numpy as np
@@ -11,20 +17,27 @@ from fmu.datamodels.standard_results.field_outline import (
     FieldOutlineResult,
     FieldOutlineSchema,
 )
+from pytest import MonkeyPatch
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
+
+if TYPE_CHECKING:
+    import xtgeo
+
+    from fmu.dataio.export.rms.field_outline import _ExportFieldOutline
+
 
 logger = null_logger(__name__)
 
 
 @pytest.fixture
 def mock_export_class(
-    mock_project_variable,
-    monkeypatch,
-    rmssetup_with_fmuconfig,
-    xtgeo_fault_lines,
-):
+    mock_project_variable: MagicMock,
+    monkeypatch: MonkeyPatch,
+    rmssetup_with_fmuconfig: Path,
+    xtgeo_fault_lines: list[xtgeo.Polygons],
+) -> Generator[_ExportFieldOutline]:
     # needed to find the global config at correct place
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
@@ -42,7 +55,10 @@ def mock_export_class(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig):
+def test_files_exported_with_metadata(
+    mock_export_class: _ExportFieldOutline,
+    rmssetup_with_fmuconfig: Path,
+) -> None:
     """Test that the standard_result is set correctly in the metadata"""
 
     mock_export_class.export()
@@ -56,7 +72,9 @@ def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_standard_result_in_metadata(mock_export_class):
+def test_standard_result_in_metadata(
+    mock_export_class: _ExportFieldOutline,
+) -> None:
     """Test that the standard_result is set correctly in the metadata"""
 
     out = mock_export_class.export()
@@ -77,7 +95,10 @@ def test_standard_result_in_metadata(mock_export_class):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_public_export_function(mock_project_variable, mock_export_class):
+def test_public_export_function(
+    mock_project_variable: MagicMock,
+    mock_export_class: _ExportFieldOutline,
+) -> None:
     """Test that the export function works"""
 
     from fmu.dataio.export.rms import export_field_outline
@@ -98,7 +119,11 @@ def test_public_export_function(mock_project_variable, mock_export_class):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypatch):
+def test_config_missing(
+    mock_project_variable: MagicMock,
+    rmssetup_with_fmuconfig: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test that an exception is raised if the config is missing."""
 
     from fmu.dataio.export.rms import export_field_outline
@@ -112,8 +137,8 @@ def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypa
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_payload_validates_against_model(
-    mock_export_class,
-):
+    mock_export_class: _ExportFieldOutline,
+) -> None:
     """Tests that the table exported is validated against the payload result
     model."""
 
@@ -129,8 +154,8 @@ def test_payload_validates_against_model(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_payload_validates_against_schema(
-    mock_export_class,
-):
+    mock_export_class: _ExportFieldOutline,
+) -> None:
     """Tests that the table exported is validated against the payload result
     schema."""
 
