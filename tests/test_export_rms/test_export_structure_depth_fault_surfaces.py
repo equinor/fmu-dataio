@@ -2,24 +2,37 @@
 Test the dataio running RMS specific utility function for structure depth fault surfaces
 """
 
+from __future__ import annotations
+
+from collections.abc import Generator
+from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
+from unittest.mock import MagicMock
 
 import pytest
 from fmu.datamodels.standard_results.enums import StandardResultName
+from pytest import MonkeyPatch
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
+
+if TYPE_CHECKING:
+    from fmu.dataio._readers.tsurf import TSurfData
+    from fmu.dataio.export.rms.structure_depth_fault_surfaces import (
+        _ExportStructureDepthFaultSurfaces,
+    )
 
 logger = null_logger(__name__)
 
 
 @pytest.fixture
 def mock_export_class(
-    mock_project_variable,
-    monkeypatch,
-    rmssetup_with_fmuconfig,
-    fault_surfaces_triangulated,
-):
+    mock_project_variable: MagicMock,
+    monkeypatch: MonkeyPatch,
+    rmssetup_with_fmuconfig: Path,
+    fault_surfaces_triangulated: list[TSurfData],
+) -> Generator[_ExportStructureDepthFaultSurfaces]:
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
     from fmu.dataio.export.rms.structure_depth_fault_surfaces import (
@@ -34,7 +47,9 @@ def mock_export_class(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig):
+def test_files_exported_with_metadata(
+    mock_export_class: _ExportStructureDepthFaultSurfaces, rmssetup_with_fmuconfig: Path
+) -> None:
     """Test that the standard_result is set correctly in the metadata"""
 
     mock_export_class.export()
@@ -53,7 +68,9 @@ def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_standard_result_in_metadata(mock_export_class):
+def test_standard_result_in_metadata(
+    mock_export_class: _ExportStructureDepthFaultSurfaces,
+) -> None:
     """Test that the standard_result is set correctly in the metadata"""
 
     out = mock_export_class.export()
@@ -68,10 +85,10 @@ def test_standard_result_in_metadata(mock_export_class):
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_public_export_function(
-    mock_project_variable,
-    mock_structural_model,
-    mock_export_class,  # 'mock_export_class' must be present
-):
+    mock_project_variable: MagicMock,
+    mock_structural_model: dict[str, MagicMock],
+    mock_export_class: _ExportStructureDepthFaultSurfaces,  # must be present
+) -> None:
     """Test that the export function works"""
 
     from fmu.dataio.export.rms import export_structure_depth_fault_surfaces
@@ -106,9 +123,9 @@ def test_public_export_function(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_config_missing(
-    mock_project_variable,
-    mock_structural_model,
-):
+    mock_project_variable: MagicMock,
+    mock_structural_model: dict[str, MagicMock],
+) -> None:
     """Test that an exception is raised if the config is missing."""
 
     from fmu.dataio.export.rms import export_structure_depth_fault_surfaces
@@ -126,11 +143,11 @@ def test_config_missing(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_unknown_structural_model_name_raises(
-    mock_project_variable,
-    monkeypatch,
-    rmssetup_with_fmuconfig,
-    mock_structural_model,
-):
+    mock_project_variable: MagicMock,
+    monkeypatch: MonkeyPatch,
+    rmssetup_with_fmuconfig: Path,
+    mock_structural_model: dict[str, MagicMock],
+) -> None:
     """
     Test that an exception is raised if the structural model is not found
     among the structural models in RMS.
