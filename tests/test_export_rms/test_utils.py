@@ -1,10 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from unittest import mock
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
 
+if TYPE_CHECKING:
+    import xtgeo
 
-def test_get_horizons_in_folder(mock_project_variable):
+
+def test_get_horizons_in_folder(mock_project_variable: MagicMock) -> None:
     from fmu.dataio.export.rms._utils import get_horizons_in_folder
 
     horizon_folder = "DS_final"
@@ -37,7 +44,9 @@ def test_get_horizons_in_folder(mock_project_variable):
         assert surfaces == ["TopVolantis", "TopTherys"]
 
 
-def test_get_horizons_in_folder_folder_not_exist(mock_project_variable):
+def test_get_horizons_in_folder_folder_not_exist(
+    mock_project_variable: MagicMock,
+) -> None:
     from fmu.dataio.export.rms._utils import get_horizons_in_folder
 
     horizon_folder = "non_existent_folder"
@@ -46,7 +55,7 @@ def test_get_horizons_in_folder_folder_not_exist(mock_project_variable):
         get_horizons_in_folder(mock_project_variable, horizon_folder)
 
 
-def test_get_horizons_in_folder_all_empty(mock_project_variable):
+def test_get_horizons_in_folder_all_empty(mock_project_variable: MagicMock) -> None:
     from fmu.dataio.export.rms._utils import get_horizons_in_folder
 
     horizon_folder = "DS_final"
@@ -60,7 +69,7 @@ def test_get_horizons_in_folder_all_empty(mock_project_variable):
         get_horizons_in_folder(mock_project_variable, horizon_folder)
 
 
-def test_get_horizons_in_folder_wrong_type(mock_project_variable):
+def test_get_horizons_in_folder_wrong_type(mock_project_variable: MagicMock) -> None:
     """Test that an error is raised if no surfaces are detected due to wrong type"""
     from fmu.dataio.export.rms._utils import get_horizons_in_folder
 
@@ -81,7 +90,7 @@ def test_get_horizons_in_folder_wrong_type(mock_project_variable):
             get_horizons_in_folder(mock_project_variable, horizon_folder)
 
 
-def test_get_zones_in_folder(mock_project_variable):
+def test_get_zones_in_folder(mock_project_variable: MagicMock) -> None:
     from fmu.dataio.export.rms._utils import get_zones_in_folder
 
     zone_folder = "IS_final"
@@ -110,7 +119,7 @@ def test_get_zones_in_folder(mock_project_variable):
         assert zones == ["Valysar", "Therys"]
 
 
-def test_get_zones_in_folder_folder_not_exist(mock_project_variable):
+def test_get_zones_in_folder_folder_not_exist(mock_project_variable: MagicMock) -> None:
     from fmu.dataio.export.rms._utils import get_zones_in_folder
 
     zone_folder = "non_existent_folder"
@@ -119,7 +128,7 @@ def test_get_zones_in_folder_folder_not_exist(mock_project_variable):
         get_zones_in_folder(mock_project_variable, zone_folder)
 
 
-def test_get_zones_in_folder_all_empty(mock_project_variable):
+def test_get_zones_in_folder_all_empty(mock_project_variable: MagicMock) -> None:
     from fmu.dataio.export.rms._utils import get_zones_in_folder
 
     zone_folder = "IS_final"
@@ -133,7 +142,7 @@ def test_get_zones_in_folder_all_empty(mock_project_variable):
         get_zones_in_folder(mock_project_variable, zone_folder)
 
 
-def test_get_zones_in_folder_wrong_type(mock_project_variable):
+def test_get_zones_in_folder_wrong_type(mock_project_variable: MagicMock) -> None:
     """Test that an error is raised if no surfaces are detected due to wrong type"""
     from fmu.dataio.export.rms._utils import get_zones_in_folder
 
@@ -154,7 +163,9 @@ def test_get_zones_in_folder_wrong_type(mock_project_variable):
             get_zones_in_folder(mock_project_variable, zone_folder)
 
 
-def test_get_polygons_in_folder_folder_not_exist(mock_project_variable):
+def test_get_polygons_in_folder_folder_not_exist(
+    mock_project_variable: MagicMock,
+) -> None:
     from fmu.dataio.export.rms._utils import get_polygons_in_folder
 
     horizon_folder = "non_existent_folder"
@@ -163,7 +174,7 @@ def test_get_polygons_in_folder_folder_not_exist(mock_project_variable):
         get_polygons_in_folder(mock_project_variable, horizon_folder)
 
 
-def test_get_polygons_in_folder_all_empty(mock_project_variable):
+def test_get_polygons_in_folder_all_empty(mock_project_variable: MagicMock) -> None:
     from fmu.dataio.export.rms._utils import get_polygons_in_folder
 
     horizon_folder = "DS_final"
@@ -177,7 +188,7 @@ def test_get_polygons_in_folder_all_empty(mock_project_variable):
         get_polygons_in_folder(mock_project_variable, horizon_folder)
 
 
-def test_get_polygons_in_folder_wrong_type(mock_project_variable):
+def test_get_polygons_in_folder_wrong_type(mock_project_variable: MagicMock) -> None:
     """Test that an error is raised if no polygons are detected due to wrong type"""
     from fmu.dataio.export.rms._utils import get_polygons_in_folder
 
@@ -198,7 +209,9 @@ def test_get_polygons_in_folder_wrong_type(mock_project_variable):
             get_polygons_in_folder(mock_project_variable, horizon_folder)
 
 
-def test_get_faultlines_in_folder(mock_project_variable, polygons):
+def test_get_faultlines_in_folder(
+    mock_project_variable: MagicMock, polygons: xtgeo.Polygons
+) -> None:
     """
     Test that the get_faultlines_in_folder works as expected when the
     'Name' attribute is present.
@@ -228,8 +241,8 @@ def test_get_faultlines_in_folder(mock_project_variable, polygons):
 
 
 def test_get_faultlines_in_folder_raises_if_missing_name(
-    mock_project_variable, polygons
-):
+    mock_project_variable: MagicMock, polygons: xtgeo.Polygons
+) -> None:
     """
     Test that the get_faultlines_in_folder raises error when the
     'Name' attribute is missing.
@@ -253,8 +266,8 @@ def test_get_faultlines_in_folder_raises_if_missing_name(
         get_faultlines_in_folder(mock_project_variable, "DL_faultlines")
 
 
-def test_get_open_polygons_id(polygons):
-    """Test the function to list open polygons in an xtgoe.Polygons object"""
+def test_get_open_polygons_id(polygons: xtgeo.Polygons) -> None:
+    """Test the function to list open polygons in an xtgeo.Polygons object"""
     from fmu.dataio.export.rms._utils import get_open_polygons_id
 
     df_closed = polygons.get_dataframe()
@@ -271,7 +284,7 @@ def test_get_open_polygons_id(polygons):
     assert open_polygons == [2]
 
 
-def test_get_surfaces_in_general2d_folder(mock_project_variable):
+def test_get_surfaces_in_general2d_folder(mock_project_variable: MagicMock) -> None:
     """Test that get_surfaces_in_general2d_folder only picks up non-empty surfaces"""
 
     from fmu.dataio.export.rms._utils import get_surfaces_in_general2d_folder
@@ -306,7 +319,9 @@ def test_get_surfaces_in_general2d_folder(mock_project_variable):
         assert surfaces == ["TopVolantis", "TopTherys"]
 
 
-def test_get_surfaces_in_general2d_folder_all_empty(mock_project_variable):
+def test_get_surfaces_in_general2d_folder_all_empty(
+    mock_project_variable: MagicMock,
+) -> None:
     """Test that an error is raised if all surfaces are empty"""
     from fmu.dataio.export.rms._utils import get_surfaces_in_general2d_folder
 
@@ -322,7 +337,7 @@ def test_get_surfaces_in_general2d_folder_all_empty(mock_project_variable):
         get_surfaces_in_general2d_folder(mock_project_variable, folder)
 
 
-def test_get_polygons_in_general2d_folder(mock_project_variable):
+def test_get_polygons_in_general2d_folder(mock_project_variable: MagicMock) -> None:
     """Test that get_polygons_in_general2d_folder only picks up non-empty surfaces"""
 
     from fmu.dataio.export.rms._utils import get_polygons_in_general2d_folder
@@ -357,7 +372,9 @@ def test_get_polygons_in_general2d_folder(mock_project_variable):
         assert polygons == ["TopVolantis", "TopTherys"]
 
 
-def test_get_polygons_in_general2d_folder_all_empty(mock_project_variable):
+def test_get_polygons_in_general2d_folder_all_empty(
+    mock_project_variable: MagicMock,
+) -> None:
     """Test that an error is raised if all polygons are empty"""
     from fmu.dataio.export.rms._utils import get_polygons_in_general2d_folder
 
@@ -373,7 +390,7 @@ def test_get_polygons_in_general2d_folder_all_empty(mock_project_variable):
         get_polygons_in_general2d_folder(mock_project_variable, folder)
 
 
-def test_get_general2d_folder(mock_project_variable):
+def test_get_general2d_folder(mock_project_variable: MagicMock) -> None:
     """
     Test that accessing a General 2D folder works if a folder is present.
     While an error is raised if not.
