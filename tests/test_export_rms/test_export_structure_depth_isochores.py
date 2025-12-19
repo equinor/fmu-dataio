@@ -1,24 +1,38 @@
 """Test the dataio running RMS specific utility function for depth isochores"""
 
+from __future__ import annotations
+
+from collections.abc import Generator
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 from unittest import mock
+from unittest.mock import MagicMock
 
 import pytest
 from fmu.datamodels.standard_results.enums import StandardResultName
+from pytest import MonkeyPatch
 
 from fmu import dataio
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
+
+if TYPE_CHECKING:
+    import xtgeo
+
+    from fmu.dataio.export.rms.structure_depth_isochores import (
+        _ExportStructureDepthIsochores,
+    )
 
 logger = null_logger(__name__)
 
 
 @pytest.fixture
 def mock_export_class(
-    mock_project_variable,
-    monkeypatch,
-    rmssetup_with_fmuconfig,
-    xtgeo_zones,
-):
+    mock_project_variable: MagicMock,
+    monkeypatch: MonkeyPatch,
+    rmssetup_with_fmuconfig: Path,
+    xtgeo_zones: list[xtgeo.RegularSurface],
+) -> Generator[_ExportStructureDepthIsochores]:
     # needed to find the global config at correct place
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
@@ -34,7 +48,9 @@ def mock_export_class(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig):
+def test_files_exported_with_metadata(
+    mock_export_class: _ExportStructureDepthIsochores, rmssetup_with_fmuconfig: Path
+) -> None:
     """Test that the data is exported with metadata"""
 
     mock_export_class.export()
@@ -54,7 +70,9 @@ def test_files_exported_with_metadata(mock_export_class, rmssetup_with_fmuconfig
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_standard_result_in_metadata(mock_export_class):
+def test_standard_result_in_metadata(
+    mock_export_class: _ExportStructureDepthIsochores,
+) -> None:
     """Test that the standard_result is set correctly in the metadata"""
 
     out = mock_export_class.export()
@@ -68,7 +86,9 @@ def test_standard_result_in_metadata(mock_export_class):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_public_export_function(mock_project_variable, mock_export_class):
+def test_public_export_function(
+    mock_project_variable: MagicMock, mock_export_class: _ExportStructureDepthIsochores
+) -> None:
     """Test that the export function works"""
 
     from fmu.dataio.export.rms import export_structure_depth_isochores
@@ -89,7 +109,9 @@ def test_public_export_function(mock_project_variable, mock_export_class):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_unknown_name_in_stratigraphy_raises(mock_export_class):
+def test_unknown_name_in_stratigraphy_raises(
+    mock_export_class: _ExportStructureDepthIsochores,
+) -> None:
     """Test that an error is raised if horizon name is missing in the stratigraphy"""
 
     mock_export_class._surfaces[0].name = "missing"
@@ -100,8 +122,10 @@ def test_unknown_name_in_stratigraphy_raises(mock_export_class):
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_stratigraphy_missing_raises(
-    mock_project_variable, mock_export_class, globalconfig1
-):
+    mock_project_variable: MagicMock,
+    mock_export_class: _ExportStructureDepthIsochores,
+    globalconfig1: dict[str, Any],
+) -> None:
     """Test that an error is raised if stratigraphy is missing from the config"""
 
     from fmu.dataio.export.rms import export_structure_depth_isochores
@@ -120,8 +144,11 @@ def test_stratigraphy_missing_raises(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_validation_negative_values(
-    mock_project_variable, monkeypatch, rmssetup_with_fmuconfig, regsurf
-):
+    mock_project_variable: MagicMock,
+    monkeypatch: MonkeyPatch,
+    rmssetup_with_fmuconfig: Path,
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that the export function raises error if negative values are detected"""
 
     from fmu.dataio.export.rms import export_structure_depth_isochores
@@ -141,7 +168,11 @@ def test_validation_negative_values(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_config_missing(mock_project_variable, rmssetup_with_fmuconfig, monkeypatch):
+def test_config_missing(
+    mock_project_variable: MagicMock,
+    rmssetup_with_fmuconfig: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test that an exception is raised if the config is missing."""
 
     from fmu.dataio.export.rms import export_structure_depth_isochores
