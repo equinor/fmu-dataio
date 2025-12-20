@@ -19,9 +19,9 @@ from fmu.dataio.export.rms._utils import (
     get_rms_project_units,
 )
 from fmu.datamodels import InplaceVolumesResult
+from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results import standard_result
 from fmu.datamodels.fmu_results.enums import (
-    Classification,
     Content,
     DomainReference,
     VerticalDomain,
