@@ -1,19 +1,28 @@
+from __future__ import annotations
+
 import getpass
 import importlib
 import os
 import pathlib
 import sys
+from pathlib import Path
+from typing import TYPE_CHECKING
+from unittest.mock import AsyncMock, MagicMock
 
 import ert.__main__
 import pytest
 import yaml
+from pytest import CaptureFixture, MonkeyPatch
 
 from .ert_config_utils import add_create_case_workflow
 
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
+
 
 def test_create_case_metadata_runs_successfully(
-    fmu_snakeoil_project, monkeypatch, mocker
-):
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
+) -> None:
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
     add_create_case_workflow("snakeoil.ert")
 
@@ -38,8 +47,8 @@ def test_create_case_metadata_runs_successfully(
 
 
 def test_create_case_metadata_warns_without_overwriting(
-    fmu_snakeoil_project, monkeypatch, mocker
-):
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
+) -> None:
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
     add_create_case_workflow("snakeoil.ert")
 
@@ -68,8 +77,11 @@ def test_create_case_metadata_warns_without_overwriting(
 
 
 def test_create_case_metadata_caseroot_not_defined(
-    fmu_snakeoil_project, monkeypatch, mocker, capsys
-):
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    capsys: CaptureFixture[str],
+) -> None:
     """Test that a proper error message is given if the case root is
     input as an undefined ERT variable"""
     pathlib.Path(
@@ -99,8 +111,11 @@ def test_create_case_metadata_caseroot_not_defined(
     reason="fmu-sumo-uploader is not installed",
 )
 def test_create_case_metadata_enable_mocked_sumo(
-    fmu_snakeoil_project, monkeypatch, mocker, mock_sumo_uploader
-):
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
+) -> None:
     with open(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
         "a",
@@ -131,8 +146,12 @@ def test_create_case_metadata_enable_mocked_sumo(
     reason="fmu-sumo-uploader is not installed",
 )
 def test_create_case_metadata_sumo_env_dev_input_fails(
-    fmu_snakeoil_project, monkeypatch, mocker, mock_sumo_uploader, capsys
-):
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
+    capsys: CaptureFixture[str],
+) -> None:
     """Test that if the sumo_env argument is input as dev it raises an error"""
     with open(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
@@ -163,8 +182,11 @@ def test_create_case_metadata_sumo_env_dev_input_fails(
     reason="fmu-sumo-uploader is not installed",
 )
 def test_create_case_metadata_sumo_env_reads_from_environment(
-    fmu_snakeoil_project, monkeypatch, mocker, mock_sumo_uploader
-):
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
+) -> None:
     """Test that sumo_env is set through the 'SUMO_ENV' environment variable"""
     with open(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
@@ -196,8 +218,11 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
     reason="fmu-sumo-uploader is not installed",
 )
 def test_create_case_metadata_sumo_env_defaults_to_prod(
-    fmu_snakeoil_project, monkeypatch, mocker, mock_sumo_uploader
-):
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
+) -> None:
     """Test that sumo_env is defaulted to 'prod' when not set through the environment"""
     with open(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
@@ -227,8 +252,11 @@ def test_create_case_metadata_sumo_env_defaults_to_prod(
     reason="fmu-sumo-uploader is not installed",
 )
 def test_create_case_metadata_sumo_env_input_is_ignored(
-    fmu_snakeoil_project, monkeypatch, mocker, mock_sumo_uploader
-):
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
+) -> None:
     """Test that the environment variable is used over the sumo_env argument"""
     with open(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
