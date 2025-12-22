@@ -1,10 +1,14 @@
 import os
 import pathlib
 import shutil
+from collections.abc import Generator
+from pathlib import Path
 from textwrap import dedent
-from unittest.mock import patch
+from typing import Any
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from pytest import MonkeyPatch
 
 
 @pytest.fixture
@@ -31,8 +35,12 @@ def base_ert_config() -> str:
 
 @pytest.fixture
 def fmu_snakeoil_project(
-    tmp_path, monkeypatch, base_ert_config, global_config2_path, source_root
-):
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    base_ert_config: str,
+    global_config2_path: Path,
+    source_root: Path,
+) -> Path:
     """Makes a skeleton FMU project structure into a tmp_path, copying global_config2
     into it with a basic ert config that can be appended onto."""
     monkeypatch.setenv("DATAIO_TMP_PATH", str(tmp_path))
@@ -95,8 +103,8 @@ def fmu_snakeoil_project(
 
 
 @pytest.fixture
-def mock_sumo_uploader():
-    def register_side_effect(*args, **kwargs):
+def mock_sumo_uploader() -> Generator[dict[str, MagicMock | AsyncMock]]:
+    def register_side_effect(*args: tuple[Any], **kwargs: dict[str, Any]) -> int:
         with open("sumo_case_id", "w", encoding="utf-8") as f:
             f.write("1")
         return 1
