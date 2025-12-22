@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import ert.__main__
 import pytest
 import yaml
 from fmu.datamodels import FmuResults
 from fmu.datamodels.fmu_results.enums import ErtSimulationMode
+from pytest import MonkeyPatch
 
 from fmu.dataio._utils import uuid_from_string
 
@@ -14,10 +17,13 @@ from .ert_config_utils import (
     add_export_a_surface_forward_model,
 )
 
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
+
 
 @pytest.fixture
 def snakeoil_export_surface_experiment(
-    fmu_snakeoil_project: Path, monkeypatch: Any, mocker: Any
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
 ) -> Path:
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
     add_create_case_workflow("snakeoil.ert")
