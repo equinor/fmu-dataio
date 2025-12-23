@@ -1,22 +1,28 @@
+from __future__ import annotations
+
 import getpass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import ert.__main__
 import pytest
 import yaml
 from fmu.datamodels import FmuResults
 from fmu.datamodels.fmu_results.enums import ErtSimulationMode
+from pytest import MonkeyPatch
 
 from .ert_config_utils import (
     add_create_case_workflow,
     add_export_a_surface_forward_model,
 )
 
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
+
 
 @pytest.fixture
 def snakeoil_export_surface(
-    fmu_snakeoil_project: Path, monkeypatch: Any, mocker: Any
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
 ) -> Path:
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
     add_create_case_workflow("snakeoil.ert")
@@ -62,7 +68,7 @@ def test_simple_export_ert_environment_variables(snakeoil_export_surface: Path) 
 
 
 def test_snakeoil_wf_case_metadata_includes_user(
-    fmu_snakeoil_project: Path, monkeypatch: Any, mocker: Any
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
 ) -> None:
     """Test that if 'ert_username' argument is specified in WF_CREATE_CASE_METADATA
     a deprecation warning is emitted and the input is ignored.
