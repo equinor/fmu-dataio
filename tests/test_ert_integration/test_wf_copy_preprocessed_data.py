@@ -18,10 +18,13 @@ from .ert_config_utils import (
 
 if TYPE_CHECKING:
     import xtgeo
+    from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
     from pytest_mock import MockerFixture
 
 
-def _export_preprocessed_data(config: Any, regsurf: xtgeo.RegularSurface) -> None:
+def _export_preprocessed_data(
+    config: dict | GlobalConfiguration, regsurf: xtgeo.RegularSurface
+) -> None:
     """Export preprocessed surfaces"""
     dataio.ExportData(
         config=config,
@@ -86,7 +89,7 @@ def test_copy_preprocessed_runs_successfully(
 def test_copy_preprocessed_no_casemeta(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
-    mocker: Any,
+    mocker: MockerFixture,
     globalconfig2: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     capsys: CaptureFixture[str],
