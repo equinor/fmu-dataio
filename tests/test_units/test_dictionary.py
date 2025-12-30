@@ -3,16 +3,20 @@
 import json
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import Any, Literal
 
+import pandas as pd
+import pyarrow as pa
 import pytest
 import yaml
+from pytest import MonkeyPatch
 
 from fmu.dataio import ExportData
 from fmu.dataio._utils import read_parameters_txt
 
 
 @pytest.fixture(name="direct_creation", scope="function")
-def _fixture_simple():
+def _fixture_simple() -> dict:
     """Return simple dict made here
 
     Returns:
@@ -22,7 +26,7 @@ def _fixture_simple():
 
 
 @pytest.fixture(name="json_dict", scope="function")
-def _fixture_json(fmurun_w_casemetadata, monkeypatch: pytest.MonkeyPatch):
+def _fixture_json(fmurun_w_casemetadata: Path, monkeypatch: MonkeyPatch) -> dict:
     """Return dictionary read from json file
 
     Args:
@@ -37,7 +41,7 @@ def _fixture_json(fmurun_w_casemetadata, monkeypatch: pytest.MonkeyPatch):
 
 
 @pytest.fixture(name="simple_parameters", scope="function")
-def _fixture_simple_parameters(fmurun_w_casemetadata):
+def _fixture_simple_parameters(fmurun_w_casemetadata: Path) -> dict:
     """Return dictionary read from parameters.txt
 
     Args:
@@ -46,10 +50,10 @@ def _fixture_simple_parameters(fmurun_w_casemetadata):
     Returns:
         dict: The parameters read directly from parameters.txt
     """
-    return read_parameters_txt(fmurun_w_casemetadata / "parameters.txt")
+    return dict(read_parameters_txt(fmurun_w_casemetadata / "parameters.txt"))
 
 
-def assert_dict_correct(result_dict, meta, name):
+def assert_dict_correct(result_dict: dict, meta: dict, name: str) -> None:
     """Assert dictionary and some metadata
 
     Args:
@@ -64,7 +68,7 @@ def assert_dict_correct(result_dict, meta, name):
     assert meta_format == "json", f"wrong format dict {name} is {meta_format}"
 
 
-def read_dict_and_meta(path):
+def read_dict_and_meta(path: str) -> tuple[dict, dict]:
     """Return dictionary and metadata produced by dataio
 
     Args:
@@ -90,7 +94,13 @@ def read_dict_and_meta(path):
         ("simple_parameters"),
     ],
 )
-def test_export_dict_w_meta(globalconfig2, dictionary, request, monkeypatch, tmp_path):
+def test_export_dict_w_meta(
+    globalconfig2: dict[str, Any],
+    dictionary: Literal["direct_creation", "json_dict", "simple_parameters"],
+    request: pytest.FixtureRequest,
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test various dictionaries
 
     Args:
@@ -109,8 +119,12 @@ def test_export_dict_w_meta(globalconfig2, dictionary, request, monkeypatch, tmp
 
 
 def test_invalid_dict(
-    globalconfig2, drogon_summary, drogon_volumes, monkeypatch, tmp_path
-):
+    globalconfig2: dict[str, Any],
+    drogon_summary: pd.DataFrame,
+    drogon_volumes: pa.Table,
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test raising of error when dictionary is not serializable
     Args:
         globalconfig2 (_type_): _description_
@@ -126,7 +140,7 @@ def test_invalid_dict(
         assert exc_info[1] == "Object of type Table is not JSON serializable"
 
 
-def test_read_parameters_txt():
+def test_read_parameters_txt() -> None:
     with NamedTemporaryFile() as tf:
         tf.write(
             b"""SENSNAME 'rms seed'
