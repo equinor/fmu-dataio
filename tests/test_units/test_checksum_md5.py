@@ -1,11 +1,22 @@
 from pathlib import Path
+from typing import Any
+
+import pandas as pd
+import pyarrow as pa
+import xtgeo
+from pytest import MonkeyPatch
 
 from fmu.dataio._readers import faultroom
 from fmu.dataio._utils import md5sum
 from fmu.dataio.dataio import ExportData, read_metadata
 
 
-def test_checksum_md5_for_regsurf(monkeypatch, tmp_path, globalconfig1, regsurf):
+def test_checksum_md5_for_regsurf(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for an xtgeo.RegularSurface
@@ -25,8 +36,11 @@ def test_checksum_md5_for_regsurf(monkeypatch, tmp_path, globalconfig1, regsurf)
 
 
 def test_checksum_md5_for_gridproperty(
-    monkeypatch, tmp_path, globalconfig1, gridproperty
-):
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    gridproperty: xtgeo.GridProperty,
+) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for an xtgeo.GridProperty
@@ -45,7 +59,12 @@ def test_checksum_md5_for_gridproperty(
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
-def test_checksum_md5_for_grid(monkeypatch, tmp_path, globalconfig1, grid):
+def test_checksum_md5_for_grid(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    grid: xtgeo.Grid,
+) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for an xtgeo.Grid
@@ -64,7 +83,12 @@ def test_checksum_md5_for_grid(monkeypatch, tmp_path, globalconfig1, grid):
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
-def test_checksum_md5_for_points(monkeypatch, tmp_path, globalconfig1, points):
+def test_checksum_md5_for_points(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    points: xtgeo.Points,
+) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for an xtgeo.Points
@@ -83,7 +107,12 @@ def test_checksum_md5_for_points(monkeypatch, tmp_path, globalconfig1, points):
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
-def test_checksum_md5_for_polygons(monkeypatch, tmp_path, globalconfig1, polygons):
+def test_checksum_md5_for_polygons(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    polygons: xtgeo.Polygons,
+) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for an xtgeo.Polygons
@@ -102,7 +131,12 @@ def test_checksum_md5_for_polygons(monkeypatch, tmp_path, globalconfig1, polygon
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
-def test_checksum_md5_for_cube(monkeypatch, tmp_path, globalconfig1, cube):
+def test_checksum_md5_for_cube(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    cube: xtgeo.Cube,
+) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for an xtgeo.Cube
@@ -121,7 +155,12 @@ def test_checksum_md5_for_cube(monkeypatch, tmp_path, globalconfig1, cube):
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
-def test_checksum_md5_for_dataframe(monkeypatch, tmp_path, globalconfig1, dataframe):
+def test_checksum_md5_for_dataframe(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    dataframe: pd.DataFrame,
+) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for an pandas.DataFrame
@@ -140,7 +179,12 @@ def test_checksum_md5_for_dataframe(monkeypatch, tmp_path, globalconfig1, datafr
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
-def test_checksum_md5_for_arrowtable(monkeypatch, tmp_path, globalconfig1, arrowtable):
+def test_checksum_md5_for_arrowtable(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    arrowtable: pa.Table,
+) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for an pyarrow.Table
@@ -159,7 +203,9 @@ def test_checksum_md5_for_arrowtable(monkeypatch, tmp_path, globalconfig1, arrow
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
-def test_checksum_md5_for_dictionary(monkeypatch, tmp_path, globalconfig1):
+def test_checksum_md5_for_dictionary(
+    monkeypatch: MonkeyPatch, tmp_path: Path, globalconfig1: dict[str, Any]
+) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for a dictionary
@@ -180,7 +226,12 @@ def test_checksum_md5_for_dictionary(monkeypatch, tmp_path, globalconfig1):
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
-def test_checksum_md5_for_faultroom(monkeypatch, tmp_path, globalconfig2, rootpath):
+def test_checksum_md5_for_faultroom(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig2: dict[str, Any],
+    rootpath: Path,
+) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for a FaultRoomSurface
