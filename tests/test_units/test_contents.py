@@ -1,9 +1,14 @@
 """Explicitly test all allowed contents."""
 
+from typing import Any
+
+import pandas as pd
 import pytest
+import xtgeo
 from fmu.datamodels.fmu_results import enums
 from pydantic import ValidationError
 
+from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio.dataio import ExportData
 from fmu.dataio.providers.objectdata._export_models import content_requires_metadata
 
@@ -11,7 +16,9 @@ from fmu.dataio.providers.objectdata._export_models import content_requires_meta
 # mainly in test_dataio.py.
 
 
-def test_content_facies_thickness(regsurf, globalconfig2):
+def test_content_facies_thickness(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the facies_thickness content."""
     meta = ExportData(
         config=globalconfig2,
@@ -22,7 +29,9 @@ def test_content_facies_thickness(regsurf, globalconfig2):
     assert meta["data"]["content"] == "facies_thickness"
 
 
-def test_content_fault_lines(polygons, globalconfig2):
+def test_content_fault_lines(
+    polygons: xtgeo.Polygons, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the fault_lines content."""
     meta = ExportData(
         config=globalconfig2,
@@ -33,7 +42,7 @@ def test_content_fault_lines(polygons, globalconfig2):
     assert meta["data"]["content"] == "fault_lines"
 
 
-def test_content_fault_surface(tsurf, globalconfig2):
+def test_content_fault_surface(tsurf: TSurfData, globalconfig2: dict[str, Any]) -> None:
     """Test export of the fault_surface content."""
     meta = ExportData(
         config=globalconfig2,
@@ -44,12 +53,14 @@ def test_content_fault_surface(tsurf, globalconfig2):
     assert meta["data"]["content"] == "fault_surface"
 
 
-def test_fault_properties():
+def test_fault_properties() -> None:
     # Tested in test_rms_context
     pass
 
 
-def test_content_field_outline(polygons, globalconfig2):
+def test_content_field_outline(
+    polygons: xtgeo.Polygons, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the facies thickness content."""
     meta = ExportData(
         config=globalconfig2,
@@ -61,7 +72,9 @@ def test_content_field_outline(polygons, globalconfig2):
     assert meta["data"]["content"] == "field_outline"
 
 
-def test_content_field_region(polygons, globalconfig2):
+def test_content_field_region(
+    polygons: xtgeo.Polygons, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the field_region content."""
     meta = ExportData(
         config=globalconfig2,
@@ -74,7 +87,9 @@ def test_content_field_region(polygons, globalconfig2):
     assert meta["data"]["field_region"]["id"] == 1
 
 
-def test_content_fluid_contact(regsurf, globalconfig2):
+def test_content_fluid_contact(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the fluid_contact content."""
     meta = ExportData(
         config=globalconfig2,
@@ -87,7 +102,9 @@ def test_content_fluid_contact(regsurf, globalconfig2):
     assert meta["data"]["fluid_contact"]["contact"] == "fwl"
 
 
-def test_content_fluid_contact_case_insensitive(regsurf, globalconfig2):
+def test_content_fluid_contact_case_insensitive(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the fluid_contact content."""
     with pytest.warns(UserWarning, match=r"contains uppercase.+value to 'owc'"):
         meta = ExportData(
@@ -100,7 +117,9 @@ def test_content_fluid_contact_case_insensitive(regsurf, globalconfig2):
     assert meta["data"]["fluid_contact"]["contact"] == "owc"
 
 
-def test_content_fluid_contact_raises_on_invalid_contact(regsurf, globalconfig2):
+def test_content_fluid_contact_raises_on_invalid_contact(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the fluid_contact content."""
     with pytest.raises(ValidationError, match="FluidContact"):
         ExportData(
@@ -111,7 +130,9 @@ def test_content_fluid_contact_raises_on_invalid_contact(regsurf, globalconfig2)
         ).generate_metadata(regsurf)
 
 
-def test_content_kh_product(regsurf, globalconfig2):
+def test_content_kh_product(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the khproduct content."""
     meta = ExportData(
         config=globalconfig2,
@@ -122,7 +143,9 @@ def test_content_kh_product(regsurf, globalconfig2):
     assert meta["data"]["content"] == "khproduct"
 
 
-def test_content_lift_curves(dataframe, globalconfig2):
+def test_content_lift_curves(
+    dataframe: pd.DataFrame, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the lift_curves content."""
 
     meta = ExportData(
@@ -134,7 +157,9 @@ def test_content_lift_curves(dataframe, globalconfig2):
     assert meta["data"]["content"] == "lift_curves"
 
 
-def test_content_named_area(polygons, globalconfig2):
+def test_content_named_area(
+    polygons: xtgeo.Polygons, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the named_area content."""
     meta = ExportData(
         config=globalconfig2,
@@ -145,7 +170,9 @@ def test_content_named_area(polygons, globalconfig2):
     assert meta["data"]["content"] == "named_area"
 
 
-def test_content_parameters(dataframe, globalconfig2):
+def test_content_parameters(
+    dataframe: pd.DataFrame, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the parameters content."""
     meta = ExportData(
         config=globalconfig2,
@@ -156,7 +183,9 @@ def test_content_parameters(dataframe, globalconfig2):
     assert meta["data"]["content"] == "parameters"
 
 
-def test_content_pinchout(polygons, globalconfig2):
+def test_content_pinchout(
+    polygons: xtgeo.Polygons, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the pinchout content."""
     meta = ExportData(
         config=globalconfig2,
@@ -167,7 +196,9 @@ def test_content_pinchout(polygons, globalconfig2):
     assert meta["data"]["content"] == "pinchout"
 
 
-def test_content_property(gridproperty, globalconfig2):
+def test_content_property(
+    gridproperty: xtgeo.GridProperty, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the property content."""
     # gives FutureWarning regarding missing geometry and content not being dict
     with pytest.warns(FutureWarning):
@@ -180,7 +211,9 @@ def test_content_property(gridproperty, globalconfig2):
     assert meta["data"]["content"] == "property"
 
 
-def test_content_property_as_dict(gridproperty, globalconfig2):
+def test_content_property_as_dict(
+    gridproperty: xtgeo.GridProperty, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the property content."""
     content_specifc = {"attribute": "porosity", "is_discrete": False}
     # should give FutureWarning when not linked to a grid
@@ -196,7 +229,9 @@ def test_content_property_as_dict(gridproperty, globalconfig2):
     assert meta["data"]["property"] == content_specifc
 
 
-def test_content_seismic_as_dict(gridproperty, globalconfig2):
+def test_content_seismic_as_dict(
+    gridproperty: xtgeo.GridProperty, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the property content."""
     content_specifc = {"attribute": "amplitude", "calculation": "mean"}
 
@@ -212,7 +247,7 @@ def test_content_seismic_as_dict(gridproperty, globalconfig2):
     assert meta["data"]["seismic"] == content_specifc
 
 
-def test_content_pvt(dataframe, globalconfig2):
+def test_content_pvt(dataframe: pd.DataFrame, globalconfig2: dict[str, Any]) -> None:
     """Test export of the pvt content."""
     meta = ExportData(
         config=globalconfig2,
@@ -223,7 +258,9 @@ def test_content_pvt(dataframe, globalconfig2):
     assert meta["data"]["content"] == "pvt"
 
 
-def test_content_regions(polygons, globalconfig2):
+def test_content_regions(
+    polygons: xtgeo.Polygons, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the regions content."""
     meta = ExportData(
         config=globalconfig2,
@@ -234,7 +271,9 @@ def test_content_regions(polygons, globalconfig2):
     assert meta["data"]["content"] == "regions"
 
 
-def test_content_relperm(mock_relperm, globalconfig2):
+def test_content_relperm(
+    mock_relperm: pd.DataFrame, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the relperm content."""
     meta = ExportData(
         config=globalconfig2,
@@ -245,7 +284,7 @@ def test_content_relperm(mock_relperm, globalconfig2):
     assert meta["data"]["content"] == "relperm"
 
 
-def test_content_rft(polygons, globalconfig2):
+def test_content_rft(polygons: xtgeo.Polygons, globalconfig2: dict[str, Any]) -> None:
     """Test export of the rft content."""
     meta = ExportData(
         config=globalconfig2,
@@ -256,13 +295,17 @@ def test_content_rft(polygons, globalconfig2):
     assert meta["data"]["content"] == "rft"
 
 
-def test_content_seismic(polygons, globalconfig2):
+def test_content_seismic(
+    polygons: xtgeo.Polygons, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the seismic content."""
 
     # tested various other places
 
 
-def test_content_simulationtimeseries(mock_summary, globalconfig2):
+def test_content_simulationtimeseries(
+    mock_summary: pd.DataFrame, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the simulationtimeseries content."""
     meta = ExportData(
         config=globalconfig2,
@@ -273,7 +316,9 @@ def test_content_simulationtimeseries(mock_summary, globalconfig2):
     assert meta["data"]["content"] == "simulationtimeseries"
 
 
-def test_content_subcrop(polygons, globalconfig2):
+def test_content_subcrop(
+    polygons: xtgeo.Polygons, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the subcrop content."""
     meta = ExportData(
         config=globalconfig2,
@@ -284,7 +329,9 @@ def test_content_subcrop(polygons, globalconfig2):
     assert meta["data"]["content"] == "subcrop"
 
 
-def test_content_thickness(regsurf, globalconfig2):
+def test_content_thickness(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the thickness content."""
     meta = ExportData(
         config=globalconfig2,
@@ -295,13 +342,15 @@ def test_content_thickness(regsurf, globalconfig2):
     assert meta["data"]["content"] == "thickness"
 
 
-def test_content_time(polygons, globalconfig2):
+def test_content_time(polygons: xtgeo.Polygons, globalconfig2: dict[str, Any]) -> None:
     """Test export of the time content."""
 
     # tested various other places
 
 
-def test_content_timeseries(mock_summary, globalconfig2):
+def test_content_timeseries(
+    mock_summary: pd.DataFrame, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the timeseries content."""
     meta = ExportData(
         config=globalconfig2,
@@ -312,7 +361,9 @@ def test_content_timeseries(mock_summary, globalconfig2):
     assert meta["data"]["content"] == "timeseries"
 
 
-def test_content_transmissibilities(dataframe, globalconfig2):
+def test_content_transmissibilities(
+    dataframe: pd.DataFrame, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the transmissibilities content."""
     meta = ExportData(
         config=globalconfig2,
@@ -323,7 +374,9 @@ def test_content_transmissibilities(dataframe, globalconfig2):
     assert meta["data"]["content"] == "transmissibilities"
 
 
-def test_content_velocity(regsurf, globalconfig2):
+def test_content_velocity(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the velocity content."""
     meta = ExportData(
         config=globalconfig2,
@@ -334,7 +387,9 @@ def test_content_velocity(regsurf, globalconfig2):
     assert meta["data"]["content"] == "velocity"
 
 
-def test_content_volumes(mock_volumes, globalconfig2):
+def test_content_volumes(
+    mock_volumes: pd.DataFrame, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the volumes content."""
     meta = ExportData(
         config=globalconfig2,
@@ -345,7 +400,9 @@ def test_content_volumes(mock_volumes, globalconfig2):
     assert meta["data"]["content"] == "volumes"
 
 
-def test_content_wellpicks(wellpicks, globalconfig2):
+def test_content_wellpicks(
+    wellpicks: pd.DataFrame, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the wellpicks content."""
     meta = ExportData(
         config=globalconfig2,
@@ -356,7 +413,9 @@ def test_content_wellpicks(wellpicks, globalconfig2):
     assert meta["data"]["content"] == "wellpicks"
 
 
-def test_content_production_network(wellpicks, globalconfig2):
+def test_content_production_network(
+    wellpicks: pd.DataFrame, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the production network content."""
     meta = ExportData(
         config=globalconfig2,
@@ -367,7 +426,9 @@ def test_content_production_network(wellpicks, globalconfig2):
     assert meta["data"]["content"] == "production_network"
 
 
-def test_content_well_completions(wellpicks, globalconfig2):
+def test_content_well_completions(
+    wellpicks: pd.DataFrame, globalconfig2: dict[str, Any]
+) -> None:
     """Test export of the well completions content."""
     meta = ExportData(
         config=globalconfig2,
@@ -378,7 +439,7 @@ def test_content_well_completions(wellpicks, globalconfig2):
     assert meta["data"]["content"] == "well_completions"
 
 
-def test_content_requires_metadata():
+def test_content_requires_metadata() -> None:
     """Test the content_requires_metadata function"""
 
     # test contents that requires extra
