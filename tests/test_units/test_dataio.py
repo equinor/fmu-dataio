@@ -5,13 +5,17 @@ import pathlib
 import sys
 from copy import deepcopy
 from pathlib import Path
+from typing import Any, Literal
 
+import pandas as pd
 import pydantic
 import pytest
+import xtgeo
 import yaml
 from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.standard_result import InplaceVolumesStandardResult
 from fmu.datamodels.standard_results.enums import StandardResultName
+from pytest import MonkeyPatch
 
 from fmu.dataio._runcontext import FmuEnv
 from fmu.dataio._utils import (
@@ -27,7 +31,7 @@ from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE
 logger = logging.getLogger(__name__)
 
 
-def test_generate_metadata_simple(globalconfig1):
+def test_generate_metadata_simple(globalconfig1: dict[str, Any]) -> None:
     """Test generating metadata"""
 
     default_fformat = ExportData.grid_fformat
@@ -47,7 +51,9 @@ def test_generate_metadata_simple(globalconfig1):
     ExportData.grid_fformat = default_fformat  # reset
 
 
-def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, regsurf):
+def test_missing_or_wrong_config_exports_with_warning(
+    monkeypatch: MonkeyPatch, tmp_path: Path, regsurf: xtgeo.RegularSurface
+) -> None:
     """In case a config is missing, or is invalid, do export with warning."""
 
     monkeypatch.chdir(tmp_path)
@@ -69,8 +75,11 @@ def test_missing_or_wrong_config_exports_with_warning(monkeypatch, tmp_path, reg
 
 
 def test_wrong_config_exports_correctly_ouside_fmu(
-    monkeypatch, tmp_path, globalconfig1, regsurf
-):
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """
     In case a config is invalid, objects are exported without metadata.
     Test that the export path is correct and equal one with valid config,
@@ -112,8 +121,11 @@ def test_wrong_config_exports_correctly_ouside_fmu(
 
 
 def test_wrong_config_exports_correctly_in_fmu(
-    monkeypatch, fmurun_w_casemetadata, globalconfig1, regsurf
-):
+    monkeypatch: MonkeyPatch,
+    fmurun_w_casemetadata: Path,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """
     In case a config is invalid, objects are exported without metadata.
     Test that the export path is correct and equal to exports with valid config,
@@ -156,7 +168,12 @@ def test_wrong_config_exports_correctly_in_fmu(
     assert objpath_cfg_invalid == objpath_cfg_valid
 
 
-def test_config_miss_required_fields(monkeypatch, tmp_path, globalconfig1, regsurf):
+def test_config_miss_required_fields(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Global config exists but missing critical data; export file but skip metadata."""
 
     monkeypatch.chdir(tmp_path)
@@ -179,7 +196,7 @@ def test_config_miss_required_fields(monkeypatch, tmp_path, globalconfig1, regsu
         read_metadata(out)
 
 
-def test_config_stratigraphy_alias_as_string(globalconfig2):
+def test_config_stratigraphy_alias_as_string(globalconfig2: dict[str, Any]) -> None:
     """
     Test that 'alias' as string gives FutureWarning and is
     correctly converted to a list.
@@ -194,7 +211,9 @@ def test_config_stratigraphy_alias_as_string(globalconfig2):
     assert exp.config.stratigraphy["TopVolantis"].alias == ["TV"]
 
 
-def test_config_stratigraphy_empty_entries_alias(globalconfig2, regsurf):
+def test_config_stratigraphy_empty_entries_alias(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that empty entries in 'alias' is detected and warned and removed."""
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["alias"] += [None]
@@ -207,7 +226,9 @@ def test_config_stratigraphy_empty_entries_alias(globalconfig2, regsurf):
 
 
 @pytest.mark.xfail(reason="stratigraphic_alias is not implemented")
-def test_config_stratigraphy_empty_entries_stratigraphic_alias(globalconfig2, regsurf):
+def test_config_stratigraphy_empty_entries_stratigraphic_alias(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that empty entries in 'stratigraphic_alias' detected and warned."""
 
     # Note! stratigraphic_alias is not implemented, but we still check consistency
@@ -222,7 +243,7 @@ def test_config_stratigraphy_empty_entries_stratigraphic_alias(globalconfig2, re
     assert None not in metadata["data"]["stratigraphic_alias"]
 
 
-def test_config_stratigraphy_empty_name(globalconfig2):
+def test_config_stratigraphy_empty_name(globalconfig2: dict[str, Any]) -> None:
     """Test that empty 'name' is detected and warned."""
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["name"] = None
@@ -231,7 +252,9 @@ def test_config_stratigraphy_empty_name(globalconfig2):
         ExportData(config=cfg, content="depth")
 
 
-def test_config_stratigraphy_stratigraphic_not_bool(globalconfig2):
+def test_config_stratigraphy_stratigraphic_not_bool(
+    globalconfig2: dict[str, Any],
+) -> None:
     """Test that non-boolean 'stratigraphic' is detected and warned."""
     cfg = deepcopy(globalconfig2)
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic"] = None
@@ -245,7 +268,7 @@ def test_config_stratigraphy_stratigraphic_not_bool(globalconfig2):
         ExportData(config=cfg, content="depth")
 
 
-def test_update_check_settings_shall_fail(globalconfig1):
+def test_update_check_settings_shall_fail(globalconfig1: dict[str, Any]) -> None:
     # pylint: disable=unexpected-keyword-arg
     with pytest.raises(TypeError):
         _ = ExportData(config=globalconfig1, stupid="str", content="depth")
@@ -271,7 +294,13 @@ def test_update_check_settings_shall_fail(globalconfig1):
         ),
     ],
 )
-def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
+def test_deprecated_keys(
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    key: dict[str, Any],
+    value: str,
+    expected_msg: str,
+) -> None:
     """Some keys shall raise a DeprecationWarning or similar."""
 
     # under primary initialisation
@@ -288,7 +317,9 @@ def test_deprecated_keys(globalconfig1, regsurf, key, value, expected_msg):
         edata.generate_metadata(regsurf, **kval)
 
 
-def test_access_ssdl_vs_classification_rep_include(globalconfig1, regsurf):
+def test_access_ssdl_vs_classification_rep_include(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """
     The access_ssdl is deprecated, and replaced by the 'classification' and
     'rep_include' arguments. Test various combinations of these arguments.
@@ -348,7 +379,9 @@ def test_access_ssdl_vs_classification_rep_include(globalconfig1, regsurf):
     assert mymeta["access"]["ssdl"]["rep_include"] is True
 
 
-def test_classification(globalconfig1, regsurf):
+def test_classification(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that 'classification' is set correctly."""
 
     # test assumptions
@@ -390,7 +423,9 @@ def test_classification(globalconfig1, regsurf):
     assert mymeta["access"]["classification"] == "internal"
 
 
-def test_rep_include(globalconfig1, regsurf):
+def test_rep_include(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that 'classification' is set correctly."""
 
     # test assumptions
@@ -424,14 +459,18 @@ def test_rep_include(globalconfig1, regsurf):
     assert mymeta["access"]["ssdl"]["rep_include"] is True
 
 
-def test_unit_is_none(globalconfig1, regsurf):
+def test_unit_is_none(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that unit=None works and is translated into an enpty string"""
     eobj = ExportData(config=globalconfig1, unit=None, content="depth")
     meta = eobj.generate_metadata(regsurf)
     assert meta["data"]["unit"] == ""
 
 
-def test_content_not_given(globalconfig1, regsurf):
+def test_content_not_given(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """When content is not explicitly given, warning shall be issued."""
     eobj = ExportData(config=globalconfig1)
     with pytest.warns(FutureWarning, match="The <content> is not provided"):
@@ -440,7 +479,9 @@ def test_content_not_given(globalconfig1, regsurf):
     assert mymeta["data"]["content"] == "unset"
 
 
-def test_content_given_init_or_later(globalconfig1, regsurf):
+def test_content_given_init_or_later(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """When content is not explicitly given, warning shall be issued."""
     eobj = ExportData(config=globalconfig1, content="time")
     mymeta = eobj.generate_metadata(regsurf)
@@ -454,13 +495,17 @@ def test_content_given_init_or_later(globalconfig1, regsurf):
     assert mymeta["data"]["content"] == "depth"  # last content shall win
 
 
-def test_content_invalid_string(globalconfig1, regsurf):
+def test_content_invalid_string(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     eobj = ExportData(config=globalconfig1, content="not_valid")
     with pytest.raises(ValueError, match="Invalid 'content' value='not_valid'"):
         eobj.generate_metadata(regsurf)
 
 
-def test_content_invalid_dict(globalconfig1, regsurf):
+def test_content_invalid_dict(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     eobj = ExportData(
         config=globalconfig1, content={"not_valid": {"some_key": "some_value"}}
     )
@@ -474,7 +519,9 @@ def test_content_invalid_dict(globalconfig1, regsurf):
         eobj.generate_metadata(regsurf)
 
 
-def test_content_metadata_valid(globalconfig1, regsurf):
+def test_content_metadata_valid(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     content_metadata = {"attribute": "amplitude", "calculation": "mean"}
     meta = ExportData(
         config=globalconfig1,
@@ -487,7 +534,9 @@ def test_content_metadata_valid(globalconfig1, regsurf):
     assert meta["data"]["seismic"] == content_metadata
 
 
-def test_content_metadata_invalid(globalconfig1, regsurf):
+def test_content_metadata_invalid(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     with pytest.raises(pydantic.ValidationError):
         ExportData(
             config=globalconfig1,
@@ -496,20 +545,26 @@ def test_content_metadata_invalid(globalconfig1, regsurf):
         ).generate_metadata(regsurf)
 
 
-def test_content_valid_string(regsurf, globalconfig2):
+def test_content_valid_string(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     eobj = ExportData(config=globalconfig2, name="TopVolantis", content="depth")
     mymeta = eobj.generate_metadata(regsurf)
     assert mymeta["data"]["content"] == "depth"
     assert "depth" not in mymeta["data"]
 
 
-def test_seismic_content_require_seismic_data(globalconfig2, regsurf):
+def test_seismic_content_require_seismic_data(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     eobj = ExportData(config=globalconfig2, content="seismic")
     with pytest.raises(ValueError, match="requires additional input"):
         eobj.generate_metadata(regsurf)
 
 
-def test_content_valid_dict(regsurf, globalconfig2):
+def test_content_valid_dict(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Test for incorrectly formatted dict.
 
     When a dict is given, there shall be one key which is the content, and there shall
@@ -537,7 +592,9 @@ def test_content_valid_dict(regsurf, globalconfig2):
     }
 
 
-def test_content_is_a_wrongly_formatted_dict(globalconfig2, regsurf):
+def test_content_is_a_wrongly_formatted_dict(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """When content is a dict, it shall have one key with one dict as value."""
     eobj = ExportData(
         config=globalconfig2,
@@ -548,7 +605,9 @@ def test_content_is_a_wrongly_formatted_dict(globalconfig2, regsurf):
         eobj.generate_metadata(regsurf)
 
 
-def test_content_is_dict_with_wrong_types(globalconfig2, regsurf):
+def test_content_is_dict_with_wrong_types(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """When content is a dict, it shall have right types for known keys."""
     eobj = ExportData(
         config=globalconfig2,
@@ -563,7 +622,9 @@ def test_content_is_dict_with_wrong_types(globalconfig2, regsurf):
         eobj.generate_metadata(regsurf)
 
 
-def test_content_with_content_metadata(globalconfig2, polygons):
+def test_content_with_content_metadata(
+    globalconfig2: dict[str, Any], polygons: xtgeo.Polygons
+) -> None:
     """When content_metadata is given and allowed, it shall be produced to metadata."""
     eobj = ExportData(
         config=globalconfig2,
@@ -579,7 +640,9 @@ def test_content_with_content_metadata(globalconfig2, polygons):
     assert mymeta["data"]["field_region"] == {"id": 1}
 
 
-def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
+def test_content_deprecated_seismic_offset(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Assert that usage of seismic.offset still works but give deprecation warning."""
     with pytest.warns(DeprecationWarning, match="seismic.offset is deprecated"):
         eobj = ExportData(
@@ -600,7 +663,9 @@ def test_content_deprecated_seismic_offset(regsurf, globalconfig2):
     }
 
 
-def test_content_metdata_ignored(globalconfig1, regsurf):
+def test_content_metdata_ignored(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that warning is given when content does not require content_metadata"""
     with pytest.warns(UserWarning, match="ignoring input"):
         ExportData(
@@ -612,8 +677,11 @@ def test_content_metdata_ignored(globalconfig1, regsurf):
 
 @pytest.mark.filterwarnings("ignore: Number of maps nodes are 0")
 def test_surfaces_with_non_finite_values(
-    globalconfig1, regsurf_masked_only, regsurf_nan_only, regsurf
-):
+    globalconfig1: dict[str, Any],
+    regsurf_masked_only: xtgeo.RegularSurface,
+    regsurf_nan_only: xtgeo.RegularSurface,
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """
     When a surface has no finite values the zmin/zmax should not be present
     in the metadata.
@@ -637,7 +705,12 @@ def test_surfaces_with_non_finite_values(
     assert "zmax" in mymeta["data"]["bbox"]
 
 
-def test_workflow_as_string(fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf):
+def test_workflow_as_string(
+    fmurun_w_casemetadata: Path,
+    monkeypatch: MonkeyPatch,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """
     Check that having workflow as string works both in ExportData and on export.
     The workflow string input is given into the metadata as fmu.workflow.reference
@@ -657,7 +730,9 @@ def test_workflow_as_string(fmurun_w_casemetadata, monkeypatch, globalconfig1, r
     assert meta["fmu"]["workflow"]["reference"] == workflow
 
 
-def test_vertical_domain(regsurf, globalconfig1):
+def test_vertical_domain(
+    regsurf: xtgeo.RegularSurface, globalconfig1: dict[str, Any]
+) -> None:
     """test inputting vertical_domain and domain_reference in various ways"""
 
     # test that giving vertical_domain and domain_reference as strings
@@ -703,7 +778,9 @@ def test_vertical_domain(regsurf, globalconfig1):
         ).generate_metadata(regsurf)
 
 
-def test_vertical_domain_vs_depth_time_content(regsurf, globalconfig1):
+def test_vertical_domain_vs_depth_time_content(
+    regsurf: xtgeo.RegularSurface, globalconfig1: dict[str, Any]
+) -> None:
     """Test the vertical_domain vs content depth/time"""
 
     # test content depth/time sets vertical_domain
@@ -732,7 +809,9 @@ def test_vertical_domain_vs_depth_time_content(regsurf, globalconfig1):
         mymeta = eobj.generate_metadata(regsurf)
 
 
-def test_set_display_name(regsurf, globalconfig2):
+def test_set_display_name(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Test that giving the display_name argument sets display.name."""
     eobj = ExportData(
         config=globalconfig2,
@@ -753,7 +832,9 @@ def test_set_display_name(regsurf, globalconfig2):
     assert mymeta["display"]["name"] == "MyOtherDisplayName"
 
 
-def test_global_config_from_env(monkeypatch, global_config2_path, globalconfig1):
+def test_global_config_from_env(
+    monkeypatch: MonkeyPatch, global_config2_path: Path, globalconfig1: dict[str, Any]
+) -> None:
     """Testing getting global config from a file"""
     monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(global_config2_path))
 
@@ -766,7 +847,7 @@ def test_global_config_from_env(monkeypatch, global_config2_path, globalconfig1)
     assert edata.config.model.name == "Test"
 
 
-def test_fmurun_attribute_outside_fmu(rmsglobalconfig):
+def test_fmurun_attribute_outside_fmu(rmsglobalconfig: dict[str, Any]) -> None:
     """Test that _fmurun attribute is True when in fmu"""
 
     # check that ERT environment variable is not set
@@ -777,8 +858,11 @@ def test_fmurun_attribute_outside_fmu(rmsglobalconfig):
 
 
 def test_exportdata_no_iter_folder(
-    fmurun_no_iter_folder, rmsglobalconfig, regsurf, monkeypatch
-):
+    fmurun_no_iter_folder: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test that the fmuprovider works without a iteration folder"""
 
     monkeypatch.chdir(fmurun_no_iter_folder)
@@ -797,7 +881,9 @@ def test_exportdata_no_iter_folder(
     assert metadata["fmu"]["iteration"]["id"] == 0
 
 
-def test_fmucontext_case_casepath(fmurun_prehook, rmsglobalconfig, regsurf):
+def test_fmucontext_case_casepath(
+    fmurun_prehook: Path, rmsglobalconfig: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """
     Test fmu_context case when casepath is / is not explicitly given
 
@@ -824,7 +910,9 @@ def test_fmucontext_case_casepath(fmurun_prehook, rmsglobalconfig, regsurf):
     assert meta["fmu"]["case"]["name"] == "somecasename"
 
 
-def test_fmurun_attribute_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig):
+def test_fmurun_attribute_inside_fmu(
+    fmurun_w_casemetadata: Path, rmsglobalconfig: dict[str, Any]
+) -> None:
     """Test that _fmurun attribute is True when in fmu"""
 
     # check that ERT environment variable is not set
@@ -836,8 +924,8 @@ def test_fmurun_attribute_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig):
 
 
 def test_fmu_context_not_given_fetch_from_env_realization(
-    fmurun_w_casemetadata, rmsglobalconfig
-):
+    fmurun_w_casemetadata: Path, rmsglobalconfig: dict[str, Any]
+) -> None:
     """
     Test fmu_context not explicitly given, should be set to "realization" when
     inside fmu and RUNPATH value is detected from the environment variables.
@@ -851,7 +939,9 @@ def test_fmu_context_not_given_fetch_from_env_realization(
     assert edata.fmu_context == FMUContext.realization
 
 
-def test_fmu_context_not_given_fetch_from_env_case(fmurun_prehook, rmsglobalconfig):
+def test_fmu_context_not_given_fetch_from_env_case(
+    fmurun_prehook: Path, rmsglobalconfig: dict[str, Any]
+) -> None:
     """
     Test fmu_context not explicitly given, should be set to "case" when
     inside fmu and RUNPATH value not detected from the environment variables.
@@ -871,7 +961,9 @@ def test_fmu_context_not_given_fetch_from_env_case(fmurun_prehook, rmsglobalconf
     assert edata._runcontext.exportroot == fmurun_prehook
 
 
-def test_fmu_context_not_given_fetch_from_env_nonfmu(rmsglobalconfig):
+def test_fmu_context_not_given_fetch_from_env_nonfmu(
+    rmsglobalconfig: dict[str, Any],
+) -> None:
     """
     Test fmu_context not explicitly given, should be set to None when
     outside fmu.
@@ -885,7 +977,9 @@ def test_fmu_context_not_given_fetch_from_env_nonfmu(rmsglobalconfig):
     assert edata.fmu_context is None
 
 
-def test_fmu_context_outside_fmu_input_overwrite(rmsglobalconfig):
+def test_fmu_context_outside_fmu_input_overwrite(
+    rmsglobalconfig: dict[str, Any],
+) -> None:
     """
     For non-fmu run fmu_context should be overwritten to None when input
     is not "preprocessed"
@@ -897,7 +991,9 @@ def test_fmu_context_outside_fmu_input_overwrite(rmsglobalconfig):
     assert edata.fmu_context is None
 
 
-def test_fmu_context_outside_fmu_no_input_overwrite(rmsglobalconfig):
+def test_fmu_context_outside_fmu_no_input_overwrite(
+    rmsglobalconfig: dict[str, Any],
+) -> None:
     """
     For non-fmu run fmu_context should not be overwritten when input
     is "preprocessed"
@@ -908,7 +1004,9 @@ def test_fmu_context_outside_fmu_no_input_overwrite(rmsglobalconfig):
     assert edata.fmu_context is None
 
 
-def test_fmu_context_preprocessed_deprecation_outside_fmu(rmsglobalconfig, regsurf):
+def test_fmu_context_preprocessed_deprecation_outside_fmu(
+    rmsglobalconfig: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """
     Test the deprecated fmu_context="preprocessed" outside fmu.
     This should set the preprocessed flag to True and overwrite the
@@ -926,8 +1024,8 @@ def test_fmu_context_preprocessed_deprecation_outside_fmu(rmsglobalconfig, regsu
 
 
 def test_fmu_context_preprocessed_deprecation_inside_fmu(
-    fmurun_prehook, rmsglobalconfig, regsurf
-):
+    fmurun_prehook: Path, rmsglobalconfig: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """
     Test the deprecated fmu_context="preprocessed" inside fmu.
     This should set the preprocessed flag to True and overwrite the
@@ -947,7 +1045,9 @@ def test_fmu_context_preprocessed_deprecation_inside_fmu(
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
 
 
-def test_preprocessed_outside_fmu(rmsglobalconfig, regsurf):
+def test_preprocessed_outside_fmu(
+    rmsglobalconfig: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test the preprocessed argument outside FMU context"""
 
     edata = ExportData(config=rmsglobalconfig, content="depth", preprocessed=True)
@@ -959,7 +1059,11 @@ def test_preprocessed_outside_fmu(rmsglobalconfig, regsurf):
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
 
 
-def test_preprocessed_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig, regsurf):
+def test_preprocessed_inside_fmu(
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test the preprocessed argument inside FMU context"""
     # should raise error if preprocessed=True and fmu_context="realization"
     with pytest.raises(ValueError, match="Can't export preprocessed"):
@@ -987,10 +1091,10 @@ def test_preprocessed_inside_fmu(fmurun_w_casemetadata, rmsglobalconfig, regsurf
 
 
 def test_norwegian_letters_globalconfig(
-    globalvars_norwegian_letters,
-    regsurf,
-    monkeypatch: pytest.MonkeyPatch,
-):
+    globalvars_norwegian_letters: tuple[Path, dict[str, Any] | None, str],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Testing using norwegian letters in global config.
 
     Note that fmu.config utilities yaml_load() is applied to read cfg (cf conftest.py)
@@ -1024,7 +1128,12 @@ def test_norwegian_letters_globalconfig(
     assert meta2["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
 
 
-def test_metadata_format_deprecated(globalconfig1, regsurf, tmp_path, monkeypatch):
+def test_metadata_format_deprecated(
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """
     Test that setting the class variable "metadata_format" gives a warning,
     and that writing metadata on json format does not work
@@ -1051,7 +1160,9 @@ def test_metadata_format_deprecated(globalconfig1, regsurf, tmp_path, monkeypatc
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_establish_runpath(tmp_path, globalconfig2, monkeypatch: pytest.MonkeyPatch):
+def test_establish_runpath(
+    tmp_path: Path, globalconfig2: dict[str, Any], monkeypatch: MonkeyPatch
+) -> None:
     """Testing pwd and rootpath from RMS"""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
@@ -1063,7 +1174,12 @@ def test_establish_runpath(tmp_path, globalconfig2, monkeypatch: pytest.MonkeyPa
 
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
-def test_forcefolder(tmp_path, globalconfig2, regsurf, monkeypatch: pytest.MonkeyPatch):
+def test_forcefolder(
+    tmp_path: Path,
+    globalconfig2: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Testing the forcefolder mechanism."""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
@@ -1078,8 +1194,11 @@ def test_forcefolder(tmp_path, globalconfig2, regsurf, monkeypatch: pytest.Monke
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
 def test_forcefolder_absolute_shall_raise_or_warn(
-    tmp_path, globalconfig2, regsurf, monkeypatch: pytest.MonkeyPatch
-):
+    tmp_path: Path,
+    globalconfig2: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Testing the forcefolder mechanism."""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
@@ -1100,14 +1219,16 @@ def test_forcefolder_absolute_shall_raise_or_warn(
     ExportData.allow_forcefolder_absolute = False
 
 
-def test_deprecated_verbosity(globalconfig1):
+def test_deprecated_verbosity(globalconfig1: dict[str, Any]) -> None:
     with pytest.warns(UserWarning, match="Using the 'verbosity' key is now deprecated"):
         ExportData(config=globalconfig1, verbosity="INFO")
 
 
 @pytest.mark.parametrize("encoding", ("utf-8", "latin1"))
 @pytest.mark.parametrize("mode", ("w", "w+"))
-def test_norwegian_letters(encoding, mode, tmp_path):
+def test_norwegian_letters(
+    encoding: Literal["utf-8", "latin1"], mode: Literal["w", "w+"], tmp_path: Path
+) -> None:
     with open(tmp_path / "no-letters.yml", encoding=encoding, mode=mode) as f:
         f.write(
             """æøå:
@@ -1118,7 +1239,9 @@ def test_norwegian_letters(encoding, mode, tmp_path):
         assert yaml.safe_load(f) == {"æøå": "æøå"}
 
 
-def test_content_seismic_as_string_validation_error(globalconfig2, regsurf):
+def test_content_seismic_as_string_validation_error(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     edata = ExportData(content="seismic", config=globalconfig2)
     with pytest.raises(ValueError, match="requires additional input"):
         edata.generate_metadata(regsurf)
@@ -1134,13 +1257,17 @@ def test_content_seismic_as_string_validation_error(globalconfig2, regsurf):
     assert meta["data"]["seismic"] == {"attribute": "attribute-value"}
 
 
-def test_content_property_as_string_future_warning(globalconfig2, regsurf):
+def test_content_property_as_string_future_warning(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     edata = ExportData(content="property", config=globalconfig2)
     with pytest.warns(FutureWarning):
         edata.generate_metadata(regsurf)
 
 
-def test_append_to_alias_list(globalconfig2, regsurf):
+def test_append_to_alias_list(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """
     Test that the name input is added to the alias list when present in
     the stratigraphy. And check that the alias list is not appended to if it
@@ -1164,7 +1291,9 @@ def test_append_to_alias_list(globalconfig2, regsurf):
     assert name in meta["data"]["alias"]
 
 
-def test_alias_as_none(globalconfig2, regsurf):
+def test_alias_as_none(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that 'alias: None' in the config works"""
 
     config = deepcopy(globalconfig2)
@@ -1178,7 +1307,9 @@ def test_alias_as_none(globalconfig2, regsurf):
     assert meta["data"]["alias"] == [name]
 
 
-def test_standard_result_not_present_in_generated_metadata(globalconfig1, regsurf):
+def test_standard_result_not_present_in_generated_metadata(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that data.standard_result is not set for regular exports through
     ExportData"""
 
@@ -1187,8 +1318,11 @@ def test_standard_result_not_present_in_generated_metadata(globalconfig1, regsur
 
 
 def test_ert_experiment_id_present_in_generated_metadata(
-    fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
-):
+    fmurun_w_casemetadata: Path,
+    monkeypatch: MonkeyPatch,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that the ert experiment id has been set correctly
     in the generated metadata"""
 
@@ -1199,8 +1333,11 @@ def test_ert_experiment_id_present_in_generated_metadata(
 
 
 def test_ert_experiment_id_present_in_exported_metadata(
-    fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
-):
+    fmurun_w_casemetadata: Path,
+    monkeypatch: MonkeyPatch,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that the ert experiment id has been set correctly
     in the exported metadata"""
 
@@ -1213,8 +1350,11 @@ def test_ert_experiment_id_present_in_exported_metadata(
 
 
 def test_ert_simulation_mode_present_in_generated_metadata(
-    fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
-):
+    fmurun_w_casemetadata: Path,
+    monkeypatch: MonkeyPatch,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that the ert simulation mode has been set correctly
     in the generated metadata"""
 
@@ -1224,8 +1364,11 @@ def test_ert_simulation_mode_present_in_generated_metadata(
 
 
 def test_ert_simulation_mode_present_in_exported_metadata(
-    fmurun_w_casemetadata, monkeypatch, globalconfig1, regsurf
-):
+    fmurun_w_casemetadata: Path,
+    monkeypatch: MonkeyPatch,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that the ert simulation mode has been set correctly
     in the exported metadata"""
 
@@ -1236,7 +1379,9 @@ def test_ert_simulation_mode_present_in_exported_metadata(
     assert export_meta["fmu"]["ert"]["simulation_mode"] == "test_run"
 
 
-def test_offset_top_base_present_in_exported_metadata(globalconfig1, regsurf):
+def test_offset_top_base_present_in_exported_metadata(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """
     Test that top, base and offset information provided from the config are
     preserved in the exported metadata.
@@ -1266,7 +1411,9 @@ def test_offset_top_base_present_in_exported_metadata(globalconfig1, regsurf):
     assert meta["data"]["base"]["name"] == "TheBaseHorizon"
 
 
-def test_top_base_as_strings_from_config(globalconfig1, regsurf):
+def test_top_base_as_strings_from_config(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """
     Test that entering top, base as string is allowed and it sets
     the name attribute automatically.
@@ -1289,7 +1436,9 @@ def test_top_base_as_strings_from_config(globalconfig1, regsurf):
     assert meta["data"]["base"]["name"] == "TheBaseHorizon"
 
 
-def test_timedata_single_date(globalconfig1, regsurf):
+def test_timedata_single_date(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that entering a single date works"""
 
     t0 = "20230101"
@@ -1316,7 +1465,9 @@ def test_timedata_single_date(globalconfig1, regsurf):
     assert "t1" not in meta["data"]["time"]
 
 
-def test_timedata_multiple_date(globalconfig1, regsurf):
+def test_timedata_multiple_date(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that entering two dates works"""
 
     t0 = "20230101"
@@ -1344,7 +1495,9 @@ def test_timedata_multiple_date(globalconfig1, regsurf):
     assert meta["data"]["time"]["t1"]["value"] == convert_datestr_to_isoformat(t1)
 
 
-def test_timedata_multiple_date_sorting(globalconfig1, regsurf):
+def test_timedata_multiple_date_sorting(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that dates are sorted no matter the input order"""
 
     t0 = "20230101"
@@ -1362,7 +1515,9 @@ def test_timedata_multiple_date_sorting(globalconfig1, regsurf):
     assert meta["data"]["time"]["t1"]["value"] == convert_datestr_to_isoformat(t1)
 
 
-def test_timedata_wrong_format(globalconfig1, regsurf):
+def test_timedata_wrong_format(
+    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that error is raised if timedata is input incorrect"""
 
     with pytest.raises(ValueError, match="should be a list"):
@@ -1383,8 +1538,11 @@ def test_timedata_wrong_format(globalconfig1, regsurf):
 
 
 def test_export_with_standard_result_valid_config(
-    fmurun_w_casemetadata, monkeypatch, globalconfig1, mock_volumes
-):
+    fmurun_w_casemetadata: Path,
+    monkeypatch: MonkeyPatch,
+    globalconfig1: dict[str, Any],
+    mock_volumes: pd.DataFrame,
+) -> None:
     """Test that standard result is set in metadata when
     export_with_standard_result is used"""
 
@@ -1412,7 +1570,7 @@ def test_export_with_standard_result_valid_config(
     )
 
 
-def test_export_with_standard_result_invalid_config(mock_volumes):
+def test_export_with_standard_result_invalid_config(mock_volumes: pd.DataFrame) -> None:
     """Test that error is raised if config is invalid"""
     with pytest.warns(UserWarning):
         edata = ExportData(
@@ -1430,8 +1588,11 @@ def test_export_with_standard_result_invalid_config(mock_volumes):
 
 
 def test_file_paths_realization_context(
-    fmurun_w_casemetadata, globalconfig2, monkeypatch, regsurf
-):
+    fmurun_w_casemetadata: Path,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """
     Testing the file paths set in the metadata with a realization context.
     Here the file.runpath_relative_path and the file.relative_path should not be equal.
@@ -1448,7 +1609,11 @@ def test_file_paths_realization_context(
     assert meta["file"]["absolute_path"] == str(fmurun_w_casemetadata / share_location)
 
 
-def test_file_paths_case_context(fmurun_w_casemetadata, globalconfig2, regsurf):
+def test_file_paths_case_context(
+    fmurun_w_casemetadata: Path,
+    globalconfig2: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """
     Testing the paths set in the filedata provider with a case context.
     Here the file.runpath_relative_path should not be present.
@@ -1472,8 +1637,11 @@ def test_file_paths_case_context(fmurun_w_casemetadata, globalconfig2, regsurf):
 
 
 def test_element_id_realization_context(
-    fmurun_w_casemetadata, globalconfig2, monkeypatch, regsurf
-):
+    fmurun_w_casemetadata: Path,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that the entity.uuid is set in the metadata for a realization context."""
 
     meta = ExportData(
@@ -1496,7 +1664,11 @@ def test_element_id_realization_context(
     )
 
 
-def test_element_id_case_context(fmurun_w_casemetadata, globalconfig2, regsurf):
+def test_element_id_case_context(
+    fmurun_w_casemetadata: Path,
+    globalconfig2: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that the entity.uuid is not set in the metadata for a case context."""
     casepath = fmurun_w_casemetadata.parent.parent
 
