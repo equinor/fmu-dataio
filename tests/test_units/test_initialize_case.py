@@ -8,24 +8,28 @@ import getpass
 import logging
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 import yaml
 from pydantic import ValidationError
+from pytest import MonkeyPatch
 
 from fmu.dataio import CreateCaseMetadata
 
 logger = logging.getLogger(__name__)
 
 
-def test_crease_case_metadata_barebone(globalconfig2):
+def test_crease_case_metadata_barebone(globalconfig2: dict[str, Any]) -> None:
     icase = CreateCaseMetadata(config=globalconfig2, rootfolder="", casename="")
     assert icase.config == globalconfig2
     assert icase.rootfolder == ""
     assert icase.casename == ""
 
 
-def test_create_case_metadata_post_init(monkeypatch, fmurun, globalconfig2):
+def test_create_case_metadata_post_init(
+    monkeypatch: MonkeyPatch, fmurun: Path, globalconfig2: dict[str, Any]
+) -> None:
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
     logger.info("Active folder is %s", fmurun)
@@ -45,8 +49,8 @@ def test_create_case_metadata_post_init(monkeypatch, fmurun, globalconfig2):
 
 @pytest.mark.filterwarnings("ignore:The global configuration")
 def test_create_case_metadata_post_init_bad_globalconfig(
-    monkeypatch, fmurun, globalconfig2
-):
+    monkeypatch: MonkeyPatch, fmurun: Path, globalconfig2: dict[str, Any]
+) -> None:
     monkeypatch.chdir(fmurun)
     logger.info("Active folder is %s", fmurun)
     caseroot = fmurun.parent.parent
@@ -64,8 +68,8 @@ def test_create_case_metadata_post_init_bad_globalconfig(
 
 
 def test_create_case_metadata_establish_metadata_files(
-    monkeypatch, fmurun, globalconfig2
-):
+    monkeypatch: MonkeyPatch, fmurun: Path, globalconfig2: dict[str, Any]
+) -> None:
     """Tests that the required directories are made when establishing the case"""
     monkeypatch.chdir(fmurun)
     logger.info("Active folder is %s", fmurun)
@@ -83,8 +87,8 @@ def test_create_case_metadata_establish_metadata_files(
 
 
 def test_create_case_metadata_establish_metadata_files_exists(
-    monkeypatch, fmurun, globalconfig2
-):
+    monkeypatch: MonkeyPatch, fmurun: Path, globalconfig2: dict[str, Any]
+) -> None:
     """Tests that _establish_metadata_files returns correctly if the share/metadata
     directory already exists."""
     monkeypatch.chdir(fmurun)
@@ -104,7 +108,9 @@ def test_create_case_metadata_establish_metadata_files_exists(
     assert icase._metafile.exists()
 
 
-def test_create_case_metadata_generate_metadata(monkeypatch, fmurun, globalconfig2):
+def test_create_case_metadata_generate_metadata(
+    monkeypatch: MonkeyPatch, fmurun: Path, globalconfig2: dict[str, Any]
+) -> None:
     monkeypatch.chdir(fmurun)
     logger.info("Active folder is %s", fmurun)
     myroot = fmurun.parent.parent.parent / "mycase"
@@ -120,8 +126,8 @@ def test_create_case_metadata_generate_metadata(monkeypatch, fmurun, globalconfi
 
 
 def test_create_case_metadata_generate_metadata_warn_if_exists(
-    monkeypatch, fmurun_w_casemetadata, globalconfig2
-):
+    monkeypatch: MonkeyPatch, fmurun_w_casemetadata: Path, globalconfig2: dict[str, Any]
+) -> None:
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     casemetafolder = fmurun_w_casemetadata.parent.parent
 
@@ -134,7 +140,9 @@ def test_create_case_metadata_generate_metadata_warn_if_exists(
         icase.generate_metadata()
 
 
-def test_create_case_metadata_with_export(monkeypatch, globalconfig2, fmurun):
+def test_create_case_metadata_with_export(
+    monkeypatch: MonkeyPatch, globalconfig2: dict[str, Any], fmurun: Path
+) -> None:
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
 
@@ -155,8 +163,8 @@ def test_create_case_metadata_with_export(monkeypatch, globalconfig2, fmurun):
 
 
 def test_create_case_metadata_export_with_norsk_alphabet(
-    monkeypatch, globalconfig2, fmurun
-):
+    monkeypatch: MonkeyPatch, globalconfig2: dict[str, Any], fmurun: Path
+) -> None:
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
 
