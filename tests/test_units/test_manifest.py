@@ -1,6 +1,9 @@
 from pathlib import Path
+from typing import Any
 
 import pytest
+import xtgeo
+from pytest import MonkeyPatch
 
 from fmu.dataio import ExportData, ExportPreprocessedData
 from fmu.dataio.manifest._manifest import (
@@ -13,7 +16,7 @@ from fmu.dataio.manifest._models import ExportManifest
 from ..conftest import remove_ert_env, set_ert_env_prehook
 
 
-def test_export_manifest_from_file(tmp_path):
+def test_export_manifest_from_file(tmp_path: Path) -> None:
     """Test that the export manifest can be loaded from a file."""
 
     # Check that the manifest file does not exist initially
@@ -37,7 +40,7 @@ def test_export_manifest_from_file(tmp_path):
     assert manifest[1].absolute_path == Path("path_to_another_object.gri")
 
 
-def test_export_manifest_from_file_not_exist(tmp_path):
+def test_export_manifest_from_file_not_exist(tmp_path: Path) -> None:
     """Test that an error is raised when trying to load a non-existing manifest file."""
 
     assert not (tmp_path / MANIFEST_FILENAME).exists()
@@ -47,7 +50,7 @@ def test_export_manifest_from_file_not_exist(tmp_path):
         ExportManifest.from_file(tmp_path / MANIFEST_FILENAME)
 
 
-def test_get_manifest_path_realization_context(fmurun_w_casemetadata):
+def test_get_manifest_path_realization_context(fmurun_w_casemetadata: Path) -> None:
     """Test that the manifest path is correctly derived in a realization context."""
     # check test assumption that the fixture points to the runpath
     assert fmurun_w_casemetadata.name == "iter-0"
@@ -57,7 +60,7 @@ def test_get_manifest_path_realization_context(fmurun_w_casemetadata):
     assert manifest_path == fmurun_w_casemetadata / MANIFEST_FILENAME
 
 
-def test_get_manifest_path_case_context(fmurun_prehook):
+def test_get_manifest_path_case_context(fmurun_prehook: Path) -> None:
     """Test that the manifest path is correctly derived in a case context."""
     # check test assumption that the fixture points to the casepath
     assert fmurun_prehook.name == "ertrun1"
@@ -67,13 +70,17 @@ def test_get_manifest_path_case_context(fmurun_prehook):
     assert manifest_path == fmurun_prehook / MANIFEST_FILENAME
 
 
-def test_get_manifest_path_case_context_no_casepath(fmurun_prehook):
+def test_get_manifest_path_case_context_no_casepath(fmurun_prehook: Path) -> None:
     """Test that an error is raised when no casepath is provided in case context."""
     with pytest.raises(ValueError):
         get_manifest_path(casepath=None)
 
 
-def test_manifest_realization_context(fmurun_w_casemetadata, globalconfig1, regsurf):
+def test_manifest_realization_context(
+    fmurun_w_casemetadata: Path,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that the manifest is created at the runpath in a realization context."""
     runpath = fmurun_w_casemetadata
     casepath = fmurun_w_casemetadata.parent.parent
@@ -97,8 +104,10 @@ def test_manifest_realization_context(fmurun_w_casemetadata, globalconfig1, regs
 
 
 def test_manifest_multiple_exports_realization_context(
-    fmurun_w_casemetadata, globalconfig1, regsurf
-):
+    fmurun_w_casemetadata: Path,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that multiple exports creates and appends to a manifest at the runpath
     in a realization context."""
     runpath = fmurun_w_casemetadata
@@ -122,7 +131,9 @@ def test_manifest_multiple_exports_realization_context(
     assert manifest[2].absolute_path == runpath / "share/results/maps/test2.gri"
 
 
-def test_manifest_case_context(fmurun_prehook, globalconfig1, regsurf):
+def test_manifest_case_context(
+    fmurun_prehook: Path, globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that the manifest is created at the casepath in a case context."""
 
     casepath = fmurun_prehook
@@ -144,7 +155,9 @@ def test_manifest_case_context(fmurun_prehook, globalconfig1, regsurf):
     assert manifest[0].exported_by is not None
 
 
-def test_manifest_multiple_exports_case_context(fmurun_prehook, globalconfig1, regsurf):
+def test_manifest_multiple_exports_case_context(
+    fmurun_prehook: Path, globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that multiple exports creates and appends to a manifest at the casepath
     in a case context."""
     casepath = fmurun_prehook
@@ -166,7 +179,12 @@ def test_manifest_multiple_exports_case_context(fmurun_prehook, globalconfig1, r
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_manifest_rms_interactive(tmp_path, globalconfig1, regsurf, monkeypatch):
+def test_manifest_rms_interactive(
+    tmp_path: Path,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test that no manifest is created when running RMS interactively."""
 
     rms_model_path = tmp_path / "rms/model"
@@ -192,7 +210,7 @@ def test_manifest_rms_interactive(tmp_path, globalconfig1, regsurf, monkeypatch)
     assert not (rms_model_path / MANIFEST_FILENAME).exists()
 
 
-def test_load_export_manifest_file_not_exist(tmp_path):
+def test_load_export_manifest_file_not_exist(tmp_path: Path) -> None:
     """Test that an error is raised when trying to load a non-existing manifest file."""
 
     assert not (tmp_path / MANIFEST_FILENAME).exists()
@@ -202,8 +220,11 @@ def test_load_export_manifest_file_not_exist(tmp_path):
 
 
 def test_export_preprocessed_surface_appends_to_case_manifest(
-    fmurun_prehook, globalconfig1, regsurf, monkeypatch
-):
+    fmurun_prehook: Path,
+    globalconfig1: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     casepath = fmurun_prehook
     monkeypatch.chdir(casepath)
 
@@ -213,7 +234,7 @@ def test_export_preprocessed_surface_appends_to_case_manifest(
         preprocessed=True,
         name="TopVolantis",
         content="depth",
-        timedata=[[20240802, "moni"], [20200909, "base"]],
+        timedata=[["20240802", "moni"], ["20200909", "base"]],
         casepath=casepath,
     )
     surface_path = Path(export_data.export(regsurf))
