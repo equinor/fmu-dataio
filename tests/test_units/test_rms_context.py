@@ -7,13 +7,17 @@ interactive or from ERT. Hence the rootpath will be ../../
 import builtins
 import logging
 import shutil
+from collections.abc import Generator
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
+import pyarrow as pa
 import pytest
 import xtgeo
 import yaml
+from pytest import MonkeyPatch, TempPathFactory
 
 from fmu.dataio import dataio
 from fmu.dataio._readers import faultroom
@@ -24,7 +28,9 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="function")
-def inside_rms_setup(tmp_path_factory, rootpath, monkeypatch: pytest.MonkeyPatch):
+def inside_rms_setup(
+    tmp_path_factory: TempPathFactory, rootpath: Path, monkeypatch: MonkeyPatch
+) -> Generator[dict[str, Any], None, None]:
     """Set up test env pretending being inside RMS, and with a parsed global config."""
 
     with open(
@@ -49,7 +55,9 @@ def inside_rms_setup(tmp_path_factory, rootpath, monkeypatch: pytest.MonkeyPatch
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_regsurf_generate_metadata(inside_rms_setup, regsurf):
+def test_regsurf_generate_metadata(
+    inside_rms_setup: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test generating metadata for a surface pretend inside RMS"""
     logger.info("Active folder is %s", inside_rms_setup["path"])
 
@@ -66,7 +74,9 @@ def test_regsurf_generate_metadata(inside_rms_setup, regsurf):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_regsurf_generate_metadata_change_content(inside_rms_setup, regsurf):
+def test_regsurf_generate_metadata_change_content(
+    inside_rms_setup: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """As above but change a key in the generate_metadata"""
 
     edata = dataio.ExportData(config=inside_rms_setup["config"], content="depth")
@@ -80,7 +90,9 @@ def test_regsurf_generate_metadata_change_content(inside_rms_setup, regsurf):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_regsurf_generate_metadata_change_content_invalid(inside_rms_setup, regsurf):
+def test_regsurf_generate_metadata_change_content_invalid(
+    inside_rms_setup: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """As above but change an invalid name of key in the generate_metadata"""
     edata = dataio.ExportData(
         config=inside_rms_setup["config"], content="depth"
@@ -91,7 +103,9 @@ def test_regsurf_generate_metadata_change_content_invalid(inside_rms_setup, regs
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_regsurf_export_file(inside_rms_setup, regsurf):
+def test_regsurf_export_file(
+    inside_rms_setup: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Export the regular surface to file with correct metadata."""
     logger.info("Active folder is %s", inside_rms_setup["path"])
 
@@ -105,7 +119,9 @@ def test_regsurf_export_file(inside_rms_setup, regsurf):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_regsurf_export_file_set_name(inside_rms_setup, regsurf):
+def test_regsurf_export_file_set_name(
+    inside_rms_setup: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Export the regular surface to file with correct metadata and name."""
     edata = dataio.ExportData(
         config=inside_rms_setup["config"], content="depth", name="TopVolantis"
@@ -124,14 +140,16 @@ def test_regsurf_export_file_set_name(inside_rms_setup, regsurf):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_regsurf_metadata_with_timedata(inside_rms_setup, regsurf):
+def test_regsurf_metadata_with_timedata(
+    inside_rms_setup: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Export a regular surface to file with correct metadata and name and timedata."""
 
     edata = dataio.ExportData(
         config=inside_rms_setup["config"],
         content="depth",
         name="TopVolantis",
-        timedata=[[20300101, "moni"], [20100203, "base"]],
+        timedata=[["20300101", "moni"], ["20100203", "base"]],
     )
     meta1 = edata.generate_metadata(regsurf)
     assert meta1["data"]["time"]["t0"]["value"] == "2010-02-03T00:00:00"
@@ -143,7 +161,7 @@ def test_regsurf_metadata_with_timedata(inside_rms_setup, regsurf):
         config=inside_rms_setup["config"],
         content="depth",
         name="TopVolantis",
-        timedata=[[20300123, "one"]],
+        timedata=[["20300123", "one"]],
     )
     meta1 = edata.generate_metadata(regsurf)
 
@@ -155,7 +173,9 @@ def test_regsurf_metadata_with_timedata(inside_rms_setup, regsurf):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_regsurf_metadata_with_timedata_legacy(inside_rms_setup, regsurf):
+def test_regsurf_metadata_with_timedata_legacy(
+    inside_rms_setup: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Export the regular surface to file with correct metadata timedata, legacy ver."""
     dataio.ExportData.legacy_time_format = True
 
@@ -165,7 +185,7 @@ def test_regsurf_metadata_with_timedata_legacy(inside_rms_setup, regsurf):
             config=inside_rms_setup["config"],
             content="depth",
             name="TopVolantis",
-            timedata=[[20300101, "moni"], [20100203, "base"]],
+            timedata=[["20300101", "moni"], ["20100203", "base"]],
         )
 
     meta1 = edata.generate_metadata(regsurf)
@@ -185,7 +205,9 @@ def test_regsurf_metadata_with_timedata_legacy(inside_rms_setup, regsurf):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_regsurf_export_file_fmurun(inside_rms_setup, regsurf):
+def test_regsurf_export_file_fmurun(
+    inside_rms_setup: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Being in RMS and in an active FMU ERT run with case metadata present.
 
     Export the regular surface to file with correct metadata and name.
@@ -228,7 +250,9 @@ def test_regsurf_export_file_fmurun(inside_rms_setup, regsurf):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_polys_export_file_set_name(inside_rms_setup, polygons):
+def test_polys_export_file_set_name(
+    inside_rms_setup: dict[str, Any], polygons: xtgeo.Polygons
+) -> None:
     """Export the polygon to file with correct metadata and name."""
 
     edata = dataio.ExportData(
@@ -246,7 +270,9 @@ def test_polys_export_file_set_name(inside_rms_setup, polygons):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_points_export_file_set_name(inside_rms_setup, points):
+def test_points_export_file_set_name(
+    inside_rms_setup: dict[str, Any], points: xtgeo.Points
+) -> None:
     """Export the points to file with correct metadata and name."""
     edata = dataio.ExportData(
         config=inside_rms_setup["config"], content="depth", name="TopVolantis"
@@ -268,7 +294,9 @@ def test_points_export_file_set_name(inside_rms_setup, points):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_points_export_file_set_name_xtgeoheaders(inside_rms_setup, points):
+def test_points_export_file_set_name_xtgeoheaders(
+    inside_rms_setup: dict[str, Any], points: xtgeo.Points
+) -> None:
     """Export the points to file with correct metadata and name but here xtgeo var."""
 
     dataio.ExportData.points_fformat = "csv|xtgeo"
@@ -301,7 +329,9 @@ def test_points_export_file_set_name_xtgeoheaders(inside_rms_setup, points):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_cube_export_file_set_name(inside_rms_setup, cube):
+def test_cube_export_file_set_name(
+    inside_rms_setup: dict[str, Any], cube: xtgeo.Cube
+) -> None:
     """Export the cube to file with correct metadata and name."""
 
     edata = dataio.ExportData(
@@ -317,7 +347,9 @@ def test_cube_export_file_set_name(inside_rms_setup, cube):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_cube_export_file_set_name_as_observation(inside_rms_setup, cube):
+def test_cube_export_file_set_name_as_observation(
+    inside_rms_setup: dict[str, Any], cube: xtgeo.Cube
+) -> None:
     """Export the cube to file with correct metadata and name, is_observation."""
     edata = dataio.ExportData(
         config=inside_rms_setup["config"],
@@ -337,7 +369,9 @@ def test_cube_export_file_set_name_as_observation(inside_rms_setup, cube):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_cube_export_file_set_name_as_observation_forcefolder(inside_rms_setup, cube):
+def test_cube_export_file_set_name_as_observation_forcefolder(
+    inside_rms_setup: dict[str, Any], cube: xtgeo.Cube
+) -> None:
     """Export the cube to file with correct metadata and name, is_observation.
 
     In addition, use forcefolder to apply "seismic" instead of cube
@@ -364,7 +398,9 @@ def test_cube_export_file_set_name_as_observation_forcefolder(inside_rms_setup, 
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_cube_export_as_case(inside_rms_setup, cube):
+def test_cube_export_as_case(
+    inside_rms_setup: dict[str, Any], cube: xtgeo.Cube
+) -> None:
     """Export the cube to file with correct metadata and name, is_observation.
 
     In addition try fmu_context=case; when inside rms this should be reset to "non-fmu"
@@ -390,7 +426,9 @@ def test_cube_export_as_case(inside_rms_setup, cube):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_case_symlink_realization_raises_error(inside_rms_setup):
+def test_case_symlink_realization_raises_error(
+    inside_rms_setup: dict[str, Any],
+) -> None:
     """Test that fmu_context="case_symlink_realization" raises error."""
 
     with pytest.raises(ValueError, match="no longer a supported option"):
@@ -403,7 +441,9 @@ def test_case_symlink_realization_raises_error(inside_rms_setup):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_cube_export_as_observation_forcefolder_w_added_folder(inside_rms_setup, cube):
+def test_cube_export_as_observation_forcefolder_w_added_folder(
+    inside_rms_setup: dict[str, Any], cube: xtgeo.Cube
+) -> None:
     """Export the cube to file with correct metadata and name, is_observation.
 
     In addition, use forcefolder with extra folder "xxx" (alternative to 'subfolder'
@@ -431,8 +471,8 @@ def test_cube_export_as_observation_forcefolder_w_added_folder(inside_rms_setup,
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_cube_export_as_observation_forcefolder_w_true_subfolder(
-    inside_rms_setup, cube
-):
+    inside_rms_setup: dict[str, Any], cube: xtgeo.Cube
+) -> None:
     """Export the cube to file with correct metadata and name, is_observation.
 
     In addition, use forcefolder and subfolders in combination.
@@ -461,8 +501,8 @@ def test_cube_export_as_observation_forcefolder_w_true_subfolder(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_cube_export_as_observation_forcefolder_w_subfolder_case(
-    inside_rms_setup, cube
-):
+    inside_rms_setup: dict[str, Any], cube: xtgeo.Cube
+) -> None:
     """Export the cube to file with correct metadata and name, is_observation.
 
     In addition, use forcefolder with subfolders to apply "seismic" instead of cube
@@ -497,7 +537,9 @@ def test_cube_export_as_observation_forcefolder_w_subfolder_case(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_grid_export_file_set_name(inside_rms_setup, grid):
+def test_grid_export_file_set_name(
+    inside_rms_setup: dict[str, Any], grid: xtgeo.Grid
+) -> None:
     """Export the grid to file with correct metadata and name."""
     edata = dataio.ExportData(
         config=inside_rms_setup["config"], content="depth", name="MyGrid"
@@ -512,7 +554,7 @@ def test_grid_export_file_set_name(inside_rms_setup, grid):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_grid_zonation_in_metadata(inside_rms_setup):
+def test_grid_zonation_in_metadata(inside_rms_setup: dict[str, Any]) -> None:
     """Export the grid to file with correct metadata and name."""
 
     grid = xtgeo.create_box_grid((3, 4, 5))
@@ -559,7 +601,9 @@ def test_grid_zonation_in_metadata(inside_rms_setup):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_gridproperty_export_file_set_name(inside_rms_setup, gridproperty):
+def test_gridproperty_export_file_set_name(
+    inside_rms_setup: dict[str, Any], gridproperty: xtgeo.GridProperty
+) -> None:
     """Export the gridprop to file with correct metadata and name."""
 
     edata = dataio.ExportData(
@@ -577,7 +621,9 @@ def test_gridproperty_export_file_set_name(inside_rms_setup, gridproperty):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_gridproperty_export_with_geometry(inside_rms_setup, grid, gridproperty):
+def test_gridproperty_export_with_geometry(
+    inside_rms_setup: dict[str, Any], grid: xtgeo.Grid, gridproperty: xtgeo.GridProperty
+) -> None:
     """Export the the grid and the gridprop(s) with connected geometry."""
 
     grd_edata = dataio.ExportData(
@@ -637,13 +683,18 @@ def test_gridproperty_export_with_geometry(inside_rms_setup, grid, gridproperty)
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_gridproperty_export_with_geometry_and_bad_character(
-    inside_rms_setup, grid, gridproperty, monkeypatch
-):
+    inside_rms_setup: dict[str, Any],
+    grid: xtgeo.Grid,
+    gridproperty: xtgeo.GridProperty,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Ensures a non-ascii character in masterdata does not cause encoding parsing
     failures"""
     original_open = builtins.open
 
-    def open_with_ansi(file, mode="r", *args, **kwargs):
+    def open_with_ansi(
+        file: Any, mode: str = "r", *args: tuple, **kwargs: dict[str, Any]
+    ) -> Any:
         if "r" in mode and "b" not in mode and "encoding" not in kwargs:
             kwargs["encoding"] = "ANSI_X3.4-1968"
         return original_open(file, mode, *args, **kwargs)
@@ -673,8 +724,12 @@ def test_gridproperty_export_with_geometry_and_bad_character(
 
 
 def test_gridproperty_export_with_geometry_lacking_metadata(
-    inside_rms_setup, tmp_path, grid, gridproperty, monkeypatch
-):
+    inside_rms_setup: dict[str, Any],
+    tmp_path: Path,
+    grid: xtgeo.Grid,
+    gridproperty: xtgeo.GridProperty,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the the grid and the gridprop(s) without valid metadatda"""
     monkeypatch.chdir(tmp_path)
 
@@ -719,7 +774,9 @@ def test_gridproperty_export_with_geometry_lacking_metadata(
     assert not Path(expected_metadata_path).exists()
 
 
-def test_gridproperty_export_with_non_existent_geometry(inside_rms_setup, gridproperty):
+def test_gridproperty_export_with_non_existent_geometry(
+    inside_rms_setup: dict[str, Any], gridproperty: xtgeo.GridProperty
+) -> None:
     """Export the gridprop without valid geometry path"""
 
     with pytest.raises(FileNotFoundError, match="geometry"):
@@ -738,7 +795,9 @@ def test_gridproperty_export_with_non_existent_geometry(inside_rms_setup, gridpr
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_dataframe_export_file_set_name(inside_rms_setup, dataframe):
+def test_dataframe_export_file_set_name(
+    inside_rms_setup: dict[str, Any], dataframe: pd.DataFrame
+) -> None:
     """Export the dataframe to file with correct metadata and name."""
 
     edata = dataio.ExportData(
@@ -759,7 +818,9 @@ def test_dataframe_export_file_set_name(inside_rms_setup, dataframe):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_pyarrow_export_file_set_name(inside_rms_setup, arrowtable):
+def test_pyarrow_export_file_set_name(
+    inside_rms_setup: dict[str, Any], arrowtable: pa.Table
+) -> None:
     """Export the arrow to file with correct metadata and name."""
     edata = dataio.ExportData(
         config=inside_rms_setup["config"], content="depth", name="MyArrowtable"
@@ -786,7 +847,9 @@ def test_pyarrow_export_file_set_name(inside_rms_setup, arrowtable):
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
-def test_faultroom_export_as_file(rootpath, inside_rms_setup):
+def test_faultroom_export_as_file(
+    rootpath: Path, inside_rms_setup: dict[str, Any]
+) -> None:
     """Export the faultroom surfaces, use input as file"""
 
     # it assumes here that the faultroom plugin output file(s) to e.g.
