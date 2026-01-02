@@ -1,6 +1,7 @@
 """Tests for table index"""
 
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -8,6 +9,7 @@ import pytest
 from fmu.config.utilities import yaml_load
 from fmu.datamodels.fmu_results.enums import Content
 from pydantic import ValidationError
+from pytest import MonkeyPatch
 
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import STANDARD_TABLE_INDEX_COLUMNS, StandardTableIndex
@@ -27,7 +29,7 @@ def _read_dict(file_path: str) -> dict:
     return yaml_load(meta_path)
 
 
-def assert_list_and_answer(index, answer, field_to_check):
+def assert_list_and_answer(index: list, answer: Any, field_to_check: Any) -> None:
     """Assert that index is list and the answer is correct
 
     Args:
@@ -39,7 +41,7 @@ def assert_list_and_answer(index, answer, field_to_check):
     assert index == answer, fail_string
 
 
-def assert_correct_table_index(dict_input, answer):
+def assert_correct_table_index(dict_input: Any, answer: list) -> None:
     """does the assert work for all tests
 
     Args:
@@ -53,7 +55,12 @@ def assert_correct_table_index(dict_input, answer):
     assert_list_and_answer(index, answer, index)
 
 
-def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path):
+def test_inplace_volume_index(
+    mock_volumes: pd.DataFrame,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test volumetric data
 
     Args:
@@ -68,7 +75,12 @@ def test_inplace_volume_index(mock_volumes, globalconfig2, monkeypatch, tmp_path
     assert_correct_table_index(path, answer)
 
 
-def test_inplace_volume_empty_index(mock_volumes, globalconfig2, monkeypatch, tmp_path):
+def test_inplace_volume_empty_index(
+    mock_volumes: pd.DataFrame,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test volumetric data with some empty table index columns"""
     monkeypatch.chdir(tmp_path)
 
@@ -85,7 +97,12 @@ def test_inplace_volume_empty_index(mock_volumes, globalconfig2, monkeypatch, tm
         ExportData(config=globalconfig2, content="volumes", name="baretull").export(df)
 
 
-def test_relperm_index(mock_relperm, globalconfig2, monkeypatch, tmp_path):
+def test_relperm_index(
+    mock_relperm: pd.DataFrame,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test that the table index is set correct for relperm data"""
     monkeypatch.chdir(tmp_path)
     answer = ["SATNUM"]
@@ -95,8 +112,11 @@ def test_relperm_index(mock_relperm, globalconfig2, monkeypatch, tmp_path):
 
 
 def test_derive_summary_index_pandas(
-    mock_summary, globalconfig2, monkeypatch, tmp_path
-):
+    mock_summary: pd.DataFrame,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test summary data
 
     Args:
@@ -113,8 +133,11 @@ def test_derive_summary_index_pandas(
 
 
 def test_derive_summary_index_pyarrow(
-    mock_summary, globalconfig2, monkeypatch, tmp_path
-):
+    mock_summary: pd.DataFrame,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test summary data
 
     Args:
@@ -133,8 +156,11 @@ def test_derive_summary_index_pyarrow(
 
 
 def test_summary_index_pyarrow_empty_index(
-    mock_summary, globalconfig2, monkeypatch, tmp_path
-):
+    mock_summary: pd.DataFrame,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test summary data in arrow format with empty table index columns"""
 
     from pyarrow import Table
@@ -158,7 +184,12 @@ def test_summary_index_pyarrow_empty_index(
         ).export(Table.from_pandas(df))
 
 
-def test_set_from_exportdata(mock_volumes, globalconfig2, monkeypatch, tmp_path):
+def test_set_from_exportdata(
+    mock_volumes: pd.DataFrame,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test setting of index from class ExportData
 
     Args:
@@ -175,7 +206,12 @@ def test_set_from_exportdata(mock_volumes, globalconfig2, monkeypatch, tmp_path)
     assert_correct_table_index(path, index)
 
 
-def test_set_from_export(mock_volumes, globalconfig2, monkeypatch, tmp_path):
+def test_set_from_export(
+    mock_volumes: pd.DataFrame,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test setting of index from method export on class ExportData
 
     Args:
@@ -193,8 +229,11 @@ def test_set_from_export(mock_volumes, globalconfig2, monkeypatch, tmp_path):
 
 
 def test_set_table_index_not_in_table(
-    mock_volumes, globalconfig2, monkeypatch, tmp_path
-):
+    mock_volumes: pd.DataFrame,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     """Test when setting index with something that is not in data
 
     Args:
@@ -211,7 +250,9 @@ def test_set_table_index_not_in_table(
     assert "are not present" in k_err.value.args[0]
 
 
-def test_table_index_timeseries(export_data_obj_timeseries, drogon_summary):
+def test_table_index_timeseries(
+    export_data_obj_timeseries: ExportData, drogon_summary: pd.DataFrame
+) -> None:
     """Test setting of table_index in an arbitrary timeseries.
 
     Args:
@@ -222,7 +263,9 @@ def test_table_index_timeseries(export_data_obj_timeseries, drogon_summary):
     assert objdata.table_index == ["DATE"], "Incorrect table index "
 
 
-def test_table_index_real_summary(edataobj3, drogon_summary):
+def test_table_index_real_summary(
+    edataobj3: ExportData, drogon_summary: pd.DataFrame
+) -> None:
     """Test setting of table_index in real summary file
 
     Args:
@@ -233,7 +276,7 @@ def test_table_index_real_summary(edataobj3, drogon_summary):
     assert objdata.table_index == ["DATE"], "Incorrect table index "
 
 
-def test_table_index_rft_from_standard(globalconfig2):
+def test_table_index_rft_from_standard(globalconfig2: dict[str, Any]) -> None:
     """Test setting of table_index in rft file from standard table_index"""
 
     mock_rft_table = pd.DataFrame(
@@ -254,7 +297,9 @@ def test_table_index_rft_from_standard(globalconfig2):
     assert set(meta["data"]["table_index"]) == {"DATE"}
 
 
-def test_table_wellpicks(wellpicks, globalconfig1):
+def test_table_wellpicks(
+    wellpicks: pd.DataFrame, globalconfig1: dict[str, Any]
+) -> None:
     """Test export of wellpicks"""
 
     exp = ExportData(config=globalconfig1, name="wellpicks", content="wellpicks")
@@ -267,7 +312,7 @@ def test_table_wellpicks(wellpicks, globalconfig1):
     assert metadata["data"]["table_index"] == ["WELL", "HORIZON"]
 
 
-def test_production_network_index(globalconfig1):
+def test_production_network_index(globalconfig1: dict[str, Any]) -> None:
     """Test that the table index is set correct for production network data"""
 
     mock_table = pd.DataFrame(
@@ -292,7 +337,7 @@ def test_production_network_index(globalconfig1):
     assert metadata["data"]["table_index"] == ["DATE", "CHILD", "PARENT", "KEYWORD"]
 
 
-def test_well_completions_index(globalconfig1):
+def test_well_completions_index(globalconfig1: dict[str, Any]) -> None:
     """Test that the table index is set correct for well completions data"""
 
     mock_table = pd.DataFrame(
@@ -317,7 +362,7 @@ def test_well_completions_index(globalconfig1):
     assert metadata["data"]["table_index"] == ["WELL", "DATE", "ZONE"]
 
 
-def test_standard_table_index_valid():
+def test_standard_table_index_valid() -> None:
     """Test the StandardTableIndex model"""
     index = StandardTableIndex(
         columns=["col1", "col2"],
@@ -334,7 +379,7 @@ def test_standard_table_index_valid():
         )
 
 
-def test_derive_index_from_input_valid():
+def test_derive_index_from_input_valid() -> None:
     """Test providing a valid table index"""
     table_index = ["col1", "col2"]
     table_columns = ["col1", "col2", "col3"]
@@ -342,7 +387,7 @@ def test_derive_index_from_input_valid():
     assert result == table_index
 
 
-def test_derive_index_from_input_invalid():
+def test_derive_index_from_input_invalid() -> None:
     """Test that error is raised if missing column"""
     table_index = ["col1", "col4"]
     table_columns = ["col1", "col2", "col3"]
@@ -350,7 +395,7 @@ def test_derive_index_from_input_invalid():
         _derive_index(table_columns, table_index)
 
 
-def test_derive_index_from_input_non_standard():
+def test_derive_index_from_input_non_standard() -> None:
     """Test that warning is given if a column that a non-standard column is provided"""
     content = Content.volumes
     table_index = ["col1"]
@@ -360,7 +405,7 @@ def test_derive_index_from_input_non_standard():
     assert result == table_index
 
 
-def test_derive_index_from_standard():
+def test_derive_index_from_standard() -> None:
     """
     Test that when table index is not provided the index is set to the
     standard for the content.
@@ -372,7 +417,7 @@ def test_derive_index_from_standard():
     assert result == STANDARD_TABLE_INDEX_COLUMNS[content].columns
 
 
-def test_derive_index_from_standard_missing_columns():
+def test_derive_index_from_standard_missing_columns() -> None:
     """
     Test that when table index is not provided a Futurewarning is given
     if not all columns standard index columns are present in the table
@@ -386,7 +431,7 @@ def test_derive_index_from_standard_missing_columns():
     assert result == table_columns
 
 
-def test_derive_index_legacy():
+def test_derive_index_legacy() -> None:
     """
     Test that when table index is not provided and content is not
     defined with standard table index columns, a FutureWarning is given
@@ -401,7 +446,9 @@ def test_derive_index_legacy():
     assert set(result) == {"WELL", "SATNUM", "REGION"}
 
 
-def test_table_index_in_metadata_with_table_index(globalconfig2, mock_volumes):
+def test_table_index_in_metadata_with_table_index(
+    globalconfig2: dict[str, Any], mock_volumes: pd.DataFrame
+) -> None:
     """Test providing a valid table index"""
     table_index = ["ZONE"]
     with pytest.warns(FutureWarning, match="standard"):
@@ -415,7 +462,9 @@ def test_table_index_in_metadata_with_table_index(globalconfig2, mock_volumes):
     assert meta["data"]["table_index"] == table_index
 
 
-def test_table_index_in_metadata_from_standard(globalconfig2, mock_volumes):
+def test_table_index_in_metadata_from_standard(
+    globalconfig2: dict[str, Any], mock_volumes: pd.DataFrame
+) -> None:
     """
     Test that when table index is not provided the index is set to the
     standard for the content.
@@ -434,7 +483,7 @@ def test_table_index_in_metadata_from_standard(globalconfig2, mock_volumes):
     assert meta["data"]["table_index"] == expected
 
 
-def test_table_index_in_metadata_legacy_fallback(globalconfig2):
+def test_table_index_in_metadata_legacy_fallback(globalconfig2: dict[str, Any]) -> None:
     """
     Test that when table index is not provided and content is not
     defined with standard table index columns, a FutureWarning is given
