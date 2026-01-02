@@ -1,9 +1,10 @@
 import pytest
 
+from fmu.dataio.dataio import ExportData
 from fmu.dataio.providers.objectdata._utils import Utils
 
 
-def test_stratigraphy(edataobj2):
+def test_stratigraphy(edataobj2: ExportData) -> None:
     """Test the stratigraphy."""
 
     strat = edataobj2.config.stratigraphy
