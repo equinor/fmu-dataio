@@ -6,6 +6,7 @@ interactive or from ERT. Hence the rootpath will be ../../
 
 import builtins
 import logging
+import os
 import shutil
 from collections.abc import Generator
 from copy import deepcopy
@@ -25,6 +26,7 @@ from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
 
 logger = logging.getLogger(__name__)
+FileDescriptorOrPath = int | str | os.PathLike
 
 
 @pytest.fixture(scope="function")
@@ -693,7 +695,10 @@ def test_gridproperty_export_with_geometry_and_bad_character(
     original_open = builtins.open
 
     def open_with_ansi(
-        file: Any, mode: str = "r", *args: tuple, **kwargs: dict[str, Any]
+        file: FileDescriptorOrPath,
+        mode: str = "r",
+        *args: tuple,
+        **kwargs: dict[str, Any],
     ) -> Any:
         if "r" in mode and "b" not in mode and "encoding" not in kwargs:
             kwargs["encoding"] = "ANSI_X3.4-1968"
