@@ -22,7 +22,6 @@ from fmu.dataio.providers._fmu import (
 logger = logging.getLogger(__name__)
 WORKFLOW = {"reference": "some_work_flow"}
 GLOBAL_CONFIG_MODEL: Any = {"name": "Model2", "revision": "22.1.0"}
-# GLOBAL_CONFIG_MODEL = {"name": "Model2", "revision": "22.1.0"}
 
 
 def test_fmuprovider_no_provider() -> None:
@@ -67,11 +66,11 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(
 ) -> None:
     """The casepath input is empty, but try guess from ERT RUNPATH without success.
 
-    Since there are mot metadat a here, this will issue a warning
+    Since there are no metadata here, this will issue a warning
     """
     monkeypatch.chdir(fmurun)
     with pytest.warns(UserWarning, match="case metadata"):
-        runcontext = RunContext(casepath_proposed=Path(""))
+        runcontext = RunContext(casepath_proposed=None)
 
     myfmu = FmuProvider(runcontext)
 
