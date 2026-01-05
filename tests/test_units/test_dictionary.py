@@ -9,7 +9,7 @@ import pandas as pd
 import pyarrow as pa
 import pytest
 import yaml
-from pytest import MonkeyPatch
+from pytest import FixtureRequest, MonkeyPatch
 
 from fmu.dataio import ExportData
 from fmu.dataio._utils import read_parameters_txt
@@ -97,7 +97,7 @@ def read_dict_and_meta(path: str) -> tuple[dict, dict]:
 def test_export_dict_w_meta(
     globalconfig2: dict[str, Any],
     dictionary: Literal["direct_creation", "json_dict", "simple_parameters"],
-    request: pytest.FixtureRequest,
+    request: FixtureRequest,
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
