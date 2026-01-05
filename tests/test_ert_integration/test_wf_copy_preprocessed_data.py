@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 import getpass
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import ert.__main__
 import pytest
 import yaml
+from pytest import CaptureFixture, MonkeyPatch
 
 from fmu import dataio
 
@@ -11,8 +16,15 @@ from .ert_config_utils import (
     add_create_case_workflow,
 )
 
+if TYPE_CHECKING:
+    import xtgeo
+    from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+    from pytest_mock import MockerFixture
 
-def _export_preprocessed_data(config, regsurf):
+
+def _export_preprocessed_data(
+    config: dict | GlobalConfiguration, regsurf: xtgeo.RegularSurface
+) -> None:
     """Export preprocessed surfaces"""
     dataio.ExportData(
         config=config,
@@ -31,8 +43,12 @@ def _export_preprocessed_data(config, regsurf):
 
 
 def test_copy_preprocessed_runs_successfully(
-    fmu_snakeoil_project, monkeypatch, mocker, globalconfig2, regsurf
-):
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    globalconfig2: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that exporting preprocessed data works and that the metadata is updated"""
     monkeypatch.chdir(fmu_snakeoil_project)
     _export_preprocessed_data(globalconfig2, regsurf)
@@ -71,8 +87,13 @@ def test_copy_preprocessed_runs_successfully(
 
 
 def test_copy_preprocessed_no_casemeta(
-    fmu_snakeoil_project, monkeypatch, mocker, globalconfig2, regsurf, capsys
-):
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    globalconfig2: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    capsys: CaptureFixture[str],
+) -> None:
     """Test that an error is written to stderr if no case metadata can be found."""
 
     monkeypatch.chdir(fmu_snakeoil_project)
@@ -93,8 +114,11 @@ def test_copy_preprocessed_no_casemeta(
 
 
 def test_copy_preprocessed_no_preprocessed_files(
-    fmu_snakeoil_project, monkeypatch, mocker, capsys
-):
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    capsys: CaptureFixture[str],
+) -> None:
     """
     Test that an error is written to stderr if no files can be found.
     Here represented by not running the initial export of preprocessed data
@@ -115,7 +139,12 @@ def test_copy_preprocessed_no_preprocessed_files(
     assert "No files found in searchpath" in stderr
 
 
-def test_inpath_absolute_path_raises(fmu_snakeoil_project, monkeypatch, mocker, capsys):
+def test_inpath_absolute_path_raises(
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    capsys: CaptureFixture[str],
+) -> None:
     """Test that an error is written to stderr if the inpath argument is absolute"""
 
     # create a workflow file with an absoulte inpath
@@ -143,8 +172,11 @@ def test_inpath_absolute_path_raises(fmu_snakeoil_project, monkeypatch, mocker, 
 
 
 def test_copy_preprocessed_no_preprocessed_meta(
-    fmu_snakeoil_project, monkeypatch, mocker, regsurf
-):
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    regsurf: xtgeo.RegularSurface,
+) -> None:
     """Test that a pure copy happens if the files don't have metadata"""
 
     monkeypatch.chdir(fmu_snakeoil_project)
@@ -175,8 +207,8 @@ def test_copy_preprocessed_no_preprocessed_meta(
 
 
 def test_deprecation_warning_global_variables(
-    fmu_snakeoil_project, monkeypatch, mocker
-):
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
+) -> None:
     """Test that deprecation warning is issued if global variables path is input"""
 
     # add the deprecated argument to the workflow file
