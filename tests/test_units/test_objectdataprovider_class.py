@@ -233,7 +233,7 @@ def test_regsurf_preprocessed_observation(
         return edata, edata.export(regsurf)
 
     def _run_case_fmu(
-        fmurun_prehook: Path, surfacepath: Any, monkeypatch: MonkeyPatch
+        fmurun_prehook: Path, surfacepath: Path, monkeypatch: MonkeyPatch
     ) -> dict[str, Any]:
         """Run FMU workflow, using the preprocessed data as case data.
 
