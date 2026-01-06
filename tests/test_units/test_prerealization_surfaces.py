@@ -104,7 +104,7 @@ def test_regsurf_preprocessed_observation(
         return edata.export(regsurf)
 
     def _run_case_fmu(
-        fmurun_prehook: Path, surfacepath: str, monkeypatch: MonkeyPatch
+        fmurun_prehook: Path, surfacepath: Path, monkeypatch: MonkeyPatch
     ) -> None:
         """Run FMU workflow, using the preprocessed data as case data.
 
@@ -224,7 +224,7 @@ def test_regsurf_preprocessed_filename_retained(
 
     def _run_case_fmu(
         fmurun_prehook: Path,
-        surfacepath: Any,
+        surfacepath: Path,
         exproot: str,
         monkeypatch: MonkeyPatch,
     ) -> None:
@@ -298,7 +298,7 @@ def test_regsurf_preprocessed_observation_subfolder(
         return edata.export(regsurf)
 
     def _run_case_fmu(
-        fmurun_prehook: Path, surfacepath: Any, monkeypatch: MonkeyPatch
+        fmurun_prehook: Path, surfacepath: Path, monkeypatch: MonkeyPatch
     ) -> None:
         """Run FMU workflow, using the preprocessed data on a subfolder."""
 
@@ -417,7 +417,7 @@ def test_access_settings_retained(
         return edata.export(regsurf)
 
     def _run_case_fmu(
-        fmurun_prehook: Path, surfacepath: Any, monkeypatch: MonkeyPatch
+        fmurun_prehook: Path, surfacepath: Path, monkeypatch: MonkeyPatch
     ) -> None:
         """Run FMU workflow, test that access is retained from preprocessed."""
 
