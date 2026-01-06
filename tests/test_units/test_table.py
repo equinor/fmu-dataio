@@ -5,6 +5,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
 import pytest
 from fmu.config.utilities import yaml_load
 from fmu.datamodels.fmu_results.enums import Content
@@ -29,7 +30,7 @@ def _read_dict(file_path: str) -> dict:
     return yaml_load(meta_path)
 
 
-def assert_list_and_answer(index: list, answer: Any, field_to_check: Any) -> None:
+def assert_list_and_answer(index: Any, answer: list, field_to_check: Any) -> None:
     """Assert that index is list and the answer is correct
 
     Args:
@@ -251,26 +252,26 @@ def test_set_table_index_not_in_table(
 
 
 def test_table_index_timeseries(
-    export_data_obj_timeseries: ExportData, drogon_summary: pd.DataFrame
+    export_data_obj_timeseries: ExportData, drogon_summary: pa.Table
 ) -> None:
     """Test setting of table_index in an arbitrary timeseries.
 
     Args:
         edataobj3 (dict): metadata
-        drogon_summary (pd.Dataframe): dataframe with summary data from sumo
+        drogon_summary (pa.Table): table with summary data from sumo
     """
     objdata = objectdata_provider_factory(drogon_summary, export_data_obj_timeseries)
     assert objdata.table_index == ["DATE"], "Incorrect table index "
 
 
 def test_table_index_real_summary(
-    edataobj3: ExportData, drogon_summary: pd.DataFrame
+    edataobj3: ExportData, drogon_summary: pa.Table
 ) -> None:
     """Test setting of table_index in real summary file
 
     Args:
         edataobj3 (dict): metadata
-        drogon_summary (pd.Dataframe): dataframe with summary data from sumo
+        drogon_summary (pa.Table): table with summary data from sumo
     """
     objdata = objectdata_provider_factory(drogon_summary, edataobj3)
     assert objdata.table_index == ["DATE"], "Incorrect table index "
