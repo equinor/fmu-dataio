@@ -3,10 +3,12 @@
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import pytest
 import xtgeo
 from fmu.datamodels.fmu_results import fields
+from pytest import MonkeyPatch
 
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import ExportFolder, ShareFolder
@@ -162,7 +164,9 @@ def test_get_filestem_shall_fail(
         _ = objdata.share_path
 
 
-def test_get_share_folders(regsurf, globalconfig2):
+def test_get_share_folders(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Testing the get_share_folders method."""
 
     edataobj1 = ExportData(config=globalconfig2, name="some", content="depth")
@@ -177,12 +181,15 @@ def test_get_share_folders(regsurf, globalconfig2):
     # check that the path present in the metadata matches the share folders
 
     fmeta = fdata.get_metadata()
+    assert fmeta.absolute_path is not None
     assert str(fmeta.absolute_path.parent).endswith(
         f"share/results/{ExportFolder.maps.value}"
     )
 
 
-def test_get_share_folders_with_subfolder(regsurf, globalconfig2):
+def test_get_share_folders_with_subfolder(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Testing the private _get_path method, creating the path."""
 
     edataobj1 = ExportData(
@@ -193,17 +200,20 @@ def test_get_share_folders_with_subfolder(regsurf, globalconfig2):
     objdata.name = "some"
 
     assert objdata.share_path.parent == Path("share/results/maps/sub")
-
     fdata = FileDataProvider(edataobj1._runcontext, objdata)
 
     # check that the path present in the metadata matches the share folders
     fmeta = fdata.get_metadata()
+    assert fmeta.absolute_path is not None
     assert str(fmeta.absolute_path.parent).endswith("share/results/maps/sub")
 
 
 def test_filedata_provider(
-    regsurf, tmp_path, globalconfig2, monkeypatch: pytest.MonkeyPatch
-):
+    regsurf: xtgeo.RegularSurface,
+    tmp_path: Path,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Testing the derive_filedata function."""
 
     monkeypatch.chdir(tmp_path)
@@ -237,8 +247,11 @@ def test_filedata_provider(
 
 
 def test_filedata_has_nonascii_letters(
-    regsurf, tmp_path, globalconfig2, monkeypatch: pytest.MonkeyPatch
-):
+    regsurf: xtgeo.RegularSurface,
+    tmp_path: Path,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Testing the get_metadata function."""
 
     monkeypatch.chdir(tmp_path)
@@ -252,7 +265,9 @@ def test_filedata_has_nonascii_letters(
         fdata.get_metadata()
 
 
-def test_sharepath_get_share_root(regsurf, globalconfig2):
+def test_sharepath_get_share_root(
+    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+) -> None:
     """Test that the share root folder is correctly set."""
 
     # share/results
@@ -304,14 +319,16 @@ def test_sharepath_get_share_root(regsurf, globalconfig2):
     )
 
 
-def test_sharepath_with_date(globalconfig2, regsurf):
+def test_sharepath_with_date(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that the share root folder is correctly set here using one date."""
 
     edataobj1 = ExportData(
         config=globalconfig2,
         name="test",
         tagname="mytag",
-        timedata=[20250512],
+        timedata=["20250512"],
         content="depth",
     )
 
@@ -325,14 +342,16 @@ def test_sharepath_with_date(globalconfig2, regsurf):
     assert objdata.share_path == expected_path
 
 
-def test_sharepath_with_two_dates(globalconfig2, regsurf):
+def test_sharepath_with_two_dates(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that the share root folder is correctly set here using two dates."""
 
     edataobj1 = ExportData(
         config=globalconfig2,
         name="test",
         tagname="mytag",
-        timedata=[20250512, 20250511],
+        timedata=["20250512", "20250511"],
         content="depth",
     )
 
@@ -346,7 +365,9 @@ def test_sharepath_with_two_dates(globalconfig2, regsurf):
     assert objdata.share_path == expected_path
 
 
-def test_sharepath_with_parent(globalconfig2, regsurf):
+def test_sharepath_with_parent(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that the share root folder is correctly set here
     using tagname and parent."""
 
@@ -368,7 +389,9 @@ def test_sharepath_with_parent(globalconfig2, regsurf):
     assert objdata.share_path == expected_path
 
 
-def test_sharepath_name_from_objprovider(globalconfig2, regsurf):
+def test_sharepath_name_from_objprovider(
+    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
     """Test that the share root folder is correctly set using the
     name from the objdataprovider if not provided."""
 

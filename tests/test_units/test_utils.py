@@ -32,11 +32,11 @@ from ..utils import _get_pydantic_models_from_annotation
         (True, True),
     ],
 )
-def test_check_if_number(value, result):
+def test_check_if_number(value: str | None, result: str | int | float | None) -> None:
     assert utils.check_if_number(value) == result
 
 
-def test_get_object_name():
+def test_get_object_name() -> None:
     assert utils.get_object_name(object()) is None
 
     assert utils.get_object_name(RegularSurface(0, 0, 0, 0)) is None
@@ -84,7 +84,7 @@ def test_get_object_name():
     )
 
 
-def test_non_metadata_export_metadata_file():
+def test_non_metadata_export_metadata_file() -> None:
     with (
         NamedTemporaryFile(buffering=0, suffix=".yaml") as tf,
         pytest.raises(RuntimeError),
@@ -92,7 +92,7 @@ def test_non_metadata_export_metadata_file():
         utils.export_metadata_file(Path(tf.name), {})
 
 
-def test_export_file_raises():
+def test_export_file_raises() -> None:
     with NamedTemporaryFile() as tf, pytest.raises(TypeError):
         utils.export_file(
             object(),
@@ -101,7 +101,7 @@ def test_export_file_raises():
         )
 
 
-def test_create_symlink():
+def test_create_symlink() -> None:
     with pytest.raises(OSError):
         utils.create_symlink(
             "hopefullythispathwillneverexist",
@@ -119,7 +119,7 @@ def test_create_symlink():
         )
 
 
-def test_generate_description():
+def test_generate_description() -> None:
     assert utils.generate_description("") is None
     assert utils.generate_description([]) is None
     assert utils.generate_description(None) is None
@@ -134,14 +134,14 @@ def test_generate_description():
         utils.generate_description(object())
 
 
-def test_read_named_envvar():
+def test_read_named_envvar() -> None:
     assert utils.read_named_envvar("DONTEXIST") is None
 
     os.environ["MYTESTENV"] = "mytestvalue"
     assert utils.read_named_envvar("MYTESTENV") == "mytestvalue"
 
 
-def test_get_pydantic_models_from_annotation():
+def test_get_pydantic_models_from_annotation() -> None:
     annotation = list[fields.Access] | fields.File
     assert _get_pydantic_models_from_annotation(annotation) == [
         fields.Access,

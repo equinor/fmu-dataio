@@ -2,15 +2,22 @@
 
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 
+import pandas as pd
 import pytest
+import xtgeo
 import yaml
 from fmu.datamodels.fmu_results.specification import (
     FaultRoomSurfaceSpecification,
     TriangulatedSurfaceSpecification,
 )
+from pytest import MonkeyPatch
 
 from fmu import dataio
+from fmu.dataio._readers.faultroom import FaultRoomSurface
+from fmu.dataio._readers.tsurf import TSurfData
+from fmu.dataio.dataio import ExportData
 from fmu.dataio.exceptions import ConfigurationError
 from fmu.dataio.providers.objectdata._faultroom import FaultRoomSurfaceProvider
 from fmu.dataio.providers.objectdata._provider import (
@@ -28,7 +35,9 @@ from ..conftest import remove_ert_env, set_ert_env_prehook
 # --------------------------------------------------------------------------------------
 
 
-def test_objectdata_regularsurface_derive_named_stratigraphy(regsurf, edataobj1):
+def test_objectdata_regularsurface_derive_named_stratigraphy(
+    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+) -> None:
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configurations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj1)
@@ -40,7 +49,9 @@ def test_objectdata_regularsurface_derive_named_stratigraphy(regsurf, edataobj1)
     assert res.stratigraphic is True
 
 
-def test_objectdata_regularsurface_get_stratigraphy_element_differ(regsurf, edataobj2):
+def test_objectdata_regularsurface_get_stratigraphy_element_differ(
+    regsurf: xtgeo.RegularSurface, edataobj2: ExportData
+) -> None:
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configurations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj2)
@@ -53,8 +64,8 @@ def test_objectdata_regularsurface_get_stratigraphy_element_differ(regsurf, edat
 
 
 def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_differ(
-    faultroom_object, edataobj2
-):
+    faultroom_object: FaultRoomSurface, edataobj2: ExportData
+) -> None:
     """
     Fault juxtaposition is a list of formations on the footwall and hangingwall sides.
     Ensure that each name is converted to the names given in the stratigraphic column
@@ -86,7 +97,9 @@ def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_differ(
     assert frss.juxtaposition_hw == ["Valysar Fm.", "Therys Fm.", "Volon Fm."]
 
 
-def test_objectdata_triangulated_surface_validate_spec(tsurf, edataobj2):
+def test_objectdata_triangulated_surface_validate_spec(
+    tsurf: TSurfData, edataobj2: ExportData
+) -> None:
     """
     Validate the specifications of the triangulated surface object represented
     in the TSurf format.
@@ -123,7 +136,9 @@ def test_objectdata_triangulated_surface_validate_spec(tsurf, edataobj2):
     assert buffer.read(14).decode(encoding=encoding) == "GOCAD TSurf 1\n"
 
 
-def test_objectdata_regularsurface_validate_extension(regsurf, edataobj1):
+def test_objectdata_regularsurface_validate_extension(
+    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+) -> None:
     """Test a valid extension for RegularSurface object."""
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
@@ -131,7 +146,9 @@ def test_objectdata_regularsurface_validate_extension(regsurf, edataobj1):
     assert objdata.extension == ".gri"
 
 
-def test_objectdata_table_validate_extension_shall_fail(dataframe, edataobj1):
+def test_objectdata_table_validate_extension_shall_fail(
+    dataframe: pd.DataFrame, edataobj1: ExportData
+) -> None:
     """Test an invalid extension for a table object."""
 
     edataobj1.table_fformat = "roff"  # set to invalid format
@@ -142,7 +159,9 @@ def test_objectdata_table_validate_extension_shall_fail(dataframe, edataobj1):
     edataobj1.table_fformat = None  # reset to default
 
 
-def test_objectdata_regularsurface_spec_bbox(regsurf, edataobj1):
+def test_objectdata_regularsurface_spec_bbox(
+    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+) -> None:
     """Derive specs and bbox for RegularSurface object."""
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
@@ -154,7 +173,9 @@ def test_objectdata_regularsurface_spec_bbox(regsurf, edataobj1):
     assert bbox.zmin == 1234.0
 
 
-def test_objectdata_regularsurface_derive_objectdata(regsurf, edataobj1):
+def test_objectdata_regularsurface_derive_objectdata(
+    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+) -> None:
     """Derive other properties."""
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
@@ -163,7 +184,9 @@ def test_objectdata_regularsurface_derive_objectdata(regsurf, edataobj1):
     assert objdata.extension == ".gri"
 
 
-def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):
+def test_objectdata_regularsurface_derive_metadata(
+    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+) -> None:
     """Derive all metadata for the 'data' block in fmu-dataio."""
 
     myobj = objectdata_provider_factory(regsurf, edataobj1)
@@ -172,14 +195,18 @@ def test_objectdata_regularsurface_derive_metadata(regsurf, edataobj1):
     assert metadata.root.alias
 
 
-def test_objectdata_provider_factory_raises_on_unknown(edataobj1):
+def test_objectdata_provider_factory_raises_on_unknown(edataobj1: ExportData) -> None:
     with pytest.raises(NotImplementedError, match="not currently supported"):
         objectdata_provider_factory(object(), edataobj1)
 
 
 def test_regsurf_preprocessed_observation(
-    fmurun_prehook, rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_prehook: Path,
+    rmssetup: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test generating pre-realization surfaces that comes to share/preprocessed.
 
     Later, a fmu run will update this (merge metadata)
@@ -187,8 +214,11 @@ def test_regsurf_preprocessed_observation(
 
     @pytest.mark.usefixtures("inside_rms_interactive")
     def _export_data_from_rms(
-        rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-    ):
+        rmssetup: Path,
+        rmsglobalconfig: dict[str, Any],
+        regsurf: xtgeo.RegularSurface,
+        monkeypatch: MonkeyPatch,
+    ) -> tuple[ExportData, str]:
         """Run an export of a preprocessed surface inside RMS."""
 
         monkeypatch.chdir(rmssetup)
@@ -198,11 +228,13 @@ def test_regsurf_preprocessed_observation(
             name="TopVolantis",
             content="depth",
             is_observation=True,
-            timedata=[[20240802, "moni"], [20200909, "base"]],
+            timedata=[["20240802", "moni"], ["20200909", "base"]],
         )
         return edata, edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, surfacepath, monkeypatch: pytest.MonkeyPatch):
+    def _run_case_fmu(
+        fmurun_prehook: Path, surfacepath: Path, monkeypatch: MonkeyPatch
+    ) -> dict[str, Any]:
         """Run FMU workflow, using the preprocessed data as case data.
 
         When re-using metadata, the input object to dataio shall not be a XTGeo or
@@ -233,7 +265,9 @@ def test_regsurf_preprocessed_observation(
     assert metadata["data"] == case_meta["data"]
 
 
-def test_objectdata_compute_md5(gridproperty, edataobj1):
+def test_objectdata_compute_md5(
+    gridproperty: xtgeo.GridProperty, edataobj1: ExportData
+) -> None:
     """Test compute_md5 function works and gives same result as in the metadata"""
 
     myobj = objectdata_provider_factory(gridproperty, edataobj1)

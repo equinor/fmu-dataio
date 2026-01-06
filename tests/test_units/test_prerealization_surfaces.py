@@ -11,8 +11,12 @@ and are typically used to compare results.
 """
 
 import logging
+from pathlib import Path
+from typing import Any
 
 import pytest
+import xtgeo
+from pytest import MonkeyPatch
 
 from fmu import dataio
 from fmu.dataio import _utils as utils
@@ -23,8 +27,11 @@ logger = logging.getLogger(__name__)
 
 
 def test_regsurf_case_observation(
-    fmurun_prehook, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_prehook: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test generating pre-realization surfaces that comes right to case.
 
     Notice the difference between this use-case and the 'preprocessed' example later!
@@ -53,8 +60,12 @@ def test_regsurf_case_observation(
 
 
 def test_regsurf_preprocessed_observation(
-    fmurun_prehook, rmssetup, rmsglobalconfig, regsurf, monkeypatch
-):
+    fmurun_prehook: Path,
+    rmssetup: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test generating pre-realization surfaces that comes to share/preprocessed.
 
     Later, a fmu run will update this (merge metadata)
@@ -62,8 +73,11 @@ def test_regsurf_preprocessed_observation(
 
     @pytest.mark.usefixtures("inside_rms_interactive")
     def _export_data_from_rms(
-        rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-    ):
+        rmssetup: Path,
+        rmsglobalconfig: dict[str, Any],
+        regsurf: xtgeo.RegularSurface,
+        monkeypatch: MonkeyPatch,
+    ) -> str:
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)
 
@@ -74,7 +88,7 @@ def test_regsurf_preprocessed_observation(
             name="TopVolantis",
             content="depth",
             is_observation=True,
-            timedata=[[20240802, "moni"], [20200909, "base"]],
+            timedata=[["20240802", "moni"], ["20200909", "base"]],
         )
 
         metadata = edata.generate_metadata(regsurf)
@@ -89,7 +103,9 @@ def test_regsurf_preprocessed_observation(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, surfacepath, monkeypatch: pytest.MonkeyPatch):
+    def _run_case_fmu(
+        fmurun_prehook: Path, surfacepath: Path, monkeypatch: MonkeyPatch
+    ) -> None:
         """Run FMU workflow, using the preprocessed data as case data.
 
         When re-using metadata, the input object to dataio shall not be a XTGeo or
@@ -155,16 +171,16 @@ def test_regsurf_preprocessed_observation(
     ],
 )
 def test_regsurf_preprocessed_filename_retained(
-    fmurun_prehook,
-    rmssetup,
-    rmsglobalconfig,
-    regsurf,
-    parent,
-    name,
-    tagname,
-    exproot,
-    monkeypatch,
-):
+    fmurun_prehook: Path,
+    rmssetup: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    parent: str,
+    name: str,
+    tagname: str,
+    exproot: str,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """
     Check that current name and/or tagname are propegated and
     retained when re-exporting preprocessed data.
@@ -172,15 +188,15 @@ def test_regsurf_preprocessed_filename_retained(
 
     @pytest.mark.usefixtures("inside_rms_interactive")
     def _export_data_from_rms(
-        rmssetup,
-        rmsglobalconfig,
-        regsurf,
-        parent,
-        name,
-        tagname,
-        exproot,
-        monkeypatch: pytest.MonkeyPatch,
-    ):
+        rmssetup: Path,
+        rmsglobalconfig: dict[str, Any],
+        regsurf: xtgeo.RegularSurface,
+        parent: str,
+        name: str,
+        tagname: str,
+        exproot: str,
+        monkeypatch: MonkeyPatch,
+    ) -> str:
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)
 
@@ -190,7 +206,7 @@ def test_regsurf_preprocessed_filename_retained(
             preprocessed=True,
             content="depth",
             parent=parent,
-            timedata=[[20240802, "moni"], [20200909, "base"]],
+            timedata=[["20240802", "moni"], ["20200909", "base"]],
             is_observation=True,
             name=name,
             tagname=tagname,
@@ -207,8 +223,11 @@ def test_regsurf_preprocessed_filename_retained(
         return edata.export(regsurf)
 
     def _run_case_fmu(
-        fmurun_prehook, surfacepath, exproot, monkeypatch: pytest.MonkeyPatch
-    ):
+        fmurun_prehook: Path,
+        surfacepath: Path,
+        exproot: str,
+        monkeypatch: MonkeyPatch,
+    ) -> None:
         """Run FMU workflow, using the preprocessed data on a subfolder."""
 
         monkeypatch.chdir(fmurun_prehook)
@@ -233,8 +252,12 @@ def test_regsurf_preprocessed_filename_retained(
 
 
 def test_regsurf_preprocessed_observation_subfolder(
-    fmurun_prehook, rmssetup, rmsglobalconfig, regsurf, monkeypatch
-):
+    fmurun_prehook: Path,
+    rmssetup: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """As previous test, but with data using subfolder option.
 
     When the original output is using a subfolder key, the subsequent job shall detect
@@ -245,8 +268,11 @@ def test_regsurf_preprocessed_observation_subfolder(
 
     @pytest.mark.usefixtures("inside_rms_interactive")
     def _export_data_from_rms(
-        rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-    ):
+        rmssetup: Path,
+        rmsglobalconfig: dict[str, Any],
+        regsurf: xtgeo.RegularSurface,
+        monkeypatch: MonkeyPatch,
+    ) -> str:
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)
 
@@ -257,7 +283,7 @@ def test_regsurf_preprocessed_observation_subfolder(
             name="preprocessedmap",
             content="depth",
             is_observation=True,
-            timedata=[[20240802, "moni"], [20200909, "base"]],
+            timedata=[["20240802", "moni"], ["20200909", "base"]],
             subfolder="mysub",
         )
 
@@ -271,7 +297,9 @@ def test_regsurf_preprocessed_observation_subfolder(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, surfacepath, monkeypatch: pytest.MonkeyPatch):
+    def _run_case_fmu(
+        fmurun_prehook: Path, surfacepath: Path, monkeypatch: MonkeyPatch
+    ) -> None:
         """Run FMU workflow, using the preprocessed data on a subfolder."""
 
         monkeypatch.chdir(fmurun_prehook)
@@ -298,8 +326,11 @@ def test_regsurf_preprocessed_observation_subfolder(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_preprocessed_with_abs_forcefolder_shall_fail(
-    rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-):
+    rmssetup: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Run an export of a preprocessed surface inside RMS, with absolute forcefolder."""
     logger.info("Active folder is %s", rmssetup)
 
@@ -310,7 +341,7 @@ def test_preprocessed_with_abs_forcefolder_shall_fail(
         name="some",
         content="depth",
         is_observation=True,
-        timedata=[[20240802, "moni"], [20200909, "base"]],
+        timedata=[["20240802", "moni"], ["20200909", "base"]],
         forcefolder="/tmp",
     )
 
@@ -320,8 +351,11 @@ def test_preprocessed_with_abs_forcefolder_shall_fail(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_preprocessed_with_rel_forcefolder_ok(
-    rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-):
+    rmssetup: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Run an export of a preprocessed surface inside RMS, with forcefolder."""
     logger.info("Active folder is %s", rmssetup)
 
@@ -332,7 +366,7 @@ def test_preprocessed_with_rel_forcefolder_ok(
         name="some",
         content="depth",
         is_observation=True,
-        timedata=[[20240802, "moni"], [20200909, "base"]],
+        timedata=[["20240802", "moni"], ["20200909", "base"]],
         forcefolder="tmp",
     )
     meta = edata.generate_metadata(regsurf)
@@ -341,8 +375,12 @@ def test_preprocessed_with_rel_forcefolder_ok(
 
 
 def test_access_settings_retained(
-    fmurun_prehook, rmssetup, rmsglobalconfig, regsurf, monkeypatch
-):
+    fmurun_prehook: Path,
+    rmssetup: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test that access level put on pre-processed data are retained when the
     metadata is being completed during later FMU run.
 
@@ -351,8 +389,11 @@ def test_access_settings_retained(
 
     @pytest.mark.usefixtures("inside_rms_interactive")
     def _export_data_from_rms(
-        rmssetup, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-    ):
+        rmssetup: Path,
+        rmsglobalconfig: dict[str, Any],
+        regsurf: xtgeo.RegularSurface,
+        monkeypatch: MonkeyPatch,
+    ) -> str:
         """Run an export of a preprocessed surface inside RMS."""
         logger.info("Active folder is %s", rmssetup)
 
@@ -375,7 +416,9 @@ def test_access_settings_retained(
 
         return edata.export(regsurf)
 
-    def _run_case_fmu(fmurun_prehook, surfacepath, monkeypatch: pytest.MonkeyPatch):
+    def _run_case_fmu(
+        fmurun_prehook: Path, surfacepath: Path, monkeypatch: MonkeyPatch
+    ) -> None:
         """Run FMU workflow, test that access is retained from preprocessed."""
 
         monkeypatch.chdir(fmurun_prehook)

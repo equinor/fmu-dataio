@@ -1,11 +1,13 @@
 """Test the readers module"""
 
+from pathlib import Path
+
 import pytest
 
 from fmu.dataio._readers import faultroom
 
 
-def test_faultroomsurface_reader(rootpath):
+def test_faultroomsurface_reader(rootpath: Path) -> None:
     """Test reading the special in-house faultroom surface."""
 
     relpath_non_exists = "tests/data/drogon/rms/output/faultroom/non_existing_file.foo"

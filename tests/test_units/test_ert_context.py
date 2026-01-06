@@ -8,6 +8,7 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, Literal
 
 import pandas as pd
 import pyarrow.parquet as pq
@@ -18,12 +19,21 @@ from fmu.dataio import dataio
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.manifest._manifest import MANIFEST_FILENAME, load_export_manifest
 
+if TYPE_CHECKING:
+    import pyarrow as pa
+    import xtgeo
+    from pytest import MonkeyPatch
+
+
 logger = logging.getLogger(__name__)
 
 
 def test_regsurf_generate_metadata(
-    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Test generating metadata for a surface pretend ERT job"""
     logger.info("Active folder is %s", fmurun_w_casemetadata)
 
@@ -37,7 +47,7 @@ def test_regsurf_generate_metadata(
     assert "jobs" not in meta["fmu"]["realization"]
 
 
-def test_incl_jobs_warning(rmsglobalconfig):
+def test_incl_jobs_warning(rmsglobalconfig: dict[str, Any]) -> None:
     """Check that using the deprecated class variable include_ertjobs gives warning."""
 
     dataio.ExportData.include_ertjobs = True
@@ -51,15 +61,18 @@ def test_incl_jobs_warning(rmsglobalconfig):
 
 
 def test_regsurf_metadata_with_timedata(
-    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the regular surface to file with correct metadata/name/timedata."""
 
     meta1 = dataio.ExportData(
         config=rmsglobalconfig,
         content="depth",
         name="TopVolantis",
-        timedata=[[20300101, "moni"], [20100203, "base"]],
+        timedata=[["20300101", "moni"], ["20100203", "base"]],
     ).generate_metadata(regsurf)
 
     assert meta1["data"]["time"]["t0"]["value"] == "2010-02-03T00:00:00"
@@ -71,7 +84,7 @@ def test_regsurf_metadata_with_timedata(
         config=rmsglobalconfig,
         content="depth",
         name="TopVolantis",
-        timedata=[[20300123, "one"]],
+        timedata=[["20300123", "one"]],
     ).generate_metadata(regsurf)
 
     assert meta1["data"]["time"]["t0"]["value"] == "2030-01-23T00:00:00"
@@ -82,8 +95,11 @@ def test_regsurf_metadata_with_timedata(
 
 
 def test_regsurf_export_file_fmurun(
-    fmurun_w_casemetadata, rmsglobalconfig, regsurf, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Being in a script and in an active FMU run with case metadata present.
 
     Export the regular surface to file with correct metadata and name.
@@ -137,8 +153,11 @@ def test_regsurf_export_file_fmurun(
 
 
 def test_polys_export_file_set_name(
-    fmurun_w_casemetadata, rmsglobalconfig, polygons, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    polygons: xtgeo.Polygons,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -149,6 +168,8 @@ def test_polys_export_file_set_name(
 
     output = edata.export(polygons)
     logger.info("Output is %s", output)
+
+    assert edata._runcontext.casepath is not None
 
     assert str(output) == str(
         (
@@ -162,8 +183,11 @@ def test_polys_export_file_set_name(
 
 
 def test_polys_export_file_use_xtgeo_names(
-    fmurun_w_casemetadata, rmsglobalconfig, polygons, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    polygons: xtgeo.Polygons,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -188,8 +212,11 @@ def test_polys_export_file_use_xtgeo_names(
 
 
 def test_polys_export_file_as_parquet(
-    fmurun_w_casemetadata, rmsglobalconfig, polygons, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    polygons: xtgeo.Polygons,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -205,6 +232,8 @@ def test_polys_export_file_as_parquet(
     output = Path(edata.export(polygons))
 
     assert output.exists()
+
+    assert edata._runcontext.casepath is not None
     assert output == (
         edata._runcontext.casepath
         / "realization-0/iter-0/share/results/polygons/topvolantis.parquet"
@@ -222,8 +251,11 @@ def test_polys_export_file_as_parquet(
 
 
 def test_polys_export_file_as_parquet_no_table_index(
-    fmurun_w_casemetadata, rmsglobalconfig, polygons, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    polygons: xtgeo.Polygons,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the polygon to file without table index."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -243,8 +275,11 @@ def test_polys_export_file_as_parquet_no_table_index(
 
 
 def test_polys_export_file_as_irap_ascii(
-    fmurun_w_casemetadata, rmsglobalconfig, polygons, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    polygons: xtgeo.Polygons,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -260,6 +295,8 @@ def test_polys_export_file_as_irap_ascii(
     output = Path(edata.export(polygons))
 
     assert output.exists()
+
+    assert edata._runcontext.casepath is not None
     assert output == (
         edata._runcontext.casepath
         / "realization-0/iter-0/share/results/polygons/topvolantis.pol"
@@ -271,8 +308,11 @@ def test_polys_export_file_as_irap_ascii(
 
 
 def test_points_export_file_set_name(
-    fmurun_w_casemetadata, rmsglobalconfig, points, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    points: xtgeo.Points,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the points to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -287,6 +327,7 @@ def test_points_export_file_set_name(
     output = edata.export(points)
     logger.info("Output is %s", output)
 
+    assert edata._runcontext.casepath is not None
     assert str(output) == str(
         (
             edata._runcontext.casepath
@@ -303,8 +344,11 @@ def test_points_export_file_set_name(
 
 
 def test_points_export_file_set_name_xtgeoheaders(
-    fmurun_w_casemetadata, rmsglobalconfig, points, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    points: xtgeo.Points,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the points to file with correct metadata and name but here xtgeo var."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -318,6 +362,7 @@ def test_points_export_file_set_name_xtgeoheaders(
     output = edata.export(points)
     logger.info("Output is %s", output)
 
+    assert edata._runcontext.casepath is not None
     assert str(output) == str(
         (
             edata._runcontext.casepath
@@ -335,8 +380,11 @@ def test_points_export_file_set_name_xtgeoheaders(
 
 
 def test_points_export_file_as_parquet_no_table_index(
-    fmurun_w_casemetadata, rmsglobalconfig, points, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    points: xtgeo.Points,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the points to file without table index."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -356,8 +404,11 @@ def test_points_export_file_as_parquet_no_table_index(
 
 
 def test_points_export_file_as_irap_ascii(
-    fmurun_w_casemetadata, rmsglobalconfig, points, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    points: xtgeo.Points,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -373,6 +424,8 @@ def test_points_export_file_as_irap_ascii(
     output = Path(edata.export(points))
 
     assert output.exists()
+
+    assert edata._runcontext.casepath is not None
     assert output == (
         edata._runcontext.casepath
         / "realization-0/iter-0/share/results/points/topvolantis.poi"
@@ -385,8 +438,11 @@ def test_points_export_file_as_irap_ascii(
 
 
 def test_points_export_file_as_parquet(
-    fmurun_w_casemetadata, rmsglobalconfig, points, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    points: xtgeo.Points,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the polygon to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -399,6 +455,7 @@ def test_points_export_file_as_parquet(
     output = Path(edata.export(points))
 
     assert output.exists()
+    assert edata._runcontext.casepath is not None
     assert output == (
         edata._runcontext.casepath
         / "realization-0/iter-0/share/results/points/topvolantis.parquet"
@@ -424,8 +481,13 @@ def test_points_export_file_as_parquet(
     ],
 )
 def test_exported_points_spec_table_format(
-    fformat, expected_columns, fmurun_w_casemetadata, globalconfig2, monkeypatch, points
-):
+    fformat: Literal["parquet", "csv|xtgeo", "csv"],
+    expected_columns: list[str],
+    fmurun_w_casemetadata: Path,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    points: xtgeo.Points,
+) -> None:
     """Test that data.spec is set correctly for points exported on table format"""
 
     edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
@@ -443,8 +505,11 @@ def test_exported_points_spec_table_format(
 
 
 def test_exported_points_spec_irap_ascii(
-    fmurun_w_casemetadata, globalconfig2, monkeypatch, points
-):
+    fmurun_w_casemetadata: Path,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    points: xtgeo.Points,
+) -> None:
     """Test that data.spec is set correctly for points exported on irap_ascii format"""
 
     edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
@@ -470,13 +535,13 @@ def test_exported_points_spec_irap_ascii(
     ],
 )
 def test_exported_polygon_spec_table_format(
-    fformat,
-    expected_columns,
-    fmurun_w_casemetadata,
-    globalconfig2,
-    monkeypatch,
-    polygons,
-):
+    fformat: Literal["parquet", "csv|xtgeo", "csv"],
+    expected_columns: list[str],
+    fmurun_w_casemetadata: Path,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    polygons: xtgeo.Polygons,
+) -> None:
     """Test that data.spec is set correctly for polygons exported on table format"""
 
     edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
@@ -493,8 +558,11 @@ def test_exported_polygon_spec_table_format(
 
 
 def test_exported_polygon_spec_irap_ascii(
-    fmurun_w_casemetadata, globalconfig2, monkeypatch, polygons
-):
+    fmurun_w_casemetadata: Path,
+    globalconfig2: dict[str, Any],
+    monkeypatch: MonkeyPatch,
+    polygons: xtgeo.Polygons,
+) -> None:
     """Test that data.spec is set correct for polygons exported on irap_ascii format"""
 
     edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
@@ -517,8 +585,11 @@ def test_exported_polygon_spec_irap_ascii(
 
 
 def test_cube_export_file_set_name(
-    fmurun_w_casemetadata, rmsglobalconfig, cube, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    cube: xtgeo.Cube,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the cube to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -528,6 +599,7 @@ def test_cube_export_file_set_name(
     output = edata.export(cube)
     logger.info("Output is %s", output)
 
+    assert edata._runcontext.casepath is not None
     assert str(output) == str(
         (
             edata._runcontext.casepath
@@ -537,8 +609,11 @@ def test_cube_export_file_set_name(
 
 
 def test_cube_export_file_is_observation(
-    fmurun_w_casemetadata, rmsglobalconfig, cube, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    cube: xtgeo.Cube,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the cube to file with correct metadata..., with is_observation flag."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -554,6 +629,7 @@ def test_cube_export_file_is_observation(
     output = edata.export(cube)
     logger.info("Output is %s", output)
 
+    assert edata._runcontext.casepath is not None
     assert str(output) == str(
         (
             edata._runcontext.casepath
@@ -563,8 +639,11 @@ def test_cube_export_file_is_observation(
 
 
 def test_cube_export_file_is_case_observation(
-    fmurun_w_casemetadata, rmsglobalconfig, cube, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    cube: xtgeo.Cube,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the cube..., with is_observation flag and fmu_context is case."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -580,14 +659,18 @@ def test_cube_export_file_is_case_observation(
     output = edata.export(cube)
     logger.info("Output is %s", output)
 
+    assert edata._runcontext.casepath is not None
     assert str(output) == str(
         (edata._runcontext.casepath / "share/observations/cubes/mycube.segy").resolve()
     )
 
 
 def test_cube_export_file_is_observation_forcefolder(
-    fmurun_w_casemetadata, rmsglobalconfig, cube, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    cube: xtgeo.Cube,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Export the cube to file..., with is_observation flag and forcefolder."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -604,6 +687,7 @@ def test_cube_export_file_is_observation_forcefolder(
     output = edata.export(cube)
     logger.info("Output is %s", output)
 
+    assert edata._runcontext.casepath is not None
     assert str(output) == str(
         (
             edata._runcontext.casepath
@@ -614,8 +698,11 @@ def test_cube_export_file_is_observation_forcefolder(
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
 def test_cube_export_file_is_observation_forcefolder_abs(
-    fmurun_w_casemetadata, rmsglobalconfig, cube, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    cube: xtgeo.Cube,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the cube to file..., with is_observation flag and absolute forcefolder.
 
     Using an absolute path requires class property allow_forcefolder_absolute = True
@@ -647,8 +734,11 @@ def test_cube_export_file_is_observation_forcefolder_abs(
 
 
 def test_grid_export_file_set_name(
-    fmurun_w_casemetadata, rmsglobalconfig, grid, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    grid: xtgeo.Grid,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the grid to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -657,6 +747,8 @@ def test_grid_export_file_set_name(
 
     output = edata.export(grid)
     logger.info("Output is %s", output)
+
+    assert edata._runcontext.casepath is not None
 
     assert str(output) == str(
         (
@@ -667,11 +759,11 @@ def test_grid_export_file_set_name(
 
 
 def test_gridproperty_export_file_set_name(
-    fmurun_w_casemetadata,
-    rmsglobalconfig,
-    gridproperty,
-    monkeypatch: pytest.MonkeyPatch,
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    gridproperty: xtgeo.GridProperty,
+    monkeypatch: MonkeyPatch,
+) -> None:
     """Export the gridprop to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -684,6 +776,7 @@ def test_gridproperty_export_file_set_name(
         output = edata.export(gridproperty)
     logger.info("Output is %s", output)
 
+    assert edata._runcontext.casepath is not None
     assert str(output) == str(
         (
             edata._runcontext.casepath
@@ -698,8 +791,11 @@ def test_gridproperty_export_file_set_name(
 
 
 def test_dataframe_export_file_set_name(
-    fmurun_w_casemetadata, rmsglobalconfig, dataframe, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    dataframe: pd.DataFrame,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Export the dataframe to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -711,6 +807,7 @@ def test_dataframe_export_file_set_name(
     output = edata.export(dataframe)
     logger.info("Output is %s", output)
 
+    assert edata._runcontext.casepath is not None
     assert str(output) == str(
         (
             edata._runcontext.casepath
@@ -726,8 +823,11 @@ def test_dataframe_export_file_set_name(
 
 
 def test_pyarrow_export_file_set_name(
-    fmurun_w_casemetadata, rmsglobalconfig, arrowtable, monkeypatch: pytest.MonkeyPatch
-):
+    fmurun_w_casemetadata: Path,
+    rmsglobalconfig: dict[str, Any],
+    arrowtable: pa.Table,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Export the arrow to file with correct metadata and name."""
 
     logger.info("Active folder is %s", fmurun_w_casemetadata)
@@ -740,6 +840,7 @@ def test_pyarrow_export_file_set_name(
         output = edata.export(arrowtable)
         logger.info("Output is %s", output)
 
+        assert edata._runcontext.casepath is not None
         assert str(output) == str(
             (
                 edata._runcontext.casepath
