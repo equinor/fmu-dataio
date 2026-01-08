@@ -47,14 +47,6 @@ jobs:
           uv pip install \
             "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels.git"
 
-      # TODO: Remove this
-      - name: Install bleeding ert
-        run: |
-          git lfs install
-          export GIT_LFS_SKIP_SMUDGE=1
-          uv pip install \
-            "ert @ git+https://github.com/equinor/ert.git"
-
       # fmu-sumo-uploader blocked by OpenVDS on Python 3.12
       - name: Install fmu-sumo-uploader for Python 3.11
         if: matrix.python-version == '3.11'
