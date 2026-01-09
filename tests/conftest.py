@@ -246,15 +246,21 @@ def rmsrun_fmu_w_casemetadata(
 
 
 @pytest.fixture(scope="function")
+def drogon_global_config_path(rootpath: Path) -> Path:
+    """The path to the Drogon's global config."""
+    return rootpath / "tests/data/drogon/global_config/global_variables.yml"
+
+
+@pytest.fixture(scope="function")
 def rmssetup(
-    tmp_path_factory: pytest.TempPathFactory, global_config2_path: Path
+    tmp_path_factory: pytest.TempPathFactory, drogon_global_config_path: Path
 ) -> Path:
     """Create the folder structure to mimic RMS project."""
 
     tmppath = tmp_path_factory.mktemp("revision")
     rmspath = tmppath / "rms/model"
     rmspath.mkdir(parents=True, exist_ok=True)
-    shutil.copy(global_config2_path, rmspath)
+    shutil.copy(drogon_global_config_path, rmspath)
 
     logger.debug("Ran %s", _current_function_name())
 
@@ -263,7 +269,7 @@ def rmssetup(
 
 @pytest.fixture(scope="function")
 def rmssetup_with_fmuconfig(
-    tmp_path_factory: pytest.TempPathFactory, global_config2_path: Path
+    tmp_path_factory: pytest.TempPathFactory, drogon_global_config_path: Path
 ) -> Path:
     """Create the folder structure to mimic RMS project and standard global config."""
 
@@ -272,7 +278,7 @@ def rmssetup_with_fmuconfig(
     rmspath.mkdir(parents=True, exist_ok=True)
     fmuconfigpath = tmppath / "fmuconfig/output"
     fmuconfigpath.mkdir(parents=True, exist_ok=True)
-    shutil.copy(global_config2_path, fmuconfigpath)
+    shutil.copy(drogon_global_config_path, fmuconfigpath)
 
     logger.debug("Ran %s", _current_function_name())
 
@@ -282,7 +288,6 @@ def rmssetup_with_fmuconfig(
 @pytest.fixture(scope="function")
 def rmsglobalconfig(rmssetup: Path, monkeypatch: MonkeyPatch) -> dict[str, Any]:
     """Read global config."""
-    # read the global config
     monkeypatch.chdir(rmssetup)
     logger.debug("Global config is %s", str(rmssetup / "global_variables.yml"))
     with open("global_variables.yml", encoding="utf8") as stream:
@@ -307,7 +312,7 @@ def globalvars_norwegian_letters(
 
     # copy a global config with nowr letters here
     shutil.copy(
-        rootpath / "tests/data/drogon/global_config2" / gname,
+        rootpath / "tests/data/drogon/global_config" / gname,
         rmspath,
     )
 
@@ -380,12 +385,6 @@ def globalconfig1() -> dict[str, Any]:
 
 
 @pytest.fixture(scope="function")
-def global_config2_path(rootpath: Path) -> Path:
-    """The path to the second global config."""
-    return rootpath / "tests/data/drogon/global_config2/global_variables.yml"
-
-
-@pytest.fixture(scope="function")
 def edataobj1(
     globalconfig1: Any, tmp_path: Path, monkeypatch: MonkeyPatch
 ) -> ExportData:
@@ -412,17 +411,17 @@ def edataobj1(
 
 
 @pytest.fixture(scope="function")
-def globalconfig2(global_config2_path: Path) -> dict[str, Any]:
-    """More advanced global config from file state variable in ExportData class."""
-    with open(global_config2_path, encoding="utf-8") as stream:
+def drogon_global_config(drogon_global_config_path: Path) -> dict[str, Any]:
+    """Drogon's global config from file state variable in ExportData class."""
+    with open(drogon_global_config_path, encoding="utf-8") as stream:
         return yaml.safe_load(stream)
 
 
 @pytest.fixture(scope="function")
-def edataobj2(globalconfig2: dict[str, Any]) -> ExportData:
-    """Combined globalconfig2 and other settings; NB for internal unit testing"""
+def edataobj2(drogon_global_config: dict[str, Any]) -> ExportData:
+    """Combined globalconfig and other settings; NB for internal unit testing"""
     eobj = dio.ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         content="depth",
         name="TopVolantis",
         unit="m",
@@ -494,10 +493,10 @@ def regsurf() -> xtgeo.RegularSurface:
 
 
 @pytest.fixture(scope="function")
-def faultroom_object(globalconfig2: dict[str, Any]) -> FaultRoomSurface:
+def faultroom_object(drogon_global_config: dict[str, Any]) -> FaultRoomSurface:
     """Create a faultroom object."""
     logger.debug("Ran %s", _current_function_name())
-    cfg = deepcopy(globalconfig2)
+    cfg = deepcopy(drogon_global_config)
 
     horizons = cfg["rms"]["horizons"]["TOP_RES"]
     faults = ["F1", "F2", "F3", "F4", "F5", "F6"]

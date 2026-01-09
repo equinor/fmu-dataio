@@ -38,7 +38,7 @@ def fmu_snakeoil_project(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,
     base_ert_config: str,
-    global_config2_path: Path,
+    drogon_global_config_path: Path,
     source_root: Path,
 ) -> Path:
     """Makes a skeleton FMU project structure into a tmp_path, copying global_config2
@@ -53,7 +53,7 @@ def fmu_snakeoil_project(
     os.makedirs(tmp_path / "rms/model/snakeoil.rms14.2.2")
 
     os.makedirs(tmp_path / "fmuconfig/output")
-    shutil.copy(global_config2_path, tmp_path / "fmuconfig/output/")
+    shutil.copy(drogon_global_config_path, tmp_path / "fmuconfig/output/")
 
     os.makedirs(tmp_path / "ert/bin/workflows")
     pathlib.Path(tmp_path / "ert/bin/workflows/xhook_create_case_metadata").write_text(

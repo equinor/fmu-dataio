@@ -165,7 +165,7 @@ def test_fmuprovider_no_iter_folder(
 
 def test_fmuprovider_prehook_case(
     tmp_path: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     fmurun_prehook: Path,
     monkeypatch: MonkeyPatch,
 ) -> None:
@@ -184,7 +184,7 @@ def test_fmuprovider_prehook_case(
     monkeypatch.chdir(caseroot)
 
     icase = dataio.CreateCaseMetadata(
-        config=globalconfig2,
+        config=drogon_global_config,
         rootfolder=caseroot,
         casename="MyCaseName",
     )
@@ -364,7 +364,7 @@ def test_fmuprovider_no_restart_env(
 
 def test_fmuprovider_workflow_reference(
     fmurun_w_casemetadata: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Testing the handling of workflow reference input.
@@ -394,7 +394,7 @@ def test_fmuprovider_workflow_reference(
     # workflow as a dict should give future warning
     with pytest.warns(FutureWarning, match="The 'workflow' argument"):
         dataio.ExportData(
-            config=globalconfig2, workflow={"reference": "workflow as dict"}
+            config=drogon_global_config, workflow={"reference": "workflow as dict"}
         )
 
     # test that workflow as a dict still gives valid results

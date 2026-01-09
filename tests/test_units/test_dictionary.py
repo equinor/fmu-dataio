@@ -95,7 +95,7 @@ def read_dict_and_meta(path: str) -> tuple[dict, dict]:
     ],
 )
 def test_export_dict_w_meta(
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     dictionary: Literal["direct_creation", "json_dict", "simple_parameters"],
     request: FixtureRequest,
     monkeypatch: MonkeyPatch,
@@ -104,7 +104,7 @@ def test_export_dict_w_meta(
     """Test various dictionaries
 
     Args:
-        globalconfig2 (dict): a global variables dictionary
+        drogon_global_config (dict): a global variables dictionary
         dictionary (str): name of fixture to use
         request (pytest.fixture): fixture for using fixtures in parameterize
     """
@@ -112,14 +112,14 @@ def test_export_dict_w_meta(
     name = dictionary
     in_dict = request.getfixturevalue(dictionary)
     print(f"{name}: {in_dict}")
-    exd = ExportData(config=globalconfig2, content="parameters", name=name)
+    exd = ExportData(config=drogon_global_config, content="parameters", name=name)
     out_dict, out_meta = read_dict_and_meta(exd.export(in_dict))
     assert in_dict == out_dict
     assert_dict_correct(out_dict, out_meta, name)
 
 
 def test_invalid_dict(
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     drogon_summary: pd.DataFrame,
     drogon_volumes: pa.Table,
     monkeypatch: MonkeyPatch,
@@ -127,13 +127,13 @@ def test_invalid_dict(
 ) -> None:
     """Test raising of error when dictionary is not serializable
     Args:
-        globalconfig2 (_type_): _description_
+        drogon_global_config (_type_): _description_
         drogon_summary (pd.DataFrame): a dataframe
         drogon_volumes (pa.Table): a pyarrow table
     """
     monkeypatch.chdir(tmp_path)
     in_dict = {"volumes": drogon_volumes, "summary": drogon_summary}
-    exd = ExportData(config=globalconfig2, content="parameters", name="invalid")
+    exd = ExportData(config=drogon_global_config, content="parameters", name="invalid")
     with pytest.raises(TypeError) as exc_info:
         print(exc_info)
         exd.export(in_dict)

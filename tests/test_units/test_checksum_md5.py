@@ -229,7 +229,7 @@ def test_checksum_md5_for_dictionary(
 def test_checksum_md5_for_faultroom(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     rootpath: Path,
 ) -> None:
     """
@@ -245,7 +245,7 @@ def test_checksum_md5_for_faultroom(
 
     export_path = Path(
         ExportData(
-            config=globalconfig2,
+            config=drogon_global_config,
             content="depth",
             name="myname",
         ).export(fault_room_surface)

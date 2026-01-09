@@ -165,11 +165,11 @@ def test_get_filestem_shall_fail(
 
 
 def test_get_share_folders(
-    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+    regsurf: xtgeo.RegularSurface, drogon_global_config: dict[str, Any]
 ) -> None:
     """Testing the get_share_folders method."""
 
-    edataobj1 = ExportData(config=globalconfig2, name="some", content="depth")
+    edataobj1 = ExportData(config=drogon_global_config, name="some", content="depth")
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "some"
@@ -188,12 +188,12 @@ def test_get_share_folders(
 
 
 def test_get_share_folders_with_subfolder(
-    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+    regsurf: xtgeo.RegularSurface, drogon_global_config: dict[str, Any]
 ) -> None:
     """Testing the private _get_path method, creating the path."""
 
     edataobj1 = ExportData(
-        config=globalconfig2, name="some", subfolder="sub", content="depth"
+        config=drogon_global_config, name="some", subfolder="sub", content="depth"
     )
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
@@ -211,7 +211,7 @@ def test_get_share_folders_with_subfolder(
 def test_filedata_provider(
     regsurf: xtgeo.RegularSurface,
     tmp_path: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Testing the derive_filedata function."""
@@ -219,7 +219,7 @@ def test_filedata_provider(
     monkeypatch.chdir(tmp_path)
 
     cfg = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="",
         parent="parent",
         tagname="tag",
@@ -249,13 +249,13 @@ def test_filedata_provider(
 def test_filedata_has_nonascii_letters(
     regsurf: xtgeo.RegularSurface,
     tmp_path: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Testing the get_metadata function."""
 
     monkeypatch.chdir(tmp_path)
-    edataobj1 = ExportData(config=globalconfig2, name="mynõme", content="depth")
+    edataobj1 = ExportData(config=drogon_global_config, name="mynõme", content="depth")
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     objdata.name = "anynõme"
@@ -266,13 +266,13 @@ def test_filedata_has_nonascii_letters(
 
 
 def test_sharepath_get_share_root(
-    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+    regsurf: xtgeo.RegularSurface, drogon_global_config: dict[str, Any]
 ) -> None:
     """Test that the share root folder is correctly set."""
 
     # share/results
     edataobj1 = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         content="depth",
         preprocessed=False,
         is_observation=False,
@@ -284,7 +284,7 @@ def test_sharepath_get_share_root(
 
     # share/preprosessed
     edataobj1 = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         content="depth",
         preprocessed=True,
         is_observation=False,
@@ -296,7 +296,7 @@ def test_sharepath_get_share_root(
 
     # share/observations
     edataobj1 = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         content="depth",
         preprocessed=False,
         is_observation=True,
@@ -308,7 +308,7 @@ def test_sharepath_get_share_root(
 
     # preprosessed should win over is_observation
     edataobj1 = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         content="depth",
         preprocessed=True,
         is_observation=True,
@@ -320,12 +320,12 @@ def test_sharepath_get_share_root(
 
 
 def test_sharepath_with_date(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that the share root folder is correctly set here using one date."""
 
     edataobj1 = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="test",
         tagname="mytag",
         timedata=["20250512"],
@@ -343,12 +343,12 @@ def test_sharepath_with_date(
 
 
 def test_sharepath_with_two_dates(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that the share root folder is correctly set here using two dates."""
 
     edataobj1 = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="test",
         tagname="mytag",
         timedata=["20250512", "20250511"],
@@ -366,13 +366,13 @@ def test_sharepath_with_two_dates(
 
 
 def test_sharepath_with_parent(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that the share root folder is correctly set here
     using tagname and parent."""
 
     edataobj1 = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="test",
         tagname="mytag",
         parent="myparent",
@@ -390,12 +390,12 @@ def test_sharepath_with_parent(
 
 
 def test_sharepath_name_from_objprovider(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that the share root folder is correctly set using the
     name from the objdataprovider if not provided."""
 
-    edataobj1 = ExportData(config=globalconfig2, content="depth")
+    edataobj1 = ExportData(config=drogon_global_config, content="depth")
 
     objdata = objectdata_provider_factory(regsurf, edataobj1)
     share_path = SharePathConstructor(edataobj1, objdata)

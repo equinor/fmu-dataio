@@ -20,15 +20,15 @@ from fmu.dataio import CreateCaseMetadata
 logger = logging.getLogger(__name__)
 
 
-def test_crease_case_metadata_barebone(globalconfig2: dict[str, Any]) -> None:
-    icase = CreateCaseMetadata(config=globalconfig2, rootfolder="", casename="")
-    assert icase.config == globalconfig2
+def test_crease_case_metadata_barebone(drogon_global_config: dict[str, Any]) -> None:
+    icase = CreateCaseMetadata(config=drogon_global_config, rootfolder="", casename="")
+    assert icase.config == drogon_global_config
     assert icase.rootfolder == ""
     assert icase.casename == ""
 
 
 def test_create_case_metadata_post_init(
-    monkeypatch: MonkeyPatch, fmurun: Path, globalconfig2: dict[str, Any]
+    monkeypatch: MonkeyPatch, fmurun: Path, drogon_global_config: dict[str, Any]
 ) -> None:
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
@@ -36,7 +36,7 @@ def test_create_case_metadata_post_init(
 
     with pytest.warns(FutureWarning, match="description"):
         icase = CreateCaseMetadata(
-            config=globalconfig2,
+            config=drogon_global_config,
             rootfolder=caseroot,
             casename="mycase",
             description="Some description",
@@ -49,14 +49,14 @@ def test_create_case_metadata_post_init(
 
 @pytest.mark.filterwarnings("ignore:The global configuration")
 def test_create_case_metadata_post_init_bad_globalconfig(
-    monkeypatch: MonkeyPatch, fmurun: Path, globalconfig2: dict[str, Any]
+    monkeypatch: MonkeyPatch, fmurun: Path, drogon_global_config: dict[str, Any]
 ) -> None:
     monkeypatch.chdir(fmurun)
     logger.info("Active folder is %s", fmurun)
     caseroot = fmurun.parent.parent
     logger.info("Case folder is now %s", caseroot)
 
-    config = deepcopy(globalconfig2)
+    config = deepcopy(drogon_global_config)
     del config["masterdata"]
 
     with pytest.raises(ValidationError, match="masterdata"):
@@ -68,7 +68,7 @@ def test_create_case_metadata_post_init_bad_globalconfig(
 
 
 def test_create_case_metadata_establish_metadata_files(
-    monkeypatch: MonkeyPatch, fmurun: Path, globalconfig2: dict[str, Any]
+    monkeypatch: MonkeyPatch, fmurun: Path, drogon_global_config: dict[str, Any]
 ) -> None:
     """Tests that the required directories are made when establishing the case"""
     monkeypatch.chdir(fmurun)
@@ -77,7 +77,7 @@ def test_create_case_metadata_establish_metadata_files(
     logger.info("Case folder is now %s", caseroot)
 
     icase = CreateCaseMetadata(
-        config=globalconfig2, rootfolder=caseroot, casename="mycase"
+        config=drogon_global_config, rootfolder=caseroot, casename="mycase"
     )
     share_metadata = caseroot / "share/metadata"
     assert not share_metadata.exists()
@@ -87,7 +87,7 @@ def test_create_case_metadata_establish_metadata_files(
 
 
 def test_create_case_metadata_establish_metadata_files_exists(
-    monkeypatch: MonkeyPatch, fmurun: Path, globalconfig2: dict[str, Any]
+    monkeypatch: MonkeyPatch, fmurun: Path, drogon_global_config: dict[str, Any]
 ) -> None:
     """Tests that _establish_metadata_files returns correctly if the share/metadata
     directory already exists."""
@@ -97,7 +97,7 @@ def test_create_case_metadata_establish_metadata_files_exists(
     logger.info("Case folder is now %s", caseroot)
 
     icase = CreateCaseMetadata(
-        config=globalconfig2, rootfolder=caseroot, casename="mycase"
+        config=drogon_global_config, rootfolder=caseroot, casename="mycase"
     )
     (caseroot / "share/metadata").mkdir(parents=True, exist_ok=True)
     assert icase._establish_metadata_files()
@@ -109,7 +109,7 @@ def test_create_case_metadata_establish_metadata_files_exists(
 
 
 def test_create_case_metadata_generate_metadata(
-    monkeypatch: MonkeyPatch, fmurun: Path, globalconfig2: dict[str, Any]
+    monkeypatch: MonkeyPatch, fmurun: Path, drogon_global_config: dict[str, Any]
 ) -> None:
     monkeypatch.chdir(fmurun)
     logger.info("Active folder is %s", fmurun)
@@ -117,7 +117,7 @@ def test_create_case_metadata_generate_metadata(
     logger.info("Case folder is now %s", myroot)
 
     icase = CreateCaseMetadata(
-        config=globalconfig2, rootfolder=myroot, casename="mycase"
+        config=drogon_global_config, rootfolder=myroot, casename="mycase"
     )
     metadata = icase.generate_metadata()
     assert metadata
@@ -126,13 +126,15 @@ def test_create_case_metadata_generate_metadata(
 
 
 def test_create_case_metadata_generate_metadata_warn_if_exists(
-    monkeypatch: MonkeyPatch, fmurun_w_casemetadata: Path, globalconfig2: dict[str, Any]
+    monkeypatch: MonkeyPatch,
+    fmurun_w_casemetadata: Path,
+    drogon_global_config: dict[str, Any],
 ) -> None:
     logger.info("Active folder is %s", fmurun_w_casemetadata)
     casemetafolder = fmurun_w_casemetadata.parent.parent
 
     icase = CreateCaseMetadata(
-        config=globalconfig2,
+        config=drogon_global_config,
         rootfolder=casemetafolder,
         casename="abc",
     )
@@ -141,13 +143,13 @@ def test_create_case_metadata_generate_metadata_warn_if_exists(
 
 
 def test_create_case_metadata_with_export(
-    monkeypatch: MonkeyPatch, globalconfig2: dict[str, Any], fmurun: Path
+    monkeypatch: MonkeyPatch, drogon_global_config: dict[str, Any], fmurun: Path
 ) -> None:
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
 
     icase = CreateCaseMetadata(
-        config=globalconfig2,
+        config=drogon_global_config,
         rootfolder=caseroot,
         casename="MyCaseName",
     )
@@ -163,17 +165,17 @@ def test_create_case_metadata_with_export(
 
 
 def test_create_case_metadata_export_with_norsk_alphabet(
-    monkeypatch: MonkeyPatch, globalconfig2: dict[str, Any], fmurun: Path
+    monkeypatch: MonkeyPatch, drogon_global_config: dict[str, Any], fmurun: Path
 ) -> None:
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
 
     icase = CreateCaseMetadata(
-        config=globalconfig2,
+        config=drogon_global_config,
         rootfolder=caseroot,
         casename="MyCaseName_with_Æ",
     )
-    globalconfig2["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"
+    drogon_global_config["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"
 
     fmu_case_yml = Path(icase.export())
     assert fmu_case_yml.exists()
