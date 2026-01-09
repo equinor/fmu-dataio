@@ -14,7 +14,7 @@ from fmu.dataio.dataio import ExportData, read_metadata
 def test_checksum_md5_for_regsurf(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """
@@ -25,7 +25,7 @@ def test_checksum_md5_for_regsurf(
 
     export_path = Path(
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="myname",
         ).export(regsurf)
@@ -38,7 +38,7 @@ def test_checksum_md5_for_regsurf(
 def test_checksum_md5_for_gridproperty(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     gridproperty: xtgeo.GridProperty,
 ) -> None:
     """
@@ -49,7 +49,7 @@ def test_checksum_md5_for_gridproperty(
 
     export_path = Path(
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="myname",
         ).export(gridproperty)
@@ -62,7 +62,7 @@ def test_checksum_md5_for_gridproperty(
 def test_checksum_md5_for_grid(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     grid: xtgeo.Grid,
 ) -> None:
     """
@@ -73,7 +73,7 @@ def test_checksum_md5_for_grid(
 
     export_path = Path(
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="myname",
         ).export(grid)
@@ -86,7 +86,7 @@ def test_checksum_md5_for_grid(
 def test_checksum_md5_for_points(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     points: xtgeo.Points,
 ) -> None:
     """
@@ -97,7 +97,7 @@ def test_checksum_md5_for_points(
 
     export_path = Path(
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="myname",
         ).export(points)
@@ -110,7 +110,7 @@ def test_checksum_md5_for_points(
 def test_checksum_md5_for_polygons(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     polygons: xtgeo.Polygons,
 ) -> None:
     """
@@ -121,7 +121,7 @@ def test_checksum_md5_for_polygons(
 
     export_path = Path(
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="myname",
         ).export(polygons)
@@ -134,7 +134,7 @@ def test_checksum_md5_for_polygons(
 def test_checksum_md5_for_cube(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     cube: xtgeo.Cube,
 ) -> None:
     """
@@ -145,7 +145,7 @@ def test_checksum_md5_for_cube(
 
     export_path = Path(
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="myname",
         ).export(cube)
@@ -158,7 +158,7 @@ def test_checksum_md5_for_cube(
 def test_checksum_md5_for_dataframe(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     dataframe: pd.DataFrame,
 ) -> None:
     """
@@ -169,7 +169,7 @@ def test_checksum_md5_for_dataframe(
 
     export_path = Path(
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="myname",
         ).export(dataframe)
@@ -182,7 +182,7 @@ def test_checksum_md5_for_dataframe(
 def test_checksum_md5_for_arrowtable(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     arrowtable: pa.Table,
 ) -> None:
     """
@@ -193,7 +193,7 @@ def test_checksum_md5_for_arrowtable(
 
     export_path = Path(
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="myname",
         ).export(arrowtable)
@@ -204,7 +204,7 @@ def test_checksum_md5_for_arrowtable(
 
 
 def test_checksum_md5_for_dictionary(
-    monkeypatch: MonkeyPatch, tmp_path: Path, globalconfig1: dict[str, Any]
+    monkeypatch: MonkeyPatch, tmp_path: Path, mock_global_config: dict[str, Any]
 ) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
@@ -216,7 +216,7 @@ def test_checksum_md5_for_dictionary(
 
     export_path = Path(
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="myname",
         ).export(mydict)

@@ -31,16 +31,16 @@ from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE
 logger = logging.getLogger(__name__)
 
 
-def test_generate_metadata_simple(globalconfig1: dict[str, Any]) -> None:
+def test_generate_metadata_simple(mock_global_config: dict[str, Any]) -> None:
     """Test generating metadata"""
 
     default_fformat = ExportData.grid_fformat
     ExportData.grid_fformat = "grdecl"
 
-    logger.info("Config in: \n%s", globalconfig1)
+    logger.info("Config in: \n%s", mock_global_config)
     # using the class variable to set the grid format has no effect
     with pytest.warns(UserWarning, match="deprecated"):
-        edata = ExportData(config=globalconfig1, content="depth")
+        edata = ExportData(config=mock_global_config, content="depth")
 
     assert edata.config.model.name == "Test"
 
@@ -77,7 +77,7 @@ def test_missing_or_wrong_config_exports_with_warning(
 def test_wrong_config_exports_correctly_ouside_fmu(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """
@@ -100,7 +100,7 @@ def test_wrong_config_exports_correctly_ouside_fmu(
         ).export(regsurf)
 
     objpath_cfg_valid = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         name=name,
     ).export(regsurf)
@@ -112,7 +112,7 @@ def test_wrong_config_exports_correctly_ouside_fmu(
 
     # test that it works with deprecated pattern also
     with pytest.warns(FutureWarning):
-        objpath_cfg_valid = ExportData(config=globalconfig1).export(
+        objpath_cfg_valid = ExportData(config=mock_global_config).export(
             regsurf,
             content="depth",
             name=name,
@@ -123,7 +123,7 @@ def test_wrong_config_exports_correctly_ouside_fmu(
 def test_wrong_config_exports_correctly_in_fmu(
     monkeypatch: MonkeyPatch,
     fmurun_w_casemetadata: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """
@@ -145,7 +145,7 @@ def test_wrong_config_exports_correctly_in_fmu(
         ).export(regsurf)
 
     objpath_cfg_valid = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         name=name,
     ).export(regsurf)
@@ -160,7 +160,7 @@ def test_wrong_config_exports_correctly_in_fmu(
 
     # test that it works with deprecated pattern also
     with pytest.warns(FutureWarning):
-        objpath_cfg_valid = ExportData(config=globalconfig1).export(
+        objpath_cfg_valid = ExportData(config=mock_global_config).export(
             regsurf,
             content="depth",
             name=name,
@@ -171,14 +171,14 @@ def test_wrong_config_exports_correctly_in_fmu(
 def test_config_miss_required_fields(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Global config exists but missing critical data; export file but skip metadata."""
 
     monkeypatch.chdir(tmp_path)
 
-    cfg = globalconfig1.copy()
+    cfg = mock_global_config.copy()
 
     del cfg["access"]
     del cfg["masterdata"]
@@ -270,13 +270,13 @@ def test_config_stratigraphy_stratigraphic_not_bool(
         ExportData(config=cfg, content="depth")
 
 
-def test_update_check_settings_shall_fail(globalconfig1: dict[str, Any]) -> None:
+def test_update_check_settings_shall_fail(mock_global_config: dict[str, Any]) -> None:
     # pylint: disable=unexpected-keyword-arg
     with pytest.raises(TypeError):
-        _ = ExportData(config=globalconfig1, stupid="str", content="depth")
+        _ = ExportData(config=mock_global_config, stupid="str", content="depth")
 
     newsettings = {"invalidkey": "some"}
-    some = ExportData(config=globalconfig1, content="depth")
+    some = ExportData(config=mock_global_config, content="depth")
     with pytest.warns(FutureWarning), pytest.raises(KeyError):
         some._update_check_settings(newsettings)
 
@@ -297,7 +297,7 @@ def test_update_check_settings_shall_fail(globalconfig1: dict[str, Any]) -> None
     ],
 )
 def test_deprecated_keys(
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     key: dict[str, Any],
     value: str,
@@ -308,10 +308,10 @@ def test_deprecated_keys(
     # under primary initialisation
     kval = {key: value}
     with pytest.warns(UserWarning, match=expected_msg):
-        ExportData(config=globalconfig1, content="depth", **kval)
+        ExportData(config=mock_global_config, content="depth", **kval)
 
     # under override should give FutureWarning for these
-    edata = ExportData(config=globalconfig1, content="depth")
+    edata = ExportData(config=mock_global_config, content="depth")
     with (
         pytest.warns(UserWarning, match=expected_msg),
         pytest.warns(FutureWarning, match="move them up to initialization"),
@@ -320,7 +320,7 @@ def test_deprecated_keys(
 
 
 def test_access_ssdl_vs_classification_rep_include(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """
     The access_ssdl is deprecated, and replaced by the 'classification' and
@@ -330,7 +330,7 @@ def test_access_ssdl_vs_classification_rep_include(
     # verify that a deprecation warning is given for access_ssdl argument
     with pytest.warns(FutureWarning, match="'access_ssdl' argument is deprecated"):
         exp = ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             access_ssdl={"access_level": "restricted", "rep_include": True},
             content="depth",
         )
@@ -371,7 +371,7 @@ def test_access_ssdl_vs_classification_rep_include(
 
     # using 'classification' / 'rep_include' as arguments is the preferred pattern
     exp = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         classification="restricted",
         rep_include=True,
         content="depth",
@@ -382,12 +382,12 @@ def test_access_ssdl_vs_classification_rep_include(
 
 
 def test_classification(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that 'classification' is set correctly."""
 
     # test assumptions
-    config = deepcopy(globalconfig1)
+    config = deepcopy(mock_global_config)
     assert config["access"]["classification"] == "internal"
     assert "ssdl" not in config["access"]
 
@@ -426,33 +426,35 @@ def test_classification(
 
 
 def test_rep_include(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that 'classification' is set correctly."""
 
     # test assumptions
-    assert "ssdl" not in globalconfig1["access"]  # means no rep_include
+    assert "ssdl" not in mock_global_config["access"]  # means no rep_include
 
     # test that rep_include can be given directly and will override config
-    exp = ExportData(config=globalconfig1, rep_include=True, content="depth")
+    exp = ExportData(config=mock_global_config, rep_include=True, content="depth")
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["ssdl"]["rep_include"] is True
 
     # test that rep_include can be given through access_ssdl
     with pytest.warns(FutureWarning, match="'access_ssdl' argument is deprecated"):
         exp = ExportData(
-            config=globalconfig1, access_ssdl={"rep_include": True}, content="depth"
+            config=mock_global_config,
+            access_ssdl={"rep_include": True},
+            content="depth",
         )
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["ssdl"]["rep_include"] is True
 
     # test that rep_include is defaulted to false if not provided
-    exp = ExportData(config=globalconfig1, content="depth")
+    exp = ExportData(config=mock_global_config, content="depth")
     mymeta = exp.generate_metadata(regsurf)
     assert mymeta["access"]["ssdl"]["rep_include"] is False
 
     # add ssdl.rep_include to the config
-    config = deepcopy(globalconfig1)
+    config = deepcopy(mock_global_config)
     config["access"]["ssdl"] = {"rep_include": True}
 
     # test that rep_include can be read from config
@@ -462,19 +464,19 @@ def test_rep_include(
 
 
 def test_unit_is_none(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that unit=None works and is translated into an enpty string"""
-    eobj = ExportData(config=globalconfig1, unit=None, content="depth")
+    eobj = ExportData(config=mock_global_config, unit=None, content="depth")
     meta = eobj.generate_metadata(regsurf)
     assert meta["data"]["unit"] == ""
 
 
 def test_content_not_given(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """When content is not explicitly given, warning shall be issued."""
-    eobj = ExportData(config=globalconfig1)
+    eobj = ExportData(config=mock_global_config)
     with pytest.warns(FutureWarning, match="The <content> is not provided"):
         mymeta = eobj.generate_metadata(regsurf)
 
@@ -482,10 +484,10 @@ def test_content_not_given(
 
 
 def test_content_given_init_or_later(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """When content is not explicitly given, warning shall be issued."""
-    eobj = ExportData(config=globalconfig1, content="time")
+    eobj = ExportData(config=mock_global_config, content="time")
     mymeta = eobj.generate_metadata(regsurf)
 
     assert mymeta["data"]["content"] == "time"
@@ -498,35 +500,36 @@ def test_content_given_init_or_later(
 
 
 def test_content_invalid_string(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
-    eobj = ExportData(config=globalconfig1, content="not_valid")
+    eobj = ExportData(config=mock_global_config, content="not_valid")
     with pytest.raises(ValueError, match="Invalid 'content' value='not_valid'"):
         eobj.generate_metadata(regsurf)
 
 
 def test_content_invalid_dict(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     eobj = ExportData(
-        config=globalconfig1, content={"not_valid": {"some_key": "some_value"}}
+        config=mock_global_config, content={"not_valid": {"some_key": "some_value"}}
     )
     with pytest.raises(ValueError, match="Invalid 'content' value='not_valid'"):
         eobj.generate_metadata(regsurf)
 
     eobj = ExportData(
-        config=globalconfig1, content={"seismic": "some_key", "extra": "some_value"}
+        config=mock_global_config,
+        content={"seismic": "some_key", "extra": "some_value"},
     )
     with pytest.raises(ValueError):
         eobj.generate_metadata(regsurf)
 
 
 def test_content_metadata_valid(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     content_metadata = {"attribute": "amplitude", "calculation": "mean"}
     meta = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="seismic",
         content_metadata=content_metadata,
     ).generate_metadata(regsurf)
@@ -537,11 +540,11 @@ def test_content_metadata_valid(
 
 
 def test_content_metadata_invalid(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     with pytest.raises(pydantic.ValidationError):
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="seismic",
             content_metadata={"attribute": 182},
         ).generate_metadata(regsurf)
@@ -666,12 +669,12 @@ def test_content_deprecated_seismic_offset(
 
 
 def test_content_metdata_ignored(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that warning is given when content does not require content_metadata"""
     with pytest.warns(UserWarning, match="ignoring input"):
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             content_metadata={"extra": "invalid"},
         ).generate_metadata(regsurf)
@@ -679,7 +682,7 @@ def test_content_metdata_ignored(
 
 @pytest.mark.filterwarnings("ignore: Number of maps nodes are 0")
 def test_surfaces_with_non_finite_values(
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf_masked_only: xtgeo.RegularSurface,
     regsurf_nan_only: xtgeo.RegularSurface,
     regsurf: xtgeo.RegularSurface,
@@ -689,7 +692,7 @@ def test_surfaces_with_non_finite_values(
     in the metadata.
     """
 
-    eobj = ExportData(config=globalconfig1, content="time")
+    eobj = ExportData(config=mock_global_config, content="time")
 
     # test surface with only masked values
     mymeta = eobj.generate_metadata(regsurf_masked_only)
@@ -710,7 +713,7 @@ def test_surfaces_with_non_finite_values(
 def test_workflow_as_string(
     fmurun_w_casemetadata: Path,
     monkeypatch: MonkeyPatch,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """
@@ -721,25 +724,25 @@ def test_workflow_as_string(
     workflow = "My test workflow"
 
     # check that it works in ExportData
-    edata = ExportData(config=globalconfig1, workflow=workflow, content="depth")
+    edata = ExportData(config=mock_global_config, workflow=workflow, content="depth")
     meta = edata.generate_metadata(regsurf)
     assert meta["fmu"]["workflow"]["reference"] == workflow
 
     # doing actual export with a few ovverides
-    edata = ExportData(config=globalconfig1, content="depth")
+    edata = ExportData(config=mock_global_config, content="depth")
     with pytest.warns(FutureWarning, match="move them up to initialization"):
         meta = edata.generate_metadata(regsurf, workflow="My test workflow")
     assert meta["fmu"]["workflow"]["reference"] == workflow
 
 
 def test_vertical_domain(
-    regsurf: xtgeo.RegularSurface, globalconfig1: dict[str, Any]
+    regsurf: xtgeo.RegularSurface, mock_global_config: dict[str, Any]
 ) -> None:
     """test inputting vertical_domain and domain_reference in various ways"""
 
     # test that giving vertical_domain and domain_reference as strings
     mymeta = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         vertical_domain="time",
         domain_reference="rkb",
         content="time",
@@ -750,64 +753,72 @@ def test_vertical_domain(
     # test giving vertical_domain as dictionary
     with pytest.warns(FutureWarning, match="deprecated"):
         mymeta = ExportData(
-            config=globalconfig1, vertical_domain={"time": "sb"}, content="thickness"
+            config=mock_global_config,
+            vertical_domain={"time": "sb"},
+            content="thickness",
         ).generate_metadata(regsurf)
     assert mymeta["data"]["vertical_domain"] == "time"
     assert mymeta["data"]["domain_reference"] == "sb"
 
     # test excluding vertical_domain and domain_reference
-    mymeta = ExportData(config=globalconfig1, content="thickness").generate_metadata(
-        regsurf
-    )
+    mymeta = ExportData(
+        config=mock_global_config, content="thickness"
+    ).generate_metadata(regsurf)
     assert mymeta["data"]["vertical_domain"] == "depth"  # default value
     assert mymeta["data"]["domain_reference"] == "msl"  # default value
 
     # test invalid input
     with pytest.raises(pydantic.ValidationError, match="vertical_domain"):
         ExportData(
-            config=globalconfig1, vertical_domain="wrong", content="thickness"
+            config=mock_global_config, vertical_domain="wrong", content="thickness"
         ).generate_metadata(regsurf)
     with pytest.raises(pydantic.ValidationError, match="domain_reference"):
         ExportData(
-            config=globalconfig1, domain_reference="wrong", content="thickness"
+            config=mock_global_config, domain_reference="wrong", content="thickness"
         ).generate_metadata(regsurf)
     with (
         pytest.warns(FutureWarning, match="deprecated"),
         pytest.raises(pydantic.ValidationError, match="2 validation errors"),
     ):
         ExportData(
-            config=globalconfig1, vertical_domain={"invalid": 5}, content="thickness"
+            config=mock_global_config,
+            vertical_domain={"invalid": 5},
+            content="thickness",
         ).generate_metadata(regsurf)
 
 
 def test_vertical_domain_vs_depth_time_content(
-    regsurf: xtgeo.RegularSurface, globalconfig1: dict[str, Any]
+    regsurf: xtgeo.RegularSurface, mock_global_config: dict[str, Any]
 ) -> None:
     """Test the vertical_domain vs content depth/time"""
 
     # test content depth/time sets vertical_domain
-    eobj = ExportData(config=globalconfig1, content="depth")
+    eobj = ExportData(config=mock_global_config, content="depth")
     mymeta = eobj.generate_metadata(regsurf)
     assert mymeta["data"]["vertical_domain"] == "depth"
     assert mymeta["data"]["domain_reference"] == "msl"  # default value
 
-    eobj = ExportData(config=globalconfig1, content="depth", domain_reference="sb")
+    eobj = ExportData(config=mock_global_config, content="depth", domain_reference="sb")
     mymeta = eobj.generate_metadata(regsurf)
     assert mymeta["data"]["vertical_domain"] == "depth"
     assert mymeta["data"]["domain_reference"] == "sb"
 
-    eobj = ExportData(config=globalconfig1, content="time")
+    eobj = ExportData(config=mock_global_config, content="time")
     mymeta = eobj.generate_metadata(regsurf)
     assert mymeta["data"]["vertical_domain"] == "time"
     assert mymeta["data"]["domain_reference"] == "msl"  # default value
 
     # test mismatch between content and vertical_domain
     with pytest.warns(UserWarning, match="'vertical_domain' will be set to 'depth'"):
-        eobj = ExportData(config=globalconfig1, content="depth", vertical_domain="time")
+        eobj = ExportData(
+            config=mock_global_config, content="depth", vertical_domain="time"
+        )
         mymeta = eobj.generate_metadata(regsurf)
 
     with pytest.warns(UserWarning, match="'vertical_domain' will be set to 'time'"):
-        eobj = ExportData(config=globalconfig1, content="time", vertical_domain="depth")
+        eobj = ExportData(
+            config=mock_global_config, content="time", vertical_domain="depth"
+        )
         mymeta = eobj.generate_metadata(regsurf)
 
 
@@ -837,7 +848,7 @@ def test_set_display_name(
 def test_global_config_from_env(
     monkeypatch: MonkeyPatch,
     drogon_global_config_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
 ) -> None:
     """Testing getting global config from a file"""
     monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(drogon_global_config_path))
@@ -847,7 +858,7 @@ def test_global_config_from_env(
     assert edata.config.model.name == "ff"
 
     # do not use global config from environment when explicitly given
-    edata = ExportData(config=globalconfig1, content="depth")
+    edata = ExportData(config=mock_global_config, content="depth")
     assert edata.config.model.name == "Test"
 
 
@@ -1133,7 +1144,7 @@ def test_norwegian_letters_globalconfig(
 
 
 def test_metadata_format_deprecated(
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     tmp_path: Path,
     monkeypatch: MonkeyPatch,
@@ -1147,7 +1158,7 @@ def test_metadata_format_deprecated(
     ExportData.meta_format = "json"
     with pytest.warns(UserWarning, match="meta_format"):
         result = ExportData(
-            config=globalconfig1, name="TopBlåbær", content="depth"
+            config=mock_global_config, name="TopBlåbær", content="depth"
         ).export(regsurf)
 
     result = pathlib.Path(result)
@@ -1158,7 +1169,7 @@ def test_metadata_format_deprecated(
     # test that also value "yaml" will cause warning
     ExportData.meta_format = "yaml"
     with pytest.warns(UserWarning, match="meta_format"):
-        ExportData(config=globalconfig1, name="TopBlåbær", content="depth")
+        ExportData(config=mock_global_config, name="TopBlåbær", content="depth")
 
     ExportData.meta_format = None  # reset
 
@@ -1227,9 +1238,9 @@ def test_forcefolder_absolute_shall_raise_or_warn(
     ExportData.allow_forcefolder_absolute = False
 
 
-def test_deprecated_verbosity(globalconfig1: dict[str, Any]) -> None:
+def test_deprecated_verbosity(mock_global_config: dict[str, Any]) -> None:
     with pytest.warns(UserWarning, match="Using the 'verbosity' key is now deprecated"):
-        ExportData(config=globalconfig1, verbosity="INFO")
+        ExportData(config=mock_global_config, verbosity="INFO")
 
 
 @pytest.mark.parametrize("encoding", ("utf-8", "latin1"))
@@ -1316,25 +1327,27 @@ def test_alias_as_none(
 
 
 def test_standard_result_not_present_in_generated_metadata(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that data.standard_result is not set for regular exports through
     ExportData"""
 
-    meta = ExportData(config=globalconfig1, content="depth").generate_metadata(regsurf)
+    meta = ExportData(config=mock_global_config, content="depth").generate_metadata(
+        regsurf
+    )
     assert "standard_result" not in meta["data"]
 
 
 def test_ert_experiment_id_present_in_generated_metadata(
     fmurun_w_casemetadata: Path,
     monkeypatch: MonkeyPatch,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the ert experiment id has been set correctly
     in the generated metadata"""
 
-    edata = ExportData(config=globalconfig1, content="depth")
+    edata = ExportData(config=mock_global_config, content="depth")
     meta = edata.generate_metadata(regsurf)
     expected_id = "6a8e1e0f-9315-46bb-9648-8de87151f4c7"
     assert meta["fmu"]["ert"]["experiment"]["id"] == expected_id
@@ -1343,13 +1356,13 @@ def test_ert_experiment_id_present_in_generated_metadata(
 def test_ert_experiment_id_present_in_exported_metadata(
     fmurun_w_casemetadata: Path,
     monkeypatch: MonkeyPatch,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the ert experiment id has been set correctly
     in the exported metadata"""
 
-    edata = ExportData(config=globalconfig1, content="depth")
+    edata = ExportData(config=mock_global_config, content="depth")
     out = Path(edata.export(regsurf))
     with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
         export_meta = yaml.safe_load(f)
@@ -1360,13 +1373,13 @@ def test_ert_experiment_id_present_in_exported_metadata(
 def test_ert_simulation_mode_present_in_generated_metadata(
     fmurun_w_casemetadata: Path,
     monkeypatch: MonkeyPatch,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the ert simulation mode has been set correctly
     in the generated metadata"""
 
-    edata = ExportData(config=globalconfig1, content="depth")
+    edata = ExportData(config=mock_global_config, content="depth")
     meta = edata.generate_metadata(regsurf)
     assert meta["fmu"]["ert"]["simulation_mode"] == "test_run"
 
@@ -1374,13 +1387,13 @@ def test_ert_simulation_mode_present_in_generated_metadata(
 def test_ert_simulation_mode_present_in_exported_metadata(
     fmurun_w_casemetadata: Path,
     monkeypatch: MonkeyPatch,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the ert simulation mode has been set correctly
     in the exported metadata"""
 
-    edata = ExportData(config=globalconfig1, content="depth")
+    edata = ExportData(config=mock_global_config, content="depth")
     out = Path(edata.export(regsurf))
     with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
         export_meta = yaml.safe_load(f)
@@ -1388,16 +1401,16 @@ def test_ert_simulation_mode_present_in_exported_metadata(
 
 
 def test_offset_top_base_present_in_exported_metadata(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """
     Test that top, base and offset information provided from the config are
     preserved in the exported metadata.
     """
-    config = deepcopy(globalconfig1)
+    config = deepcopy(mock_global_config)
     name = "TopWhatever"
 
-    # the globalconfig1 does not have this information so add it
+    # the mock_global_config does not have this information so add it
     config["stratigraphy"][name].update(
         {
             "top": {"name": "TheTopHorizon"},
@@ -1420,13 +1433,13 @@ def test_offset_top_base_present_in_exported_metadata(
 
 
 def test_top_base_as_strings_from_config(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """
     Test that entering top, base as string is allowed and it sets
     the name attribute automatically.
     """
-    config = deepcopy(globalconfig1)
+    config = deepcopy(mock_global_config)
     name = "TopWhatever"
 
     # add top and base info as string input to the config
@@ -1445,14 +1458,14 @@ def test_top_base_as_strings_from_config(
 
 
 def test_timedata_single_date(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that entering a single date works"""
 
     t0 = "20230101"
 
     meta = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         name="TopWhatever",
         timedata=[t0],
@@ -1463,7 +1476,7 @@ def test_timedata_single_date(
 
     # should also work with the double list syntax
     meta = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         name="TopWhatever",
         timedata=[[t0]],
@@ -1474,7 +1487,7 @@ def test_timedata_single_date(
 
 
 def test_timedata_multiple_date(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that entering two dates works"""
 
@@ -1482,7 +1495,7 @@ def test_timedata_multiple_date(
     t1 = "20240101"
 
     meta = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         name="TopWhatever",
         timedata=[t0, t1],
@@ -1493,7 +1506,7 @@ def test_timedata_multiple_date(
 
     # should also work with the double list syntax
     meta = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         name="TopWhatever",
         timedata=[[t0], [t1]],
@@ -1504,7 +1517,7 @@ def test_timedata_multiple_date(
 
 
 def test_timedata_multiple_date_sorting(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that dates are sorted no matter the input order"""
 
@@ -1512,7 +1525,7 @@ def test_timedata_multiple_date_sorting(
     t1 = "20240101"
 
     meta = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         name="TopWhatever",
         timedata=[t1, t0],  # set oldest first
@@ -1524,13 +1537,13 @@ def test_timedata_multiple_date_sorting(
 
 
 def test_timedata_wrong_format(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that error is raised if timedata is input incorrect"""
 
     with pytest.raises(ValueError, match="should be a list"):
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="TopWhatever",
             timedata="20230101",
@@ -1538,7 +1551,7 @@ def test_timedata_wrong_format(
 
     with pytest.raises(ValueError, match="two dates"):
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name="TopWhatever",
             timedata=["20230101", "20240101", "20250101"],
@@ -1548,14 +1561,14 @@ def test_timedata_wrong_format(
 def test_export_with_standard_result_valid_config(
     fmurun_w_casemetadata: Path,
     monkeypatch: MonkeyPatch,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     mock_volumes: pd.DataFrame,
 ) -> None:
     """Test that standard result is set in metadata when
     export_with_standard_result is used"""
 
     edata = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="volumes",
         name="TopWhatever",
     )

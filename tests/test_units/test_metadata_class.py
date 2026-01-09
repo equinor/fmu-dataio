@@ -241,10 +241,10 @@ def test_populate_meta_undef_is_zero(
 
 
 def test_metadata_populate_masterdata_is_empty(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Testing the masterdata part, first with no settings."""
-    config = deepcopy(globalconfig1)
+    config = deepcopy(mock_global_config)
     del config["masterdata"]  # to force missing masterdata
 
     with pytest.warns(UserWarning, match="The global config"):
@@ -276,11 +276,11 @@ def test_metadata_populate_masterdata_is_present_ok(
 
 
 def test_metadata_populate_access_miss_cfg_access(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Testing the access part, now with config missing access."""
 
-    cfg1_edited = deepcopy(globalconfig1)
+    cfg1_edited = deepcopy(mock_global_config)
     del cfg1_edited["access"]
     with pytest.warns(UserWarning, match="The global config"):
         edata = dio.ExportData(config=cfg1_edited, content="depth")
@@ -307,15 +307,15 @@ def test_metadata_populate_access_ok_config(
 
 
 def test_metadata_populate_from_argument(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Testing the access part, now with ok config and a change in access."""
 
     # test assumptions
-    assert globalconfig1["access"]["classification"] == "internal"
+    assert mock_global_config["access"]["classification"] == "internal"
 
     edata = dio.ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         classification="restricted",
         rep_include=True,
         content="depth",
@@ -331,16 +331,16 @@ def test_metadata_populate_from_argument(
 
 
 def test_metadata_populate_partial_access_ssdl(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test what happens if ssdl_access argument is partial."""
 
     # test assumptions
-    assert globalconfig1["access"]["classification"] == "internal"
-    assert "ssdl" not in globalconfig1["access"]  # no ssdl.rep_include
+    assert mock_global_config["access"]["classification"] == "internal"
+    assert "ssdl" not in mock_global_config["access"]  # no ssdl.rep_include
 
     # rep_include only, but in config
-    edata = dio.ExportData(config=globalconfig1, rep_include=True, content="depth")
+    edata = dio.ExportData(config=mock_global_config, rep_include=True, content="depth")
 
     objdata = objectdata_provider_factory(regsurf, edata)
     mymeta = generate_export_metadata(objdata, edata)
@@ -351,7 +351,7 @@ def test_metadata_populate_partial_access_ssdl(
 
     # access_level only, but in config
     edata = dio.ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         classification="restricted",
         content="depth",
     )
@@ -364,12 +364,12 @@ def test_metadata_populate_partial_access_ssdl(
 
 
 def test_metadata_populate_wrong_config(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test error in access_ssdl in config."""
 
     # test assumptions
-    _config = deepcopy(globalconfig1)
+    _config = deepcopy(mock_global_config)
     _config["access"]["classification"] = "wrong"
 
     with pytest.warns(UserWarning):
@@ -384,24 +384,24 @@ def test_metadata_populate_wrong_config(
     assert meta.access.classification == "internal"
 
 
-def test_metadata_populate_wrong_argument(globalconfig1: dict[str, Any]) -> None:
+def test_metadata_populate_wrong_argument(mock_global_config: dict[str, Any]) -> None:
     """Test error in access_ssdl in arguments."""
 
     with pytest.raises(ValueError, match="is not a valid Classification"):
         dio.ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             classification="wrong",
             content="depth",
         )
 
 
 def test_metadata_access_correct_input(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test giving correct input."""
     # Input is "restricted" and False - correct use, shall work
     edata = dio.ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         classification="restricted",
         rep_include=False,
@@ -415,7 +415,7 @@ def test_metadata_access_correct_input(
 
     # Input is "internal" and True - correct use, shall work
     edata = dio.ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         classification="internal",
         rep_include=True,
@@ -429,7 +429,7 @@ def test_metadata_access_correct_input(
 
 
 def test_metadata_access_deprecated_input(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test giving deprecated input."""
     # Input is "asset". Is deprecated, shall work with warning.
@@ -439,7 +439,7 @@ def test_metadata_access_deprecated_input(
         match="The value 'asset' for access.ssdl.access_level is deprec",
     ):
         edata = dio.ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             classification="asset",
             content="depth",
         )
@@ -452,13 +452,13 @@ def test_metadata_access_deprecated_input(
     assert mymeta.access.classification == "restricted"
 
 
-def test_metadata_access_illegal_input(globalconfig1: dict[str, Any]) -> None:
+def test_metadata_access_illegal_input(mock_global_config: dict[str, Any]) -> None:
     """Test giving illegal input, should provide empty access field"""
 
     # Input is "secret"
     with pytest.raises(ValueError, match="is not a valid Classification"):
         dio.ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             classification="secret",
             content="depth",
         )
@@ -466,22 +466,22 @@ def test_metadata_access_illegal_input(globalconfig1: dict[str, Any]) -> None:
     # Input is "open". Not allowed, shall fail.
     with pytest.raises(ValueError, match="is not a valid Classification"):
         dio.ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             classification="open",
             content="depth",
         )
 
 
 def test_metadata_access_no_input(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test not giving any input arguments."""
 
     # test assumption, deprected access.ssdl not present in config
-    assert "ssdl" not in globalconfig1["access"]
+    assert "ssdl" not in mock_global_config["access"]
 
     # No input, revert to config
-    configcopy = deepcopy(globalconfig1)
+    configcopy = deepcopy(mock_global_config)
     configcopy["access"]["classification"] = "restricted"
     configcopy["access"]["ssdl"] = {"rep_include": True}
     # rep_include from config is deprecated
@@ -495,9 +495,9 @@ def test_metadata_access_no_input(
     assert mymeta.access.classification == "restricted"  # mirrored
 
     # No input, no config, shall default to "internal" and False
-    configcopy = deepcopy(globalconfig1)
+    configcopy = deepcopy(mock_global_config)
     del configcopy["access"]["classification"]
-    edata = dio.ExportData(config=globalconfig1, content="depth")
+    edata = dio.ExportData(config=mock_global_config, content="depth")
     objdata = objectdata_provider_factory(regsurf, edata)
     mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access is not None
@@ -507,10 +507,10 @@ def test_metadata_access_no_input(
 
 
 def test_metadata_rep_include_deprecation(
-    globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test warnings for deprecated rep_include field in config."""
-    configcopy = deepcopy(globalconfig1)
+    configcopy = deepcopy(mock_global_config)
     # add rep_include to the config
     configcopy["access"]["ssdl"] = {"rep_include": True}
     with pytest.warns(FutureWarning, match="'rep_include' argument"):
@@ -530,7 +530,7 @@ def test_metadata_rep_include_deprecation(
 
     # check that default value is used if not present
     del configcopy["access"]["ssdl"]["rep_include"]
-    edata = dio.ExportData(config=globalconfig1, content="depth")
+    edata = dio.ExportData(config=mock_global_config, content="depth")
     objdata = objectdata_provider_factory(regsurf, edata)
     mymeta = generate_export_metadata(objdata, edata)
     assert mymeta.access is not None

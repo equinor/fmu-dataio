@@ -336,7 +336,7 @@ def casesetup(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 
 @pytest.fixture(scope="function")
-def globalconfig1() -> dict[str, Any]:
+def mock_global_config() -> dict[str, Any]:
     """Minimalistic global config variables no. 1 in ExportData class."""
     return global_configuration.GlobalConfiguration(
         masterdata=fields.Masterdata(
@@ -386,7 +386,7 @@ def globalconfig1() -> dict[str, Any]:
 
 @pytest.fixture(scope="function")
 def edataobj1(
-    globalconfig1: Any, tmp_path: Path, monkeypatch: MonkeyPatch
+    mock_global_config: dict[str, Any], tmp_path: Path, monkeypatch: MonkeyPatch
 ) -> ExportData:
     """Combined globalconfig and settings to instance, for internal testing"""
     logger.debug("Establish edataobj1")
@@ -394,7 +394,7 @@ def edataobj1(
     monkeypatch.chdir(tmp_path)
 
     eobj = dio.ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         name="TopWhatever",
         content="depth",
         tagname="mytag",
@@ -793,11 +793,11 @@ def aggr_surfs_mean(
 
 
 @pytest.fixture()
-def edataobj3(globalconfig1: dict[str, Any]) -> ExportData:
+def edataobj3(mock_global_config: dict[str, Any]) -> ExportData:
     """Combined globalconfig and settings to instance, for internal testing"""
 
     return ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         name="summary",
         content="simulationtimeseries",
         tagname="",
@@ -805,11 +805,11 @@ def edataobj3(globalconfig1: dict[str, Any]) -> ExportData:
 
 
 @pytest.fixture
-def export_data_obj_timeseries(globalconfig1: dict[str, Any]) -> ExportData:
+def export_data_obj_timeseries(mock_global_config: dict[str, Any]) -> ExportData:
     """Combined globalconfig and settings to instance, for internal testing"""
 
     return ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         name="some timeseries",
         content="timeseries",
         tagname="",
