@@ -265,28 +265,30 @@ def test_set_table_index_not_in_table(
 
 
 def test_table_index_timeseries(
-    export_data_obj_timeseries: ExportData, drogon_summary: pa.Table
+    timeseries_exportdata: ExportData, drogon_summary: pa.Table
 ) -> None:
     """Test setting of table_index in an arbitrary timeseries.
 
     Args:
-        edataobj3 (dict): metadata
+        simulationtimeseries_exportdata (dict): metadata
         drogon_summary (pa.Table): table with summary data from sumo
     """
-    objdata = objectdata_provider_factory(drogon_summary, export_data_obj_timeseries)
+    objdata = objectdata_provider_factory(drogon_summary, timeseries_exportdata)
     assert objdata.table_index == ["DATE"], "Incorrect table index "
 
 
 def test_table_index_real_summary(
-    edataobj3: ExportData, drogon_summary: pa.Table
+    simulationtimeseries_exportdata: ExportData, drogon_summary: pa.Table
 ) -> None:
     """Test setting of table_index in real summary file
 
     Args:
-        edataobj3 (dict): metadata
+        simulationtimeseries_exportdata (dict): metadata
         drogon_summary (pa.Table): table with summary data from sumo
     """
-    objdata = objectdata_provider_factory(drogon_summary, edataobj3)
+    objdata = objectdata_provider_factory(
+        drogon_summary, simulationtimeseries_exportdata
+    )
     assert objdata.table_index == ["DATE"], "Incorrect table index "
 
 
