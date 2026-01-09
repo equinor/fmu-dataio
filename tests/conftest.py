@@ -385,15 +385,12 @@ def mock_global_config() -> dict[str, Any]:
 
 
 @pytest.fixture(scope="function")
-def edataobj1(
+def mock_exportdata(
     mock_global_config: dict[str, Any], tmp_path: Path, monkeypatch: MonkeyPatch
 ) -> ExportData:
-    """Combined globalconfig and settings to instance, for internal testing"""
-    logger.debug("Establish edataobj1")
-
+    """ExportData instance with a mock global configuration."""
     monkeypatch.chdir(tmp_path)
-
-    eobj = dio.ExportData(
+    return dio.ExportData(
         config=mock_global_config,
         name="TopWhatever",
         content="depth",
@@ -401,13 +398,27 @@ def edataobj1(
         is_observation=False,
     )
 
-    curr_frame = inspect.currentframe()
-    if curr_frame is not None and curr_frame.f_code is not None:
-        logger.debug("Ran %s returning %s", curr_frame.f_code.co_name, type(eobj))
-    else:
-        logger.debug("Ran unknown frame returning %s", type(eobj))
 
-    return eobj
+@pytest.fixture()
+def simulationtimeseries_exportdata(mock_global_config: dict[str, Any]) -> ExportData:
+    """ExportData instance with simulationtimeseries content type."""
+    return ExportData(
+        config=mock_global_config,
+        name="summary",
+        content="simulationtimeseries",
+        tagname="",
+    )
+
+
+@pytest.fixture
+def timeseries_exportdata(mock_global_config: dict[str, Any]) -> ExportData:
+    """Combined globalconfig and settings to instance, for internal testing"""
+    return ExportData(
+        config=mock_global_config,
+        name="some timeseries",
+        content="timeseries",
+        tagname="",
+    )
 
 
 @pytest.fixture(scope="function")
@@ -418,9 +429,9 @@ def drogon_global_config(drogon_global_config_path: Path) -> dict[str, Any]:
 
 
 @pytest.fixture(scope="function")
-def edataobj2(drogon_global_config: dict[str, Any]) -> ExportData:
-    """Combined globalconfig and other settings; NB for internal unit testing"""
-    eobj = dio.ExportData(
+def drogon_exportdata(drogon_global_config: dict[str, Any]) -> ExportData:
+    """ExportData instance with Drogon's global configuration."""
+    return dio.ExportData(
         config=drogon_global_config,
         content="depth",
         name="TopVolantis",
@@ -434,9 +445,6 @@ def edataobj2(drogon_global_config: dict[str, Any]) -> ExportData:
         fmu_context="realization",
         rep_include=True,
     )
-
-    logger.debug("Ran %s", _current_function_name())
-    return eobj
 
 
 # ======================================================================================
@@ -790,30 +798,6 @@ def aggr_surfs_mean(
     monkeypatch.chdir(origfolder)
 
     return (aggregated["mean"], metas)
-
-
-@pytest.fixture()
-def edataobj3(mock_global_config: dict[str, Any]) -> ExportData:
-    """Combined globalconfig and settings to instance, for internal testing"""
-
-    return ExportData(
-        config=mock_global_config,
-        name="summary",
-        content="simulationtimeseries",
-        tagname="",
-    )
-
-
-@pytest.fixture
-def export_data_obj_timeseries(mock_global_config: dict[str, Any]) -> ExportData:
-    """Combined globalconfig and settings to instance, for internal testing"""
-
-    return ExportData(
-        config=mock_global_config,
-        name="some timeseries",
-        content="timeseries",
-        tagname="",
-    )
 
 
 @pytest.fixture()

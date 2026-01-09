@@ -36,11 +36,11 @@ from ..conftest import remove_ert_env, set_ert_env_prehook
 
 
 def test_objectdata_regularsurface_derive_named_stratigraphy(
-    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+    regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configurations for testing here
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
 
     res = objdata._get_stratigraphy_element()
 
@@ -50,11 +50,11 @@ def test_objectdata_regularsurface_derive_named_stratigraphy(
 
 
 def test_objectdata_regularsurface_get_stratigraphy_element_differ(
-    regsurf: xtgeo.RegularSurface, edataobj2: ExportData
+    regsurf: xtgeo.RegularSurface, drogon_exportdata: ExportData
 ) -> None:
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configurations for testing here
-    objdata = objectdata_provider_factory(regsurf, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, drogon_exportdata)
 
     res = objdata._get_stratigraphy_element()
 
@@ -64,7 +64,7 @@ def test_objectdata_regularsurface_get_stratigraphy_element_differ(
 
 
 def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_differ(
-    faultroom_object: FaultRoomSurface, edataobj2: ExportData
+    faultroom_object: FaultRoomSurface, drogon_exportdata: ExportData
 ) -> None:
     """
     Fault juxtaposition is a list of formations on the footwall and hangingwall sides.
@@ -72,7 +72,7 @@ def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_differ(
     in the global config.
     Also perform a few other tests to verify API and functionality.
     """
-    objdata = objectdata_provider_factory(faultroom_object, edataobj2)
+    objdata = objectdata_provider_factory(faultroom_object, drogon_exportdata)
     assert isinstance(objdata, FaultRoomSurfaceProvider)
 
     assert objdata.extension == ".json"
@@ -98,7 +98,7 @@ def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_differ(
 
 
 def test_objectdata_triangulated_surface_validate_spec(
-    tsurf: TSurfData, edataobj2: ExportData
+    tsurf: TSurfData, drogon_exportdata: ExportData
 ) -> None:
     """
     Validate the specifications of the triangulated surface object represented
@@ -106,7 +106,7 @@ def test_objectdata_triangulated_surface_validate_spec(
     TSurf is a file format used in for example the GOCAD software. RMS can export
     triangulated surfaces in its structural model in the TSurf format.
     """
-    objdata = objectdata_provider_factory(tsurf, edataobj2)
+    objdata = objectdata_provider_factory(tsurf, drogon_exportdata)
     assert isinstance(objdata, TriangulatedSurfaceProvider)
 
     assert objdata.classname.value == "surface"
@@ -137,34 +137,34 @@ def test_objectdata_triangulated_surface_validate_spec(
 
 
 def test_objectdata_regularsurface_validate_extension(
-    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+    regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     """Test a valid extension for RegularSurface object."""
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
 
     assert objdata.extension == ".gri"
 
 
 def test_objectdata_table_validate_extension_shall_fail(
-    dataframe: pd.DataFrame, edataobj1: ExportData
+    dataframe: pd.DataFrame, mock_exportdata: ExportData
 ) -> None:
     """Test an invalid extension for a table object."""
 
-    edataobj1.table_fformat = "roff"  # set to invalid format
+    mock_exportdata.table_fformat = "roff"  # set to invalid format
 
     with pytest.raises(ConfigurationError):
-        ext = objectdata_provider_factory(dataframe, edataobj1).extension
+        ext = objectdata_provider_factory(dataframe, mock_exportdata).extension
         assert ext == ".roff"
-    edataobj1.table_fformat = None  # reset to default
+    mock_exportdata.table_fformat = None  # reset to default
 
 
 def test_objectdata_regularsurface_spec_bbox(
-    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+    regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     """Derive specs and bbox for RegularSurface object."""
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
     specs = objdata.get_spec()
     bbox = objdata.get_bbox()
 
@@ -174,30 +174,32 @@ def test_objectdata_regularsurface_spec_bbox(
 
 
 def test_objectdata_regularsurface_derive_objectdata(
-    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+    regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     """Derive other properties."""
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
     assert isinstance(objdata, RegularSurfaceDataProvider)
     assert objdata.classname.value == "surface"
     assert objdata.extension == ".gri"
 
 
 def test_objectdata_regularsurface_derive_metadata(
-    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+    regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     """Derive all metadata for the 'data' block in fmu-dataio."""
 
-    myobj = objectdata_provider_factory(regsurf, edataobj1)
+    myobj = objectdata_provider_factory(regsurf, mock_exportdata)
     metadata = myobj.get_metadata()
     assert metadata.root.content == "depth"
     assert metadata.root.alias
 
 
-def test_objectdata_provider_factory_raises_on_unknown(edataobj1: ExportData) -> None:
+def test_objectdata_provider_factory_raises_on_unknown(
+    mock_exportdata: ExportData,
+) -> None:
     with pytest.raises(NotImplementedError, match="not currently supported"):
-        objectdata_provider_factory(object(), edataobj1)
+        objectdata_provider_factory(object(), mock_exportdata)
 
 
 def test_regsurf_preprocessed_observation(
@@ -266,13 +268,13 @@ def test_regsurf_preprocessed_observation(
 
 
 def test_objectdata_compute_md5(
-    gridproperty: xtgeo.GridProperty, edataobj1: ExportData
+    gridproperty: xtgeo.GridProperty, mock_exportdata: ExportData
 ) -> None:
     """Test compute_md5 function works and gives same result as in the metadata"""
 
-    myobj = objectdata_provider_factory(gridproperty, edataobj1)
+    myobj = objectdata_provider_factory(gridproperty, mock_exportdata)
 
-    metadata = edataobj1.generate_metadata(gridproperty)
+    metadata = mock_exportdata.generate_metadata(gridproperty)
     checksum, size = myobj.compute_md5_and_size()
     assert metadata["file"]["checksum_md5"] == checksum
     assert metadata["file"]["size_bytes"] == size

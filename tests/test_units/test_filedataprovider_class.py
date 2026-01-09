@@ -95,7 +95,7 @@ from fmu.dataio.providers.objectdata._provider import objectdata_provider_factor
 )
 def test_get_filestem(
     regsurf: xtgeo.RegularSurface,
-    edataobj1: ExportData,
+    mock_exportdata: ExportData,
     name: str,
     tagname: str,
     parentname: str,
@@ -104,17 +104,17 @@ def test_get_filestem(
     expected: str,
 ) -> None:
     """Testing the private _get_filestem method."""
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
     objdata.name = name
     # time0 is always the oldest
     objdata.time0 = time0
     objdata.time1 = time1
 
-    edataobj1.tagname = tagname
-    edataobj1.parent = parentname
-    edataobj1.name = ""
+    mock_exportdata.tagname = tagname
+    mock_exportdata.parent = parentname
+    mock_exportdata.name = ""
 
-    stem = SharePathConstructor(edataobj1, objdata)._get_filestem()
+    stem = SharePathConstructor(mock_exportdata, objdata)._get_filestem()
     assert stem == expected
 
 
@@ -141,7 +141,7 @@ def test_get_filestem(
 )
 def test_get_filestem_shall_fail(
     regsurf: xtgeo.RegularSurface,
-    edataobj1: ExportData,
+    mock_exportdata: ExportData,
     name: str,
     tagname: str,
     parentname: str,
@@ -150,12 +150,12 @@ def test_get_filestem_shall_fail(
     message: str,
 ) -> None:
     """Testing the private _get_filestem method when it shall fail."""
-    edataobj1 = deepcopy(edataobj1)
-    edataobj1.tagname = tagname
-    edataobj1.parent = parentname
-    edataobj1.name = ""
+    mock_exportdata = deepcopy(mock_exportdata)
+    mock_exportdata.tagname = tagname
+    mock_exportdata.parent = parentname
+    mock_exportdata.name = ""
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
     objdata.name = name
     objdata.time0 = time0
     objdata.time1 = time1
@@ -169,12 +169,14 @@ def test_get_share_folders(
 ) -> None:
     """Testing the get_share_folders method."""
 
-    edataobj1 = ExportData(config=drogon_global_config, name="some", content="depth")
+    mock_exportdata = ExportData(
+        config=drogon_global_config, name="some", content="depth"
+    )
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
     objdata.name = "some"
 
-    fdata = FileDataProvider(edataobj1._runcontext, objdata)
+    fdata = FileDataProvider(mock_exportdata._runcontext, objdata)
     share_folders = objdata.share_path.parent
     assert isinstance(share_folders, Path)
     assert share_folders == Path(f"share/results/{ExportFolder.maps.value}")
@@ -192,15 +194,15 @@ def test_get_share_folders_with_subfolder(
 ) -> None:
     """Testing the private _get_path method, creating the path."""
 
-    edataobj1 = ExportData(
+    mock_exportdata = ExportData(
         config=drogon_global_config, name="some", subfolder="sub", content="depth"
     )
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
     objdata.name = "some"
 
     assert objdata.share_path.parent == Path("share/results/maps/sub")
-    fdata = FileDataProvider(edataobj1._runcontext, objdata)
+    fdata = FileDataProvider(mock_exportdata._runcontext, objdata)
 
     # check that the path present in the metadata matches the share folders
     fmeta = fdata.get_metadata()
@@ -255,12 +257,14 @@ def test_filedata_has_nonascii_letters(
     """Testing the get_metadata function."""
 
     monkeypatch.chdir(tmp_path)
-    edataobj1 = ExportData(config=drogon_global_config, name="mynõme", content="depth")
+    mock_exportdata = ExportData(
+        config=drogon_global_config, name="mynõme", content="depth"
+    )
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
     objdata.name = "anynõme"
 
-    fdata = FileDataProvider(edataobj1._runcontext, objdata)
+    fdata = FileDataProvider(mock_exportdata._runcontext, objdata)
     with pytest.raises(ValueError, match="Path has non-ascii elements"):
         fdata.get_metadata()
 
@@ -271,52 +275,52 @@ def test_sharepath_get_share_root(
     """Test that the share root folder is correctly set."""
 
     # share/results
-    edataobj1 = ExportData(
+    exportdata = ExportData(
         config=drogon_global_config,
         content="depth",
         preprocessed=False,
         is_observation=False,
     )
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    assert SharePathConstructor(edataobj1, objdata)._get_share_root() == Path(
+    objdata = objectdata_provider_factory(regsurf, exportdata)
+    assert SharePathConstructor(exportdata, objdata)._get_share_root() == Path(
         ShareFolder.RESULTS.value
     )
 
     # share/preprosessed
-    edataobj1 = ExportData(
+    preprocessed_exportdata = ExportData(
         config=drogon_global_config,
         content="depth",
         preprocessed=True,
         is_observation=False,
     )
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    assert SharePathConstructor(edataobj1, objdata)._get_share_root() == Path(
-        ShareFolder.PREPROCESSED.value
-    )
+    objdata = objectdata_provider_factory(regsurf, preprocessed_exportdata)
+    assert SharePathConstructor(
+        preprocessed_exportdata, objdata
+    )._get_share_root() == Path(ShareFolder.PREPROCESSED.value)
 
     # share/observations
-    edataobj1 = ExportData(
+    obs_exportdata = ExportData(
         config=drogon_global_config,
         content="depth",
         preprocessed=False,
         is_observation=True,
     )
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    assert SharePathConstructor(edataobj1, objdata)._get_share_root() == Path(
+    objdata = objectdata_provider_factory(regsurf, obs_exportdata)
+    assert SharePathConstructor(obs_exportdata, objdata)._get_share_root() == Path(
         ShareFolder.OBSERVATIONS.value
     )
 
     # preprosessed should win over is_observation
-    edataobj1 = ExportData(
+    preprocessed_obs_exportdata = ExportData(
         config=drogon_global_config,
         content="depth",
         preprocessed=True,
         is_observation=True,
     )
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    assert SharePathConstructor(edataobj1, objdata)._get_share_root() == Path(
-        ShareFolder.PREPROCESSED.value
-    )
+    objdata = objectdata_provider_factory(regsurf, preprocessed_obs_exportdata)
+    assert SharePathConstructor(
+        preprocessed_obs_exportdata, objdata
+    )._get_share_root() == Path(ShareFolder.PREPROCESSED.value)
 
 
 def test_sharepath_with_date(
@@ -324,7 +328,7 @@ def test_sharepath_with_date(
 ) -> None:
     """Test that the share root folder is correctly set here using one date."""
 
-    edataobj1 = ExportData(
+    exportdata = ExportData(
         config=drogon_global_config,
         name="test",
         tagname="mytag",
@@ -332,8 +336,8 @@ def test_sharepath_with_date(
         content="depth",
     )
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    share_path = SharePathConstructor(edataobj1, objdata)
+    objdata = objectdata_provider_factory(regsurf, exportdata)
+    share_path = SharePathConstructor(exportdata, objdata)
 
     expected_filename = Path("test--mytag--20250512.gri")
     expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
@@ -347,7 +351,7 @@ def test_sharepath_with_two_dates(
 ) -> None:
     """Test that the share root folder is correctly set here using two dates."""
 
-    edataobj1 = ExportData(
+    exportdata = ExportData(
         config=drogon_global_config,
         name="test",
         tagname="mytag",
@@ -355,8 +359,8 @@ def test_sharepath_with_two_dates(
         content="depth",
     )
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    share_path = SharePathConstructor(edataobj1, objdata)
+    objdata = objectdata_provider_factory(regsurf, exportdata)
+    share_path = SharePathConstructor(exportdata, objdata)
 
     expected_filename = Path("test--mytag--20250512_20250511.gri")
     expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
@@ -371,7 +375,7 @@ def test_sharepath_with_parent(
     """Test that the share root folder is correctly set here
     using tagname and parent."""
 
-    edataobj1 = ExportData(
+    exportdata = ExportData(
         config=drogon_global_config,
         name="test",
         tagname="mytag",
@@ -379,8 +383,8 @@ def test_sharepath_with_parent(
         content="depth",
     )
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    share_path = SharePathConstructor(edataobj1, objdata)
+    objdata = objectdata_provider_factory(regsurf, exportdata)
+    share_path = SharePathConstructor(exportdata, objdata)
 
     expected_filename = Path("myparent--test--mytag.gri")
     expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
@@ -395,10 +399,10 @@ def test_sharepath_name_from_objprovider(
     """Test that the share root folder is correctly set using the
     name from the objdataprovider if not provided."""
 
-    edataobj1 = ExportData(config=drogon_global_config, content="depth")
+    exportdata = ExportData(config=drogon_global_config, content="depth")
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    share_path = SharePathConstructor(edataobj1, objdata)
+    objdata = objectdata_provider_factory(regsurf, exportdata)
+    share_path = SharePathConstructor(exportdata, objdata)
 
     expected_filename = Path(f"{objdata.name}.gri")
     expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename

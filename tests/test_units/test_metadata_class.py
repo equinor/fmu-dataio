@@ -28,17 +28,19 @@ logger = logging.getLogger(__name__)
 # --------------------------------------------------------------------------------------
 
 
-def test_metadata_dollars(edataobj1: ExportData, regsurf: xtgeo.RegularSurface) -> None:
+def test_metadata_dollars(
+    mock_exportdata: ExportData, regsurf: xtgeo.RegularSurface
+) -> None:
     """Testing the dollars part which is hard set."""
 
-    mymeta = edataobj1.generate_metadata(obj=regsurf)
+    mymeta = mock_exportdata.generate_metadata(obj=regsurf)
 
     assert mymeta["version"] == FmuResultsSchema.VERSION
     assert mymeta["$schema"] == FmuResultsSchema.url()
     assert mymeta["source"] == FmuResultsSchema.SOURCE
 
     # also check that it is preserved in the exported metadata
-    exportpath = edataobj1.export(regsurf)
+    exportpath = mock_exportdata.export(regsurf)
     exportmeta = read_metadata_from_file(exportpath)
 
     assert exportmeta["version"] == FmuResultsSchema.VERSION
@@ -52,10 +54,10 @@ def test_metadata_dollars(edataobj1: ExportData, regsurf: xtgeo.RegularSurface) 
 
 
 def test_generate_meta_tracklog_fmu_dataio_version(
-    regsurf: xtgeo.RegularSurface, edataobj1: ExportData
+    regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    mymeta = generate_export_metadata(objdata, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
+    mymeta = generate_export_metadata(objdata, mock_exportdata)
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog.root, list)
@@ -76,13 +78,15 @@ def test_generate_meta_tracklog_fmu_dataio_version(
 
 
 def test_generate_meta_tracklog_komodo_version(
-    edataobj1: dio.ExportData, regsurf: xtgeo.RegularSurface, monkeypatch: MonkeyPatch
+    mock_exportdata: dio.ExportData,
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
 ) -> None:
     fake_komodo_release = "<FAKE_KOMODO_RELEASE_VERSION>"
     monkeypatch.setenv("KOMODO_RELEASE", fake_komodo_release)
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    mymeta = generate_export_metadata(objdata, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
+    mymeta = generate_export_metadata(objdata, mock_exportdata)
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog.root, list)
@@ -105,15 +109,17 @@ def test_generate_meta_tracklog_komodo_version(
 
 
 def test_generate_meta_tracklog_backup_komodo_version(
-    edataobj1: dio.ExportData, regsurf: xtgeo.RegularSurface, monkeypatch: MonkeyPatch
+    mock_exportdata: dio.ExportData,
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
 ) -> None:
     """Tests that we read the Komodo version from KOMODO_RELEASE_BACKUP if it's set."""
     komodo_release = "2123.01.01"
     monkeypatch.delenv("KOMODO_RELEASE", raising=False)
     monkeypatch.setenv("KOMODO_RELEASE_BACKUP", komodo_release)
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    metadata = generate_export_metadata(objdata, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
+    metadata = generate_export_metadata(objdata, mock_exportdata)
     tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
     assert tracklog.sysinfo is not None
     assert tracklog.sysinfo.komodo is not None
@@ -123,7 +129,9 @@ def test_generate_meta_tracklog_backup_komodo_version(
 
 
 def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
-    edataobj1: dio.ExportData, regsurf: xtgeo.RegularSurface, monkeypatch: MonkeyPatch
+    mock_exportdata: dio.ExportData,
+    regsurf: xtgeo.RegularSurface,
+    monkeypatch: MonkeyPatch,
 ) -> None:
     """Tests that we read the Komodo version from KOMODO_RELEASE.
 
@@ -137,8 +145,8 @@ def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
     monkeypatch.setenv("KOMODO_RELEASE", komodo_release)
     monkeypatch.setenv("KOMODO_RELEASE_BACKUP", backup_komodo_release)
 
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    metadata = generate_export_metadata(objdata, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
+    metadata = generate_export_metadata(objdata, mock_exportdata)
     tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
     assert tracklog.sysinfo is not None
     assert tracklog.sysinfo.komodo is not None
@@ -148,10 +156,10 @@ def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
 
 
 def test_generate_meta_tracklog_operating_system(
-    edataobj1: ExportData, regsurf: xtgeo.RegularSurface
+    mock_exportdata: ExportData, regsurf: xtgeo.RegularSurface
 ) -> None:
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    mymeta = generate_export_metadata(objdata, edataobj1)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
+    mymeta = generate_export_metadata(objdata, mock_exportdata)
     tracklog = mymeta.tracklog
 
     assert isinstance(tracklog.root, list)
@@ -170,14 +178,14 @@ def test_generate_meta_tracklog_operating_system(
 
 
 def test_populate_meta_objectdata(
-    regsurf: xtgeo.RegularSurface, edataobj2: ExportData
+    regsurf: xtgeo.RegularSurface, drogon_exportdata: ExportData
 ) -> None:
-    objdata = objectdata_provider_factory(regsurf, edataobj2)
-    mymeta = generate_export_metadata(objdata, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, drogon_exportdata)
+    mymeta = generate_export_metadata(objdata, drogon_exportdata)
 
     assert objdata.name == "VOLANTIS GP. Top"
     assert mymeta.display.name == objdata.name
-    assert edataobj2.name == "TopVolantis"
+    assert drogon_exportdata.name == "TopVolantis"
 
     # surfaces shall have data.spec
     assert mymeta.data
@@ -186,7 +194,7 @@ def test_populate_meta_objectdata(
 
 
 def test_bbox_zmin_zmax_presence(
-    polygons: xtgeo.Polygons, edataobj2: ExportData
+    polygons: xtgeo.Polygons, drogon_exportdata: ExportData
 ) -> None:
     """
     Test to ensure the zmin/zmax fields are present in the metadata for a
@@ -194,8 +202,8 @@ def test_bbox_zmin_zmax_presence(
     of the bbox types (2D/3D) inside the pydantic model. If 2D is first zmin/zmax
     will be ignored even if present.
     """
-    objdata = objectdata_provider_factory(polygons, edataobj2)
-    mymeta = generate_export_metadata(objdata, edataobj2)
+    objdata = objectdata_provider_factory(polygons, drogon_exportdata)
+    mymeta = generate_export_metadata(objdata, drogon_exportdata)
 
     # polygons shall have data.spec
     assert mymeta.data.root.bbox.zmin is not None
@@ -258,16 +266,18 @@ def test_metadata_populate_masterdata_is_empty(
 
 
 def test_metadata_populate_masterdata_is_present_ok(
-    edataobj1: ExportData, edataobj2: ExportData, regsurf: xtgeo.RegularSurface
+    mock_exportdata: ExportData,
+    drogon_exportdata: ExportData,
+    regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Testing the masterdata part with OK metdata."""
-    objdata = objectdata_provider_factory(regsurf, edataobj1)
-    mymeta = generate_export_metadata(objdata, edataobj1)
-    assert mymeta.masterdata == edataobj1.config.masterdata
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
+    mymeta = generate_export_metadata(objdata, mock_exportdata)
+    assert mymeta.masterdata == mock_exportdata.config.masterdata
 
-    objdata = objectdata_provider_factory(regsurf, edataobj2)
-    mymeta = generate_export_metadata(objdata, edataobj2)
-    assert mymeta.masterdata == edataobj2.config.masterdata
+    objdata = objectdata_provider_factory(regsurf, drogon_exportdata)
+    mymeta = generate_export_metadata(objdata, drogon_exportdata)
+    assert mymeta.masterdata == drogon_exportdata.config.masterdata
 
 
 # --------------------------------------------------------------------------------------
@@ -293,12 +303,12 @@ def test_metadata_populate_access_miss_cfg_access(
 
 
 def test_metadata_populate_access_ok_config(
-    edataobj2: ExportData, regsurf: xtgeo.RegularSurface
+    drogon_exportdata: ExportData, regsurf: xtgeo.RegularSurface
 ) -> None:
     """Testing the access part, now with config ok access."""
 
-    objdata = objectdata_provider_factory(regsurf, edataobj2)
-    mymeta = generate_export_metadata(objdata, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, drogon_exportdata)
+    mymeta = generate_export_metadata(objdata, drogon_exportdata)
     assert mymeta.access.model_dump(mode="json", exclude_none=True) == {
         "asset": {"name": "Drogon"},
         "ssdl": {"access_level": "internal", "rep_include": True},
@@ -543,25 +553,25 @@ def test_metadata_rep_include_deprecation(
 
 
 def test_metadata_display_name_not_given(
-    regsurf: xtgeo.RegularSurface, edataobj2: ExportData
+    regsurf: xtgeo.RegularSurface, drogon_exportdata: ExportData
 ) -> None:
     """Test that display.name == data.name when not explicitly provided."""
 
-    objdata = objectdata_provider_factory(regsurf, edataobj2)
-    mymeta = generate_export_metadata(objdata, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, drogon_exportdata)
+    mymeta = generate_export_metadata(objdata, drogon_exportdata)
 
     assert mymeta.display.name == objdata.name
 
 
 def test_metadata_display_name_given(
-    regsurf: xtgeo.RegularSurface, edataobj2: ExportData
+    regsurf: xtgeo.RegularSurface, drogon_exportdata: ExportData
 ) -> None:
     """Test that display.name is set when explicitly given."""
 
-    edataobj2.display_name = "My Display Name"
+    drogon_exportdata.display_name = "My Display Name"
 
-    objdata = objectdata_provider_factory(regsurf, edataobj2)
-    mymeta = generate_export_metadata(objdata, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, drogon_exportdata)
+    mymeta = generate_export_metadata(objdata, drogon_exportdata)
 
     assert mymeta.display.name == "My Display Name"
     assert objdata.name == "VOLANTIS GP. Top"
@@ -573,12 +583,12 @@ def test_metadata_display_name_given(
 
 
 def test_generate_full_metadata(
-    regsurf: xtgeo.RegularSurface, edataobj2: ExportData
+    regsurf: xtgeo.RegularSurface, drogon_exportdata: ExportData
 ) -> None:
     """Generating the full metadata block for a xtgeo surface."""
 
-    objdata = objectdata_provider_factory(regsurf, edataobj2)
-    metadata_result = generate_export_metadata(objdata, edataobj2)
+    objdata = objectdata_provider_factory(regsurf, drogon_exportdata)
+    metadata_result = generate_export_metadata(objdata, drogon_exportdata)
 
     logger.debug("\n%s", prettyprint_dict(metadata_result))
 
