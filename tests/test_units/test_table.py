@@ -312,11 +312,11 @@ def test_table_index_rft_from_standard(drogon_global_config: dict[str, Any]) -> 
 
 
 def test_table_wellpicks(
-    wellpicks: pd.DataFrame, globalconfig1: dict[str, Any]
+    wellpicks: pd.DataFrame, mock_global_config: dict[str, Any]
 ) -> None:
     """Test export of wellpicks"""
 
-    exp = ExportData(config=globalconfig1, name="wellpicks", content="wellpicks")
+    exp = ExportData(config=mock_global_config, name="wellpicks", content="wellpicks")
 
     metadata = exp.generate_metadata(wellpicks)
 
@@ -326,7 +326,7 @@ def test_table_wellpicks(
     assert metadata["data"]["table_index"] == ["WELL", "HORIZON"]
 
 
-def test_production_network_index(globalconfig1: dict[str, Any]) -> None:
+def test_production_network_index(mock_global_config: dict[str, Any]) -> None:
     """Test that the table index is set correct for production network data"""
 
     mock_table = pd.DataFrame(
@@ -340,7 +340,9 @@ def test_production_network_index(globalconfig1: dict[str, Any]) -> None:
     )
 
     exp = ExportData(
-        config=globalconfig1, name="production_network", content="production_network"
+        config=mock_global_config,
+        name="production_network",
+        content="production_network",
     )
 
     metadata = exp.generate_metadata(mock_table)
@@ -351,7 +353,7 @@ def test_production_network_index(globalconfig1: dict[str, Any]) -> None:
     assert metadata["data"]["table_index"] == ["DATE", "CHILD", "PARENT", "KEYWORD"]
 
 
-def test_well_completions_index(globalconfig1: dict[str, Any]) -> None:
+def test_well_completions_index(mock_global_config: dict[str, Any]) -> None:
     """Test that the table index is set correct for well completions data"""
 
     mock_table = pd.DataFrame(
@@ -365,7 +367,7 @@ def test_well_completions_index(globalconfig1: dict[str, Any]) -> None:
     )
 
     exp = ExportData(
-        config=globalconfig1, name="well_completions", content="well_completions"
+        config=mock_global_config, name="well_completions", content="well_completions"
     )
 
     metadata = exp.generate_metadata(mock_table)

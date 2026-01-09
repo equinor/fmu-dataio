@@ -78,7 +78,7 @@ def test_get_manifest_path_case_context_no_casepath(fmurun_prehook: Path) -> Non
 
 def test_manifest_realization_context(
     fmurun_w_casemetadata: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the manifest is created at the runpath in a realization context."""
@@ -86,7 +86,7 @@ def test_manifest_realization_context(
     casepath = fmurun_w_casemetadata.parent.parent
 
     ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         name="test0",
     ).export(regsurf)
@@ -105,7 +105,7 @@ def test_manifest_realization_context(
 
 def test_manifest_multiple_exports_realization_context(
     fmurun_w_casemetadata: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that multiple exports creates and appends to a manifest at the runpath
@@ -115,7 +115,7 @@ def test_manifest_multiple_exports_realization_context(
 
     for idx in range(3):
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name=f"test{idx}",
         ).export(regsurf)
@@ -132,14 +132,16 @@ def test_manifest_multiple_exports_realization_context(
 
 
 def test_manifest_case_context(
-    fmurun_prehook: Path, globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    fmurun_prehook: Path,
+    mock_global_config: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the manifest is created at the casepath in a case context."""
 
     casepath = fmurun_prehook
 
     ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         name="test0",
         casepath=casepath,
@@ -156,14 +158,16 @@ def test_manifest_case_context(
 
 
 def test_manifest_multiple_exports_case_context(
-    fmurun_prehook: Path, globalconfig1: dict[str, Any], regsurf: xtgeo.RegularSurface
+    fmurun_prehook: Path,
+    mock_global_config: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that multiple exports creates and appends to a manifest at the casepath
     in a case context."""
     casepath = fmurun_prehook
     for idx in range(3):
         ExportData(
-            config=globalconfig1,
+            config=mock_global_config,
             content="depth",
             name=f"test{idx}",
             casepath=casepath,
@@ -181,7 +185,7 @@ def test_manifest_multiple_exports_case_context(
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_manifest_rms_interactive(
     tmp_path: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
 ) -> None:
@@ -192,7 +196,7 @@ def test_manifest_rms_interactive(
     monkeypatch.chdir(rms_model_path)
 
     edata = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         content="depth",
         name="test0",
     )
@@ -221,7 +225,7 @@ def test_load_export_manifest_file_not_exist(tmp_path: Path) -> None:
 
 def test_export_preprocessed_surface_appends_to_case_manifest(
     fmurun_prehook: Path,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
 ) -> None:
@@ -230,7 +234,7 @@ def test_export_preprocessed_surface_appends_to_case_manifest(
 
     remove_ert_env(monkeypatch)
     export_data = ExportData(
-        config=globalconfig1,
+        config=mock_global_config,
         preprocessed=True,
         name="TopVolantis",
         content="depth",

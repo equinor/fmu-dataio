@@ -150,18 +150,19 @@ def test_unknown_name_in_stratigraphy_raises(
 def test_stratigraphy_missing_raises(
     mock_project_variable: MagicMock,
     mock_export_class: _ExportStructureDepthSurfaces,
-    globalconfig1: dict[str, Any],
+    mock_global_config: dict[str, Any],
 ) -> None:
     """Test that an error is raised if stratigraphy is missing from the config"""
 
     from fmu.dataio.export.rms import export_structure_depth_surfaces
 
     # remove the stratigraphy block
-    del globalconfig1["stratigraphy"]
+    del mock_global_config["stratigraphy"]
 
     with (
         mock.patch(
-            "fmu.dataio.export._base.load_config_from_path", return_value=globalconfig1
+            "fmu.dataio.export._base.load_config_from_path",
+            return_value=mock_global_config,
         ),
         pytest.raises(ValueError, match=r"stratigraphy.*is lacking"),
     ):
