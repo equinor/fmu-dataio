@@ -58,7 +58,7 @@ def assert_correct_table_index(dict_input: Any, answer: list) -> None:
 
 def test_inplace_volume_index(
     mock_volumes: pd.DataFrame,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -66,19 +66,19 @@ def test_inplace_volume_index(
 
     Args:
         mock_volumes (pd.DataFrame): a volumetriclike dataset
-        globalconfig2 (dict): one global variables dict
+        drogon_global_config (dict): one global variables dict
     """
 
     monkeypatch.chdir(tmp_path)
     answer = ["FLUID", "ZONE", "REGION", "LICENSE"]
-    exd = ExportData(config=globalconfig2, content="volumes", name="baretull")
+    exd = ExportData(config=drogon_global_config, content="volumes", name="baretull")
     path = exd.export(mock_volumes)
     assert_correct_table_index(path, answer)
 
 
 def test_inplace_volume_empty_index(
     mock_volumes: pd.DataFrame,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -89,32 +89,36 @@ def test_inplace_volume_empty_index(
     df["FLUID"] = np.nan  # test with nan values
 
     with pytest.warns(FutureWarning, match="only empty values"):
-        ExportData(config=globalconfig2, content="volumes", name="baretull").export(df)
+        ExportData(
+            config=drogon_global_config, content="volumes", name="baretull"
+        ).export(df)
 
     df = mock_volumes.copy()
     df["REGION"] = None  # test with None values
 
     with pytest.warns(FutureWarning, match="only empty values"):
-        ExportData(config=globalconfig2, content="volumes", name="baretull").export(df)
+        ExportData(
+            config=drogon_global_config, content="volumes", name="baretull"
+        ).export(df)
 
 
 def test_relperm_index(
     mock_relperm: pd.DataFrame,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
     """Test that the table index is set correct for relperm data"""
     monkeypatch.chdir(tmp_path)
     answer = ["SATNUM"]
-    exd = ExportData(config=globalconfig2, content="relperm", name="baretull")
+    exd = ExportData(config=drogon_global_config, content="relperm", name="baretull")
     path = exd.export(mock_relperm)
     assert_correct_table_index(path, answer)
 
 
 def test_derive_summary_index_pandas(
     mock_summary: pd.DataFrame,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -122,12 +126,12 @@ def test_derive_summary_index_pandas(
 
     Args:
         mock_summary (pd.DataFrame): summary "like" dataframe
-        globalconfig2 (dict): global variables dict
+        drogon_global_config (dict): global variables dict
     """
     monkeypatch.chdir(tmp_path)
     answer = ["DATE"]
     exd = ExportData(
-        config=globalconfig2, content="simulationtimeseries", name="baretull"
+        config=drogon_global_config, content="simulationtimeseries", name="baretull"
     )
     path = exd.export(mock_summary)
     assert_correct_table_index(path, answer)
@@ -135,7 +139,7 @@ def test_derive_summary_index_pandas(
 
 def test_derive_summary_index_pyarrow(
     mock_summary: pd.DataFrame,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -143,14 +147,14 @@ def test_derive_summary_index_pyarrow(
 
     Args:
         mock_summary (pd.DataFrame): summary "like" dataframe
-        globalconfig2 (dict): global variables dict
+        drogon_global_config (dict): global variables dict
     """
     from pyarrow import Table
 
     monkeypatch.chdir(tmp_path)
     answer = ["DATE"]
     exd = ExportData(
-        config=globalconfig2, content="simulationtimeseries", name="baretull"
+        config=drogon_global_config, content="simulationtimeseries", name="baretull"
     )
     path = exd.export(Table.from_pandas(mock_summary))
     assert_correct_table_index(path, answer)
@@ -158,7 +162,7 @@ def test_derive_summary_index_pyarrow(
 
 def test_summary_index_pyarrow_empty_index(
     mock_summary: pd.DataFrame,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -173,7 +177,7 @@ def test_summary_index_pyarrow_empty_index(
 
     with pytest.warns(FutureWarning, match="only empty values"):
         ExportData(
-            config=globalconfig2, content="simulationtimeseries", name="baretull"
+            config=drogon_global_config, content="simulationtimeseries", name="baretull"
         ).export(Table.from_pandas(df))
 
     df = mock_summary.copy()
@@ -181,13 +185,13 @@ def test_summary_index_pyarrow_empty_index(
 
     with pytest.warns(FutureWarning, match="only empty values"):
         ExportData(
-            config=globalconfig2, content="simulationtimeseries", name="baretull"
+            config=drogon_global_config, content="simulationtimeseries", name="baretull"
         ).export(Table.from_pandas(df))
 
 
 def test_set_from_exportdata(
     mock_volumes: pd.DataFrame,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -195,12 +199,15 @@ def test_set_from_exportdata(
 
     Args:
         mock_volumes (pd.DataFrame): a volumetric like dataframe
-        globalconfig2 (dict): one global variables dict
+        drogon_global_config (dict): one global variables dict
     """
     monkeypatch.chdir(tmp_path)
     index = ["OTHER"]
     exd = ExportData(
-        config=globalconfig2, table_index=index, content="timeseries", name="baretull"
+        config=drogon_global_config,
+        table_index=index,
+        content="timeseries",
+        name="baretull",
     )
     with pytest.warns(FutureWarning, match="table index"):
         path = exd.export(mock_volumes)
@@ -209,7 +216,7 @@ def test_set_from_exportdata(
 
 def test_set_from_export(
     mock_volumes: pd.DataFrame,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -217,12 +224,15 @@ def test_set_from_export(
 
     Args:
         mock_volumes (pd.DataFrame): volumetric like data
-        globalconfig2 (dict): one global variable dict
+        drogon_global_config (dict): one global variable dict
     """
     monkeypatch.chdir(tmp_path)
     index = ["OTHER"]
     exd = ExportData(
-        config=globalconfig2, content="volumes", table_index=index, name="baretull"
+        config=drogon_global_config,
+        content="volumes",
+        table_index=index,
+        name="baretull",
     )
     with pytest.warns(FutureWarning, match="table index"):
         path = exd.export(mock_volumes)
@@ -231,7 +241,7 @@ def test_set_from_export(
 
 def test_set_table_index_not_in_table(
     mock_volumes: pd.DataFrame,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -239,12 +249,15 @@ def test_set_table_index_not_in_table(
 
     Args:
         mock_volumes (pd.DataFrame): volumetric like data
-        globalconfig2 (dict): one global variables dict
+        drogon_global_config (dict): one global variables dict
     """
     monkeypatch.chdir(tmp_path)
     index = ["banana"]
     exd = ExportData(
-        config=globalconfig2, content="timeseries", table_index=index, name="baretull"
+        config=drogon_global_config,
+        content="timeseries",
+        table_index=index,
+        name="baretull",
     )
     with pytest.raises(KeyError) as k_err:
         exd.export(mock_volumes)
@@ -277,7 +290,7 @@ def test_table_index_real_summary(
     assert objdata.table_index == ["DATE"], "Incorrect table index "
 
 
-def test_table_index_rft_from_standard(globalconfig2: dict[str, Any]) -> None:
+def test_table_index_rft_from_standard(drogon_global_config: dict[str, Any]) -> None:
     """Test setting of table_index in rft file from standard table_index"""
 
     mock_rft_table = pd.DataFrame(
@@ -287,7 +300,7 @@ def test_table_index_rft_from_standard(globalconfig2: dict[str, Any]) -> None:
             "PRESSURE": [1, 2, 3],
         }
     )
-    exd = ExportData(config=globalconfig2, content="rft", name="myname")
+    exd = ExportData(config=drogon_global_config, content="rft", name="myname")
 
     meta = exd.generate_metadata(mock_rft_table)
     assert set(meta["data"]["table_index"]) == {"DATE", "WELL"}
@@ -448,13 +461,13 @@ def test_derive_index_legacy() -> None:
 
 
 def test_table_index_in_metadata_with_table_index(
-    globalconfig2: dict[str, Any], mock_volumes: pd.DataFrame
+    drogon_global_config: dict[str, Any], mock_volumes: pd.DataFrame
 ) -> None:
     """Test providing a valid table index"""
     table_index = ["ZONE"]
     with pytest.warns(FutureWarning, match="standard"):
         meta = ExportData(
-            config=globalconfig2,
+            config=drogon_global_config,
             content="volumes",
             name="geogrid",
             table_index=table_index,
@@ -464,7 +477,7 @@ def test_table_index_in_metadata_with_table_index(
 
 
 def test_table_index_in_metadata_from_standard(
-    globalconfig2: dict[str, Any], mock_volumes: pd.DataFrame
+    drogon_global_config: dict[str, Any], mock_volumes: pd.DataFrame
 ) -> None:
     """
     Test that when table index is not provided the index is set to the
@@ -473,7 +486,7 @@ def test_table_index_in_metadata_from_standard(
     content = Content.volumes
     assert content in STANDARD_TABLE_INDEX_COLUMNS
     meta = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         content=content,
         name="geogrid",
     ).generate_metadata(mock_volumes)
@@ -484,7 +497,9 @@ def test_table_index_in_metadata_from_standard(
     assert meta["data"]["table_index"] == expected
 
 
-def test_table_index_in_metadata_legacy_fallback(globalconfig2: dict[str, Any]) -> None:
+def test_table_index_in_metadata_legacy_fallback(
+    drogon_global_config: dict[str, Any],
+) -> None:
     """
     Test that when table index is not provided and content is not
     defined with standard table index columns, a FutureWarning is given
@@ -502,7 +517,7 @@ def test_table_index_in_metadata_legacy_fallback(globalconfig2: dict[str, Any]) 
     )
     with pytest.warns(FutureWarning):
         meta = ExportData(
-            config=globalconfig2,
+            config=drogon_global_config,
             content=content,
             name="myname",
         ).generate_metadata(mock_table)

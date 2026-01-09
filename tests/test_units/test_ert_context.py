@@ -484,13 +484,15 @@ def test_exported_points_spec_table_format(
     fformat: Literal["parquet", "csv|xtgeo", "csv"],
     expected_columns: list[str],
     fmurun_w_casemetadata: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     points: xtgeo.Points,
 ) -> None:
     """Test that data.spec is set correctly for points exported on table format"""
 
-    edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
+    edata = dataio.ExportData(
+        config=drogon_global_config, content="depth", name="TopVolantis"
+    )
 
     edata.points_fformat = fformat
     output = edata.export(points)
@@ -506,13 +508,15 @@ def test_exported_points_spec_table_format(
 
 def test_exported_points_spec_irap_ascii(
     fmurun_w_casemetadata: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     points: xtgeo.Points,
 ) -> None:
     """Test that data.spec is set correctly for points exported on irap_ascii format"""
 
-    edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
+    edata = dataio.ExportData(
+        config=drogon_global_config, content="depth", name="TopVolantis"
+    )
 
     edata.points_fformat = "irap_ascii"
     output = edata.export(points)
@@ -538,13 +542,15 @@ def test_exported_polygon_spec_table_format(
     fformat: Literal["parquet", "csv|xtgeo", "csv"],
     expected_columns: list[str],
     fmurun_w_casemetadata: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     polygons: xtgeo.Polygons,
 ) -> None:
     """Test that data.spec is set correctly for polygons exported on table format"""
 
-    edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
+    edata = dataio.ExportData(
+        config=drogon_global_config, content="depth", name="TopVolantis"
+    )
 
     edata.polygons_fformat = fformat
     output = edata.export(polygons)
@@ -559,13 +565,15 @@ def test_exported_polygon_spec_table_format(
 
 def test_exported_polygon_spec_irap_ascii(
     fmurun_w_casemetadata: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     polygons: xtgeo.Polygons,
 ) -> None:
     """Test that data.spec is set correct for polygons exported on irap_ascii format"""
 
-    edata = dataio.ExportData(config=globalconfig2, content="depth", name="TopVolantis")
+    edata = dataio.ExportData(
+        config=drogon_global_config, content="depth", name="TopVolantis"
+    )
 
     edata.polygons_fformat = "irap_ascii"
     output = edata.export(polygons)

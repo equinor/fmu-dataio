@@ -196,12 +196,14 @@ def test_config_miss_required_fields(
         read_metadata(out)
 
 
-def test_config_stratigraphy_alias_as_string(globalconfig2: dict[str, Any]) -> None:
+def test_config_stratigraphy_alias_as_string(
+    drogon_global_config: dict[str, Any],
+) -> None:
     """
     Test that 'alias' as string gives FutureWarning and is
     correctly converted to a list.
     """
-    cfg = deepcopy(globalconfig2)
+    cfg = deepcopy(drogon_global_config)
     cfg["stratigraphy"]["TopVolantis"]["alias"] = "TV"
 
     with pytest.warns(FutureWarning, match="string input"):
@@ -212,10 +214,10 @@ def test_config_stratigraphy_alias_as_string(globalconfig2: dict[str, Any]) -> N
 
 
 def test_config_stratigraphy_empty_entries_alias(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that empty entries in 'alias' is detected and warned and removed."""
-    cfg = deepcopy(globalconfig2)
+    cfg = deepcopy(drogon_global_config)
     cfg["stratigraphy"]["TopVolantis"]["alias"] += [None]
 
     with pytest.warns(FutureWarning, match="empty list element"):
@@ -227,13 +229,13 @@ def test_config_stratigraphy_empty_entries_alias(
 
 @pytest.mark.xfail(reason="stratigraphic_alias is not implemented")
 def test_config_stratigraphy_empty_entries_stratigraphic_alias(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that empty entries in 'stratigraphic_alias' detected and warned."""
 
     # Note! stratigraphic_alias is not implemented, but we still check consistency
 
-    cfg = deepcopy(globalconfig2)
+    cfg = deepcopy(drogon_global_config)
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic_alias"] += [None]
 
     with pytest.warns(FutureWarning, match="empty list element"):
@@ -243,9 +245,9 @@ def test_config_stratigraphy_empty_entries_stratigraphic_alias(
     assert None not in metadata["data"]["stratigraphic_alias"]
 
 
-def test_config_stratigraphy_empty_name(globalconfig2: dict[str, Any]) -> None:
+def test_config_stratigraphy_empty_name(drogon_global_config: dict[str, Any]) -> None:
     """Test that empty 'name' is detected and warned."""
-    cfg = deepcopy(globalconfig2)
+    cfg = deepcopy(drogon_global_config)
     cfg["stratigraphy"]["TopVolantis"]["name"] = None
 
     with pytest.warns(UserWarning, match="The global config"):
@@ -253,10 +255,10 @@ def test_config_stratigraphy_empty_name(globalconfig2: dict[str, Any]) -> None:
 
 
 def test_config_stratigraphy_stratigraphic_not_bool(
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
 ) -> None:
     """Test that non-boolean 'stratigraphic' is detected and warned."""
-    cfg = deepcopy(globalconfig2)
+    cfg = deepcopy(drogon_global_config)
     cfg["stratigraphy"]["TopVolantis"]["stratigraphic"] = None
 
     with pytest.warns(UserWarning, match="The global config"):
@@ -546,24 +548,24 @@ def test_content_metadata_invalid(
 
 
 def test_content_valid_string(
-    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+    regsurf: xtgeo.RegularSurface, drogon_global_config: dict[str, Any]
 ) -> None:
-    eobj = ExportData(config=globalconfig2, name="TopVolantis", content="depth")
+    eobj = ExportData(config=drogon_global_config, name="TopVolantis", content="depth")
     mymeta = eobj.generate_metadata(regsurf)
     assert mymeta["data"]["content"] == "depth"
     assert "depth" not in mymeta["data"]
 
 
 def test_seismic_content_require_seismic_data(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
-    eobj = ExportData(config=globalconfig2, content="seismic")
+    eobj = ExportData(config=drogon_global_config, content="seismic")
     with pytest.raises(ValueError, match="requires additional input"):
         eobj.generate_metadata(regsurf)
 
 
 def test_content_valid_dict(
-    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+    regsurf: xtgeo.RegularSurface, drogon_global_config: dict[str, Any]
 ) -> None:
     """Test for incorrectly formatted dict.
 
@@ -571,7 +573,7 @@ def test_content_valid_dict(
     be one value, which shall be a dictionary containing content-specific attributes."""
 
     eobj = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="TopVolantis",
         content={
             "seismic": {
@@ -593,11 +595,11 @@ def test_content_valid_dict(
 
 
 def test_content_is_a_wrongly_formatted_dict(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """When content is a dict, it shall have one key with one dict as value."""
     eobj = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="TopVolantis",
         content={"seismic": "myvalue"},
     )
@@ -606,11 +608,11 @@ def test_content_is_a_wrongly_formatted_dict(
 
 
 def test_content_is_dict_with_wrong_types(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """When content is a dict, it shall have right types for known keys."""
     eobj = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="TopVolantis",
         content={
             "seismic": {
@@ -623,11 +625,11 @@ def test_content_is_dict_with_wrong_types(
 
 
 def test_content_with_content_metadata(
-    globalconfig2: dict[str, Any], polygons: xtgeo.Polygons
+    drogon_global_config: dict[str, Any], polygons: xtgeo.Polygons
 ) -> None:
     """When content_metadata is given and allowed, it shall be produced to metadata."""
     eobj = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="Central Horst",
         content="field_region",
         content_metadata={"id": 1},
@@ -641,12 +643,12 @@ def test_content_with_content_metadata(
 
 
 def test_content_deprecated_seismic_offset(
-    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+    regsurf: xtgeo.RegularSurface, drogon_global_config: dict[str, Any]
 ) -> None:
     """Assert that usage of seismic.offset still works but give deprecation warning."""
     with pytest.warns(DeprecationWarning, match="seismic.offset is deprecated"):
         eobj = ExportData(
-            config=globalconfig2,
+            config=drogon_global_config,
             name="TopVolantis",
             content={
                 "seismic": {
@@ -810,11 +812,11 @@ def test_vertical_domain_vs_depth_time_content(
 
 
 def test_set_display_name(
-    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+    regsurf: xtgeo.RegularSurface, drogon_global_config: dict[str, Any]
 ) -> None:
     """Test that giving the display_name argument sets display.name."""
     eobj = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="MyName",
         display_name="MyDisplayName",
         content="depth",
@@ -833,10 +835,12 @@ def test_set_display_name(
 
 
 def test_global_config_from_env(
-    monkeypatch: MonkeyPatch, global_config2_path: Path, globalconfig1: dict[str, Any]
+    monkeypatch: MonkeyPatch,
+    drogon_global_config_path: Path,
+    globalconfig1: dict[str, Any],
 ) -> None:
     """Testing getting global config from a file"""
-    monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(global_config2_path))
+    monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(drogon_global_config_path))
 
     edata = ExportData(content="depth")  # the env variable will override this
     assert edata.config.masterdata.smda
@@ -1161,14 +1165,14 @@ def test_metadata_format_deprecated(
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_establish_runpath(
-    tmp_path: Path, globalconfig2: dict[str, Any], monkeypatch: MonkeyPatch
+    tmp_path: Path, drogon_global_config: dict[str, Any], monkeypatch: MonkeyPatch
 ) -> None:
     """Testing pwd and rootpath from RMS"""
     rmspath = tmp_path / "rms" / "model"
     rmspath.mkdir(parents=True, exist_ok=True)
     monkeypatch.chdir(rmspath)
 
-    edata = ExportData(config=globalconfig2, content="depth")
+    edata = ExportData(config=drogon_global_config, content="depth")
 
     assert edata._runcontext.exportroot == rmspath.parent.parent
 
@@ -1176,7 +1180,7 @@ def test_establish_runpath(
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
 def test_forcefolder(
     tmp_path: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
 ) -> None:
@@ -1185,7 +1189,9 @@ def test_forcefolder(
     rmspath.mkdir(parents=True, exist_ok=True)
     monkeypatch.chdir(rmspath)
 
-    edata = ExportData(config=globalconfig2, content="depth", forcefolder="whatever")
+    edata = ExportData(
+        config=drogon_global_config, content="depth", forcefolder="whatever"
+    )
     meta = edata.generate_metadata(regsurf)
     logger.info("RMS PATH %s", rmspath)
     logger.info("\n %s", prettyprint_dict(meta))
@@ -1195,7 +1201,7 @@ def test_forcefolder(
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
 def test_forcefolder_absolute_shall_raise_or_warn(
     tmp_path: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
 ) -> None:
@@ -1207,14 +1213,16 @@ def test_forcefolder_absolute_shall_raise_or_warn(
     ExportData.allow_forcefolder_absolute = False
 
     edata = ExportData(
-        config=globalconfig2, content="depth", forcefolder="/tmp/what", name="x"
+        config=drogon_global_config, content="depth", forcefolder="/tmp/what", name="x"
     )
     with pytest.raises(ValueError, match="Can't use absolute path as 'forcefolder'"):
         edata.generate_metadata(regsurf)
 
     with pytest.warns(UserWarning, match="is deprecated"):
         ExportData.allow_forcefolder_absolute = True
-        ExportData(config=globalconfig2, content="depth", forcefolder="/tmp/what")
+        ExportData(
+            config=drogon_global_config, content="depth", forcefolder="/tmp/what"
+        )
 
     ExportData.allow_forcefolder_absolute = False
 
@@ -1240,9 +1248,9 @@ def test_norwegian_letters(
 
 
 def test_content_seismic_as_string_validation_error(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
-    edata = ExportData(content="seismic", config=globalconfig2)
+    edata = ExportData(content="seismic", config=drogon_global_config)
     with pytest.raises(ValueError, match="requires additional input"):
         edata.generate_metadata(regsurf)
 
@@ -1250,7 +1258,7 @@ def test_content_seismic_as_string_validation_error(
     edata = ExportData(
         content="seismic",
         content_metadata={"attribute": "attribute-value"},
-        config=globalconfig2,
+        config=drogon_global_config,
     )
     meta = edata.generate_metadata(regsurf)
     assert meta["data"]["content"] == "seismic"
@@ -1258,15 +1266,15 @@ def test_content_seismic_as_string_validation_error(
 
 
 def test_content_property_as_string_future_warning(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
-    edata = ExportData(content="property", config=globalconfig2)
+    edata = ExportData(content="property", config=drogon_global_config)
     with pytest.warns(FutureWarning):
         edata.generate_metadata(regsurf)
 
 
 def test_append_to_alias_list(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """
     Test that the name input is added to the alias list when present in
@@ -1275,12 +1283,12 @@ def test_append_to_alias_list(
     """
 
     name = "TopVolantis"
-    strat = globalconfig2["stratigraphy"][name]
+    strat = drogon_global_config["stratigraphy"][name]
     assert name not in strat["alias"]
 
     # generate metadata twice on the same ExportData instance
     # to check that the alias list is not appended the second time
-    edata = ExportData(content="depth", config=globalconfig2, name=name)
+    edata = ExportData(content="depth", config=drogon_global_config, name=name)
     meta = edata.generate_metadata(regsurf)
     meta2 = edata.generate_metadata(regsurf)
 
@@ -1292,11 +1300,11 @@ def test_append_to_alias_list(
 
 
 def test_alias_as_none(
-    globalconfig2: dict[str, Any], regsurf: xtgeo.RegularSurface
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """Test that 'alias: None' in the config works"""
 
-    config = deepcopy(globalconfig2)
+    config = deepcopy(drogon_global_config)
     name = "TopVolantis"
     config["stratigraphy"][name]["alias"] = None
 
@@ -1589,7 +1597,7 @@ def test_export_with_standard_result_invalid_config(mock_volumes: pd.DataFrame) 
 
 def test_file_paths_realization_context(
     fmurun_w_casemetadata: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     regsurf: xtgeo.RegularSurface,
 ) -> None:
@@ -1599,7 +1607,7 @@ def test_file_paths_realization_context(
     """
 
     meta = ExportData(
-        config=globalconfig2, name="myname", content="depth"
+        config=drogon_global_config, name="myname", content="depth"
     ).generate_metadata(regsurf)
 
     share_location = "share/results/maps/myname.gri"
@@ -1611,7 +1619,7 @@ def test_file_paths_realization_context(
 
 def test_file_paths_case_context(
     fmurun_w_casemetadata: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """
@@ -1622,7 +1630,7 @@ def test_file_paths_case_context(
     casepath = fmurun_w_casemetadata.parent.parent
 
     meta = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="myname",
         content="depth",
         casepath=casepath,
@@ -1638,14 +1646,14 @@ def test_file_paths_case_context(
 
 def test_element_id_realization_context(
     fmurun_w_casemetadata: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the entity.uuid is set in the metadata for a realization context."""
 
     meta = ExportData(
-        config=globalconfig2, name="myname", content="depth"
+        config=drogon_global_config, name="myname", content="depth"
     ).generate_metadata(regsurf)
 
     share_path = "share/results/maps/myname.gri"
@@ -1666,14 +1674,14 @@ def test_element_id_realization_context(
 
 def test_element_id_case_context(
     fmurun_w_casemetadata: Path,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the entity.uuid is not set in the metadata for a case context."""
     casepath = fmurun_w_casemetadata.parent.parent
 
     meta = ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="myname",
         content="depth",
         casepath=casepath,

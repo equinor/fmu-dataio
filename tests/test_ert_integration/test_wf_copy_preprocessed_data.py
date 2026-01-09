@@ -46,12 +46,12 @@ def test_copy_preprocessed_runs_successfully(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
     mocker: MockerFixture,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that exporting preprocessed data works and that the metadata is updated"""
     monkeypatch.chdir(fmu_snakeoil_project)
-    _export_preprocessed_data(globalconfig2, regsurf)
+    _export_preprocessed_data(drogon_global_config, regsurf)
 
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
     add_create_case_workflow("snakeoil.ert")
@@ -90,14 +90,14 @@ def test_copy_preprocessed_no_casemeta(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
     mocker: MockerFixture,
-    globalconfig2: dict[str, Any],
+    drogon_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     capsys: CaptureFixture[str],
 ) -> None:
     """Test that an error is written to stderr if no case metadata can be found."""
 
     monkeypatch.chdir(fmu_snakeoil_project)
-    _export_preprocessed_data(globalconfig2, regsurf)
+    _export_preprocessed_data(drogon_global_config, regsurf)
 
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
     add_copy_preprocessed_workflow("snakeoil.ert")

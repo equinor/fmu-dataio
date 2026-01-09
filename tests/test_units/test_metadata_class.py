@@ -204,10 +204,10 @@ def test_bbox_zmin_zmax_presence(
 
 
 def test_populate_meta_undef_is_zero(
-    regsurf: xtgeo.RegularSurface, globalconfig2: dict[str, Any]
+    regsurf: xtgeo.RegularSurface, drogon_global_config: dict[str, Any]
 ) -> None:
     eobj1 = dio.ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="TopVolantis",
         content="depth",
         unit="m",
@@ -225,7 +225,7 @@ def test_populate_meta_undef_is_zero(
 
     # assert that value is reflected when passed to ExportData
     eobj2 = dio.ExportData(
-        config=globalconfig2,
+        config=drogon_global_config,
         name="TopVolantis",
         content="depth",
         unit="m",

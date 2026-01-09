@@ -31,15 +31,12 @@ FileDescriptorOrPath = int | str | os.PathLike
 
 @pytest.fixture(scope="function")
 def inside_rms_setup(
-    tmp_path_factory: TempPathFactory, rootpath: Path, monkeypatch: MonkeyPatch
+    tmp_path_factory: TempPathFactory,
+    rootpath: Path,
+    monkeypatch: MonkeyPatch,
+    drogon_global_config: dict[str, Any],
 ) -> Generator[dict[str, Any], None, None]:
     """Set up test env pretending being inside RMS, and with a parsed global config."""
-
-    with open(
-        rootpath / "tests/data/drogon/global_config2/global_variables.yml",
-        encoding="utf8",
-    ) as stream:
-        global_cfg = yaml.safe_load(stream)
 
     tmppath = tmp_path_factory.mktemp("revision")
     rmspath = tmppath / "rms/model"
@@ -53,7 +50,7 @@ def inside_rms_setup(
         shutil.copy(file_, target_folder)
 
     monkeypatch.chdir(rmspath)
-    yield {"path": rmspath, "config": global_cfg}
+    yield {"path": rmspath, "config": drogon_global_config}
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
