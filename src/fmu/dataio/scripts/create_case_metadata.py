@@ -70,6 +70,7 @@ class WfCreateCaseMetadata(ert.ErtScript):
         """Parse arguments and call _create_case_metadata_main()"""
         parser = get_parser()
         args = parser.parse_args(workflow_args)
+
         create_case_metadata_main(args)
         export_ert_parameters(ensemble)
 
@@ -92,8 +93,8 @@ def export_ert_parameters(ensemble: ert.Ensemble) -> None:
     """Exports Ert parameters."""
     scalars = ensemble.load_scalars()
     logger.debug(f"Loaded {len(scalars)} scalars from Ert")
-    print(scalars)
-    print(f"Loaded {len(scalars)} scalars from Ert")
+    param_config = ensemble.experiment.parameter_configuration
+    logger.debug(f"Loaded {len(param_config.keys())} parameter configurations from Ert")
 
 
 def check_arguments(args: argparse.Namespace) -> None:
