@@ -65,12 +65,13 @@ class WfCreateCaseMetadata(ert.ErtScript):
     potential naming collisions in fmu-dataio."""
 
     # pylint: disable=too-few-public-methods
-    def run(self, *args: str) -> None:
+    def run(self, workflow_args: list[str], ensemble: ert.Ensemble) -> None:
         # pylint: disable=no-self-use
         """Parse arguments and call _create_case_metadata_main()"""
         parser = get_parser()
-        workflow_args = parser.parse_args(args)
-        create_case_metadata_main(workflow_args)
+        args = parser.parse_args(workflow_args)
+        create_case_metadata_main(args)
+        export_ert_parameters(ensemble)
 
 
 def create_case_metadata_main(args: argparse.Namespace) -> None:
@@ -85,6 +86,14 @@ def create_case_metadata_main(args: argparse.Namespace) -> None:
         register_on_sumo(sumo_env, case_metadata_path)
 
     logger.debug("create_case_metadata.py has finished.")
+
+
+def export_ert_parameters(ensemble: ert.Ensemble) -> None:
+    """Exports Ert parameters."""
+    scalars = ensemble.load_scalars()
+    logger.debug(f"Loaded {len(scalars)} scalars from Ert")
+    print(scalars)
+    print(f"Loaded {len(scalars)} scalars from Ert")
 
 
 def check_arguments(args: argparse.Namespace) -> None:
