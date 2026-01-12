@@ -54,6 +54,7 @@ dev = [
     "hypothesis",
     "jsonschema",
     "mypy",
+    "openpyxl",
     "pandas-stubs",
     "pyarrow-stubs",
     "pydocstyle",
