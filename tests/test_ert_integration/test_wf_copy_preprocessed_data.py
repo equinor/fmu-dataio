@@ -53,9 +53,12 @@ def test_copy_preprocessed_runs_successfully(
     monkeypatch.chdir(fmu_snakeoil_project)
     _export_preprocessed_data(drogon_global_config, regsurf)
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
-    add_copy_preprocessed_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
+    add_copy_preprocessed_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv",
@@ -99,8 +102,11 @@ def test_copy_preprocessed_no_casemeta(
     monkeypatch.chdir(fmu_snakeoil_project)
     _export_preprocessed_data(drogon_global_config, regsurf)
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_copy_preprocessed_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_copy_preprocessed_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv",
@@ -124,9 +130,12 @@ def test_copy_preprocessed_no_preprocessed_files(
     Here represented by not running the initial export of preprocessed data
     """
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
-    add_copy_preprocessed_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
+    add_copy_preprocessed_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv",
@@ -157,8 +166,11 @@ def test_inpath_absolute_path_raises(
             "/../../share/preprocessed"  # absolute path
         )
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_copy_preprocessed_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_copy_preprocessed_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv",
@@ -184,9 +196,12 @@ def test_copy_preprocessed_no_preprocessed_meta(
     with pytest.warns(UserWarning):
         _export_preprocessed_data({"wrong": "config"}, regsurf)
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
-    add_copy_preprocessed_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
+    add_copy_preprocessed_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv",
@@ -218,8 +233,11 @@ def test_deprecation_warning_global_variables(
     with open(workflow_file, encoding="utf-8", mode="a") as f:
         f.write(" '--global_variables_path' dummypath")
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_copy_preprocessed_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_copy_preprocessed_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv",

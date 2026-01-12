@@ -8,6 +8,7 @@ import pytest
 import yaml
 from fmu.datamodels import FmuResults
 from fmu.datamodels.fmu_results.enums import ErtSimulationMode
+from fmu.datamodels.fmu_results.fmu_results import ObjectMetadata
 from pytest import MonkeyPatch
 
 from fmu.dataio._utils import uuid_from_string
@@ -25,9 +26,12 @@ if TYPE_CHECKING:
 def snakeoil_export_surface_experiment(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
 ) -> Path:
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
-    add_export_a_surface_forward_model(fmu_snakeoil_project, "snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
+    add_export_a_surface_forward_model(fmu_snakeoil_project, ert_config_path)
 
     mocker.patch(
         "sys.argv",
@@ -63,14 +67,19 @@ def test_export_ensemble_experiment(snakeoil_export_surface_experiment: Path) ->
         with open(avg_poro, encoding="utf-8") as f:
             avg_poro_metadata = yaml.safe_load(f)
 
-        avg_poro = FmuResults.model_validate(avg_poro_metadata)  # asserts valid
+        avg_poro_result = FmuResults.model_validate(avg_poro_metadata)  # asserts valid
+        assert isinstance(avg_poro_result.root, ObjectMetadata)
+        assert avg_poro_result.root.fmu.ert is not None
 
         assert (
-            avg_poro.root.fmu.ert.simulation_mode
+            avg_poro_result.root.fmu.ert.simulation_mode
             == ErtSimulationMode.ensemble_experiment
         )
-        assert avg_poro.root.fmu.ert.experiment.id is not None
+        assert avg_poro_result.root.fmu.ert.experiment.id is not None
 
         # the three realizations should have equal runpath_relative_path and entity.uuid
-        assert avg_poro.root.file.runpath_relative_path == Path(share_path)
-        assert avg_poro.root.fmu.entity.uuid == uuid_from_string(case_uuid + share_path)
+        assert avg_poro_result.root.file.runpath_relative_path == Path(share_path)
+        assert avg_poro_result.root.fmu.entity is not None
+        assert avg_poro_result.root.fmu.entity.uuid == uuid_from_string(
+            case_uuid + share_path
+        )

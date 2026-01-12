@@ -7,14 +7,19 @@ import pathlib
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import ert.__main__
 import pytest
 import yaml
 from pytest import CaptureFixture, MonkeyPatch
 
-from .ert_config_utils import add_create_case_workflow
+from .ert_config_utils import (
+    add_create_case_workflow,
+    add_design_matrix,
+    add_globvar_parameters,
+    add_multregt_parameters,
+)
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -23,8 +28,11 @@ if TYPE_CHECKING:
 def test_create_case_metadata_runs_successfully(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
 ) -> None:
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
@@ -49,8 +57,11 @@ def test_create_case_metadata_runs_successfully(
 def test_create_case_metadata_warns_without_overwriting(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
 ) -> None:
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
 
     share_metadata = fmu_snakeoil_project / "scratch/user/snakeoil/share/metadata"
     fmu_case_yml = share_metadata / "fmu_case.yml"
@@ -90,8 +101,12 @@ def test_create_case_metadata_caseroot_not_defined(
         "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED> <CONFIG_PATH> <CASE_DIR>",
         encoding="utf-8",
     )
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
@@ -123,8 +138,11 @@ def test_create_case_metadata_enable_mocked_sumo(
     ) as f:
         f.write(' "--sumo" "--sumo_env" prod')
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
@@ -160,8 +178,11 @@ def test_create_case_metadata_sumo_env_dev_input_fails(
     ) as f:
         f.write(' "--sumo" "--sumo_env" dev')
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
@@ -198,8 +219,11 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
     sumo_env = "dev"
     monkeypatch.setenv("SUMO_ENV", sumo_env)
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
@@ -231,8 +255,11 @@ def test_create_case_metadata_sumo_env_defaults_to_prod(
     ) as f:
         f.write(' "--sumo"')
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
@@ -268,8 +295,11 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
     sumo_env_expected = "dev"
     monkeypatch.setenv("SUMO_ENV", sumo_env_expected)
 
-    monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
 
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
@@ -278,3 +308,90 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
         ert.__main__.main()
 
     mock_sumo_uploader["SumoConnection"].assert_called_once_with(sumo_env_expected)
+
+
+def test_create_case_metadata_collects_ert_parameters_as_expected(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
+) -> None:
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_design_matrix(ert_config_path)
+    add_globvar_parameters(ert_config_path)
+    add_multregt_parameters(ert_config_path)
+
+    add_create_case_workflow(ert_config_path)
+
+    scalars_and_config = []
+
+    def capture_params(ensemble: ert.Ensemble) -> None:
+        """Captures params from Ert run.
+
+        Requires the Ert runtime context to load from local storage."""
+        scalars_and_config.append(ensemble.load_scalars())
+        scalars_and_config.append(ensemble.experiment.parameter_configuration)
+
+    mocker.patch(
+        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
+    )
+    with patch(
+        "fmu.dataio.scripts.create_case_metadata.export_ert_parameters",
+        side_effect=capture_params,
+    ):
+        ert.__main__.main()
+
+    assert len(scalars_and_config) == 2
+    scalars, config_dict = scalars_and_config
+
+    assert scalars.shape == (1, 10)
+    assert set(scalars.columns) == {
+        "realization",
+        "GLOBVAR:globvar_a",
+        "GLOBVAR:globvar_b",
+        "GLOBVAR:globvar_c",
+        "MULTREGT:multregt_a",
+        "MULTREGT:multregt_b",
+        "MULTREGT:multregt_c",
+        "DESIGN_MATRIX:design_a",
+        "DESIGN_MATRIX:design_b",
+        "DESIGN_MATRIX:design_c",
+    }
+
+    # The one constant globvar
+    assert scalars[0, "GLOBVAR:globvar_c"] == 1050.0
+
+    assert scalars[0, "DESIGN_MATRIX:design_a"] == 1
+    assert scalars[0, "DESIGN_MATRIX:design_b"] == 4
+    assert scalars[0, "DESIGN_MATRIX:design_c"] == 7
+
+    # Don't include the first 'realization' column
+    for col in scalars.columns[1:]:
+        group, name = col.split(":", 1)
+        assert name in config_dict
+        var_config = config_dict[name]
+
+        assert var_config.type == "gen_kw"
+        assert var_config.group == group
+
+        distribution = "unknown distribution!"
+        input_source = "unknown input source!"
+        match group:
+            case "MULTREGT":
+                distribution = "logunif"
+                input_source = "sampled"
+            case "DESIGN_MATRIX":
+                distribution = "raw"
+                input_source = "design_matrix"
+            case "GLOBVAR":
+                match name:
+                    case "globvar_a":
+                        distribution = "logunif"
+                    case "globvar_b":
+                        distribution = "uniform"
+                    case "globvar_c":
+                        distribution = "const"
+                input_source = "sampled"
+
+        assert var_config.distribution.name == distribution
+        assert str(var_config.input_source) == input_source
