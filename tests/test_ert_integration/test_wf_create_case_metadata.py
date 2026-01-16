@@ -12,7 +12,18 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import ert.__main__
 import pytest
 import yaml
+from fmu.datamodels.parameters import (
+    ConstParameter,
+    LogUnifParameter,
+    ParameterMetadata,
+    RawParameter,
+    UniformParameter,
+)
 from pytest import CaptureFixture, MonkeyPatch
+
+from fmu.dataio.scripts.create_case_metadata import (
+    parameter_config_to_parameter_metadata,
+)
 
 from .ert_config_utils import (
     add_create_case_workflow,
@@ -369,32 +380,42 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
     for col in scalars.columns[1:]:
         group, name = col.split(":", 1)
         assert name in config_dict
-        var_config = config_dict[name]
+        param_config = config_dict[name]
 
-        assert var_config.type == "gen_kw"
-        assert var_config.group == group
+        assert param_config.type == "gen_kw"
+        assert param_config.group == group
 
         distribution = "unknown distribution!"
         input_source = "unknown input source!"
+        parameter_metadata: type[ParameterMetadata] | None = None
         match group:
             case "MULTREGT":
                 distribution = "logunif"
                 input_source = "sampled"
+                parameter_metadata = LogUnifParameter
             case "DESIGN_MATRIX":
                 distribution = "raw"
                 input_source = "design_matrix"
+                parameter_metadata = RawParameter
             case "GLOBVAR":
                 match name:
                     case "globvar_a":
                         distribution = "logunif"
+                        parameter_metadata = LogUnifParameter
                     case "globvar_b":
                         distribution = "uniform"
+                        parameter_metadata = UniformParameter
                     case "globvar_c":
                         distribution = "const"
+                        parameter_metadata = ConstParameter
                 input_source = "sampled"
 
-        assert var_config.distribution.name == distribution
-        assert str(var_config.input_source) == input_source
+        assert param_config.distribution.name == distribution
+        assert str(param_config.input_source) == input_source
+        assert parameter_metadata is not None
+
+        adapted_parameter = parameter_config_to_parameter_metadata(param_config)
+        assert parameter_metadata is type(adapted_parameter)
 
 
 def test_distribution_models_one_to_one_with_ert() -> None:
@@ -404,18 +425,17 @@ def test_distribution_models_one_to_one_with_ert() -> None:
     ert that have the same distributions (normal, lognormal, ...), and the same
     properties of those distributions (min, max, std dev, ...)."""
     from ert.config.distribution import DistributionSettings
-    from fmu.datamodels.parameters import DistributionMetadata
 
     ert_types = get_args(get_args(DistributionSettings)[0])
-    datamodels_types = get_args(get_args(DistributionMetadata)[0])
+    datamodels_types = get_args(get_args(ParameterMetadata)[0])
 
-    def get_name(cls: DistributionSettings | DistributionMetadata) -> str:
+    def get_name(cls: DistributionSettings | ParameterMetadata) -> str:
         for field in ("name", "distribution"):
             if field in cls.model_fields:
                 return get_args(cls.model_fields[field].annotation)[0]
         raise ValueError("No 'name' or 'distribution' field")
 
-    def get_params(cls: DistributionSettings | DistributionMetadata) -> set[str]:
+    def get_params(cls: DistributionSettings | ParameterMetadata) -> set[str]:
         excluded = {"name", "distribution", "group", "input_source"}
         return {k for k in cls.model_fields if k not in excluded}
 
