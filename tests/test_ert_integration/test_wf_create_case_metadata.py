@@ -6,7 +6,7 @@ import os
 import pathlib
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, get_args
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import ert.__main__
@@ -395,3 +395,31 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
 
         assert var_config.distribution.name == distribution
         assert str(var_config.input_source) == input_source
+
+
+def test_distribution_models_one_to_one_with_ert() -> None:
+    """All fmu-datamodels parameter distributions models match Ert.
+
+    This ensures that dataio will use distribution types in both fmu-datamodels and
+    ert that have the same distributions (normal, lognormal, ...), and the same
+    properties of those distributions (min, max, std dev, ...)."""
+    from ert.config.distribution import DistributionSettings
+    from fmu.datamodels.parameters import DistributionMetadata
+
+    ert_types = get_args(get_args(DistributionSettings)[0])
+    datamodels_types = get_args(get_args(DistributionMetadata)[0])
+
+    def get_name(cls: DistributionSettings | DistributionMetadata) -> str:
+        for field in ("name", "distribution"):
+            if field in cls.model_fields:
+                return get_args(cls.model_fields[field].annotation)[0]
+        raise ValueError("No 'name' or 'distribution' field")
+
+    def get_params(cls: DistributionSettings | DistributionMetadata) -> set[str]:
+        excluded = {"name", "distribution", "group", "input_source"}
+        return {k for k in cls.model_fields if k not in excluded}
+
+    ert_models = {get_name(t): get_params(t) for t in ert_types}
+    datamodels_models = {get_name(t): get_params(t) for t in datamodels_types}
+
+    assert ert_models == datamodels_models
