@@ -19,8 +19,12 @@ from typing import Final
 
 import ert
 import yaml
+from pydantic import TypeAdapter
 
 from fmu.dataio import CreateCaseMetadata
+from fmu.datamodels.parameters import (
+    ParameterMetadata,
+)
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -43,6 +47,10 @@ contents::
     <global_variables_path> (str): Path to global_variables relative to config path
     <verbosity> (str): Set log level. Default: WARNING
 """
+
+ParameterMetadataAdapter: TypeAdapter[ParameterMetadata] = TypeAdapter(
+    ParameterMetadata
+)
 
 
 def main() -> None:
@@ -87,6 +95,22 @@ def create_case_metadata_main(args: argparse.Namespace) -> None:
         register_on_sumo(sumo_env, case_metadata_path)
 
     logger.debug("create_case_metadata.py has finished.")
+
+
+def parameter_config_to_parameter_metadata(
+    config: ert.config.ParameterConfig,
+) -> ParameterMetadata:
+    distribution_dict = config.distribution.model_dump()
+    del distribution_dict["name"]
+
+    return ParameterMetadataAdapter.validate_python(
+        {
+            "group": config.group,
+            "input_source": config.input_source,
+            "distribution": config.distribution.name,
+            **distribution_dict,
+        }
+    )
 
 
 def export_ert_parameters(ensemble: ert.Ensemble) -> None:
