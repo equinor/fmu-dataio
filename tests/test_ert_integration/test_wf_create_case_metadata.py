@@ -12,6 +12,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import ert.__main__
 import pytest
 import yaml
+from ert.config import GenKwConfig
+from ert.config.distribution import DistributionSettings
 from fmu.datamodels.parameters import (
     ConstParameter,
     LogUnifParameter,
@@ -418,13 +420,29 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
         assert parameter_metadata is type(adapted_parameter)
 
 
+@pytest.mark.parametrize(
+    "ert_distribution_class", get_args(get_args(DistributionSettings)[0])
+)
+def test_parameter_config_to_parameter_metadata(
+    ert_distribution_class: DistributionSettings,
+) -> None:
+    """All current Ert parameter configs can be adapted to parameter metadata."""
+    ert_distribution = ert_distribution_class()
+    ert_param_config = GenKwConfig(name="test", distribution=ert_distribution)
+    param_metadata = parameter_config_to_parameter_metadata(ert_param_config)
+
+    assert param_metadata.group == "DEFAULT"
+    assert param_metadata.input_source == "sampled"
+    assert param_metadata.distribution == ert_param_config.distribution.name
+    # Distribution fields tested in next test
+
+
 def test_distribution_models_one_to_one_with_ert() -> None:
     """All fmu-datamodels parameter distributions models match Ert.
 
     This ensures that dataio will use distribution types in both fmu-datamodels and
     ert that have the same distributions (normal, lognormal, ...), and the same
     properties of those distributions (min, max, std dev, ...)."""
-    from ert.config.distribution import DistributionSettings
 
     ert_types = get_args(get_args(DistributionSettings)[0])
     datamodels_types = get_args(get_args(ParameterMetadata)[0])
