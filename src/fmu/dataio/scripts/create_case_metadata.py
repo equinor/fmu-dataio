@@ -101,13 +101,13 @@ def parameter_config_to_parameter_metadata(
     config: ert.config.ParameterConfig,
 ) -> ParameterMetadata:
     distribution_dict = config.distribution.model_dump()
+    distribution_dict["distribution"] = distribution_dict["name"]
     del distribution_dict["name"]
 
     return ParameterMetadataAdapter.validate_python(
         {
             "group": config.group,
             "input_source": config.input_source,
-            "distribution": config.distribution.name,
             **distribution_dict,
         }
     )
