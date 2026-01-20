@@ -344,7 +344,7 @@ def casesetup(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 
 @pytest.fixture(scope="function")
-def mock_global_config() -> dict[str, Any]:
+def mock_global_config_validated() -> global_configuration.GlobalConfiguration:
     """Minimalistic global config variables no. 1 in ExportData class."""
     return global_configuration.GlobalConfiguration(
         masterdata=Masterdata(
@@ -389,7 +389,15 @@ def mock_global_config() -> dict[str, Any]:
                 )
             }
         ),
-    ).model_dump(exclude_none=True)
+    )
+
+
+@pytest.fixture(scope="function")
+def mock_global_config(
+    mock_global_config_validated: global_configuration.GlobalConfiguration,
+) -> dict[str, Any]:
+    """Minimalistic global config variables no. 1 in ExportData class."""
+    return mock_global_config_validated.model_dump(exclude_none=True)
 
 
 @pytest.fixture(scope="function")

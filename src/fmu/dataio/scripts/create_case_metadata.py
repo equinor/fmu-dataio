@@ -1,12 +1,7 @@
-#!/usr/bin/env python
-
 """Create FMU case metadata and register case on Sumo (optional).
 
-This script is intended to be run through an ERT HOOK PRESIM workflow.
-
-Script will parse global variables from the template location. If
-pointed towards the produced global_variables, fmu-config should run
-before this script to make sure global_variables is updated."""
+This script is intended to be run through an Ert HOOK PRE_SIMULATION workflow.
+"""
 
 from __future__ import annotations
 
@@ -14,17 +9,26 @@ import argparse
 import logging
 import os
 import warnings
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Any, Final
 
 import ert
 import yaml
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
 
 from fmu.dataio import CreateCaseMetadata
-from fmu.datamodels.standard_results.ert_parameters import (
-    ErtParameterMetadata,
-)
+from fmu.dataio._export import export_with_metadata
+from fmu.dataio._export_config import ExportConfig
+from fmu.datamodels import ErtParameterMetadata
+from fmu.datamodels.fmu_results import global_configuration
+from fmu.datamodels.fmu_results.enums import Content, FMUContext
+from fmu.datamodels.fmu_results.standard_result import ErtParametersStandardResult
+from fmu.datamodels.standard_results.enums import StandardResultName
+
+if TYPE_CHECKING:
+    import polars as pl
+    import pyarrow as pa
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -36,148 +40,81 @@ and on Sumo.
 """
 
 EXAMPLES = """
-Create an ERT workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with the
-contents::
+Create an ERT workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with::
+
   WF_CREATE_CASE_METADATA <ert_caseroot> <ert_config_path> <ert_casename> "--sumo"
-  ...where
+
+Arguments:
     <ert_caseroot> (Path): Absolute path to root of the case, typically <SCRATCH>/<US...
     <ert_config_path> (Path): Absolute path to ERT config, typically /project/etc/etc
     <ert_casename> (str): The ERT case name, typically <CASE_DIR>
-    <sumo> (optional) (bool): If passed, do not register case on Sumo. Default: False
-    <global_variables_path> (str): Path to global_variables relative to config path
-    <verbosity> (str): Set log level. Default: WARNING
+    --sumo: Register case on Sumo
 """
 
-ParameterMetadataAdapter: TypeAdapter[ErtParameterMetadata] = TypeAdapter(
+ErtParameterMetadataAdapter: TypeAdapter[ErtParameterMetadata] = TypeAdapter(
     ErtParameterMetadata
 )
 
 
-def main() -> None:
-    """Entry point from command line
+@dataclass(frozen=True)
+class WorkflowConfig:
+    """Validated workflow configuration."""
 
-    When script is called from an ERT workflow, it will be called through the 'run'
-    method on the WfCreateCaseMetadata class. This context is the intended usage.
-    The command line entry point is still included, to clarify the difference and
-    for debugging purposes.
-    """
-    parser = get_parser()
-    commandline_args = parser.parse_args()
-    create_case_metadata_main(commandline_args)
+    ert_caseroot: Path
+    ert_config_path: Path
+    ert_casename: str
+    global_variables_path: Path
+    register_on_sumo: bool
+    verbosity: str
 
+    @property
+    def global_config_path(self) -> Path:
+        return self.ert_config_path / self.global_variables_path
 
-class WfCreateCaseMetadata(ert.ErtScript):
-    """A class with a run() function that can be registered as an ERT plugin.
-
-    This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
-    potential naming collisions in fmu-dataio."""
-
-    # pylint: disable=too-few-public-methods
-    def run(self, workflow_args: list[str], ensemble: ert.Ensemble) -> None:
-        # pylint: disable=no-self-use
-        """Parse arguments and call _create_case_metadata_main()"""
-        parser = get_parser()
-        args = parser.parse_args(workflow_args)
-
-        create_case_metadata_main(args)
-        export_ert_parameters(ensemble)
-
-
-def create_case_metadata_main(args: argparse.Namespace) -> None:
-    """Create the case metadata and register case on Sumo."""
-    check_arguments(args)
-    logger.setLevel(args.verbosity)
-
-    case_metadata_path = create_metadata(args)
-    if args.sumo:
-        sumo_env = os.environ.get("SUMO_ENV", "prod")
-        logger.info("Registering case on Sumo (%s)", sumo_env)
-        register_on_sumo(sumo_env, case_metadata_path)
-
-    logger.debug("create_case_metadata.py has finished.")
-
-
-def parameter_config_to_parameter_metadata(
-    config: ert.config.ParameterConfig,
-) -> ErtParameterMetadata:
-    distribution_dict = config.distribution.model_dump()
-    distribution_dict["distribution"] = distribution_dict["name"]
-    del distribution_dict["name"]
-
-    return ParameterMetadataAdapter.validate_python(
-        {
-            "group": config.group,
-            "input_source": config.input_source,
-            **distribution_dict,
-        }
-    )
-
-
-def export_ert_parameters(ensemble: ert.Ensemble) -> None:
-    """Exports Ert parameters."""
-    scalars = ensemble.load_scalars()
-    logger.debug(f"Loaded {len(scalars)} scalars from Ert")
-    param_config = ensemble.experiment.parameter_configuration
-    logger.debug(f"Loaded {len(param_config.keys())} parameter configurations from Ert")
-
-
-def check_arguments(args: argparse.Namespace) -> None:
-    """Do basic sanity checks of input"""
-    logger.debug("Checking input arguments")
-    logger.debug("Arguments: %s", args)
-
-    casepath = args.ert_caseroot
-    if not Path(casepath).is_absolute():
-        logger.debug("Argument ert_caseroot was not absolute: %s", casepath)
-        if casepath.startswith("<") and casepath.endswith(">"):
-            raise ValueError(
-                f"ERT variable used for the case root is not defined: {casepath}"
-            )
-        raise ValueError(
-            "The 'ert_caseroot' argument must be an absolute path, "
-            f"received {casepath}."
-        )
-
-    if args.ert_username:
-        warnings.warn(
-            "The argument 'ert_username' is deprecated. It is no "
-            "longer used and can safely be removed.",
-            FutureWarning,
-        )
-    if args.sumo_env:
-        if args.sumo_env == "prod":
-            warnings.warn(
-                "The argument 'sumo_env' is ignored and can safely be removed.",
-                FutureWarning,
-            )
-        else:
-            if os.getenv("SUMO_ENV") is None:
+    def validate(self) -> None:
+        casepath_str = str(self.ert_caseroot)
+        if not self.ert_caseroot.is_absolute():
+            if casepath_str.startswith("<") and casepath_str.endswith(">"):
                 raise ValueError(
-                    "Setting sumo environment through argument input is not allowed. "
-                    "It must be set as an environment variable SUMO_ENV"
+                    f"Ert variable for case root is not defined: {self.ert_caseroot}"
                 )
+            raise ValueError(
+                f"'ert_caseroot' must be an absolute path. Got: {self.ert_caseroot}"
+            )
 
 
-def create_metadata(args: argparse.Namespace) -> str:
+def _load_global_config(global_config_path: Path) -> dict[str, Any]:
+    """Load this simulation's global config."""
+    logger.debug(f"Loading global config from {global_config_path}")
+    with open(global_config_path, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def create_case_metadata(
+    global_config: dict[str, Any],
+    ert_caseroot: Path,
+    ert_casename: str,
+    register_on_sumo: bool,
+) -> str:
     """Create the case metadata and print them to the disk"""
-    with open(
-        Path(args.ert_config_path) / args.global_variables_path, encoding="utf-8"
-    ) as f:
-        global_variables = yaml.safe_load(f)
-
-    return CreateCaseMetadata(
-        config=global_variables,
-        rootfolder=args.ert_caseroot,
-        casename=args.ert_casename,
+    case_metadata_path = CreateCaseMetadata(
+        config=global_config,
+        rootfolder=ert_caseroot,
+        casename=ert_casename,
     ).export()
 
+    if register_on_sumo:
+        _register_on_sumo(case_metadata_path)
 
-def register_on_sumo(
-    sumo_env: str,
-    case_metadata_path: str,
-) -> str:
+    return case_metadata_path
+
+
+def _register_on_sumo(case_metadata_path: str) -> str:
     """Register the case on Sumo by sending the case metadata"""
     from fmu.sumo.uploader import CaseOnDisk, SumoConnection
+
+    sumo_env = os.environ.get("SUMO_ENV", "prod")
+    logger.info(f"Registering case on Sumo ({sumo_env})")
 
     sumo_conn = SumoConnection(sumo_env)
     logger.debug("Sumo connection established")
@@ -188,12 +125,139 @@ def register_on_sumo(
     return sumo_id
 
 
+def export_ert_parameters(
+    ensemble: ert.Ensemble,
+    run_paths: ert.Runpaths,
+    casepath: Path,
+    global_config: global_configuration.GlobalConfiguration,
+) -> Path:
+    """Exports Ert parameters as a Parquet file as the ensemble level."""
+
+    scalars_df = ensemble.load_scalars()
+    if scalars_df.is_empty():
+        logger.warning("No scalar parameters found in ensemble")
+        return casepath
+
+    ensemble_name = _get_ensemble_name(ensemble, run_paths, casepath)
+    table, realizations = _process_parameters(scalars_df, ensemble)
+
+    export_path = _export_parameters_table(
+        table, ensemble_name, casepath, global_config
+    )
+    logger.info(f"Exported parameters for realizations {realizations} to {export_path}")
+    return export_path
+
+
+def _get_ensemble_name(
+    ensemble: ert.Ensemble,
+    run_paths: ert.Runpaths,
+    casepath: Path,
+) -> str:
+    """Determine ensemble name from run path.
+
+    Users attribute the ensemble runpath directory as the ensemble name. This differs
+    from the Ert internal view of the name. This function will collect the ensemble path
+    from the first realization (since all realizations are placed within an ensemble).
+    But if no ensemble directory is used the runpath would then be equal to the
+    casepath. In this case use a default "iter-0".
+    """
+    runpath = Path(
+        run_paths.get_paths(realizations=[0], iteration=ensemble.iteration)[0]
+    )
+    return str(runpath.name) if runpath.parent != casepath else "iter-0"
+
+
+def _process_parameters(
+    scalars_df: pl.DataFrame, ensemble: ert.Ensemble
+) -> tuple[pa.Table, list[int]]:
+    """Process parameters into an Arrow table with metadata."""
+    import pyarrow as pa
+
+    param_configs = ensemble.experiment.parameter_configuration
+    realizations = scalars_df.get_column("realization").to_list()
+
+    columns_to_drop: list[str] = []
+    metadata_map: dict[str, dict[bytes, bytes]] = {}
+    rename_map: dict[str, str] = {
+        "realization": "REAL",
+    }
+
+    for col_name in scalars_df.columns:
+        if col_name == "realization":
+            continue
+
+        param_name: str = col_name.split(":", 1)[-1] if ":" in col_name else col_name
+        config = param_configs.get(param_name)
+
+        if isinstance(config, ert.config.GenKwConfig):
+            metadata = _genkw_to_metadata(config)
+            metadata_map[param_name] = metadata.to_pa_metadata()
+            rename_map[col_name] = param_name
+        else:
+            columns_to_drop.append(col_name)
+            logger.warning(f"Skipping '{col_name}': no valid GenKwConfig found")
+
+    scalars_df = scalars_df.drop(columns_to_drop).rename(rename_map)
+    arrow_table = scalars_df.to_arrow()
+
+    fields = [
+        pa.field(f.name, f.type, metadata=metadata_map.get(f.name))
+        for f in arrow_table.schema
+    ]
+    table = arrow_table.cast(pa.schema(fields))
+
+    return table, realizations
+
+
+def _genkw_to_metadata(config: ert.config.GenKwConfig) -> ErtParameterMetadata:
+    """Convert GenKwConfig to parameter metadata."""
+    distribution_dict = config.distribution.model_dump(exclude={"name"})
+    return ErtParameterMetadataAdapter.validate_python(
+        {
+            "group": config.group,
+            "input_source": config.input_source,
+            "distribution": config.distribution.name.lower(),
+            **distribution_dict,
+        }
+    )
+
+
+def _export_parameters_table(
+    table: pa.Table,
+    ensemble_name: str,
+    casepath: Path,
+    global_config: global_configuration.GlobalConfiguration,
+) -> Path:
+    """Export parameter table using fmu-dataio."""
+    export_config = (
+        ExportConfig.builder()
+        .content(Content.parameters)
+        .table_config(table_index=["REAL"])
+        .file_config(name="parameters")
+        .global_config(global_config)
+        .run_context(
+            fmu_context=FMUContext.ensemble,
+            ensemble_name=ensemble_name,
+            casepath=casepath,
+        )
+        .build()
+    )
+
+    return export_with_metadata(
+        export_config,
+        table,
+        standard_result=ErtParametersStandardResult(name=StandardResultName.parameters),
+    )
+
+
 def get_parser() -> argparse.ArgumentParser:
     """Construct parser object."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("ert_caseroot", type=str, help="Absolute path to the case root")
     parser.add_argument(
-        "ert_config_path", type=str, help="ERT config path (<CONFIG_PATH>)"
+        "ert_caseroot", type=Path, help="Absolute path to the case root"
+    )
+    parser.add_argument(
+        "ert_config_path", type=Path, help="ERT config path (<CONFIG_PATH>)"
     )
     parser.add_argument("ert_casename", type=str, help="ERT case name (<CASE>)")
     parser.add_argument(
@@ -216,7 +280,7 @@ def get_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--global_variables_path",
-        type=str,
+        type=Path,
         help="Directly specify path to global variables relative to ert config path",
         default="../../fmuconfig/output/global_variables.yml",
     )
@@ -224,6 +288,86 @@ def get_parser() -> argparse.ArgumentParser:
         "--verbosity", type=str, help="Set log level", default="WARNING"
     )
     return parser
+
+
+def _parse_config(args: argparse.Namespace) -> WorkflowConfig:
+    """Convert parsed args to config.
+
+    Also handles deprecations."""
+    if args.ert_username:
+        warnings.warn(
+            "The argument 'ert_username' is deprecated. It is no "
+            "longer used and can safely be removed.",
+            FutureWarning,
+        )
+    if args.sumo_env:
+        warnings.warn(
+            "The argument 'sumo_env' is ignored and can safely be removed.",
+            FutureWarning,
+        )
+        if args.sumo_env != "prod" and os.getenv("SUMO_ENV") is None:
+            raise ValueError(
+                "Setting sumo environment through argument input is not allowed. "
+                "It must be set as an environment variable SUMO_ENV"
+            )
+
+    return WorkflowConfig(
+        ert_caseroot=args.ert_caseroot,
+        ert_config_path=args.ert_config_path,
+        ert_casename=args.ert_casename,
+        global_variables_path=args.global_variables_path,
+        register_on_sumo=args.sumo,
+        verbosity=args.verbosity,
+    )
+
+
+class WfCreateCaseMetadata(ert.ErtScript):
+    """A class with a run() function that can be registered as an ERT plugin.
+
+    This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
+    potential naming collisions in fmu-dataio."""
+
+    def run(
+        self,
+        workflow_args: list[str],
+        ensemble: ert.Ensemble,
+        run_paths: ert.Runpaths,
+    ) -> None:
+        # pylint: disable=no-self-use
+        """Parse arguments and run the workflow."""
+        parser = get_parser()
+        args = parser.parse_args(workflow_args)
+        _run_workflow(args, ensemble, run_paths)
+
+
+def _run_workflow(
+    args: argparse.Namespace, ensemble: ert.Ensemble, run_paths: ert.Runpaths
+) -> None:
+    """Main workflow entry point."""
+    config = _parse_config(args)
+    config.validate()
+    logger.setLevel(args.verbosity)
+
+    # TODO: Load to validated dict and pass to case object
+    global_config_dict = _load_global_config(config.global_config_path)
+    try:
+        global_config = global_configuration.GlobalConfiguration.model_validate(
+            global_config_dict
+        )
+    except ValidationError as e:
+        global_configuration.validation_error_warning(e)
+        raise
+
+    metadata_path = create_case_metadata(
+        global_config_dict,
+        config.ert_caseroot,
+        config.ert_casename,
+        config.register_on_sumo,
+    )
+    logger.debug(f"Case metadata exported to {metadata_path}")
+
+    export_ert_parameters(ensemble, run_paths, config.ert_caseroot, global_config)
+    logger.debug("create_case_metadata.py has finished.")
 
 
 @ert.plugin(name="fmu_dataio")
@@ -237,7 +381,3 @@ def ertscript_workflow(config: ert.WorkflowConfigs) -> None:
         examples=EXAMPLES,
         category="export",
     )
-
-
-if __name__ == "__main__":
-    main()
