@@ -2,29 +2,37 @@ from __future__ import annotations
 
 import getpass
 import importlib
+import json
 import os
 import pathlib
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, get_args
+from typing import TYPE_CHECKING, Any, get_args
 from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
 
 import ert.__main__
+import pandas as pd
+import polars as pl
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 import yaml
 from ert.config import GenKwConfig
 from ert.config.distribution import DistributionSettings
-from fmu.datamodels.parameters import (
+from fmu.datamodels.standard_results.ert_parameters import (
     ConstParameter,
+    ErtParameterMetadata,
     LogUnifParameter,
-    ParameterMetadata,
     RawParameter,
     UniformParameter,
 )
 from pytest import CaptureFixture, MonkeyPatch
 
 from fmu.dataio.scripts.create_case_metadata import (
-    parameter_config_to_parameter_metadata,
+    ErtParameterMetadataAdapter,
+    _genkw_config_to_parameter_metadata,
+    export_ert_parameters,
 )
 
 from .ert_config_utils import (
@@ -36,6 +44,16 @@ from .ert_config_utils import (
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
+
+
+def parse_field_metadata(field) -> ErtParameterMetadata:
+    """Decode and parse metadata from a PyArrow field."""
+    assert field.metadata is not None, f"Field {field.name} has no metadata"
+    decoded = {
+        k.decode("utf-8"): json.loads(v.decode("utf-8"))
+        for k, v in field.metadata.items()
+    }
+    return ErtParameterMetadataAdapter.validate_python(decoded)
 
 
 def test_create_case_metadata_runs_successfully(
@@ -338,7 +356,9 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
 
     scalars_and_config = []
 
-    def capture_params(ensemble: ert.Ensemble) -> None:
+    def capture_params(
+        ensemble: ert.Ensemble, casepath: Path, global_config: dict[str, Any]
+    ) -> None:
         """Captures params from Ert run.
 
         Requires the Ert runtime context to load from local storage."""
@@ -389,7 +409,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
 
         distribution = "unknown distribution!"
         input_source = "unknown input source!"
-        parameter_metadata: type[ParameterMetadata] | None = None
+        parameter_metadata: type[ErtParameterMetadata] | None = None
         match group:
             case "MULTREGT":
                 distribution = "logunif"
@@ -416,20 +436,20 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
         assert str(param_config.input_source) == input_source
         assert parameter_metadata is not None
 
-        adapted_parameter = parameter_config_to_parameter_metadata(param_config)
+        adapted_parameter = _genkw_config_to_parameter_metadata(param_config)
         assert parameter_metadata is type(adapted_parameter)
 
 
 @pytest.mark.parametrize(
     "ert_distribution_class", get_args(get_args(DistributionSettings)[0])
 )
-def test_parameter_config_to_parameter_metadata(
+def test__genkw_config_to_parameter_metadata(
     ert_distribution_class: DistributionSettings,
 ) -> None:
     """All current Ert parameter configs can be adapted to parameter metadata."""
     ert_distribution = ert_distribution_class()
     ert_param_config = GenKwConfig(name="test", distribution=ert_distribution)
-    param_metadata = parameter_config_to_parameter_metadata(ert_param_config)
+    param_metadata = _genkw_config_to_parameter_metadata(ert_param_config)
 
     assert param_metadata.group == "DEFAULT"
     assert param_metadata.input_source == "sampled"
@@ -445,15 +465,15 @@ def test_distribution_models_one_to_one_with_ert() -> None:
     properties of those distributions (min, max, std dev, ...)."""
 
     ert_types = get_args(get_args(DistributionSettings)[0])
-    datamodels_types = get_args(get_args(ParameterMetadata)[0])
+    datamodels_types = get_args(get_args(ErtParameterMetadata)[0])
 
-    def get_name(cls: DistributionSettings | ParameterMetadata) -> str:
+    def get_name(cls: DistributionSettings | ErtParameterMetadata) -> str:
         for field in ("name", "distribution"):
             if field in cls.model_fields:
                 return get_args(cls.model_fields[field].annotation)[0]
         raise ValueError("No 'name' or 'distribution' field")
 
-    def get_params(cls: DistributionSettings | ParameterMetadata) -> set[str]:
+    def get_params(cls: DistributionSettings | ErtParameterMetadata) -> set[str]:
         excluded = {"name", "distribution", "group", "input_source"}
         return {k for k in cls.model_fields if k not in excluded}
 
@@ -461,3 +481,277 @@ def test_distribution_models_one_to_one_with_ert() -> None:
     datamodels_models = {get_name(t): get_params(t) for t in datamodels_types}
 
     assert ert_models == datamodels_models
+
+
+@pytest.fixture
+def mock_ert_ensemble() -> MagicMock:
+    """Create a mock Ert esnemble with scalar parameters."""
+    ensemble = MagicMock()
+    ensemble.name = "iter-0"
+    ensemble.id = uuid4()
+
+    scalars_df = pl.DataFrame(
+        {
+            "realization": [0, 1, 2],
+            "PARAM_GROUP:param_a": [1.0, 2.0, 3.0],
+            "PARAM_GROUP:param_b": [4.0, 5.0, 6.0],
+            "DESIGN_MATRIX:param_c": [1640, 1640, 1640],
+        }
+    )
+    ensemble.load_scalars.return_value = scalars_df
+
+    mock_config = MagicMock(spec=GenKwConfig)
+    mock_config.group = "PARAM_GROUP"
+    mock_config.input_source = "sampled"
+    mock_config.distribution = MagicMock()
+    mock_config.distribution.name = "normal"
+    mock_config.distribution.model_dump.return_value = {"mean": 0.0, "std": 1.0}
+
+    mock_design = MagicMock(spec=GenKwConfig)
+    mock_design.group = "DESIGN_MATRIX"
+    mock_design.input_source = "design_matrix"
+    mock_design.distribution = MagicMock()
+    mock_design.distribution.name = "raw"
+
+    ensemble.experiment.parameter_configuration = {
+        "param_a": mock_config,
+        "param_b": mock_config,
+        "param_c": mock_design,
+    }
+
+    return ensemble
+
+
+def test_export_ert_parameters(
+    fmurun_prehook: Path,
+    monkeypatch: MonkeyPatch,
+    mock_global_config: dict[str, Any],
+    mock_ert_ensemble: MagicMock,
+) -> None:
+    """Export Ert parameters at ensemble level."""
+    export_path = export_ert_parameters(
+        ensemble=mock_ert_ensemble,
+        casepath=fmurun_prehook,
+        global_config=mock_global_config,
+    )
+
+    assert export_path.exists()
+    assert "iter-0" in str(export_path)
+    assert fmurun_prehook / "share" / "ensemble" / "iter-0" in export_path.parents
+
+
+def test_export_ert_parameters_empty_scalars(
+    fmurun_prehook: Path,
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Empty scalars returns early."""
+    ensemble = MagicMock()
+    ensemble.load_scalars.return_value = pl.DataFrame()
+
+    result = export_ert_parameters(
+        ensemble=ensemble,
+        casepath=fmurun_prehook,
+        global_config=mock_global_config,
+    )
+
+    assert result == fmurun_prehook
+
+
+def test_export_ert_parameters_prediction_ensemble(
+    fmurun_prehook: Path,
+    monkeypatch: MonkeyPatch,
+    mock_global_config: dict[str, Any],
+    mock_ert_ensemble: MagicMock,
+) -> None:
+    """Export with a prediction ensemble name."""
+    mock_ert_ensemble.name = "pred-dg3"
+
+    export_path = export_ert_parameters(
+        ensemble=mock_ert_ensemble,
+        casepath=fmurun_prehook,
+        global_config=mock_global_config,
+    )
+
+    assert export_path.exists()
+    assert "pred-dg3" in str(export_path)
+
+
+def test_export_ert_parameters_subset_realizations(
+    fmurun_prehook: Path,
+    monkeypatch: MonkeyPatch,
+    mock_global_config: dict[str, Any],
+    mock_ert_ensemble: MagicMock,
+) -> None:
+    """Export with only a subset of realizations."""
+    scalars_df = pl.DataFrame(
+        {
+            "realization": [1, 3],
+            "PARAM_GROUP:param_a": [2.0, 4.0],
+            "PARAM_GROUP:param_b": [5.0, 7.0],
+            "DESIGN_MATRIX:param_c": [1640, 1640],
+        }
+    )
+    mock_ert_ensemble.load_scalars.return_value = scalars_df
+
+    export_path = export_ert_parameters(
+        ensemble=mock_ert_ensemble,
+        casepath=fmurun_prehook,
+        global_config=mock_global_config,
+    )
+
+    assert export_path.exists()
+
+    exported_df = pl.read_parquet(export_path)
+    assert exported_df.get_column("realization").to_list() == [1, 3]
+
+
+def test_export_ert_parameters_schema_columns(
+    fmurun_prehook: Path,
+    mock_global_config: dict[str, Any],
+    mock_ert_ensemble: MagicMock,
+) -> None:
+    """Exported parquet has expected columns with correct types."""
+    export_path = export_ert_parameters(
+        ensemble=mock_ert_ensemble,
+        casepath=fmurun_prehook,
+        global_config=mock_global_config,
+    )
+
+    schema = pq.read_schema(export_path)
+
+    assert schema.field("realization").type == pa.int64()
+    assert schema.field("param_a").type == pa.float64()
+    assert schema.field("param_b").type == pa.float64()
+    assert schema.field("param_c").type == pa.float64()
+
+    assert len(schema.names) == 4
+
+
+def test_export_ert_parameters_missing_config(
+    fmurun_prehook: Path,
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Parameters without config in parameter_configuration are skipped."""
+    ensemble = MagicMock()
+    ensemble.name = "iter-0"
+    ensemble.id = uuid4()
+
+    scalars_df = pl.DataFrame(
+        {
+            "realization": [0],
+            "UNKNOWN:unknown_param": [1.0],
+        }
+    )
+    ensemble.load_scalars.return_value = scalars_df
+    ensemble.experiment.parameter_configuration = {}  # Empty config
+
+    export_path = export_ert_parameters(
+        ensemble=ensemble,
+        casepath=fmurun_prehook,
+        global_config=mock_global_config,
+    )
+
+    schema = pq.read_schema(export_path)
+    assert schema.names == ["realization"]
+
+
+def test_export_ert_parameters_non_genkw_config_skipped(
+    fmurun_prehook: Path,
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Non-GenKwConfig parameters are skipped."""
+    ensemble = MagicMock()
+    ensemble.name = "iter-0"
+    ensemble.id = uuid4()
+
+    scalars_df = pl.DataFrame(
+        {
+            "realization": [0],
+            "GROUP:some_param": [1.0],
+        }
+    )
+    ensemble.load_scalars.return_value = scalars_df
+
+    ensemble.experiment.parameter_configuration = {
+        "some_param": MagicMock(spec=[])  # Not a GenKwConfig
+    }
+
+    export_path = export_ert_parameters(
+        ensemble=ensemble,
+        casepath=fmurun_prehook,
+        global_config=mock_global_config,
+    )
+
+    schema = pq.read_schema(export_path)
+    assert schema.names == ["realization"]
+
+
+def test_create_case_metadata_expects_parameters_standard_result_integration(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
+) -> None:
+    """Full integration test with the snakeoil Ert model."""
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_design_matrix(ert_config_path)
+    add_globvar_parameters(ert_config_path)
+    add_multregt_parameters(ert_config_path)
+    add_create_case_workflow(ert_config_path)
+
+    mocker.patch(
+        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
+    )
+    ert.__main__.main()
+
+    ensemble_path = (
+        fmu_snakeoil_project / "scratch/user/snakeoil/share/ensemble/default"
+    )
+    assert ensemble_path.exists()
+
+    parameters_parquet = ensemble_path / "share/results/tables/parameters.parquet"
+    parameters_metadata = ensemble_path / "share/results/tables/.parameters.parquet.yml"
+    assert parameters_parquet.exists()
+    assert parameters_metadata.exists()
+
+    df = pd.read_parquet(parameters_parquet)
+    assert df["realization"].iloc[0] == 0
+    assert df["globvar_a"].iloc[0] == pytest.approx(0.6725254375492808)
+
+    expected_design_values = {"design_a": 1.0, "design_b": 4.0, "design_c": 7.0}
+    for name, expected_value in expected_design_values.items():
+        assert df[f"{name}"].iloc[0] == expected_value
+
+    schema = pq.read_schema(parameters_parquet)
+
+    globvar_a_meta = parse_field_metadata(schema.field("globvar_a"))
+    assert globvar_a_meta.group == "GLOBVAR"
+    assert globvar_a_meta.input_source == "sampled"
+    assert globvar_a_meta.distribution == "logunif"
+
+    design_a_meta = parse_field_metadata(schema.field("design_a"))
+    assert design_a_meta.group == "DESIGN_MATRIX"
+    assert design_a_meta.input_source == "design_matrix"
+    assert design_a_meta.distribution == "raw"
+
+    globvar_b_meta = parse_field_metadata(schema.field("globvar_b"))
+    assert globvar_b_meta.distribution == "uniform"
+    assert hasattr(globvar_b_meta, "min")
+    assert hasattr(globvar_b_meta, "max")
+
+    globvar_c_meta = parse_field_metadata(schema.field("globvar_c"))
+    assert globvar_c_meta.distribution == "const"
+    assert globvar_c_meta.value == 1050.0
+
+    multregt_a_meta = parse_field_metadata(schema.field("multregt_a"))
+    assert multregt_a_meta.group == "MULTREGT"
+    assert multregt_a_meta.distribution == "logunif"
+
+    with open(parameters_metadata) as f:
+        metadata_dict = yaml.safe_load(f)
+
+    assert metadata_dict["data"]["content"] == "parameters"
+    assert metadata_dict["data"]["standard_result"]["name"] == "parameters"
+    assert metadata_dict["data"]["table_index"] == ["realization"]
+    assert "fmu" in metadata_dict
+    assert metadata_dict["fmu"]["context"]["stage"] == "ensemble"
