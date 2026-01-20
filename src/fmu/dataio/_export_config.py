@@ -227,6 +227,7 @@ class ExportConfigBuilder:
         self._runcontext: RunContext | None = None
         self._casepath: Path | None = None
         self._fmu_context: FMUContext | None = None
+        self._ensemble_name: str | None = None
         self._run_context_called: bool = False
 
     def content(
@@ -351,6 +352,7 @@ class ExportConfigBuilder:
         *,
         fmu_context: FMUContext | None = None,
         casepath: Path | None = None,
+        ensemble_name: str | None = None,
     ) -> ExportConfigBuilder:
         """Set run context parameters explicitly.
 
@@ -363,6 +365,7 @@ class ExportConfigBuilder:
         """
         self._fmu_context = fmu_context
         self._casepath = casepath
+        self._ensemble_name = ensemble_name
         self._run_context_called = True
         return self
 
@@ -374,6 +377,7 @@ class ExportConfigBuilder:
             return RunContext(
                 casepath_proposed=self._casepath,
                 fmu_context=self._fmu_context,
+                ensemble_name=self._ensemble_name,
             )
 
         fmu_context, preprocessed = _resolve_fmu_context(

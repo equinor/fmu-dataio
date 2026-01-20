@@ -25,8 +25,9 @@ def snakeoil_export_surface(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
 ) -> Path:
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
-    add_create_case_workflow("snakeoil.ert")
-    add_export_a_surface_forward_model(fmu_snakeoil_project, "snakeoil.ert")
+    ert_config = Path("snakeoil.ert")
+    add_create_case_workflow(ert_config)
+    add_export_a_surface_forward_model(fmu_snakeoil_project, ert_config)
 
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
