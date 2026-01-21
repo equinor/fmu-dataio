@@ -951,7 +951,8 @@ def test_fmu_context_not_given_fetch_from_env_realization(
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._runcontext.inside_fmu is True
-    assert edata.fmu_context == FMUContext.realization
+    assert edata.fmu_context is None
+    assert edata._resolved_fmu_context == FMUContext.realization
 
 
 def test_fmu_context_not_given_fetch_from_env_case(
@@ -972,7 +973,8 @@ def test_fmu_context_not_given_fetch_from_env_case(
     # test that it runs properly when casepath is provided
     edata = ExportData(config=rmsglobalconfig, content="depth", casepath=fmurun_prehook)
     assert edata._runcontext.inside_fmu is True
-    assert edata.fmu_context == FMUContext.case
+    assert edata.fmu_context is None
+    assert edata._resolved_fmu_context == FMUContext.case
     assert edata._runcontext.exportroot == fmurun_prehook
 
 
@@ -1003,7 +1005,8 @@ def test_fmu_context_outside_fmu_input_overwrite(
         config=rmsglobalconfig, content="depth", fmu_context="realization"
     )
     assert edata._runcontext.inside_fmu is False
-    assert edata.fmu_context is None
+    assert edata.fmu_context == "realization"
+    assert edata._resolved_fmu_context is None
 
 
 def test_fmu_context_outside_fmu_no_input_overwrite(
@@ -1024,15 +1027,18 @@ def test_fmu_context_preprocessed_deprecation_outside_fmu(
 ) -> None:
     """
     Test the deprecated fmu_context="preprocessed" outside fmu.
-    This should set the preprocessed flag to True and overwrite the
-    fmu_context (if any) to "non-fmu".
+
+    This should not change the explicit FMU context, or the default preprocessed=False
+    and set the resolved preprocessed=True and fmu_context to None.
     """
     with pytest.warns(FutureWarning, match="is deprecated"):
         edata = ExportData(
             config=rmsglobalconfig, content="depth", fmu_context="preprocessed"
         )
-    assert edata.preprocessed is True
-    assert edata.fmu_context is None
+    assert edata.preprocessed is False
+    assert edata._resolved_preprocessed is True
+    assert edata.fmu_context == "preprocessed"
+    assert edata._resolved_fmu_context is None
 
     meta = edata.generate_metadata(regsurf)
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
@@ -1043,8 +1049,9 @@ def test_fmu_context_preprocessed_deprecation_inside_fmu(
 ) -> None:
     """
     Test the deprecated fmu_context="preprocessed" inside fmu.
-    This should set the preprocessed flag to True and overwrite the
-    fmu_context (if any) to "case".
+
+    This should not change the explicit FMU context, or the default preprocessed=False
+    and set the resolved preprocessed=True and fmu_context to 'case'.
     """
     with pytest.warns(FutureWarning, match="is deprecated"):
         edata = ExportData(
@@ -1053,8 +1060,10 @@ def test_fmu_context_preprocessed_deprecation_inside_fmu(
             fmu_context="preprocessed",
             casepath=fmurun_prehook,
         )
-    assert edata.preprocessed is True
-    assert edata.fmu_context == FMUContext.case
+    assert edata.preprocessed is False
+    assert edata._resolved_preprocessed is True
+    assert edata.fmu_context == "preprocessed"
+    assert edata._resolved_fmu_context == FMUContext.case
 
     meta = edata.generate_metadata(regsurf)
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"

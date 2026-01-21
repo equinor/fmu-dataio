@@ -416,7 +416,7 @@ def test_cube_export_as_case(
     # use forcefolder to apply share/observations/seismic
     output = edata.export(cube)
     logger.info("Output %s", output)
-    assert edata.fmu_context is None
+    assert edata._resolved_fmu_context is None
     assert str(output) == str(
         (
             edata._runcontext.exportroot / "share/observations/cubes/mycube.segy"

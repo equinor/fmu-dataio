@@ -15,8 +15,10 @@ from warnings import warn
 from fmu.dataio.aggregation import AggregatedData
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results import enums, global_configuration
+from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
+from ._fmu_context import resolve_fmu_context
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
 from ._runcontext import RunContext, get_fmu_context_from_environment
@@ -600,6 +602,8 @@ class ExportData:
     #
     # ----------------------------------------------------------------------------------
 
+    _resolved_fmu_context: FMUContext | None = None
+    _resolved_preprocessed: bool = False
     _classification: Classification = Classification.internal
     _rep_include: bool = field(default=False, init=False)
 
@@ -620,7 +624,7 @@ class ExportData:
         if not self.config and GLOBAL_ENVNAME in os.environ:
             self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
 
-        self._validate_and_establish_fmucontext()
+        self._resolve_fmu_context()
 
         try:
             self.config = GlobalConfiguration.model_validate(self.config)
@@ -645,9 +649,8 @@ class ExportData:
 
     def _get_runcontext(self) -> RunContext:
         """Get the run context for this ExportData instance."""
-        assert isinstance(self.fmu_context, enums.FMUContext | None)
         casepath_proposed = Path(self.casepath) if self.casepath else None
-        return RunContext(casepath_proposed, fmu_context=self.fmu_context)
+        return RunContext(casepath_proposed, fmu_context=self._resolved_fmu_context)
 
     def _get_classification(self) -> Classification:
         """
@@ -906,72 +909,23 @@ class ExportData:
                 UserWarning,
             )
 
-    def _validate_and_establish_fmucontext(self) -> None:
+    def _resolve_fmu_context(self) -> None:
+        """Resolve and validate the FMU context configuration.
+
+        Raises:
+            FMUContextError: If the configuration is invalid.
         """
-        Validate the given 'fmu_context' input. if not explicitly given it
-        will be established based on the presence of ERT environment variables.
-        """
+        resolution = resolve_fmu_context(
+            fmu_context_input=self.fmu_context,
+            preprocessed_input=self.preprocessed,
+            env_context=get_fmu_context_from_environment(),
+        )
 
-        if self.fmu_context and self.fmu_context.lower() == "case_symlink_realization":
-            raise ValueError(
-                "fmu_context is set to 'case_symlink_realization', which is no "
-                "longer a supported option. Recommended workflow is to export "
-                "your data as preprocessed ouside of FMU, and re-export the data "
-                "with fmu_context='case' using a PRE_SIMULATION ERT workflow. "
-                "If needed, forward_models in ERT can be set-up to create symlinks "
-                "out into the individual realizations.",
-                UserWarning,
-            )
+        for message, category in resolution.warnings:
+            warnings.warn(message, category)
 
-        if self.fmu_context == "preprocessed":
-            warnings.warn(
-                "Using the 'fmu_context' argument with value 'preprocessed' is "
-                "deprecated and will be removed in the future. Use the more explicit "
-                "'preprocessed' argument instead: ExportData(preprocessed=True)",
-                FutureWarning,
-            )
-            self.preprocessed = True
-            self.fmu_context = None
-
-        env_fmu_context = get_fmu_context_from_environment()
-        logger.debug("fmu context from input is %s", self.fmu_context)
-        logger.debug("fmu context from environment is %s", env_fmu_context)
-
-        # use fmu_context from environment if not explicitly set
-        if self.fmu_context is None:
-            logger.info(
-                "fmu_context is established from environment variables %s",
-                env_fmu_context,
-            )
-            self.fmu_context = env_fmu_context
-
-        elif not env_fmu_context:
-            logger.warning(
-                "Requested fmu_context is <%s> but since this is detected as a non "
-                "FMU run, the actual context is force set to None",
-                self.fmu_context,
-            )
-            self.fmu_context = None
-
-        else:
-            self.fmu_context = enums.FMUContext(self.fmu_context.lower())
-            logger.info("FMU context is %s", self.fmu_context)
-
-        if self.preprocessed and self.fmu_context == enums.FMUContext.realization:
-            raise ValueError(
-                "Can't export preprocessed data in a fmu_context='realization'."
-            )
-
-        if (
-            self.fmu_context != enums.FMUContext.case
-            and env_fmu_context == enums.FMUContext.case
-        ):
-            warn(
-                "fmu_context is set to 'realization', but unable to detect "
-                "ERT runpath from environment variable. "
-                "Did you mean fmu_context='case'?",
-                UserWarning,
-            )
+        self._resolved_fmu_context = resolution.context
+        self._resolved_preprocessed = resolution.preprocessed
 
     def _update_check_settings(self, newsettings: dict) -> None:
         """Update instance settings (properties) from other routines."""
@@ -1000,7 +954,7 @@ class ExportData:
             logger.info("New setting OK for %s", setting)
 
         self._show_deprecations_or_notimplemented()
-        self._validate_and_establish_fmucontext()
+        self._resolve_fmu_context()
 
         self._runcontext = self._get_runcontext()
         self._classification = self._get_classification()

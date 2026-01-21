@@ -44,7 +44,7 @@ class SharePathConstructor:
 
     def _get_share_root(self) -> Path:
         """Get the main share root location as a path e.g. share/results."""
-        if self.dataio.preprocessed:
+        if self.dataio._resolved_preprocessed:
             return Path(ShareFolder.PREPROCESSED.value)
         if self.dataio.is_observation:
             return Path(ShareFolder.OBSERVATIONS.value)
