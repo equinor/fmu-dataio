@@ -17,7 +17,11 @@ from fmu.datamodels.fmu_results import enums, global_configuration
 from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
-from ._deprecations import future_warning_preprocessed, resolve_deprecations
+from ._deprecations import (
+    DeprecationError,
+    future_warning_preprocessed,
+    resolve_deprecations,
+)
 from ._fmu_context import resolve_fmu_context
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
@@ -748,7 +752,11 @@ class ExportData:
         return None
 
     def _resolve_deprecations(self) -> None:
-        """Resolve deprecated arguments and emit warnings."""
+        """Resolve deprecated arguments and emit warnings.
+
+        Raises:
+            DeprecationError: If invalid argument combinations are detected.
+        """
         resolution = resolve_deprecations(
             # Arguments with replacements
             access_ssdl=self.access_ssdl or None,
@@ -784,7 +792,7 @@ class ExportData:
             warnings.warn(message, category)
 
         if resolution.errors:
-            raise ValueError("\n".join(resolution.errors))
+            raise DeprecationError("\n".join(resolution.errors))
 
     def _resolve_fmu_context(self) -> None:
         """Resolve and validate the FMU context configuration.

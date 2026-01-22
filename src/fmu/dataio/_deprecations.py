@@ -60,9 +60,6 @@ def resolve_deprecations(
 
     Returns:
         DeprecationResolution with warnings to emit.
-
-    Raises:
-        DeprecationError: If invalid argument combinations are detected.
     """
     warnings_to_emit: list[WarningTuple] = []
     errors: list[str] = []
