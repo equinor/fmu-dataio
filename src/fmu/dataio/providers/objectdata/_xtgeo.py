@@ -327,8 +327,8 @@ class PointsDataProvider(ObjectDataProvider):
         return BoundingBox3D(
             xmin=float(df[self.obj.xname].min()),
             xmax=float(df[self.obj.xname].max()),
-            ymax=float(df[self.obj.yname].min()),
-            ymin=float(df[self.obj.yname].max()),
+            ymin=float(df[self.obj.yname].min()),
+            ymax=float(df[self.obj.yname].max()),
             zmin=float(df[self.obj.zname].min()),
             zmax=float(df[self.obj.zname].max()),
         )
