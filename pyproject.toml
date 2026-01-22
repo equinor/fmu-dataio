@@ -129,6 +129,8 @@ filterwarnings = [
     "ignore:The value of 'vertical_domain' is 'depth'.*vertical_domain.*will be set to 'time':UserWarning",
     "ignore:Setting 'rep_include' from the config is deprecated:FutureWarning",
     "ignore:Providing input settings through environment variables is deprecated:FutureWarning",
+    # Ignore mutation deprecation warnings (tested in test_dataio.py::test_mutation_*)
+    "ignore:Mutating ExportData\\..* after initialization is deprecated:FutureWarning",
 ]
 
 [tool.coverage.run]

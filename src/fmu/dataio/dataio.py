@@ -19,6 +19,7 @@ from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from ._deprecations import (
     DeprecationError,
+    _check_vertical_domain_dict,
     future_warning_preprocessed,
     resolve_deprecations,
 )
@@ -594,6 +595,7 @@ class ExportData:
     _resolved_domain_reference: str = field(default="msl", init=False)
     _classification: Classification = Classification.internal
     _rep_include: bool = field(default=False, init=False)
+    _initialized: bool = field(default=False, init=False, repr=False)
 
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
@@ -634,9 +636,30 @@ class ExportData:
 
         self._classification = self._get_classification()
         self._rep_include = self._get_rep_include()
-
         self._runcontext = self._get_runcontext()
+
+        object.__setattr__(self, "_initialized", True)
         logger.info("Ran __post_init__")
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Catch attribute mutations and warn."""
+        is_initialized = getattr(self, "_initialized", False)
+
+        if is_initialized and not name.startswith("_") and name != "config":
+            warnings.warn(
+                f"Mutating ExportData.{name} after initialization is deprecated "
+                "and will be removed in a future version. Create a new ExportData "
+                "instance with the desired values instead.",
+                FutureWarning,
+            )
+
+        object.__setattr__(self, name, value)
+
+        if name == "vertical_domain":
+            maybe_warnings = _check_vertical_domain_dict(value)
+            for warning, category in maybe_warnings:
+                warnings.warn(warning, category)
+            self._resolve_vertical_domain()
 
     def _get_runcontext(self) -> RunContext:
         """Get the run context for this ExportData instance."""
