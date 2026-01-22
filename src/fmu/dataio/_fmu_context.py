@@ -8,6 +8,7 @@ from typing import Final
 from fmu.datamodels.fmu_results.enums import FMUContext
 
 from ._logging import null_logger
+from .types import WarningTuple
 
 logger: Final = null_logger(__name__)
 
@@ -18,7 +19,7 @@ class FMUContextResolution:
 
     context: FMUContext | None
     preprocessed: bool
-    warnings: list[tuple[str, type[Warning]]] = field(default_factory=list)
+    warnings: list[WarningTuple] = field(default_factory=list)
 
 
 class FMUContextError(ValueError):
@@ -47,7 +48,7 @@ def resolve_fmu_context(
         FMUContextError: If the configuration is invalid (e.g., removed options,
           incompatible combinations, etc.).
     """
-    warnings_to_emit: list[tuple[str, type[Warning]]] = []
+    warnings_to_emit: list[WarningTuple] = []
     preprocessed = preprocessed_input
 
     _check_removed_options(fmu_context_input)
@@ -86,13 +87,13 @@ def _check_removed_options(fmu_context_input: str | None) -> None:
 def _handle_deprecations(
     fmu_context_input: str | None,
     preprocessed_input: bool,
-) -> tuple[str | None, bool, list[tuple[str, type[Warning]]]]:
+) -> tuple[str | None, bool, list[WarningTuple]]:
     """
     Handle deprecated input patterns.
 
     Returns: tuple of (fmu_context, preprocessed, warnings).
     """
-    warnings_to_emit: list[tuple[str, type[Warning]]] = []
+    warnings_to_emit: list[WarningTuple] = []
 
     if fmu_context_input == "preprocessed":
         warnings_to_emit.append(
@@ -114,14 +115,14 @@ def _handle_deprecations(
 def _determine_effective_context(
     explicit_context: str | None,
     env_context: FMUContext | None,
-) -> tuple[FMUContext | None, list[tuple[str, type[Warning]]]]:
+) -> tuple[FMUContext | None, list[WarningTuple]]:
     """
     Determine the effective FMU context from explicit input and environment.
 
     Returns:
         Tuple of (effective_context, warnings)
     """
-    warnings_to_emit: list[tuple[str, type[Warning]]] = []
+    warnings_to_emit: list[WarningTuple] = []
 
     if explicit_context is None:
         logger.info(f"fmu_context from environment: {env_context}")

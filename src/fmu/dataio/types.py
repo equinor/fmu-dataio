@@ -51,3 +51,4 @@ Parameters: TypeAlias = Annotated[
     MutableMapping[str, Union[str, float, int, None, "Parameters"]],
     "Nested or flat configurations for dynamically structured parameters.",
 ]
+WarningTuple: TypeAlias = tuple[str, type[Warning]]
