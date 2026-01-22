@@ -17,6 +17,7 @@ from fmu.datamodels.fmu_results.standard_result import InplaceVolumesStandardRes
 from fmu.datamodels.standard_results.enums import StandardResultName
 from pytest import MonkeyPatch
 
+from fmu.dataio._deprecations import DeprecationError
 from fmu.dataio._runcontext import FmuEnv
 from fmu.dataio._utils import (
     convert_datestr_to_isoformat,
@@ -342,7 +343,7 @@ def test_access_ssdl_vs_classification_rep_include(
     # 'classification' / 'rep_include' arguments
     with (
         pytest.warns(FutureWarning, match="deprecated"),
-        pytest.raises(ValueError, match="is not supported"),
+        pytest.raises(DeprecationError, match="is not supported"),
     ):
         ExportData(
             access_ssdl={"access_level": "restricted"},
@@ -351,7 +352,7 @@ def test_access_ssdl_vs_classification_rep_include(
         )
     with (
         pytest.warns(FutureWarning, match="deprecated"),
-        pytest.raises(ValueError, match="is not supported"),
+        pytest.raises(DeprecationError, match="is not supported"),
     ):
         ExportData(
             access_ssdl={"rep_include": True},
@@ -361,7 +362,7 @@ def test_access_ssdl_vs_classification_rep_include(
 
     with (
         pytest.warns(FutureWarning, match="deprecated"),
-        pytest.raises(ValueError, match="is not supported"),
+        pytest.raises(DeprecationError, match="is not supported"),
     ):
         ExportData(
             access_ssdl={"access_level": "restricted"},

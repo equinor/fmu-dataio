@@ -100,8 +100,8 @@ class ObjectDataProvider(Provider):
         metadata["format"] = self.fmt
         metadata["layout"] = self.layout
         metadata["unit"] = self.dataio.unit or ""
-        metadata["vertical_domain"] = self.dataio.vertical_domain
-        metadata["domain_reference"] = self.dataio.domain_reference
+        metadata["vertical_domain"] = self.dataio._resolved_vertical_domain
+        metadata["domain_reference"] = self.dataio._resolved_domain_reference
 
         metadata["spec"] = self.get_spec()
         metadata["geometry"] = self.get_geometry()

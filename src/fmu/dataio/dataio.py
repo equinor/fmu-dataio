@@ -10,7 +10,6 @@ import warnings
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
-from warnings import warn
 
 from fmu.dataio.aggregation import AggregatedData
 from fmu.datamodels.common.enums import Classification
@@ -18,6 +17,11 @@ from fmu.datamodels.fmu_results import enums, global_configuration
 from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
+from ._deprecations import (
+    DeprecationError,
+    future_warning_preprocessed,
+    resolve_deprecations,
+)
 from ._fmu_context import resolve_fmu_context
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
@@ -53,22 +57,6 @@ logger: Final = null_logger(__name__)
 
 AggregatedData: Final = AggregatedData  # Backwards compatibility alias
 CreateCaseMetadata: Final = CreateCaseMetadata  # Backwards compatibility alias
-
-
-# ======================================================================================
-# Private functions
-# ======================================================================================
-
-
-def _future_warning_preprocessed() -> None:
-    warnings.warn(
-        "Using the ExportData class for re-exporting preprocessed data is no "
-        "longer supported. Use the dedicated ExportPreprocessedData class "
-        "instead. In a deprecation period the ExportPreprocessedData is used "
-        "under the hood when a filepath is input to ExportData. "
-        "Please update your script, as this will be discontinued in the future.",
-        FutureWarning,
-    )
 
 
 # ======================================================================================
@@ -544,9 +532,6 @@ class ExportData:
     # directory. When specifying the case context the ``casepath`` must provided through
     # the ``casepath`` value.
 
-    grid_model: str | None = None
-    # Currently allowed but planned for deprecation. See `geometry`.
-
     rep_include: bool | None = None
     # Optional. If True then the data object will be available in REP.
 
@@ -572,6 +557,7 @@ class ExportData:
     reuse_metadata_rule: str | None = None  # deprecated
     runpath: str | Path | None = None  # Deprecated. Issues warning.
     verbosity: str = "DEPRECATED"  # remove in version 2
+    grid_model: str | None = None
 
     # Class variables
 
@@ -604,12 +590,15 @@ class ExportData:
 
     _resolved_fmu_context: FMUContext | None = None
     _resolved_preprocessed: bool = False
+    _resolved_vertical_domain: str = field(default="depth", init=False)
+    _resolved_domain_reference: str = field(default="msl", init=False)
     _classification: Classification = Classification.internal
     _rep_include: bool = field(default=False, init=False)
 
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
-        self._show_deprecations_or_notimplemented()
+
+        self._resolve_deprecations()
 
         # if input is provided as an ENV variable pointing to a YAML file; will override
         if SETTINGS_ENVNAME in os.environ:
@@ -617,6 +606,7 @@ class ExportData:
                 "Providing input settings through environment variables is deprecated, "
                 "use ExportData(**yaml_load(<your_file>)) instead. To "
                 "disable this warning, remove the 'FMU_DATAIO_CONFIG' env.",
+                FutureWarning,
             )
 
         # global config which may be given as env variable
@@ -625,6 +615,7 @@ class ExportData:
             self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
 
         self._resolve_fmu_context()
+        self._resolve_vertical_domain()
 
         try:
             self.config = GlobalConfiguration.model_validate(self.config)
@@ -712,7 +703,7 @@ class ExportData:
             and (ssdl := self.config.access.ssdl)
             and ssdl.rep_include is not None
         ):
-            warn(
+            warnings.warn(
                 "Setting 'rep_include' from the config is deprecated. Use the "
                 "'rep_include' argument instead (default value is False). To silence "
                 "this warning remove the 'access.ssdl.rep_include' from the config.",
@@ -760,154 +751,48 @@ class ExportData:
         logger.debug("Found no content_metadata, returning None")
         return None
 
-    def _show_deprecations_or_notimplemented(self) -> None:
-        """Warn on deprecated keys or on stuff not implemented yet."""
+    def _resolve_deprecations(self) -> None:
+        """Resolve deprecated arguments and emit warnings.
 
-        if self.access_ssdl:
-            warn(
-                "The 'access_ssdl' argument is deprecated and will be removed in the "
-                "future. Use the more explicit 'classification' and 'rep_include' "
-                "arguments instead.",
-                FutureWarning,
-            )
-            if self.classification is not None or self.rep_include is not None:
-                raise ValueError(
-                    "Using the 'classification' and/or 'rep_include' arguments, "
-                    "in combination with the (legacy) 'access_ssdl' argument "
-                    "is not supported."
-                )
+        Raises:
+            DeprecationError: If invalid argument combinations are detected.
+        """
+        resolution = resolve_deprecations(
+            # Arguments with replacements
+            access_ssdl=self.access_ssdl or None,
+            classification=self.classification,
+            rep_include=self.rep_include,
+            content=self.content,
+            vertical_domain=self.vertical_domain,
+            workflow=self.workflow,
+            # Arguments with no effect
+            runpath=self.runpath,
+            grid_model=self.grid_model,
+            legacy_time_format=self.legacy_time_format,
+            createfolder=self.createfolder,
+            verifyfolder=self.verifyfolder,
+            reuse_metadata_rule=self.reuse_metadata_rule,
+            realization=self.realization,
+            aggregation=self.aggregation,
+            table_include_index=self.table_include_index,
+            verbosity=self.verbosity,
+            allow_forcefolder_absolute=self.allow_forcefolder_absolute,
+            include_ertjobs=self.include_ertjobs,
+            depth_reference=self.depth_reference,
+            meta_format=self.meta_format,
+            # Format options
+            arrow_fformat=self.arrow_fformat,
+            cube_fformat=self.cube_fformat,
+            grid_fformat=self.grid_fformat,
+            surface_fformat=self.surface_fformat,
+            dict_fformat=self.dict_fformat,
+        )
 
-        if isinstance(self.content, dict):
-            warn(
-                "Using the 'content' argument to set both the content and "
-                "the content metadata will be deprecated. Set the 'content' "
-                "argument to a valid content string, and provide the extra "
-                "information through the 'content_metadata' argument instead.",
-                FutureWarning,
-            )
+        for message, category in resolution.warnings:
+            warnings.warn(message, category)
 
-        if self.runpath:
-            warn(
-                "The 'runpath' key has currently no function. It will be evaluated for "
-                "removal in fmu-dataio version 2. Use 'casepath' instead!",
-                UserWarning,
-            )
-        if isinstance(self.vertical_domain, dict):
-            warn(
-                "Using the 'vertical_domain' argument to set both the vertical domain "
-                "and the reference will be deprecated. Set the 'vertical_domain' "
-                "argument to a string with value either 'time'/'depth', and provide "
-                "the domain reference through the 'domain_reference' argument instead.",
-                FutureWarning,
-            )
-            self.vertical_domain, self.domain_reference = list(
-                self.vertical_domain.items()
-            )[0]
-
-        if self.grid_model:
-            warn(
-                "The 'grid_model' key has currently no function. It will be evaluated "
-                "for removal in fmu-dataio version 2.",
-                UserWarning,
-            )
-
-        if self.legacy_time_format:
-            warn(
-                "Using the 'legacy_time_format=True' option to create metadata files "
-                "with the old format for time is now deprecated. This option has no "
-                "longer an effect and will be removed in the near future.",
-                UserWarning,
-            )
-        if not self.createfolder:
-            warn(
-                "Using the 'createfolder=False' option is now deprecated. "
-                "This option has no longer an effect and can safely be removed",
-                UserWarning,
-            )
-        if not self.verifyfolder:
-            warn(
-                "Using the 'verifyfolder=False' option to create metadata files "
-                "This option has no longer an effect and can safely be removed",
-                UserWarning,
-            )
-        if self.reuse_metadata_rule:
-            warn(
-                "The 'reuse_metadata_rule' key is deprecated and has no effect. "
-                "Please remove it from the argument list.",
-                UserWarning,
-            )
-        if self.realization:
-            warn(
-                "The 'realization' key is deprecated and has no effect. "
-                "Please remove it from the argument list.",
-                UserWarning,
-            )
-        if self.aggregation:
-            warn(
-                "The 'aggregation' key is deprecated and has no effect. "
-                "Please remove it from the argument list.",
-                UserWarning,
-            )
-        if self.table_include_index:
-            warn(
-                "The 'table_include_index' option is deprecated and has no effect. "
-                "To get the index included in your dataframe, reset the index "
-                "before exporting the dataframe with dataio i.e. df = df.reset_index()",
-                UserWarning,
-            )
-        if self.verbosity != "DEPRECATED":
-            warn(
-                "Using the 'verbosity' key is now deprecated and will have no "
-                "effect and will be removed in near future. Please remove it from the "
-                "argument list. Set logging level from client script in the standard "
-                "manner instead.",
-                UserWarning,
-            )
-        if isinstance(self.workflow, dict):
-            warn(
-                "The 'workflow' argument should be given as a string. "
-                "Support for dictionary will be deprecated.",
-                FutureWarning,
-            )
-        if self.allow_forcefolder_absolute:
-            warn(
-                "Support for using an absolute path as 'forcefolder' is deprecated. "
-                "Please remove it from the argument list.",
-                UserWarning,
-            )
-        if self.include_ertjobs:
-            warn(
-                "The 'include_ertjobs' option is deprecated and should be removed.",
-                UserWarning,
-            )
-        if self.depth_reference:
-            warn(
-                "The 'depth_reference' key has no function. Use the 'domain_reference' "
-                "key instead to set the reference for the given 'vertical_domain'.",
-                UserWarning,
-            )
-        if self.meta_format:
-            warn(
-                "The 'meta_format' option is deprecated and should be removed. "
-                "Metadata will only be exported in yaml format.",
-                UserWarning,
-            )
-
-        if any(
-            (
-                self.arrow_fformat,
-                self.cube_fformat,
-                self.grid_fformat,
-                self.surface_fformat,
-                self.dict_fformat,
-            )
-        ):
-            warn(
-                "The options 'arrow_fformat', 'cube_fformat', 'grid_fformat', "
-                "'surface_fformat', and 'dict_fformat' are deprecated. These options "
-                "no longer affect the exported file format and can safely be removed.",
-                UserWarning,
-            )
+        if resolution.errors:
+            raise DeprecationError("\n".join(resolution.errors))
 
     def _resolve_fmu_context(self) -> None:
         """Resolve and validate the FMU context configuration.
@@ -927,9 +812,19 @@ class ExportData:
         self._resolved_fmu_context = resolution.context
         self._resolved_preprocessed = resolution.preprocessed
 
+    def _resolve_vertical_domain(self) -> None:
+        """Resolve vertical_domain and domain_reference from raw input."""
+        if isinstance(self.vertical_domain, dict):
+            vd_key, vd_value = next(iter(self.vertical_domain.items()))
+            self._resolved_vertical_domain = vd_key
+            self._resolved_domain_reference = vd_value
+        else:
+            self._resolved_vertical_domain = self.vertical_domain
+            self._resolved_domain_reference = self.domain_reference
+
     def _update_check_settings(self, newsettings: dict) -> None:
         """Update instance settings (properties) from other routines."""
-        # if no newsettings (kwargs) this rutine is not needed
+        # if no newsettings (kwargs) this routine is not needed
         if not newsettings:
             return
 
@@ -953,8 +848,9 @@ class ExportData:
             setattr(self, setting, value)
             logger.info("New setting OK for %s", setting)
 
-        self._show_deprecations_or_notimplemented()
+        self._resolve_deprecations()
         self._resolve_fmu_context()
+        self._resolve_vertical_domain()
 
         self._runcontext = self._get_runcontext()
         self._classification = self._get_classification()
@@ -1073,7 +969,7 @@ class ExportData:
         if isinstance(obj, str | Path):
             if self.casepath is None:
                 raise TypeError("No 'casepath' argument provided")
-            _future_warning_preprocessed()
+            future_warning_preprocessed()
             return ExportPreprocessedData(
                 casepath=self.casepath,
                 is_observation=self.is_observation,
@@ -1120,7 +1016,7 @@ class ExportData:
             self._update_check_settings(kwargs)
             if self.casepath is None:
                 raise TypeError("No 'casepath' argument provided")
-            _future_warning_preprocessed()
+            future_warning_preprocessed()
             return ExportPreprocessedData(
                 casepath=self.casepath,
                 is_observation=self.is_observation,

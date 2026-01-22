@@ -93,6 +93,43 @@ write_to = "src/fmu/dataio/version.py"
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = "tests"
+filterwarnings = [
+    # Ignore deprecation warnings in tests not specifically testing them
+    # These are tested explicitly in test_deprecations.py and test_dataio.py
+    "ignore:The 'access_ssdl' argument is deprecated:FutureWarning",
+    "ignore:Using the 'content' argument to set both the content:FutureWarning",
+    "ignore:Using the 'vertical_domain' argument to set both:FutureWarning",
+    "ignore:The 'workflow' argument should be given as a string:FutureWarning",
+    "ignore:In the future it will not be possible to enter following arguments:FutureWarning",
+    # Ignore no-effect deprecation warnings
+    "ignore:The 'runpath' key has currently no function:UserWarning",
+    "ignore:The 'grid_model' key has currently no function:UserWarning",
+    "ignore:Using the 'legacy_time_format=True' option:UserWarning",
+    "ignore:Using the 'createfolder=False' option:UserWarning",
+    "ignore:Using the 'verifyfolder=False' option:UserWarning",
+    "ignore:The 'reuse_metadata_rule' key is deprecated:UserWarning",
+    "ignore:The 'realization' key is deprecated:UserWarning",
+    "ignore:The 'aggregation' key is deprecated:UserWarning",
+    "ignore:The 'table_include_index' option is deprecated:UserWarning",
+    "ignore:Using the 'verbosity' key is now deprecated:UserWarning",
+    "ignore:Support for using an absolute path as 'forcefolder':UserWarning",
+    "ignore:The 'include_ertjobs' option is deprecated:UserWarning",
+    "ignore:The 'depth_reference' key has no function:UserWarning",
+    "ignore:The 'meta_format' option is deprecated:UserWarning",
+    "ignore:The options 'arrow_fformat', 'cube_fformat':UserWarning",
+    # Ignore expected warnings that aren't errors
+    "ignore:Could not detect any standard index columns in table:UserWarning",
+    "ignore:The table provided does not contain all required standard table index columns:FutureWarning",
+    "ignore::FutureWarning:fmu.dataio.providers.objectdata._xtgeo",
+    "ignore:Could not detect metadata for the proposed casepath:UserWarning",
+    "ignore:Could not auto detect the case metadata:UserWarning",
+    "ignore:Both 'geometry' and 'parent' keys are given:UserWarning",
+    "ignore:The global config file is lacking masterdata definitions:UserWarning",
+    "ignore:Data will be exported, but without metadata:UserWarning",
+    "ignore:The value of 'vertical_domain' is 'depth'.*vertical_domain.*will be set to 'time':UserWarning",
+    "ignore:Setting 'rep_include' from the config is deprecated:FutureWarning",
+    "ignore:Providing input settings through environment variables is deprecated:FutureWarning",
+]
 
 [tool.coverage.run]
 omit = [
