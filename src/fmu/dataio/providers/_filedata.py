@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._definitions import ShareFolder
+from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import compute_md5_and_size_from_objdata
 from fmu.datamodels.fmu_results import fields
@@ -22,7 +23,6 @@ from ._base import Provider
 logger: Final = null_logger(__name__)
 
 if TYPE_CHECKING:
-    from fmu.dataio import ExportData
     from fmu.dataio._runcontext import RunContext
 
     from .objectdata._provider import ObjectDataProvider
@@ -31,11 +31,11 @@ if TYPE_CHECKING:
 class SharePathConstructor:
     """Class for providing the export share location for an object"""
 
-    def __init__(self, dataio: ExportData, objdata: ObjectDataProvider):
-        self.dataio = dataio
+    def __init__(self, export_config: ExportConfig, objdata: ObjectDataProvider):
+        self.export_config = export_config
         self.objdata = objdata
 
-        self.name = self.dataio.name or self.objdata.name
+        self.name = self.export_config.name or self.objdata.name
         self.parent = self._get_parent()
 
     def get_share_path(self) -> Path:
@@ -44,17 +44,17 @@ class SharePathConstructor:
 
     def _get_share_root(self) -> Path:
         """Get the main share root location as a path e.g. share/results."""
-        if self.dataio._resolved_preprocessed:
+        if self.export_config.preprocessed:
             return Path(ShareFolder.PREPROCESSED.value)
-        if self.dataio.is_observation:
+        if self.export_config.is_observation:
             return Path(ShareFolder.OBSERVATIONS.value)
         return Path(ShareFolder.RESULTS.value)
 
     def _get_share_folders(self) -> Path:
         """Get the full share folders as a path."""
         share_root = self._get_share_root()
-        if self.dataio.subfolder:
-            return share_root / self.objdata.efolder / self.dataio.subfolder
+        if self.export_config.subfolder:
+            return share_root / self.objdata.efolder / self.export_config.subfolder
         return share_root / self.objdata.efolder
 
     def _get_filename(self) -> Path:
@@ -66,7 +66,7 @@ class SharePathConstructor:
         """Action when both parent key and geometry key are given (GridProperty)."""
         geom = self.objdata.get_geometry()
 
-        if geom and self.dataio.parent:
+        if geom and self.export_config.parent:
             warnings.warn(
                 "Both 'geometry' and 'parent' keys are given, but 'parent' will here "
                 "be ignored as they are in conflict. Instead, the geometry.name will "
@@ -74,7 +74,7 @@ class SharePathConstructor:
                 UserWarning,
             )
 
-        return geom.name if geom else self.dataio.parent
+        return geom.name if geom else self.export_config.parent
 
     def _get_filestem(self) -> str:
         """
@@ -92,7 +92,7 @@ class SharePathConstructor:
         filestem_order = (
             self.parent,
             self.name,
-            self.dataio.tagname,
+            self.export_config.tagname,
             self._get_timepart_for_filename(),
         )
         # join non-empty parts with '--'
@@ -108,7 +108,7 @@ class SharePathConstructor:
             return t0
         t1 = self.objdata.time1.strftime("%Y%m%d")
         return "_".join(
-            (t1, t0) if not self.dataio.filename_timedata_reverse else (t0, t1)
+            (t1, t0) if not self.export_config.filename_timedata_reverse else (t0, t1)
         )
 
     @staticmethod

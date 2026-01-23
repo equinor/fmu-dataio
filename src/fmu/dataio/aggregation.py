@@ -268,7 +268,9 @@ class AggregatedData:
         dummy_content = "depth"  # will not be used, but will silence warning
         etemp = dataio.ExportData(config=config, name=self.name, content=dummy_content)
 
-        objdata = objectdata_provider_factory(obj=obj, dataio=etemp)
+        objdata = objectdata_provider_factory(
+            obj=obj, export_config=etemp._export_config
+        )
 
         checksum_md5, size = _utils.compute_md5_and_size_from_objdata(objdata)
 

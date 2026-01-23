@@ -40,7 +40,7 @@ def test_regsurf_generate_metadata(
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth")
 
     meta = edata.generate_metadata(regsurf)
-    assert str(edata._runcontext.casepath) == str(
+    assert str(edata._export_config.runcontext.casepath) == str(
         fmurun_w_casemetadata.parent.parent.resolve()
     )
     assert meta["file"]["relative_path"].startswith("realization-0/iter-0/share")
@@ -169,11 +169,11 @@ def test_polys_export_file_set_name(
     output = edata.export(polygons)
     logger.info("Output is %s", output)
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
 
     assert str(output) == str(
         (
-            edata._runcontext.casepath
+            edata._export_config.runcontext.casepath
             / "realization-0/iter-0/share/results/polygons/topvolantis.csv"
         ).resolve()
     )
@@ -233,9 +233,9 @@ def test_polys_export_file_as_parquet(
 
     assert output.exists()
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert output == (
-        edata._runcontext.casepath
+        edata._export_config.runcontext.casepath
         / "realization-0/iter-0/share/results/polygons/topvolantis.parquet"
     )
 
@@ -296,9 +296,9 @@ def test_polys_export_file_as_irap_ascii(
 
     assert output.exists()
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert output == (
-        edata._runcontext.casepath
+        edata._export_config.runcontext.casepath
         / "realization-0/iter-0/share/results/polygons/topvolantis.pol"
     )
     # check that data.table_index is not set in the metadata
@@ -327,10 +327,10 @@ def test_points_export_file_set_name(
     output = edata.export(points)
     logger.info("Output is %s", output)
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert str(output) == str(
         (
-            edata._runcontext.casepath
+            edata._export_config.runcontext.casepath
             / "realization-0/iter-0/share/results/points/topvolantis.csv"
         ).resolve()
     )
@@ -362,10 +362,10 @@ def test_points_export_file_set_name_xtgeoheaders(
     output = edata.export(points)
     logger.info("Output is %s", output)
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert str(output) == str(
         (
-            edata._runcontext.casepath
+            edata._export_config.runcontext.casepath
             / "realization-0/iter-0/share/results/points/topvolantiz.csv"
         ).resolve()
     )
@@ -425,9 +425,9 @@ def test_points_export_file_as_irap_ascii(
 
     assert output.exists()
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert output == (
-        edata._runcontext.casepath
+        edata._export_config.runcontext.casepath
         / "realization-0/iter-0/share/results/points/topvolantis.poi"
     )
     # check that data.table_index is not set in the metadata
@@ -455,9 +455,9 @@ def test_points_export_file_as_parquet(
     output = Path(edata.export(points))
 
     assert output.exists()
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert output == (
-        edata._runcontext.casepath
+        edata._export_config.runcontext.casepath
         / "realization-0/iter-0/share/results/points/topvolantis.parquet"
     )
 
@@ -607,10 +607,10 @@ def test_cube_export_file_set_name(
     output = edata.export(cube)
     logger.info("Output is %s", output)
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert str(output) == str(
         (
-            edata._runcontext.casepath
+            edata._export_config.runcontext.casepath
             / "realization-0/iter-0/share/results/cubes/mycube.segy"
         ).resolve()
     )
@@ -637,10 +637,10 @@ def test_cube_export_file_is_observation(
     output = edata.export(cube)
     logger.info("Output is %s", output)
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert str(output) == str(
         (
-            edata._runcontext.casepath
+            edata._export_config.runcontext.casepath
             / "realization-0/iter-0/share/observations/cubes/mycube.segy"
         ).resolve()
     )
@@ -667,9 +667,12 @@ def test_cube_export_file_is_case_observation(
     output = edata.export(cube)
     logger.info("Output is %s", output)
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert str(output) == str(
-        (edata._runcontext.casepath / "share/observations/cubes/mycube.segy").resolve()
+        (
+            edata._export_config.runcontext.casepath
+            / "share/observations/cubes/mycube.segy"
+        ).resolve()
     )
 
 
@@ -695,10 +698,10 @@ def test_cube_export_file_is_observation_forcefolder(
     output = edata.export(cube)
     logger.info("Output is %s", output)
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert str(output) == str(
         (
-            edata._runcontext.casepath
+            edata._export_config.runcontext.casepath
             / "realization-0/iter-0/share/observations/seismic/mycube.segy"
         ).resolve()
     )
@@ -756,11 +759,11 @@ def test_grid_export_file_set_name(
     output = edata.export(grid)
     logger.info("Output is %s", output)
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
 
     assert str(output) == str(
         (
-            edata._runcontext.casepath
+            edata._export_config.runcontext.casepath
             / "realization-0/iter-0/share/results/grids/mygrid.roff"
         ).resolve()
     )
@@ -784,10 +787,10 @@ def test_gridproperty_export_file_set_name(
         output = edata.export(gridproperty)
     logger.info("Output is %s", output)
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert str(output) == str(
         (
-            edata._runcontext.casepath
+            edata._export_config.runcontext.casepath
             / "realization-0/iter-0/share/results/grids/mygridproperty.roff"
         ).resolve()
     )
@@ -815,10 +818,10 @@ def test_dataframe_export_file_set_name(
     output = edata.export(dataframe)
     logger.info("Output is %s", output)
 
-    assert edata._runcontext.casepath is not None
+    assert edata._export_config.runcontext.casepath is not None
     assert str(output) == str(
         (
-            edata._runcontext.casepath
+            edata._export_config.runcontext.casepath
             / "realization-0/iter-0/share/results/tables/mydataframe.csv"
         ).resolve()
     )
@@ -848,10 +851,10 @@ def test_pyarrow_export_file_set_name(
         output = edata.export(arrowtable)
         logger.info("Output is %s", output)
 
-        assert edata._runcontext.casepath is not None
+        assert edata._export_config.runcontext.casepath is not None
         assert str(output) == str(
             (
-                edata._runcontext.casepath
+                edata._export_config.runcontext.casepath
                 / "realization-0/iter-0/share/results/tables/myarrowtable.parquet"
             ).resolve()
         )

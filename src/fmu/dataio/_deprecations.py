@@ -5,6 +5,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Final
 
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+
 from ._logging import null_logger
 from .types import WarningTuple
 
@@ -25,6 +27,8 @@ class DeprecationError(ValueError):
 
 def resolve_deprecations(
     *,
+    # Objects with replacements
+    config: GlobalConfiguration | dict[str, Any],
     # Arguments that have replacements (FutureWarning)
     access_ssdl: dict[str, Any] | None,
     classification: str | None,
@@ -63,6 +67,9 @@ def resolve_deprecations(
     """
     warnings_to_emit: list[WarningTuple] = []
     errors: list[str] = []
+
+    config_warnings = _check_global_config(config)
+    warnings_to_emit.extend(config_warnings)
 
     access_warnings, access_error = _check_access_ssdl(
         access_ssdl, classification, rep_include
@@ -108,6 +115,30 @@ def resolve_deprecations(
     warnings_to_emit.extend(format_warnings)
 
     return DeprecationResolution(warnings=warnings_to_emit, errors=errors)
+
+
+def _check_global_config(
+    config: GlobalConfiguration | dict[str, Any],
+) -> list[WarningTuple]:
+    """Check deprecated global configuration fields.
+
+    Returns:
+        List of WarningTuples.
+    """
+    warnings: list[WarningTuple] = []
+    if isinstance(config, dict) or config is None:
+        return warnings
+
+    if (ssdl := config.access.ssdl) and ssdl.rep_include is not None:
+        warnings.append(
+            (
+                "Setting 'rep_include' from the global config is deprecated. Use the "
+                "'rep_include' argument instead (default value is False). To silence "
+                "this warning remove the 'access.ssdl.rep_include' from the config.",
+                FutureWarning,
+            )
+        )
+    return warnings
 
 
 def _check_access_ssdl(

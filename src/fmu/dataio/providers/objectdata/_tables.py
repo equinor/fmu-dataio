@@ -175,7 +175,7 @@ class DataFrameDataProvider(ObjectDataProvider):
 
     @property
     def efolder(self) -> str:
-        return self.dataio.forcefolder or ExportFolder.tables.value
+        return self.export_config.forcefolder or ExportFolder.tables.value
 
     @property
     def extension(self) -> str:
@@ -192,7 +192,7 @@ class DataFrameDataProvider(ObjectDataProvider):
 
     @property
     def fmt(self) -> FileFormat:
-        return FileFormat(self.dataio.table_fformat)
+        return FileFormat(self.export_config.table_fformat)
 
     @property
     def layout(self) -> Layout:
@@ -202,9 +202,9 @@ class DataFrameDataProvider(ObjectDataProvider):
     def table_index(self) -> list[str]:
         """Return the table index."""
         table_index = _derive_index(
-            table_index=self.dataio.table_index,
+            table_index=self.export_config.table_index,
             table_columns=list(self.obj.columns),
-            content=self.dataio._get_content_enum(),
+            content=self.export_config.content_enum,
         )
         return _drop_empty_table_index_columns(self.obj, table_index)
 
@@ -245,7 +245,7 @@ class ArrowTableDataProvider(ObjectDataProvider):
 
     @property
     def efolder(self) -> str:
-        return self.dataio.forcefolder or ExportFolder.tables.value
+        return self.export_config.forcefolder or ExportFolder.tables.value
 
     @property
     def extension(self) -> str:
@@ -263,9 +263,9 @@ class ArrowTableDataProvider(ObjectDataProvider):
     def table_index(self) -> list[str]:
         """Return the table index."""
         table_index = _derive_index(
-            table_index=self.dataio.table_index,
+            table_index=self.export_config.table_index,
             table_columns=list(self.obj.column_names),
-            content=self.dataio._get_content_enum(),
+            content=self.export_config.content_enum,
         )
         return _drop_empty_table_index_columns(self.obj, table_index)
 

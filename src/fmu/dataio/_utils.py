@@ -187,24 +187,6 @@ def compute_md5_and_size_from_objdata(objdata: ObjectDataProvider) -> tuple[str,
         return objdata.compute_md5_and_size_using_temp_file()
 
 
-def create_symlink(source: str, target: str) -> None:
-    """Create a symlinked file with some checks."""
-
-    thesource = Path(source)
-    if not thesource.exists():
-        raise OSError(f"Cannot symlink: Source file {thesource} does not exist.")
-
-    thetarget = Path(target)
-
-    if thetarget.exists() and not thetarget.is_symlink():
-        raise OSError(f"Target file {thetarget} exists already as a normal file.")
-
-    os.symlink(source, target)
-
-    if not (thetarget.exists() and thetarget.is_symlink()):
-        raise OSError(f"Target file {thesource} does not exist or is not a symlink.")
-
-
 def size(fname: str) -> int:
     """Size of file, in bytes"""
     return Path(fname).stat().st_size
@@ -321,19 +303,6 @@ def some_config_from_env(envvar: str = "FMU_GLOBAL_CONFIG") -> dict | None:
 def read_named_envvar(envvar: str) -> str | None:
     """Read a specific (named) environment variable."""
     return os.environ.get(envvar, None)
-
-
-def generate_description(desc: str | list | None = None) -> list | None:
-    """Parse desciption input (generic)."""
-    if not desc:
-        return None
-
-    if isinstance(desc, str):
-        return [desc]
-    if isinstance(desc, list):
-        return desc
-
-    raise ValueError("Description of wrong type, must be list of strings or string")
 
 
 def read_metadata_from_file(filename: str | Path) -> dict:

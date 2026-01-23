@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Final
 
 from pydantic import Field
 
-from fmu.dataio.version import __version__
 from fmu.datamodels.common.access import Asset, Ssdl, SsdlAccess
 from fmu.datamodels.common.masterdata import Masterdata
 from fmu.datamodels.common.tracklog import Tracklog
@@ -24,14 +23,15 @@ from fmu.datamodels.fmu_results.fmu_results import (
 )
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
+from ._export_config import ExportConfig
 from ._logging import null_logger
 from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider
 from .providers.objectdata._base import UnsetData
+from .version import __version__
 
 if TYPE_CHECKING:
     from ._runcontext import RunContext
-    from .dataio import ExportData
     from .providers._fmu import FmuProvider
     from .providers.objectdata._base import ObjectDataProvider
 
@@ -65,30 +65,31 @@ def _get_meta_fmu(fmudata: FmuProvider) -> fields.FMU | None:
         return None
 
 
-def _get_meta_access(dataio: ExportData) -> SsdlAccess:
+def _get_meta_access(export_config: ExportConfig) -> SsdlAccess:
     return SsdlAccess(
         asset=(
-            dataio.config.access.asset
-            if isinstance(dataio.config, GlobalConfiguration)
+            export_config.config.access.asset
+            if isinstance(export_config.config, GlobalConfiguration)
             else Asset(name="")
         ),
-        classification=dataio._classification,
+        classification=export_config.classification,
         ssdl=Ssdl(
-            access_level=dataio._classification,
-            rep_include=dataio._rep_include,
+            access_level=export_config.classification,
+            rep_include=export_config.rep_include,
         ),
     )
 
 
 def _get_meta_display(
-    dataio: ExportData, objdata: ObjectDataProvider
+    export_config: ExportConfig, objdata: ObjectDataProvider
 ) -> fields.Display:
-    return fields.Display(name=dataio.display_name or objdata.name)
+    print(export_config.name)
+    return fields.Display(name=export_config.display.name or objdata.name)
 
 
 def generate_export_metadata(
     objdata: ObjectDataProvider,
-    dataio: ExportData,
+    export_config: ExportConfig,
     fmudata: FmuProvider | None = None,
 ) -> ObjectMetadataExport:
     """
@@ -122,14 +123,14 @@ def generate_export_metadata(
         class_=objdata.classname,
         fmu=_get_meta_fmu(fmudata) if fmudata else None,
         masterdata=(
-            dataio.config.masterdata
-            if isinstance(dataio.config, GlobalConfiguration)
+            export_config.config.masterdata
+            if isinstance(export_config.config, GlobalConfiguration)
             else None
         ),
-        access=_get_meta_access(dataio),
+        access=_get_meta_access(export_config),
         data=objdata.get_metadata(),
-        file=_get_meta_filedata(dataio._runcontext, objdata),
+        file=_get_meta_filedata(export_config.runcontext, objdata),
         tracklog=Tracklog.initialize(__version__),
-        display=_get_meta_display(dataio, objdata),
-        preprocessed=dataio._resolved_preprocessed,
+        display=_get_meta_display(export_config, objdata),
+        preprocessed=export_config.preprocessed,
     )

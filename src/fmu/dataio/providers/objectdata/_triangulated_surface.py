@@ -37,7 +37,7 @@ class TriangulatedSurfaceProvider(ObjectDataProvider):
 
     @property
     def efolder(self) -> str:
-        return self.dataio.forcefolder or ExportFolder.maps.value
+        return self.export_config.forcefolder or ExportFolder.maps.value
 
     @property
     def extension(self) -> str:

@@ -40,7 +40,7 @@ def test_objectdata_regularsurface_derive_named_stratigraphy(
 ) -> None:
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configurations for testing here
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
 
     res = objdata._get_stratigraphy_element()
 
@@ -54,7 +54,7 @@ def test_objectdata_regularsurface_get_stratigraphy_element_differ(
 ) -> None:
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
     # mimic the stripped parts of configurations for testing here
-    objdata = objectdata_provider_factory(regsurf, drogon_exportdata)
+    objdata = objectdata_provider_factory(regsurf, drogon_exportdata._export_config)
 
     res = objdata._get_stratigraphy_element()
 
@@ -72,7 +72,9 @@ def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_differ(
     in the global config.
     Also perform a few other tests to verify API and functionality.
     """
-    objdata = objectdata_provider_factory(faultroom_object, drogon_exportdata)
+    objdata = objectdata_provider_factory(
+        faultroom_object, drogon_exportdata._export_config
+    )
     assert isinstance(objdata, FaultRoomSurfaceProvider)
 
     assert objdata.extension == ".json"
@@ -106,7 +108,7 @@ def test_objectdata_triangulated_surface_validate_spec(
     TSurf is a file format used in for example the GOCAD software. RMS can export
     triangulated surfaces in its structural model in the TSurf format.
     """
-    objdata = objectdata_provider_factory(tsurf, drogon_exportdata)
+    objdata = objectdata_provider_factory(tsurf, drogon_exportdata._export_config)
     assert isinstance(objdata, TriangulatedSurfaceProvider)
 
     assert objdata.classname.value == "surface"
@@ -141,7 +143,7 @@ def test_objectdata_regularsurface_validate_extension(
 ) -> None:
     """Test a valid extension for RegularSurface object."""
 
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
 
     assert objdata.extension == ".gri"
 
@@ -154,7 +156,9 @@ def test_objectdata_table_validate_extension_shall_fail(
     mock_exportdata.table_fformat = "roff"  # set to invalid format
 
     with pytest.raises(ConfigurationError):
-        ext = objectdata_provider_factory(dataframe, mock_exportdata).extension
+        ext = objectdata_provider_factory(
+            dataframe, mock_exportdata._export_config
+        ).extension
         assert ext == ".roff"
     mock_exportdata.table_fformat = None  # reset to default
 
@@ -164,7 +168,7 @@ def test_objectdata_regularsurface_spec_bbox(
 ) -> None:
     """Derive specs and bbox for RegularSurface object."""
 
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
     specs = objdata.get_spec()
     bbox = objdata.get_bbox()
 
@@ -178,7 +182,7 @@ def test_objectdata_regularsurface_derive_objectdata(
 ) -> None:
     """Derive other properties."""
 
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata)
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
     assert isinstance(objdata, RegularSurfaceDataProvider)
     assert objdata.classname.value == "surface"
     assert objdata.extension == ".gri"
@@ -189,7 +193,7 @@ def test_objectdata_regularsurface_derive_metadata(
 ) -> None:
     """Derive all metadata for the 'data' block in fmu-dataio."""
 
-    myobj = objectdata_provider_factory(regsurf, mock_exportdata)
+    myobj = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
     metadata = myobj.get_metadata()
     assert metadata.root.content == "depth"
     assert metadata.root.alias
@@ -199,7 +203,7 @@ def test_objectdata_provider_factory_raises_on_unknown(
     mock_exportdata: ExportData,
 ) -> None:
     with pytest.raises(NotImplementedError, match="not currently supported"):
-        objectdata_provider_factory(object(), mock_exportdata)
+        objectdata_provider_factory(object(), mock_exportdata._export_config)
 
 
 def test_regsurf_preprocessed_observation(
@@ -272,7 +276,7 @@ def test_objectdata_compute_md5(
 ) -> None:
     """Test compute_md5 function works and gives same result as in the metadata"""
 
-    myobj = objectdata_provider_factory(gridproperty, mock_exportdata)
+    myobj = objectdata_provider_factory(gridproperty, mock_exportdata._export_config)
 
     metadata = mock_exportdata.generate_metadata(gridproperty)
     checksum, size = myobj.compute_md5_and_size()

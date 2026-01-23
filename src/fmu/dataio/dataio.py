@@ -12,9 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
 
 from fmu.dataio.aggregation import AggregatedData
-from fmu.datamodels.common.enums import Classification
-from fmu.datamodels.fmu_results import enums, global_configuration
-from fmu.datamodels.fmu_results.enums import FMUContext
+from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from ._deprecations import (
@@ -25,16 +23,9 @@ from ._deprecations import (
 )
 from ._export_config import (
     ExportConfig,
-    _resolve_classification,
-    _resolve_content_enum,
-    _resolve_content_metadata,
-    _resolve_fmu_context,
-    _resolve_rep_include,
-    _resolve_vertical_domain,
 )
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
-from ._runcontext import RunContext
 from ._utils import (
     export_metadata_file,
     export_object_to_file,
@@ -597,12 +588,6 @@ class ExportData:
     #
     # ----------------------------------------------------------------------------------
 
-    _resolved_fmu_context: FMUContext | None = None
-    _resolved_preprocessed: bool = False
-    _resolved_vertical_domain: str = field(default="depth", init=False)
-    _resolved_domain_reference: str = field(default="msl", init=False)
-    _classification: Classification = Classification.internal
-    _rep_include: bool = field(default=False, init=False)
     _initialized: bool = field(default=False, init=False, repr=False)
     _cached_export_config: ExportConfig | None = field(
         default=None, init=False, repr=False
@@ -611,31 +596,12 @@ class ExportData:
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
 
-        self._resolve_deprecations()
-
-        # if input is provided as an ENV variable pointing to a YAML file; will override
-        if SETTINGS_ENVNAME in os.environ:
-            warnings.warn(
-                "Providing input settings through environment variables is deprecated, "
-                "use ExportData(**yaml_load(<your_file>)) instead. To "
-                "disable this warning, remove the 'FMU_DATAIO_CONFIG' env.",
-                FutureWarning,
-            )
+        # TODO: Resolve global config in _export_config.
 
         # global config which may be given as env variable
         # will only be used if not explicitly given as input
         if not self.config and GLOBAL_ENVNAME in os.environ:
             self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
-
-        self._cached_export_config = ExportConfig.from_export_data(self)
-
-        # TODO: Remove everything below when no dependency on them
-        self._resolved_fmu_context, self._resolved_preprocessed = _resolve_fmu_context(
-            self.fmu_context, self.preprocessed
-        )
-        self._resolved_vertical_domain, self._resolved_domain_reference = (
-            _resolve_vertical_domain(self.vertical_domain, self.domain_reference)
-        )
 
         try:
             self.config = GlobalConfiguration.model_validate(self.config)
@@ -652,20 +618,32 @@ class ExportData:
                 global_configuration.validation_error_warning(e)
             self.config = {}
 
-        self._classification = _resolve_classification(
-            self.classification,
-            self.access_ssdl,
-            self.config if isinstance(self.config, GlobalConfiguration) else None,
-        )
-        self._rep_include = _resolve_rep_include(
-            self.rep_include,
-            self.access_ssdl,
-            self.config if isinstance(self.config, GlobalConfiguration) else None,
-        )
-        self._runcontext = self._get_runcontext()
+        self._resolve_deprecations()
+
+        # if input is provided as an ENV variable pointing to a YAML file; will override
+        if SETTINGS_ENVNAME in os.environ:
+            warnings.warn(
+                "Providing input settings through environment variables is deprecated, "
+                "use ExportData(**yaml_load(<your_file>)) instead. To "
+                "disable this warning, remove the 'FMU_DATAIO_CONFIG' env.",
+                FutureWarning,
+            )
+
+        self._cached_export_config = ExportConfig.from_export_data(self)
 
         object.__setattr__(self, "_initialized", True)
         logger.info("Ran __post_init__")
+
+    @property
+    def _export_config(self) -> ExportConfig:
+        """Get or create the immutable ExportConfig.
+
+        Returns:
+            An immutable ExportConfig with all resolved values.
+        """
+        if self._cached_export_config is None:
+            self._cached_export_config = ExportConfig.from_export_data(self)
+        return self._cached_export_config
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Catch attribute mutations and warn."""
@@ -682,44 +660,12 @@ class ExportData:
         # Invalidate cached config when public properties change. It needs to be
         # re-created with the new values.
         object.__setattr__(self, "_cached_export_config", None)
-
         object.__setattr__(self, name, value)
 
         if name == "vertical_domain":
             maybe_warnings = _check_vertical_domain_dict(value)
             for warning, category in maybe_warnings:
                 warnings.warn(warning, category)
-
-        # TODO: Remove this when codebase reads from ExportConfig
-        if name in ("vertical_domain", "domain_reference"):
-            resolved_vertical_domain, resolved_domain_reference = (
-                _resolve_vertical_domain(
-                    getattr(self, "vertical_domain"),  # noqa: B009
-                    getattr(self, "domain_reference"),  # noqa: B009
-                )
-            )
-            object.__setattr__(
-                self, "_resolved_vertical_domain", resolved_vertical_domain
-            )
-            object.__setattr__(
-                self, "_resolved_domain_reference", resolved_domain_reference
-            )
-
-    def _get_runcontext(self) -> RunContext:
-        """Get the run context for this ExportData instance."""
-        casepath_proposed = Path(self.casepath) if self.casepath else None
-        return RunContext(casepath_proposed, fmu_context=self._resolved_fmu_context)
-
-    def _get_content_enum(self) -> enums.Content | None:
-        """Get the content enum."""
-        return _resolve_content_enum(self.content)
-
-    def _get_content_metadata(self) -> dict | None:
-        """
-        Get the content metadata if provided by as input, else return None.
-        Validation takes place in the objectdata provider.
-        """
-        return _resolve_content_metadata(self.content_metadata, self.content)
 
     def _resolve_deprecations(self) -> None:
         """Resolve deprecated arguments and emit warnings.
@@ -728,6 +674,8 @@ class ExportData:
             DeprecationError: If invalid argument combinations are detected.
         """
         resolution = resolve_deprecations(
+            # Objects with replacements
+            config=self.config,
             # Arguments with replacements
             access_ssdl=self.access_ssdl or None,
             classification=self.classification,
@@ -764,7 +712,7 @@ class ExportData:
         if resolution.errors:
             raise DeprecationError("\n".join(resolution.errors))
 
-    def _update_check_settings(self, newsettings: dict) -> None:
+    def _apply_deprecated_kwargs(self, newsettings: dict) -> None:
         """Update instance settings (properties) from other routines."""
         # if no newsettings (kwargs) this routine is not needed
         if not newsettings:
@@ -791,25 +739,6 @@ class ExportData:
             logger.info("New setting OK for %s", setting)
 
         self._resolve_deprecations()
-        self._resolved_fmu_context, self._resolved_preprocessed = _resolve_fmu_context(
-            self.fmu_context, self.preprocessed
-        )
-        self._resolved_vertical_domain, self._resolved_domain_reference = (
-            _resolve_vertical_domain(self.vertical_domain, self.domain_reference)
-        )
-
-        self._runcontext = self._get_runcontext()
-        self._classification = _resolve_classification(
-            self.classification,
-            self.access_ssdl,
-            self.config if isinstance(self.config, GlobalConfiguration) else None,
-        )
-        self._rep_include = _resolve_rep_include(
-            self.rep_include,
-            self.access_ssdl,
-            self.config if isinstance(self.config, GlobalConfiguration) else None,
-        )
-
         # Values have changed, so we need a new configuration.
         self._cached_export_config = ExportConfig.from_export_data(self)
 
@@ -819,9 +748,9 @@ class ExportData:
         is found using the FileDataProvider directly.
         A string with full path to the exported item is returned.
         """
-        objdata = objectdata_provider_factory(obj, self)
+        objdata = objectdata_provider_factory(obj, self._export_config)
 
-        absolute_path = self._runcontext.exportroot / objdata.share_path
+        absolute_path = self._export_config.runcontext.exportroot / objdata.share_path
 
         export_object_to_file(absolute_path, objdata.export_to_file)
         return str(absolute_path)
@@ -836,7 +765,7 @@ class ExportData:
                 "When exporting standard_results it is required to have a valid config."
             )
 
-        objdata = objectdata_provider_factory(obj, self, standard_result)
+        objdata = objectdata_provider_factory(obj, self._export_config, standard_result)
         metadata = self._generate_export_metadata(objdata)
 
         outfile = Path(metadata["file"]["absolute_path"])
@@ -847,8 +776,10 @@ class ExportData:
 
         export_metadata_file(metafile, metadata)
 
-        if self._runcontext.inside_fmu:
-            update_export_manifest(outfile, casepath=self._runcontext.casepath)
+        if self._export_config.runcontext.inside_fmu:
+            update_export_manifest(
+                outfile, casepath=self._export_config.runcontext.casepath
+            )
 
         return str(outfile)
 
@@ -856,22 +787,22 @@ class ExportData:
         """Generate metadata for the provided ObjectDataProvider"""
         fmudata = (
             FmuProvider(
-                runcontext=self._runcontext,
+                runcontext=self._export_config.runcontext,
                 model=(
                     self.config.model
                     if isinstance(self.config, GlobalConfiguration)
                     else None
                 ),
-                workflow=self.workflow,
+                workflow=self.workflow,  # TODO: Use from export_config
                 object_share_path=objdata.share_path,
             )
-            if self._runcontext.inside_fmu
+            if self._export_config.runcontext.inside_fmu
             else None
         )
 
         return generate_export_metadata(
             objdata=objdata,
-            dataio=self,
+            export_config=self._export_config,
             fmudata=fmudata,
         ).model_dump(mode="json", exclude_none=True, by_alias=True)
 
@@ -921,18 +852,18 @@ class ExportData:
                 UserWarning,
             )
 
-        self._update_check_settings(kwargs)
+        self._apply_deprecated_kwargs(kwargs)
 
         if isinstance(obj, str | Path):
-            if self.casepath is None:
+            if self._export_config.casepath is None:
                 raise TypeError("No 'casepath' argument provided")
             future_warning_preprocessed()
             return ExportPreprocessedData(
-                casepath=self.casepath,
-                is_observation=self.is_observation,
+                casepath=self._export_config.casepath,
+                is_observation=self._export_config.is_observation,
             ).generate_metadata(obj)
 
-        objdata = objectdata_provider_factory(obj, self)
+        objdata = objectdata_provider_factory(obj, self._export_config)
         return self._generate_export_metadata(objdata)
 
     def export(
@@ -970,24 +901,24 @@ class ExportData:
                 "The return_symlink option is deprecated and can safely be removed."
             )
         if isinstance(obj, str | Path):
-            self._update_check_settings(kwargs)
-            if self.casepath is None:
+            self._apply_deprecated_kwargs(kwargs)
+            if self._export_config.casepath is None:
                 raise TypeError("No 'casepath' argument provided")
             future_warning_preprocessed()
             return ExportPreprocessedData(
-                casepath=self.casepath,
-                is_observation=self.is_observation,
+                casepath=self._export_config.casepath,
+                is_observation=self._export_config.is_observation,
             ).export(obj)
 
         logger.info("Object type is: %s", type(obj))
-        self._update_check_settings(kwargs)
+        self._apply_deprecated_kwargs(kwargs)
 
         # should only export object if config is not valid
         if not isinstance(self.config, GlobalConfiguration):
             warnings.warn("Data will be exported, but without metadata.", UserWarning)
             return self._export_without_metadata(obj)
 
-        objdata = objectdata_provider_factory(obj, self)
+        objdata = objectdata_provider_factory(obj, self._export_config)
         metadata = self._generate_export_metadata(objdata)
 
         outfile = Path(metadata["file"]["absolute_path"])
@@ -999,7 +930,9 @@ class ExportData:
         export_metadata_file(metafile, metadata)
         logger.info("Metadata file is: %s", metafile)
 
-        if self._runcontext.inside_fmu:
-            update_export_manifest(outfile, casepath=self._runcontext.casepath)
+        if self._export_config.runcontext.inside_fmu:
+            update_export_manifest(
+                outfile, casepath=self._export_config.runcontext.casepath
+            )
 
         return str(outfile)

@@ -18,7 +18,7 @@ from fmu.dataio.providers.objectdata._provider import objectdata_provider_factor
 from fmu.dataio.providers.objectdata._tables import _derive_index
 
 
-def _read_dict(file_path: str) -> dict:
+def _read_dict(file_path: str) -> dict[str, Any]:
     """Reads text file into dictionary
     Args:
         file_path (string): path to generated file
@@ -27,7 +27,10 @@ def _read_dict(file_path: str) -> dict:
     """
     path = Path(file_path)
     meta_path = path.parent / f".{path.name}.yml"
-    return yaml_load(meta_path)
+    yaml = yaml_load(meta_path)
+    if not yaml:
+        raise RuntimeError(f"Could not load yaml, or metadata is empty: {file_path}")
+    return yaml
 
 
 def assert_list_and_answer(index: Any, answer: list, field_to_check: Any) -> None:
@@ -273,7 +276,9 @@ def test_table_index_timeseries(
         simulationtimeseries_exportdata (dict): metadata
         drogon_summary (pa.Table): table with summary data from sumo
     """
-    objdata = objectdata_provider_factory(drogon_summary, timeseries_exportdata)
+    objdata = objectdata_provider_factory(
+        drogon_summary, timeseries_exportdata._export_config
+    )
     assert objdata.table_index == ["DATE"], "Incorrect table index "
 
 
@@ -287,7 +292,7 @@ def test_table_index_real_summary(
         drogon_summary (pa.Table): table with summary data from sumo
     """
     objdata = objectdata_provider_factory(
-        drogon_summary, simulationtimeseries_exportdata
+        drogon_summary, simulationtimeseries_exportdata._export_config
     )
     assert objdata.table_index == ["DATE"], "Incorrect table index "
 

@@ -103,39 +103,6 @@ def test_export_file_raises() -> None:
         )
 
 
-def test_create_symlink() -> None:
-    with pytest.raises(OSError):
-        utils.create_symlink(
-            "hopefullythispathwillneverexist",
-            "norwillthispath",
-        )
-
-    with (
-        NamedTemporaryFile() as source,
-        NamedTemporaryFile() as target,
-        pytest.raises(OSError),
-    ):
-        utils.create_symlink(
-            source.name,
-            target.name,
-        )
-
-
-def test_generate_description() -> None:
-    assert utils.generate_description("") is None
-    assert utils.generate_description([]) is None
-    assert utils.generate_description(None) is None
-
-    assert utils.generate_description("str description") == ["str description"]
-    assert utils.generate_description(["str description"]) == ["str description"]
-
-    with pytest.raises(ValueError):
-        utils.generate_description({"key": "value"})
-
-    with pytest.raises(ValueError):
-        utils.generate_description(object())
-
-
 def test_read_named_envvar() -> None:
     assert utils.read_named_envvar("DONTEXIST") is None
 

@@ -6,6 +6,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from fmu.datamodels.common.enums import Classification
+from fmu.datamodels.fmu_results.data import (
+    Property,
+)
 from fmu.datamodels.fmu_results.enums import (
     Content,
     DomainReference,
@@ -15,7 +18,9 @@ from fmu.datamodels.fmu_results.fields import Workflow
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from fmu.dataio._export_config import (
+    AnyContentMetadata,
     ExportConfig,
+    _content_requires_metadata,
     _resolve_classification,
     _resolve_content_enum,
     _resolve_content_metadata,
@@ -24,6 +29,7 @@ from fmu.dataio._export_config import (
     _resolve_vertical_domain,
     _resolve_workflow,
 )
+from fmu.dataio.providers.objectdata._export_models import AllowedContentSeismic
 
 
 @pytest.fixture
@@ -108,18 +114,45 @@ def test_resolve_content_enum_invalid(content: Any, match: str | None) -> None:
 
 
 @pytest.mark.parametrize(
+    ("content_type", "expected"),
+    [
+        (Content.field_outline, True),
+        (Content.field_region, True),
+        (Content.fluid_contact, True),
+        (Content.property, True),
+        (Content.seismic, True),
+        (Content.depth, False),
+        (Content.timeseries, False),
+        (Content.volumes, False),
+    ],
+)
+def test_content_requires_metadata(content_type: Content, expected: bool) -> None:
+    """Content types requiring extra metadata are resolved as such."""
+    assert _content_requires_metadata(content_type) is expected
+
+
+@pytest.mark.parametrize(
     ("content_metadata", "content", "expected"),
     [
-        ({"attribute": "amplitude"}, "seismic", {"attribute": "amplitude"}),
+        (
+            {"attribute": "amplitude"},
+            "seismic",
+            AllowedContentSeismic(attribute="amplitude"),
+        ),
         (
             {"attribute": "custom"},
             {"seismic": {"attribute": "from_dict"}},
-            {"attribute": "custom"},
+            AllowedContentSeismic(attribute="custom"),
         ),
         (
             None,
             {"seismic": {"attribute": "amplitude", "calculation": "mean"}},
-            {"attribute": "amplitude", "calculation": "mean"},
+            AllowedContentSeismic(attribute="amplitude", calculation="mean"),
+        ),
+        (
+            {"attribute": "porosity", "is_discrete": False},
+            "property",
+            Property(attribute="porosity", is_discrete=False),
         ),
         (None, "depth", None),
         (None, None, None),
@@ -128,10 +161,49 @@ def test_resolve_content_enum_invalid(content: Any, match: str | None) -> None:
 def test_resolve_content_metadata(
     content_metadata: dict[str, Any] | None,
     content: str | dict[str, Any] | None,
-    expected: dict[str, Any] | None,
+    expected: AnyContentMetadata | None,
 ) -> None:
     """Resolves content metadata from arg or dict."""
     assert _resolve_content_metadata(content_metadata, content) == expected
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        {"seismic": "myvalue"},
+        {"property": ["foo", "bar"]},
+        {"field_outline": 123},
+    ],
+)
+def test_resolve_invalid_content_metadata_from_content(content: dict[str, Any]) -> None:
+    """Resolves to a ValueError if invalid content metadata given via content."""
+    with pytest.raises(ValueError, match="must be a dictionary."):
+        _resolve_content_metadata(None, content)
+
+
+@pytest.mark.parametrize(
+    ("content", "raises", "warns"),
+    [
+        (Content.field_outline, True, False),
+        (Content.field_region, True, False),
+        (Content.fluid_contact, True, False),
+        (Content.seismic, True, False),
+        (Content.property, False, True),
+    ],
+)
+def test_resolve_content_metadata_raises_and_warns(
+    content: Content, raises: bool, warns: bool
+) -> None:
+    """Resolving content metadata raises or warns appropriate."""
+    if raises:
+        with pytest.raises(
+            ValueError, match=f"Content '{content}' requires additional"
+        ):
+            _resolve_content_metadata(None, str(content))
+
+    if warns:
+        with pytest.warns(FutureWarning):
+            _resolve_content_metadata(None, str(content))
 
 
 @pytest.mark.parametrize(
@@ -223,17 +295,6 @@ def test_resolve_rep_include(
     """Resolves rep_include from input or access_ssdl."""
     result = _resolve_rep_include(rep_include_input, access_ssdl, None)
     assert result is expected
-
-
-def test_resolve_rep_include_from_config_with_warning() -> None:
-    """Falls back to config with derecation warning."""
-    config = MagicMock(
-        spec=GlobalConfiguration,
-        access=MagicMock(ssdl=MagicMock(rep_include=True)),
-    )
-    with pytest.warns(FutureWarning, match="deprecated"):
-        result = _resolve_rep_include(None, None, config)
-    assert result is True
 
 
 def test_resolve_rep_include_config_without_ssdl() -> None:

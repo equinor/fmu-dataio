@@ -1,8 +1,13 @@
 """Tests for deprecation resolution."""
 
 from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
+from fmu.datamodels.fmu_results.global_configuration import (
+    Access,
+    GlobalConfiguration,
+)
 
 from fmu.dataio._deprecations import (
     DeprecationResolution,
@@ -13,6 +18,7 @@ from fmu.dataio._deprecations import (
 def _default_args() -> dict[str, Any]:
     """Return default arguments for resolve_deprecations with no deprecations."""
     return {
+        "config": None,
         # Arguments with replacements
         "access_ssdl": None,
         "classification": None,
@@ -59,6 +65,21 @@ def test_resolution_is_immutable() -> None:
 
     with pytest.raises(AttributeError):
         resolution.warnings = []  # type: ignore[misc]
+
+
+def test_global_config_with_rep_include_emits_future_warning() -> None:
+    """Using rep_include in global configuration should emit FutureWarning."""
+    args = _default_args()
+    args["config"] = MagicMock(
+        spec=GlobalConfiguration,
+        access=MagicMock(spec=Access, ssdl=MagicMock(rep_include=True)),
+    )
+
+    resolution = resolve_deprecations(**args)
+    assert len(resolution.warnings) == 1
+    message, category = resolution.warnings[0]
+    assert "Setting 'rep_include' from the global config is deprecated" in message
+    assert category is FutureWarning
 
 
 def test_access_ssdl_emits_future_warning() -> None:

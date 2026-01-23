@@ -8,11 +8,9 @@ period is ongoing.
 from __future__ import annotations
 
 import warnings
-from textwrap import dedent
 from typing import Final, Literal
 
 from pydantic import (
-    BaseModel,
     Field,
     model_validator,
 )
@@ -21,24 +19,6 @@ from fmu.dataio._logging import null_logger
 from fmu.datamodels.fmu_results import data, enums
 
 logger: Final = null_logger(__name__)
-
-
-def property_warn() -> None:
-    warnings.warn(
-        dedent(
-            """
-            When using content "property", please use the 'content_metadata' argument
-            to provide more required information.
-            . Example:
-                content="property",
-                content_metadata={"attribute": "porosity", "is_discrete": False},
-
-            The use of "property" without content_metadata will be disallowed in
-            future versions."
-            """
-        ),
-        FutureWarning,
-    )
 
 
 class AllowedContentSeismic(data.Seismic):
@@ -71,27 +51,3 @@ class UnsetData(data.Data):
             FutureWarning,
         )
         return self
-
-
-def content_metadata_factory(content: enums.Content) -> type[BaseModel]:
-    """Return the correct content_metadata model based on provided content."""
-    if content == enums.Content.field_outline:
-        return data.FieldOutline
-    if content == enums.Content.field_region:
-        return data.FieldRegion
-    if content == enums.Content.fluid_contact:
-        return data.FluidContact
-    if content == enums.Content.property:
-        return data.Property
-    if content == enums.Content.seismic:
-        return AllowedContentSeismic
-    raise ValueError(f"No content_metadata model exist for content {str(content)}")
-
-
-def content_requires_metadata(content: enums.Content) -> bool:
-    """Flag if given content requires content_metadata"""
-    try:
-        content_metadata_factory(content)
-        return True
-    except ValueError:
-        return False

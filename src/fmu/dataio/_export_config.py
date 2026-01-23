@@ -10,9 +10,16 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Final, Literal, Self
+from textwrap import dedent
+from typing import TYPE_CHECKING, Any, Final, Literal, Self, TypeAlias
 
 from fmu.datamodels.common.enums import Classification
+from fmu.datamodels.fmu_results.data import (
+    FieldOutline,
+    FieldRegion,
+    FluidContact,
+    Property,
+)
 from fmu.datamodels.fmu_results.enums import (
     Content,
     DomainReference,
@@ -25,12 +32,17 @@ from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from ._fmu_context import resolve_fmu_context
 from ._logging import null_logger
 from ._runcontext import RunContext, get_fmu_context_from_environment
+from .providers.objectdata._export_models import AllowedContentSeismic
 
 logger: Final = null_logger(__name__)
 
 
 if TYPE_CHECKING:
     from .dataio import ExportData
+
+AnyContentMetadata: TypeAlias = (
+    AllowedContentSeismic | FieldOutline | FieldRegion | FluidContact | Property
+)
 
 
 @dataclass(frozen=True)
@@ -42,7 +54,7 @@ class ExportConfig:
 
     # Content
     content: Content | Literal["unset"]
-    content_metadata: dict[str, Any] | None
+    content_metadata: AnyContentMetadata | None
 
     # File/path configuration
     name: str
@@ -89,6 +101,13 @@ class ExportConfig:
     # Global configuration
     config: GlobalConfiguration | None
     runcontext: RunContext
+
+    @property
+    def content_enum(self) -> Content | None:
+        """Filter possible 'unset' content."""
+        if isinstance(self.content, Content):
+            return self.content
+        return None
 
     @classmethod
     def from_export_data(cls, dataio: ExportData) -> Self:
@@ -189,6 +208,97 @@ def _resolve_content_enum(content: str | dict[str, Any] | None) -> Content | Non
     )
 
 
+def _content_metadata_factory(content: Content) -> type[AnyContentMetadata]:
+    """Return the correct content_metadata model based on provided content."""
+    if content == Content.field_outline:
+        return FieldOutline
+    if content == Content.field_region:
+        return FieldRegion
+    if content == Content.fluid_contact:
+        return FluidContact
+    if content == Content.property:
+        return Property
+    if content == Content.seismic:
+        return AllowedContentSeismic
+    raise ValueError(f"No content_metadata model exists for content '{str(content)}'")
+
+
+def _content_requires_metadata(content: Content) -> bool:
+    """Flag if given content requires content_metadata"""
+    try:
+        _content_metadata_factory(content)
+        return True
+    except ValueError:
+        return False
+
+
+def _resolve_content_metadata(
+    content_metadata: dict | None, content: str | dict | None
+) -> AnyContentMetadata | None:
+    """
+    Get the content metadata if provided by as input, else return None.
+    Validation takes place in the objectdata provider.
+    """
+    content_enum = _resolve_content_enum(content)
+
+    metadata_dict = content_metadata
+    if metadata_dict is None and isinstance(content, dict):
+        metadata_dict = content.get(str(content_enum))
+
+    if content_enum is None:
+        if metadata_dict:
+            warnings.warn(
+                "Content 'unset' does not require 'content_metadata', ignoring input.",
+                UserWarning,
+            )
+        return None
+
+    if not _content_requires_metadata(content_enum):
+        if metadata_dict:
+            warnings.warn(
+                f"Content '{content_enum.value}' does not require 'content_metadata', "
+                "ignoring input.",
+                UserWarning,
+            )
+        return None
+
+    if not metadata_dict:
+        if content == Content.property:
+            warnings.warn(
+                dedent(
+                    """
+        When using content "property", please use the 'content_metadata' argument
+        to provide more required information.
+
+        Example:
+
+            content="property",
+            content_metadata={"attribute": "porosity", "is_discrete": False},
+
+        The use of "property" without content_metadata will be disallowed in
+        future versions."
+        """
+                ),
+                FutureWarning,
+            )
+            return None
+        raise ValueError(
+            f"Content '{content_enum.value}' requires additional input in the form "
+            "of 'content_metadata'. Please see the documentation for custom "
+            "exports at :"
+            "https://fmu-dataio.readthedocs.io/en/latest/custom_exports/usage.html"
+        )
+
+    if not isinstance(metadata_dict, dict):
+        content_model = _content_metadata_factory(content_enum)
+        raise ValueError(
+            "'content_metadata' must be a dictionary. Valid keys for content "
+            f"'{content_enum.value}': {', '.join(list(content_model.model_fields))}"
+        )
+
+    return _content_metadata_factory(content_enum).model_validate(metadata_dict)
+
+
 def _resolve_vertical_domain(
     vertical_domain: str | dict[str, Any], domain_reference: str
 ) -> tuple[VerticalDomain, DomainReference]:
@@ -227,26 +337,6 @@ def _resolve_vertical_domain(
         ) from e
 
     return vert_domain_enum, domain_ref_enum
-
-
-def _resolve_content_metadata(
-    content_metadata: dict | None, content: str | dict | None
-) -> dict | None:
-    """
-    Get the content metadata if provided by as input, else return None.
-    Validation takes place in the objectdata provider.
-    """
-    if content_metadata:
-        logger.debug("content_metadata is set from content_metadata argument")
-        return content_metadata
-
-    if isinstance(content, dict):
-        logger.debug("content_metadata is set from content argument")
-        content_enum = _resolve_content_enum(content)
-        return content[content_enum]
-
-    logger.debug("Found no content_metadata, returning None")
-    return None
 
 
 def _resolve_fmu_context(
@@ -358,12 +448,6 @@ def _resolve_rep_include(
         and (ssdl := config.access.ssdl)
         and ssdl.rep_include is not None
     ):
-        warnings.warn(
-            "Setting 'rep_include' from the config is deprecated. Use the "
-            "'rep_include' argument instead (default value is False). To silence "
-            "this warning remove the 'access.ssdl.rep_include' from the config.",
-            FutureWarning,
-        )
         logger.debug("rep_include is set from config")
         return ssdl.rep_include
 
