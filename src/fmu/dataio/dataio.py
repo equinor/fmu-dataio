@@ -659,6 +659,8 @@ class ExportData:
             maybe_warnings = _check_vertical_domain_dict(value)
             for warning, category in maybe_warnings:
                 warnings.warn(warning, category)
+
+        if name in ("vertical_domain", "domain_reference"):
             self._resolve_vertical_domain()
 
     def _get_runcontext(self) -> RunContext:
