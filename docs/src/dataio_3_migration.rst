@@ -125,6 +125,26 @@ safely be removed if present in the code.
     exd.legacy_time_format = True # ⛔️ no longer allowed, simply remove the line!
     exd.export(surface)
 
+Changes to mutating ExportData attributes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+It will no longer be possible to modify variables on an already instantiated ExportData instance.
+
+This provides stronger guarantees about the configuration state of the exported data and substantially
+reduces the possibility of errors.
+
+
+.. code-block:: python
+
+    ed = ExportData(content='depth')
+    ed.content = 'property'  # ⛔️ no longer allowed!
+
+Change to this instead 👇:
+
+.. code-block:: python
+
+    ed = ExportData(content='depth')
+    prop_ed = ExportData(content='property')
+
 
 Providing arguments through export() / generate_metadata()
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
