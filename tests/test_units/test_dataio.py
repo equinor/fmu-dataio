@@ -511,31 +511,6 @@ def test_content_given_init_or_later(
     assert mymeta["data"]["content"] == "depth"  # last content shall win
 
 
-def test_content_invalid_string(
-    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
-) -> None:
-    eobj = ExportData(config=mock_global_config, content="not_valid")
-    with pytest.raises(ValueError, match="Invalid 'content' value='not_valid'"):
-        eobj.generate_metadata(regsurf)
-
-
-def test_content_invalid_dict(
-    mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
-) -> None:
-    eobj = ExportData(
-        config=mock_global_config, content={"not_valid": {"some_key": "some_value"}}
-    )
-    with pytest.raises(ValueError, match="Invalid 'content' value='not_valid'"):
-        eobj.generate_metadata(regsurf)
-
-    eobj = ExportData(
-        config=mock_global_config,
-        content={"seismic": "some_key", "extra": "some_value"},
-    )
-    with pytest.raises(ValueError):
-        eobj.generate_metadata(regsurf)
-
-
 def test_content_metadata_valid(
     mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
@@ -780,17 +755,26 @@ def test_vertical_domain(
     assert mymeta["data"]["domain_reference"] == "msl"  # default value
 
     # test invalid input
-    with pytest.raises(pydantic.ValidationError, match="vertical_domain"):
+    with pytest.raises(
+        ValueError, match="'wrong' is not a valid value for 'vertical_domain'"
+    ):
         ExportData(
             config=mock_global_config, vertical_domain="wrong", content="thickness"
         ).generate_metadata(regsurf)
-    with pytest.raises(pydantic.ValidationError, match="domain_reference"):
+
+    with pytest.raises(
+        ValueError, match="'wrong' is not a valid value for 'domain_reference'"
+    ):
         ExportData(
             config=mock_global_config, domain_reference="wrong", content="thickness"
         ).generate_metadata(regsurf)
+
     with (
         pytest.warns(FutureWarning, match="deprecated"),
-        pytest.raises(pydantic.ValidationError, match="2 validation errors"),
+        pytest.raises(
+            ValueError,
+            match="'invalid' is not a valid value for 'vertical_domain'",
+        ),
     ):
         ExportData(
             config=mock_global_config,

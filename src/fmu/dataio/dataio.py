@@ -23,10 +23,18 @@ from ._deprecations import (
     future_warning_preprocessed,
     resolve_deprecations,
 )
-from ._fmu_context import resolve_fmu_context
+from ._export_config import (
+    ExportConfig,
+    _resolve_classification,
+    _resolve_content_enum,
+    _resolve_content_metadata,
+    _resolve_fmu_context,
+    _resolve_rep_include,
+    _resolve_vertical_domain,
+)
 from ._logging import null_logger
 from ._metadata import generate_export_metadata
-from ._runcontext import RunContext, get_fmu_context_from_environment
+from ._runcontext import RunContext
 from ._utils import (
     export_metadata_file,
     export_object_to_file,
@@ -596,6 +604,9 @@ class ExportData:
     _classification: Classification = Classification.internal
     _rep_include: bool = field(default=False, init=False)
     _initialized: bool = field(default=False, init=False, repr=False)
+    _cached_export_config: ExportConfig | None = field(
+        default=None, init=False, repr=False
+    )
 
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
@@ -616,8 +627,15 @@ class ExportData:
         if not self.config and GLOBAL_ENVNAME in os.environ:
             self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
 
-        self._resolve_fmu_context()
-        self._resolve_vertical_domain()
+        self._cached_export_config = ExportConfig.from_export_data(self)
+
+        # TODO: Remove everything below when no dependency on them
+        self._resolved_fmu_context, self._resolved_preprocessed = _resolve_fmu_context(
+            self.fmu_context, self.preprocessed
+        )
+        self._resolved_vertical_domain, self._resolved_domain_reference = (
+            _resolve_vertical_domain(self.vertical_domain, self.domain_reference)
+        )
 
         try:
             self.config = GlobalConfiguration.model_validate(self.config)
@@ -634,8 +652,16 @@ class ExportData:
                 global_configuration.validation_error_warning(e)
             self.config = {}
 
-        self._classification = self._get_classification()
-        self._rep_include = self._get_rep_include()
+        self._classification = _resolve_classification(
+            self.classification,
+            self.access_ssdl,
+            self.config if isinstance(self.config, GlobalConfiguration) else None,
+        )
+        self._rep_include = _resolve_rep_include(
+            self.rep_include,
+            self.access_ssdl,
+            self.config if isinstance(self.config, GlobalConfiguration) else None,
+        )
         self._runcontext = self._get_runcontext()
 
         object.__setattr__(self, "_initialized", True)
@@ -653,6 +679,10 @@ class ExportData:
                 FutureWarning,
             )
 
+        # Invalidate cached config when public properties change. It needs to be
+        # re-created with the new values.
+        object.__setattr__(self, "_cached_export_config", None)
+
         object.__setattr__(self, name, value)
 
         if name == "vertical_domain":
@@ -660,121 +690,36 @@ class ExportData:
             for warning, category in maybe_warnings:
                 warnings.warn(warning, category)
 
+        # TODO: Remove this when codebase reads from ExportConfig
         if name in ("vertical_domain", "domain_reference"):
-            self._resolve_vertical_domain()
+            resolved_vertical_domain, resolved_domain_reference = (
+                _resolve_vertical_domain(
+                    getattr(self, "vertical_domain"),  # noqa: B009
+                    getattr(self, "domain_reference"),  # noqa: B009
+                )
+            )
+            object.__setattr__(
+                self, "_resolved_vertical_domain", resolved_vertical_domain
+            )
+            object.__setattr__(
+                self, "_resolved_domain_reference", resolved_domain_reference
+            )
 
     def _get_runcontext(self) -> RunContext:
         """Get the run context for this ExportData instance."""
         casepath_proposed = Path(self.casepath) if self.casepath else None
         return RunContext(casepath_proposed, fmu_context=self._resolved_fmu_context)
 
-    def _get_classification(self) -> Classification:
-        """
-        Get the security classification.
-        The order of how the classification is set is:
-        1. from classification argument if present
-        2. from access_ssdl argument (deprecated) if present
-        3. from access.classification in config (has been mirrored from
-        access.ssdl.access_level if not present)
-
-        """
-        if self.classification is not None:
-            logger.info("Classification is set from input")
-            classification = self.classification
-
-        elif self.access_ssdl and self.access_ssdl.get("access_level"):
-            logger.info("Classification is set from access_ssdl input")
-            classification = self.access_ssdl["access_level"]
-
-        elif isinstance(self.config, GlobalConfiguration):
-            logger.info("Classification is set from config")
-            assert self.config.access.classification
-            classification = self.config.access.classification
-        else:
-            # note the one below here will never be used, because that
-            # means the config is invalid and no metadata will be produced
-            logger.info("Using default classification 'internal'")
-            classification = Classification.internal
-
-        if Classification(classification) == Classification.asset:
-            warnings.warn(
-                "The value 'asset' for access.ssdl.access_level is deprecated. "
-                "Please use 'restricted' in input arguments or global variables "
-                "to silence this warning.",
-                FutureWarning,
-            )
-            return Classification.restricted
-        return Classification(classification)
-
-    def _get_rep_include(self) -> bool:
-        """
-        Get the rep_include status.
-        The order of how the staus is set is:
-        1. from rep_include argument if present
-        2. from access_ssdl argument (deprecated) if present
-        3. from access.ssdl.rep_include in config
-        4. default to False if not found
-        """
-        if self.rep_include is not None:
-            logger.debug("rep_include is set from input")
-            return self.rep_include
-
-        if self.access_ssdl and self.access_ssdl.get("rep_include"):
-            logger.debug("rep_include is set from access_ssdl input")
-            return self.access_ssdl["rep_include"]
-
-        if (
-            isinstance(self.config, GlobalConfiguration)
-            and (ssdl := self.config.access.ssdl)
-            and ssdl.rep_include is not None
-        ):
-            warnings.warn(
-                "Setting 'rep_include' from the config is deprecated. Use the "
-                "'rep_include' argument instead (default value is False). To silence "
-                "this warning remove the 'access.ssdl.rep_include' from the config.",
-                FutureWarning,
-            )
-            logger.debug("rep_include is set from config")
-            return ssdl.rep_include
-
-        logger.debug("Using default 'rep_include'=False")
-        return False
-
     def _get_content_enum(self) -> enums.Content | None:
         """Get the content enum."""
-        if self.content is None:
-            logger.debug("content not set from input, returning None'")
-            return None
-
-        if isinstance(self.content, str):
-            logger.debug("content is set from string input")
-            return enums.Content(self.content)
-
-        if isinstance(self.content, dict):
-            logger.debug("content is set from dict input")
-            return enums.Content(next(iter(self.content)))
-
-        raise ValueError(
-            "Incorrect format found for 'content'. It should be a valid "
-            f"content string: {[m.value for m in enums.Content]}"
-        )
+        return _resolve_content_enum(self.content)
 
     def _get_content_metadata(self) -> dict | None:
         """
         Get the content metadata if provided by as input, else return None.
         Validation takes place in the objectdata provider.
         """
-        if self.content_metadata:
-            logger.debug("content_metadata is set from content_metadata argument")
-            return self.content_metadata
-
-        if isinstance(self.content, dict):
-            logger.debug("content_metadata is set from content argument")
-            content_enum = self._get_content_enum()
-            return self.content[content_enum]
-
-        logger.debug("Found no content_metadata, returning None")
-        return None
+        return _resolve_content_metadata(self.content_metadata, self.content)
 
     def _resolve_deprecations(self) -> None:
         """Resolve deprecated arguments and emit warnings.
@@ -819,34 +764,6 @@ class ExportData:
         if resolution.errors:
             raise DeprecationError("\n".join(resolution.errors))
 
-    def _resolve_fmu_context(self) -> None:
-        """Resolve and validate the FMU context configuration.
-
-        Raises:
-            FMUContextError: If the configuration is invalid.
-        """
-        resolution = resolve_fmu_context(
-            fmu_context_input=self.fmu_context,
-            preprocessed_input=self.preprocessed,
-            env_context=get_fmu_context_from_environment(),
-        )
-
-        for message, category in resolution.warnings:
-            warnings.warn(message, category)
-
-        self._resolved_fmu_context = resolution.context
-        self._resolved_preprocessed = resolution.preprocessed
-
-    def _resolve_vertical_domain(self) -> None:
-        """Resolve vertical_domain and domain_reference from raw input."""
-        if isinstance(self.vertical_domain, dict):
-            vd_key, vd_value = next(iter(self.vertical_domain.items()))
-            self._resolved_vertical_domain = vd_key
-            self._resolved_domain_reference = vd_value
-        else:
-            self._resolved_vertical_domain = self.vertical_domain
-            self._resolved_domain_reference = self.domain_reference
-
     def _update_check_settings(self, newsettings: dict) -> None:
         """Update instance settings (properties) from other routines."""
         # if no newsettings (kwargs) this routine is not needed
@@ -874,12 +791,27 @@ class ExportData:
             logger.info("New setting OK for %s", setting)
 
         self._resolve_deprecations()
-        self._resolve_fmu_context()
-        self._resolve_vertical_domain()
+        self._resolved_fmu_context, self._resolved_preprocessed = _resolve_fmu_context(
+            self.fmu_context, self.preprocessed
+        )
+        self._resolved_vertical_domain, self._resolved_domain_reference = (
+            _resolve_vertical_domain(self.vertical_domain, self.domain_reference)
+        )
 
         self._runcontext = self._get_runcontext()
-        self._classification = self._get_classification()
-        self._rep_include = self._get_rep_include()
+        self._classification = _resolve_classification(
+            self.classification,
+            self.access_ssdl,
+            self.config if isinstance(self.config, GlobalConfiguration) else None,
+        )
+        self._rep_include = _resolve_rep_include(
+            self.rep_include,
+            self.access_ssdl,
+            self.config if isinstance(self.config, GlobalConfiguration) else None,
+        )
+
+        # Values have changed, so we need a new configuration.
+        self._cached_export_config = ExportConfig.from_export_data(self)
 
     def _export_without_metadata(self, obj: types.Inferrable) -> str:
         """
