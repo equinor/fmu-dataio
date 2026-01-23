@@ -13,6 +13,7 @@ import pytest
 import xtgeo
 import yaml
 from fmu.datamodels.fmu_results.enums import FMUContext
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.datamodels.fmu_results.standard_result import InplaceVolumesStandardResult
 from fmu.datamodels.standard_results.enums import StandardResultName
 from pytest import MonkeyPatch
@@ -43,6 +44,7 @@ def test_generate_metadata_simple(mock_global_config: dict[str, Any]) -> None:
     with pytest.warns(UserWarning, match="deprecated"):
         edata = ExportData(config=mock_global_config, content="depth")
 
+    assert isinstance(edata.config, GlobalConfiguration)
     assert edata.config.model.name == "Test"
 
     assert edata.meta_format is None
@@ -210,7 +212,8 @@ def test_config_stratigraphy_alias_as_string(
     with pytest.warns(FutureWarning, match="string input"):
         exp = ExportData(config=cfg, content="depth", name="TopVolantis")
 
-    assert exp.config
+    assert isinstance(exp.config, GlobalConfiguration)
+    assert exp.config.stratigraphy is not None
     assert exp.config.stratigraphy["TopVolantis"].alias == ["TV"]
 
 
@@ -274,7 +277,11 @@ def test_config_stratigraphy_stratigraphic_not_bool(
 def test_update_check_settings_shall_fail(mock_global_config: dict[str, Any]) -> None:
     # pylint: disable=unexpected-keyword-arg
     with pytest.raises(TypeError):
-        _ = ExportData(config=mock_global_config, stupid="str", content="depth")
+        _ = ExportData(  # type: ignore[call-arg]
+            config=mock_global_config,
+            stupid="str",
+            content="depth",
+        )
 
     newsettings = {"invalidkey": "some"}
     some = ExportData(config=mock_global_config, content="depth")
@@ -309,7 +316,11 @@ def test_deprecated_keys(
     # under primary initialisation
     kval = {key: value}
     with pytest.warns(UserWarning, match=expected_msg):
-        ExportData(config=mock_global_config, content="depth", **kval)
+        ExportData(  # type: ignore[misc]
+            config=mock_global_config,
+            content="depth",
+            **kval,  # type: ignore[arg-type]
+        )
 
     # under override should give FutureWarning for these
     edata = ExportData(config=mock_global_config, content="depth")
@@ -317,7 +328,7 @@ def test_deprecated_keys(
         pytest.warns(UserWarning, match=expected_msg),
         pytest.warns(FutureWarning, match="move them up to initialization"),
     ):
-        edata.generate_metadata(regsurf, **kval)
+        edata.generate_metadata(regsurf, **kval)  # type: ignore[misc,arg-type]
 
 
 def test_access_ssdl_vs_classification_rep_include(
@@ -855,11 +866,13 @@ def test_global_config_from_env(
     monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(drogon_global_config_path))
 
     edata = ExportData(content="depth")  # the env variable will override this
+    assert isinstance(edata.config, GlobalConfiguration)
     assert edata.config.masterdata.smda
     assert edata.config.model.name == "ff"
 
     # do not use global config from environment when explicitly given
     edata = ExportData(config=mock_global_config, content="depth")
+    assert isinstance(edata.config, GlobalConfiguration)
     assert edata.config.model.name == "Test"
 
 
@@ -1129,6 +1142,7 @@ def test_norwegian_letters_globalconfig(
 
     monkeypatch.chdir(path)
 
+    assert cfg is not None
     edata = ExportData(content="depth", config=cfg, name="TopBlåbær")
     meta = edata.generate_metadata(regsurf)
     logger.debug("\n %s", prettyprint_dict(meta))
@@ -1171,8 +1185,8 @@ def test_metadata_format_deprecated(
             config=mock_global_config, name="TopBlåbær", content="depth"
         ).export(regsurf)
 
-    result = pathlib.Path(result)
-    metafile = result.parent / ("." + str(result.stem) + ".gri.json")
+    result_path = pathlib.Path(result)
+    metafile = result_path.parent / ("." + str(result_path.stem) + ".gri.json")
     assert not metafile.exists()
     assert not metafile.with_suffix(".yaml").exists()
 
@@ -1431,6 +1445,9 @@ def test_offset_top_base_present_in_exported_metadata(
     edata = ExportData(config=config, content="depth", name=name)
 
     # check that it is preserved after initialization with pydantic
+    assert edata.config is not None
+    assert isinstance(edata.config, GlobalConfiguration)
+    assert edata.config.stratigraphy is not None
     assert edata.config.stratigraphy[name].top.name == "TheTopHorizon"
     assert edata.config.stratigraphy[name].base.name == "TheBaseHorizon"
     assert edata.config.stratigraphy[name].offset == 3.5
@@ -1556,7 +1573,7 @@ def test_timedata_wrong_format(
             config=mock_global_config,
             content="depth",
             name="TopWhatever",
-            timedata="20230101",
+            timedata="20230101",  # type: ignore[arg-type]
         ).generate_metadata(regsurf)
 
     with pytest.raises(ValueError, match="two dates"):
@@ -1717,3 +1734,67 @@ def test_element_id_case_context(
 
     # check that fmu.entity is not present for the case context
     assert "entity" not in meta["fmu"]
+
+
+def test_mutation_after_init_emits_warning(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Mutating attributes after initialization should emit FutureWarning."""
+    edata = ExportData(config=mock_global_config, content="depth")
+
+    with pytest.warns(FutureWarning, match="Mutating ExportData.content"):
+        edata.content = "thickness"
+
+    assert edata.content == "thickness"
+
+
+def test_mutation_vertical_domain_dict_emits_two_warnings(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """
+    Mutating vertical_domain with dict should emit both mutation and format warnings.
+    """
+    edata = ExportData(config=mock_global_config, content="depth")
+
+    with pytest.warns(FutureWarning) as warning_records:
+        edata.vertical_domain = {"time": "sb"}
+
+    messages = [str(w.message) for w in warning_records]
+    assert any("Mutating ExportData.vertical_domain" in m for m in messages)
+    assert any("vertical domain and the reference" in m for m in messages)
+
+    assert edata.vertical_domain == {"time": "sb"}
+    assert edata.domain_reference == "msl"
+    assert edata._resolved_vertical_domain == "time"
+    assert edata._resolved_domain_reference == "sb"
+
+
+def test_mutation_multiple_attributes_emits_multiple_warnings(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Mutating multiple attributes should emit warning for each."""
+    edata = ExportData(config=mock_global_config, content="depth")
+
+    with pytest.warns(FutureWarning, match="Mutating ExportData.content"):
+        edata.content = "thickness"
+
+    with pytest.warns(FutureWarning, match="Mutating ExportData.tagname"):
+        edata.tagname = "new_tag"
+
+    assert edata.content == "thickness"
+    assert edata.tagname == "new_tag"
+
+
+def test_no_mutation_warning_during_init(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """No mutation warning should be emitted during initialization."""
+    with pytest.warns(FutureWarning, match="vertical domain and the reference"):
+        edata = ExportData(
+            config=mock_global_config,
+            content="depth",
+            vertical_domain={"depth": "msl"},
+        )
+
+    assert edata.vertical_domain == {"depth": "msl"}
+    assert edata.domain_reference == "msl"
