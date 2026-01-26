@@ -7,7 +7,7 @@ from fmu.dataio.providers.objectdata._utils import Utils
 def test_stratigraphy(drogon_exportdata: ExportData) -> None:
     """Test the stratigraphy."""
 
-    strat = drogon_exportdata.config.stratigraphy
+    strat = drogon_exportdata._export_config.config.stratigraphy
 
     ###### Test get stratigraphic name ######
 

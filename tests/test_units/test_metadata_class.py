@@ -260,7 +260,7 @@ def test_metadata_populate_masterdata_is_empty(
     with pytest.warns(UserWarning, match="The global config"):
         some = dio.ExportData(config=config, content="depth")
 
-    assert not some.config
+    assert some._export_config.config is None
 
     objdata = objectdata_provider_factory(regsurf, some._export_config)
     mymeta = generate_export_metadata(objdata, some._export_config)
@@ -296,7 +296,7 @@ def test_metadata_populate_access_miss_cfg_access(
     del cfg1_edited["access"]
     with pytest.warns(UserWarning, match="The global config"):
         edata = dio.ExportData(config=cfg1_edited, content="depth")
-    assert not edata.config
+    assert edata._export_config.config is None
 
     objdata = objectdata_provider_factory(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
@@ -387,7 +387,7 @@ def test_metadata_populate_wrong_config(
     with pytest.warns(UserWarning):
         edata = dio.ExportData(config=_config, content="depth")
 
-    assert not edata.config
+    assert edata._export_config.config is None
 
     # use default 'internal' if wrong in config
     objdata = objectdata_provider_factory(regsurf, edata._export_config)

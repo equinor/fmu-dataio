@@ -1,13 +1,8 @@
 """Tests for deprecation resolution."""
 
 from typing import Any
-from unittest.mock import MagicMock
 
 import pytest
-from fmu.datamodels.fmu_results.global_configuration import (
-    Access,
-    GlobalConfiguration,
-)
 
 from fmu.dataio._deprecations import (
     DeprecationResolution,
@@ -19,6 +14,8 @@ def _default_args() -> dict[str, Any]:
     """Return default arguments for resolve_deprecations with no deprecations."""
     return {
         "config": None,
+        # Environment variables
+        "settings_envname": None,
         # Arguments with replacements
         "access_ssdl": None,
         "classification": None,
@@ -70,10 +67,13 @@ def test_resolution_is_immutable() -> None:
 def test_global_config_with_rep_include_emits_future_warning() -> None:
     """Using rep_include in global configuration should emit FutureWarning."""
     args = _default_args()
-    args["config"] = MagicMock(
-        spec=GlobalConfiguration,
-        access=MagicMock(spec=Access, ssdl=MagicMock(rep_include=True)),
-    )
+    args["config"] = {
+        "access": {
+            "ssdl": {
+                "rep_include": True,
+            },
+        },
+    }
 
     resolution = resolve_deprecations(**args)
     assert len(resolution.warnings) == 1
@@ -121,6 +121,19 @@ def test_access_ssdl_with_rep_include_returns_error() -> None:
     assert len(resolution.warnings) == 1
     assert len(resolution.errors) == 1
     assert "not supported" in resolution.errors[0]
+
+
+def test_settings_envname_emits_future_warning() -> None:
+    """Using settings environment variable should emit FutureWarning."""
+    args = _default_args()
+    args["settings_envname"] = "FMU_DATAIO_CONFIG"
+
+    resolution = resolve_deprecations(**args)
+
+    assert len(resolution.warnings) == 1
+    message, category = resolution.warnings[0]
+    assert "environment variables is deprecated" in message
+    assert category is FutureWarning
 
 
 def test_content_dict_emits_future_warning() -> None:
@@ -280,7 +293,8 @@ def test_multiple_deprecations_accumulate_warnings() -> None:
     args["runpath"] = "/some/path"
     args["grid_model"] = "some_model"
     args["content"] = {"depth": {}}
+    args["settings_envname"] = "FMU_DATAIO_CONFIG"
 
     resolution = resolve_deprecations(**args)
 
-    assert len(resolution.warnings) == 3
+    assert len(resolution.warnings) == 4

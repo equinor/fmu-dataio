@@ -25,6 +25,7 @@ from fmu.dataio._export_config import (
     _resolve_content_enum,
     _resolve_content_metadata,
     _resolve_description,
+    _resolve_global_config,
     _resolve_rep_include,
     _resolve_vertical_domain,
     _resolve_workflow,
@@ -79,6 +80,41 @@ def mock_export_data() -> MagicMock:
     mock.casepath = None
     mock.config = {}
     return mock
+
+
+def test_resolve_global_config_with_global_configuration() -> None:
+    """GlobalConfiguration instance is returned as-is."""
+    mock_config = MagicMock(spec=GlobalConfiguration)
+    result = _resolve_global_config(mock_config)
+    assert result is mock_config
+
+
+def test_resolve_global_config_with_empty_dict() -> None:
+    """Empty dict returns None."""
+    result = _resolve_global_config({})
+    assert result is None
+
+
+def test_resolve_global_config_with_invalid_dict_missing_masterdata() -> None:
+    """Invalid config without masterdata returns None and warns."""
+    with pytest.warns(UserWarning, match="lacking masterdata definitions"):
+        result = _resolve_global_config({"some": "data"})
+    assert result is None
+
+
+def test_resolve_global_config_with_invalid_dict_with_masterdata() -> None:
+    """Invalid config with masterdata returns None and warns."""
+    with pytest.warns(UserWarning):
+        result = _resolve_global_config({"masterdata": {"invalid": "data"}})
+    assert result is None
+
+
+def test_resolve_global_config_with_valid_dict(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Valid config dict is resolved to GlobalConfiguration."""
+    result = _resolve_global_config(mock_global_config)
+    assert isinstance(result, GlobalConfiguration)
 
 
 @pytest.mark.parametrize(
@@ -395,6 +431,7 @@ def test_export_config_from_export_data_transformations(
 
 def test_export_config_from_export_data_with_global_config(
     mock_export_data: MagicMock,
+    mock_global_config: dict[str, Any],
 ) -> None:
     """GlobalConfiguration is passed through, dict becomes None."""
     mock_global_config = MagicMock(spec=GlobalConfiguration, access=MagicMock())
@@ -406,12 +443,29 @@ def test_export_config_from_export_data_with_global_config(
         config = ExportConfig.from_export_data(mock_export_data)
         assert config.config is mock_global_config
 
-    mock_export_data.config = {"some": "dict"}
+    mock_export_data.config = {}
     with patch("fmu.dataio._export_config._resolve_fmu_context") as mock_fmu_ctx:
         mock_fmu_ctx.return_value = (None, False)
 
         config = ExportConfig.from_export_data(mock_export_data)
         assert config.config is None
+
+    mock_export_data.config = {"some": "dict"}
+    with (
+        patch("fmu.dataio._export_config._resolve_fmu_context") as mock_fmu_ctx,
+        pytest.warns(UserWarning, match="lacking masterdata"),
+    ):
+        mock_fmu_ctx.return_value = (None, False)
+
+        config = ExportConfig.from_export_data(mock_export_data)
+        assert config.config is None
+
+    mock_export_data.config = mock_global_config
+    with patch("fmu.dataio._export_config._resolve_fmu_context") as mock_fmu_ctx:
+        mock_fmu_ctx.return_value = (None, False)
+
+        config = ExportConfig.from_export_data(mock_export_data)
+        assert isinstance(config.config, GlobalConfiguration)
 
 
 def test_export_config_is_immutable(mock_export_data: MagicMock) -> None:
