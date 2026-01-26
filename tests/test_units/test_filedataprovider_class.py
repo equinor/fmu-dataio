@@ -1,13 +1,13 @@
 """Test the _MetaData class from the _metadata.py module"""
 
 from copy import deepcopy
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import pytest
 import xtgeo
 from fmu.datamodels.fmu_results import fields
+from fmu.datamodels.fmu_results.data import Time
 from pytest import MonkeyPatch
 
 from fmu.dataio import ExportData
@@ -23,23 +23,23 @@ from fmu.dataio.providers.objectdata._provider import objectdata_provider_factor
             "name",
             "tag",
             "parent",
-            datetime.strptime("2020-01-01", "%Y-%m-%d"),
-            datetime.strptime("2022-01-02", "%Y-%m-%d"),
+            "20200101",
+            "20220102",
             "parent--name--tag--20220102_20200101",
         ),
         (
             "name",
             "",
             "",
-            datetime.strptime("2020-01-01", "%Y-%m-%d"),
-            datetime.strptime("2022-01-02", "%Y-%m-%d"),
+            "20200101",
+            "20220102",
             "name--20220102_20200101",
         ),
         (
             "name",
             "",
             "",
-            datetime.strptime("2022-01-02", "%Y-%m-%d"),
+            "20220102",
             None,
             "name--20220102",
         ),
@@ -55,8 +55,8 @@ from fmu.dataio.providers.objectdata._provider import objectdata_provider_factor
             "name",
             "",
             "",
-            datetime.strptime("2021-01-01", "%Y-%m-%d"),
-            datetime.strptime("2022-01-02", "%Y-%m-%d"),
+            "20210101",
+            "20220102",
             "name--20220102_20210101",
         ),
         (
@@ -99,16 +99,19 @@ def test_get_filestem(
     name: str,
     tagname: str,
     parentname: str,
-    time0: datetime | None,
-    time1: datetime | None,
+    time0: str | None,
+    time1: str | None,
     expected: str,
 ) -> None:
     """Testing the private _get_filestem method."""
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
-    objdata.name = name
+    objdata._strat_element.name = name
     # time0 is always the oldest
-    objdata.time0 = time0
-    objdata.time1 = time1
+    if time0 or time1:
+        objdata._time = Time(
+            t0=objdata._parse_timestamp(time0) if time0 else None,
+            t1=objdata._parse_timestamp(time1) if time1 else None,
+        )
 
     mock_exportdata.tagname = tagname
     mock_exportdata.parent = parentname
@@ -125,8 +128,8 @@ def test_get_filestem(
             "",
             "tag",
             "parent",
-            datetime.strptime("2020-01-01", "%Y-%m-%d"),
-            datetime.strptime("2022-01-02", "%Y-%m-%d"),
+            "20200101",
+            "20200102",
             "'name' entry is missing",
         ),
         (
@@ -134,7 +137,7 @@ def test_get_filestem(
             "tag",
             "parent",
             None,
-            datetime.strptime("2020-01-01", "%Y-%m-%d"),
+            "20200101",
             "'time0' is missing while",
         ),
     ],
@@ -145,20 +148,23 @@ def test_get_filestem_shall_fail(
     name: str,
     tagname: str,
     parentname: str,
-    time0: datetime | None,
-    time1: datetime,
+    time0: str | None,
+    time1: str,
     message: str,
 ) -> None:
     """Testing the private _get_filestem method when it shall fail."""
     mock_exportdata = deepcopy(mock_exportdata)
     mock_exportdata.tagname = tagname
     mock_exportdata.parent = parentname
-    mock_exportdata.name = ""
+    mock_exportdata.name = name
+    mock_exportdata.timedata = [time1]
+    if time0:
+        mock_exportdata.timedata.insert(0, time0)
 
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
-    objdata.name = name
-    objdata.time0 = time0
-    objdata.time1 = time1
+    objdata._strat_element.name = name
+    objdata._time.t0 = objdata._parse_timestamp(time0) if time0 else None
+    objdata._time.t1 = objdata._parse_timestamp(time1)
 
     with pytest.raises(ValueError, match=message):
         _ = objdata.share_path
@@ -174,7 +180,7 @@ def test_get_share_folders(
     )
 
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
-    objdata.name = "some"
+    assert objdata.name == "some"
 
     fdata = FileDataProvider(mock_exportdata._export_config.runcontext, objdata)
     share_folders = objdata.share_path.parent
@@ -199,7 +205,7 @@ def test_get_share_folders_with_subfolder(
     )
 
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
-    objdata.name = "some"
+    objdata._strat_element.name = "some"
 
     assert objdata.share_path.parent == Path("share/results/maps/sub")
     fdata = FileDataProvider(mock_exportdata._export_config.runcontext, objdata)
@@ -220,6 +226,9 @@ def test_filedata_provider(
 
     monkeypatch.chdir(tmp_path)
 
+    t0 = "19000101"
+    t1 = "20240101"
+
     cfg = ExportData(
         config=drogon_global_config,
         name="",
@@ -227,15 +236,12 @@ def test_filedata_provider(
         tagname="tag",
         forcefolder="efolder",
         content="depth",
+        timedata=[t1, t0],
     )
     objdata = objectdata_provider_factory(regsurf, cfg._export_config)
-    objdata.name = "name"
-    t1 = "19000101"
-    t2 = "20240101"
-    objdata.time0 = datetime.strptime(t1, "%Y%m%d")
-    objdata.time1 = datetime.strptime(t2, "%Y%m%d")
+    objdata._strat_element.name = "name"
 
-    expected_path = Path(f"share/results/efolder/parent--name--tag--{t2}_{t1}.gri")
+    expected_path = Path(f"share/results/efolder/parent--name--tag--{t1}_{t0}.gri")
 
     assert objdata.share_path == expected_path
 
@@ -262,7 +268,7 @@ def test_filedata_has_nonascii_letters(
     )
 
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
-    objdata.name = "anynõme"
+    objdata._strat_element.name = "anynõme"
 
     fdata = FileDataProvider(mock_exportdata._export_config.runcontext, objdata)
     with pytest.raises(ValueError, match="Path has non-ascii elements"):
