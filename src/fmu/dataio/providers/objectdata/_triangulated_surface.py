@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
@@ -25,7 +24,6 @@ if TYPE_CHECKING:
 logger: Final = null_logger(__name__)
 
 
-@dataclass
 class TriangulatedSurfaceProvider(ObjectDataProvider):
     """Provider for triangulated surface data."""
 

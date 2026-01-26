@@ -1551,7 +1551,7 @@ def test_timedata_wrong_format(
 ) -> None:
     """Test that error is raised if timedata is input incorrect"""
 
-    with pytest.raises(ValueError, match="should be a list"):
+    with pytest.raises(ValueError, match="must be a list"):
         ExportData(
             config=mock_global_config,
             content="depth",

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import warnings
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final
 
 import pyarrow as pa
@@ -165,7 +164,6 @@ def _drop_empty_table_index_columns(
     return [col for col in table_index if col not in empty_columns]
 
 
-@dataclass
 class DataFrameDataProvider(ObjectDataProvider):
     obj: pd.DataFrame
 
@@ -235,7 +233,6 @@ class DataFrameDataProvider(ObjectDataProvider):
         self.obj.to_csv(file, index=False)
 
 
-@dataclass
 class ArrowTableDataProvider(ObjectDataProvider):
     obj: pyarrow.Table
 

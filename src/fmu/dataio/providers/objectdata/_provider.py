@@ -7,7 +7,6 @@ in the ``data`` block but some settings are applied later in the other blocks
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
@@ -63,54 +62,31 @@ def objectdata_provider_factory(
         metadata for.
     """
     if isinstance(obj, xtgeo.RegularSurface):
-        return RegularSurfaceDataProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return RegularSurfaceDataProvider(obj, export_config, standard_result)
     if isinstance(obj, xtgeo.Polygons):
-        return PolygonsDataProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return PolygonsDataProvider(obj, export_config, standard_result)
     if isinstance(obj, xtgeo.Points):
-        return PointsDataProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return PointsDataProvider(obj, export_config, standard_result)
     if isinstance(obj, xtgeo.Cube):
-        return CubeDataProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return CubeDataProvider(obj, export_config, standard_result)
     if isinstance(obj, xtgeo.Grid):
-        return CPGridDataProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return CPGridDataProvider(obj, export_config, standard_result)
     if isinstance(obj, xtgeo.GridProperty):
-        return CPGridPropertyDataProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return CPGridPropertyDataProvider(obj, export_config, standard_result)
     if isinstance(obj, pd.DataFrame):
-        return DataFrameDataProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return DataFrameDataProvider(obj, export_config, standard_result)
     if isinstance(obj, FaultRoomSurface):
-        return FaultRoomSurfaceProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return FaultRoomSurfaceProvider(obj, export_config, standard_result)
     if isinstance(obj, TSurfData):
-        return TriangulatedSurfaceProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return TriangulatedSurfaceProvider(obj, export_config, standard_result)
     if isinstance(obj, dict):
-        return DictionaryDataProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return DictionaryDataProvider(obj, export_config, standard_result)
     if isinstance(obj, pa.Table):
-        return ArrowTableDataProvider(
-            obj=obj, export_config=export_config, standard_result=standard_result
-        )
+        return ArrowTableDataProvider(obj, export_config, standard_result)
 
     raise NotImplementedError(f"This data type is not currently supported: {type(obj)}")
 
 
-@dataclass
 class DictionaryDataProvider(ObjectDataProvider):
     obj: dict
 

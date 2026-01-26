@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from dataclasses import dataclass, field
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
@@ -18,7 +17,6 @@ from fmu.dataio.providers.objectdata._export_models import (
 )
 from fmu.datamodels.fmu_results.data import AnyData, Time, Timestamp
 from fmu.datamodels.fmu_results.global_configuration import (
-    GlobalConfiguration,
     StratigraphyElement,
 )
 
@@ -40,7 +38,6 @@ if TYPE_CHECKING:
 logger: Final = null_logger(__name__)
 
 
-@dataclass
 class ObjectDataProvider(Provider):
     """Base class for providing metadata for data objects in fmu-dataio, e.g. a surface.
 
@@ -52,67 +49,170 @@ class ObjectDataProvider(Provider):
     * investigate current metadata if that is provided
     """
 
-    # input fields
-    obj: Inferrable
-    export_config: ExportConfig
-    standard_result: StandardResult | None = None
+    def __init__(
+        self,
+        obj: Inferrable,
+        export_config: ExportConfig,
+        standard_result: StandardResult | None = None,
+    ) -> None:
+        self.obj = obj
+        self.export_config = export_config
+        self.standard_result = standard_result
 
-    # result properties; the most important is metadata which IS the 'data' part in
-    # the resulting metadata. But other variables needed later are also given
-    # as instance properties in addition (for simplicity in other classes/functions)
-    _metadata: AnyData | UnsetData | None = field(default=None)
-    name: str = field(default="")
-    time0: datetime | None = field(default=None)
-    time1: datetime | None = field(default=None)
+        self._validate_config()
+        self._strat_element = self._resolve_stratigraphy()
+        self._time = self._resolve_timedata()
+        self._metadata = self._build_metadata()
 
-    def __post_init__(self) -> None:
-        if self.export_config.forcefolder:
-            if self.export_config.forcefolder.startswith("/"):
-                raise ValueError("Can't use absolute path as 'forcefolder'")
-            logger.info(f"Using forcefolder {self.export_config.forcefolder}")
+    # TODO: Move to _export_config.
+    def _validate_config(self) -> None:
+        """Validate export configuration."""
+        if (ff := self.export_config.forcefolder) and ff.startswith("/"):
+            raise ValueError("Can't use absolute path as 'forcefolder'")
 
-        content = self.export_config.content
-        content_metadata = self.export_config.content_metadata
+    def _resolve_stratigraphy(self) -> StratigraphyElement:
+        """Resolve name against stratigraphy configuration.
 
-        strat_element = self._get_stratigraphy_element()
-        self.name = strat_element.name
+        Uses the explicit name from config if provided, otherwise falls back to the
+        object name. If the name is found in stratigraphy, returns the full
+        stratigraphic element with official naming.
 
-        metadata: dict[str, Any] = {}
-        metadata["name"] = self.name
-        metadata["stratigraphic"] = strat_element.stratigraphic
-        metadata["offset"] = strat_element.offset
-        metadata["alias"] = strat_element.alias
-        metadata["top"] = strat_element.top
-        metadata["base"] = strat_element.base
+        Args:
+            obj_name: Name from the object (e.g., surface.name)
 
-        metadata["content"] = content
-        if content_metadata:
-            metadata[content] = content_metadata
-        metadata["standard_result"] = self.standard_result
-        metadata["tagname"] = self.export_config.tagname
-        metadata["format"] = self.fmt
-        metadata["layout"] = self.layout
-        metadata["unit"] = self.export_config.unit or ""
-        metadata["vertical_domain"] = self.export_config.vertical_domain
-        metadata["domain_reference"] = self.export_config.domain_reference
+        Returns:
+            StratigraphyElement with resolved name and metadata.
+        """
+        name = self.export_config.name or getattr(self.obj, "name", "") or ""
 
-        metadata["spec"] = self.get_spec()
-        metadata["geometry"] = self.get_geometry()
-        metadata["bbox"] = self.get_bbox()
-        metadata["time"] = self._get_timedata()
-        metadata["table_index"] = self.table_index
-        metadata["undef_is_zero"] = self.export_config.undef_is_zero
+        config = self.export_config.config
+        if config and (stratigraphy := config.stratigraphy) and name in stratigraphy:
+            element = stratigraphy[name]
+            # Ensure input name is in aliases
+            if element.alias is None:
+                element.alias = [name]
+            elif name not in element.alias:
+                element.alias.append(name)
+            return element
 
-        metadata["is_prediction"] = self.export_config.is_prediction
-        metadata["is_observation"] = self.export_config.is_observation
-        metadata["description"] = self.export_config.description
+        return StratigraphyElement(name=name)
 
-        self._metadata = (
-            UnsetData.model_validate(metadata)
-            if metadata["content"] == "unset"
-            else AnyData.model_validate(metadata)
+    # TODO: Move to _export_config
+    def _resolve_timedata(self) -> Time | None:
+        """Parse timedata into Time model."""
+        timedata = self.export_config.timedata
+        if not timedata:
+            return None
+
+        if not isinstance(timedata, list):
+            raise ValueError("'timedata' must be a list")
+
+        if len(timedata) > 2:
+            raise ValueError("'timedata' can contain at most two dates")
+
+        timestamps = [self._parse_timestamp(t) for t in timedata]
+
+        # Ensure t0 <= t1
+        if len(timestamps) == 2 and timestamps[0].value > timestamps[1].value:
+            timestamps.reverse()
+
+        return Time(
+            t0=timestamps[0],
+            t1=timestamps[1] if len(timestamps) == 2 else None,
         )
-        logger.info("Derive all metadata for data object... DONE")
+
+    @staticmethod
+    def _parse_timestamp(item: str | list[str]) -> Timestamp:
+        """Parse a timedata item into a Timestamp."""
+        if isinstance(item, list):
+            value, *label = item
+            return Timestamp(
+                value=datetime.strptime(str(value), "%Y%m%d"),
+                label=label[0] if label else None,
+            )
+        return Timestamp(value=datetime.strptime(str(item), "%Y%m%d"))
+
+    def _build_metadata(self) -> AnyData | UnsetData:
+        """Build the metadata model from resolved values."""
+        cfg = self.export_config
+
+        data = {
+            # Stratigraphy
+            "name": self._strat_element.name,
+            "stratigraphic": self._strat_element.stratigraphic,
+            "offset": self._strat_element.offset,
+            "alias": self._strat_element.alias,
+            "top": self._strat_element.top,
+            "base": self._strat_element.base,
+            # Content
+            "content": cfg.content,
+            "standard_result": self.standard_result,
+            # Format
+            "tagname": cfg.tagname,
+            "format": self.fmt,
+            "layout": self.layout,
+            "unit": cfg.unit,
+            "vertical_domain": cfg.vertical_domain,
+            "domain_reference": cfg.domain_reference,
+            # Object-derived
+            "spec": self.get_spec(),
+            "geometry": self.get_geometry(),
+            "bbox": self.get_bbox(),
+            "time": self._time,
+            "table_index": self.table_index,
+            # Flags
+            "undef_is_zero": cfg.undef_is_zero,
+            "is_prediction": cfg.is_prediction,
+            "is_observation": cfg.is_observation,
+            "description": cfg.description,
+        }
+
+        if cfg.content_metadata:
+            data[cfg.content] = cfg.content_metadata
+
+        model = UnsetData if cfg.content == "unset" else AnyData
+        return model.model_validate(data)
+
+    @property
+    def name(self) -> str:
+        """The resolved name for this object."""
+        return self._strat_element.name
+
+    @property
+    def time0(self) -> datetime | None:
+        """The first (oldest) timestamp, if present."""
+        if self._time and self._time.t0:
+            return self._time.t0.value
+        return None
+
+    @property
+    def time1(self) -> datetime | None:
+        """The second (newest) timestamp, if present."""
+        if self._time and self._time.t1:
+            return self._time.t1.value
+        return None
+
+    @property
+    def share_path(self) -> Path:
+        """The relative share path for this object."""
+        return SharePathConstructor(self.export_config, self).get_share_path()
+
+    def get_metadata(self) -> AnyData | UnsetData:
+        """Return the constructed metadata."""
+        return self._metadata
+
+    def compute_md5_and_size(self) -> tuple[str, int]:
+        """Compute MD5 sum and buffer size using in-memory buffer."""
+        buffer = BytesIO()
+        self.export_to_file(buffer)
+        return md5sum(buffer), buffer.getbuffer().nbytes
+
+    def compute_md5_and_size_using_temp_file(self) -> tuple[str, int]:
+        """Compute MD5 sum and file size using a temporary file."""
+        with NamedTemporaryFile(buffering=0, suffix=".tmp") as tf:
+            path = Path(tf.name)
+            self.export_to_file(path)
+            return md5sum(path), path.stat().st_size
 
     @property
     @abstractmethod
@@ -159,105 +259,3 @@ class ObjectDataProvider(Provider):
     @abstractmethod
     def get_spec(self) -> AnySpecification | None:
         raise NotImplementedError
-
-    @property
-    def share_path(self) -> Path:
-        return SharePathConstructor(self.export_config, self).get_share_path()
-
-    def compute_md5_and_size(self) -> tuple[str, int]:
-        """Compute an MD5 sum and the buffer size"""
-        memory_stream = BytesIO()
-        self.export_to_file(memory_stream)
-        return md5sum(memory_stream), memory_stream.getbuffer().nbytes
-
-    def compute_md5_and_size_using_temp_file(self) -> tuple[str, int]:
-        """Compute an MD5 sum and the file size using a temporary file."""
-        with NamedTemporaryFile(buffering=0, suffix=".tmp") as tf:
-            logger.info("Compute MD5 sum for tmp file")
-            tempfile = Path(tf.name)
-            self.export_to_file(tempfile)
-            return md5sum(tempfile), tempfile.stat().st_size
-
-    def get_metadata(self) -> AnyData | UnsetData:
-        assert self._metadata is not None
-        return self._metadata
-
-    def _get_stratigraphy_element(self) -> StratigraphyElement:
-        """Derive the name and stratigraphy for the object; may have several sources.
-
-        If not in input settings it is tried to be inferred from the xtgeo/pandas/...
-        object. The name is then checked towards the stratigraphy list, and name is
-        replaced with official stratigraphic name if found in static metadata
-        `stratigraphy`. For example, if "TopValysar" is the model name and the actual
-        name is "Valysar Top Fm." that latter name will be used.
-        """
-        name = ""
-        if self.export_config.name:
-            name = self.export_config.name
-        elif isinstance(obj_name := getattr(self.obj, "name", ""), str):
-            name = obj_name
-
-        if (
-            isinstance(self.export_config.config, GlobalConfiguration)
-            and (strat := self.export_config.config.stratigraphy)
-            and name in strat
-        ):
-            if (alias := strat[name].alias) is None:
-                strat[name].alias = [name]
-            elif name not in alias:
-                alias.append(name)
-            return strat[name]
-
-        return StratigraphyElement(name=name)
-
-    def _get_fmu_time_object(self, timedata_item: str | list[str]) -> Timestamp:
-        """
-        Returns a Timestamp from a timedata item on either string or
-        list format: ["20200101", "monitor"] where the first item is a date and
-        the last item is an optional label
-        """
-
-        if isinstance(timedata_item, list):
-            value, *label = timedata_item
-            return Timestamp(
-                value=datetime.strptime(str(value), "%Y%m%d"),
-                label=label[0] if label else None,
-            )
-        return Timestamp(
-            value=datetime.strptime(str(timedata_item), "%Y%m%d"),
-        )
-
-    def _get_timedata(self) -> Time | None:
-        """Format input timedata to metadata
-
-        New format:
-            When using two dates, input convention is
-                -[[newestdate, "monitor"], [oldestdate,"base"]]
-            but it is possible to turn around. But in the metadata the output t0
-            shall always be older than t1 so need to check, and by general rule the file
-            will be some--time1_time0 where time1 is the newest (unless a class
-            variable is set for those who wants it turned around).
-        """
-        if not self.export_config.timedata:
-            return None
-
-        if not isinstance(self.export_config.timedata, list):
-            raise ValueError("The 'timedata' argument should be a list")
-
-        if len(self.export_config.timedata) > 2:
-            raise ValueError("The 'timedata' argument can maximum contain two dates")
-
-        start_input, *stop_input = self.export_config.timedata
-
-        start = self._get_fmu_time_object(start_input)
-        stop = self._get_fmu_time_object(stop_input[0]) if stop_input else None
-
-        if stop:
-            assert start and start.value is not None  # for mypy
-            assert stop and stop.value is not None  # for mypy
-            if start.value > stop.value:
-                start, stop = stop, start
-
-        self.time0, self.time1 = start.value, stop.value if stop else None
-
-        return Time(t0=start, t1=stop)

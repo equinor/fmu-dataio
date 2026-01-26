@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import warnings
-from dataclasses import dataclass
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, Final
@@ -11,6 +10,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from fmu.dataio._definitions import ExportFolder, FileExtension
+from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
 from fmu.dataio.exceptions import ConfigurationError
@@ -36,6 +36,8 @@ if TYPE_CHECKING:
     import pandas as pd
     import xtgeo
 
+    from fmu.datamodels.fmu_results.standard_result import StandardResult
+
 logger: Final = null_logger(__name__)
 
 
@@ -54,7 +56,6 @@ def lack_of_geometry_warn() -> None:
     )
 
 
-@dataclass
 class RegularSurfaceDataProvider(ObjectDataProvider):
     obj: xtgeo.RegularSurface
 
@@ -133,20 +134,23 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
         self.obj.to_file(file, fformat="irap_binary")
 
 
-@dataclass
 class PolygonsDataProvider(ObjectDataProvider):
     obj: xtgeo.Polygons
 
-    def __post_init__(self) -> None:
-        if self.fmt == FileFormat.csv:
-            self.obj = self.obj.copy()
+    def __init__(
+        self,
+        obj: xtgeo.Polygons,
+        export_config: ExportConfig,
+        standard_result: StandardResult | None = None,
+    ) -> None:
+        if export_config.polygons_fformat == FileFormat.csv:
+            obj = obj.copy()
+            obj.xname = "X"
+            obj.yname = "Y"
+            obj.zname = "Z"
+            obj.pname = "ID"
 
-            self.obj.xname = "X"
-            self.obj.yname = "Y"
-            self.obj.zname = "Z"
-            self.obj.pname = "ID"
-
-        super().__post_init__()
+        super().__init__(obj, export_config, standard_result)
 
     @property
     def classname(self) -> ObjectMetadataClass:
@@ -250,19 +254,22 @@ class PolygonsDataProvider(ObjectDataProvider):
             self.obj_dataframe.to_csv(file, index=False)
 
 
-@dataclass
 class PointsDataProvider(ObjectDataProvider):
     obj: xtgeo.Points
 
-    def __post_init__(self) -> None:
-        if self.fmt == FileFormat.csv:
-            self.obj = self.obj.copy()
+    def __init__(
+        self,
+        obj: xtgeo.Points,
+        export_config: ExportConfig,
+        standard_result: StandardResult | None = None,
+    ) -> None:
+        if export_config.points_fformat == FileFormat.csv:
+            obj = obj.copy()
+            obj.xname = "X"
+            obj.yname = "Y"
+            obj.zname = "Z"
 
-            self.obj.xname = "X"
-            self.obj.yname = "Y"
-            self.obj.zname = "Z"
-
-        super().__post_init__()
+        super().__init__(obj, export_config, standard_result)
 
     @property
     def classname(self) -> ObjectMetadataClass:
@@ -367,7 +374,6 @@ class PointsDataProvider(ObjectDataProvider):
             self.obj_dataframe.to_csv(file, index=False)
 
 
-@dataclass
 class CubeDataProvider(ObjectDataProvider):
     obj: xtgeo.Cube
 
@@ -455,7 +461,6 @@ class CubeDataProvider(ObjectDataProvider):
         self.obj.to_file(file, fformat="segy")
 
 
-@dataclass
 class CPGridDataProvider(ObjectDataProvider):
     obj: xtgeo.Grid
 
@@ -545,7 +550,6 @@ class CPGridDataProvider(ObjectDataProvider):
         self.obj.to_file(file, fformat="roff")
 
 
-@dataclass
 class CPGridPropertyDataProvider(ObjectDataProvider):
     obj: xtgeo.GridProperty
 
