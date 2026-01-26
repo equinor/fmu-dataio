@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
 
 from fmu.dataio.aggregation import AggregatedData
-from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from ._deprecations import (
@@ -193,7 +192,7 @@ class ExportData:
     #
     # ----------------------------------------------------------------------------------
 
-    config: dict | GlobalConfiguration = field(default_factory=dict)
+    config: dict[str, Any] | GlobalConfiguration = field(default_factory=dict)
     """Required in order to produce valid metadata.
 
     This global config must be provided either as an input value here or through an
@@ -596,39 +595,10 @@ class ExportData:
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
 
-        # TODO: Resolve global config in _export_config.
-
-        # global config which may be given as env variable
-        # will only be used if not explicitly given as input
         if not self.config and GLOBAL_ENVNAME in os.environ:
             self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
 
-        try:
-            self.config = GlobalConfiguration.model_validate(self.config)
-        except global_configuration.ValidationError as e:
-            if "masterdata" not in self.config:
-                warnings.warn(
-                    "The global config file is lacking masterdata definitions, hence "
-                    "no metadata will be exported. Follow the simple 'Getting started' "
-                    "steps to do necessary preparations and enable metadata export: "
-                    "https://fmu-dataio.readthedocs.io/en/latest/getting_started.html ",
-                    UserWarning,
-                )
-            else:
-                global_configuration.validation_error_warning(e)
-            self.config = {}
-
         self._resolve_deprecations()
-
-        # if input is provided as an ENV variable pointing to a YAML file; will override
-        if SETTINGS_ENVNAME in os.environ:
-            warnings.warn(
-                "Providing input settings through environment variables is deprecated, "
-                "use ExportData(**yaml_load(<your_file>)) instead. To "
-                "disable this warning, remove the 'FMU_DATAIO_CONFIG' env.",
-                FutureWarning,
-            )
-
         self._cached_export_config = ExportConfig.from_export_data(self)
 
         object.__setattr__(self, "_initialized", True)
@@ -676,6 +646,9 @@ class ExportData:
         resolution = resolve_deprecations(
             # Objects with replacements
             config=self.config,
+            settings_envname=(
+                SETTINGS_ENVNAME if SETTINGS_ENVNAME in os.environ else None
+            ),
             # Arguments with replacements
             access_ssdl=self.access_ssdl or None,
             classification=self.classification,
@@ -760,7 +733,7 @@ class ExportData:
     ) -> str:
         """Export the object with standard result information in the metadata."""
 
-        if not isinstance(self.config, GlobalConfiguration):
+        if self._export_config.config is None:
             raise ValidationError(
                 "When exporting standard_results it is required to have a valid config."
             )
@@ -789,8 +762,8 @@ class ExportData:
             FmuProvider(
                 runcontext=self._export_config.runcontext,
                 model=(
-                    self.config.model
-                    if isinstance(self.config, GlobalConfiguration)
+                    self._export_config.config.model
+                    if self._export_config.config
                     else None
                 ),
                 workflow=self.workflow,  # TODO: Use from export_config
@@ -837,7 +810,7 @@ class ExportData:
         logger.info("Generate metadata...")
         logger.info("KW args %s", kwargs)
 
-        if not isinstance(self.config, GlobalConfiguration):
+        if self._export_config.config is None:
             warnings.warn(
                 "From fmu.dataio version 3.0 it will not be possible to produce "
                 "metadata when the global config is invalid.",
@@ -913,9 +886,13 @@ class ExportData:
         logger.info("Object type is: %s", type(obj))
         self._apply_deprecated_kwargs(kwargs)
 
-        # should only export object if config is not valid
-        if not isinstance(self.config, GlobalConfiguration):
-            warnings.warn("Data will be exported, but without metadata.", UserWarning)
+        if self._export_config.config is None:
+            warnings.warn(
+                "Global configuration was not provided or was invalid. Because of this "
+                "valid metadata cannot be generated. Data will be still exported but "
+                "without metadata.",
+                UserWarning,
+            )
             return self._export_without_metadata(obj)
 
         objdata = objectdata_provider_factory(obj, self._export_config)

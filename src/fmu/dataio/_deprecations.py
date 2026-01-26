@@ -28,7 +28,9 @@ class DeprecationError(ValueError):
 def resolve_deprecations(
     *,
     # Objects with replacements
-    config: GlobalConfiguration | dict[str, Any],
+    config: dict[str, Any] | GlobalConfiguration,
+    # Environment variables
+    settings_envname: str | None,
     # Arguments that have replacements (FutureWarning)
     access_ssdl: dict[str, Any] | None,
     classification: str | None,
@@ -70,6 +72,9 @@ def resolve_deprecations(
 
     config_warnings = _check_global_config(config)
     warnings_to_emit.extend(config_warnings)
+
+    env_warnings = _check_environment_variables(settings_envname=settings_envname)
+    warnings_to_emit.extend(env_warnings)
 
     access_warnings, access_error = _check_access_ssdl(
         access_ssdl, classification, rep_include
@@ -117,8 +122,34 @@ def resolve_deprecations(
     return DeprecationResolution(warnings=warnings_to_emit, errors=errors)
 
 
+def _check_environment_variables(
+    settings_envname: str | None,
+) -> list[WarningTuple]:
+    """Check deprecated environment variable usage.
+
+    Args:
+        settings_envname: Name of settings env var if present, None otherwise.
+
+    Returns:
+        List of WarningTuples.
+    """
+    warnings_list: list[WarningTuple] = []
+
+    if settings_envname is not None:
+        warnings_list.append(
+            (
+                "Providing input settings through environment variables is deprecated, "
+                "use ExportData(**yaml_load(<your_file>)) instead. To "
+                "disable this warning, remove the 'FMU_DATAIO_CONFIG' env.",
+                FutureWarning,
+            )
+        )
+
+    return warnings_list
+
+
 def _check_global_config(
-    config: GlobalConfiguration | dict[str, Any],
+    config: dict[str, Any] | GlobalConfiguration,
 ) -> list[WarningTuple]:
     """Check deprecated global configuration fields.
 
@@ -126,18 +157,28 @@ def _check_global_config(
         List of WarningTuples.
     """
     warnings: list[WarningTuple] = []
-    if isinstance(config, dict) or config is None:
+    if config is None:
         return warnings
 
-    if (ssdl := config.access.ssdl) and ssdl.rep_include is not None:
-        warnings.append(
-            (
-                "Setting 'rep_include' from the global config is deprecated. Use the "
-                "'rep_include' argument instead (default value is False). To silence "
-                "this warning remove the 'access.ssdl.rep_include' from the config.",
-                FutureWarning,
+    config_dict = (
+        config.model_dump(mode="json")
+        if isinstance(config, GlobalConfiguration)
+        else config
+    )
+
+    access = config_dict.get("access")
+    if isinstance(access, dict):
+        ssdl = access.get("ssdl")
+        if isinstance(ssdl, dict) and ssdl.get("rep_include") is not None:
+            warnings.append(
+                (
+                    "Setting 'rep_include' from the global config is deprecated. Use "
+                    "the 'rep_include' argument instead (default value is False). To "
+                    "silence this warning remove the 'access.ssdl.rep_include' from "
+                    "the config.",
+                    FutureWarning,
+                )
             )
-        )
     return warnings
 
 

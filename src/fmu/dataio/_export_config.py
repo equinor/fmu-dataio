@@ -14,6 +14,7 @@ from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Final, Literal, Self, TypeAlias
 
 from fmu.datamodels.common.enums import Classification
+from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.data import (
     FieldOutline,
     FieldRegion,
@@ -126,9 +127,7 @@ class ExportConfig:
         fmu_context, preprocessed = _resolve_fmu_context(
             dataio.fmu_context, dataio.preprocessed
         )
-        config = (
-            dataio.config if isinstance(dataio.config, GlobalConfiguration) else None
-        )
+        config = _resolve_global_config(dataio.config)
         casepath = Path(dataio.casepath) if dataio.casepath else None
 
         return cls(
@@ -478,3 +477,33 @@ def _resolve_description(
         f"'{description}' is not a valid value for 'description'. Use one of: "
         "string or list of strings."
     )
+
+
+def _resolve_global_config(
+    config: dict[str, Any] | GlobalConfiguration,
+) -> GlobalConfiguration | None:
+    """Resolve user-provided config to GlobalConfiguration.
+
+    Args:
+        config: User-provided config dict or already-validated GlobalConfiguration.
+
+    Returns:
+        GlobalConfiguration if valid, None otherwise.
+    """
+    if isinstance(config, GlobalConfiguration):
+        return config
+
+    try:
+        return GlobalConfiguration.model_validate(config)
+    except global_configuration.ValidationError as e:
+        if "masterdata" not in config:
+            warnings.warn(
+                "The global config file is lacking masterdata definitions, hence "
+                "no metadata will be exported. Follow the simple 'Getting started' "
+                "steps to do necessary preparations and enable metadata export: "
+                "https://fmu-dataio.readthedocs.io/en/latest/getting_started.html ",
+                UserWarning,
+            )
+        else:
+            global_configuration.validation_error_warning(e)
+        return None

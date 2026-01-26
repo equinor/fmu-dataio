@@ -44,8 +44,9 @@ def test_generate_metadata_simple(mock_global_config: dict[str, Any]) -> None:
     with pytest.warns(UserWarning, match="deprecated"):
         edata = ExportData(config=mock_global_config, content="depth")
 
-    assert isinstance(edata.config, GlobalConfiguration)
-    assert edata.config.model.name == "Test"
+    assert isinstance(edata.config, dict)
+    assert isinstance(edata._export_config.config, GlobalConfiguration)
+    assert edata._export_config.config.model.name == "Test"
 
     assert edata.meta_format is None
     assert edata.grid_fformat == "grdecl"
@@ -212,9 +213,9 @@ def test_config_stratigraphy_alias_as_string(
     with pytest.warns(FutureWarning, match="string input"):
         exp = ExportData(config=cfg, content="depth", name="TopVolantis")
 
-    assert isinstance(exp.config, GlobalConfiguration)
-    assert exp.config.stratigraphy is not None
-    assert exp.config.stratigraphy["TopVolantis"].alias == ["TV"]
+    assert isinstance(exp._export_config.config, GlobalConfiguration)
+    assert exp._export_config.config.stratigraphy is not None
+    assert exp._export_config.config.stratigraphy["TopVolantis"].alias == ["TV"]
 
 
 def test_config_stratigraphy_empty_entries_alias(
@@ -847,14 +848,16 @@ def test_global_config_from_env(
     monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(drogon_global_config_path))
 
     edata = ExportData(content="depth")  # the env variable will override this
-    assert isinstance(edata.config, GlobalConfiguration)
-    assert edata.config.masterdata.smda
-    assert edata.config.model.name == "ff"
+    assert isinstance(edata.config, dict)
+    assert isinstance(edata._export_config.config, GlobalConfiguration)
+    assert edata._export_config.config.masterdata.smda
+    assert edata._export_config.config.model.name == "ff"
 
     # do not use global config from environment when explicitly given
     edata = ExportData(config=mock_global_config, content="depth")
-    assert isinstance(edata.config, GlobalConfiguration)
-    assert edata.config.model.name == "Test"
+    assert isinstance(edata.config, dict)
+    assert isinstance(edata._export_config.config, GlobalConfiguration)
+    assert edata._export_config.config.model.name == "Test"
 
 
 def test_fmurun_attribute_outside_fmu(rmsglobalconfig: dict[str, Any]) -> None:
@@ -1425,11 +1428,12 @@ def test_offset_top_base_present_in_exported_metadata(
 
     # check that it is preserved after initialization with pydantic
     assert edata.config is not None
-    assert isinstance(edata.config, GlobalConfiguration)
-    assert edata.config.stratigraphy is not None
-    assert edata.config.stratigraphy[name].top.name == "TheTopHorizon"
-    assert edata.config.stratigraphy[name].base.name == "TheBaseHorizon"
-    assert edata.config.stratigraphy[name].offset == 3.5
+    assert isinstance(edata.config, dict)
+    assert isinstance(edata._export_config.config, GlobalConfiguration)
+    assert edata._export_config.config.stratigraphy is not None
+    assert edata._export_config.config.stratigraphy[name].top.name == "TheTopHorizon"
+    assert edata._export_config.config.stratigraphy[name].base.name == "TheBaseHorizon"
+    assert edata._export_config.config.stratigraphy[name].offset == 3.5
 
     # check that it is preserved in the generated metadata
     meta = edata.generate_metadata(regsurf)
