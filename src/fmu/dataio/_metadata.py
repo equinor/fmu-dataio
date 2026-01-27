@@ -83,7 +83,6 @@ def _get_meta_access(export_config: ExportConfig) -> SsdlAccess:
 def _get_meta_display(
     export_config: ExportConfig, objdata: ObjectDataProvider
 ) -> fields.Display:
-    print(export_config.name)
     return fields.Display(name=export_config.display.name or objdata.name)
 
 
