@@ -40,7 +40,7 @@ from fmu.config import utilities as ut
 from fmu.dataio import _utils
 from fmu.dataio._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from fmu.dataio._logging import null_logger
-from fmu.dataio._runcontext import FmuEnv
+from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.datamodels.fmu_results import fields
 from fmu.datamodels.fmu_results.enums import ErtSimulationMode, FMUContext
@@ -86,12 +86,9 @@ class FmuProvider(Provider):
         self._casepath = runcontext.casepath
         self._casemeta = runcontext.case_metadata
         self._fmu_context = runcontext.fmu_context
-        self._real_id = (
-            int(real_num) if (real_num := FmuEnv.REALIZATION_NUMBER.value) else 0
-        )
-        self._ensemble_id = (
-            int(iter_num) if (iter_num := FmuEnv.ITERATION_NUMBER.value) else 0
-        )
+        self._env = FMUEnvironment.from_env()
+        self._real_id = self._env.realization_number or 0
+        self._ensemble_id = self._env.iteration_number or 0
         self._ensemble_name, self._real_name = self._establish_ensemble_and_real_name()
 
     def get_metadata(self) -> fields.FMU:
@@ -148,20 +145,13 @@ class FmuProvider(Provider):
         logger.debug("Found real name from runpath: %s", real_name)
         return ensemble_name, real_name
 
-    @staticmethod
-    def _get_ert_meta() -> fields.Ert | None:
+    def _get_ert_meta(self) -> fields.Ert | None:
         """Constructs the `Ert` Pydantic object for the `ert` metadata field."""
-        return (
-            fields.Ert(
-                experiment=(
-                    fields.Experiment(
-                        id=uuid.UUID(FmuEnv.EXPERIMENT_ID.value),
-                    )
-                ),
-                simulation_mode=ErtSimulationMode(FmuEnv.SIMULATION_MODE.value),
-            )
-            if FmuEnv.EXPERIMENT_ID.value
-            else None
+        if not self._env.experiment_id:
+            return None
+        return fields.Ert(
+            experiment=fields.Experiment(id=uuid.UUID(self._env.experiment_id)),
+            simulation_mode=ErtSimulationMode(self._env.simulation_mode),
         )
 
     def _get_restart_data_uuid(self) -> UUID | None:

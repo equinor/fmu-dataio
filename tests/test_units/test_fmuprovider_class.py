@@ -11,7 +11,7 @@ from fmu.datamodels.fmu_results.enums import ErtSimulationMode, FMUContext
 from pytest import MonkeyPatch
 
 from fmu import dataio
-from fmu.dataio._runcontext import FmuEnv, RunContext
+from fmu.dataio._runcontext import FMUEnvironment, RunContext
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import (
     DEFAULT_ENSMEBLE_NAME,
@@ -230,10 +230,11 @@ def test_fmuprovider_case_run(fmurun_prehook: Path, monkeypatch: MonkeyPatch) ->
 
     monkeypatch.chdir(fmurun_prehook)
 
+    env = FMUEnvironment.from_env()
     # make sure that no runpath environment value is present
-    assert FmuEnv.RUNPATH.value is None
+    assert env.runpath is None
 
-    with pytest.warns(UserWarning, match="Could not auto detect the case metadata"):
+    with pytest.warns(UserWarning, match="Could not detect the case metadata"):
         runcontext = RunContext(fmu_context=FMUContext.case)
         FmuProvider(runcontext)
 

@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Final
 
 from fmu.dataio._logging import null_logger
-from fmu.dataio._runcontext import FmuEnv
+from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio.manifest._models import ExportManifest
 
 logger = null_logger(__name__)
@@ -23,9 +23,10 @@ def get_manifest_path(casepath: Path | str | None = None) -> Path:
     """Determine the manifest path based on the FMU context.
     - 'realization': located at the runpath (inferred from environment)
     - 'case': located at the provided casepath"""
+    env = FMUEnvironment.from_env()
 
-    if runpath := FmuEnv.RUNPATH.value:
-        return Path(runpath) / MANIFEST_FILENAME
+    if env.runpath:
+        return env.runpath / MANIFEST_FILENAME
     if casepath:
         return Path(casepath) / MANIFEST_FILENAME
     raise ValueError("Casepath must be provided when running in fmu_context `case`.")

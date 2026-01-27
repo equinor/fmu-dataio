@@ -405,8 +405,6 @@ def test_export_config_from_export_data_basic(mock_export_data: MagicMock) -> No
 @pytest.mark.parametrize(
     ("attr", "value", "expected_attr", "expected_value"),
     [
-        ("casepath", "/some/path", "casepath", Path("/some/path")),
-        ("casepath", None, "casepath", None),
         ("content", None, "content", "unset"),
         ("unit", None, "unit", ""),
         ("unit", "m", "unit", "m"),
@@ -421,12 +419,32 @@ def test_export_config_from_export_data_transformations(
 ) -> None:
     """ExportConfig applies correct transformations to input vals."""
     setattr(mock_export_data, attr, value)
-
-    with patch("fmu.dataio._export_config._resolve_fmu_context") as mock_fmu_ctx:
-        mock_fmu_ctx.return_value = (None, False)
-
+    with patch("fmu.dataio._export_config.RunContext") as mock_runcontext:
+        mock_runcontext.return_value.fmu_context = None
+        mock_runcontext.return_value.casepath = None
         config = ExportConfig.from_export_data(mock_export_data)
         assert getattr(config, expected_attr) == expected_value
+
+
+@pytest.mark.parametrize(
+    ("casepath_input", "expected_casepath"),
+    [
+        ("/some/path", Path("/some/path")),
+        (None, None),
+    ],
+)
+def test_export_config_casepath_from_runcontext(
+    mock_export_data: MagicMock,
+    casepath_input: str | None,
+    expected_casepath: Path | None,
+) -> None:
+    """ExportConfig.casepath delegates to RunContext."""
+    mock_export_data.casepath = casepath_input
+    with patch("fmu.dataio._export_config.RunContext") as mock_runcontext:
+        mock_runcontext.return_value.fmu_context = None
+        mock_runcontext.return_value.casepath = expected_casepath
+        config = ExportConfig.from_export_data(mock_export_data)
+        assert config.casepath == expected_casepath
 
 
 def test_export_config_from_export_data_with_global_config(

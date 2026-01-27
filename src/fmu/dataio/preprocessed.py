@@ -63,7 +63,7 @@ class ExportPreprocessedData:
             casepath_proposed=Path(casepath), fmu_context=FMUContext.case
         )
 
-        if self._runcontext.fmu_context_from_env != FMUContext.case:
+        if self._runcontext.env.fmu_context != FMUContext.case:
             raise RuntimeError(
                 "Only possible to run re-export of preprocessed data inside FMU "
                 "using a pre-simulation workflow in ERT."

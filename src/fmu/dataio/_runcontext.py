@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import os
 import warnings
-from enum import Enum, auto
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Final
-
-from typing_extensions import override  # Remove when Python 3.11 dropped
+from typing import Final, Self
 
 from fmu.config import utilities as ut
 from fmu.dataio._definitions import ERT_RELATIVE_CASE_METADATA_FILE, RMSExecutionMode
@@ -16,6 +14,92 @@ from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
 logger: Final = null_logger(__name__)
+
+
+@dataclass(frozen=True)
+class FMUPaths:
+    """Immutable container for export paths.
+
+    Path hierarchy:
+        casepath/
+        ├── share/
+        │   ├── metadata/fmu_case.yml
+        │   └── ensemble/                   # ensemble level exports
+        │       ├── iter-0/
+        │       │   └── share/results/...
+        │       └── iter-1/
+        ├── realization-0/
+        │   ├── iter-0/                     # runpath (realization exports)
+        │   │   └── share/results/...
+        │   └── iter-1/
+        └── realization-1/
+
+    The paths stored here are export roots, meaning the share/results/... part is
+    appended elsewhere.
+    """
+
+    casepath: Path | None = None  # casepath/
+    ensemble_path: Path | None = None  # casepath/share/ensemble/iter-N
+    runpath: Path | None = None  # casepath/realization-N/iter-N
+
+    def export_root_for_context(self, context: FMUContext) -> Path | None:
+        """Get the export root that corresponds to the provided FMU context."""
+        mapping = {
+            FMUContext.realization: self.runpath,
+            FMUContext.ensemble: self.ensemble_path,
+            FMUContext.case: self.casepath,
+        }
+        return mapping.get(context)
+
+
+@dataclass(frozen=True)
+class FMUEnvironment:
+    """Immutable snapshot of FMU/Ert provided environment variables."""
+
+    experiment_id: str | None
+    ensemble_id: str | None
+    simulation_mode: str | None
+    realization_number: int | None
+    iteration_number: int | None
+    runpath: Path | None
+    rms_exec_mode: RMSExecutionMode | None
+
+    @property
+    def fmu_context(self) -> FMUContext | None:
+        """Determine the FMU context from environment, if possible.
+
+        Note that we cannot reliably determine an 'ensemble' context unless running in a
+        PRE_EXPERIMENT mode, which we do not currently do. Hence this is only useful to
+        determine case or object exports rather than ensemble level experts."""
+        if self.runpath:
+            return FMUContext.realization
+        if self.experiment_id:
+            return FMUContext.case
+        return None
+
+    @staticmethod
+    def get_ert_env(name: str) -> str | None:
+        return os.getenv(f"_ERT_{name}")
+
+    @classmethod
+    def from_env(cls) -> Self:
+        """Create from the current enviroement."""
+
+        runpath_str = cls.get_ert_env("RUNPATH")
+        real_num = cls.get_ert_env("REALIZATION_NUMBER")
+        iter_num = cls.get_ert_env("ITERATION_NUMBER")
+
+        rms_exec_mode = os.getenv("RUNRMS_EXEC_MODE")
+
+        return cls(
+            experiment_id=cls.get_ert_env("EXPERIMENT_ID"),
+            ensemble_id=cls.get_ert_env("ENSEMBLE_ID"),
+            simulation_mode=cls.get_ert_env("SIMULATION_MODE"),
+            realization_number=int(real_num) if real_num else None,
+            iteration_number=int(iter_num) if iter_num else None,
+            runpath=Path(runpath_str).resolve() if runpath_str else None,
+            rms_exec_mode=RMSExecutionMode(rms_exec_mode) if rms_exec_mode else None,
+        )
 
 
 class RunContext:
@@ -32,28 +116,20 @@ class RunContext:
         casepath_proposed: Path | None = None,
         fmu_context: FMUContext | None = None,
     ) -> None:
-        logger.debug("Initialize RunContext...")
+        self._env = FMUEnvironment.from_env()
+        self._fmu_context = fmu_context or self._env.fmu_context
+        self._paths = self._resolve_paths(casepath_proposed)
+        self._case_metadata = self._load_case_metadata()
 
-        # TODO: in the future fmu_context should always be set by the environment
-        self._fmu_context = fmu_context or self.fmu_context_from_env
-        self._runpath = get_runpath_from_env()
-        self._casepath = self._establish_casepath(casepath_proposed)
-        self._case_metadata = self._load_case_meta() if self._casepath else None
-        self._exportroot = self._establish_exportroot()
-
-        logger.debug("Runpath is %s", self._runpath)
-        logger.debug("Casepath is %s", self._casepath)
-        logger.debug("Export root is %s", self._exportroot)
+    @property
+    def env(self) -> FMUEnvironment:
+        """Access the raw environment variables."""
+        return self._env
 
     @property
     def inside_fmu(self) -> bool:
         """Check if the run context is inside a ERT run."""
-        return self.fmu_context_from_env is not None
-
-    @property
-    def inside_rms(self) -> bool:
-        """Check if the run context is inside RMS."""
-        return self.rms_context is not None
+        return self._env.fmu_context is not None
 
     @property
     def fmu_context(self) -> FMUContext | None:
@@ -61,40 +137,45 @@ class RunContext:
         return self._fmu_context
 
     @property
-    def fmu_context_from_env(self) -> FMUContext | None:
-        """The FMU context from the environment"""
-        return get_fmu_context_from_environment()
-
-    @property
-    def rms_context(self) -> RMSExecutionMode | None:
-        """The RMS execution mode (interactive/batch)"""
-        return get_rms_exec_mode()
-
-    @property
-    def exportroot(self) -> Path:
-        """The export root path"""
-        return self._exportroot
+    def paths(self) -> FMUPaths:
+        """All resolved paths."""
+        return self._paths
 
     @property
     def casepath(self) -> Path | None:
-        """The path to the case metadata."""
-        return self._casepath
-
-    @property
-    def case_metadata(self) -> CaseMetadata | None:
-        """The case metadata."""
-        return self._case_metadata
+        """The path to the case."""
+        return self._paths.casepath
 
     @property
     def runpath(self) -> Path | None:
         """The runpath. Will be None if not in a realization context."""
-        return self._runpath
+        return self._paths.runpath
 
-    def _establish_exportroot(self) -> Path:
+    @property
+    def ensemble_path(self) -> Path | None:
+        """The export path for ensemble-level data.
+
+        This is casepath/share/ensemble/iter-N, where ensemble-level data are exported.
         """
-        Establish the exportroot. The exportroot is the folder that together with
-        the share location for a file makes up the absolute export path for an object:
-        absolute_path = exportroot / objdata.share_path
+        return self._paths.ensemble_path
+
+    @property
+    def inside_rms(self) -> bool:
+        """Check if the run context is inside RMS."""
+        return self._env.rms_exec_mode is not None
+
+    @property
+    def rms_context(self) -> RMSExecutionMode | None:
+        """The RMS execution mode (interactive/batch)"""
+        return self._env.rms_exec_mode
+
+    @property
+    def exportroot(self) -> Path:
+        """The root path for exports based on current context.
+
+        The exportroot is the folder that together with the share location for a file
+        makes up the absolute export path for an object: absolute_path = exportroot /
+        objdata.share_path
 
         The exportroot is dependent on whether this is run in a FMU context via ERT and
         whether it's being run from inside or outside RMS.
@@ -104,105 +185,68 @@ class RunContext:
         3: Running RMS interactively -> exportroot/rms/model
         4: When none of the above conditions apply -> equal to present working directory
         """
-        logger.info("Establish exportroot")
-        logger.debug("RMS execution mode from environment: %s", self.rms_context)
+        if self._fmu_context:
+            root = self._paths.export_root_for_context(self._fmu_context)
+            if root:
+                return root
 
-        if self.runpath and self.fmu_context == FMUContext.realization:
-            logger.info("Run from ERT realization context")
-            return self.runpath
+        if self._env.rms_exec_mode == RMSExecutionMode.interactive:
+            return Path.cwd().parent.parent.resolve()
+        return Path.cwd()
 
-        if self.casepath:
-            logger.info("Run from ERT case context")
-            return self.casepath.absolute()
+    @property
+    def case_metadata(self) -> CaseMetadata | None:
+        """The case metadata."""
+        return self._case_metadata
 
-        pwd = Path.cwd()
-
-        if self.rms_context == RMSExecutionMode.interactive:
-            logger.info("Run from inside RMS interactive")
-            return pwd.parent.parent.absolute().resolve()
-
-        logger.info(
-            "Running outside FMU context or casepath with valid case metadata "
-            "could not be detected, will use pwd as roothpath."
-        )
-        return pwd
-
-    def _establish_casepath(self, casepath_proposed: Path | None) -> Path | None:
-        """If casepath is not given, then try update _casepath (if in realization).
-
-        There is also a validation here that casepath contains case metadata, and if not
-        then a second guess is attempted, looking at `parent` insted of `parent.parent`
-        is case of missing ensemble folder.
-        """
+    def _resolve_paths(self, casepath_input: Path | None) -> FMUPaths:
+        """Resolve all FMU paths from environment and/or proposed casepath."""
         if not self.inside_fmu:
-            return None
+            return FMUPaths()
 
-        if casepath_proposed:
-            if casepath_has_metadata(casepath_proposed):
-                return casepath_proposed
-            warnings.warn(
-                "Could not detect metadata for the proposed casepath "
-                f"{casepath_proposed}. Will try to detect from runpath."
-            )
-        if self.runpath:
-            if casepath_has_metadata(self.runpath.parent.parent):
-                return self.runpath.parent.parent
+        runpath = self._env.runpath
+        casepath = self._find_valid_casepath(casepath_input, runpath)
 
-            if casepath_has_metadata(self.runpath.parent):
-                return self.runpath.parent
+        ensemble_path = None
+        if casepath and (iter_num := self._env.iteration_number) is not None:
+            ensemble_path = casepath / "share" / "ensemble" / f"iter-{iter_num}"
 
-        logger.debug("No case metadata, issue a warning!")
+        return FMUPaths(
+            casepath=casepath,
+            ensemble_path=ensemble_path,
+            runpath=runpath,
+        )
+
+    def _find_valid_casepath(
+        self,
+        proposed: Path | None,
+        runpath: Path | None,
+    ) -> Path | None:
+        """Find a valid casepath with metadata."""
+        candidates = [
+            proposed,
+            runpath.parent.parent if runpath else None,  # Standard: case/real/iter
+            runpath.parent if runpath else None,  # No ensemble folder (case/real)
+        ]
+        for candidate in candidates:
+            if candidate and casepath_has_metadata(candidate):
+                return candidate
+
         warnings.warn(
-            "Could not auto detect the case metadata, please provide the "
-            "'casepath' as input. Metadata will be empty!",
+            "Could not detect the case metadata. Provide 'casepath' as input. "
+            "No metadata will be produced without it.",
             UserWarning,
         )
         return None
 
-    def _load_case_meta(self) -> CaseMetadata:
+    def _load_case_metadata(self) -> CaseMetadata | None:
         """Parse and validate the CASE metadata."""
         logger.debug("Loading case metadata file and return pydantic case model")
-        assert self.casepath is not None
+
+        if not self.casepath:
+            return None
+
         case_metafile = self.casepath / ERT_RELATIVE_CASE_METADATA_FILE
         return CaseMetadata.model_validate(
             ut.yaml_load(case_metafile, loader="standard")
         )
-
-
-def get_rms_exec_mode() -> RMSExecutionMode | None:
-    """
-    Get the RMS GUI execution mode from the environment.
-    The RUNRMS_EXEC_MODE variable is set when the RMS GUI is started by runrms,
-    and holds information about the execution mode (interactive or batch).
-    """
-    rms_exec_mode = os.environ.get("RUNRMS_EXEC_MODE")
-    return RMSExecutionMode(rms_exec_mode) if rms_exec_mode else None
-
-
-def get_fmu_context_from_environment() -> FMUContext | None:
-    """return the ERT run context as an FMUContext"""
-    if FmuEnv.RUNPATH.value:
-        return FMUContext.realization
-    if FmuEnv.EXPERIMENT_ID.value:
-        return FMUContext.case
-    return None
-
-
-def get_runpath_from_env() -> Path | None:
-    """get runpath as an absolute path if detected from the enviroment"""
-    return Path(runpath).resolve() if (runpath := FmuEnv.RUNPATH.value) else None
-
-
-class FmuEnv(Enum):
-    EXPERIMENT_ID = auto()
-    ENSEMBLE_ID = auto()
-    SIMULATION_MODE = auto()
-    REALIZATION_NUMBER = auto()
-    ITERATION_NUMBER = auto()
-    RUNPATH = auto()
-
-    @property
-    @override
-    def value(self) -> str | None:  # type: ignore[override]
-        # Fetch the environment variable; name of the enum member prefixed with _ERT_
-        return os.getenv(f"_ERT_{self.name}")
