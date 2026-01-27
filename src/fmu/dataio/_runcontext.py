@@ -189,7 +189,6 @@ class RunContext:
         1: Running ERT in realization context -> equal to the runpath
         2: Running ERT in case context -> equal to the casepath
         3: Running RMS interactively -> exportroot/rms/model
-        4: When none of the above conditions apply -> equal to present working directory
         """
         if self._fmu_context:
             root = self._paths.export_root_for_context(self._fmu_context)
