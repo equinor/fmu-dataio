@@ -5,15 +5,10 @@ from typing import Any
 import pandas as pd
 import pytest
 import xtgeo
-from fmu.datamodels.fmu_results import enums
 from pydantic import ValidationError
 
 from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio.dataio import ExportData
-from fmu.dataio.providers.objectdata._export_models import content_requires_metadata
-
-# generic testing of functionality related to content is done elsewhere,
-# mainly in test_dataio.py.
 
 
 def test_content_facies_thickness(
@@ -123,7 +118,7 @@ def test_content_fluid_contact_raises_on_invalid_contact(
     regsurf: xtgeo.RegularSurface, drogon_global_config: dict[str, Any]
 ) -> None:
     """Test export of the fluid_contact content."""
-    with pytest.raises(ValidationError, match="FluidContact"):
+    with pytest.raises(ValidationError, match="Input should be 'fgl', "):
         ExportData(
             config=drogon_global_config,
             name="MyName",
@@ -445,19 +440,3 @@ def test_content_well_completions(
     ).generate_metadata(wellpicks)
 
     assert meta["data"]["content"] == "well_completions"
-
-
-def test_content_requires_metadata() -> None:
-    """Test the content_requires_metadata function"""
-
-    # test contents that requires extra
-    assert content_requires_metadata(enums.Content.field_outline)
-    assert content_requires_metadata(enums.Content.field_region)
-    assert content_requires_metadata(enums.Content.fluid_contact)
-    assert content_requires_metadata(enums.Content.property)
-    assert content_requires_metadata(enums.Content.seismic)
-
-    # test some random contents that does not require extra
-    assert not content_requires_metadata(enums.Content.depth)
-    assert not content_requires_metadata(enums.Content.timeseries)
-    assert not content_requires_metadata(enums.Content.volumes)

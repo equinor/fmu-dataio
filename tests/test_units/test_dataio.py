@@ -274,7 +274,7 @@ def test_config_stratigraphy_stratigraphic_not_bool(
         ExportData(config=cfg, content="depth")
 
 
-def test_update_check_settings_shall_fail(mock_global_config: dict[str, Any]) -> None:
+def test_apply_deprecated_kwargs_fails(mock_global_config: dict[str, Any]) -> None:
     # pylint: disable=unexpected-keyword-arg
     with pytest.raises(TypeError):
         _ = ExportData(  # type: ignore[call-arg]
@@ -286,7 +286,7 @@ def test_update_check_settings_shall_fail(mock_global_config: dict[str, Any]) ->
     newsettings = {"invalidkey": "some"}
     some = ExportData(config=mock_global_config, content="depth")
     with pytest.warns(FutureWarning), pytest.raises(KeyError):
-        some._update_check_settings(newsettings)
+        some._apply_deprecated_kwargs(newsettings)
 
 
 @pytest.mark.parametrize(
@@ -549,9 +549,8 @@ def test_content_valid_string(
 def test_seismic_content_require_seismic_data(
     drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
-    eobj = ExportData(config=drogon_global_config, content="seismic")
     with pytest.raises(ValueError, match="requires additional input"):
-        eobj.generate_metadata(regsurf)
+        ExportData(config=drogon_global_config, content="seismic")
 
 
 def test_content_valid_dict(
@@ -588,30 +587,28 @@ def test_content_is_a_wrongly_formatted_dict(
     drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """When content is a dict, it shall have one key with one dict as value."""
-    eobj = ExportData(
-        config=drogon_global_config,
-        name="TopVolantis",
-        content={"seismic": "myvalue"},
-    )
-    with pytest.raises(ValueError):
-        eobj.generate_metadata(regsurf)
+    with pytest.raises(ValueError, match="'content_metadata' must be a dictionary"):
+        ExportData(
+            config=drogon_global_config,
+            name="TopVolantis",
+            content={"seismic": "myvalue"},
+        )
 
 
 def test_content_is_dict_with_wrong_types(
     drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
     """When content is a dict, it shall have right types for known keys."""
-    eobj = ExportData(
-        config=drogon_global_config,
-        name="TopVolantis",
-        content={
-            "seismic": {
-                "stacking_offset": 123.4,  # not a string
-            }
-        },
-    )
     with pytest.raises(pydantic.ValidationError):
-        eobj.generate_metadata(regsurf)
+        ExportData(
+            config=drogon_global_config,
+            name="TopVolantis",
+            content={
+                "seismic": {
+                    "stacking_offset": 123.4,  # not a string
+                }
+            },
+        )
 
 
 def test_content_with_content_metadata(
@@ -867,7 +864,7 @@ def test_fmurun_attribute_outside_fmu(rmsglobalconfig: dict[str, Any]) -> None:
     assert FmuEnv.ENSEMBLE_ID.value is None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
-    assert edata._runcontext.inside_fmu is False
+    assert edata._export_config.runcontext.inside_fmu is False
 
 
 def test_exportdata_no_iter_folder(
@@ -880,7 +877,7 @@ def test_exportdata_no_iter_folder(
 
     monkeypatch.chdir(fmurun_no_iter_folder)
     edata = ExportData(config=rmsglobalconfig, content="depth")
-    assert edata._runcontext.inside_fmu is True
+    assert edata._export_config.runcontext.inside_fmu is True
 
     out = Path(edata.export(regsurf))
     with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:
@@ -933,7 +930,7 @@ def test_fmurun_attribute_inside_fmu(
     assert FmuEnv.SIMULATION_MODE.value is not None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
-    assert edata._runcontext.inside_fmu is True
+    assert edata._export_config.runcontext.inside_fmu is True
 
 
 def test_fmu_context_not_given_fetch_from_env_realization(
@@ -948,9 +945,9 @@ def test_fmu_context_not_given_fetch_from_env_realization(
     assert FmuEnv.EXPERIMENT_ID.value is not None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
-    assert edata._runcontext.inside_fmu is True
+    assert edata._export_config.runcontext.inside_fmu is True
     assert edata.fmu_context is None
-    assert edata._resolved_fmu_context == FMUContext.realization
+    assert edata._export_config.fmu_context == FMUContext.realization
 
 
 def test_fmu_context_not_given_fetch_from_env_case(
@@ -970,10 +967,10 @@ def test_fmu_context_not_given_fetch_from_env_case(
 
     # test that it runs properly when casepath is provided
     edata = ExportData(config=rmsglobalconfig, content="depth", casepath=fmurun_prehook)
-    assert edata._runcontext.inside_fmu is True
+    assert edata._export_config.runcontext.inside_fmu is True
     assert edata.fmu_context is None
-    assert edata._resolved_fmu_context == FMUContext.case
-    assert edata._runcontext.exportroot == fmurun_prehook
+    assert edata._export_config.fmu_context == FMUContext.case
+    assert edata._export_config.runcontext.exportroot == fmurun_prehook
 
 
 def test_fmu_context_not_given_fetch_from_env_nonfmu(
@@ -988,7 +985,7 @@ def test_fmu_context_not_given_fetch_from_env_nonfmu(
     assert FmuEnv.SIMULATION_MODE.value is None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
-    assert edata._runcontext.inside_fmu is False
+    assert edata._export_config.runcontext.inside_fmu is False
     assert edata.fmu_context is None
 
 
@@ -1002,9 +999,9 @@ def test_fmu_context_outside_fmu_input_overwrite(
     edata = ExportData(
         config=rmsglobalconfig, content="depth", fmu_context="realization"
     )
-    assert edata._runcontext.inside_fmu is False
+    assert edata._export_config.runcontext.inside_fmu is False
     assert edata.fmu_context == "realization"
-    assert edata._resolved_fmu_context is None
+    assert edata._export_config.fmu_context is None
 
 
 def test_fmu_context_outside_fmu_no_input_overwrite(
@@ -1015,7 +1012,7 @@ def test_fmu_context_outside_fmu_no_input_overwrite(
     is "preprocessed"
     """
     edata = ExportData(config=rmsglobalconfig, content="depth", preprocessed=True)
-    assert edata._runcontext.inside_fmu is False
+    assert edata._export_config.runcontext.inside_fmu is False
     assert edata.preprocessed is True
     assert edata.fmu_context is None
 
@@ -1034,9 +1031,9 @@ def test_fmu_context_preprocessed_deprecation_outside_fmu(
             config=rmsglobalconfig, content="depth", fmu_context="preprocessed"
         )
     assert edata.preprocessed is False
-    assert edata._resolved_preprocessed is True
+    assert edata._export_config.preprocessed is True
     assert edata.fmu_context == "preprocessed"
-    assert edata._resolved_fmu_context is None
+    assert edata._export_config.fmu_context is None
 
     meta = edata.generate_metadata(regsurf)
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
@@ -1059,9 +1056,9 @@ def test_fmu_context_preprocessed_deprecation_inside_fmu(
             casepath=fmurun_prehook,
         )
     assert edata.preprocessed is False
-    assert edata._resolved_preprocessed is True
+    assert edata._export_config.preprocessed is True
     assert edata.fmu_context == "preprocessed"
-    assert edata._resolved_fmu_context == FMUContext.case
+    assert edata._export_config.fmu_context == FMUContext.case
 
     meta = edata.generate_metadata(regsurf)
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
@@ -1103,7 +1100,7 @@ def test_preprocessed_inside_fmu(
         fmu_context="case",
         preprocessed=True,
     )
-    assert edata._runcontext.inside_fmu is True
+    assert edata._export_config.runcontext.inside_fmu is True
     assert edata.preprocessed is True
     assert edata.fmu_context == FMUContext.case
 
@@ -1193,7 +1190,7 @@ def test_establish_runpath(
 
     edata = ExportData(config=drogon_global_config, content="depth")
 
-    assert edata._runcontext.exportroot == rmspath.parent.parent
+    assert edata._export_config.runcontext.exportroot == rmspath.parent.parent
 
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
@@ -1269,9 +1266,8 @@ def test_norwegian_letters(
 def test_content_seismic_as_string_validation_error(
     drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
-    edata = ExportData(content="seismic", config=drogon_global_config)
     with pytest.raises(ValueError, match="requires additional input"):
-        edata.generate_metadata(regsurf)
+        ExportData(content="seismic", config=drogon_global_config)
 
     # correct way, should not fail
     edata = ExportData(
@@ -1287,9 +1283,8 @@ def test_content_seismic_as_string_validation_error(
 def test_content_property_as_string_future_warning(
     drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:
-    edata = ExportData(content="property", config=drogon_global_config)
     with pytest.warns(FutureWarning):
-        edata.generate_metadata(regsurf)
+        ExportData(content="property", config=drogon_global_config)
 
 
 def test_append_to_alias_list(
@@ -1749,8 +1744,8 @@ def test_mutation_vertical_domain_dict_emits_two_warnings(
 
     assert edata.vertical_domain == {"time": "sb"}
     assert edata.domain_reference == "msl"
-    assert edata._resolved_vertical_domain == "time"
-    assert edata._resolved_domain_reference == "sb"
+    assert edata._export_config.vertical_domain == "time"
+    assert edata._export_config.domain_reference == "sb"
 
 
 def test_mutation_multiple_attributes_emits_multiple_warnings(

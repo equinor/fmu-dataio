@@ -67,7 +67,7 @@ def test_regsurf_generate_metadata(
         content="depth",  # read from global config
     )
     edata.generate_metadata(regsurf)
-    assert str(edata._runcontext.exportroot) == str(
+    assert str(edata._export_config.runcontext.exportroot) == str(
         inside_rms_setup["path"].parent.parent.resolve()
     )
 
@@ -113,7 +113,10 @@ def test_regsurf_export_file(
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._runcontext.exportroot / "share/results/maps/unknown.gri").resolve()
+        (
+            edata._export_config.runcontext.exportroot
+            / "share/results/maps/unknown.gri"
+        ).resolve()
     )
 
 
@@ -130,7 +133,10 @@ def test_regsurf_export_file_set_name(
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._runcontext.exportroot / "share/results/maps/topvolantis.gri").resolve()
+        (
+            edata._export_config.runcontext.exportroot
+            / "share/results/maps/topvolantis.gri"
+        ).resolve()
     )
 
     meta = edata.generate_metadata(regsurf)
@@ -263,7 +269,8 @@ def test_polys_export_file_set_name(
 
     assert str(output) == str(
         (
-            edata._runcontext.exportroot / "share/results/polygons/topvolantis.csv"
+            edata._export_config.runcontext.exportroot
+            / "share/results/polygons/topvolantis.csv"
         ).resolve()
     )
 
@@ -282,12 +289,14 @@ def test_points_export_file_set_name(
 
     assert str(output) == str(
         (
-            edata._runcontext.exportroot / "share/results/points/topvolantis.csv"
+            edata._export_config.runcontext.exportroot
+            / "share/results/points/topvolantis.csv"
         ).resolve()
     )
 
     thefile = pd.read_csv(
-        edata._runcontext.exportroot / "share/results/points/topvolantis.csv"
+        edata._export_config.runcontext.exportroot
+        / "share/results/points/topvolantis.csv"
     )
     assert thefile.columns[0] == "X"
 
@@ -309,12 +318,14 @@ def test_points_export_file_set_name_xtgeoheaders(
 
     assert str(output) == str(
         (
-            edata._runcontext.exportroot / "share/results/points/topvolantiz.csv"
+            edata._export_config.runcontext.exportroot
+            / "share/results/points/topvolantiz.csv"
         ).resolve()
     )
 
     thefile = pd.read_csv(
-        edata._runcontext.exportroot / "share/results/points/topvolantiz.csv"
+        edata._export_config.runcontext.exportroot
+        / "share/results/points/topvolantiz.csv"
     )
     assert thefile.columns[0] == "X_UTME"
 
@@ -341,7 +352,10 @@ def test_cube_export_file_set_name(
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._runcontext.exportroot / "share/results/cubes/mycube.segy").resolve()
+        (
+            edata._export_config.runcontext.exportroot
+            / "share/results/cubes/mycube.segy"
+        ).resolve()
     )
 
 
@@ -362,7 +376,8 @@ def test_cube_export_file_set_name_as_observation(
 
     assert str(output) == str(
         (
-            edata._runcontext.exportroot / "share/observations/cubes/mycube.segy"
+            edata._export_config.runcontext.exportroot
+            / "share/observations/cubes/mycube.segy"
         ).resolve()
     )
 
@@ -391,7 +406,8 @@ def test_cube_export_file_set_name_as_observation_forcefolder(
     logger.info("Output after force is %s", output)
     assert str(output) == str(
         (
-            edata._runcontext.exportroot / "share/observations/seismic/mycube.segy"
+            edata._export_config.runcontext.exportroot
+            / "share/observations/seismic/mycube.segy"
         ).resolve()
     )
 
@@ -416,10 +432,11 @@ def test_cube_export_as_case(
     # use forcefolder to apply share/observations/seismic
     output = edata.export(cube)
     logger.info("Output %s", output)
-    assert edata._resolved_fmu_context is None
+    assert edata._export_config.fmu_context is None
     assert str(output) == str(
         (
-            edata._runcontext.exportroot / "share/observations/cubes/mycube.segy"
+            edata._export_config.runcontext.exportroot
+            / "share/observations/cubes/mycube.segy"
         ).resolve()
     )
 
@@ -463,7 +480,8 @@ def test_cube_export_as_observation_forcefolder_w_added_folder(
 
     assert str(output) == str(
         (
-            edata._runcontext.exportroot / "share/observations/seismic/xxx/mycube.segy"
+            edata._export_config.runcontext.exportroot
+            / "share/observations/seismic/xxx/mycube.segy"
         ).resolve()
     )
 
@@ -492,7 +510,7 @@ def test_cube_export_as_observation_forcefolder_w_true_subfolder(
 
     assert str(output) == str(
         (
-            edata._runcontext.exportroot
+            edata._export_config.runcontext.exportroot
             / "share/observations/seismic/xxx/mysubfolder/mycube.segy"
         ).resolve()
     )
@@ -525,7 +543,8 @@ def test_cube_export_as_observation_forcefolder_w_subfolder_case(
 
     assert str(output) == str(
         (
-            edata._runcontext.exportroot / "share/observations/seismic/xxx/mycube.segy"
+            edata._export_config.runcontext.exportroot
+            / "share/observations/seismic/xxx/mycube.segy"
         ).resolve()
     )
 
@@ -548,7 +567,10 @@ def test_grid_export_file_set_name(
     logger.info("Output is %s", output)
 
     assert str(output) == str(
-        (edata._runcontext.exportroot / "share/results/grids/mygrid.roff").resolve()
+        (
+            edata._export_config.runcontext.exportroot
+            / "share/results/grids/mygrid.roff"
+        ).resolve()
     )
 
 
@@ -614,7 +636,8 @@ def test_gridproperty_export_file_set_name(
 
     assert str(output) == str(
         (
-            edata._runcontext.exportroot / "share/results/grids/mygridproperty.roff"
+            edata._export_config.runcontext.exportroot
+            / "share/results/grids/mygridproperty.roff"
         ).resolve()
     )
 
@@ -811,7 +834,8 @@ def test_dataframe_export_file_set_name(
 
     assert str(output) == str(
         (
-            edata._runcontext.exportroot / "share/results/tables/mydataframe.csv"
+            edata._export_config.runcontext.exportroot
+            / "share/results/tables/mydataframe.csv"
         ).resolve()
     )
 
@@ -834,7 +858,7 @@ def test_pyarrow_export_file_set_name(
 
         assert str(output) == str(
             (
-                edata._runcontext.exportroot
+                edata._export_config.runcontext.exportroot
                 / "share/results/tables/myarrowtable.parquet"
             ).resolve()
         )

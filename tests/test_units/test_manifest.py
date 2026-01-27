@@ -202,7 +202,7 @@ def test_manifest_rms_interactive(
     )
     edata.export(regsurf)
 
-    exportroot = edata._runcontext.exportroot
+    exportroot = edata._export_config.runcontext.exportroot
     assert exportroot == rms_model_path.parent.parent
 
     # check that the export file and metadata is created

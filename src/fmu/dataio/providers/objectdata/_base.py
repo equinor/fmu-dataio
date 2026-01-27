@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -9,27 +8,21 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Final
 
+from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import generate_description, md5sum
+from fmu.dataio._utils import md5sum
 from fmu.dataio.providers._base import Provider
 from fmu.dataio.providers._filedata import SharePathConstructor
 from fmu.dataio.providers.objectdata._export_models import (
     UnsetData,
-    content_metadata_factory,
-    content_requires_metadata,
-    property_warn,
 )
 from fmu.datamodels.fmu_results.data import AnyData, Time, Timestamp
-from fmu.datamodels.fmu_results.enums import Content
 from fmu.datamodels.fmu_results.global_configuration import (
     GlobalConfiguration,
     StratigraphyElement,
 )
 
 if TYPE_CHECKING:
-    from pydantic import BaseModel
-
-    from fmu.dataio.dataio import ExportData
     from fmu.dataio.types import Inferrable
     from fmu.datamodels.fmu_results.data import (
         BoundingBox2D,
@@ -61,7 +54,7 @@ class ObjectDataProvider(Provider):
 
     # input fields
     obj: Inferrable
-    dataio: ExportData
+    export_config: ExportConfig
     standard_result: StandardResult | None = None
 
     # result properties; the most important is metadata which IS the 'data' part in
@@ -73,13 +66,13 @@ class ObjectDataProvider(Provider):
     time1: datetime | None = field(default=None)
 
     def __post_init__(self) -> None:
-        if self.dataio.forcefolder:
-            if self.dataio.forcefolder.startswith("/"):
+        if self.export_config.forcefolder:
+            if self.export_config.forcefolder.startswith("/"):
                 raise ValueError("Can't use absolute path as 'forcefolder'")
-            logger.info(f"Using forcefolder {self.dataio.forcefolder}")
+            logger.info(f"Using forcefolder {self.export_config.forcefolder}")
 
-        content = self.dataio._get_content_enum() or "unset"
-        content_metadata = self._get_validated_content_metadata()
+        content = self.export_config.content
+        content_metadata = self.export_config.content_metadata
 
         strat_element = self._get_stratigraphy_element()
         self.name = strat_element.name
@@ -96,23 +89,23 @@ class ObjectDataProvider(Provider):
         if content_metadata:
             metadata[content] = content_metadata
         metadata["standard_result"] = self.standard_result
-        metadata["tagname"] = self.dataio.tagname
+        metadata["tagname"] = self.export_config.tagname
         metadata["format"] = self.fmt
         metadata["layout"] = self.layout
-        metadata["unit"] = self.dataio.unit or ""
-        metadata["vertical_domain"] = self.dataio._resolved_vertical_domain
-        metadata["domain_reference"] = self.dataio._resolved_domain_reference
+        metadata["unit"] = self.export_config.unit or ""
+        metadata["vertical_domain"] = self.export_config.vertical_domain
+        metadata["domain_reference"] = self.export_config.domain_reference
 
         metadata["spec"] = self.get_spec()
         metadata["geometry"] = self.get_geometry()
         metadata["bbox"] = self.get_bbox()
         metadata["time"] = self._get_timedata()
         metadata["table_index"] = self.table_index
-        metadata["undef_is_zero"] = self.dataio.undef_is_zero
+        metadata["undef_is_zero"] = self.export_config.undef_is_zero
 
-        metadata["is_prediction"] = self.dataio.is_prediction
-        metadata["is_observation"] = self.dataio.is_observation
-        metadata["description"] = generate_description(self.dataio.description)
+        metadata["is_prediction"] = self.export_config.is_prediction
+        metadata["is_observation"] = self.export_config.is_observation
+        metadata["description"] = self.export_config.description
 
         self._metadata = (
             UnsetData.model_validate(metadata)
@@ -169,7 +162,7 @@ class ObjectDataProvider(Provider):
 
     @property
     def share_path(self) -> Path:
-        return SharePathConstructor(self.dataio, self).get_share_path()
+        return SharePathConstructor(self.export_config, self).get_share_path()
 
     def compute_md5_and_size(self) -> tuple[str, int]:
         """Compute an MD5 sum and the buffer size"""
@@ -189,48 +182,6 @@ class ObjectDataProvider(Provider):
         assert self._metadata is not None
         return self._metadata
 
-    def _get_validated_content_metadata(self) -> BaseModel | None:
-        """
-        If content_metadata have been input, and the content requires metadata,
-        return the corresponding validated content_metadata model for the content,
-        else return None.
-        """
-        content = self.dataio._get_content_enum()
-        if content:
-            content_metadata = self.dataio._get_content_metadata()
-
-            if content_requires_metadata(content):
-                if not content_metadata:
-                    return self._raise_error_for_missing_content_metadata(content)
-
-                content_metadata_model = content_metadata_factory(content)
-                if not isinstance(content_metadata, dict):
-                    raise ValueError(
-                        "The 'content_metadata' needs to be input as a dictionary. "
-                        f"Possible keys for content '{content.value}' are: "
-                        f"{list(content_metadata_model.model_fields)}. "
-                    )
-                return content_metadata_model.model_validate(content_metadata)
-
-            if content_metadata:
-                warnings.warn(
-                    f"Content '{content.value}' does not require 'content_metadata', "
-                    "ignoring input."
-                )
-
-        return None
-
-    @staticmethod
-    def _raise_error_for_missing_content_metadata(content: Content) -> None:
-        """
-        Raise error for missing content_metadata with special handling of the
-        'property' content which is required to have content_metadata in the future.
-        """
-        if content == Content.property:
-            property_warn()
-        else:
-            raise ValueError(f"Content {content.value} requires additional input")
-
     def _get_stratigraphy_element(self) -> StratigraphyElement:
         """Derive the name and stratigraphy for the object; may have several sources.
 
@@ -241,14 +192,14 @@ class ObjectDataProvider(Provider):
         name is "Valysar Top Fm." that latter name will be used.
         """
         name = ""
-        if self.dataio.name:
-            name = self.dataio.name
+        if self.export_config.name:
+            name = self.export_config.name
         elif isinstance(obj_name := getattr(self.obj, "name", ""), str):
             name = obj_name
 
         if (
-            isinstance(self.dataio.config, GlobalConfiguration)
-            and (strat := self.dataio.config.stratigraphy)
+            isinstance(self.export_config.config, GlobalConfiguration)
+            and (strat := self.export_config.config.stratigraphy)
             and name in strat
         ):
             if (alias := strat[name].alias) is None:
@@ -287,16 +238,16 @@ class ObjectDataProvider(Provider):
             will be some--time1_time0 where time1 is the newest (unless a class
             variable is set for those who wants it turned around).
         """
-        if not self.dataio.timedata:
+        if not self.export_config.timedata:
             return None
 
-        if not isinstance(self.dataio.timedata, list):
+        if not isinstance(self.export_config.timedata, list):
             raise ValueError("The 'timedata' argument should be a list")
 
-        if len(self.dataio.timedata) > 2:
+        if len(self.export_config.timedata) > 2:
             raise ValueError("The 'timedata' argument can maximum contain two dates")
 
-        start_input, *stop_input = self.dataio.timedata
+        start_input, *stop_input = self.export_config.timedata
 
         start = self._get_fmu_time_object(start_input)
         stop = self._get_fmu_time_object(stop_input[0]) if stop_input else None

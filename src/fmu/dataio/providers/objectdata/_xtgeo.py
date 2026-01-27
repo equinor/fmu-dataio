@@ -64,7 +64,7 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
 
     @property
     def efolder(self) -> str:
-        return self.dataio.forcefolder or ExportFolder.maps.value
+        return self.export_config.forcefolder or ExportFolder.maps.value
 
     @property
     def extension(self) -> str:
@@ -154,7 +154,7 @@ class PolygonsDataProvider(ObjectDataProvider):
 
     @property
     def efolder(self) -> str:
-        return self.dataio.forcefolder or ExportFolder.polygons.value
+        return self.export_config.forcefolder or ExportFolder.polygons.value
 
     @property
     def extension(self) -> str:
@@ -174,7 +174,7 @@ class PolygonsDataProvider(ObjectDataProvider):
 
     @property
     def fmt(self) -> FileFormat:
-        return FileFormat(self.dataio.polygons_fformat)
+        return FileFormat(self.export_config.polygons_fformat)
 
     @property
     def layout(self) -> Layout:
@@ -188,9 +188,9 @@ class PolygonsDataProvider(ObjectDataProvider):
 
         return (
             _derive_index(
-                table_index=self.dataio.table_index,
+                table_index=self.export_config.table_index,
                 table_columns=list(self.obj_dataframe.columns),
-                content=self.dataio._get_content_enum(),
+                content=self.export_config.content_enum,
             )
             or None
         )
@@ -270,7 +270,7 @@ class PointsDataProvider(ObjectDataProvider):
 
     @property
     def efolder(self) -> str:
-        return self.dataio.forcefolder or ExportFolder.points.value
+        return self.export_config.forcefolder or ExportFolder.points.value
 
     @property
     def extension(self) -> str:
@@ -290,7 +290,7 @@ class PointsDataProvider(ObjectDataProvider):
 
     @property
     def fmt(self) -> FileFormat:
-        return FileFormat(self.dataio.points_fformat)
+        return FileFormat(self.export_config.points_fformat)
 
     @property
     def layout(self) -> Layout:
@@ -304,9 +304,9 @@ class PointsDataProvider(ObjectDataProvider):
 
         return (
             _derive_index(
-                table_index=self.dataio.table_index,
+                table_index=self.export_config.table_index,
                 table_columns=list(self.obj_dataframe.columns),
-                content=self.dataio._get_content_enum(),
+                content=self.export_config.content_enum,
             )
             or None
         )
@@ -377,7 +377,7 @@ class CubeDataProvider(ObjectDataProvider):
 
     @property
     def efolder(self) -> str:
-        return self.dataio.forcefolder or ExportFolder.cubes.value
+        return self.export_config.forcefolder or ExportFolder.cubes.value
 
     @property
     def extension(self) -> str:
@@ -465,7 +465,7 @@ class CPGridDataProvider(ObjectDataProvider):
 
     @property
     def efolder(self) -> str:
-        return self.dataio.forcefolder or ExportFolder.grids.value
+        return self.export_config.forcefolder or ExportFolder.grids.value
 
     @property
     def extension(self) -> str:
@@ -555,7 +555,7 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
 
     @property
     def efolder(self) -> str:
-        return self.dataio.forcefolder or ExportFolder.grids.value
+        return self.export_config.forcefolder or ExportFolder.grids.value
 
     @property
     def extension(self) -> str:
@@ -591,10 +591,10 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
         logger.info("Get geometry for a GridProperty, if present")
 
         # when invalid config this is not relevant
-        if not isinstance(self.dataio.config, GlobalConfiguration):
+        if not isinstance(self.export_config.config, GlobalConfiguration):
             return None
 
-        geometry_path = self.dataio.geometry
+        geometry_path = self.export_config.geometry
         if not geometry_path or not isinstance(geometry_path, str | Path):
             lack_of_geometry_warn()
             return None

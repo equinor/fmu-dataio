@@ -37,7 +37,7 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
 
     @property
     def efolder(self) -> str:
-        return self.dataio.forcefolder or ExportFolder.maps.value
+        return self.export_config.forcefolder or ExportFolder.maps.value
 
     @property
     def extension(self) -> str:
@@ -79,8 +79,8 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
 
         juxtaposition_hw = []
         juxtaposition_fw = []
-        if isinstance(self.dataio.config, GlobalConfiguration) and (
-            strat := self.dataio.config.stratigraphy
+        if isinstance(self.export_config.config, GlobalConfiguration) and (
+            strat := self.export_config.config.stratigraphy
         ):
             # Use the name in the juxtaposition list if it doesn't exist
             # in the strat. column
