@@ -30,9 +30,8 @@ from fmu.datamodels.fmu_results.enums import (
 from fmu.datamodels.fmu_results.fields import Display, Workflow
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
-from ._fmu_context import resolve_fmu_context
 from ._logging import null_logger
-from ._runcontext import RunContext, get_fmu_context_from_environment
+from ._runcontext import FMUEnvironment, RunContext
 from .providers.objectdata._export_models import AllowedContentSeismic
 
 logger: Final = null_logger(__name__)
@@ -70,8 +69,7 @@ class ExportConfig:
     vertical_domain: VerticalDomain
     domain_reference: DomainReference
 
-    # FMU context
-    fmu_context: FMUContext | None
+    # User input strings
     display: Display
     workflow: Workflow | None
     description: list[str] | None
@@ -96,9 +94,6 @@ class ExportConfig:
     unit: str
     undef_is_zero: bool
 
-    # Casepath
-    casepath: Path | None
-
     # Global configuration
     config: GlobalConfiguration | None
     runcontext: RunContext
@@ -109,6 +104,16 @@ class ExportConfig:
         if isinstance(self.content, Content):
             return self.content
         return None
+
+    @property
+    def fmu_context(self) -> FMUContext | None:
+        """The FMU context from the run context."""
+        return self.runcontext.fmu_context
+
+    @property
+    def casepath(self) -> Path | None:
+        """The casepath from the run context."""
+        return self.runcontext.casepath
 
     @classmethod
     def from_export_data(cls, dataio: ExportData) -> Self:
@@ -124,11 +129,17 @@ class ExportConfig:
         vertical_domain, domain_reference = _resolve_vertical_domain(
             dataio.vertical_domain, dataio.domain_reference
         )
+        config = _resolve_global_config(dataio.config)
+        casepath_input = Path(dataio.casepath) if dataio.casepath else None
+
         fmu_context, preprocessed = _resolve_fmu_context(
             dataio.fmu_context, dataio.preprocessed
         )
-        config = _resolve_global_config(dataio.config)
-        casepath = Path(dataio.casepath) if dataio.casepath else None
+
+        runcontext = RunContext(
+            casepath_proposed=casepath_input,
+            fmu_context=fmu_context,
+        )
 
         return cls(
             # Content
@@ -148,7 +159,6 @@ class ExportConfig:
             vertical_domain=vertical_domain,
             domain_reference=domain_reference,
             # FMU context
-            fmu_context=fmu_context,
             preprocessed=preprocessed,
             display=Display(name=dataio.display_name),
             workflow=_resolve_workflow(dataio.workflow),
@@ -172,11 +182,9 @@ class ExportConfig:
             unit=dataio.unit or "",
             undef_is_zero=dataio.undef_is_zero,
             description=_resolve_description(dataio.description),
-            # Casepath
-            casepath=casepath,
             # Config
             config=config,
-            runcontext=RunContext(casepath, fmu_context),
+            runcontext=runcontext,
         )
 
 
@@ -339,7 +347,8 @@ def _resolve_vertical_domain(
 
 
 def _resolve_fmu_context(
-    fmu_context_input: str | None, preprocessed_input: bool
+    fmu_context_input: str | None,
+    preprocessed_input: bool,
 ) -> tuple[FMUContext | None, bool]:
     """Resolve FMU context from user input and environment.
 
@@ -349,18 +358,134 @@ def _resolve_fmu_context(
 
     Returns:
         Tuple of (resolved_fmu_context, resolved_preprocessed).
+
+    Raises:
+        ValueError: If the configuration is invalid.
     """
-    env_context = get_fmu_context_from_environment()
-    resolution = resolve_fmu_context(
-        fmu_context_input=fmu_context_input,
-        preprocessed_input=preprocessed_input,
-        env_context=env_context,
+    env = FMUEnvironment.from_env()
+    env_context = env.fmu_context
+
+    _check_removed_fmu_context_options(fmu_context_input)
+
+    fmu_context_input, preprocessed = _handle_fmu_context_deprecations(
+        fmu_context_input, preprocessed_input
     )
 
-    for message, category in resolution.warnings:
-        warnings.warn(message, category)
+    effective_context = _determine_effective_fmu_context(fmu_context_input, env_context)
+    _validate_fmu_context_combination(effective_context, preprocessed)
 
-    return resolution.context, resolution.preprocessed
+    return effective_context, preprocessed
+
+
+def _check_removed_fmu_context_options(fmu_context_input: str | None) -> None:
+    """Check for removed fmu_context options and raise error if found."""
+    if fmu_context_input and fmu_context_input.lower() == "case_symlink_realization":
+        raise ValueError(
+            "fmu_context is set to 'case_symlink_realization', which is no longer a "
+            "supported option. Recommended workflow is to export your data as "
+            "preprocessed outside of FMU, and re-export the data with "
+            "fmu_context='case' using a PRE_SIMULATION ERT workflow. If needed, "
+            "forward_models in ERT can be set-up to create symlinks out into the "
+            "individual realizations.",
+        )
+
+
+def _handle_fmu_context_deprecations(
+    fmu_context_input: str | None,
+    preprocessed_input: bool,
+) -> tuple[str | None, bool]:
+    """Handle deprecated fmu_context input patterns.
+
+    Args:
+        fmu_context_input: User-provided fmu_context value.
+        preprocessed_input: User-provided preprocessed flag.
+
+    Returns:
+        Tuple of (transformed_fmu_context, transformed_preprocessed).
+    """
+    if fmu_context_input == "preprocessed":
+        warnings.warn(
+            "Using the 'fmu_context' argument with value 'preprocessed' is "
+            "deprecated and will be removed in the future. Use the more explicit "
+            "'preprocessed' argument instead: ExportData(preprocessed=True)",
+            FutureWarning,
+        )
+        return None, True
+
+    if fmu_context_input and fmu_context_input.lower() == "iteration":
+        return "ensemble", preprocessed_input
+
+    return fmu_context_input, preprocessed_input
+
+
+def _determine_effective_fmu_context(
+    explicit_context: str | None,
+    env_context: FMUContext | None,
+) -> FMUContext | None:
+    """Determine the effective FMU context from explicit input and environment.
+
+    Args:
+        explicit_context: User-provided fmu_context (after deprecation handling).
+        env_context: FMU context detected from environment variables.
+
+    Returns:
+        The effective FMU context to use.
+    """
+    if explicit_context is None:
+        logger.info("fmu_context from environment: %s", env_context)
+
+        if env_context == FMUContext.iteration:
+            return FMUContext.ensemble
+
+        return env_context
+
+    if env_context is None:
+        logger.warning(
+            "Requested fmu_context=%s but not running in FMU environment; "
+            "context will be None.",
+            explicit_context,
+        )
+        return None
+
+    explicit_enum = FMUContext(explicit_context.lower())
+    if explicit_enum == FMUContext.realization and env_context == FMUContext.case:
+        warnings.warn(
+            "fmu_context is set to 'realization', but unable to detect ERT "
+            "runpath from environment variable. Did you mean fmu_context='case'?",
+            UserWarning,
+        )
+
+    if explicit_enum == FMUContext.ensemble and env_context == FMUContext.realization:
+        warnings.warn(
+            "fmu_context is set to 'ensemble', but a realization environment "
+            "was detected. Did you mean fmu_context='realization'?",
+            UserWarning,
+        )
+
+    logger.info("fmu_context set explicitly to %s", explicit_enum)
+    return explicit_enum
+
+
+def _validate_fmu_context_combination(
+    context: FMUContext | None,
+    preprocessed: bool,
+) -> None:
+    """Validate that the resolved context/preprocessed combination is allowed.
+
+    Args:
+        context: The resolved FMU context.
+        preprocessed: The resolved preprocessed flag.
+
+    Raises:
+        ValueError: If the combination is invalid.
+    """
+    if preprocessed and context == FMUContext.realization:
+        raise ValueError(
+            "Can't export preprocessed data in a fmu_context='realization'. "
+            "Preprocessed data should be exported with fmu_context='case' or "
+            "outside of FMU entirely, and then re-exported using "
+            "ExportPreprocessedData."
+        )
 
 
 def _resolve_classification(

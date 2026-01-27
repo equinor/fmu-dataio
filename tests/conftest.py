@@ -35,7 +35,6 @@ from pytest import MonkeyPatch
 import fmu.dataio as dio
 from fmu.dataio._readers.faultroom import FaultRoomSurface
 from fmu.dataio._readers.tsurf import TSurfData
-from fmu.dataio._runcontext import FmuEnv
 from fmu.dataio.dataio import ExportData, read_metadata
 
 from .utils import _get_nested_pydantic_models, _metadata_examples
@@ -48,18 +47,18 @@ ERTRUN_REAL0_ITER0 = f"{ERTRUN}/realization-0/iter-0"
 ERTRUN_PRED = f"{ERTRUN}/realization-0/pred"
 
 ERTRUN_ENV_PREHOOK = {
-    f"_ERT_{FmuEnv.EXPERIMENT_ID.name}": "6a8e1e0f-9315-46bb-9648-8de87151f4c7",
-    f"_ERT_{FmuEnv.ENSEMBLE_ID.name}": "b027f225-c45d-477d-8f33-73695217ba14",
-    f"_ERT_{FmuEnv.SIMULATION_MODE.name}": "test_run",
+    "_ERT_EXPERIMENT_ID": "6a8e1e0f-9315-46bb-9648-8de87151f4c7",
+    "_ERT_ENSEMBLE_ID": "b027f225-c45d-477d-8f33-73695217ba14",
+    "_ERT_SIMULATION_MODE": "test_run",
 }
 ERTRUN_ENV_FORWARD = {
-    f"_ERT_{FmuEnv.ITERATION_NUMBER.name}": "0",
-    f"_ERT_{FmuEnv.REALIZATION_NUMBER.name}": "0",
-    f"_ERT_{FmuEnv.RUNPATH.name}": "---",  # set dynamically due to pytest tmp rotation
+    "_ERT_ITERATION_NUMBER": "0",
+    "_ERT_REALIZATION_NUMBER": "0",
+    "_ERT_RUNPATH": "---",  # set dynamically due to pytest tmp rotation
 }
 ERTRUN_ENV_FULLRUN = {**ERTRUN_ENV_PREHOOK, **ERTRUN_ENV_FORWARD}
 
-ERT_RUNPATH = f"_ERT_{FmuEnv.RUNPATH.name}"
+ERT_RUNPATH = "_ERT_RUNPATH"
 
 
 def _current_function_name() -> str:
@@ -183,9 +182,9 @@ def fmurun_non_equal_real_and_iter(
     shutil.copytree(rootpath / ERTRUN, newpath)
     rootpath = newpath / "realization-1/iter-0"
 
-    monkeypatch.setenv(f"_ERT_{FmuEnv.ITERATION_NUMBER.name}", "0")
-    monkeypatch.setenv(f"_ERT_{FmuEnv.REALIZATION_NUMBER.name}", "1")
-    monkeypatch.setenv(f"_ERT_{FmuEnv.RUNPATH.name}", str(rootpath))
+    monkeypatch.setenv("_ERT_ITERATION_NUMBER", "0")
+    monkeypatch.setenv("_ERT_REALIZATION_NUMBER", "1")
+    monkeypatch.setenv("_ERT_RUNPATH", str(rootpath))
 
     logger.debug("Ran %s", _current_function_name())
     return rootpath
@@ -201,9 +200,9 @@ def fmurun_no_iter_folder(
     shutil.copytree(rootpath / ERTRUN_NO_ITER, newpath)
     rootpath = newpath / "realization-1"
 
-    monkeypatch.setenv(f"_ERT_{FmuEnv.ITERATION_NUMBER.name}", "0")
-    monkeypatch.setenv(f"_ERT_{FmuEnv.REALIZATION_NUMBER.name}", "1")
-    monkeypatch.setenv(f"_ERT_{FmuEnv.RUNPATH.name}", str(rootpath))
+    monkeypatch.setenv("_ERT_ITERATION_NUMBER", "0")
+    monkeypatch.setenv("_ERT_REALIZATION_NUMBER", "1")
+    monkeypatch.setenv("_ERT_RUNPATH", str(rootpath))
 
     logger.debug("Ran %s", _current_function_name())
     return rootpath

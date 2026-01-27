@@ -5,38 +5,42 @@ from fmu.datamodels.fmu_results.enums import FMUContext
 from pytest import MonkeyPatch
 
 from fmu.dataio._definitions import RMSExecutionMode
-from fmu.dataio._runcontext import RunContext, get_rms_exec_mode
+from fmu.dataio._runcontext import FMUEnvironment, RunContext
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_inside_rms_decorator() -> None:
-    assert get_rms_exec_mode() is not None
-    assert get_rms_exec_mode() == RMSExecutionMode.interactive
+    env = FMUEnvironment.from_env()
+    assert env.rms_exec_mode is not None
+    assert env.rms_exec_mode == RMSExecutionMode.interactive
 
 
 def test_get_rms_exec_mode_batch(monkeypatch: MonkeyPatch) -> None:
     """Test the rms execution mode in RMS batch."""
     monkeypatch.setenv("RUNRMS_EXEC_MODE", "batch")
-    assert get_rms_exec_mode() == RMSExecutionMode.batch
+    env = FMUEnvironment.from_env()
+    assert env.rms_exec_mode == RMSExecutionMode.batch
 
 
 def test_get_rms_exec_mode_interactive(monkeypatch: MonkeyPatch) -> None:
     """Test the rms execution mode in RMS interactive."""
     monkeypatch.setenv("RUNRMS_EXEC_MODE", "interactive")
-    assert get_rms_exec_mode() == RMSExecutionMode.interactive
+    env = FMUEnvironment.from_env()
+    assert env.rms_exec_mode == RMSExecutionMode.interactive
 
 
 def test_get_rms_exec_mode_outside(monkeypatch: MonkeyPatch) -> None:
     """Test that rms execution mode outside of RMS is None."""
     monkeypatch.delenv("RUNRMS_EXEC_MODE", raising=False)
-    assert get_rms_exec_mode() is None
+    env = FMUEnvironment.from_env()
+    assert env.rms_exec_mode is None
 
 
 def test_get_rms_exec_mode_unknown(monkeypatch: MonkeyPatch) -> None:
     """Test that an unknow rms execution mode fails."""
     monkeypatch.setenv("RUNRMS_EXEC_MODE", "unknown")
     with pytest.raises(ValueError, match="not a valid"):
-        get_rms_exec_mode()
+        FMUEnvironment.from_env()
 
 
 def test_runcontext_rms_interactive(monkeypatch: MonkeyPatch) -> None:
@@ -46,7 +50,7 @@ def test_runcontext_rms_interactive(monkeypatch: MonkeyPatch) -> None:
     runcontext = RunContext()
     assert runcontext.inside_rms is True
     assert runcontext.inside_fmu is False
-    assert runcontext.fmu_context_from_env is None
+    assert runcontext.fmu_context is None
     assert runcontext.rms_context == RMSExecutionMode.interactive
 
     assert runcontext.runpath is None
@@ -66,7 +70,7 @@ def test_runcontext_rms_batch_inside_fmu(
     runcontext = RunContext()
     assert runcontext.inside_rms is True
     assert runcontext.inside_fmu is True
-    assert runcontext.fmu_context_from_env == FMUContext.realization
+    assert runcontext.fmu_context == FMUContext.realization
     assert runcontext.rms_context == RMSExecutionMode.batch
 
     assert runcontext.runpath == fmurun_w_casemetadata
@@ -87,7 +91,7 @@ def test_runcontext_outside_rms_inside_fmu(
     runcontext = RunContext()
     assert runcontext.inside_rms is False
     assert runcontext.inside_fmu is True
-    assert runcontext.fmu_context_from_env == FMUContext.realization
+    assert runcontext.fmu_context == FMUContext.realization
     assert runcontext.rms_context is None
 
     assert runcontext.runpath == fmurun_w_casemetadata
@@ -110,7 +114,7 @@ def test_runcontext_inside_fmu_prehook(
 
     assert runcontext.inside_rms is False
     assert runcontext.inside_fmu is True
-    assert runcontext.fmu_context_from_env == FMUContext.case
+    assert runcontext.fmu_context == FMUContext.case
     assert runcontext.rms_context is None
 
     assert runcontext.runpath is None
@@ -132,12 +136,12 @@ def test_runcontext_inside_fmu_prehook_no_casepath(
     """
     monkeypatch.delenv("RUNRMS_EXEC_MODE", raising=False)
 
-    with pytest.warns(UserWarning, match="Could not auto detect"):
+    with pytest.warns(UserWarning, match="Could not detect"):
         runcontext = RunContext(casepath_proposed=None)
 
     assert runcontext.inside_rms is False
     assert runcontext.inside_fmu is True
-    assert runcontext.fmu_context_from_env == FMUContext.case
+    assert runcontext.fmu_context == FMUContext.case
     assert runcontext.rms_context is None
 
     assert runcontext.runpath is None
@@ -163,7 +167,7 @@ def test_runcontext_inside_fmu_prehook_invalid_casepath(
 
     assert runcontext.inside_rms is False
     assert runcontext.inside_fmu is True
-    assert runcontext.fmu_context_from_env == FMUContext.case
+    assert runcontext.fmu_context == FMUContext.case
     assert runcontext.rms_context is None
 
     assert runcontext.runpath is None
@@ -181,7 +185,7 @@ def test_runcontext_outside(monkeypatch: MonkeyPatch) -> None:
     runcontext = RunContext()
     assert runcontext.inside_rms is False
     assert runcontext.inside_fmu is False
-    assert runcontext.fmu_context_from_env is None
+    assert runcontext.fmu_context is None
     assert runcontext.rms_context is None
 
     assert runcontext.runpath is None

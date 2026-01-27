@@ -19,7 +19,7 @@ from fmu.datamodels.standard_results.enums import StandardResultName
 from pytest import MonkeyPatch
 
 from fmu.dataio._deprecations import DeprecationError
-from fmu.dataio._runcontext import FmuEnv
+from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio._utils import (
     convert_datestr_to_isoformat,
     prettyprint_dict,
@@ -863,8 +863,9 @@ def test_global_config_from_env(
 def test_fmurun_attribute_outside_fmu(rmsglobalconfig: dict[str, Any]) -> None:
     """Test that _fmurun attribute is True when in fmu"""
 
+    env = FMUEnvironment.from_env()
     # check that ERT environment variable is not set
-    assert FmuEnv.ENSEMBLE_ID.value is None
+    assert env.ensemble_id is None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._export_config.runcontext.inside_fmu is False
@@ -895,7 +896,9 @@ def test_exportdata_no_iter_folder(
 
 
 def test_fmucontext_case_casepath(
-    fmurun_prehook: Path, rmsglobalconfig: dict[str, Any], regsurf: xtgeo.RegularSurface
+    fmurun_prehook: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
 ) -> None:
     """
     Test fmu_context case when casepath is / is not explicitly given
@@ -903,12 +906,13 @@ def test_fmucontext_case_casepath(
     In the future we would like to not be able to update casepath outside
     of initialization, but it needs to be deprecated first.
     """
-    assert FmuEnv.RUNPATH.value is None
-    assert FmuEnv.EXPERIMENT_ID.value is not None
-    assert FmuEnv.SIMULATION_MODE.value is not None
+    env = FMUEnvironment.from_env()
+    assert env.runpath is None
+    assert env.experiment_id is not None
+    assert env.simulation_mode is not None
 
     # will give warning when casepath not provided
-    with pytest.warns(UserWarning, match="Could not auto detect"):
+    with pytest.warns(UserWarning, match="Could not detect"):
         edata = ExportData(config=rmsglobalconfig, content="depth")
 
     # create empty fmu metadata
@@ -928,9 +932,10 @@ def test_fmurun_attribute_inside_fmu(
 ) -> None:
     """Test that _fmurun attribute is True when in fmu"""
 
+    env = FMUEnvironment.from_env()
     # check that ERT environment variable is not set
-    assert FmuEnv.ENSEMBLE_ID.value is not None
-    assert FmuEnv.SIMULATION_MODE.value is not None
+    assert env.ensemble_id is not None
+    assert env.simulation_mode is not None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._export_config.runcontext.inside_fmu is True
@@ -943,9 +948,10 @@ def test_fmu_context_not_given_fetch_from_env_realization(
     Test fmu_context not explicitly given, should be set to "realization" when
     inside fmu and RUNPATH value is detected from the environment variables.
     """
-    assert FmuEnv.RUNPATH.value is not None
-    assert FmuEnv.SIMULATION_MODE.value is not None
-    assert FmuEnv.EXPERIMENT_ID.value is not None
+    env = FMUEnvironment.from_env()
+    assert env.runpath is not None
+    assert env.simulation_mode is not None
+    assert env.experiment_id is not None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._export_config.runcontext.inside_fmu is True
@@ -960,12 +966,13 @@ def test_fmu_context_not_given_fetch_from_env_case(
     Test fmu_context not explicitly given, should be set to "case" when
     inside fmu and RUNPATH value not detected from the environment variables.
     """
-    assert FmuEnv.RUNPATH.value is None
-    assert FmuEnv.SIMULATION_MODE.value is not None
-    assert FmuEnv.EXPERIMENT_ID.value is not None
+    env = FMUEnvironment.from_env()
+    assert env.runpath is None
+    assert env.simulation_mode is not None
+    assert env.experiment_id is not None
 
     # will give warning when casepath not provided
-    with pytest.warns(UserWarning, match="Could not auto detect"):
+    with pytest.warns(UserWarning, match="Could not detect"):
         edata = ExportData(config=rmsglobalconfig, content="depth")
 
     # test that it runs properly when casepath is provided
@@ -983,9 +990,10 @@ def test_fmu_context_not_given_fetch_from_env_nonfmu(
     Test fmu_context not explicitly given, should be set to None when
     outside fmu.
     """
-    assert FmuEnv.RUNPATH.value is None
-    assert FmuEnv.EXPERIMENT_ID.value is None
-    assert FmuEnv.SIMULATION_MODE.value is None
+    env = FMUEnvironment.from_env()
+    assert env.runpath is None
+    assert env.experiment_id is None
+    assert env.simulation_mode is None
 
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._export_config.runcontext.inside_fmu is False
