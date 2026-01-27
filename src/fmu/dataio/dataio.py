@@ -35,7 +35,7 @@ from .case import CreateCaseMetadata
 from .exceptions import ValidationError
 from .manifest._manifest import update_export_manifest
 from .preprocessed import ExportPreprocessedData
-from .providers._fmu import FmuProvider
+from .providers._filedata import SharePathConstructor
 from .providers.objectdata._provider import (
     ObjectDataProvider,
     objectdata_provider_factory,
@@ -716,8 +716,9 @@ class ExportData:
         A string with full path to the exported item is returned.
         """
         objdata = objectdata_provider_factory(obj, self._export_config)
+        share_path = SharePathConstructor(self._export_config, objdata).get_share_path()
 
-        absolute_path = self._export_config.runcontext.exportroot / objdata.share_path
+        absolute_path = self._export_config.runcontext.exportroot / share_path
 
         export_object_to_file(absolute_path, objdata.export_to_file)
         return str(absolute_path)
@@ -752,25 +753,9 @@ class ExportData:
 
     def _generate_export_metadata(self, objdata: ObjectDataProvider) -> dict[str, Any]:
         """Generate metadata for the provided ObjectDataProvider"""
-        fmudata = (
-            FmuProvider(
-                runcontext=self._export_config.runcontext,
-                model=(
-                    self._export_config.config.model
-                    if self._export_config.config
-                    else None
-                ),
-                workflow=self.workflow,  # TODO: Use from export_config
-                object_share_path=objdata.share_path,
-            )
-            if self._export_config.runcontext.inside_fmu
-            else None
-        )
-
         return generate_export_metadata(
             objdata=objdata,
             export_config=self._export_config,
-            fmudata=fmudata,
         ).model_dump(mode="json", exclude_none=True, by_alias=True)
 
     # ==================================================================================

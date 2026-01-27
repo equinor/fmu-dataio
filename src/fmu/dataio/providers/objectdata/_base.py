@@ -11,7 +11,6 @@ from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import md5sum
 from fmu.dataio.providers._base import Provider
-from fmu.dataio.providers._filedata import SharePathConstructor
 from fmu.dataio.providers.objectdata._export_models import (
     UnsetData,
 )
@@ -191,11 +190,6 @@ class ObjectDataProvider(Provider):
         if self._time and self._time.t1:
             return self._time.t1.value
         return None
-
-    @property
-    def share_path(self) -> Path:
-        """The relative share path for this object."""
-        return SharePathConstructor(self.export_config, self).get_share_path()
 
     def get_metadata(self) -> AnyData | UnsetData:
         """Return the constructed metadata."""

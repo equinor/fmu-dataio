@@ -141,14 +141,16 @@ class FileDataProvider(Provider):
         self,
         runcontext: RunContext,
         objdata: ObjectDataProvider,
-    ):
+        share_path: Path,
+    ) -> None:
         self.objdata = objdata
         self.runcontext = runcontext
+        self.share_path = share_path
 
     def get_metadata(self) -> fields.File:
         casepath = self.runcontext.casepath
         exportroot = self.runcontext.exportroot
-        share_path = self.objdata.share_path
+        share_path = self.share_path
 
         absolute_path = exportroot / share_path
         relative_path = absolute_path.relative_to(casepath or exportroot)

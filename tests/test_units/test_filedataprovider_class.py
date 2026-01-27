@@ -167,7 +167,7 @@ def test_get_filestem_shall_fail(
     objdata._time.t1 = objdata._parse_timestamp(time1)
 
     with pytest.raises(ValueError, match=message):
-        _ = objdata.share_path
+        SharePathConstructor(mock_exportdata._export_config, objdata).get_share_path()
 
 
 def test_get_share_folders(
@@ -182,8 +182,14 @@ def test_get_share_folders(
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
     assert objdata.name == "some"
 
-    fdata = FileDataProvider(mock_exportdata._export_config.runcontext, objdata)
-    share_folders = objdata.share_path.parent
+    share_path = SharePathConstructor(
+        mock_exportdata._export_config, objdata
+    ).get_share_path()
+
+    fdata = FileDataProvider(
+        mock_exportdata._export_config.runcontext, objdata, share_path
+    )
+    share_folders = share_path.parent
     assert isinstance(share_folders, Path)
     assert share_folders == Path(f"share/results/{ExportFolder.maps.value}")
     # check that the path present in the metadata matches the share folders
@@ -207,8 +213,14 @@ def test_get_share_folders_with_subfolder(
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
     objdata._strat_element.name = "some"
 
-    assert objdata.share_path.parent == Path("share/results/maps/sub")
-    fdata = FileDataProvider(mock_exportdata._export_config.runcontext, objdata)
+    share_path = SharePathConstructor(
+        mock_exportdata._export_config, objdata
+    ).get_share_path()
+    assert share_path.parent == Path("share/results/maps/sub")
+
+    fdata = FileDataProvider(
+        mock_exportdata._export_config.runcontext, objdata, share_path
+    )
 
     # check that the path present in the metadata matches the share folders
     fmeta = fdata.get_metadata()
@@ -243,9 +255,10 @@ def test_filedata_provider(
 
     expected_path = Path(f"share/results/efolder/parent--name--tag--{t1}_{t0}.gri")
 
-    assert objdata.share_path == expected_path
+    share_path = SharePathConstructor(cfg._export_config, objdata).get_share_path()
+    assert share_path == expected_path
 
-    fdata = FileDataProvider(cfg._export_config.runcontext, objdata)
+    fdata = FileDataProvider(cfg._export_config.runcontext, objdata, share_path)
     filemeta = fdata.get_metadata()
 
     assert isinstance(filemeta, fields.File)
@@ -269,8 +282,13 @@ def test_filedata_has_nonascii_letters(
 
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
     objdata._strat_element.name = "anynõme"
+    share_path = SharePathConstructor(
+        mock_exportdata._export_config, objdata
+    ).get_share_path()
 
-    fdata = FileDataProvider(mock_exportdata._export_config.runcontext, objdata)
+    fdata = FileDataProvider(
+        mock_exportdata._export_config.runcontext, objdata, share_path
+    )
     with pytest.raises(ValueError, match="Path has non-ascii elements"):
         fdata.get_metadata()
 
@@ -353,7 +371,6 @@ def test_sharepath_with_date(
     expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
 
     assert share_path.get_share_path() == expected_path
-    assert objdata.share_path == expected_path
 
 
 def test_sharepath_with_two_dates(
@@ -376,7 +393,10 @@ def test_sharepath_with_two_dates(
     expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
 
     assert share_path.get_share_path() == expected_path
-    assert objdata.share_path == expected_path
+    share_path = SharePathConstructor(
+        exportdata._export_config, objdata
+    ).get_share_path()
+    assert share_path == expected_path
 
 
 def test_sharepath_with_parent(
@@ -400,7 +420,10 @@ def test_sharepath_with_parent(
     expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
 
     assert share_path.get_share_path() == expected_path
-    assert objdata.share_path == expected_path
+    share_path = SharePathConstructor(
+        exportdata._export_config, objdata
+    ).get_share_path()
+    assert share_path == expected_path
 
 
 def test_sharepath_name_from_objprovider(
@@ -418,4 +441,7 @@ def test_sharepath_name_from_objprovider(
     expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
 
     assert share_path.get_share_path() == expected_path
-    assert objdata.share_path == expected_path
+    share_path = SharePathConstructor(
+        exportdata._export_config, objdata
+    ).get_share_path()
+    assert share_path == expected_path

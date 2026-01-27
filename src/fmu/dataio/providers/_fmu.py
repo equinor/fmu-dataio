@@ -44,6 +44,7 @@ from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.datamodels.fmu_results import fields
 from fmu.datamodels.fmu_results.enums import ErtSimulationMode, FMUContext
+from fmu.datamodels.fmu_results.fields import Workflow
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
 from ._base import Provider
@@ -67,20 +68,20 @@ class FmuProvider(Provider):
         model: Name of the model (usually from global config)
         runcontext: The context this is ran in, with paths and case metadata
         workflow: Descriptive work flow info
-        object_share_path: The share path location for the object
+        share_path: The share path location for the object
     """
 
     def __init__(
         self,
         runcontext: RunContext,
         model: fields.Model | None = None,
-        workflow: str | dict[str, str] | None = None,
-        object_share_path: Path | None = None,
+        workflow: Workflow | None = None,
+        share_path: Path | None = None,
     ) -> None:
         logger.info("Initialize %s...", self.__class__)
         self.model = model
         self.workflow = workflow
-        self.object_share_path = object_share_path
+        self.share_path = share_path
 
         self._runpath = runcontext.runpath
         self._casepath = runcontext.casepath
@@ -104,7 +105,7 @@ class FmuProvider(Provider):
                 case=case_meta.fmu.case,
                 context=self._get_fmucontext_meta(),
                 model=self.model or case_meta.fmu.model,
-                workflow=self._get_workflow_meta() if self.workflow else None,
+                workflow=self.workflow,
                 ert=self._get_ert_meta(),
             )
 
@@ -115,7 +116,7 @@ class FmuProvider(Provider):
             case=case_meta.fmu.case,
             context=self._get_fmucontext_meta(),
             model=self.model or case_meta.fmu.model,
-            workflow=self._get_workflow_meta() if self.workflow else None,
+            workflow=self.workflow,
             ensemble=self._get_ensemble_meta(ensemble_uuid),
             realization=self._get_realization_meta(real_uuid),
             ert=self._get_ert_meta(),
@@ -229,14 +230,8 @@ class FmuProvider(Provider):
         share path for the object. This is an identifer used for linking
         objects across a case that represents the same.
         """
-        return _utils.uuid_from_string(f"{case_uuid}{self.object_share_path}")
+        return _utils.uuid_from_string(f"{case_uuid}{self.share_path}")
 
     def _get_entity_meta(self, case_uuid: UUID) -> fields.Entity:
         """Get the fmu.entity model"""
         return fields.Entity(uuid=self._get_entity_uuid(case_uuid))
-
-    def _get_workflow_meta(self) -> fields.Workflow:
-        assert self.workflow is not None
-        if isinstance(self.workflow, dict):
-            return fields.Workflow.model_validate(self.workflow)
-        return fields.Workflow(reference=self.workflow)
