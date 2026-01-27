@@ -10,6 +10,7 @@ dependencies on the internals.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 from pydantic import Field
@@ -26,13 +27,13 @@ from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from ._export_config import ExportConfig
 from ._logging import null_logger
 from .exceptions import InvalidMetadataError
-from .providers._filedata import FileDataProvider
+from .providers._filedata import FileDataProvider, SharePathConstructor
+from .providers._fmu import FmuProvider
 from .providers.objectdata._base import UnsetData
 from .version import __version__
 
 if TYPE_CHECKING:
     from ._runcontext import RunContext
-    from .providers._fmu import FmuProvider
     from .providers.objectdata._base import ObjectDataProvider
 
 logger: Final = null_logger(__name__)
@@ -52,10 +53,12 @@ class ObjectMetadataExport(ObjectMetadata, populate_by_name=True):
 
 
 def _get_meta_filedata(
-    runcontext: RunContext, objdata: ObjectDataProvider
+    runcontext: RunContext,
+    objdata: ObjectDataProvider,
+    share_path: Path,
 ) -> fields.File:
     """Derive metadata for the file."""
-    return FileDataProvider(runcontext, objdata).get_metadata()
+    return FileDataProvider(runcontext, objdata, share_path).get_metadata()
 
 
 def _get_meta_fmu(fmudata: FmuProvider) -> fields.FMU | None:
@@ -87,9 +90,7 @@ def _get_meta_display(
 
 
 def generate_export_metadata(
-    objdata: ObjectDataProvider,
-    export_config: ExportConfig,
-    fmudata: FmuProvider | None = None,
+    objdata: ObjectDataProvider, export_config: ExportConfig
 ) -> ObjectMetadataExport:
     """
     Main function to generate the full metadata
@@ -117,6 +118,17 @@ def generate_export_metadata(
     * meta_display: dict of default display settings (experimental)
 
     """
+    share_path = SharePathConstructor(export_config, objdata).get_share_path()
+    fmudata = (
+        FmuProvider(
+            runcontext=export_config.runcontext,
+            model=(export_config.config.model if export_config.config else None),
+            workflow=export_config.workflow,
+            share_path=share_path,
+        )
+        if export_config.runcontext.inside_fmu
+        else None
+    )
 
     return ObjectMetadataExport(  # type: ignore[call-arg]
         class_=objdata.classname,
@@ -128,7 +140,7 @@ def generate_export_metadata(
         ),
         access=_get_meta_access(export_config),
         data=objdata.get_metadata(),
-        file=_get_meta_filedata(export_config.runcontext, objdata),
+        file=_get_meta_filedata(export_config.runcontext, objdata, share_path),
         tracklog=Tracklog.initialize(__version__),
         display=_get_meta_display(export_config, objdata),
         preprocessed=export_config.preprocessed,

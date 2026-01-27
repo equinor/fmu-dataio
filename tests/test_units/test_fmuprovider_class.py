@@ -8,6 +8,7 @@ from typing import Any
 import pydantic
 import pytest
 from fmu.datamodels.fmu_results.enums import ErtSimulationMode, FMUContext
+from fmu.datamodels.fmu_results.fields import Workflow
 from pytest import MonkeyPatch
 
 from fmu import dataio
@@ -385,7 +386,7 @@ def test_fmuprovider_workflow_reference(
     runcontext = RunContext()
     myfmu_meta = FmuProvider(
         runcontext,
-        workflow="workflow as string",
+        workflow=Workflow(reference="workflow as string"),
     ).get_metadata()
     assert myfmu_meta.workflow is not None
     assert myfmu_meta.workflow.model_dump(mode="json") == {
@@ -418,7 +419,7 @@ def test_fmuprovider_workflow_reference(
 
     # workflow input is other types - shall fail
     with pytest.raises(
-        pydantic.ValidationError, match="Input should be a valid string"
+        pydantic.ValidationError, match="Input should be a valid dictionary"
     ):
         FmuProvider(
             runcontext,
