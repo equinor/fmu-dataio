@@ -7,6 +7,7 @@ undergone input validation and transformations.
 
 from __future__ import annotations
 
+import dataclasses
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
@@ -114,6 +115,15 @@ class ExportConfig:
     def casepath(self) -> Path | None:
         """The casepath from the run context."""
         return self.runcontext.casepath
+
+    def with_ensemble_name(self, ensemble_name: str) -> Self:
+        """Return a new ExportConfig with the ensemble name set explicitly."""
+        runcontext = RunContext(
+            casepath_proposed=self.runcontext.casepath,
+            fmu_context=self.runcontext.fmu_context,
+            ensemble_name=ensemble_name,
+        )
+        return dataclasses.replace(self, runcontext=runcontext)
 
     @classmethod
     def from_export_data(cls, dataio: ExportData) -> Self:

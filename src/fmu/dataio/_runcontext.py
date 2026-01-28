@@ -119,9 +119,11 @@ class RunContext:
         self,
         casepath_proposed: Path | None = None,
         fmu_context: FMUContext | None = None,
+        ensemble_name: str | None = None,
     ) -> None:
         self._env = FMUEnvironment.from_env()
         self._fmu_context = fmu_context or self._env.fmu_context
+        self._ensemble_name_override = ensemble_name
         self._paths = self._resolve_paths(casepath_proposed)
         self._case_metadata = self._load_case_metadata()
 
@@ -219,8 +221,12 @@ class RunContext:
             ensemble_name, realization_name = (
                 self._extract_ensemble_and_realization_name(casepath, runpath)
             )
-            if ensemble_name:
-                ensemble_path = casepath / "share" / "ensemble" / ensemble_name
+
+        if self._ensemble_name_override:
+            ensemble_name = self._ensemble_name_override
+
+        if casepath and ensemble_name:
+            ensemble_path = casepath / "share" / "ensemble" / ensemble_name
 
         return FMUPaths(
             casepath=casepath,
