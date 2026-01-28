@@ -268,3 +268,30 @@ def test_extract_ensemble_and_realization_name_no_parts() -> None:
     assert runcontext._extract_ensemble_and_realization_name(
         Path("foo"), Path("foo")
     ) == (None, None)
+
+
+def test_runcontext_explicit_ensemble_name(
+    monkeypatch: MonkeyPatch, fmurun_prehook: Path
+) -> None:
+    """Explicit ensemble_name sets paths when runpath is unavailable."""
+    runcontext = RunContext(
+        casepath_proposed=fmurun_prehook,
+        ensemble_name="pred-dg3",
+    )
+
+    assert runcontext.paths.ensemble_name == "pred-dg3"
+    assert (
+        runcontext.ensemble_path == fmurun_prehook / "share" / "ensemble" / "pred-dg3"
+    )
+
+
+def test_runcontext_explicit_ensemble_name_overrides_derived(
+    monkeypatch: MonkeyPatch, fmurun_w_casemetadata: Path
+) -> None:
+    """Explicit ensemble_name overrides the name derived from runpath."""
+    runcontext = RunContext(ensemble_name="custom-ensemble")
+
+    assert runcontext.paths.ensemble_name == "custom-ensemble"
+    assert runcontext.ensemble_path == (
+        runcontext.casepath / "share" / "ensemble" / "custom-ensemble"
+    )
