@@ -88,9 +88,10 @@ class FmuProvider(Provider):
         self._casemeta = runcontext.case_metadata
         self._fmu_context = runcontext.fmu_context
         self._env = FMUEnvironment.from_env()
-        self._real_id = self._env.realization_number or 0
+        self._realization_id = self._env.realization_number or 0
         self._ensemble_id = self._env.iteration_number or 0
-        self._ensemble_name, self._real_name = self._establish_ensemble_and_real_name()
+        self._ensemble_name = runcontext.paths.ensemble_name or ""
+        self._realization_name = runcontext.paths.realization_name or ""
 
     def get_metadata(self) -> fields.FMU:
         """Construct the metadata FMU block for an ERT forward job."""
@@ -122,29 +123,6 @@ class FmuProvider(Provider):
             ert=self._get_ert_meta(),
             entity=self._get_entity_meta(case_uuid),
         )
-
-    def _establish_ensemble_and_real_name(self) -> tuple[str, str]:
-        """
-        Establish the ensemble and real name from the runpath.
-        If no ensemble folder is found, the default name `iter-0` is used.
-        If the runpath and casepath is not set empty strings are returned.
-        """
-        if not (self._casepath and self._runpath):
-            return ("", "")
-
-        missing_ensemble_folder = self._casepath == self._runpath.parent
-        if not missing_ensemble_folder:
-            logger.debug("Ensemble folder found")
-            ensemble_name = self._runpath.name
-            real_name = self._runpath.parent.name
-        else:
-            logger.debug("No ensemble folder found, using default name iter-0")
-            ensemble_name = DEFAULT_ENSMEBLE_NAME
-            real_name = self._runpath.name
-
-        logger.debug("Found ensemble name from runpath: %s", ensemble_name)
-        logger.debug("Found real name from runpath: %s", real_name)
-        return ensemble_name, real_name
 
     def _get_ert_meta(self) -> fields.Ert | None:
         """Constructs the `Ert` Pydantic object for the `ert` metadata field."""
@@ -199,14 +177,14 @@ class FmuProvider(Provider):
     def _get_ensemble_and_real_uuid(self, case_uuid: UUID) -> tuple[UUID, UUID]:
         ensemble_uuid = _utils.uuid_from_string(f"{case_uuid}{self._ensemble_name}")
         real_uuid = _utils.uuid_from_string(
-            f"{case_uuid}{ensemble_uuid}{self._real_id}"
+            f"{case_uuid}{ensemble_uuid}{self._realization_id}"
         )
         return ensemble_uuid, real_uuid
 
     def _get_realization_meta(self, real_uuid: UUID) -> fields.Realization:
         return fields.Realization(
-            id=self._real_id,
-            name=self._real_name,
+            id=self._realization_id,
+            name=self._realization_name,
             uuid=real_uuid,
         )
 

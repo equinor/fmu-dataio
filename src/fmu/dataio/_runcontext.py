@@ -27,11 +27,13 @@ class FMUPaths:
         │   └── ensemble/                   # ensemble level exports
         │       ├── iter-0/
         │       │   └── share/results/...
-        │       └── iter-1/
+        │       ├── iter-1/
+        │       └── pred-dg3/
         ├── realization-0/
         │   ├── iter-0/                     # runpath (realization exports)
         │   │   └── share/results/...
-        │   └── iter-1/
+        │   ├── iter-1/
+        │   └── pred-dg3/                   # prediction ensemble
         └── realization-1/
 
     The paths stored here are export roots, meaning the share/results/... part is
@@ -41,6 +43,8 @@ class FMUPaths:
     casepath: Path | None = None  # casepath/
     ensemble_path: Path | None = None  # casepath/share/ensemble/iter-N
     runpath: Path | None = None  # casepath/realization-N/iter-N
+    ensemble_name: str | None = None  # iter-N or pred-dg3
+    realization_name: str | None = None  # realization-N
 
     def export_root_for_context(self, context: FMUContext) -> Path | None:
         """Get the export root that corresponds to the provided FMU context."""
@@ -208,14 +212,50 @@ class RunContext:
         casepath = self._find_valid_casepath(casepath_input, runpath)
 
         ensemble_path = None
-        if casepath and (iter_num := self._env.iteration_number) is not None:
-            ensemble_path = casepath / "share" / "ensemble" / f"iter-{iter_num}"
+        ensemble_name = None
+        realization_name = None
+
+        if casepath and runpath:
+            ensemble_name, realization_name = (
+                self._extract_ensemble_and_realization_name(casepath, runpath)
+            )
+            if ensemble_name:
+                ensemble_path = casepath / "share" / "ensemble" / ensemble_name
 
         return FMUPaths(
             casepath=casepath,
             ensemble_path=ensemble_path,
             runpath=runpath,
+            ensemble_name=ensemble_name,
+            realization_name=realization_name,
         )
+
+    def _extract_ensemble_and_realization_name(
+        self, casepath: Path, runpath: Path
+    ) -> tuple[str | None, str | None]:
+        """Extract ensemble and realization name from the runpath.
+
+        Handles two scenarios:
+            casepath/realization-N/iter-N    -> ("iter-N", "realization-N")
+            casepath/realization-N/          -> ("iter-0", "realization-N")
+        """
+        try:
+            rel_path = runpath.relative_to(casepath)
+        except ValueError:
+            return (None, None)
+
+        parts = rel_path.parts
+        if len(parts) >= 2:
+            realization_name = parts[0]
+            ensemble_name = parts[1]
+            return (ensemble_name, realization_name)
+
+        if len(parts) == 1:
+            realization_name = parts[0]
+            ensemble_name = "iter-0"
+            return (ensemble_name, realization_name)
+
+        return (None, None)
 
     def _find_valid_casepath(
         self,
