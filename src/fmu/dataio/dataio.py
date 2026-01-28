@@ -724,17 +724,21 @@ class ExportData:
         return str(absolute_path)
 
     def _export_with_standard_result(
-        self, obj: types.Inferrable, standard_result: StandardResult
+        self,
+        obj: types.Inferrable,
+        standard_result: StandardResult,
+        export_config: ExportConfig | None = None,
     ) -> str:
         """Export the object with standard result information in the metadata."""
 
-        if self._export_config.config is None:
+        cfg = export_config or self._export_config
+        if cfg.config is None:
             raise ValidationError(
                 "When exporting standard_results it is required to have a valid config."
             )
 
-        objdata = objectdata_provider_factory(obj, self._export_config, standard_result)
-        metadata = self._generate_export_metadata(objdata)
+        objdata = objectdata_provider_factory(obj, cfg, standard_result)
+        metadata = self._generate_export_metadata(objdata, cfg)
 
         outfile = Path(metadata["file"]["absolute_path"])
         metafile = outfile.parent / f".{outfile.name}.yml"
@@ -744,18 +748,21 @@ class ExportData:
 
         export_metadata_file(metafile, metadata)
 
-        if self._export_config.runcontext.inside_fmu:
-            update_export_manifest(
-                outfile, casepath=self._export_config.runcontext.casepath
-            )
+        if cfg.runcontext.inside_fmu:
+            update_export_manifest(outfile, casepath=cfg.runcontext.casepath)
 
         return str(outfile)
 
-    def _generate_export_metadata(self, objdata: ObjectDataProvider) -> dict[str, Any]:
+    def _generate_export_metadata(
+        self,
+        objdata: ObjectDataProvider,
+        export_config: ExportConfig | None = None,
+    ) -> dict[str, Any]:
         """Generate metadata for the provided ObjectDataProvider"""
+        cfg = export_config or self._export_config
         return generate_export_metadata(
             objdata=objdata,
-            export_config=self._export_config,
+            export_config=cfg,
         ).model_dump(mode="json", exclude_none=True, by_alias=True)
 
     # ==================================================================================

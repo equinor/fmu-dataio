@@ -1626,6 +1626,35 @@ def test_export_with_standard_result_invalid_config(mock_volumes: pd.DataFrame) 
         )
 
 
+def test_export_with_standard_result_custom_export_config(
+    fmurun_prehook: Path,
+    monkeypatch: MonkeyPatch,
+    mock_global_config: dict[str, Any],
+    mock_volumes: pd.DataFrame,
+) -> None:
+    """Custom export_config with ensemble_name can be passed."""
+    edata = ExportData(
+        config=mock_global_config,
+        content="volumes",
+        name="TopWhatever",
+        casepath=fmurun_prehook,
+        fmu_context="ensemble",
+    )
+
+    export_config = edata._export_config.with_ensemble_name("pred-dg3")
+
+    outpath = edata._export_with_standard_result(
+        mock_volumes,
+        standard_result=InplaceVolumesStandardResult(
+            name=StandardResultName.inplace_volumes
+        ),
+        export_config=export_config,
+    )
+
+    assert "pred-dg3" in outpath
+    assert fmurun_prehook / "share" / "ensemble" / "pred-dg3" in Path(outpath).parents
+
+
 def test_file_paths_realization_context(
     fmurun_w_casemetadata: Path,
     drogon_global_config: dict[str, Any],
