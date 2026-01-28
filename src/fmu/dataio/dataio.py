@@ -48,9 +48,6 @@ if TYPE_CHECKING:
 
 
 GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
-SETTINGS_ENVNAME: Final = (
-    "FMU_DATAIO_CONFIG"  # Feature deprecated, still used for user warning.
-)
 
 logger: Final = null_logger(__name__)
 
@@ -646,9 +643,6 @@ class ExportData:
         resolution = resolve_deprecations(
             # Objects with replacements
             config=self.config,
-            settings_envname=(
-                SETTINGS_ENVNAME if SETTINGS_ENVNAME in os.environ else None
-            ),
             # Arguments with replacements
             access_ssdl=self.access_ssdl or None,
             classification=self.classification,
