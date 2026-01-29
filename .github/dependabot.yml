@@ -4,7 +4,24 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-type: "all"
+    groups:
+      all-deps:
+        patterns:
+          - "*"
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-type: "all"
+    groups:
+      all-deps:
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "pyqt6"
+        versions: [">=6.10.0"]
+      - dependency-name: "urllib3"
+        versions: [">=2.7"]
