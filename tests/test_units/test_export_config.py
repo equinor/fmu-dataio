@@ -496,3 +496,34 @@ def test_export_config_is_immutable(mock_export_data: MagicMock) -> None:
 
         with pytest.raises(AttributeError):
             config.name = "new_name"  # type: ignore[misc]
+
+
+def test_export_config_with_ensemble_name(mock_export_data: MagicMock) -> None:
+    """with_ensemble_name returns new config with updated ensemble path."""
+    with patch("fmu.dataio._export_config.RunContext") as mock_runcontext:
+        mock_casepath = Path("/some/case")
+        mock_runcontext.return_value.fmu_context = None
+        mock_runcontext.return_value.casepath = mock_casepath
+        mock_runcontext.return_value.ensemble_path = None
+        mock_runcontext.return_value.paths.ensemble_name = None
+
+        config = ExportConfig.from_export_data(mock_export_data)
+
+        mock_runcontext.reset_mock()
+        mock_runcontext.return_value.casepath = mock_casepath
+        mock_runcontext.return_value.ensemble_path = (
+            mock_casepath / "share" / "ensemble" / "pred-dg3"
+        )
+        mock_runcontext.return_value.paths.ensemble_name = "pred-dg3"
+
+        new_config = config.with_ensemble_name("pred-dg3")
+
+        mock_runcontext.assert_called_once_with(
+            casepath_proposed=mock_casepath,
+            fmu_context=None,
+            ensemble_name="pred-dg3",
+        )
+
+        assert new_config is not config
+        assert new_config.name == config.name
+        assert new_config.content == config.content
