@@ -14,10 +14,10 @@ import pytest
 import yaml
 from ert.config import GenKwConfig
 from ert.config.distribution import DistributionSettings
-from fmu.datamodels.parameters import (
+from fmu.datamodels.standard_results.ert_parameters import (
     ConstParameter,
+    ErtParameterMetadata,
     LogUnifParameter,
-    ParameterMetadata,
     RawParameter,
     UniformParameter,
 )
@@ -389,7 +389,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
 
         distribution = "unknown distribution!"
         input_source = "unknown input source!"
-        parameter_metadata: type[ParameterMetadata] | None = None
+        parameter_metadata: type[ErtParameterMetadata] | None = None
         match group:
             case "MULTREGT":
                 distribution = "logunif"
@@ -445,15 +445,15 @@ def test_distribution_models_one_to_one_with_ert() -> None:
     properties of those distributions (min, max, std dev, ...)."""
 
     ert_types = get_args(get_args(DistributionSettings)[0])
-    datamodels_types = get_args(get_args(ParameterMetadata)[0])
+    datamodels_types = get_args(get_args(ErtParameterMetadata)[0])
 
-    def get_name(cls: DistributionSettings | ParameterMetadata) -> str:
+    def get_name(cls: DistributionSettings | ErtParameterMetadata) -> str:
         for field in ("name", "distribution"):
             if field in cls.model_fields:
                 return get_args(cls.model_fields[field].annotation)[0]
         raise ValueError("No 'name' or 'distribution' field")
 
-    def get_params(cls: DistributionSettings | ParameterMetadata) -> set[str]:
+    def get_params(cls: DistributionSettings | ErtParameterMetadata) -> set[str]:
         excluded = {"name", "distribution", "group", "input_source"}
         return {k for k in cls.model_fields if k not in excluded}
 
