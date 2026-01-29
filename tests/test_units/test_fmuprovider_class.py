@@ -93,8 +93,8 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(
 
     assert myfmu._casepath is not None
     assert myfmu._casepath.name == "ertrun1"
-    assert myfmu._real_name == "realization-0"
-    assert myfmu._real_id == 0
+    assert myfmu._realization_name == "realization-0"
+    assert myfmu._realization_id == 0
 
 
 def test_fmuprovider_arbitrary_iter_name(
@@ -109,8 +109,8 @@ def test_fmuprovider_arbitrary_iter_name(
 
     assert myfmu._casepath is not None
     assert myfmu._casepath.name == "ertrun1"
-    assert myfmu._real_name == "realization-0"
-    assert myfmu._real_id == 0
+    assert myfmu._realization_name == "realization-0"
+    assert myfmu._realization_id == 0
     assert myfmu._ensemble_name == "pred"
     # iter_id should have the default value
     assert myfmu._ensemble_id == 0
@@ -130,8 +130,8 @@ def test_fmuprovider_get_real_and_iter_from_env(
     assert myfmu._runpath == fmurun_non_equal_real_and_iter
     assert myfmu._casepath is not None
     assert myfmu._casepath.name == "ertrun1"
-    assert myfmu._real_name == "realization-1"
-    assert myfmu._real_id == 1
+    assert myfmu._realization_name == "realization-1"
+    assert myfmu._realization_id == 1
     assert myfmu._ensemble_name == "iter-0"
     assert myfmu._ensemble_id == 0
 
@@ -149,8 +149,8 @@ def test_fmuprovider_no_iter_folder(
     assert myfmu._runpath == fmurun_no_iter_folder
     assert myfmu._casepath == fmurun_no_iter_folder.parent
     assert myfmu._casepath.name == "ertrun1_no_iter"
-    assert myfmu._real_name == "realization-1"
-    assert myfmu._real_id == 1
+    assert myfmu._realization_name == "realization-1"
+    assert myfmu._realization_id == 1
     assert myfmu._ensemble_name == "iter-0"
     assert myfmu._ensemble_id == 0
 
@@ -203,7 +203,7 @@ def test_fmuprovider_prehook_case(
 
     assert myfmu._casepath is not None
     assert myfmu._casepath.name == "prehook"
-    assert myfmu._real_name == ""
+    assert myfmu._realization_name == ""
 
 
 def test_fmuprovider_detect_no_case_metadata(

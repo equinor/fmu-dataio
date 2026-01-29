@@ -194,3 +194,104 @@ def test_runcontext_outside(monkeypatch: MonkeyPatch) -> None:
 
     # exportroot should be the current working directory
     assert runcontext.exportroot == Path.cwd()
+
+
+@pytest.mark.parametrize(
+    ("context_override", "export_root"),
+    [
+        (FMUContext.case, "casepath"),
+        (FMUContext.realization, "runpath"),
+        (FMUContext.ensemble, "ensemble_path"),
+    ],
+)
+def test_runcontext_explicit_fmu_context_override(
+    monkeypatch: MonkeyPatch,
+    fmurun_w_casemetadata: Path,
+    context_override: FMUContext,
+    export_root: str,
+) -> None:
+    """Explicit fmu_context overrides env context."""
+    runcontext = RunContext(fmu_context=context_override)
+
+    assert runcontext.fmu_context == context_override
+    # exportroot should follow the override, not the environment
+    assert runcontext.exportroot == getattr(runcontext, export_root)
+
+
+def test_runcontext_ensemble_name_standard(
+    monkeypatch: MonkeyPatch, fmurun_w_casemetadata: Path
+) -> None:
+    """Ensemble name extraction for standard iter-N paths."""
+    runcontext = RunContext()
+
+    assert runcontext.paths.ensemble_name == "iter-0"
+    assert runcontext.paths.realization_name == "realization-0"
+    assert runcontext.ensemble_path == (
+        runcontext.casepath / "share" / "ensemble" / "iter-0"
+    )
+
+
+def test_runcontext_ensemble_name_prediction(
+    monkeypatch: MonkeyPatch, fmurun_w_casemetadata_pred: Path
+) -> None:
+    """Ensemble name extraction for prediction runs."""
+    runcontext = RunContext()
+
+    assert runcontext.paths.ensemble_name == "pred"
+    assert runcontext.paths.realization_name == "realization-0"
+    assert runcontext.ensemble_path == (
+        runcontext.casepath / "share" / "ensemble" / "pred"
+    )
+
+
+def test_runcontext_ensemble_name_flat_structure(
+    monkeypatch: MonkeyPatch, fmurun_no_iter_folder: Path
+) -> None:
+    """Ensemble name defaults to iter-0 when no ensemble folder exists."""
+    runcontext = RunContext()
+
+    assert runcontext.paths.ensemble_name == "iter-0"
+    assert runcontext.paths.realization_name == "realization-1"
+
+
+def test_extract_ensemble_and_realization_name_non_relative() -> None:
+    """Non-relative casepath/runpath returns Nones."""
+    runcontext = RunContext()
+    assert runcontext._extract_ensemble_and_realization_name(
+        Path("foo"), Path("bar")
+    ) == (None, None)
+
+
+def test_extract_ensemble_and_realization_name_no_parts() -> None:
+    """Non-relative casepath/runpath returns Nones."""
+    runcontext = RunContext()
+    assert runcontext._extract_ensemble_and_realization_name(
+        Path("foo"), Path("foo")
+    ) == (None, None)
+
+
+def test_runcontext_explicit_ensemble_name(
+    monkeypatch: MonkeyPatch, fmurun_prehook: Path
+) -> None:
+    """Explicit ensemble_name sets paths when runpath is unavailable."""
+    runcontext = RunContext(
+        casepath_proposed=fmurun_prehook,
+        ensemble_name="pred-dg3",
+    )
+
+    assert runcontext.paths.ensemble_name == "pred-dg3"
+    assert (
+        runcontext.ensemble_path == fmurun_prehook / "share" / "ensemble" / "pred-dg3"
+    )
+
+
+def test_runcontext_explicit_ensemble_name_overrides_derived(
+    monkeypatch: MonkeyPatch, fmurun_w_casemetadata: Path
+) -> None:
+    """Explicit ensemble_name overrides the name derived from runpath."""
+    runcontext = RunContext(ensemble_name="custom-ensemble")
+
+    assert runcontext.paths.ensemble_name == "custom-ensemble"
+    assert runcontext.ensemble_path == (
+        runcontext.casepath / "share" / "ensemble" / "custom-ensemble"
+    )

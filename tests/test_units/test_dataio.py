@@ -1626,6 +1626,35 @@ def test_export_with_standard_result_invalid_config(mock_volumes: pd.DataFrame) 
         )
 
 
+def test_export_with_standard_result_custom_export_config(
+    fmurun_prehook: Path,
+    monkeypatch: MonkeyPatch,
+    mock_global_config: dict[str, Any],
+    mock_volumes: pd.DataFrame,
+) -> None:
+    """Custom export_config with ensemble_name can be passed."""
+    edata = ExportData(
+        config=mock_global_config,
+        content="volumes",
+        name="TopWhatever",
+        casepath=fmurun_prehook,
+        fmu_context="ensemble",
+    )
+
+    export_config = edata._export_config.with_ensemble_name("pred-dg3")
+
+    outpath = edata._export_with_standard_result(
+        mock_volumes,
+        standard_result=InplaceVolumesStandardResult(
+            name=StandardResultName.inplace_volumes
+        ),
+        export_config=export_config,
+    )
+
+    assert "pred-dg3" in outpath
+    assert fmurun_prehook / "share" / "ensemble" / "pred-dg3" in Path(outpath).parents
+
+
 def test_file_paths_realization_context(
     fmurun_w_casemetadata: Path,
     drogon_global_config: dict[str, Any],
@@ -1669,6 +1698,58 @@ def test_file_paths_case_context(
     ).generate_metadata(regsurf)
 
     share_location = "share/results/maps/myname.gri"
+
+    assert "runpath_relative_path" not in meta["file"]
+    assert meta["file"]["relative_path"] == share_location
+    assert meta["file"]["absolute_path"] == str(casepath / share_location)
+
+
+def test_export_file_paths_ensemble_context(
+    fmurun_w_casemetadata: Path,
+    drogon_global_config: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
+    """Ensemble context resolves to correct path."""
+
+    casepath = fmurun_w_casemetadata.parent.parent
+
+    with pytest.warns(UserWarning, match="Did you mean fmu_context='realization'"):
+        export_data = ExportData(
+            config=drogon_global_config,
+            name="myname",
+            content="depth",
+            casepath=casepath,
+            fmu_context="ensemble",
+        )
+        meta = export_data.generate_metadata(regsurf)
+
+    share_location = "share/ensemble/iter-0/share/results/maps/myname.gri"
+
+    assert "runpath_relative_path" not in meta["file"]
+    assert meta["file"]["relative_path"] == share_location
+    assert meta["file"]["absolute_path"] == str(casepath / share_location)
+
+
+def test_export_file_paths_ensemble_context_pred(
+    fmurun_w_casemetadata_pred: Path,
+    drogon_global_config: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
+    """Ensemble context resolves to correct path with a prediction ensemble."""
+
+    casepath = fmurun_w_casemetadata_pred.parent.parent
+
+    with pytest.warns(UserWarning, match="Did you mean fmu_context='realization'"):
+        export_data = ExportData(
+            config=drogon_global_config,
+            name="myname",
+            content="depth",
+            casepath=casepath,
+            fmu_context="ensemble",
+        )
+        meta = export_data.generate_metadata(regsurf)
+
+    share_location = "share/ensemble/pred/share/results/maps/myname.gri"
 
     assert "runpath_relative_path" not in meta["file"]
     assert meta["file"]["relative_path"] == share_location
