@@ -22,9 +22,7 @@ import yaml
 from pydantic import TypeAdapter
 
 from fmu.dataio import CreateCaseMetadata
-from fmu.datamodels.parameters import (
-    ParameterMetadata,
-)
+from fmu.datamodels.standard_results.ert_parameters import ErtParameterMetadata
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -48,8 +46,8 @@ contents::
     <verbosity> (str): Set log level. Default: WARNING
 """
 
-ParameterMetadataAdapter: TypeAdapter[ParameterMetadata] = TypeAdapter(
-    ParameterMetadata
+ParameterMetadataAdapter: TypeAdapter[ErtParameterMetadata] = TypeAdapter(
+    ErtParameterMetadata
 )
 
 
@@ -99,7 +97,7 @@ def create_case_metadata_main(args: argparse.Namespace) -> None:
 
 def parameter_config_to_parameter_metadata(
     config: ert.config.ParameterConfig,
-) -> ParameterMetadata:
+) -> ErtParameterMetadata:
     distribution_dict = config.distribution.model_dump()
     distribution_dict["distribution"] = distribution_dict["name"]
     del distribution_dict["name"]
