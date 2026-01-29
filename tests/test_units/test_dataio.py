@@ -1675,6 +1675,58 @@ def test_file_paths_case_context(
     assert meta["file"]["absolute_path"] == str(casepath / share_location)
 
 
+def test_export_file_paths_ensemble_context(
+    fmurun_w_casemetadata: Path,
+    drogon_global_config: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
+    """Ensemble context resolves to correct path."""
+
+    casepath = fmurun_w_casemetadata.parent.parent
+
+    with pytest.warns(UserWarning, match="Did you mean fmu_context='realization'"):
+        export_data = ExportData(
+            config=drogon_global_config,
+            name="myname",
+            content="depth",
+            casepath=casepath,
+            fmu_context="ensemble",
+        )
+        meta = export_data.generate_metadata(regsurf)
+
+    share_location = "share/ensemble/iter-0/share/results/maps/myname.gri"
+
+    assert "runpath_relative_path" not in meta["file"]
+    assert meta["file"]["relative_path"] == share_location
+    assert meta["file"]["absolute_path"] == str(casepath / share_location)
+
+
+def test_export_file_paths_ensemble_context_pred(
+    fmurun_w_casemetadata_pred: Path,
+    drogon_global_config: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
+    """Ensemble context resolves to correct path with a prediction ensemble."""
+
+    casepath = fmurun_w_casemetadata_pred.parent.parent
+
+    with pytest.warns(UserWarning, match="Did you mean fmu_context='realization'"):
+        export_data = ExportData(
+            config=drogon_global_config,
+            name="myname",
+            content="depth",
+            casepath=casepath,
+            fmu_context="ensemble",
+        )
+        meta = export_data.generate_metadata(regsurf)
+
+    share_location = "share/ensemble/pred/share/results/maps/myname.gri"
+
+    assert "runpath_relative_path" not in meta["file"]
+    assert meta["file"]["relative_path"] == share_location
+    assert meta["file"]["absolute_path"] == str(casepath / share_location)
+
+
 def test_element_id_realization_context(
     fmurun_w_casemetadata: Path,
     drogon_global_config: dict[str, Any],
