@@ -29,8 +29,6 @@ from .exceptions import ValidationError
 from .preprocessed import ExportPreprocessedData
 
 if TYPE_CHECKING:
-    from fmu.datamodels.fmu_results.standard_results import StandardResult
-
     from . import types
 
 
@@ -695,21 +693,6 @@ class ExportData:
         self._resolve_deprecations()
         # Values have changed, so we need a new configuration.
         self._cached_export_config = ExportConfig.from_export_data(self)
-
-    # TODO: Do not use this internally.
-    def _export_with_standard_result(
-        self,
-        obj: types.Inferrable,
-        standard_result: StandardResult,
-        export_config: ExportConfig | None = None,
-    ) -> str:
-        export_service = ExportService(
-            export_config=export_config or self._export_config
-        )
-        export_path = export_service.export_with_metadata(
-            obj, standard_result=standard_result
-        )
-        return str(export_path)
 
     # ==================================================================================
     # Public methods:

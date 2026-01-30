@@ -6,6 +6,7 @@ from typing import Any, Final, Self
 import numpy as np
 
 import fmu.dataio as dio
+from fmu.dataio._export_service import ExportService
 from fmu.dataio._logging import null_logger
 from fmu.dataio._readers.tsurf import (
     AllowedKeywordValues,
@@ -16,9 +17,7 @@ from fmu.dataio._readers.tsurf import (
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
-from fmu.dataio.export.rms._utils import (
-    get_rms_project_units,
-)
+from fmu.dataio.export.rms._utils import get_rms_project_units
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import (
     Content,
@@ -85,7 +84,8 @@ class _ExportStructureDepthFaultSurfaces(SimpleExportRMSBase):
             rep_include=self._rep_include,
         )
 
-        absolute_export_path = edata._export_with_standard_result(
+        export_service = ExportService(export_config=edata._export_config)
+        absolute_export_path = export_service.export_with_metadata(
             surf, standard_result=self._standard_result
         )
         _logger.debug("Surface exported to: %s", absolute_export_path)

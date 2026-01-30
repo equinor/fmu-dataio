@@ -20,6 +20,7 @@ from fmu.datamodels.standard_results.enums import StandardResultName
 from pytest import MonkeyPatch
 
 from fmu.dataio._deprecations import DeprecationError
+from fmu.dataio._export_service import ExportService
 from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio._utils import (
     prettyprint_dict,
@@ -1600,13 +1601,15 @@ def test_export_with_standard_result_valid_config(
     meta = read_metadata(outpath)
     assert "standard_result" not in meta["data"]
 
+    export_service = ExportService(export_config=edata._export_config)
     # when using export_with_standard_result 'standard_result' should be set
-    outpath = edata._export_with_standard_result(
+    outpath_path = export_service.export_with_metadata(
         mock_volumes,
         standard_result=InplaceVolumesStandardResult(
             name=StandardResultName.inplace_volumes
         ),
     )
+    outpath = str(outpath_path)
     meta = read_metadata(outpath)
     assert (
         meta["data"]["standard_result"]["name"]
@@ -1622,8 +1625,9 @@ def test_export_with_standard_result_invalid_config(mock_volumes: pd.DataFrame) 
             content="volumes",
             name="TopWhatever",
         )
+    export_service = ExportService(export_config=edata._export_config)
     with pytest.raises(ValueError, match="config"):
-        edata._export_with_standard_result(
+        export_service.export_with_metadata(
             mock_volumes,
             standard_result=InplaceVolumesStandardResult(
                 name=StandardResultName.inplace_volumes
@@ -1647,16 +1651,16 @@ def test_export_with_standard_result_custom_export_config(
     )
 
     export_config = edata._export_config.with_ensemble_name("pred-dg3")
+    export_service = ExportService(export_config=export_config)
 
-    outpath = edata._export_with_standard_result(
+    outpath = export_service.export_with_metadata(
         mock_volumes,
         standard_result=InplaceVolumesStandardResult(
             name=StandardResultName.inplace_volumes
         ),
-        export_config=export_config,
     )
 
-    assert "pred-dg3" in outpath
+    assert "pred-dg3" in str(outpath)
     assert fmurun_prehook / "share" / "ensemble" / "pred-dg3" in Path(outpath).parents
 
 

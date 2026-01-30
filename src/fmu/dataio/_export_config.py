@@ -125,6 +125,10 @@ class ExportConfig:
         )
         return dataclasses.replace(self, runcontext=runcontext)
 
+    def with_polygons_file_format(self, file_format: str) -> Self:
+        """Returns a new ExportConfig with the polygons file format set explicitly."""
+        return dataclasses.replace(self, polygons_fformat=file_format)
+
     @classmethod
     def from_export_data(cls, dataio: ExportData) -> Self:
         """Create an ExportConfig from an ExportData instance.
