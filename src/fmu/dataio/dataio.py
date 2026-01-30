@@ -20,26 +20,13 @@ from ._deprecations import (
     future_warning_preprocessed,
     resolve_deprecations,
 )
-from ._export_config import (
-    ExportConfig,
-)
+from ._export_config import ExportConfig
+from ._export_service import ExportService
 from ._logging import null_logger
-from ._metadata import generate_export_metadata
-from ._utils import (
-    export_metadata_file,
-    export_object_to_file,
-    read_metadata_from_file,
-    some_config_from_env,
-)
+from ._utils import read_metadata_from_file, some_config_from_env
 from .case import CreateCaseMetadata
 from .exceptions import ValidationError
-from .manifest._manifest import update_export_manifest
 from .preprocessed import ExportPreprocessedData
-from .providers._filedata import SharePathConstructor
-from .providers.objectdata._provider import (
-    ObjectDataProvider,
-    objectdata_provider_factory,
-)
 
 if TYPE_CHECKING:
     from fmu.datamodels.fmu_results.standard_result import StandardResult
@@ -709,61 +696,20 @@ class ExportData:
         # Values have changed, so we need a new configuration.
         self._cached_export_config = ExportConfig.from_export_data(self)
 
-    def _export_without_metadata(self, obj: types.Inferrable) -> str:
-        """
-        Export the object without a metadata file. The absolute export path
-        is found using the FileDataProvider directly.
-        A string with full path to the exported item is returned.
-        """
-        objdata = objectdata_provider_factory(obj, self._export_config)
-        share_path = SharePathConstructor(self._export_config, objdata).get_share_path()
-
-        absolute_path = self._export_config.runcontext.exportroot / share_path
-
-        export_object_to_file(absolute_path, objdata.export_to_file)
-        return str(absolute_path)
-
+    # TODO: Do not use this internally.
     def _export_with_standard_result(
         self,
         obj: types.Inferrable,
         standard_result: StandardResult,
         export_config: ExportConfig | None = None,
     ) -> str:
-        """Export the object with standard result information in the metadata."""
-
-        cfg = export_config or self._export_config
-        if cfg.config is None:
-            raise ValidationError(
-                "When exporting standard_results it is required to have a valid config."
-            )
-
-        objdata = objectdata_provider_factory(obj, cfg, standard_result)
-        metadata = self._generate_export_metadata(objdata, cfg)
-
-        outfile = Path(metadata["file"]["absolute_path"])
-        metafile = outfile.parent / f".{outfile.name}.yml"
-
-        export_object_to_file(outfile, objdata.export_to_file)
-        logger.info("Actual file is:   %s", outfile)
-
-        export_metadata_file(metafile, metadata)
-
-        if cfg.runcontext.inside_fmu:
-            update_export_manifest(outfile, casepath=cfg.runcontext.casepath)
-
-        return str(outfile)
-
-    def _generate_export_metadata(
-        self,
-        objdata: ObjectDataProvider,
-        export_config: ExportConfig | None = None,
-    ) -> dict[str, Any]:
-        """Generate metadata for the provided ObjectDataProvider"""
-        cfg = export_config or self._export_config
-        return generate_export_metadata(
-            objdata=objdata,
-            export_config=cfg,
-        ).model_dump(mode="json", exclude_none=True, by_alias=True)
+        export_service = ExportService(
+            export_config=export_config or self._export_config
+        )
+        export_path = export_service.export_with_metadata(
+            obj, standard_result=standard_result
+        )
+        return str(export_path)
 
     # ==================================================================================
     # Public methods:
@@ -822,8 +768,8 @@ class ExportData:
                 is_observation=self._export_config.is_observation,
             ).generate_metadata(obj)
 
-        objdata = objectdata_provider_factory(obj, self._export_config)
-        return self._generate_export_metadata(objdata)
+        export_service = ExportService(export_config=self._export_config)
+        return export_service.generate_metadata(obj)
 
     def export(
         self,
@@ -872,6 +818,8 @@ class ExportData:
         logger.info("Object type is: %s", type(obj))
         self._apply_deprecated_kwargs(kwargs)
 
+        export_service = ExportService(export_config=self._export_config)
+
         if self._export_config.config is None:
             warnings.warn(
                 "Global configuration was not provided or was invalid. Because of this "
@@ -879,23 +827,8 @@ class ExportData:
                 "without metadata.",
                 UserWarning,
             )
-            return self._export_without_metadata(obj)
+            export_path = export_service.export_without_metadata(obj)
+        else:
+            export_path = export_service.export_with_metadata(obj)
 
-        objdata = objectdata_provider_factory(obj, self._export_config)
-        metadata = self._generate_export_metadata(objdata)
-
-        outfile = Path(metadata["file"]["absolute_path"])
-        metafile = outfile.parent / f".{outfile.name}.yml"
-
-        export_object_to_file(outfile, objdata.export_to_file)
-        logger.info("Actual file is:   %s", outfile)
-
-        export_metadata_file(metafile, metadata)
-        logger.info("Metadata file is: %s", metafile)
-
-        if self._export_config.runcontext.inside_fmu:
-            update_export_manifest(
-                outfile, casepath=self._export_config.runcontext.casepath
-            )
-
-        return str(outfile)
+        return str(export_path)
