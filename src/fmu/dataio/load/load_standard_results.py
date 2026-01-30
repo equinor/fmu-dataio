@@ -1,12 +1,14 @@
+import warnings
+from collections.abc import Callable
+from functools import wraps
 from io import BytesIO
 from pathlib import Path
-from typing import TypeAlias
+from typing import Any, TypeAlias
 
 import numpy as np
 import xtgeo
 from pandas import DataFrame
 
-from fmu.dataio.export._decorators import experimental
 from fmu.dataio.external_interfaces.schema_validation_interface import (
     SchemaValidationInterface,
 )
@@ -15,6 +17,21 @@ from fmu.datamodels.fmu_results.enums import ObjectMetadataClass
 from fmu.datamodels.standard_results.enums import StandardResultName
 
 DataFrameOrXtgeoObject: TypeAlias = DataFrame | xtgeo.Polygons | xtgeo.RegularSurface
+
+
+def experimental(func: Callable) -> Callable:
+    """Decorator to mark functions as experimental."""
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Callable:
+        warnings.warn(
+            f"{func.__name__} is experimental and may change in future versions.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 class StandardResultsLoader:

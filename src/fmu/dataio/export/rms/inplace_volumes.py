@@ -11,7 +11,6 @@ import pyarrow as pa
 import fmu.dataio as dio
 from fmu.dataio._export_service import ExportService
 from fmu.dataio._logging import null_logger
-from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._conditional_rms_imports import import_rms_package
@@ -396,7 +395,6 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         return self._validate_table()
 
 
-@experimental
 def export_inplace_volumes(
     project: Any,
     grid_name: str,
@@ -408,9 +406,6 @@ def export_inplace_volumes(
         project: The 'magic' project variable in RMS.
         grid_name: Name of 3D grid model in RMS.
         volume_job_name: Name of the volume job.
-
-    Note:
-        This function is experimental and may change in future versions.
 
     Examples:
         Example usage in an RMS script::

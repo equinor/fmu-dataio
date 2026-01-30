@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, Final
 import fmu.dataio as dio
 from fmu.dataio._export_service import ExportService
 from fmu.dataio._logging import null_logger
-from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import (
@@ -98,7 +97,6 @@ class _ExportStructureTimeSurfaces(SimpleExportRMSBase):
             validate_name_in_stratigraphy(surf.name, self._config)
 
 
-@experimental
 def export_structure_time_surfaces(
     project: Any,
     horizon_folder: str,
@@ -108,8 +106,6 @@ def export_structure_time_surfaces(
     Args:
         project: The 'magic' project variable in RMS.
         horizon_folder: Name of horizon folder in RMS.
-    Note:
-        This function is experimental and may change in future versions.
 
     Examples:
         Example usage in an RMS script::

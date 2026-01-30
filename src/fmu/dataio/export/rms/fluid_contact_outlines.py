@@ -7,7 +7,6 @@ import fmu.dataio as dio
 from fmu.dataio._export_service import ExportService
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
-from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import (
@@ -166,14 +165,11 @@ class _ExportFluidContactOutlines(SimpleExportRMSBase):
                     ) from err
 
 
-@experimental
 def export_fluid_contact_outlines(project: Any) -> ExportResult:
     """Simplified interface when exporting initial fluid contact outlines from RMS.
 
     Args:
         project: The 'magic' project variable in RMS.
-    Note:
-        This function is experimental and may change in future versions.
 
     Examples:
         Example usage in an RMS script::
