@@ -101,7 +101,9 @@ class FmuProvider(Provider):
         if case_meta is None:
             raise InvalidMetadataError("Missing casepath or case metadata.")
 
-        if self._fmu_context != FMUContext.realization:
+        case_uuid = case_meta.fmu.case.uuid
+
+        if self._fmu_context == FMUContext.case:
             return fields.FMU(
                 case=case_meta.fmu.case,
                 context=self._get_fmucontext_meta(),
@@ -110,8 +112,17 @@ class FmuProvider(Provider):
                 ert=self._get_ert_meta(),
             )
 
-        case_uuid = case_meta.fmu.case.uuid
         ensemble_uuid, real_uuid = self._get_ensemble_and_real_uuid(case_uuid)
+
+        if self._fmu_context == FMUContext.ensemble:
+            return fields.FMU(
+                case=case_meta.fmu.case,
+                context=self._get_fmucontext_meta(),
+                model=self.model or case_meta.fmu.model,
+                workflow=self.workflow,
+                ensemble=self._get_ensemble_meta(ensemble_uuid),
+                ert=self._get_ert_meta(),
+            )
 
         return fields.FMU(
             case=case_meta.fmu.case,
