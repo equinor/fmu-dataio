@@ -124,10 +124,7 @@ def test_public_export_function(
 
     from fmu.dataio.export.rms import export_structure_depth_fault_lines
 
-    with (
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
-    ):
-        out = export_structure_depth_fault_lines(mock_project_variable, "DS_extracted")
+    out = export_structure_depth_fault_lines(mock_project_variable, "DS_extracted")
 
     assert len(out.items) == 3
 
@@ -180,7 +177,6 @@ def test_stratigraphy_missing_raises(
             "fmu.dataio.export._base.load_config_from_path",
             return_value=mock_global_config,
         ),
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
         pytest.raises(ValueError, match=r"stratigraphy.*is lacking"),
     ):
         export_structure_depth_fault_lines(mock_project_variable, "DS_extracted")
@@ -199,10 +195,7 @@ def test_config_missing(
     # move up one directory to trigger not finding the config
     monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
-    with (
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
-        pytest.raises(FileNotFoundError, match="Could not detect"),
-    ):
+    with pytest.raises(FileNotFoundError, match="Could not detect"):
         export_structure_depth_fault_lines(mock_project_variable, "DS_extracted")
 
 
