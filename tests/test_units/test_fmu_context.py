@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from fmu.datamodels.fmu_results.enums import FMUContext
 
-from fmu.dataio._export_config import (
+from fmu.dataio._export_config_resolver import (
     _check_removed_fmu_context_options,
     _determine_effective_fmu_context,
     _handle_fmu_context_deprecations,
