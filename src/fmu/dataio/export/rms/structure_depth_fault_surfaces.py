@@ -14,7 +14,6 @@ from fmu.dataio._readers.tsurf import (
     Header,
     TSurfData,
 )
-from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import get_rms_project_units
@@ -166,7 +165,6 @@ def _get_fault_surfaces_from_rms(
     return fault_surfaces
 
 
-@experimental
 def export_structure_depth_fault_surfaces(
     project: Any, structural_model_name: str
 ) -> ExportResult:
@@ -176,8 +174,6 @@ def export_structure_depth_fault_surfaces(
     Args:
         project: the 'magic' project variable in RMS
         structural_model_name: name of the structural model
-    Note:
-        This function is experimental and may change in future versions.
 
     Examples:
         Example usage in an RMS script::

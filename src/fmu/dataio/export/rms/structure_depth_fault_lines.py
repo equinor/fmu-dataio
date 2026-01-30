@@ -7,7 +7,6 @@ import fmu.dataio as dio
 from fmu.dataio._export_service import ExportService
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
-from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import (
@@ -129,7 +128,6 @@ class _ExportStructureDepthFaultLines(SimpleExportRMSBase):
             self._raise_on_open_polygons(pol)
 
 
-@experimental
 def export_structure_depth_fault_lines(
     project: Any,
     horizon_folder: str,
@@ -139,8 +137,6 @@ def export_structure_depth_fault_lines(
     Args:
         project: The 'magic' project variable in RMS.
         horizon_folder: Name of horizon folder in RMS.
-    Note:
-        This function is experimental and may change in future versions.
 
     Examples:
         Example usage in an RMS script::

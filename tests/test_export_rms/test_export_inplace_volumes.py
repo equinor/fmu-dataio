@@ -143,12 +143,9 @@ def test_no_grid_raises(
 
     missing_grid_name = "nonexistent_grid"
 
-    with (
-        pytest.raises(
-            ValueError,
-            match=f"No grid model with name '{missing_grid_name}' exists.",
-        ),
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
+    with pytest.raises(
+        ValueError,
+        match=f"No grid model with name '{missing_grid_name}' exists.",
     ):
         export_inplace_volumes(
             mock_project_variable,
@@ -172,13 +169,10 @@ def test_no_volume_job_for_grid_raises(
     grid_name = "Geogrid"
     missing_volume_job_name = "nonexistent_volume_job"
 
-    with (
-        pytest.raises(
-            ValueError,
-            match=f"No volume job with name '{missing_volume_job_name}' "
-            f"exists for grid model named '{grid_name}'",
-        ),
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
+    with pytest.raises(
+        ValueError,
+        match=f"No volume job with name '{missing_volume_job_name}' "
+        f"exists for grid model named '{grid_name}'",
     ):
         export_inplace_volumes(
             mock_project_variable,
@@ -624,16 +618,12 @@ def test_rms_volumetrics_export_rmsapi_requirement(
 
     # mock the rmsapi version to be lower than 1.10
     mocked_rmsapi_modules["rmsapi"].__version__ = "1.9"
-    with (
-        pytest.raises(RuntimeError, match="RMS 14.2"),
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
-    ):
+    with pytest.raises(RuntimeError, match="RMS 14.2"):
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_vol")
 
     # no error should be raised if the version is 1.10 or higher
     mocked_rmsapi_modules["rmsapi"].__version__ = "1.10"
-    with pytest.warns(UserWarning, match="is experimental and may change in future"):
-        export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_vol")
+    export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_vol")
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -648,7 +638,6 @@ def test_rms_volumetrics_export_config_invalid(
     with (
         mock.patch("fmu.dataio.export._base.load_config_from_path", return_value={}),
         pytest.raises(ValueError, match="valid config"),
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
     ):
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
 
@@ -667,10 +656,7 @@ def test_rms_volumetrics_export_config_missing(
     # move up one directory to trigger not finding the config
     monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
-    with (
-        pytest.raises(FileNotFoundError, match="Could not detect"),
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
-    ):
+    with pytest.raises(FileNotFoundError, match="Could not detect"):
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
 
 
@@ -689,13 +675,10 @@ def test_rms_volumetrics_export_function(
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
-    with (
-        mock.patch.object(
-            _ExportVolumetricsRMS,
-            "_get_table_with_volumes",
-            return_value=voltable_standard,
-        ),
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
+    with mock.patch.object(
+        _ExportVolumetricsRMS,
+        "_get_table_with_volumes",
+        return_value=voltable_standard,
     ):
         result = export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_vol")
     vol_table_file = result.items[0].absolute_path
