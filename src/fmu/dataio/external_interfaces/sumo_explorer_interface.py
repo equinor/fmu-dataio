@@ -30,7 +30,7 @@ class SumoExplorerInterface:
         sumo = Explorer(env=env)
         case = sumo.get_case_by_uuid(self._case_id)
         self._search_context: SearchContext = case.filter(
-            iteration=self._ensemble_name, standard_result=standard_result_name
+            ensemble=self._ensemble_name, standard_result=standard_result_name
         )
 
     def _get_formatted_data(
