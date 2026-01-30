@@ -95,10 +95,7 @@ def test_public_export_function(
 
     struct_mod_name = next(iter(mock_structural_model))
 
-    with pytest.warns(UserWarning, match="is experimental and may change in future"):
-        out = export_structure_depth_fault_surfaces(
-            mock_project_variable, struct_mod_name
-        )
+    out = export_structure_depth_fault_surfaces(mock_project_variable, struct_mod_name)
 
     # Check that all fault surfaces are exported
     assert len(out.items) == 6
@@ -131,10 +128,7 @@ def test_config_missing(
     from fmu.dataio.export.rms import export_structure_depth_fault_surfaces
 
     struct_mod_name = next(iter(mock_structural_model))
-    with (
-        pytest.raises(FileNotFoundError, match="Could not detect"),
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
-    ):
+    with pytest.raises(FileNotFoundError, match="Could not detect"):
         export_structure_depth_fault_surfaces(
             mock_project_variable,
             struct_mod_name,
@@ -157,11 +151,8 @@ def test_unknown_structural_model_name_raises(
 
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
-    with (
-        pytest.raises(
-            ValueError, match="Project does not contain a structural model named"
-        ),
-        pytest.warns(UserWarning, match="is experimental and may change in future"),
+    with pytest.raises(
+        ValueError, match="Project does not contain a structural model named"
     ):
         export_structure_depth_fault_surfaces(
             mock_project_variable,
