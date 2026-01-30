@@ -4,6 +4,7 @@ import logging
 import pathlib
 import sys
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
 
@@ -21,7 +22,6 @@ from pytest import MonkeyPatch
 from fmu.dataio._deprecations import DeprecationError
 from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio._utils import (
-    convert_datestr_to_isoformat,
     prettyprint_dict,
     uuid_from_string,
 )
@@ -31,6 +31,11 @@ from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE
 # pylint: disable=no-member
 
 logger = logging.getLogger(__name__)
+
+
+def convert_datestr_to_isoformat(value: str, format: str = "%Y%m%d") -> str:
+    """Convert a date string to ISO formatted string"""
+    return datetime.strptime(value, format).isoformat()
 
 
 def test_generate_metadata_simple(mock_global_config: dict[str, Any]) -> None:

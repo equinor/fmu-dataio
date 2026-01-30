@@ -1,89 +1,16 @@
 """Test the utils module"""
 
-import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-import numpy as np
 import pytest
 from fmu.datamodels.common.access import Access
 from fmu.datamodels.common.tracklog import Tracklog
 from fmu.datamodels.fmu_results import fields
-from xtgeo import Grid, Polygons, RegularSurface
 
 from fmu.dataio import _utils as utils
 
 from ..utils import _get_pydantic_models_from_annotation
-
-
-@pytest.mark.parametrize(
-    "value, result",
-    [
-        (None, None),
-        ("0", 0),
-        ("1", 1),
-        ("1.0", 1.0),
-        ("0.0", 0.0),
-        ("-1", -1),
-        ("-1.0", -1.0),
-        ("-999", -999),
-        ("-999.12345678", -999.12345678),
-        ("9999999999999999", 9999999999999999),
-        ("abc", "abc"),
-        (False, False),
-        (True, True),
-    ],
-)
-def test_check_if_number(value: str | None, result: str | int | float | None) -> None:
-    assert utils.check_if_number(value) == result
-
-
-def test_get_object_name() -> None:
-    assert utils.get_object_name(object()) is None
-
-    assert utils.get_object_name(RegularSurface(0, 0, 0, 0)) is None
-    assert utils.get_object_name(RegularSurface(0, 0, 0, 0, name="unknown")) is None
-    assert (
-        utils.get_object_name(RegularSurface(0, 0, 0, 0, name="Not ukn")) == "Not ukn"
-    )
-
-    assert utils.get_object_name(Polygons()) is None
-    assert utils.get_object_name(Polygons(name="poly")) is None
-    assert utils.get_object_name(Polygons(name="Not poly")) == "Not poly"
-
-    rng = np.random.default_rng()
-    assert (
-        utils.get_object_name(
-            Grid(
-                rng.standard_normal((2, 2, 6)).astype(np.float64),
-                rng.standard_normal((2, 2, 2, 4)).astype(np.float32),
-                rng.standard_normal((1, 1, 1)).astype(np.int32),
-            )
-        )
-        is None
-    )
-    assert (
-        utils.get_object_name(
-            Grid(
-                rng.standard_normal((2, 2, 6)).astype(np.float64),
-                rng.standard_normal((2, 2, 2, 4)).astype(np.float32),
-                rng.standard_normal((1, 1, 1)).astype(np.int32),
-                name="noname",
-            )
-        )
-        is None
-    )
-    assert (
-        utils.get_object_name(
-            Grid(
-                rng.standard_normal((2, 2, 6)).astype(np.float64),
-                rng.standard_normal((2, 2, 2, 4)).astype(np.float32),
-                rng.standard_normal((1, 1, 1)).astype(np.int32),
-                name="Not noname",
-            )
-        )
-        == "Not noname"
-    )
 
 
 def test_non_metadata_export_metadata_file() -> None:
@@ -101,13 +28,6 @@ def test_export_file_raises() -> None:
             Path(tf.name),
             ".placeholder",
         )
-
-
-def test_read_named_envvar() -> None:
-    assert utils.read_named_envvar("DONTEXIST") is None
-
-    os.environ["MYTESTENV"] = "mytestvalue"
-    assert utils.read_named_envvar("MYTESTENV") == "mytestvalue"
 
 
 def test_get_pydantic_models_from_annotation():
