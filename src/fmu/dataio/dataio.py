@@ -29,7 +29,7 @@ from .exceptions import ValidationError
 from .preprocessed import ExportPreprocessedData
 
 if TYPE_CHECKING:
-    from fmu.datamodels.fmu_results.standard_result import StandardResult
+    from fmu.datamodels.fmu_results.standard_results import StandardResult
 
     from . import types
 
