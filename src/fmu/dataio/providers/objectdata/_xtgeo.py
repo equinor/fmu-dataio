@@ -3,16 +3,17 @@ from __future__ import annotations
 import warnings
 from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Any, Final
 
 import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
+import xtgeo
 
 from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import get_geometry_ref, npfloat_to_float
+from fmu.dataio._utils import read_metadata_from_file
 from fmu.dataio.exceptions import ConfigurationError
 from fmu.datamodels.fmu_results.data import BoundingBox2D, BoundingBox3D, Geometry
 from fmu.datamodels.fmu_results.enums import FileFormat, Layout, ObjectMetadataClass
@@ -34,11 +35,55 @@ if TYPE_CHECKING:
     from io import BytesIO
 
     import pandas as pd
-    import xtgeo
 
+    from fmu.dataio.types import Inferrable
     from fmu.datamodels.fmu_results.standard_result import StandardResult
 
 logger: Final = null_logger(__name__)
+
+
+def npfloat_to_float(v: Any) -> Any:
+    return float(v) if isinstance(v, np.float64 | np.float32) else v
+
+
+def get_geometry_ref(geometrypath: Path, obj: Inferrable) -> Geometry | None:
+    """Get a reference to a geometry.
+
+    Read the metadata file for an already exported file, and returns info like this
+    for the data block:
+
+    data:
+      geometry:
+        name: somename
+        relative_path: some_relative/path/geometry.roff
+
+    This means that the geometry may be 'located' both on disk (relative path) and in
+    Sumo
+    """
+
+    if not geometrypath.exists():
+        raise FileNotFoundError(
+            f"The 'geometry'={geometrypath} is not a path to an existing file. "
+            "Ensure it points to an exported grid object."
+        )
+    try:
+        gmeta = read_metadata_from_file(geometrypath)
+    except OSError as err:
+        raise FileNotFoundError(
+            f"Could not detect a metadata file for 'geometry'='{geometrypath}'. "
+        ) from err
+
+    # some basic checks (may be exteneded to e.g. match on NCOL, NROW, ...?)
+    if isinstance(obj, xtgeo.GridProperty) and gmeta["class"] != "cpgrid":
+        raise ValueError("The geometry for a grid property must be a grid")
+
+    if isinstance(obj, xtgeo.RegularSurface) and gmeta["class"] != "surface":
+        raise ValueError("The geometry for a surface must be another surface")
+
+    geom_name = gmeta["data"].get("name", "")
+    relpath = gmeta["file"]["relative_path"]
+
+    return Geometry(name=geom_name, relative_path=relpath)
 
 
 def lack_of_geometry_warn() -> None:

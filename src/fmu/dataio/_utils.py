@@ -2,18 +2,15 @@
 
 from __future__ import annotations
 
-import contextlib
 import hashlib
 import json
 import os
 import shlex
 import uuid
 from collections.abc import Callable
-from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final
 
-import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -21,7 +18,6 @@ import xtgeo
 import yaml
 
 from fmu.config import utilities as ut
-from fmu.datamodels.fmu_results.data import Geometry
 
 from ._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from ._logging import null_logger
@@ -36,15 +32,6 @@ if TYPE_CHECKING:
 
 
 logger: Final = null_logger(__name__)
-
-
-def npfloat_to_float(v: Any) -> Any:
-    return float(v) if isinstance(v, np.float64 | np.float32) else v
-
-
-def dataio_examples() -> bool:
-    # This flag is set when the `run-exmaples.sh` script runs.
-    return "RUN_DATAIO_EXAMPLES" in os.environ
 
 
 def export_metadata_file(file: Path, metadata: dict) -> None:
@@ -187,11 +174,6 @@ def compute_md5_and_size_from_objdata(objdata: ObjectDataProvider) -> tuple[str,
         return objdata.compute_md5_and_size_using_temp_file()
 
 
-def size(fname: str) -> int:
-    """Size of file, in bytes"""
-    return Path(fname).stat().st_size
-
-
 def uuid_from_string(string: str) -> uuid.UUID:
     """Produce valid and repeteable UUID4 as a hash of given string"""
     return uuid.UUID(hashlib.md5(string.encode("utf-8")).hexdigest())
@@ -212,12 +194,23 @@ def read_parameters_txt(pfile: Path | str) -> types.Parameters:
 
     res: types.Parameters = {}
 
+    def parse_value(value: str | None) -> int | float | str | None:
+        if value is None:
+            return None
+        try:
+            return int(value)
+        except ValueError:
+            try:
+                return float(value)
+            except ValueError:
+                return value
+
     with open(pfile, encoding="utf-8") as f:
         for line in f:
             line_parts = shlex.split(line)
             if len(line_parts) == 2:
                 key, value = line_parts
-                res[key] = check_if_number(value)
+                res[key] = parse_value(value)
             else:
                 raise ValueError(
                     "The parameters.txt file can only contain two elements per line."
@@ -225,54 +218,6 @@ def read_parameters_txt(pfile: Path | str) -> types.Parameters:
                 )
 
     return res
-
-
-def check_if_number(value: str | None) -> int | float | str | None:
-    """Check if value (str) looks like a number and return the converted value."""
-
-    if value is None:
-        return None
-
-    with contextlib.suppress(ValueError):
-        return int(value)
-
-    with contextlib.suppress(ValueError):
-        return float(value)
-
-    return value
-
-
-def get_object_name(obj: Path) -> str | None:
-    """Get the name of the object.
-
-    If not possible, return None.
-    If result is 'unknown', return None (XTgeo defaults)
-    If object is a polygon, and object name is 'poly', return None (XTgeo defaults)
-    If object is a grid, and object name is 'noname', return None (XTgeo defaults)
-
-    """
-
-    logger.debug("Getting name from the data object itself")
-
-    try:
-        name = obj.name
-    except AttributeError:
-        logger.info("display.name could not be set")
-        return None
-
-    if isinstance(obj, xtgeo.RegularSurface) and name == "unknown":
-        logger.debug("Got 'unknown' as name from a surface object, returning None")
-        return None
-
-    if isinstance(obj, xtgeo.Polygons) and name == "poly":
-        logger.debug("Got 'poly' as name from a polygons object, returning None")
-        return None
-
-    if isinstance(obj, xtgeo.Grid) and name == "noname":
-        logger.debug("Got 'noname' as name from grids object, returning None")
-        return None
-
-    return name
 
 
 def prettyprint_dict(inp: dict) -> str:
@@ -300,11 +245,6 @@ def some_config_from_env(envvar: str = "FMU_GLOBAL_CONFIG") -> dict | None:
         ) from e
 
 
-def read_named_envvar(envvar: str) -> str | None:
-    """Read a specific (named) environment variable."""
-    return os.environ.get(envvar, None)
-
-
 def read_metadata_from_file(filename: str | Path) -> dict:
     """Read the metadata as a dictionary given a filename.
 
@@ -329,46 +269,6 @@ def read_metadata_from_file(filename: str | Path) -> dict:
         return yaml.safe_load(stream)
 
 
-def get_geometry_ref(geometrypath: Path, obj: Any) -> Geometry | None:
-    """Get a reference to a geometry.
-
-    Read the metadata file for an already exported file, and returns info like this
-    for the data block:
-
-    data:
-      geometry:
-        name: somename
-        relative_path: some_relative/path/geometry.roff
-
-    This means that the geometry may be 'located' both on disk (relative path) and in
-    Sumo
-    """
-
-    if not geometrypath.exists():
-        raise FileNotFoundError(
-            f"The 'geometry'={geometrypath} is not a path to an existing file. "
-            "Ensure it points to an exported grid object."
-        )
-    try:
-        gmeta = read_metadata_from_file(geometrypath)
-    except OSError as err:
-        raise FileNotFoundError(
-            f"Could not detect a metadata file for 'geometry'='{geometrypath}'. "
-        ) from err
-
-    # some basic checks (may be exteneded to e.g. match on NCOL, NROW, ...?)
-    if isinstance(obj, xtgeo.GridProperty) and gmeta["class"] != "cpgrid":
-        raise ValueError("The geometry for a grid property must be a grid")
-
-    if isinstance(obj, xtgeo.RegularSurface) and gmeta["class"] != "surface":
-        raise ValueError("The geometry for a surface must be another surface")
-
-    geom_name = gmeta["data"].get("name", "")
-    relpath = gmeta["file"]["relative_path"]
-
-    return Geometry(name=geom_name, relative_path=relpath)
-
-
 def load_config_from_path(config_path: Path) -> dict[str, Any]:
     """Retrieve the global config data by reading the global config file."""
     logger.debug("Set global config...")
@@ -387,8 +287,3 @@ def load_config_from_path(config_path: Path) -> dict[str, Any]:
         )
 
     return config
-
-
-def convert_datestr_to_isoformat(value: str, format: str = "%Y%m%d") -> str:
-    """Convert a date string to ISO formatted string"""
-    return datetime.strptime(value, format).isoformat()
