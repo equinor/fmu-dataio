@@ -20,6 +20,7 @@ import yaml
 from pydantic import TypeAdapter
 
 from fmu.dataio import CreateCaseMetadata, ExportData
+from fmu.dataio._export_service import ExportService
 from fmu.datamodels import ErtParameterMetadata
 from fmu.datamodels.fmu_results.standard_result import ErtParametersStandardResult
 from fmu.datamodels.standard_results.enums import StandardResultName
@@ -184,16 +185,16 @@ def export_ert_parameters(
     )
 
     export_config = ed._export_config.with_ensemble_name(ensemble.name)
+    export_service = ExportService(export_config=export_config)
 
-    export_path = ed._export_with_standard_result(
+    export_path = export_service.export_with_metadata(
         table,
-        ErtParametersStandardResult(name=StandardResultName.parameters),
-        export_config,
+        standard_result=ErtParametersStandardResult(name=StandardResultName.parameters),
     )
 
     logger.info(f"Exported parameters for realizations {realizations} to {export_path}")
 
-    return Path(export_path)
+    return export_path
 
 
 def create_case_metadata(
@@ -319,6 +320,7 @@ def _main() -> None:
     """
     parser = get_parser()
     args = parser.parse_args()
+    check_arguments(args)
     global_config_path = args.ert_config_path / args.global_variables_path
     global_config = _load_global_config(global_config_path)
     create_case_metadata(global_config, args.ert_caseroot, args.ert_casename, args.sumo)

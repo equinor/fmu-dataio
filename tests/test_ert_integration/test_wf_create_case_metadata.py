@@ -766,3 +766,5 @@ def test_create_case_metadata_expects_parameters_standard_result_integration(
     assert metadata_dict["data"]["table_index"] == ["realization"]
     assert "fmu" in metadata_dict
     assert metadata_dict["fmu"]["context"]["stage"] == "ensemble"
+    assert metadata_dict["fmu"]["ensemble"] is not None
+    assert metadata_dict["fmu"]["ensemble"]["name"] == "default"
