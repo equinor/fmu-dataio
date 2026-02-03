@@ -20,7 +20,7 @@ from fmu.datamodels.standard_results.enums import StandardResultName
 from pytest import MonkeyPatch
 
 from fmu.dataio._deprecations import DeprecationError
-from fmu.dataio._export_service import ExportService
+from fmu.dataio._export import export_with_metadata
 from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio._utils import (
     prettyprint_dict,
@@ -1669,9 +1669,9 @@ def test_export_with_standard_result_valid_config(
     meta = read_metadata(outpath)
     assert "standard_result" not in meta["data"]
 
-    export_service = ExportService(export_config=edata._export_config)
     # when using export_with_standard_result 'standard_result' should be set
-    outpath_path = export_service.export_with_metadata(
+    outpath_path = export_with_metadata(
+        edata._export_config,
         mock_volumes,
         standard_result=InplaceVolumesStandardResult(
             name=StandardResultName.inplace_volumes
@@ -1693,9 +1693,9 @@ def test_export_with_standard_result_invalid_config(mock_volumes: pd.DataFrame) 
             content="volumes",
             name="TopWhatever",
         )
-    export_service = ExportService(export_config=edata._export_config)
     with pytest.raises(ValueError, match="config"):
-        export_service.export_with_metadata(
+        export_with_metadata(
+            edata._export_config,
             mock_volumes,
             standard_result=InplaceVolumesStandardResult(
                 name=StandardResultName.inplace_volumes
@@ -1719,9 +1719,8 @@ def test_export_with_standard_result_custom_export_config(
     )
 
     export_config = edata._export_config.with_ensemble_name("pred-dg3")
-    export_service = ExportService(export_config=export_config)
-
-    outpath = export_service.export_with_metadata(
+    outpath = export_with_metadata(
+        export_config,
         mock_volumes,
         standard_result=InplaceVolumesStandardResult(
             name=StandardResultName.inplace_volumes

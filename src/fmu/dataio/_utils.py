@@ -7,7 +7,6 @@ import json
 import os
 import shlex
 import uuid
-from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final
 
@@ -34,24 +33,6 @@ if TYPE_CHECKING:
 logger: Final = null_logger(__name__)
 
 
-def export_metadata_file(file: Path, metadata: dict) -> None:
-    """Export genericly and ordered to the complementary metadata file."""
-    if not metadata:
-        raise RuntimeError(
-            "Export of metadata was requested, but no metadata are present."
-        )
-
-    with open(file, "w", encoding="utf8") as stream:
-        stream.write(
-            yaml.safe_dump(
-                metadata,
-                allow_unicode=True,
-            )
-        )
-
-    logger.info("Yaml file on: %s", file)
-
-
 def casepath_has_metadata(casepath: Path) -> bool:
     """Check if a proposed casepath has a metadata file"""
     if (casepath / ERT_RELATIVE_CASE_METADATA_FILE).exists():
@@ -59,20 +40,6 @@ def casepath_has_metadata(casepath: Path) -> bool:
         return True
     logger.debug("Did not find metadata for proposed casepath <%s>", casepath)
     return False
-
-
-def export_object_to_file(
-    file: Path | BytesIO,
-    object_export_function: Callable[[Path | BytesIO], None],
-) -> None:
-    """
-    Export a object to file or memory buffer using a provided export function.
-    """
-
-    if isinstance(file, Path):
-        file.parent.mkdir(parents=True, exist_ok=True)
-
-    object_export_function(file)
 
 
 # TODO: Remove this function when AggregatedData.export() is removed

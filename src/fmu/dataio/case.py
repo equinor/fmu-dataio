@@ -16,7 +16,7 @@ from fmu.datamodels.common.tracklog import Tracklog, User
 from fmu.datamodels.fmu_results import enums, fields, global_configuration
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
-from . import _utils
+from ._export import export_metadata_file
 from ._logging import null_logger
 
 logger: Final = null_logger(__name__)
@@ -156,6 +156,6 @@ class CreateCaseMetadata:
             Full path of metadata file.
         """
         if self.generate_metadata():
-            _utils.export_metadata_file(self._metafile, self._metadata)
+            export_metadata_file(self._metafile, self._metadata)
             logger.info("METAFILE %s", self._metafile)
         return str(self._metafile)

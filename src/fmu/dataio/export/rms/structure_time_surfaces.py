@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final
 
 import fmu.dataio as dio
-from fmu.dataio._export_service import ExportService
+from fmu.dataio._export import export_with_metadata
 from fmu.dataio._logging import null_logger
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
@@ -73,9 +73,8 @@ class _ExportStructureTimeSurfaces(SimpleExportRMSBase):
             rep_include=self._rep_include,
         )
 
-        export_service = ExportService(export_config=edata._export_config)
-        absolute_export_path = export_service.export_with_metadata(
-            surf, standard_result=self._standard_result
+        absolute_export_path = export_with_metadata(
+            edata._export_config, surf, standard_result=self._standard_result
         )
         _logger.debug("Surface exported to: %s", absolute_export_path)
 

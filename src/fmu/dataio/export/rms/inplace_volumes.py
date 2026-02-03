@@ -9,7 +9,7 @@ import pandas as pd
 import pyarrow as pa
 
 import fmu.dataio as dio
-from fmu.dataio._export_service import ExportService
+from fmu.dataio._export import export_with_metadata
 from fmu.dataio._logging import null_logger
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
@@ -374,9 +374,9 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
 
         volume_table = pa.Table.from_pandas(self._dataframe)
 
-        export_service = ExportService(export_config=edata._export_config)
         # export the volume table with standard result info in the metadata
-        absolute_export_path = export_service.export_with_metadata(
+        absolute_export_path = export_with_metadata(
+            edata._export_config,
             volume_table,
             standard_result=self._standard_result,
         )

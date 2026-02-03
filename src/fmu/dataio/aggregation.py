@@ -9,6 +9,8 @@ from typing import ClassVar, Final, Literal
 from pydantic import ValidationError
 
 from fmu.dataio import types
+from fmu.dataio._export import export_metadata_file
+from fmu.dataio._utils import export_file
 from fmu.dataio.version import __version__
 from fmu.datamodels.common.tracklog import Tracklog
 from fmu.datamodels.fmu_results.enums import FMUContext
@@ -401,9 +403,9 @@ class AggregatedData:
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
         logger.info("Export to file and export metadata file.")
-        _utils.export_file(obj, outfile)
+        export_file(obj, outfile)
 
-        _utils.export_metadata_file(metafile, metadata)
+        export_metadata_file(metafile, metadata)
         logger.info("Actual file is:   %s", outfile)
         logger.info("Metadata file is: %s", metafile)
 
