@@ -491,6 +491,74 @@ def test_unit_is_none(
     assert meta["data"]["unit"] == ""
 
 
+def test_smda_entity_for_statigraphic_true(
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
+    """Test that smda_entity is set for stratigraphic surface"""
+    smda_name = "VOLANTIS GP. Top"
+    rms_name = "TopVolantis"
+
+    stratigraphy = drogon_global_config["stratigraphy"]
+    assert rms_name in stratigraphy
+    assert stratigraphy[rms_name]["stratigraphic"] is True
+    assert stratigraphy[rms_name]["name"] == smda_name
+
+    # Make sure the surface's name is set to RMS name
+    regsurf.name = rms_name
+
+    eobj = ExportData(config=drogon_global_config, content="depth")
+    meta = eobj.generate_metadata(regsurf)
+
+    assert meta["data"]["name"] == smda_name
+    assert meta["data"]["stratigraphic"] is True
+    assert meta["data"]["smda_entity"]["identifier"] == smda_name
+    assert "uuid" not in meta["data"]["smda_entity"]
+
+
+def test_smda_entity_for_statigraphic_false(
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
+    """Test that smda_entity is not set for stratigraphic surface"""
+    smda_name = "VOLANTIS GP. Top"
+    rms_name = "TopVolantis"
+
+    stratigraphy = drogon_global_config["stratigraphy"]
+    assert rms_name in stratigraphy
+    stratigraphy[rms_name]["stratigraphic"] = False
+
+    assert stratigraphy[rms_name]["name"] == smda_name
+
+    # Make sure the surface's name is set to RMS name
+    regsurf.name = rms_name
+
+    eobj = ExportData(config=drogon_global_config, content="depth")
+    meta = eobj.generate_metadata(regsurf)
+
+    assert meta["data"]["name"] == smda_name
+    assert meta["data"]["stratigraphic"] is False
+    assert "smda_entity" not in meta["data"]
+
+
+def test_smda_entity_not_set_for_unknown_surface(
+    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
+) -> None:
+    """Test that smda_entity is not set for surface that is not in smda"""
+    rms_name = "TopDummy"
+
+    stratigraphy = drogon_global_config["stratigraphy"]
+    assert rms_name not in stratigraphy
+
+    # Make sure the surface's name is set to RMS name
+    regsurf.name = rms_name
+
+    eobj = ExportData(config=drogon_global_config, content="depth")
+    meta = eobj.generate_metadata(regsurf)
+
+    assert meta["data"]["name"] == rms_name
+    assert meta["data"]["stratigraphic"] is False
+    assert "smda_entity" not in meta["data"]
+
+
 def test_content_not_given(
     mock_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
 ) -> None:

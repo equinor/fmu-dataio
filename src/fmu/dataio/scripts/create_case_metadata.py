@@ -22,7 +22,9 @@ import yaml
 from pydantic import TypeAdapter
 
 from fmu.dataio import CreateCaseMetadata
-from fmu.datamodels.standard_results.ert_parameters import ErtParameterMetadata
+from fmu.datamodels.standard_results.ert_parameters import (
+    ErtParameterMetadata,
+)
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
