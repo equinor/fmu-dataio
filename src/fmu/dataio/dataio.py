@@ -20,8 +20,8 @@ from ._deprecations import (
     future_warning_preprocessed,
     resolve_deprecations,
 )
+from ._export import export_with_metadata, export_without_metadata, generate_metadata
 from ._export_config import ExportConfig
-from ._export_service import ExportService
 from ._logging import null_logger
 from ._utils import read_metadata_from_file, some_config_from_env
 from .case import CreateCaseMetadata
@@ -751,8 +751,7 @@ class ExportData:
                 is_observation=self._export_config.is_observation,
             ).generate_metadata(obj)
 
-        export_service = ExportService(export_config=self._export_config)
-        return export_service.generate_metadata(obj)
+        return generate_metadata(self._export_config, obj)
 
     def export(
         self,
@@ -801,8 +800,6 @@ class ExportData:
         logger.info("Object type is: %s", type(obj))
         self._apply_deprecated_kwargs(kwargs)
 
-        export_service = ExportService(export_config=self._export_config)
-
         if self._export_config.config is None:
             warnings.warn(
                 "Global configuration was not provided or was invalid. Because of this "
@@ -810,8 +807,8 @@ class ExportData:
                 "without metadata.",
                 UserWarning,
             )
-            export_path = export_service.export_without_metadata(obj)
+            export_path = export_without_metadata(self._export_config, obj)
         else:
-            export_path = export_service.export_with_metadata(obj)
+            export_path = export_with_metadata(self._export_config, obj)
 
         return str(export_path)

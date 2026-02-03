@@ -9,6 +9,7 @@ from fmu.datamodels.common.tracklog import Tracklog
 from fmu.datamodels.fmu_results import fields
 
 from fmu.dataio import _utils as utils
+from fmu.dataio._export import export_metadata_file
 
 from ..utils import _get_pydantic_models_from_annotation
 
@@ -18,7 +19,7 @@ def test_non_metadata_export_metadata_file() -> None:
         NamedTemporaryFile(buffering=0, suffix=".yaml") as tf,
         pytest.raises(RuntimeError),
     ):
-        utils.export_metadata_file(Path(tf.name), {})
+        export_metadata_file(Path(tf.name), {})
 
 
 def test_export_file_raises() -> None:

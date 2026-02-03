@@ -13,10 +13,11 @@ from fmu.datamodels.common.enums import TrackLogEventType
 from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.fields import File
 
+from ._export import export_metadata_file
 from ._logging import null_logger
 from ._metadata import ObjectMetadataExport
 from ._runcontext import RunContext
-from ._utils import export_metadata_file, md5sum
+from ._utils import md5sum
 from .exceptions import InvalidMetadataError
 from .manifest._manifest import update_export_manifest
 from .providers._filedata import ShareFolder
