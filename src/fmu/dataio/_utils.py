@@ -10,17 +10,12 @@ import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final
 
-import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
-import xtgeo
 import yaml
 
 from fmu.config import utilities as ut
 
 from ._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from ._logging import null_logger
-from ._readers.faultroom import FaultRoomSurface
 
 if TYPE_CHECKING:
     from io import BufferedIOBase, BytesIO
@@ -40,73 +35,6 @@ def casepath_has_metadata(casepath: Path) -> bool:
         return True
     logger.debug("Did not find metadata for proposed casepath <%s>", casepath)
     return False
-
-
-# TODO: Remove this function when AggregatedData.export() is removed
-def export_file(
-    obj: types.Inferrable,
-    file: Path | BytesIO,
-    file_suffix: str | None = None,
-    fmt: str = "",
-) -> None:
-    """
-    Export a valid object to file or memory buffer. If xtgeo is in the fmt string,
-    xtgeo xyz-column names will be preserved for xtgeo.Points and xtgeo.Polygons
-    """
-
-    if isinstance(file, Path):
-        # create output folder if not existing
-        file.parent.mkdir(parents=True, exist_ok=True)
-        file_suffix = file.suffix
-
-    elif not file_suffix:
-        raise ValueError("'suffix' must be provided when file is a BytesIO object")
-
-    if file_suffix == ".gri" and isinstance(obj, xtgeo.RegularSurface):
-        obj.to_file(file, fformat="irap_binary")
-    elif file_suffix == ".csv" and isinstance(obj, xtgeo.Polygons | xtgeo.Points):
-        out = obj.copy()  # to not modify incoming instance!
-        if "xtgeo" not in fmt:
-            out.xname = "X"
-            out.yname = "Y"
-            out.zname = "Z"
-            if isinstance(out, xtgeo.Polygons):
-                # out.pname = "ID"  not working
-                out.get_dataframe(copy=False).rename(
-                    columns={out.pname: "ID"},
-                    inplace=True,  # noqa: PD002
-                )
-        out.get_dataframe(copy=False).to_csv(file, index=False)
-    elif file_suffix == ".pol" and isinstance(obj, xtgeo.Polygons | xtgeo.Points):
-        obj.to_file(file)
-    elif file_suffix == ".segy" and isinstance(obj, xtgeo.Cube):
-        obj.to_file(file, fformat="segy")
-    elif file_suffix == ".roff" and isinstance(obj, xtgeo.Grid | xtgeo.GridProperty):
-        obj.to_file(file, fformat="roff")
-    elif file_suffix == ".csv" and isinstance(obj, pd.DataFrame):
-        logger.info(
-            "Exporting dataframe to csv. Note: index columns will not be "
-            "preserved unless calling 'reset_index()' on the dataframe."
-        )
-        obj.to_csv(file, index=False)
-    elif file_suffix == ".parquet":
-        if isinstance(obj, pa.Table):
-            pq.write_table(obj, where=pa.output_stream(file))
-
-    elif file_suffix == ".json":
-        if isinstance(obj, FaultRoomSurface):
-            serialized_json = json.dumps(obj.storage, indent=4)
-        else:
-            serialized_json = json.dumps(obj)
-
-        if isinstance(file, Path):
-            with open(file, "w", encoding="utf-8") as stream:
-                stream.write(serialized_json)
-        else:
-            file.write(serialized_json.encode("utf-8"))
-
-    else:
-        raise TypeError(f"Exporting {file_suffix} for {type(obj)} is not supported")
 
 
 def md5sum(file: Path | BytesIO) -> str:
