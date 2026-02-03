@@ -8,7 +8,6 @@ from fmu.datamodels.common.access import Access
 from fmu.datamodels.common.tracklog import Tracklog
 from fmu.datamodels.fmu_results import fields
 
-from fmu.dataio import _utils as utils
 from fmu.dataio._export import export_metadata_file
 
 from ..utils import _get_pydantic_models_from_annotation
@@ -22,16 +21,7 @@ def test_non_metadata_export_metadata_file() -> None:
         export_metadata_file(Path(tf.name), {})
 
 
-def test_export_file_raises() -> None:
-    with NamedTemporaryFile() as tf, pytest.raises(TypeError):
-        utils.export_file(
-            object(),
-            Path(tf.name),
-            ".placeholder",
-        )
-
-
-def test_get_pydantic_models_from_annotation():
+def test_get_pydantic_models_from_annotation() -> None:
     annotation = list[Access] | fields.File
     assert _get_pydantic_models_from_annotation(annotation) == [
         Access,
