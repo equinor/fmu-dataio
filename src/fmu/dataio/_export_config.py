@@ -360,7 +360,6 @@ class ExportConfigBuilder:
         Args:
             fmu_context: The FMU context (case, realization, etc.).
             casepath: The path to the case directory.
-            preprocessed: Whether the data is preprocessed.
         """
         self._fmu_context = fmu_context
         self._casepath = casepath
