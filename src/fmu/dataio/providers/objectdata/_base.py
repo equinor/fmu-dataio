@@ -14,7 +14,7 @@ from fmu.dataio.providers._base import Provider
 from fmu.dataio.providers.objectdata._export_models import (
     UnsetData,
 )
-from fmu.datamodels.fmu_results.data import AnyData, Time, Timestamp
+from fmu.datamodels.fmu_results.data import AnyData, SmdaEntity, Time, Timestamp
 from fmu.datamodels.fmu_results.global_configuration import (
     StratigraphyElement,
 )
@@ -143,6 +143,7 @@ class ObjectDataProvider(Provider):
             "alias": self._strat_element.alias,
             "top": self._strat_element.top,
             "base": self._strat_element.base,
+            "smda_entity": self.smda_entity,
             # Content
             "content": cfg.content,
             "standard_result": self.standard_result,
@@ -176,6 +177,13 @@ class ObjectDataProvider(Provider):
     def name(self) -> str:
         """The resolved name for this object."""
         return self._strat_element.name
+
+    @property
+    def smda_entity(self) -> SmdaEntity | None:
+        """The smda_entity (name) for this object"""
+        if self._strat_element.stratigraphic:
+            return SmdaEntity(identifier=self.name)
+        return None
 
     @property
     def time0(self) -> datetime | None:
