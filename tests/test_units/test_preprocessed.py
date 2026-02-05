@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 import xtgeo
 import yaml
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from pytest import MonkeyPatch
 
 from fmu import dataio
@@ -23,13 +24,13 @@ PREPROCESSED_SURFACEPATH = (
 )
 
 
-def read_metadata(objmetafile: Any) -> Any:
+def read_metadata(objmetafile: str | Path) -> dict[str, Any]:
     with open(objmetafile, encoding="utf-8") as stream:
         return yaml.safe_load(stream)
 
 
 def export_preprocessed_surface(
-    config: Any, regsurf: xtgeo.RegularSurface
+    config: dict | GlobalConfiguration, regsurf: xtgeo.RegularSurface
 ) -> tuple[Path, Path]:
     edata = dataio.ExportData(
         config=config,
@@ -61,6 +62,7 @@ def test_export_preprocessed_surfacefile(
 
     existing_meta = read_metadata(metafile)
     # check that '_preprocesssed' is originally present
+    assert existing_meta is not None
     assert "_preprocessed" in existing_meta
 
     # run the re-export of the preprocessed data inside an mocked FMU run
