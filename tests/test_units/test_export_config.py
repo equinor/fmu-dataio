@@ -307,6 +307,7 @@ def test_builder_run_context_explicit() -> None:
             .run_context(
                 fmu_context=FMUContext.realization,
                 casepath=casepath,
+                ensemble_name="foo",
             )
             .build()
         )
@@ -314,6 +315,7 @@ def test_builder_run_context_explicit() -> None:
         mock_runcontext_cls.assert_called_once_with(
             casepath_proposed=casepath,
             fmu_context=FMUContext.realization,
+            ensemble_name="foo",
         )
         assert config.fmu_context == FMUContext.realization
         assert config.casepath == casepath
