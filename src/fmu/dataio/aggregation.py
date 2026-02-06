@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 import copy
+import json
 import warnings
 from dataclasses import dataclass, field, fields
 from pathlib import Path
-from typing import ClassVar, Final, Literal
+from typing import TYPE_CHECKING, ClassVar, Final, Literal
 
+import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
+import xtgeo
 from pydantic import ValidationError
 
 from fmu.dataio import types
 from fmu.dataio._export import export_metadata_file
-from fmu.dataio._utils import export_file
 from fmu.dataio.version import __version__
 from fmu.datamodels.common.tracklog import Tracklog
 from fmu.datamodels.fmu_results.enums import FMUContext
@@ -18,8 +22,12 @@ from fmu.datamodels.fmu_results.enums import FMUContext
 from . import _utils, dataio
 from ._logging import null_logger
 from ._metadata import ObjectMetadataExport
+from ._readers.faultroom import FaultRoomSurface
 from .exceptions import InvalidMetadataError
 from .providers.objectdata._provider import objectdata_provider_factory
+
+if TYPE_CHECKING:
+    from io import BytesIO
 
 logger: Final = null_logger(__name__)
 
@@ -376,6 +384,74 @@ class AggregatedData:
             obj, compute_md5=compute_md5, skip_null=skip_null, **kwargs
         )
 
+    def _export_file(
+        self,
+        obj: types.Inferrable,
+        file: Path | BytesIO,
+        file_suffix: str | None = None,
+        fmt: str = "",
+    ) -> None:
+        """
+        Export a valid object to file or memory buffer. If xtgeo is in the fmt string,
+        xtgeo xyz-column names will be preserved for xtgeo.Points and xtgeo.Polygons
+        """
+
+        if isinstance(file, Path):
+            # create output folder if not existing
+            file.parent.mkdir(parents=True, exist_ok=True)
+            file_suffix = file.suffix
+
+        elif not file_suffix:
+            raise ValueError("'suffix' must be provided when file is a BytesIO object")
+
+        if file_suffix == ".gri" and isinstance(obj, xtgeo.RegularSurface):
+            obj.to_file(file, fformat="irap_binary")
+        elif file_suffix == ".csv" and isinstance(obj, xtgeo.Polygons | xtgeo.Points):
+            out = obj.copy()  # to not modify incoming instance!
+            if "xtgeo" not in fmt:
+                out.xname = "X"
+                out.yname = "Y"
+                out.zname = "Z"
+                if isinstance(out, xtgeo.Polygons):
+                    # out.pname = "ID"  not working
+                    out.get_dataframe(copy=False).rename(
+                        columns={out.pname: "ID"},
+                        inplace=True,  # noqa: PD002
+                    )
+            out.get_dataframe(copy=False).to_csv(file, index=False)
+        elif file_suffix == ".pol" and isinstance(obj, xtgeo.Polygons | xtgeo.Points):
+            obj.to_file(file)
+        elif file_suffix == ".segy" and isinstance(obj, xtgeo.Cube):
+            obj.to_file(file, fformat="segy")
+        elif file_suffix == ".roff" and isinstance(
+            obj, xtgeo.Grid | xtgeo.GridProperty
+        ):
+            obj.to_file(file, fformat="roff")
+        elif file_suffix == ".csv" and isinstance(obj, pd.DataFrame):
+            logger.info(
+                "Exporting dataframe to csv. Note: index columns will not be "
+                "preserved unless calling 'reset_index()' on the dataframe."
+            )
+            obj.to_csv(file, index=False)
+        elif file_suffix == ".parquet":
+            if isinstance(obj, pa.Table):
+                pq.write_table(obj, where=pa.output_stream(file))
+
+        elif file_suffix == ".json":
+            if isinstance(obj, FaultRoomSurface):
+                serialized_json = json.dumps(obj.storage, indent=4)
+            else:
+                serialized_json = json.dumps(obj)
+
+            if isinstance(file, Path):
+                with open(file, "w", encoding="utf-8") as stream:
+                    stream.write(serialized_json)
+            else:
+                file.write(serialized_json.encode("utf-8"))
+
+        else:
+            raise TypeError(f"Exporting {file_suffix} for {type(obj)} is not supported")
+
     def export(self, obj: types.Inferrable, **kwargs: object) -> str:
         """Export aggregated file with metadata to file.
 
@@ -403,7 +479,7 @@ class AggregatedData:
         metafile = outfile.parent / ("." + str(outfile.name) + ".yml")
 
         logger.info("Export to file and export metadata file.")
-        export_file(obj, outfile)
+        self._export_file(obj, outfile)
 
         export_metadata_file(metafile, metadata)
         logger.info("Actual file is:   %s", outfile)

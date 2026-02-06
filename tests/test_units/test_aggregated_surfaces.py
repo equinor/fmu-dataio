@@ -2,16 +2,35 @@
 
 import logging
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any
 
 import pytest
 import xtgeo
 from pytest import MonkeyPatch
 
-import fmu.dataio._utils as utils
-from fmu.dataio import dataio
+from fmu.dataio import _utils as utils, dataio
 
 logger = logging.getLogger(__name__)
+
+
+def test_export_file_raises(
+    aggr_surfs_mean: tuple[dict[str, Any], list[dict[str, Any]]],
+) -> None:
+    aggr_mean, metas = aggr_surfs_mean  # xtgeo_object, list-of-metadata-dicts
+    aggregation_uuid = str(utils.uuid_from_string("1234"))
+    aggdata = dataio.AggregatedData(
+        source_metadata=metas,
+        operation="mean",
+        name="myaggrd",
+        aggregation_id=aggregation_uuid,
+    )
+    with NamedTemporaryFile() as tf, pytest.raises(TypeError):
+        aggdata._export_file(
+            object(),  # type: ignore[arg-type]
+            Path(tf.name),
+            ".placeholder",
+        )
 
 
 def test_regsurf_aggregated(
