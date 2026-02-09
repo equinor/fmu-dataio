@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Literal, Self, TypeAlias
 
+from pydantic import TypeAdapter
+
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.data import (
     FieldOutline,
@@ -27,6 +29,8 @@ from fmu.datamodels.fmu_results.enums import (
 )
 from fmu.datamodels.fmu_results.fields import Display, Workflow
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+from fmu.datamodels.fmu_results.standard_result import AnyStandardResult
+from fmu.datamodels.standard_results.enums import StandardResultName
 
 from ._export_config_resolver import _resolve_fmu_context, build_from_export_data
 from ._logging import null_logger
@@ -42,6 +46,8 @@ if TYPE_CHECKING:
 AnyContentMetadata: TypeAlias = (
     AllowedContentSeismic | FieldOutline | FieldRegion | FluidContact | Property
 )
+
+StandardResultAdapter = TypeAdapter(AnyStandardResult)
 
 
 @dataclass(frozen=True)
@@ -100,6 +106,9 @@ class ExportConfig:
 
     # Run context
     runcontext: RunContext
+
+    # Standard result
+    standard_result: AnyStandardResult | None
 
     @property
     def content_enum(self) -> Content | None:
@@ -229,6 +238,9 @@ class ExportConfigBuilder:
         self._fmu_context: FMUContext | None = None
         self._ensemble_name: str | None = None
         self._run_context_called: bool = False
+
+        # Standard result
+        self._standard_result: AnyStandardResult | None = None
 
     def content(
         self,
@@ -393,6 +405,11 @@ class ExportConfigBuilder:
             fmu_context=fmu_context,
         )
 
+    def standard_result(self, name: StandardResultName) -> ExportConfigBuilder:
+        """Set standard result."""
+        self._standard_result = StandardResultAdapter.validate_python({"name": name})
+        return self
+
     def build(self) -> ExportConfig:
         """Build the immutable ExportConfig.
 
@@ -439,4 +456,5 @@ class ExportConfigBuilder:
             undef_is_zero=self._undef_is_zero,
             config=self._config,
             runcontext=runcontext,
+            standard_result=self._standard_result,
         )

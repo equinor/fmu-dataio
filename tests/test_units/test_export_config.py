@@ -1,5 +1,6 @@
 """Tests for ExportConfigBuilder."""
 
+from collections.abc import Generator
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -14,12 +15,17 @@ from fmu.datamodels.fmu_results.enums import (
 )
 from fmu.datamodels.fmu_results.fields import Display, Workflow
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+from fmu.datamodels.fmu_results.standard_result import (
+    AnyStandardResult,
+    InplaceVolumesStandardResult,
+)
+from fmu.datamodels.standard_results.enums import StandardResultName
 
 from fmu.dataio._export_config import ExportConfig, ExportConfigBuilder
 
 
 @pytest.fixture
-def mock_resolve_fmu_context() -> MagicMock:
+def mock_resolve_fmu_context() -> Generator[MagicMock]:
     """Avoid environment detection."""
     with patch("fmu.dataio._export_config._resolve_fmu_context") as mock:
         mock.return_value = (None, False)
@@ -96,6 +102,7 @@ def test_builder_methods_return_self(mock_resolve_fmu_context: MagicMock) -> Non
     assert builder.unit("m") is builder
     assert builder.global_config(None) is builder
     assert builder.run_context() is builder
+    assert builder.standard_result(StandardResultName.inplace_volumes) is builder
 
 
 def test_builder_content(minimal_builder: ExportConfigBuilder) -> None:
@@ -112,6 +119,7 @@ def test_builder_content_with_metadata(mock_resolve_fmu_context: MagicMock) -> N
     config = ExportConfig.builder().content(Content.property, metadata).build()
     assert config.content == Content.property
     assert config.content_metadata == metadata
+    assert isinstance(config.content_metadata, Property)
     assert config.content_metadata.attribute == "porosity"
     assert config.content_metadata.is_discrete is False
 
@@ -425,3 +433,30 @@ def test_builder_run_context_ensemble_export_root(
 
     assert config.fmu_context == FMUContext.ensemble
     assert config.runcontext.exportroot == config.runcontext.ensemble_path
+
+
+def test_builder_standard_result(minimal_builder: ExportConfigBuilder) -> None:
+    """Standard result is set correctly from name."""
+    config = minimal_builder.standard_result(StandardResultName.inplace_volumes).build()
+    assert config.standard_result is not None
+    assert config.standard_result.root.name == StandardResultName.inplace_volumes
+    assert isinstance(config.standard_result.root, InplaceVolumesStandardResult)
+
+
+def test_builder_standard_result_none_default(
+    minimal_builder: ExportConfigBuilder,
+) -> None:
+    """Standard result defaults to None."""
+    config = minimal_builder.build()
+    assert config.standard_result is None
+
+
+@pytest.mark.parametrize("name", list(StandardResultName))
+def test_builder_standard_result_all_name(
+    minimal_builder: ExportConfigBuilder, name: StandardResultName
+) -> None:
+    """Every StandardResultName resolves to a valid AnyStandardResult."""
+    config = minimal_builder.standard_result(name).build()
+    assert config.standard_result is not None
+    assert config.standard_result.root.name == name
+    assert isinstance(config.standard_result, AnyStandardResult)
