@@ -114,6 +114,8 @@ def build_from_export_data(
         # Config
         config=config,
         runcontext=runcontext,
+        # Standard result
+        standard_result=None,
     )
 
 
