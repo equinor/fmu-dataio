@@ -1669,14 +1669,14 @@ def test_export_with_standard_result_valid_config(
     meta = read_metadata(outpath)
     assert "standard_result" not in meta["data"]
 
-    # when using export_with_standard_result 'standard_result' should be set
-    outpath_path = export_with_metadata(
-        edata._export_config,
-        mock_volumes,
-        standard_result=InplaceVolumesStandardResult(
-            name=StandardResultName.inplace_volumes
-        ),
+    export_config = edata._export_config.with_standard_result(
+        InplaceVolumesStandardResult(
+            name=StandardResultName.inplace_volumes,
+        )  # type: ignore [arg-type]
     )
+
+    # when using export_with_standard_result 'standard_result' should be set
+    outpath_path = export_with_metadata(export_config, mock_volumes)
     outpath = str(outpath_path)
     meta = read_metadata(outpath)
     assert (
@@ -1693,14 +1693,13 @@ def test_export_with_standard_result_invalid_config(mock_volumes: pd.DataFrame) 
             content="volumes",
             name="TopWhatever",
         )
+    export_config = edata._export_config.with_standard_result(
+        InplaceVolumesStandardResult(
+            name=StandardResultName.inplace_volumes,
+        )  # type: ignore [arg-type]
+    )
     with pytest.raises(ValueError, match="config"):
-        export_with_metadata(
-            edata._export_config,
-            mock_volumes,
-            standard_result=InplaceVolumesStandardResult(
-                name=StandardResultName.inplace_volumes
-            ),
-        )
+        export_with_metadata(export_config, mock_volumes)
 
 
 def test_export_with_standard_result_custom_export_config(
@@ -1718,14 +1717,14 @@ def test_export_with_standard_result_custom_export_config(
         fmu_context="ensemble",
     )
 
-    export_config = edata._export_config.with_ensemble_name("pred-dg3")
-    outpath = export_with_metadata(
-        export_config,
-        mock_volumes,
-        standard_result=InplaceVolumesStandardResult(
-            name=StandardResultName.inplace_volumes
-        ),
+    export_config = edata._export_config.with_ensemble_name(
+        "pred-dg3"
+    ).with_standard_result(
+        InplaceVolumesStandardResult(
+            name=StandardResultName.inplace_volumes,
+        )  # type: ignore [arg-type]
     )
+    outpath = export_with_metadata(export_config, mock_volumes)
 
     assert "pred-dg3" in str(outpath)
     assert fmurun_prehook / "share" / "ensemble" / "pred-dg3" in Path(outpath).parents

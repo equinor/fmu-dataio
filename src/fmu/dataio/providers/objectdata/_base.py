@@ -32,7 +32,6 @@ if TYPE_CHECKING:
         MetadataClass,
     )
     from fmu.datamodels.fmu_results.specification import AnySpecification
-    from fmu.datamodels.fmu_results.standard_result import StandardResult
 
 logger: Final = null_logger(__name__)
 
@@ -48,15 +47,9 @@ class ObjectDataProvider(Provider):
     * investigate current metadata if that is provided
     """
 
-    def __init__(
-        self,
-        obj: Inferrable,
-        export_config: ExportConfig,
-        standard_result: StandardResult | None = None,
-    ) -> None:
+    def __init__(self, obj: Inferrable, export_config: ExportConfig) -> None:
         self.obj = obj
         self.export_config = export_config
-        self.standard_result = standard_result
 
         self._validate_config()
         self._strat_element = self._resolve_stratigraphy()
@@ -146,7 +139,7 @@ class ObjectDataProvider(Provider):
             "smda_entity": self.smda_entity,
             # Content
             "content": cfg.content,
-            "standard_result": self.standard_result,
+            "standard_result": cfg.standard_result,
             # Format
             "tagname": cfg.tagname,
             "format": self.fmt,

@@ -37,7 +37,6 @@ if TYPE_CHECKING:
     import pandas as pd
 
     from fmu.dataio.types import Inferrable
-    from fmu.datamodels.fmu_results.standard_result import StandardResult
 
 logger: Final = null_logger(__name__)
 
@@ -182,12 +181,7 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
 class PolygonsDataProvider(ObjectDataProvider):
     obj: xtgeo.Polygons
 
-    def __init__(
-        self,
-        obj: xtgeo.Polygons,
-        export_config: ExportConfig,
-        standard_result: StandardResult | None = None,
-    ) -> None:
+    def __init__(self, obj: xtgeo.Polygons, export_config: ExportConfig) -> None:
         if export_config.polygons_fformat == FileFormat.csv:
             obj = obj.copy()
             obj.xname = "X"
@@ -195,7 +189,7 @@ class PolygonsDataProvider(ObjectDataProvider):
             obj.zname = "Z"
             obj.pname = "ID"
 
-        super().__init__(obj, export_config, standard_result)
+        super().__init__(obj, export_config)
 
     @property
     def classname(self) -> ObjectMetadataClass:
@@ -302,19 +296,14 @@ class PolygonsDataProvider(ObjectDataProvider):
 class PointsDataProvider(ObjectDataProvider):
     obj: xtgeo.Points
 
-    def __init__(
-        self,
-        obj: xtgeo.Points,
-        export_config: ExportConfig,
-        standard_result: StandardResult | None = None,
-    ) -> None:
+    def __init__(self, obj: xtgeo.Points, export_config: ExportConfig) -> None:
         if export_config.points_fformat == FileFormat.csv:
             obj = obj.copy()
             obj.xname = "X"
             obj.yname = "Y"
             obj.zname = "Z"
 
-        super().__init__(obj, export_config, standard_result)
+        super().__init__(obj, export_config)
 
     @property
     def classname(self) -> ObjectMetadataClass:

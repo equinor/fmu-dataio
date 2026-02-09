@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final
 
-import fmu.dataio as dio
 from fmu.dataio._export import export_with_metadata
+from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
@@ -66,24 +66,19 @@ class _ExportStructureDepthFaultLines(SimpleExportRMSBase):
         return True
 
     def _export_fault_line(self, pol: xtgeo.Polygons) -> ExportResultItem:
-        edata = dio.ExportData(
-            config=self._config,
-            content=self._content,
-            unit=self._unit,
-            vertical_domain=VerticalDomain.depth.value,
-            domain_reference=DomainReference.msl.value,
-            subfolder=self._subfolder,
-            is_prediction=True,
-            name=pol.name,
-            classification=self._classification,
-            rep_include=self._rep_include,
-            table_index=enums.FaultLines.index_columns(),
+        export_config = (
+            ExportConfig.builder()
+            .content(self._content)
+            .domain(VerticalDomain.depth, DomainReference.msl)
+            .unit(self._unit)
+            .file_config(name=pol.name, subfolder=self._subfolder)
+            .table_config(table_index=enums.FaultLines.index_columns())
+            .access(self._classification, self._rep_include)
+            .global_config(self._config)
+            .standard_result(StandardResultName.structure_depth_fault_lines)
+            .build()
         )
-
-        export_config = edata._export_config.with_polygons_file_format("parquet")
-        absolute_export_path = export_with_metadata(
-            export_config, pol, standard_result=self._standard_result
-        )
+        absolute_export_path = export_with_metadata(export_config, pol)
         _logger.debug("Fault_lines exported to: %s", absolute_export_path)
 
         return ExportResultItem(

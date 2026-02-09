@@ -21,8 +21,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from io import BytesIO
 
-    from fmu.datamodels.fmu_results.standard_result import StandardResult
-
     from ._export_config import ExportConfig
     from .types import Inferrable
 
@@ -40,19 +38,14 @@ def export_without_metadata(export_config: ExportConfig, obj: Inferrable) -> Pat
     return absolute_path
 
 
-def export_with_metadata(
-    export_config: ExportConfig,
-    obj: Inferrable,
-    *,
-    standard_result: StandardResult | None = None,
-) -> Path:
+def export_with_metadata(export_config: ExportConfig, obj: Inferrable) -> Path:
     """Export object with full metadata."""
-    if standard_result and export_config.config is None:
+    if export_config.standard_result is not None and export_config.config is None:
         raise ValidationError(
             "When exporting standard_results it is required to have a valid config."
         )
 
-    objdata = objectdata_provider_factory(obj, export_config, standard_result)
+    objdata = objectdata_provider_factory(obj, export_config)
     metadata = _generate_metadata(export_config, objdata)
 
     outfile = Path(metadata["file"]["absolute_path"])
@@ -69,14 +62,9 @@ def export_with_metadata(
     return outfile
 
 
-def generate_metadata(
-    export_config: ExportConfig,
-    obj: Inferrable,
-    *,
-    standard_result: StandardResult | None = None,
-) -> dict[str, Any]:
+def generate_metadata(export_config: ExportConfig, obj: Inferrable) -> dict[str, Any]:
     """Generate metadata without exporting."""
-    objdata = objectdata_provider_factory(obj, export_config, standard_result)
+    objdata = objectdata_provider_factory(obj, export_config)
     return _generate_metadata(export_config, objdata)
 
 
