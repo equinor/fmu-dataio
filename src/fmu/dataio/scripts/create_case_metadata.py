@@ -23,7 +23,6 @@ from fmu.dataio._export_config import ExportConfig
 from fmu.datamodels import ErtParameterMetadata
 from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.enums import Content, FMUContext
-from fmu.datamodels.fmu_results.standard_result import ErtParametersStandardResult
 from fmu.datamodels.standard_results.enums import StandardResultName
 
 if TYPE_CHECKING:
@@ -240,14 +239,10 @@ def _export_parameters_table(
             ensemble_name=ensemble_name,
             casepath=casepath,
         )
+        .standard_result(StandardResultName.parameters)
         .build()
     )
-
-    return export_with_metadata(
-        export_config,
-        table,
-        standard_result=ErtParametersStandardResult(name=StandardResultName.parameters),
-    )
+    return export_with_metadata(export_config, table)
 
 
 def get_parser() -> argparse.ArgumentParser:

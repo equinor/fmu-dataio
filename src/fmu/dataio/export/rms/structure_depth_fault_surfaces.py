@@ -5,8 +5,8 @@ from typing import Any, Final, Self
 
 import numpy as np
 
-import fmu.dataio as dio
 from fmu.dataio._export import export_with_metadata
+from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio._readers.tsurf import (
     AllowedKeywordValues,
@@ -70,22 +70,18 @@ class _ExportStructureDepthFaultSurfaces(SimpleExportRMSBase):
         return True
 
     def _export_surface(self: Self, surf: TSurfData) -> ExportResultItem:
-        edata = dio.ExportData(
-            config=self._config,
-            content=self._content,
-            unit=self._unit,
-            vertical_domain=VerticalDomain.depth.value,
-            domain_reference=DomainReference.msl.value,
-            subfolder=self._subfolder,
-            is_prediction=True,
-            name=surf.header.name,
-            classification=self._classification,
-            rep_include=self._rep_include,
+        export_config = (
+            ExportConfig.builder()
+            .content(self._content)
+            .domain(VerticalDomain.depth, DomainReference.msl)
+            .unit(self._unit)
+            .file_config(name=surf.header.name, subfolder=self._subfolder)
+            .access(self._classification, self._rep_include)
+            .global_config(self._config)
+            .standard_result(StandardResultName.structure_depth_fault_surface)
+            .build()
         )
-
-        absolute_export_path = export_with_metadata(
-            edata._export_config, surf, standard_result=self._standard_result
-        )
+        absolute_export_path = export_with_metadata(export_config, surf)
         _logger.debug("Surface exported to: %s", absolute_export_path)
 
         return ExportResultItem(

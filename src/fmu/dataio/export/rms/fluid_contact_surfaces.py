@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final
 
-import fmu.dataio as dio
 from fmu.dataio._export import export_with_metadata
+from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
@@ -17,6 +17,7 @@ from fmu.dataio.export.rms._utils import (
 )
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results import standard_result
+from fmu.datamodels.fmu_results.data import FluidContact
 from fmu.datamodels.fmu_results.enums import (
     Content,
     DomainReference,
@@ -117,23 +118,22 @@ class _ExportFluidContactSurfaces(SimpleExportRMSBase):
         self, contact: FluidContactType, surf: xtgeo.RegularSurface
     ) -> ExportResultItem:
         """Export a fluid contact surface as a standard result"""
-        edata = dio.ExportData(
-            config=self._config,
-            content=self._content,
-            content_metadata={"contact": contact, "truncated": False},
-            unit=self._unit,
-            vertical_domain=VerticalDomain.depth.value,
-            domain_reference=DomainReference.msl.value,
-            subfolder=f"{self._subfolder}/{contact.value}",
-            is_prediction=True,
-            name=surf.name,
-            classification=self._classification,
-            rep_include=self._rep_include,
+        export_config = (
+            ExportConfig.builder()
+            .content(self._content, FluidContact(contact=contact, truncated=False))
+            .domain(VerticalDomain.depth, DomainReference.msl)
+            .unit(self._unit)
+            .file_config(
+                name=surf.name,
+                subfolder=f"{self._subfolder}/{contact.value}",
+            )
+            .access(self._classification, self._rep_include)
+            .global_config(self._config)
+            .standard_result(StandardResultName.fluid_contact_surface)
+            .build()
         )
 
-        absolute_export_path = export_with_metadata(
-            edata._export_config, surf, standard_result=self._standard_result
-        )
+        absolute_export_path = export_with_metadata(export_config, surf)
         _logger.debug("Surface exported to: %s", absolute_export_path)
 
         return ExportResultItem(

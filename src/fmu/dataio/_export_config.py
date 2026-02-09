@@ -128,7 +128,9 @@ class ExportConfig:
         return self.runcontext.casepath
 
     def with_ensemble_name(self, ensemble_name: str) -> Self:
-        """Return a new ExportConfig with the ensemble name set explicitly."""
+        """Return a new ExportConfig with the ensemble name set explicitly.
+
+        This is an adapter for existing tests."""
         runcontext = RunContext(
             casepath_proposed=self.runcontext.casepath,
             fmu_context=self.runcontext.fmu_context,
@@ -136,9 +138,11 @@ class ExportConfig:
         )
         return dataclasses.replace(self, runcontext=runcontext)
 
-    def with_polygons_file_format(self, file_format: str) -> Self:
-        """Returns a new ExportConfig with the polygons file format set explicitly."""
-        return dataclasses.replace(self, polygons_fformat=file_format)
+    def with_standard_result(self, standard_result: AnyStandardResult) -> Self:
+        """Returns a new ExportConfig with a standard result set explicitly.
+
+        This is an adapter for existing tests."""
+        return dataclasses.replace(self, standard_result=standard_result)
 
     @classmethod
     def builder(cls) -> ExportConfigBuilder:

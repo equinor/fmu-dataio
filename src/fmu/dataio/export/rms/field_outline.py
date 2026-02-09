@@ -5,14 +5,15 @@ from typing import Any, Final
 
 import xtgeo
 
-import fmu.dataio as dio
 from fmu.dataio._export import export_with_metadata
+from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import get_open_polygons_id
 from fmu.datamodels.common.enums import Classification
+from fmu.datamodels.fmu_results.data import FieldOutline
 from fmu.datamodels.fmu_results.enums import (
     Content,
     DomainReference,
@@ -68,24 +69,21 @@ class _ExportFieldOutline(SimpleExportRMSBase):
             ) from err
 
     def _export_data_as_standard_result(self) -> ExportResult:
-        edata = dio.ExportData(
-            config=self._config,
-            content=self._content,
-            content_metadata={"contact": FluidContactType.fwl},
-            vertical_domain=VerticalDomain.depth.value,
-            domain_reference=DomainReference.msl.value,
-            subfolder=self._subfolder,
-            is_prediction=True,
-            name=StandardResultName.field_outline.value,
-            classification=self._classification,
-            rep_include=self._rep_include,
+        export_config = (
+            ExportConfig.builder()
+            .content(self._content, FieldOutline(contact=FluidContactType.fwl))
+            .domain(VerticalDomain.depth, DomainReference.msl)
+            .file_config(
+                name=StandardResultName.field_outline.value,
+                subfolder=self._subfolder,
+            )
+            .access(self._classification, self._rep_include)
+            .global_config(self._config)
+            .standard_result(StandardResultName.field_outline)
+            .build()
         )
 
-        export_config = edata._export_config.with_polygons_file_format("parquet")
-
-        absolute_export_path = export_with_metadata(
-            export_config, self._field_outline, standard_result=self._standard_result
-        )
+        absolute_export_path = export_with_metadata(export_config, self._field_outline)
         _logger.debug("Field outline exported to: %s", absolute_export_path)
 
         return ExportResult(

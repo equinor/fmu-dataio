@@ -40,15 +40,12 @@ if TYPE_CHECKING:
     from io import BytesIO
 
     from fmu.dataio.types import Inferrable
-    from fmu.datamodels.fmu_results.standard_result import StandardResult
 
 logger: Final = null_logger(__name__)
 
 
 def objectdata_provider_factory(
-    obj: Inferrable,
-    export_config: ExportConfig,
-    standard_result: StandardResult | None = None,
+    obj: Inferrable, export_config: ExportConfig
 ) -> ObjectDataProvider:
     """Factory function that generates metadata for a particular data object. This
     function will return an instance of an object-independent (i.e., typeable) class
@@ -58,31 +55,31 @@ def objectdata_provider_factory(
         A subclass of ObjectDataProvider
 
     Raises:
-        NotImplementedError: when receiving an object we don't know how to generated
+        NotImplementedError: when receiving an object we don't know how to generate
         metadata for.
     """
     if isinstance(obj, xtgeo.RegularSurface):
-        return RegularSurfaceDataProvider(obj, export_config, standard_result)
+        return RegularSurfaceDataProvider(obj, export_config)
     if isinstance(obj, xtgeo.Polygons):
-        return PolygonsDataProvider(obj, export_config, standard_result)
+        return PolygonsDataProvider(obj, export_config)
     if isinstance(obj, xtgeo.Points):
-        return PointsDataProvider(obj, export_config, standard_result)
+        return PointsDataProvider(obj, export_config)
     if isinstance(obj, xtgeo.Cube):
-        return CubeDataProvider(obj, export_config, standard_result)
+        return CubeDataProvider(obj, export_config)
     if isinstance(obj, xtgeo.Grid):
-        return CPGridDataProvider(obj, export_config, standard_result)
+        return CPGridDataProvider(obj, export_config)
     if isinstance(obj, xtgeo.GridProperty):
-        return CPGridPropertyDataProvider(obj, export_config, standard_result)
+        return CPGridPropertyDataProvider(obj, export_config)
     if isinstance(obj, pd.DataFrame):
-        return DataFrameDataProvider(obj, export_config, standard_result)
+        return DataFrameDataProvider(obj, export_config)
     if isinstance(obj, FaultRoomSurface):
-        return FaultRoomSurfaceProvider(obj, export_config, standard_result)
+        return FaultRoomSurfaceProvider(obj, export_config)
     if isinstance(obj, TSurfData):
-        return TriangulatedSurfaceProvider(obj, export_config, standard_result)
+        return TriangulatedSurfaceProvider(obj, export_config)
     if isinstance(obj, dict):
-        return DictionaryDataProvider(obj, export_config, standard_result)
+        return DictionaryDataProvider(obj, export_config)
     if isinstance(obj, pa.Table):
-        return ArrowTableDataProvider(obj, export_config, standard_result)
+        return ArrowTableDataProvider(obj, export_config)
 
     raise NotImplementedError(f"This data type is not currently supported: {type(obj)}")
 

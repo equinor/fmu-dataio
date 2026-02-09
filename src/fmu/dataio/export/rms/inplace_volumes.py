@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 import pyarrow as pa
 
-import fmu.dataio as dio
 from fmu.dataio._export import export_with_metadata
+from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase
@@ -358,28 +358,21 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
 
     def _export_data_as_standard_result(self) -> ExportResult:
         """Do the actual volume table export using dataio setup."""
-
-        edata = dio.ExportData(
-            config=self._config,
-            content=self._content,
-            unit="m3" if get_rms_project_units(self.project) == "metric" else "ft3",
-            vertical_domain=VerticalDomain.depth.value,
-            domain_reference=DomainReference.msl.value,
-            subfolder=self._subfolder,
-            classification=self._classification,
-            name=self.grid_name,
-            rep_include=self._rep_include,
-            table_index=self._get_table_index(self._dataframe),
+        export_config = (
+            ExportConfig.builder()
+            .content(self._content)
+            .domain(VerticalDomain.depth, DomainReference.msl)
+            .unit("m3" if get_rms_project_units(self.project) == "metric" else "ft3")
+            .file_config(name=self.grid_name, subfolder=self._subfolder)
+            .table_config(table_index=self._get_table_index(self._dataframe))
+            .access(self._classification, self._rep_include)
+            .global_config(self._config)
+            .standard_result(enums.StandardResultName.inplace_volumes)
+            .build()
         )
 
         volume_table = pa.Table.from_pandas(self._dataframe)
-
-        # export the volume table with standard result info in the metadata
-        absolute_export_path = export_with_metadata(
-            edata._export_config,
-            volume_table,
-            standard_result=self._standard_result,
-        )
+        absolute_export_path = export_with_metadata(export_config, volume_table)
 
         _logger.debug("Volume result to: %s", absolute_export_path)
         return ExportResult(
