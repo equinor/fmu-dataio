@@ -149,8 +149,8 @@ def test_correct_data_format_returned(
             StandardResultName.inplace_volumes,
         )
         objects_with_metadata = sumo_interface.get_objects_with_metadata(realization_id)
-        for object, _ in objects_with_metadata:
-            assert isinstance(object, DataFrame)
+        for obj, _ in objects_with_metadata:
+            assert isinstance(obj, DataFrame)
 
     # Polygons class
     mocked_polygon = xtgeo.Polygons(
@@ -161,7 +161,7 @@ def test_correct_data_format_returned(
             [1, 22, 3, 0],
         ]
     )
-    mocked_data_frame = mocked_polygon.dataframe
+    mocked_data_frame = mocked_polygon.get_dataframe()
     buffer = BytesIO()
     mocked_data_frame.to_parquet(buffer)
     mocked_blob = BytesIO(buffer.getvalue())
