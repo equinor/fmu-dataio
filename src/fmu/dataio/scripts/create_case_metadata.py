@@ -213,7 +213,7 @@ def _genkw_to_metadata(config: ert.config.GenKwConfig) -> ErtParameterMetadata:
     distribution_dict = config.distribution.model_dump(exclude={"name"})
     return ErtParameterMetadataAdapter.validate_python(
         {
-            "group": config.group,
+            "group": config.group or "DEFAULT",
             "input_source": config.input_source,
             "distribution": config.distribution.name.lower(),
             **distribution_dict,
