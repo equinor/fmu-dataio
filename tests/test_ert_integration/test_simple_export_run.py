@@ -68,29 +68,34 @@ def test_simple_export_ert_environment_variables(snakeoil_export_surface: Path) 
     assert avg_poro.root.fmu.ert.experiment.id is not None
 
 
-def test_snakeoil_wf_case_metadata_includes_user(
+def test_snakeoil_wf_case_metadata_includes_user_and_casename(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
 ) -> None:
-    """Test that if 'ert_username' argument is specified in WF_CREATE_CASE_METADATA
-    a deprecation warning is emitted and the input is ignored.
+    """If 'ert_username' and 'ert_casename' arguments are given, warnings are raised.
+
+    The input should also be ignored.
     """
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
 
     Path(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
     ).write_text(
-        "WF_CREATE_CASE_METADATA <SCRATCH>/<USER>/<CASE_DIR> <CONFIG_PATH> <CASE_DIR> "
-        "<USER>",  # ert user (now deprecated)
+        "WF_CREATE_CASE_METADATA <SCRATCH>/<USER>/<CASE_DIR> <CONFIG_PATH> "
+        "foo "  # ert_casename (now deprecated)
+        "<USER>",  # ert_user (now deprecated)
         encoding="utf-8",
     )
 
-    add_create_case_workflow("snakeoil.ert")
+    add_create_case_workflow(Path("snakeoil.ert"))
 
     mocker.patch(
         "sys.argv",
         ["ert", "ensemble_experiment", "snakeoil.ert", "--disable-monitoring"],
     )
-    with pytest.warns(FutureWarning, match="'ert_username' is deprecated"):
+    with (
+        pytest.warns(FutureWarning, match="'ert_casename' is deprecated"),
+        pytest.warns(FutureWarning, match="'ert_username' is deprecated"),
+    ):
         ert.__main__.main()
 
     fmu_case_yml = (
@@ -104,3 +109,6 @@ def test_snakeoil_wf_case_metadata_includes_user(
     # check that user input is ignored
     assert fmu_case["fmu"]["case"]["user"]["id"] != "user"
     assert fmu_case["fmu"]["case"]["user"]["id"] == getpass.getuser()
+
+    assert fmu_case["fmu"]["case"]["name"] != "foo"
+    assert fmu_case["fmu"]["case"]["name"] == "snakeoil"
