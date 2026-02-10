@@ -504,7 +504,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
 @pytest.mark.parametrize(
     "ert_distribution_class", get_args(get_args(DistributionSettings)[0])
 )
-def test__genkw_to_metadata(
+def test_genkw_to_metadata(
     ert_distribution_class: DistributionSettings,
 ) -> None:
     """All current Ert parameter configs can be adapted to parameter metadata."""
