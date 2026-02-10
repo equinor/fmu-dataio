@@ -52,7 +52,7 @@ def test_fmuprovider_no_model_info_use_case(fmurun_w_casemetadata: Path) -> None
     myfmu = FmuProvider(
         runcontext,
         model=None,
-        workflow=WORKFLOW,
+        workflow=Workflow.model_validate(WORKFLOW),
     )
 
     meta = myfmu.get_metadata()
@@ -113,7 +113,7 @@ def test_fmuprovider_arbitrary_iter_name(
     assert myfmu._realization_id == 0
     assert myfmu._ensemble_name == "pred"
     # iter_id should have the default value
-    assert myfmu._ensemble_id == 0
+    assert myfmu._iteration_number == 0
     meta = myfmu.get_metadata()
     assert str(meta.case.uuid) == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
 
@@ -133,7 +133,7 @@ def test_fmuprovider_get_real_and_iter_from_env(
     assert myfmu._realization_name == "realization-1"
     assert myfmu._realization_id == 1
     assert myfmu._ensemble_name == "iter-0"
-    assert myfmu._ensemble_id == 0
+    assert myfmu._iteration_number == 0
 
 
 def test_fmuprovider_no_iter_folder(
@@ -152,7 +152,7 @@ def test_fmuprovider_no_iter_folder(
     assert myfmu._realization_name == "realization-1"
     assert myfmu._realization_id == 1
     assert myfmu._ensemble_name == "iter-0"
-    assert myfmu._ensemble_id == 0
+    assert myfmu._iteration_number == 0
 
     # also check that it is stored correctly in the metadata
     meta = myfmu.get_metadata()
@@ -402,7 +402,7 @@ def test_fmuprovider_workflow_reference(
     # test that workflow as a dict still gives valid results
     myfmu_meta = FmuProvider(
         runcontext,
-        workflow={"reference": "workflow as dict"},
+        workflow={"reference": "workflow as dict"},  # type: ignore[arg-type]
     ).get_metadata()
 
     assert myfmu_meta.workflow is not None
@@ -414,7 +414,7 @@ def test_fmuprovider_workflow_reference(
     with pytest.raises(pydantic.ValidationError):
         FmuProvider(
             runcontext,
-            workflow={"wrong": "workflow as dict"},
+            workflow={"wrong": "workflow as dict"},  # type: ignore[arg-type]
         ).get_metadata()
 
     # workflow input is other types - shall fail
@@ -423,7 +423,7 @@ def test_fmuprovider_workflow_reference(
     ):
         FmuProvider(
             runcontext,
-            workflow=123.4,
+            workflow=123.4,  # type: ignore[arg-type]
         ).get_metadata()
 
 
@@ -446,3 +446,43 @@ def test_ert_simulation_modes_one_to_one() -> None:
     dataio_known_modes = {mode.value for mode in ErtSimulationMode}
 
     assert ert_modes == dataio_known_modes
+
+
+def test_fmu_provider_ert_metadata_pre_simulation_case(fmurun_prehook: Path) -> None:
+    """Ert metadata is filled as expected under PRE_SIMULATION case context."""
+    runcontext = RunContext(
+        fmu_context=FMUContext.case, casepath_proposed=fmurun_prehook
+    )
+    fmu = FmuProvider(runcontext)
+    metadata = fmu.get_metadata()
+    assert metadata.ert is not None
+    assert metadata.ert.ensemble is not None
+    assert metadata.ensemble is None
+
+
+def test_fmu_provider_ert_metadata_pre_simulation_ensemble(
+    fmurun_prehook: Path,
+) -> None:
+    """Ert metadata is filled as expected under PRE_SIMULATION ensemble context."""
+    runcontext = RunContext(
+        fmu_context=FMUContext.ensemble, casepath_proposed=fmurun_prehook
+    )
+    fmu = FmuProvider(runcontext)
+    metadata = fmu.get_metadata()
+    assert metadata.ert is not None
+    assert metadata.ert.ensemble is not None
+    assert metadata.ensemble is not None
+    assert metadata.ert.ensemble.uuid != metadata.ensemble.uuid
+
+
+def test_fmu_provider_ert_metadata_realization_context(
+    fmurun_w_casemetadata: Path,
+) -> None:
+    """Ert metadata is filled as expected under realization context."""
+    runcontext = RunContext()
+    fmu = FmuProvider(runcontext)
+    metadata = fmu.get_metadata()
+    assert metadata.ert is not None
+    assert metadata.ert.ensemble is not None
+    assert metadata.ensemble is not None
+    assert metadata.ert.ensemble.uuid != metadata.ensemble.uuid

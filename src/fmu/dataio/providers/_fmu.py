@@ -89,7 +89,7 @@ class FmuProvider(Provider):
         self._fmu_context = runcontext.fmu_context
         self._env = FMUEnvironment.from_env()
         self._realization_id = self._env.realization_number or 0
-        self._ensemble_id = self._env.iteration_number or 0
+        self._iteration_number = self._env.iteration_number or 0
         self._ensemble_name = runcontext.paths.ensemble_name or ""
         self._realization_name = runcontext.paths.realization_name or ""
 
@@ -139,9 +139,18 @@ class FmuProvider(Provider):
         """Constructs the `Ert` Pydantic object for the `ert` metadata field."""
         if not self._env.experiment_id:
             return None
+
+        ensemble: fields.Ensemble | None = None
+        if self._env.ensemble_id:
+            ensemble = fields.Ensemble(
+                name=self._ensemble_name,
+                uuid=uuid.UUID(self._env.ensemble_id),
+                id=self._iteration_number,
+            )
         return fields.Ert(
             experiment=fields.Experiment(id=uuid.UUID(self._env.experiment_id)),
             simulation_mode=ErtSimulationMode(self._env.simulation_mode),
+            ensemble=ensemble,
         )
 
     def _get_restart_data_uuid(self) -> UUID | None:
@@ -201,12 +210,14 @@ class FmuProvider(Provider):
 
     def _get_ensemble_meta(self, ensemble_uuid: UUID) -> fields.Ensemble:
         return fields.Ensemble(
-            id=self._ensemble_id,
             name=self._ensemble_name,
             uuid=ensemble_uuid,
-            restart_from=self._get_restart_data_uuid()
-            if os.getenv(RESTART_PATH_ENVNAME)
-            else None,
+            restart_from=(
+                self._get_restart_data_uuid()
+                if os.getenv(RESTART_PATH_ENVNAME)
+                else None
+            ),
+            id=self._iteration_number,
         )
 
     def _get_fmucontext_meta(self) -> fields.Context:
