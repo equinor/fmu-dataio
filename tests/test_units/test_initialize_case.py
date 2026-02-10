@@ -12,6 +12,7 @@ from typing import Any
 
 import pytest
 import yaml
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from pydantic import ValidationError
 from pytest import MonkeyPatch
 
@@ -21,10 +22,11 @@ logger = logging.getLogger(__name__)
 
 
 def test_crease_case_metadata_barebone(drogon_global_config: dict[str, Any]) -> None:
-    icase = CreateCaseMetadata(config=drogon_global_config, rootfolder="", casename="")
-    assert icase.config == drogon_global_config
-    assert icase.rootfolder == ""
-    assert icase.casename == ""
+    case = CreateCaseMetadata(config=drogon_global_config, rootfolder="", casename="")
+    assert isinstance(case.config, GlobalConfiguration)
+    assert case.config == GlobalConfiguration.model_validate(drogon_global_config)
+    assert case.rootfolder == ""
+    assert case.casename == ""
 
 
 def test_create_case_metadata_post_init(
@@ -170,14 +172,14 @@ def test_create_case_metadata_export_with_norsk_alphabet(
     monkeypatch.chdir(fmurun)
     caseroot = fmurun.parent.parent
 
-    icase = CreateCaseMetadata(
+    drogon_global_config["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"
+    case = CreateCaseMetadata(
         config=drogon_global_config,
         rootfolder=caseroot,
         casename="MyCaseName_with_Æ",
     )
-    drogon_global_config["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"
 
-    fmu_case_yml = Path(icase.export())
+    fmu_case_yml = Path(case.export())
     assert fmu_case_yml.exists()
     assert fmu_case_yml == caseroot / "share/metadata/fmu_case.yml"
 
