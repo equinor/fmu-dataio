@@ -88,7 +88,7 @@ class FmuProvider(Provider):
         self._casemeta = runcontext.case_metadata
         self._fmu_context = runcontext.fmu_context
         self._env = FMUEnvironment.from_env()
-        self._realization_id = self._env.realization_number or 0
+        self._realization_number = self._env.realization_number or 0
         self._iteration_number = self._env.iteration_number or 0
         self._ensemble_name = runcontext.paths.ensemble_name or ""
         self._realization_name = runcontext.paths.realization_name or ""
@@ -197,13 +197,13 @@ class FmuProvider(Provider):
     def _get_ensemble_and_real_uuid(self, case_uuid: UUID) -> tuple[UUID, UUID]:
         ensemble_uuid = _utils.uuid_from_string(f"{case_uuid}{self._ensemble_name}")
         real_uuid = _utils.uuid_from_string(
-            f"{case_uuid}{ensemble_uuid}{self._realization_id}"
+            f"{case_uuid}{ensemble_uuid}{self._realization_number}"
         )
         return ensemble_uuid, real_uuid
 
     def _get_realization_meta(self, real_uuid: UUID) -> fields.Realization:
         return fields.Realization(
-            id=self._realization_id,
+            id=self._realization_number,
             name=self._realization_name,
             uuid=real_uuid,
         )
