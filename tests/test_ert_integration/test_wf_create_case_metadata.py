@@ -7,7 +7,7 @@ import os
 import pathlib
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, get_args
+from typing import TYPE_CHECKING, get_args
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -30,6 +30,7 @@ from fmu.datamodels.standard_results.ert_parameters import (
 from pytest import CaptureFixture, MonkeyPatch
 
 from fmu.dataio.scripts.create_case_metadata import (
+    CaseWorkflowConfig,
     ErtParameterMetadataAdapter,
     _genkw_to_metadata,
     export_ert_parameters,
@@ -102,6 +103,21 @@ def mock_ert_pred_runpaths(fmurun_prehook: Path) -> MagicMock:
     runpaths = MagicMock()
     runpaths.get_paths.return_value = [str(fmurun_prehook / "realization-0/pred-dg3")]
     return runpaths
+
+
+@pytest.fixture
+def workflow_config(
+    fmurun_prehook: Path,
+    mock_global_config_validated: GlobalConfiguration,
+) -> CaseWorkflowConfig:
+    """Create a mock CaseWorkflowConfig."""
+    return CaseWorkflowConfig(
+        casepath=fmurun_prehook,
+        ert_config_path=Path("../../fmuconfig/output/global_variables.yml"),
+        register_on_sumo=True,
+        verbosity="WARNING",
+        global_config=mock_global_config_validated,
+    )
 
 
 def parse_field_metadata(field: pa.Field) -> ErtParameterMetadata:
@@ -444,8 +460,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
     def capture_params(
         ensemble: ert.Ensemble,
         run_paths: ert.Runpaths,
-        casepath: Path,
-        global_config: dict[str, Any],
+        workflow_config: CaseWorkflowConfig,
     ) -> None:
         """Captures params from Ert run.
 
@@ -574,16 +589,15 @@ def test_distribution_models_one_to_one_with_ert() -> None:
 def test_export_ert_parameters(
     fmurun_prehook: Path,
     monkeypatch: MonkeyPatch,
-    mock_global_config_validated: GlobalConfiguration,
     mock_ert_ensemble: MagicMock,
     mock_ert_runpaths: MagicMock,
+    workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Export Ert parameters at ensemble level."""
     export_path = export_ert_parameters(
         ensemble=mock_ert_ensemble,
         run_paths=mock_ert_runpaths,
-        casepath=fmurun_prehook,
-        global_config=mock_global_config_validated,
+        workflow_config=workflow_config,
     )
 
     assert export_path.exists()
@@ -593,8 +607,8 @@ def test_export_ert_parameters(
 
 def test_export_ert_parameters_empty_scalars(
     fmurun_prehook: Path,
-    mock_global_config_validated: GlobalConfiguration,
     mock_ert_runpaths: MagicMock,
+    workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Empty scalars returns early."""
     ensemble = MagicMock()
@@ -603,8 +617,7 @@ def test_export_ert_parameters_empty_scalars(
     result = export_ert_parameters(
         ensemble=ensemble,
         run_paths=mock_ert_runpaths,
-        casepath=fmurun_prehook,
-        global_config=mock_global_config_validated,
+        workflow_config=workflow_config,
     )
 
     assert result == fmurun_prehook
@@ -613,16 +626,15 @@ def test_export_ert_parameters_empty_scalars(
 def test_export_ert_parameters_prediction_ensemble(
     fmurun_prehook: Path,
     monkeypatch: MonkeyPatch,
-    mock_global_config_validated: GlobalConfiguration,
     mock_ert_ensemble: MagicMock,
     mock_ert_pred_runpaths: MagicMock,
+    workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Export with a prediction ensemble name."""
     export_path = export_ert_parameters(
         ensemble=mock_ert_ensemble,
         run_paths=mock_ert_pred_runpaths,
-        casepath=fmurun_prehook,
-        global_config=mock_global_config_validated,
+        workflow_config=workflow_config,
     )
 
     assert export_path.exists()
@@ -632,9 +644,9 @@ def test_export_ert_parameters_prediction_ensemble(
 def test_export_ert_parameters_subset_realizations(
     fmurun_prehook: Path,
     monkeypatch: MonkeyPatch,
-    mock_global_config_validated: GlobalConfiguration,
     mock_ert_ensemble: MagicMock,
     mock_ert_runpaths: MagicMock,
+    workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Export with only a subset of realizations."""
     scalars_df = pl.DataFrame(
@@ -650,8 +662,7 @@ def test_export_ert_parameters_subset_realizations(
     export_path = export_ert_parameters(
         ensemble=mock_ert_ensemble,
         run_paths=mock_ert_runpaths,
-        casepath=fmurun_prehook,
-        global_config=mock_global_config_validated,
+        workflow_config=workflow_config,
     )
 
     assert export_path.exists()
@@ -662,16 +673,15 @@ def test_export_ert_parameters_subset_realizations(
 
 def test_export_ert_parameters_schema_columns(
     fmurun_prehook: Path,
-    mock_global_config_validated: GlobalConfiguration,
     mock_ert_ensemble: MagicMock,
     mock_ert_runpaths: MagicMock,
+    workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Exported parquet has expected columns with correct types."""
     export_path = export_ert_parameters(
         ensemble=mock_ert_ensemble,
         run_paths=mock_ert_runpaths,
-        casepath=fmurun_prehook,
-        global_config=mock_global_config_validated,
+        workflow_config=workflow_config,
     )
 
     schema = pq.read_schema(export_path)
@@ -690,8 +700,8 @@ def test_export_ert_parameters_schema_columns(
 
 def test_export_ert_parameters_missing_config(
     fmurun_prehook: Path,
-    mock_global_config_validated: GlobalConfiguration,
     mock_ert_runpaths: MagicMock,
+    workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Parameters without config in parameter_configuration are skipped."""
     ensemble = MagicMock()
@@ -710,8 +720,7 @@ def test_export_ert_parameters_missing_config(
     export_path = export_ert_parameters(
         ensemble=ensemble,
         run_paths=mock_ert_runpaths,
-        casepath=fmurun_prehook,
-        global_config=mock_global_config_validated,
+        workflow_config=workflow_config,
     )
 
     schema = pq.read_schema(export_path)
@@ -720,8 +729,8 @@ def test_export_ert_parameters_missing_config(
 
 def test_export_ert_parameters_non_genkw_config_skipped(
     fmurun_prehook: Path,
-    mock_global_config_validated: GlobalConfiguration,
     mock_ert_runpaths: MagicMock,
+    workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Non-GenKwConfig parameters are skipped."""
     ensemble = MagicMock()
@@ -743,8 +752,7 @@ def test_export_ert_parameters_non_genkw_config_skipped(
     export_path = export_ert_parameters(
         ensemble=ensemble,
         run_paths=mock_ert_runpaths,
-        casepath=fmurun_prehook,
-        global_config=mock_global_config_validated,
+        workflow_config=workflow_config,
     )
 
     schema = pq.read_schema(export_path)

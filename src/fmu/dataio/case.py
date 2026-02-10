@@ -5,13 +5,12 @@ import getpass
 import uuid
 import warnings
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
 from pydantic import ValidationError
 
 from fmu.dataio.version import __version__
 from fmu.datamodels.common.access import Access
-from fmu.datamodels.common.masterdata import Masterdata
 from fmu.datamodels.common.tracklog import Tracklog, User
 from fmu.datamodels.fmu_results import enums, fields, global_configuration
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
@@ -48,13 +47,25 @@ class CreateCaseMetadata:
 
     def __init__(
         self,
-        config: dict,
+        config: global_configuration.GlobalConfiguration | dict[str, Any],
         rootfolder: str | Path,
         casename: str,
         description: str | list | None = None,  # deprecated
     ) -> None:
         """Initialize the CreateCaseMetadata class."""
-        self.config = config
+
+        # TODO: Receive only validated config
+        if isinstance(config, dict):
+            try:
+                self.config = global_configuration.GlobalConfiguration.model_validate(
+                    config
+                )
+            except ValidationError as e:
+                global_configuration.validation_error_warning(e)
+                raise
+        else:
+            self.config = config
+
         self.rootfolder = rootfolder
         self.casename = casename
 
@@ -67,13 +78,6 @@ class CreateCaseMetadata:
         self._casepath = Path(self.rootfolder)
         self._metafile = self._casepath / "share/metadata/fmu_case.yml"
         self._metadata: dict = {}
-
-        # For this class, the global config must be valid; hence error if not
-        try:
-            global_configuration.GlobalConfiguration.model_validate(self.config)
-        except ValidationError as e:
-            global_configuration.validation_error_warning(e)
-            raise
         logger.info("Ran __init__ for CreateCaseMetadata")
 
     def _establish_metadata_files(self) -> bool:
@@ -127,12 +131,10 @@ class CreateCaseMetadata:
 
         self._metadata = CaseMetadata(  # type: ignore[call-arg]
             class_=enums.FMUResultsMetadataClass.case,
-            masterdata=Masterdata.model_validate(self.config["masterdata"]),
-            access=Access.model_validate(self.config["access"]),
+            masterdata=self.config.masterdata,
+            access=Access.model_validate(self.config.access.model_dump()),
             fmu=fields.FMUBase(
-                model=fields.Model.model_validate(
-                    self.config["model"],
-                ),
+                model=self.config.model,
                 case=fields.Case(
                     name=self.casename,
                     uuid=self._case_uuid(),
