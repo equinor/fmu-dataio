@@ -237,7 +237,10 @@ def test_preprocessed_surface_fmucontext_not_case(monkeypatch: MonkeyPatch) -> N
 
     # error should be raised when running on forward_model in FMU
     set_ert_env_forward(monkeypatch)
-    with pytest.raises(RuntimeError, match="Only possible to run re-export"):
+    with (
+        pytest.warns(UserWarning, match="Could not detect the case metadata"),
+        pytest.raises(RuntimeError, match="Only possible to run re-export"),
+    ):
         dataio.ExportPreprocessedData(casepath="dummy")
 
 

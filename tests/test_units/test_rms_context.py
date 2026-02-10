@@ -759,11 +759,12 @@ def test_gridproperty_export_with_geometry_lacking_metadata(
     monkeypatch.chdir(tmp_path)
 
     # use an invalid config to export the grid without metadata
-    grid_output = dataio.ExportData(
-        config={},
-        content="depth",
-        name="MyGrid",
-    ).export(grid)
+    with pytest.warns(UserWarning, match="Global configuration was not provided"):
+        grid_output = dataio.ExportData(
+            config={},
+            content="depth",
+            name="MyGrid",
+        ).export(grid)
 
     expected_path = tmp_path / "share/results/grids/mygrid.roff"
     expected_metadata_path = tmp_path / "share/results/grids/.mygrid.roff.yml"
@@ -784,13 +785,14 @@ def test_gridproperty_export_with_geometry_lacking_metadata(
         ).export(gridproperty)
 
     # with invalid config the export works but produces no metadata
-    prop_output = dataio.ExportData(
-        config={},
-        content="property",
-        content_metadata={"is_discrete": False},
-        name="MyProperty",
-        geometry=grid_output,
-    ).export(gridproperty)
+    with pytest.warns(UserWarning, match="Global configuration was not provided"):
+        prop_output = dataio.ExportData(
+            config={},
+            content="property",
+            content_metadata={"is_discrete": False},
+            name="MyProperty",
+            geometry=grid_output,
+        ).export(gridproperty)
 
     expected_path = tmp_path / "share/results/grids/myproperty.roff"
     expected_metadata_path = tmp_path / "share/results/grids/.myproperty.roff.yml"

@@ -4,6 +4,7 @@ from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
 
+import numpy as np
 import pandas as pd
 import xtgeo
 from pandas import DataFrame
@@ -211,7 +212,7 @@ def test_save_realization_for_tabular(monkeypatch: MonkeyPatch, tmp_path: Path) 
             assert "FLUID,ZONE,REGION,GIIP" in content
 
 
-def test_save_realization_for_ploygons(
+def test_save_realization_for_polygons(
     monkeypatch: MonkeyPatch, tmp_path: Path
 ) -> None:
     monkeypatch.chdir(tmp_path)
@@ -276,11 +277,13 @@ def test_save_realization_for_surfaces(
 ) -> None:
     monkeypatch.chdir(tmp_path)
 
+    vals = np.zeros(2 * 2)
     surface = xtgeo.RegularSurface(
-        ncol=1,
-        nrow=1,
+        ncol=2,
+        nrow=2,
         xinc=0.319,
         yinc=0.211,
+        values=vals,
     )
 
     case_name_mock = "test_case_surfaces"

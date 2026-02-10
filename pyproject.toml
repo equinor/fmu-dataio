@@ -131,6 +131,12 @@ filterwarnings = [
     "ignore:Providing input settings through environment variables is deprecated:FutureWarning",
     # Ignore mutation deprecation warnings (tested in test_dataio.py::test_mutation_*)
     "ignore:Mutating ExportData\\..* after initialization is deprecated:FutureWarning",
+    # Ignore experimental loaders
+    "ignore:load_.* is experimental:UserWarning",
+    # Ignore importlib numpy size incompatibility warning
+    # https://github.com/scikit-learn-contrib/hdbscan/issues/457#issuecomment-773671043
+    # https://numpy.org/doc/stable/release/1.20.0-notes.html#size-of-np-ndarray-and-np-void-changed
+    "ignore:numpy.ndarray size changed:RuntimeWarning",
 ]
 
 [tool.coverage.run]
